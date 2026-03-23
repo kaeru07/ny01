@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* スムーズなフォントレンダリング */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* フォーカスリングをキーボード操作時のみ表示 */
+:focus:not(:focus-visible) {
+  outline: none;
+}
