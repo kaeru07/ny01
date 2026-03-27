@@ -1,4 +1,6 @@
 import { PaperItem } from "./types";
+import { normalizeUrl } from "./normalizeUrl";
+import { translateBatch } from "./translate";
 
 const ARXIV_CATEGORIES = ["cs.AI", "cs.LG", "cs.CL"];
 
@@ -50,13 +52,15 @@ async function fetchArxivRss(category: string): Promise<PaperItem[]> {
       const arxivId = parseArxivId(link);
 
       if (!title || !link) continue;
+      const url = normalizeUrl(link);
+      if (!url) continue; // 無効URLはスキップ
 
       items.push({
         id: `arxiv-${arxivId || encodeURIComponent(title).slice(0, 40)}`,
         title,
         summary: description.replace(/<[^>]+>/g, "").trim(),
         authors: parseAuthors(creator),
-        url: link,
+        url,
         publishedAt: pubDate ? new Date(pubDate).toISOString() : new Date().toISOString(),
         arxivId: arxivId || undefined,
       });
@@ -87,10 +91,23 @@ export async function fetchPapers(): Promise<PaperItem[]> {
     }
   }
 
-  // 新しい順にソート
+  // 新しい順にソートして15件に絞る
   allPapers.sort(
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   );
+  const top15 = allPapers.slice(0, 15);
 
-  return allPapers.slice(0, 30); // 最大30件
+  // タイトルと要約を一括翻訳
+  const titles = top15.map((p) => p.title);
+  const summaries = top15.map((p) => p.summary);
+  const [translatedTitles, translatedSummaries] = await Promise.all([
+    translateBatch(titles),
+    translateBatch(summaries),
+  ]);
+
+  return top15.map((paper, i) => ({
+    ...paper,
+    title: translatedTitles[i] ?? paper.title,
+    summary: translatedSummaries[i] ?? paper.summary,
+  }));
 }

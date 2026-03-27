@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { fetchAllNews } from "@/lib/fetchNews";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { formatRelativeTime } from "@/lib/utils";
+import { normalizeUrl } from "@/lib/normalizeUrl";
 
 interface Props {
   params: { id: string };
@@ -14,6 +15,8 @@ export default async function NewsDetailPage({ params }: Props) {
   const item = items.find((n) => n.id === id);
 
   if (!item) notFound();
+
+  const validUrl = normalizeUrl(item.url);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -69,9 +72,9 @@ export default async function NewsDetailPage({ params }: Props) {
           </div>
 
           {/* 元記事リンク */}
-          {item.url ? (
+          {validUrl ? (
             <a
-              href={item.url}
+              href={validUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="block w-full text-center bg-gray-900 text-white text-sm font-semibold py-3 rounded-xl active:bg-gray-700 transition-colors"
