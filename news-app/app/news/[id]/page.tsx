@@ -69,14 +69,20 @@ export default async function NewsDetailPage({ params }: Props) {
           </div>
 
           {/* 元記事リンク */}
-          <a
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block w-full text-center bg-gray-900 text-white text-sm font-semibold py-3 rounded-xl active:bg-gray-700 transition-colors"
-          >
-            元記事を読む →
-          </a>
+          {item.url ? (
+            <a
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full text-center bg-gray-900 text-white text-sm font-semibold py-3 rounded-xl active:bg-gray-700 transition-colors"
+            >
+              元記事を読む →
+            </a>
+          ) : (
+            <div className="block w-full text-center bg-gray-300 text-gray-500 text-sm font-semibold py-3 rounded-xl cursor-not-allowed">
+              リンクなし
+            </div>
+          )}
         </article>
 
         {/* 将来の信頼性評価プレースホルダー */}

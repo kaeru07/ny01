@@ -1,6 +1,6 @@
 # プロジェクト状態
 
-## 現在状態: ✅ 最小版完成 / Vercelデプロイ可能
+## 現在状態: ✅ ニュースリンク不具合修正済み / Vercelデプロイ可能
 
 ## 完了作業
 - [x] secretary: フェーズ整理
@@ -11,6 +11,8 @@
 - [x] coder: 実装完了
 - [x] reviewer: TypeScriptエラーなし, ビルド成功
 - [x] deployer: next build ✅, vercel.json作成済み
+- [x] coder: ニュースリンク不具合修正 (2026-03-26)
+- [x] coder: 論文機能 arXiv RSS 実装 (2026-03-26)
 
 ## 実装済み機能
 - ホーム画面 (ニュース一覧)
@@ -19,7 +21,7 @@
 - 国内ニュース (NHK RSS)
 - 海外ニュース (モックデータ + AI要約表示)
 - ニュース詳細画面
-- 論文機能プレースホルダー
+- 論文一覧 (arXiv RSS: cs.AI / cs.LG / cs.CL、最大30件)
 - PWA対応 (manifest.json)
 
 ## ブロッカー

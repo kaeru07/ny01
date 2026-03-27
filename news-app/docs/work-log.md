@@ -53,3 +53,19 @@
 - vercel.json作成
 - .env.example作成
 - build確認
+
+## 2026-03-26
+
+### [coder] ニュースリンク不具合修正
+- `app/news/[id]/page.tsx`: `item.url` が空/未定義の場合にリンクを非活性表示するよう修正（従来は`href={undefined}`で壊れたリンクになっていた）
+- `lib/fetchNews.ts`: NHK/Zennのフォールバック URL を追加（`item.link` が空文字の場合に各サービスのトップページURLを使用）
+  - NHK: `https://www3.nhk.or.jp/news/`
+  - Zenn: `https://zenn.dev`
+- HackerNewsは既にフォールバック実装済みのため変更なし
+
+### [coder] 論文機能 arXiv RSS 実装
+- `lib/fetchPapers.ts` 新規作成: arXiv RSS (`cs.AI`, `cs.LG`, `cs.CL`) を並列フェッチ、Regexで XML パース、重複除去・新着順30件返却（APIキー不要、1時間キャッシュ）
+- `app/api/papers/route.ts`: モックデータから `fetchPapers()` に切り替え
+- `app/page.tsx`: `mockPapers` を `fetchPapers()` に差し替え、統計バーに論文件数を追加
+- `components/NewsList.tsx`: 「論文機能 開発中」バナーを除去し、実データ表示に変更
+- `next build` ✅

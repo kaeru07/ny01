@@ -2,6 +2,8 @@
 
 ## 優先順位 (高→低)
 
+### ~~1. 論文機能追加 (arXiv RSS, API不要)~~ ✅ 完了
+
 ### 1. Vercelデプロイ
 ```bash
 # Vercel CLIでデプロイ

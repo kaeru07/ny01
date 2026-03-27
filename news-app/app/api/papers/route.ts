@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
-import { mockPapers } from "@/lib/mockData";
+import { fetchPapers } from "@/lib/fetchPapers";
 
-// 将来: arXiv API / Semantic Scholar API を統合予定
+export const revalidate = 3600; // 1時間キャッシュ
+
 export async function GET() {
+  const items = await fetchPapers();
   return NextResponse.json({
-    items: mockPapers,
+    items,
     fetchedAt: new Date().toISOString(),
-    note: "論文機能は開発中です。将来的にarXivやSemantic Scholarと統合予定。",
   });
 }

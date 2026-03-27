@@ -95,7 +95,7 @@ export async function fetchNHKNews(limit = 5): Promise<NewsItem[]> {
       summary: item.description
         ? item.description.replace(/<[^>]+>/g, "").slice(0, 150)
         : "続きはリンク先でご確認ください。",
-      url: item.link,
+      url: item.link || "https://www3.nhk.or.jp/news/",
       source: "NHK",
       category: "domestic" as NewsCategory,
       publishedAt: new Date(item.pubDate).toISOString(),
@@ -116,7 +116,7 @@ export async function fetchZennTechNews(limit = 5): Promise<NewsItem[]> {
       summary: item.description
         ? item.description.replace(/<[^>]+>/g, "").slice(0, 150)
         : "Zennの技術記事です。",
-      url: item.link,
+      url: item.link || "https://zenn.dev",
       source: "Zenn",
       category: "tech" as NewsCategory,
       publishedAt: new Date(item.pubDate).toISOString(),
