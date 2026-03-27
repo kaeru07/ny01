@@ -19,8 +19,8 @@ import { useHistory } from '@/hooks/useHistory'
 import { QuizCategory, QuizQuestion } from '@/lib/types'
 
 const CATEGORIES: { id: QuizCategory; description: string }[] = [
-  { id: 'basic', description: '待ちの基本形を体系的に学ぶ' },
-  { id: 'kifu',  description: '天鳳・雀魂の上位局から出題' },
+  { id: 'kifu',  description: '天鳳・雀魂の上位局の捨て牌から推理する' },
+  { id: 'basic', description: '基本的な待ち形を捨て牌から読む練習' },
 ]
 
 // ─── Question card (shared between sections) ─────────────────────────────────
@@ -191,9 +191,9 @@ export default function HomePage() {
       {/* Header */}
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-lg mx-auto px-4 py-5">
-          <h1 className="text-xl font-extrabold text-gray-900">麻雀待ち牌クイズ</h1>
+          <h1 className="text-xl font-extrabold text-gray-900">麻雀待ち読みクイズ</h1>
           <p className="text-sm text-gray-500 mt-1">
-            上位層の牌譜を元にした、待ち牌を当てる学習アプリ
+            捨て牌・副露・リーチから相手の待ち牌を読む推理クイズ
           </p>
         </div>
       </header>

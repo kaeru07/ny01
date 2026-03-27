@@ -8,6 +8,12 @@ export interface Meld {
   tiles: TileStr[]
 }
 
+/** One discard entry: tile + whether it was drawn-and-discarded (ツモ切り) */
+export interface Discard {
+  tile: TileStr
+  tsumokiri: boolean // true = ツモ切り, false = 手出し
+}
+
 export type SourceType = 'tenhou' | 'mahjongsoul' | 'manual'
 export type Difficulty = 'beginner' | 'intermediate' | 'advanced'
 export type QuizCategory = 'basic' | 'kifu'
@@ -21,6 +27,23 @@ export interface SourceMeta {
   roundWind?: string // 場風 e.g., "東", "南"
 }
 
+/** Information visible to all players (河・鳴き・リーチ状態など) */
+export interface VisibleInfo {
+  discards: Discard[]        // 捨て牌（ツモ切り/手出し区別あり）
+  melds: Meld[]              // 副露（チー・ポン・カン）
+  riichiState: boolean       // リーチ宣言済みか
+  riichiTurn?: number        // リーチ宣言した巡目
+  turn: number               // 現在の巡目
+  doraIndicators: TileStr[]  // ドラ表示牌
+}
+
+/** Hidden information revealed only after answering */
+export interface QuizAnswer {
+  waits: TileStr[]      // 正解の待ち牌
+  hand: TileStr[]       // 実際の手牌（クローズ部分）
+  explanation: string   // 解説
+}
+
 export interface QuizQuestion {
   id: string
   title: string
@@ -29,18 +52,10 @@ export interface QuizQuestion {
   sourceUrl?: string
   sourceMeta?: SourceMeta
   rankTier?: string
-  // Board state
-  hand: TileStr[]           // 13 tiles (tenpai, closed portion)
-  discards: TileStr[]       // River tiles in order
-  melds: Meld[]             // Open melds (副露)
-  turn: number              // Draw/turn count
-  doraIndicators: TileStr[] // Dora indicator tile(s)
-  riichiState: boolean      // Is riichi declared?
-  // Quiz data
-  waits: TileStr[]          // Correct wait tiles (answer)
   difficulty: Difficulty
   tags: string[]
-  explanation: string
+  visibleInfo: VisibleInfo
+  answer: QuizAnswer
 }
 
 export interface QuizAttempt {

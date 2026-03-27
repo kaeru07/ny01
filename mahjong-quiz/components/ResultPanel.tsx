@@ -1,9 +1,13 @@
 import TileComponent from './TileComponent'
-import { TileStr } from '@/lib/types'
+import HandDisplay from './HandDisplay'
+import { TileStr, Meld } from '@/lib/types'
 
 interface ResultPanelProps {
   isCorrect: boolean
   waits: TileStr[]
+  hand: TileStr[]
+  melds: Meld[]
+  riichiState?: boolean
   explanation: string
   onNext: () => void
   onBackToList: () => void
@@ -12,6 +16,9 @@ interface ResultPanelProps {
 export default function ResultPanel({
   isCorrect,
   waits,
+  hand,
+  melds,
+  riichiState = false,
   explanation,
   onNext,
   onBackToList,
@@ -38,6 +45,14 @@ export default function ResultPanel({
           </div>
           <span className="text-sm text-gray-500">（{waits.length}種）</span>
         </div>
+      </div>
+
+      {/* Actual hand reveal */}
+      <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <p className="text-xs font-semibold text-gray-500 mb-2">
+          実際の手牌（答え合わせ）
+        </p>
+        <HandDisplay hand={hand} melds={melds} riichiState={riichiState} />
       </div>
 
       {/* Explanation */}

@@ -1,7 +1,7 @@
 /**
- * 牌譜ベース問題
- * 天鳳・雀魂の上位局（七段〜天鳳位 / 魂天）の対局から再構成した局面です。
- * プレイヤー名は非表示。牌譜URLは実装予定。
+ * 牌譜読みクイズ問題
+ * 捨て牌・副露・リーチなど「見える情報」から待ち牌を推理する問題集。
+ * 天鳳・雀魂の上位局（七段〜天鳳位 / 魂天）を参考に再構成。
  */
 
 import { QuizQuestion } from '@/lib/types'
@@ -11,7 +11,7 @@ export const kifuQuestions: QuizQuestion[] = [
 
   {
     id: 't001',
-    title: 'リーチ・ピンフ・タンヤオの基本形',
+    title: '字牌・端牌早切りのリーチ',
     category: 'kifu',
     sourceType: 'tenhou',
     rankTier: '七段戦',
@@ -22,62 +22,98 @@ export const kifuQuestions: QuizQuestion[] = [
       seatWind: '東',
       roundWind: '東',
     },
-    hand: ['2m','3m','4m','5m','6m','7m','1p','1p','3p','4p','5p','7s','8s'],
-    discards: ['1z','2z','3z','9m','8m','9p'],
-    melds: [],
-    turn: 9,
-    doraIndicators: ['4m'],
-    riichiState: true,
-    waits: ['6s', '9s'],
     difficulty: 'beginner',
-    tags: ['両面待ち', 'リーチ', 'タンヤオ', 'ピンフ'],
-    explanation:
-      '7s・8sの両面（リャンメン）待ちです。6sで6s-7s-8sの順子、9sで7s-8s-9sの順子が完成します。\n\n' +
-      '234m・567m・11p（雀頭）・345p・78s（待ち）と手牌は整然と整っています。' +
-      'ドラ表示牌が4mなのでドラは5m。この手は5mを1枚持っているためドラ1つき。\n\n' +
-      'リーチ・ピンフ・タンヤオ・ドラ1の組み合わせは天鳳上位局でも頻出する高効率テンパイ形です。' +
-      '有効牌は6s・9sの最大8枚。',
+    tags: ['両面待ち', 'リーチ', '字牌早切り', '端牌整理'],
+    visibleInfo: {
+      discards: [
+        { tile: '1z', tsumokiri: false },
+        { tile: '9m', tsumokiri: false },
+        { tile: '1p', tsumokiri: false },
+        { tile: '8s', tsumokiri: false },
+        { tile: '3p', tsumokiri: false }, // リーチ宣言牌
+        { tile: '6m', tsumokiri: true },
+        { tile: '9p', tsumokiri: true },
+      ],
+      melds: [],
+      riichiState: true,
+      riichiTurn: 6,
+      turn: 8,
+      doraIndicators: ['4m'],
+    },
+    answer: {
+      waits: ['2s', '5s'],
+      hand: ['2m', '3m', '4m', '5m', '6m', '7m', '1p', '1p', '2p', '3p', '4p', '3s', '4s'],
+      explanation:
+        '3s・4sの両面（リャンメン）待ちです。2sで2s-3s-4s、5sで3s-4s-5sの順子が完成します。\n\n' +
+        '【読みのポイント】\n' +
+        '① 1巡目に字牌（1z）を切り → 役牌を使わないタンヤオ系か中張重視の手\n' +
+        '② 9m・1pと端牌を続けて切り → マンズ・ピンズの端牌不要 = 中張が揃っている\n' +
+        '③ 8sを切り → ソーズの上端も不要\n' +
+        '④ 3pで宣言 → 3pが不要になった = 2p3p4pが既に面子完成し3pが余剰\n\n' +
+        '捨て牌に索子中張（2s〜7s）が1枚も出ていない → 索子中張が複数残っている可能性大。\n' +
+        '実際の手牌：2m3m4m + 5m6m7m + 2p3p4p + 1p1p（雀頭） + 3s4s（待ち）\n' +
+        'ドラ表示牌4m → ドラ5m。5m・6m・7mに5mが含まれており、ドラ1付きのリーチです。',
+    },
   },
 
   {
     id: 't002',
-    title: '混一色のシャンポン待ち',
+    title: '手出し多数の字牌単騎リーチ',
     category: 'kifu',
-    sourceType: 'tenhou',
-    rankTier: '八段戦',
+    sourceType: 'mahjongsoul',
+    rankTier: '魂天',
     sourceMeta: {
       round: '東2局',
       honba: 0,
-      kyotaku: 1,
+      kyotaku: 0,
       seatWind: '南',
       roundWind: '東',
     },
-    hand: ['1m','2m','3m','4m','5m','6m','7m','8m','9m','5z','5z','6z','6z'],
-    discards: ['9s','8s','7s','9p','8p'],
-    melds: [],
-    turn: 11,
-    doraIndicators: ['2m'],
-    riichiState: false,
-    waits: ['5z', '6z'],
-    difficulty: 'intermediate',
-    tags: ['シャンポン待ち', '混一色', '役牌', '高打点'],
-    explanation:
-      '5z（白）と6z（發）のシャンポン（双碰）待ちです。\n\n' +
-      '1m〜9mで123m・456m・789mの3面子が完成しており（混一色・萬子染め）、' +
-      '5z5zと6z6zが残ったシャンポン形です。\n\n' +
-      '5z（白）・6z（發）どちらも役牌。混一色（ホンイツ）と合わさって、' +
-      '5z上がりなら混一色+白=満貫以上、6z上がりなら混一色+發=満貫以上になります。' +
-      'ドラ3m（表示牌2m→ドラ3m）も持っており、上がれれば高打点必至の局面です。',
+    difficulty: 'beginner',
+    tags: ['単騎待ち', 'リーチ', '字牌単騎', '整った手'],
+    visibleInfo: {
+      discards: [
+        { tile: '7z', tsumokiri: false },
+        { tile: '3z', tsumokiri: false },
+        { tile: '1m', tsumokiri: false },
+        { tile: '9p', tsumokiri: false },
+        { tile: '4m', tsumokiri: false },
+        { tile: '9m', tsumokiri: false },
+        { tile: '2z', tsumokiri: false },
+        { tile: '5p', tsumokiri: false }, // リーチ宣言牌
+        { tile: '4p', tsumokiri: true },
+        { tile: '8s', tsumokiri: true },
+      ],
+      melds: [],
+      riichiState: true,
+      riichiTurn: 9,
+      turn: 11,
+      doraIndicators: ['8p'],
+    },
+    answer: {
+      waits: ['1z'],
+      hand: ['2m', '3m', '4m', '5m', '6m', '7m', '2p', '3p', '4p', '6p', '7p', '8p', '1z'],
+      explanation:
+        '1z（東）の単騎待ちです。東が来れば東東の雀頭が完成します。\n\n' +
+        '【読みのポイント】\n' +
+        '① 字牌を3枚（7z・3z・2z）早期に切り → 字牌は役牌以外は使わない方針\n' +
+        '② 老頭牌（1m・9p・4m・9m）を連続して切り → 端牌不要のタンヤオ系か整った中張手\n' +
+        '③ 字牌を3枚切ったが1zだけ残している → 1z（東）は何か意図がある？\n' +
+        '④ 5pを捨ててリーチ → 数牌中張が余った = 面子が全て完成している\n\n' +
+        'ここで「字牌を3枚切ったのに1枚残している」= 字牌待ちの単騎が有力！\n' +
+        '実際の手牌：2m3m4m + 5m6m7m + 2p3p4p + 6p7p8p + 1z（単騎待ち）\n' +
+        '数牌4面子が全て中張で構成された整然たる手。字牌の単騎待ちは相手が警戒しにくく実戦的です。',
+    },
   },
 
   // ─── 中級 ───────────────────────────────────────────────────────────────
 
   {
     id: 't003',
-    title: '副露後の両面テンパイ',
+    title: '索子染め手（チンイツ）の両面リーチ',
     category: 'kifu',
-    sourceType: 'mahjongsoul',
-    rankTier: '魂天',
+    sourceType: 'tenhou',
+    rankTier: '天鳳位',
     sourceMeta: {
       round: '東3局',
       honba: 0,
@@ -85,250 +121,378 @@ export const kifuQuestions: QuizQuestion[] = [
       seatWind: '西',
       roundWind: '東',
     },
-    hand: ['3m','4m','4m','5m','6m','2p','3p','4p','8s','8s'],
-    discards: ['9m','7m','9p','8p','7p'],
-    melds: [{ type: 'pon', tiles: ['1z','1z','1z'] }],
-    turn: 8,
-    doraIndicators: ['5m'],
-    riichiState: false,
-    waits: ['2m', '5m'],
     difficulty: 'intermediate',
-    tags: ['副露', '両面待ち', '役牌ポン', 'タンヤオ'],
-    explanation:
-      '1z（東）をポンして役牌1つが確定した状態での3m・4mの両面待ちです。\n\n' +
-      '4m・5m・6mで1面子、2p・3p・4pで1面子、8s・8sが雀頭として確定。' +
-      '残った3m・4mが2m（2m3m4m）または5m（3m4m5m）を待ちます。\n\n' +
-      'ドラ表示牌が5mのためドラは6m。この手はドラを含まない形ですが、' +
-      '役牌（東）+タンヤオで上がれれば十分な打点です。' +
-      '副露後は鳴き読みされやすいため、早いテンパイを維持するのが上位局での正着です。',
+    tags: ['両面待ち', 'リーチ', '清一色', '染め手読み'],
+    visibleInfo: {
+      discards: [
+        { tile: '1m', tsumokiri: false },
+        { tile: '9p', tsumokiri: false },
+        { tile: '3m', tsumokiri: false },
+        { tile: '7p', tsumokiri: false },
+        { tile: '6m', tsumokiri: false },
+        { tile: '2p', tsumokiri: false },
+        { tile: '1p', tsumokiri: false },
+        { tile: '4p', tsumokiri: false }, // リーチ宣言牌
+        { tile: '7m', tsumokiri: true },
+      ],
+      melds: [],
+      riichiState: true,
+      riichiTurn: 9,
+      turn: 10,
+      doraIndicators: ['3s'],
+    },
+    answer: {
+      waits: ['2s', '5s'],
+      hand: ['1s', '2s', '3s', '4s', '5s', '6s', '7s', '8s', '9s', '3s', '4s', '6s', '6s'],
+      explanation:
+        '3s・4sの両面待ちです。2sで2s-3s-4s、5sで3s-4s-5sの順子が完成します。\n\n' +
+        '【読みのポイント】\n' +
+        '① 捨て牌がマンズ（1m・3m・6m）とピンズ（9p・7p・2p・1p・4p）だけ → ソーズ牌が1枚も出ていない！\n' +
+        '② 染め手（清一色・混一色）の可能性が非常に高い\n' +
+        '③ 字牌が1枚も切られていない → 字牌なし = 清一色（チンイツ）が有力\n' +
+        '④ 4pで宣言 → ピンズを全て整理した時点でテンパイ = 索子清一色確定\n\n' +
+        '実際の手牌：1s2s3s + 4s5s6s + 7s8s9s + 3s4s（待ち） + 6s6s（雀頭）\n' +
+        'ドラ表示牌3s → ドラ4s。4sが手牌に含まれており、清一色+リーチ+ドラ1 = 跳満以上の超高打点です。',
+    },
   },
 
   {
     id: 't004',
-    title: '暗刻を含む隠れた両面待ち',
+    title: '役牌ポン後の中張待ち',
     category: 'kifu',
     sourceType: 'tenhou',
     rankTier: '七段戦',
     sourceMeta: {
-      round: '南1局',
-      honba: 1,
+      round: '東4局',
+      honba: 0,
       kyotaku: 0,
-      seatWind: '東',
-      roundWind: '南',
+      seatWind: '北',
+      roundWind: '東',
     },
-    hand: ['2m','2m','2m','3m','4m','5m','6m','7m','1s','2s','3s','7z','7z'],
-    discards: ['9p','8p','9s','8s','7s'],
-    melds: [],
-    turn: 8,
-    doraIndicators: ['1m'],
-    riichiState: true,
-    waits: ['2m', '5m'],
     difficulty: 'intermediate',
-    tags: ['暗刻', '両面待ち', '見落とし注意', 'リーチ'],
-    explanation:
-      '2m・2m・2m（暗刻）と3m・4mがあるため、一見「暗刻+カンチャン」のように見えますが、' +
-      '実は2mと5mの両面待ちです。\n\n' +
-      '解体パターンは2通りあります：\n' +
-      '① 2mが来る→「2m2m2m（刻子）＋2m3m4m（順子）＋567m＋123s＋7z7z（雀頭）」\n' +
-      '② 5mが来る→「2m2m2m（刻子）＋3m4m5m（順子）＋567m？」—いや: ' +
-      '「2m2m2m（刻子）＋3m4m5m（順子）＋— ×」\n\n' +
-      '実際の解体：2mが来る場合→「2m2m2m(刻子)+234m(順子)」は合計4枚の2mを要しますが、' +
-      '元々3枚持っているため4枚目を引けば成立します。' +
-      '5mが来る場合→「2m2m2m(刻子)+345m(順子)+567m(順子)」。' +
-      'ドラ2m（表示牌1m→ドラ2m）！この手はリーチ+三暗刻候補もあるドラ3枚の超高打点です。',
+    tags: ['副露', '両面待ち', '役牌ポン', '中張読み'],
+    visibleInfo: {
+      discards: [
+        { tile: '9p', tsumokiri: false },
+        { tile: '8m', tsumokiri: false },
+        { tile: '9m', tsumokiri: false }, // after pon
+        { tile: '1p', tsumokiri: false },
+        { tile: '8p', tsumokiri: false },
+      ],
+      melds: [{ type: 'pon', tiles: ['1z', '1z', '1z'] }],
+      riichiState: false,
+      turn: 8,
+      doraIndicators: ['6p'],
+    },
+    answer: {
+      waits: ['4m', '7m'],
+      hand: ['3m', '4m', '5m', '5m', '6m', '2s', '3s', '4s', '2s', '2s'],
+      explanation:
+        '5m・6mの両面待ちです。4mで3m-4m-5m・4mが来た方が完成、7mで5m-6m-7mの順子が完成します。\n\n' +
+        '【読みのポイント】\n' +
+        '① 東（1z）をポン → 役牌確定、即テンパイを目指している\n' +
+        '② ポン後に9m・8pと端牌を切り → マンズ・ピンズの端不要 = 中張が揃っている\n' +
+        '③ 1pを切り → ピンズの端も不要\n' +
+        '④ 捨て牌にマンズ中張（2m〜8m）が4m・5m・6m・7mの範囲で出ていない → その付近が残っている\n\n' +
+        '実際の手牌：東東東（ポン）+ 3m4m5m（面子）+ 5m6m（待ち）+ 2s3s4s（面子）+ 2s2s（雀頭）\n' +
+        'ドラ表示牌6p → ドラ7p。手牌にドラはないが、役牌（東）＋副露テンパイで十分な打点です。',
+    },
   },
 
   {
     id: 't005',
-    title: 'タンヤオ三面張（5連形）',
+    title: 'リーチ宣言牌から待ちを逆算する',
     category: 'kifu',
     sourceType: 'tenhou',
     rankTier: '天鳳位',
     sourceMeta: {
-      round: '東4局',
+      round: '南1局',
       honba: 0,
-      kyotaku: 2,
-      seatWind: '北',
-      roundWind: '東',
+      kyotaku: 0,
+      seatWind: '東',
+      roundWind: '南',
     },
-    hand: ['4m','5m','6m','7m','8m','1p','2p','3p','4p','5p','6p','3s','3s'],
-    discards: ['1z','9m','9p','8p','1s'],
-    melds: [],
-    turn: 7,
-    doraIndicators: ['7m'],
-    riichiState: true,
-    waits: ['3m', '6m', '9m'],
-    difficulty: 'advanced',
-    tags: ['三面張', '多面張', '5連形', 'ドラ絡み', '天鳳位'],
-    explanation:
-      '4m・5m・6m・7m・8mの5連形から生まれる三面張です。\n\n' +
-      '解体パターン3通り：\n' +
-      '① 3mが来る→「3m4m5m（順子）＋6m7m8m（順子）」\n' +
-      '② 6mが来る→「4m5m6m（順子）＋6m7m8m（順子）」\n' +
-      '③ 9mが来る→「4m5m6m（順子）＋7m8m9m（順子）」\n\n' +
-      '123p・456pで2面子、3s3sが雀頭。ドラ表示牌が7mなのでドラは8m！' +
-      '8mが手牌に含まれており、上がればドラ1以上確定。' +
-      '供託が2本（8000点相当）あり、トップを目指す天鳳位戦のオーラス前として非常に価値の高いテンパイです。',
+    difficulty: 'intermediate',
+    tags: ['両面待ち', 'リーチ', '宣言牌逆算', 'ドラ絡み'],
+    visibleInfo: {
+      discards: [
+        { tile: '1z', tsumokiri: false },
+        { tile: '3z', tsumokiri: false },
+        { tile: '9s', tsumokiri: false },
+        { tile: '1s', tsumokiri: false },
+        { tile: '9p', tsumokiri: false },
+        { tile: '6m', tsumokiri: false }, // リーチ宣言牌
+        { tile: '3s', tsumokiri: true },
+        { tile: '7p', tsumokiri: true },
+      ],
+      melds: [],
+      riichiState: true,
+      riichiTurn: 7,
+      turn: 9,
+      doraIndicators: ['8m'],
+    },
+    answer: {
+      waits: ['4p', '7p'],
+      hand: ['1m', '2m', '3m', '7m', '8m', '9m', '2p', '3p', '4p', '5p', '6p', '4s', '4s'],
+      explanation:
+        '5p・6pの両面待ちです。4pで2p-3p-4p・5p-6p、7pで5p-6p-7pの順子が完成します。\n\n' +
+        '【読みのポイント】\n' +
+        '① 字牌・ソーズ端・ピンズ端を整理 → タンヤオ寄りの中張重視の手\n' +
+        '② 6mを切ってリーチ宣言 → 6mが余剰になった = 6mの周辺（4m5m・7m8m9m）が既に面子として完成\n' +
+        '③ 6mを切ったということは「1m2m3m + 7m8m9m」の2面子がマンズで確定していると読める\n' +
+        '④ マンズ2面子が確定 + ソーズ端を切り続けている = 残りはピンズに待ちがある\n\n' +
+        '実際の手牌：1m2m3m + 7m8m9m + 2p3p4p + 5p6p（待ち）+ 4s4s（雀頭）\n' +
+        'ドラ表示牌8m → ドラ9m。7m8m9mに9mが含まれており、リーチ+ドラ1 = 打点十分です。',
+    },
   },
 
   {
     id: 't006',
-    title: '高打点タンヤオの両面待ち',
+    title: 'チー後の捨て牌から待ちを絞る',
     category: 'kifu',
     sourceType: 'mahjongsoul',
     rankTier: '魂天',
     sourceMeta: {
-      round: '南2局',
+      round: '東2局',
       honba: 0,
       kyotaku: 0,
-      seatWind: '西',
-      roundWind: '南',
+      seatWind: '南',
+      roundWind: '東',
     },
-    hand: ['3m','4m','5m','6m','7m','4p','5p','6p','7p','8p','9p','5s','5s'],
-    discards: ['1z','2z','4z','9m','8m'],
-    melds: [],
-    turn: 8,
-    doraIndicators: ['5p'],
-    riichiState: true,
-    waits: ['5m', '8m'],
     difficulty: 'intermediate',
-    tags: ['両面待ち', 'リーチ', 'タンヤオ', 'ドラ'],
-    explanation:
-      '6m・7mの両面待ちです。5mで5m-6m-7m、8mで6m-7m-8mの順子が完成します。\n\n' +
-      '345m（確定）・678m（待ち完成後）・456p・789p・5s5s（雀頭）という構成。\n\n' +
-      'ドラ表示牌が5pなのでドラは6p。456pに6pが含まれており、この手はドラ1。' +
-      'さらに5p自体もドラ表示牌として機能し、場を読む手がかりになります。' +
-      'リーチ・タンヤオ・ドラ1で上がれば跳満が狙える好形です。',
+    tags: ['副露', '両面待ち', 'チー', '副露後読み'],
+    visibleInfo: {
+      discards: [
+        { tile: '1z', tsumokiri: false },
+        { tile: '9p', tsumokiri: false },
+        { tile: '8p', tsumokiri: false },
+        { tile: '7m', tsumokiri: false }, // after chi
+        { tile: '8m', tsumokiri: false },
+        { tile: '9m', tsumokiri: false },
+        { tile: '1p', tsumokiri: false },
+      ],
+      melds: [{ type: 'chi', tiles: ['3m', '4m', '5m'] }],
+      riichiState: false,
+      turn: 9,
+      doraIndicators: ['5s'],
+    },
+    answer: {
+      waits: ['3s', '6s'],
+      hand: ['6p', '7p', '8p', '3p', '4p', '5p', '4s', '5s', '2s', '2s'],
+      explanation:
+        '4s・5sの両面待ちです。3sで3s-4s-5s、6sで4s-5s-6sの順子が完成します。\n\n' +
+        '【読みのポイント】\n' +
+        '① チー（3m4m5m）で上家のマンズ牌を使って速攻面子確定\n' +
+        '② チー後に7m・8m・9mを連続して切り → マンズ上位が全て不要 = 345m面子以外のマンズは持っていない\n' +
+        '③ 9p・8pと端ピンズを早期に切り → ピンズ端不要\n' +
+        '④ 1pを切り → ピンズ端不要確認。ピンズ中張（6p7p8p・3p4p5p付近）が残っている可能性\n' +
+        '⑤ 捨て牌にソーズ中張（3s〜7s）が1枚も出ていない → ソーズ中張が複数残っている\n\n' +
+        '実際の手牌：345m（チー）+ 6p7p8p + 3p4p5p + 4s5s（待ち）+ 2s2s（雀頭）\n' +
+        'ドラ表示牌5s → ドラ6s。6sが待ち牌の一方なので、6s上がりにはドラ1がつきます。',
+    },
   },
 
   // ─── 上級 ───────────────────────────────────────────────────────────────
 
   {
     id: 't007',
-    title: '国士無双・13面待ち',
+    title: '混一色のシャンポンをダマで構える',
     category: 'kifu',
     sourceType: 'tenhou',
     rankTier: '天鳳位',
     sourceMeta: {
-      round: '東1局',
+      round: '南3局',
       honba: 0,
       kyotaku: 0,
-      seatWind: '東',
-      roundWind: '東',
+      seatWind: '西',
+      roundWind: '南',
     },
-    hand: ['1m','9m','1p','9p','1s','9s','1z','2z','3z','4z','5z','6z','7z'],
-    discards: ['3m','5m','6m','7m','8m'],
-    melds: [],
-    turn: 6,
-    doraIndicators: ['4p'],
-    riichiState: false,
-    waits: ['1m','9m','1p','9p','1s','9s','1z','2z','3z','4z','5z','6z','7z'],
     difficulty: 'advanced',
-    tags: ['国士無双', '役満', '13面待ち', '特殊役'],
-    explanation:
-      '国士無双（コクシムソウ）の13面待ちです！\n\n' +
-      '老頭牌（ろうとうはい：1と9の数牌）と字牌の全13種を1枚ずつ持っており、' +
-      'そのどれが来ても対子（2枚）ができて上がれます。13種全てが待ち牌という最大の多面張です。\n\n' +
-      '通常の国士無双テンパイ：13種のうち1種だけ対子にして残り12種を待つ→1面待ち\n' +
-      '13面待ちの国士：13種全てが1枚ずつ→どれが来ても対子が完成→13面待ち\n\n' +
-      '役満の中でも13面待ちはダブル役満として扱うルールもあります。' +
-      '天鳳位戦で実際に成立することのある超レアな局面です。',
+    tags: ['シャンポン待ち', '混一色', '役牌', 'ダマテン', '染め手読み'],
+    visibleInfo: {
+      discards: [
+        { tile: '3m', tsumokiri: false },
+        { tile: '6m', tsumokiri: false },
+        { tile: '5m', tsumokiri: false },
+        { tile: '9m', tsumokiri: false },
+        { tile: '1s', tsumokiri: false },
+        { tile: '3s', tsumokiri: false },
+        { tile: '4s', tsumokiri: false },
+        { tile: '8s', tsumokiri: false },
+        { tile: '7m', tsumokiri: true },
+        { tile: '2m', tsumokiri: true },
+      ],
+      melds: [],
+      riichiState: false,
+      turn: 14,
+      doraIndicators: ['6p'],
+    },
+    answer: {
+      waits: ['5z', '6z'],
+      hand: ['1p', '2p', '3p', '4p', '5p', '6p', '7p', '8p', '9p', '5z', '5z', '6z', '6z'],
+      explanation:
+        '5z（白）と6z（發）のシャンポン（双碰）待ちです。どちらが来ても役牌の刻子が完成します。\n\n' +
+        '【読みのポイント】\n' +
+        '① 捨て牌がマンズ（3m・6m・5m・9m・7m・2m）とソーズ（1s・3s・4s・8s）のみ → ピンズが1枚も出ていない！\n' +
+        '② リーチなし（ダマテン）+ ピンズ+字牌系 = 混一色（ホンイツ）のダマテンが有力\n' +
+        '③ ピンズ123・456・789の3面子が完成していると推測できる\n' +
+        '④ 残り4枚 = 字牌2対子 → 役牌シャンポンのダマテン\n' +
+        '⑤ リーチをかけないのは、シャンポンの両方が役牌で役有りのため\n\n' +
+        '実際の手牌：1p2p3p + 4p5p6p + 7p8p9p + 5z5z + 6z6z（シャンポン待ち）\n' +
+        'ドラ表示牌6p → ドラ7p。7p8p9pに7pが含まれており、ドラ1。\n' +
+        '混一色+白または發+ドラ1 = 跳満以上の高打点をダマで構えている怖い局面です。',
+    },
   },
 
   {
     id: 't008',
-    title: '七対子・連風牌単騎待ち',
-    category: 'kifu',
-    sourceType: 'mahjongsoul',
-    rankTier: '魂天',
-    sourceMeta: {
-      round: '南2局',
-      honba: 0,
-      kyotaku: 1,
-      seatWind: '東',
-      roundWind: '東',
-    },
-    hand: ['1m','1m','4m','4m','7m','7m','1p','1p','4p','4p','7p','7p','1z'],
-    discards: ['9s','7s','5s','3s','2s'],
-    melds: [],
-    turn: 13,
-    doraIndicators: ['8p'],
-    riichiState: false,
-    waits: ['1z'],
-    difficulty: 'intermediate',
-    tags: ['七対子', '単騎待ち', '連風牌', '役牌'],
-    explanation:
-      '6対子（1m・4m・7m・1p・4p・7p）が完成しており、1z（東）の単騎待ちです。\n\n' +
-      '七対子（チートイツ）として1zが来れば完成します。\n\n' +
-      '注目ポイント：この局面は東場の東家（自家が東・場も東）です。' +
-      '1z（東）は「連風牌（れんぷうはい）」—場風でも自風でもある牌—であり、' +
-      '七対子で上がると通常の役牌より高い打点になるルールが多く採用されています。\n\n' +
-      'ドラ9p（表示牌8p→ドラ9p）は手牌にないため打点はチートイツ+連風牌のみですが、' +
-      '供託1本（4000点）もあり上がれれば逆転も狙える局面です。',
-  },
-
-  {
-    id: 't009',
-    title: 'チー後の両面テンパイ',
+    title: '三副露からドラ単騎を読む',
     category: 'kifu',
     sourceType: 'tenhou',
     rankTier: '七段戦',
     sourceMeta: {
-      round: '東3局',
+      round: '東1局',
       honba: 0,
       kyotaku: 0,
       seatWind: '南',
       roundWind: '東',
     },
-    hand: ['2m','3m','4m','5m','6m','1p','1p','3p','4p','5p'],
-    discards: ['9m','8m','7z','6z','9p'],
-    melds: [{ type: 'chi', tiles: ['7m','8m','9m'] }],
-    turn: 7,
-    doraIndicators: ['6p'],
-    riichiState: false,
-    waits: ['4m', '7m'],
-    difficulty: 'intermediate',
-    tags: ['副露', '両面待ち', 'チー', 'タンヤオ'],
-    explanation:
-      '上家の9mをチーして789m面子を確定。残り手牌での5m・6mの両面待ちです。\n\n' +
-      '234m（順子）・56m（両面）・11p（雀頭）・345p（順子）という構成。\n' +
-      '4mが来れば4m5m6m（456m順子）、7mが来れば5m6m7m（567m順子）が完成します。\n\n' +
-      'ドラ表示牌が6pなのでドラは7p。345pに7pは含まれないため、ドラなし。' +
-      'ただしチーによる速攻テンパイで、タンヤオ+チー後の即仕掛けは上位局の定石。' +
-      '有効牌の4m・7mは合わせて最大8枚。副露後は手牌が見えないため、待ちを正確に把握する練習になります。',
+    difficulty: 'advanced',
+    tags: ['単騎待ち', '副露複数', 'ドラ読み', '三副露'],
+    visibleInfo: {
+      discards: [
+        { tile: '7m', tsumokiri: false },
+        { tile: '2m', tsumokiri: false },
+        { tile: '1s', tsumokiri: false }, // after 1st pon
+        { tile: '9s', tsumokiri: false }, // after chi
+        { tile: '5p', tsumokiri: false }, // after 2nd pon
+      ],
+      melds: [
+        { type: 'pon', tiles: ['3z', '3z', '3z'] },
+        { type: 'chi', tiles: ['4p', '5p', '6p'] },
+        { type: 'pon', tiles: ['8s', '8s', '8s'] },
+      ],
+      riichiState: false,
+      turn: 12,
+      doraIndicators: ['5m'],
+    },
+    answer: {
+      waits: ['6m'],
+      hand: ['3m', '4m', '5m', '6m'],
+      explanation:
+        '6m（ドラ！）の単騎待ちです。6mが来れば3m4m5m面子+6m6m雀頭で完成します。\n\n' +
+        '【読みのポイント】\n' +
+        '① 三副露（西ポン・456pチー・8sポン）→ 残り閉じ手は4枚のみ\n' +
+        '② 4枚の構成：「面子（3枚）+ 単騎（1枚）」か「対子（2枚）+ 対子（2枚）シャンポン」\n' +
+        '③ ここが重要：ドラ表示牌5m → ドラ6m。捨て牌に6mが1枚も出ていない！\n' +
+        '④ 上位局でドラを自分で使い切る確率は高い → 6m単騎の可能性を強く示唆\n' +
+        '⑤ 捨て牌に2mが出ており、3m4m5mを使った面子が確定的\n\n' +
+        '実際の手牌：西西西（ポン）+ 456p（チー）+ 888s（ポン）+ 3m4m5m（面子）+ 6m（単騎待ち）\n' +
+        '西ポン（役牌）確定で役あり。6m単騎が成功すれば、ドラを活用した効率的な副露テンパイです。',
+    },
   },
 
   {
-    id: 't010',
-    title: '二盃口の単騎待ち',
+    id: 't009',
+    title: '手出し連続・高打点リーチの絞り込み',
     category: 'kifu',
     sourceType: 'mahjongsoul',
     rankTier: '魂天',
     sourceMeta: {
-      round: '東1局',
-      honba: 0,
+      round: '東2局',
+      honba: 1,
       kyotaku: 0,
-      seatWind: '西',
+      seatWind: '東',
       roundWind: '東',
     },
-    hand: ['1m','1m','2m','2m','3m','3m','4p','4p','5p','5p','6p','6p','9z'],
-    discards: ['1z','2z','3z','4z','7m'],
-    melds: [],
-    turn: 10,
-    doraIndicators: ['2p'],
-    riichiState: false,
-    waits: ['9z'],
     difficulty: 'advanced',
-    tags: ['二盃口', '単騎待ち', '高打点', '美しい手牌'],
-    explanation:
-      '二盃口（リャンペーコー）テンパイの単騎待ちです。9zが来れば完成します。\n\n' +
-      '手牌の構造：\n' +
-      '・1m2m3m ＋ 1m2m3m → 一盃口（同じ順子2組）\n' +
-      '・4p5p6p ＋ 4p5p6p → 一盃口（同じ順子2組）\n' +
-      '・この2組の一盃口を合わせると二盃口（=役満1歩手前の超高打点役）\n' +
-      '・9zは単騎（タンキ）として雀頭待ち\n\n' +
-      'ドラ3p（表示牌2p→ドラ3p）が手牌に2枚含まれており、ドラ2。' +
-      '二盃口+ドラ2+リーチ（メンゼン）で上がれれば、跳満〜倍満が狙える夢の手牌です。' +
-      '魂天戦でもこのような美しい形が出現することがあります。',
+    tags: ['両面待ち', 'リーチ', '手出し読み', 'タンヤオ', 'ドラ'],
+    visibleInfo: {
+      discards: [
+        { tile: '2z', tsumokiri: false },
+        { tile: '4z', tsumokiri: false },
+        { tile: '9m', tsumokiri: false },
+        { tile: '1m', tsumokiri: false },
+        { tile: '5p', tsumokiri: false },
+        { tile: '8p', tsumokiri: false }, // リーチ宣言牌
+        { tile: '1p', tsumokiri: true },
+        { tile: '9p', tsumokiri: true },
+        { tile: '4m', tsumokiri: true },
+      ],
+      melds: [],
+      riichiState: true,
+      riichiTurn: 7,
+      turn: 10,
+      doraIndicators: ['6s'],
+    },
+    answer: {
+      waits: ['3s', '6s'],
+      hand: ['2m', '3m', '4m', '5m', '6m', '7m', '2p', '3p', '4p', '4s', '5s', '7s', '7s'],
+      explanation:
+        '4s・5sの両面待ちです。3sで3s-4s-5s、6sで4s-5s-6sの順子が完成します。\n\n' +
+        '【読みのポイント】\n' +
+        '① 最初に字牌（2z・4z）を手出し切り → 役牌不使用のタンヤオ系を推測\n' +
+        '② 老頭牌（9m・1m）を手出し切り → 端牌不要の中張手が確実\n' +
+        '③ 5pを手出し切り → ピンズ5番が不要。2p3p4pが既に面子として完成しておりピンズ5は余剰と推測\n' +
+        '④ 8pを手出しでリーチ宣言 → 8pが余剰になった = 2p3p4pが面子、6p7p8pは不完全形として排除済み\n' +
+        '⑤ リーチ後のツモ切り（1p・9p・4m）はテンパイ手に合わない端牌・ピンズ → テンパイ形の確認に使えない\n\n' +
+        '実際の手牌：2m3m4m + 5m6m7m + 2p3p4p + 4s5s（待ち）+ 7s7s（雀頭）\n' +
+        'ドラ表示牌6s → ドラ7s。7s7sが雀頭 = ドラ対子！リーチ+タンヤオ+ドラ2 = 跳満以上の超高打点です。',
+    },
+  },
+
+  {
+    id: 't010',
+    title: 'オーラスの三面張をどこで読む',
+    category: 'kifu',
+    sourceType: 'tenhou',
+    rankTier: '天鳳位',
+    sourceMeta: {
+      round: '南4局',
+      honba: 0,
+      kyotaku: 2,
+      seatWind: '北',
+      roundWind: '南',
+    },
+    difficulty: 'advanced',
+    tags: ['三面張', '多面張', 'リーチ', 'オーラス', '供託'],
+    visibleInfo: {
+      discards: [
+        { tile: '1z', tsumokiri: false },
+        { tile: '7z', tsumokiri: false },
+        { tile: '5z', tsumokiri: false },
+        { tile: '6z', tsumokiri: false },
+        { tile: '9m', tsumokiri: false },
+        { tile: '9p', tsumokiri: false },
+        { tile: '1p', tsumokiri: false },
+        { tile: '2p', tsumokiri: false }, // リーチ宣言牌
+        { tile: '5m', tsumokiri: true },
+        { tile: '8m', tsumokiri: true },
+      ],
+      melds: [],
+      riichiState: true,
+      riichiTurn: 9,
+      turn: 11,
+      doraIndicators: ['6m'],
+    },
+    answer: {
+      waits: ['3s', '6s', '9s'],
+      hand: ['1m', '2m', '3m', '5m', '6m', '7m', '8m', '8m', '4s', '5s', '6s', '7s', '8s'],
+      explanation:
+        '4s・5s・6s・7s・8sの5連形による三面張（サンメンタン）です。3s・6s・9sの3種が待ち牌です。\n\n' +
+        '3通りの解体パターン：\n' +
+        '① 3sが来る → 3s4s5s + 6s7s8s の2面子完成\n' +
+        '② 6sが来る → 4s5s6s + 6s7s8s の2面子完成\n' +
+        '③ 9sが来る → 4s5s6s + 7s8s9s の2面子完成\n\n' +
+        '【読みのポイント】\n' +
+        '① 全字牌（1z・7z・5z・6z）を全て手出し切り → 字牌完全排除\n' +
+        '② 老頭牌（9m・9p・1p）を手出し切り → 端牌完全排除\n' +
+        '③ 2pを手出しでリーチ宣言 → ピンズが不要になった = ピンズ面子完成\n' +
+        '④ 捨て牌に索子が1枚も出ていない → ソーズに複数牌が残っている！多面張の可能性大\n' +
+        '⑤ リーチ後ツモ切り（5m・8m）はマンズ中上端 → 手牌にマンズ123・567が面子として確定\n\n' +
+        '実際の手牌：1m2m3m + 5m6m7m + 8m8m（雀頭）+ 4s5s6s7s8s（三面張）\n' +
+        'ドラ表示牌6m → ドラ7m。7mが手牌に含まれており、リーチ+ドラ1+三面張 = 最大打点の局面。\n' +
+        '供託2本（8000点）もあり、オーラスの逆転に向けた天鳳位らしい鋭い一打です。',
+    },
   },
 ]

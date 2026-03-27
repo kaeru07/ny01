@@ -15,7 +15,6 @@ import { getNextQuestionId } from '@/lib/repository'
 import { getAllQuestionsSync } from '@/lib/repository'
 import { useQuiz } from '@/hooks/useQuiz'
 import { useHistory } from '@/hooks/useHistory'
-import HandDisplay from './HandDisplay'
 import BoardInfo from './BoardInfo'
 import AnswerPanel from './AnswerPanel'
 import ResultPanel from './ResultPanel'
@@ -56,6 +55,8 @@ export default function QuizGame({ question }: QuizGameProps) {
   function handleBackToList() {
     router.push('/')
   }
+
+  const { visibleInfo, answer } = question
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -103,6 +104,7 @@ export default function QuizGame({ question }: QuizGameProps) {
             <span className="text-[10px] text-gray-500">
               {question.sourceMeta.round}
               {question.sourceMeta.honba > 0 && `${question.sourceMeta.honba}本場`}
+              {question.sourceMeta.kyotaku > 0 && `・供託${question.sourceMeta.kyotaku}`}
               {question.sourceMeta.seatWind && `・${question.sourceMeta.seatWind}家`}
             </span>
           )}
@@ -125,55 +127,50 @@ export default function QuizGame({ question }: QuizGameProps) {
           </div>
         )}
 
-        {/* Board info */}
-        <BoardInfo
-          turn={question.turn}
-          doraIndicators={question.doraIndicators}
-          riichiState={question.riichiState}
-          discards={question.discards}
-        />
-
-        {/* Hand */}
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-xs font-semibold text-gray-500 mb-2">
-            手牌（13枚・テンパイ）
+        {/* Challenge prompt */}
+        <div className="bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-2">
+          <p className="text-sm font-semibold text-indigo-800">
+            この対局者の待ち牌を読んでください
           </p>
-          <HandDisplay
-            hand={question.hand}
-            melds={question.melds}
-            riichiState={question.riichiState}
-          />
+          <p className="text-xs text-indigo-600 mt-0.5">
+            手牌は非公開です。捨て牌・副露・リーチなどの情報から推理してください。
+          </p>
         </div>
+
+        {/* Board info: discards, melds, riichi, dora */}
+        <BoardInfo
+          turn={visibleInfo.turn}
+          doraIndicators={visibleInfo.doraIndicators}
+          riichiState={visibleInfo.riichiState}
+          riichiTurn={visibleInfo.riichiTurn}
+          discards={visibleInfo.discards}
+          melds={visibleInfo.melds}
+        />
 
         {/* Divider */}
         <div className="border-t border-gray-200" />
 
         {/* Quiz section */}
-        {phase === 'answering' ? (
-          <AnswerPanel
-            phase={phase}
-            selectedTiles={selectedTiles}
-            getTileAnswerState={getTileAnswerState}
-            onToggle={toggleTile}
-            onSubmit={submit}
+        <AnswerPanel
+          phase={phase}
+          selectedTiles={selectedTiles}
+          getTileAnswerState={getTileAnswerState}
+          onToggle={toggleTile}
+          onSubmit={submit}
+        />
+
+        {/* Result + hand reveal (after submission) */}
+        {phase === 'submitted' && (
+          <ResultPanel
+            isCorrect={isCorrect}
+            waits={answer.waits}
+            hand={answer.hand}
+            melds={visibleInfo.melds}
+            riichiState={visibleInfo.riichiState}
+            explanation={answer.explanation}
+            onNext={handleNext}
+            onBackToList={handleBackToList}
           />
-        ) : (
-          <>
-            <AnswerPanel
-              phase={phase}
-              selectedTiles={selectedTiles}
-              getTileAnswerState={getTileAnswerState}
-              onToggle={toggleTile}
-              onSubmit={submit}
-            />
-            <ResultPanel
-              isCorrect={isCorrect}
-              waits={question.waits}
-              explanation={question.explanation}
-              onNext={handleNext}
-              onBackToList={handleBackToList}
-            />
-          </>
         )}
 
         {/* Bottom spacer */}

@@ -23,7 +23,7 @@ export function useQuiz(question: QuizQuestion) {
   function submit() {
     if (selectedTiles.length === 0) return
     const ss = sortTiles(selectedTiles)
-    const sw = sortTiles(question.waits)
+    const sw = sortTiles(question.answer.waits)
     const correct =
       ss.length === sw.length && ss.every((t, i) => t === sw[i])
     setIsCorrect(correct)
@@ -31,7 +31,7 @@ export function useQuiz(question: QuizQuestion) {
   }
 
   function getTileAnswerState(tile: TileStr): TileAnswerState {
-    const isWait = question.waits.includes(tile)
+    const isWait = question.answer.waits.includes(tile)
     const isSelected = selectedTiles.includes(tile)
     if (phase === 'submitted') {
       if (isSelected && isWait) return 'hit'
