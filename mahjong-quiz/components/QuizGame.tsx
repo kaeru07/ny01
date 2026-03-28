@@ -15,7 +15,7 @@ import { getNextQuestionId } from '@/lib/repository'
 import { getAllQuestionsSync } from '@/lib/repository'
 import { useQuiz } from '@/hooks/useQuiz'
 import { useHistory } from '@/hooks/useHistory'
-import BoardInfo from './BoardInfo'
+import MahjongTable from './MahjongTable'
 import AnswerPanel from './AnswerPanel'
 import ResultPanel from './ResultPanel'
 
@@ -74,86 +74,79 @@ export default function QuizGame({ question }: QuizGameProps) {
   const { visibleInfo, answer } = question
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-950">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1">
+      <header className="bg-gray-900 border-b border-gray-800 sticky top-0 z-10">
+        <div className="max-w-lg mx-auto px-4 py-2.5 flex items-center justify-between">
+          <Link href="/" className="text-sm text-gray-400 hover:text-gray-200 flex items-center gap-1">
             ← 問題一覧
           </Link>
-          <span className="text-sm text-gray-500">
-            問題 {questionNumber} / {allQuestions.length}
-          </span>
+          <div className="flex items-center gap-2">
+            <span
+              className={`text-[10px] font-bold px-2 py-0.5 rounded border ${getDifficultyBadgeClass(
+                question.difficulty,
+              )}`}
+            >
+              {getDifficultyLabel(question.difficulty)}
+            </span>
+            <span className="text-xs text-gray-500">
+              {questionNumber} / {allQuestions.length}
+            </span>
+          </div>
         </div>
       </header>
 
-      <main className="max-w-lg mx-auto px-4 py-4 space-y-4">
-        {/* Title + Difficulty */}
-        <div className="flex items-start justify-between gap-2">
-          <h1 className="text-base font-bold text-gray-900 leading-snug">
+      <main className="max-w-lg mx-auto px-3 py-3 space-y-3">
+        {/* Title + meta row */}
+        <div className="space-y-1">
+          <h1 className="text-sm font-bold text-gray-100 leading-snug">
             {question.title}
           </h1>
-          <span
-            className={`shrink-0 text-xs font-bold px-2 py-0.5 rounded border ${getDifficultyBadgeClass(
-              question.difficulty,
-            )}`}
-          >
-            {getDifficultyLabel(question.difficulty)}
-          </span>
-        </div>
-
-        {/* Category + Source badges */}
-        <div className="flex flex-wrap gap-1.5 items-center">
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${getCategoryBadgeClass(question.category)}`}>
-            {getCategoryLabel(question.category)}
-          </span>
-          {question.sourceType !== 'manual' && (() => {
-            const { label, className } = getSourceTypeBadge(question.sourceType)
-            return (
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${className}`}>
-                {label}
-              </span>
-            )
-          })()}
-          {question.sourceMeta && (
-            <span className="text-[10px] text-gray-500">
-              {question.sourceMeta.round}
-              {question.sourceMeta.honba > 0 && `${question.sourceMeta.honba}本場`}
-              {question.sourceMeta.kyotaku > 0 && `・供託${question.sourceMeta.kyotaku}`}
-              {question.sourceMeta.seatWind && `・${question.sourceMeta.seatWind}家`}
+          <div className="flex flex-wrap gap-1 items-center">
+            <span className={`text-[10px] font-bold px-1.5 py-px rounded border ${getCategoryBadgeClass(question.category)}`}>
+              {getCategoryLabel(question.category)}
             </span>
-          )}
-          {question.rankTier && (
-            <span className="text-[10px] text-gray-400">{question.rankTier}</span>
-          )}
-        </div>
-
-        {/* Tags */}
-        {question.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
+            {question.sourceType !== 'manual' && (() => {
+              const { label, className } = getSourceTypeBadge(question.sourceType)
+              return (
+                <span className={`text-[10px] font-bold px-1.5 py-px rounded border ${className}`}>
+                  {label}
+                </span>
+              )
+            })()}
+            {question.sourceMeta && (
+              <span className="text-[10px] text-gray-500">
+                {question.sourceMeta.round}
+                {question.sourceMeta.honba > 0 && `${question.sourceMeta.honba}本場`}
+                {question.sourceMeta.kyotaku > 0 && `・供託${question.sourceMeta.kyotaku}`}
+              </span>
+            )}
+            {question.rankTier && (
+              <span className="text-[10px] text-gray-600">{question.rankTier}</span>
+            )}
             {question.tags.map((tag) => (
               <span
                 key={tag}
-                className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full border border-gray-200"
+                className="text-[10px] bg-gray-800 text-gray-400 px-1.5 py-px rounded-full border border-gray-700"
               >
                 {tag}
               </span>
             ))}
           </div>
-        )}
+        </div>
 
         {/* Challenge prompt */}
-        <div className="bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-2">
-          <p className="text-sm font-semibold text-indigo-800">
-            この対局者の待ち牌を読んでください
+        <div className="bg-indigo-950/60 border border-indigo-800/50 rounded-lg px-3 py-2">
+          <p className="text-xs font-semibold text-indigo-300">
+            この対局者（読みの対象）の待ち牌を読んでください
           </p>
-          <p className="text-xs text-indigo-600 mt-0.5">
-            手牌は非公開です。捨て牌・副露・リーチなどの情報から推理してください。
+          <p className="text-[10px] text-indigo-500 mt-0.5">
+            手牌は非公開。捨て牌・副露・リーチなどの情報から推理してください。
           </p>
         </div>
 
-        {/* Board info: discards, melds, riichi, dora, other players */}
-        <BoardInfo
+        {/* 2D table */}
+        <MahjongTable
           turn={visibleInfo.turn}
           doraIndicators={visibleInfo.doraIndicators}
           riichiState={visibleInfo.riichiState}
@@ -161,11 +154,14 @@ export default function QuizGame({ question }: QuizGameProps) {
           discards={visibleInfo.discards}
           melds={visibleInfo.melds}
           seatWind={question.sourceMeta?.seatWind}
+          roundWind={question.sourceMeta?.roundWind}
+          honba={question.sourceMeta?.honba}
+          kyotaku={question.sourceMeta?.kyotaku}
           players={visibleInfo.players}
         />
 
         {/* Divider */}
-        <div className="border-t border-gray-200" />
+        <div className="border-t border-gray-800" />
 
         {/* Quiz section */}
         <AnswerPanel
