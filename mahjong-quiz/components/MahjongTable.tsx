@@ -160,27 +160,34 @@ function SideZone({
   side: 'left' | 'right'
 }) {
   return (
-    <div className="flex flex-col items-center gap-1 bg-black/20 rounded-lg p-1.5">
+    <div className="flex flex-col gap-1 bg-black/20 rounded-lg p-1.5">
       {/* Seat label */}
       <span className="text-[9px] font-bold text-gray-400 leading-none">{label}</span>
 
-      {/* Riichi */}
-      {riichiState && (
-        <span className="text-[8px] font-bold text-red-400 leading-none">R</span>
-      )}
+      {/* Riichi badge */}
+      {riichiState && <RiichiBadge riichiTurn={riichiTurn} />}
 
-      {/* Tiles: 3 per row */}
-      <div className="flex-1 w-full flex items-center justify-center overflow-hidden">
-        <div className={side === 'left' ? '-rotate-90' : 'rotate-90'}>
-          <DiscardGrid discards={discards} riichiState={riichiState} tilesPerRow={3} dim />
-        </div>
+      {/* Discards: 3 per row, no rotation */}
+      <div className="flex-1 w-full overflow-hidden">
+        <DiscardGrid discards={discards} riichiState={riichiState} tilesPerRow={3} dim />
       </div>
 
-      {/* Meld count badge */}
+      {/* Melds */}
       {melds.length > 0 && (
-        <span className="text-[9px] text-amber-400 font-bold leading-none">
-          鳴×{melds.length}
-        </span>
+        <div className="flex flex-col gap-[3px] mt-0.5">
+          {melds.map((meld, i) => (
+            <div key={i} className="flex flex-col gap-[2px]">
+              <span className="text-[8px] font-bold text-amber-500 leading-none">
+                {getMeldTypeLabel(meld.type)}
+              </span>
+              <div className="flex flex-wrap gap-[2px]">
+                {meld.tiles.map((tile, j) => (
+                  <TileComponent key={j} tile={tile} size="xs" />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   )
@@ -319,9 +326,9 @@ export default function MahjongTable({
 }: MahjongTableProps) {
   const subjectLabel = seatWind ? `${seatWind}家` : '和了者'
 
-  const toimen   = players?.find((p) => p.seat === '対面')
-  const kamicha  = players?.find((p) => p.seat === '上家')
-  const shimocha = players?.find((p) => p.seat === '下家')
+  const toimen   = players?.find((p) => p.seat.startsWith('対面'))
+  const kamicha  = players?.find((p) => p.seat.startsWith('上家'))
+  const shimocha = players?.find((p) => p.seat.startsWith('下家'))
 
   // Only render multi-player layout if at least one other player has data
   const hasOtherPlayers = !!(toimen || kamicha || shimocha)

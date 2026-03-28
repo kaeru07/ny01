@@ -102,7 +102,7 @@ export default function QuizGame({ question }: QuizGameProps) {
           <h1 className="text-sm font-bold text-gray-100 leading-snug">
             {question.title}
           </h1>
-          <div className="flex flex-wrap gap-1 items-center">
+          <div className="flex flex-nowrap gap-1 items-center overflow-x-auto pb-0.5">
             <span className={`text-[10px] font-bold px-1.5 py-px rounded border ${getCategoryBadgeClass(question.category)}`}>
               {getCategoryLabel(question.category)}
             </span>
@@ -136,7 +136,7 @@ export default function QuizGame({ question }: QuizGameProps) {
         </div>
 
         {/* Challenge prompt */}
-        <div className="bg-indigo-950/60 border border-indigo-800/50 rounded-lg px-3 py-2">
+        <div className="bg-indigo-950/60 border border-indigo-800/50 rounded-lg px-3 py-1.5">
           <p className="text-xs font-semibold text-indigo-300">
             この対局者（読みの対象）の待ち牌を読んでください
           </p>
