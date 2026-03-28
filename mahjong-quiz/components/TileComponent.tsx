@@ -17,6 +17,14 @@ const SIZE_CLASSES: Record<TileSize, { outer: string; main: string; sub: string 
   lg: { outer: 'w-11 h-14',main: 'text-base',sub: 'text-xs'     },
 }
 
+// rotated時にwrapperが確保するスペース（縦横逆）
+const ROTATED_OUTER: Record<TileSize, string> = {
+  xs: 'w-9 h-7',
+  sm: 'w-11 h-8',
+  md: 'w-12 h-9',
+  lg: 'w-14 h-11',
+}
+
 const VARIANT_CLASSES: Record<TileVariant, string> = {
   default:  'bg-white border-gray-300 shadow-sm',
   selected: 'bg-blue-50 border-blue-500 border-2 shadow',
@@ -34,6 +42,7 @@ interface TileComponentProps {
   onClick?: () => void
   disabled?: boolean
   className?: string
+  rotated?: boolean
 }
 
 export default function TileComponent({
@@ -43,6 +52,7 @@ export default function TileComponent({
   onClick,
   disabled = false,
   className = '',
+  rotated = false,
 }: TileComponentProps) {
   const suit = getTileSuit(tile)
   const isJihai = suit === 'z'
@@ -52,7 +62,7 @@ export default function TileComponent({
 
   const Tag = onClick ? 'button' : 'div'
 
-  return (
+  const tileElement = (
     <Tag
       {...(onClick ? { onClick, disabled, type: 'button' as const } : {})}
       className={`
@@ -61,6 +71,7 @@ export default function TileComponent({
         border rounded flex flex-col items-center justify-center leading-none select-none
         ${onClick && !disabled ? 'cursor-pointer hover:brightness-95 active:scale-95 transition-transform' : ''}
         ${disabled ? 'opacity-40 cursor-not-allowed' : ''}
+        ${rotated ? 'rotate-90' : ''}
         ${className}
       `}
     >
@@ -80,4 +91,14 @@ export default function TileComponent({
       )}
     </Tag>
   )
+
+  if (rotated) {
+    return (
+      <div className={`${ROTATED_OUTER[size]} flex items-center justify-center shrink-0`}>
+        {tileElement}
+      </div>
+    )
+  }
+
+  return tileElement
 }

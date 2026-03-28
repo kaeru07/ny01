@@ -43,9 +43,9 @@ function DiscardGrid({
   }
 
   return (
-    <div className={`flex flex-col gap-[2px] ${dim ? 'opacity-80' : ''}`}>
+    <div className={`flex flex-col gap-[4px] ${dim ? 'opacity-80' : ''}`}>
       {Array.from({ length: Math.ceil(discards.length / tilesPerRow) }, (_, row) => (
-        <div key={row} className="flex gap-[2px]">
+        <div key={row} className="flex gap-[4px]">
           {discards.slice(row * tilesPerRow, (row + 1) * tilesPerRow).map((d, col) => {
             const i = row * tilesPerRow + col
             return (
@@ -53,12 +53,8 @@ function DiscardGrid({
                 key={i}
                 tile={d.tile}
                 size="xs"
-                className={[
-                  d.tsumokiri ? 'opacity-30' : '',
-                  i === riichiIdx ? 'ring-1 ring-red-400 ring-offset-0 rounded' : '',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
+                rotated={i === riichiIdx}
+                className={d.tsumokiri ? 'opacity-50' : ''}
               />
             )
           })}
@@ -103,6 +99,7 @@ function HorizontalZone({
   riichiState,
   riichiTurn,
   isSubject = false,
+  flipped = false,
 }: {
   label: string
   sublabel?: string
@@ -111,6 +108,7 @@ function HorizontalZone({
   riichiState: boolean
   riichiTurn?: number
   isSubject?: boolean
+  flipped?: boolean
 }) {
   return (
     <div
@@ -137,7 +135,9 @@ function HorizontalZone({
         {riichiState && <RiichiBadge riichiTurn={riichiTurn} />}
       </div>
 
-      <DiscardGrid discards={discards} riichiState={riichiState} tilesPerRow={6} dim={!isSubject} />
+      <div className={flipped ? 'rotate-180' : ''}>
+        <DiscardGrid discards={discards} riichiState={riichiState} tilesPerRow={6} dim={!isSubject} />
+      </div>
       <MeldBadges melds={melds} />
     </div>
   )
@@ -150,12 +150,14 @@ function SideZone({
   melds,
   riichiState,
   riichiTurn,
+  side,
 }: {
   label: string
   discards: Discard[]
   melds: Meld[]
   riichiState: boolean
   riichiTurn?: number
+  side: 'left' | 'right'
 }) {
   return (
     <div className="flex flex-col items-center gap-1 bg-black/20 rounded-lg p-1.5">
@@ -167,8 +169,12 @@ function SideZone({
         <span className="text-[8px] font-bold text-red-400 leading-none">R</span>
       )}
 
-      {/* Tiles: 3 per row (3 × 28px + 2 gaps = 88px ≤ 90px column) */}
-      <DiscardGrid discards={discards} riichiState={riichiState} tilesPerRow={3} dim />
+      {/* Tiles: 3 per row */}
+      <div className="flex-1 w-full flex items-center justify-center overflow-hidden">
+        <div className={side === 'left' ? '-rotate-90' : 'rotate-90'}>
+          <DiscardGrid discards={discards} riichiState={riichiState} tilesPerRow={3} dim />
+        </div>
+      </div>
 
       {/* Meld count badge */}
       {melds.length > 0 && (
@@ -191,6 +197,7 @@ function TableCenter({
   seatWind,
   honba,
   kyotaku,
+  remainingTiles,
 }: {
   turn: number
   doraIndicators: TileStr[]
@@ -198,6 +205,7 @@ function TableCenter({
   seatWind?: string
   honba?: number
   kyotaku?: number
+  remainingTiles?: number
 }) {
   const doraActual = doraIndicators.map(getDoraTile)
 
@@ -222,6 +230,9 @@ function TableCenter({
             {kyotaku != null && kyotaku > 0 && ` 供託${kyotaku}`}
           </span>
         ) : null}
+        {remainingTiles != null && (
+          <span className="text-[9px] text-gray-400">残り{remainingTiles}枚</span>
+        )}
       </div>
 
       {/* Dora */}
@@ -258,14 +269,14 @@ function DiscardLegend({ showRiichi }: { showRiichi: boolean }) {
         手出し
       </span>
       <span className="flex items-center gap-1 text-[9px] text-gray-400">
-        <span className="inline-block w-4 h-5 bg-white border border-gray-200 rounded text-center leading-5 text-[8px] opacity-30 shadow-sm">
+        <span className="inline-block w-4 h-5 bg-white border border-gray-200 rounded text-center leading-5 text-[8px] opacity-50 shadow-sm">
           牌
         </span>
         ツモ切り
       </span>
       {showRiichi && (
         <span className="flex items-center gap-1 text-[9px] text-gray-400">
-          <span className="inline-block w-4 h-5 bg-red-50 border border-red-400 rounded text-center leading-5 text-[8px]">
+          <span className="inline-block w-5 h-4 bg-white border border-red-400 rounded text-center leading-4 text-[8px]">
             牌
           </span>
           リーチ宣言
@@ -315,6 +326,13 @@ export default function MahjongTable({
   // Only render multi-player layout if at least one other player has data
   const hasOtherPlayers = !!(toimen || kamicha || shimocha)
 
+  const totalDiscarded =
+    discards.length +
+    (toimen?.discards.length ?? 0) +
+    (kamicha?.discards.length ?? 0) +
+    (shimocha?.discards.length ?? 0)
+  const remainingTiles = Math.max(0, 70 - totalDiscarded)
+
   return (
     <div className="space-y-1.5">
       {/* Legend */}
@@ -334,6 +352,7 @@ export default function MahjongTable({
                   melds={toimen.melds}
                   riichiState={toimen.riichiState}
                   riichiTurn={toimen.riichiTurn}
+                  flipped
                 />
               ) : (
                 <div className="h-8 bg-black/10 rounded-lg flex items-center justify-center">
@@ -347,7 +366,7 @@ export default function MahjongTable({
           <div className="flex gap-1.5 items-stretch">
             {/* LEFT: 上家 */}
             {hasOtherPlayers && (
-              <div className="w-[90px] shrink-0">
+              <div className="w-[100px] shrink-0">
                 {kamicha ? (
                   <SideZone
                     label="上家"
@@ -355,6 +374,7 @@ export default function MahjongTable({
                     melds={kamicha.melds}
                     riichiState={kamicha.riichiState}
                     riichiTurn={kamicha.riichiTurn}
+                    side="left"
                   />
                 ) : (
                   <div className="h-full bg-black/10 rounded-lg flex items-center justify-center min-h-[80px]">
@@ -373,12 +393,13 @@ export default function MahjongTable({
                 seatWind={seatWind}
                 honba={honba}
                 kyotaku={kyotaku}
+                remainingTiles={remainingTiles}
               />
             </div>
 
             {/* RIGHT: 下家 */}
             {hasOtherPlayers && (
-              <div className="w-[90px] shrink-0">
+              <div className="w-[100px] shrink-0">
                 {shimocha ? (
                   <SideZone
                     label="下家"
@@ -386,6 +407,7 @@ export default function MahjongTable({
                     melds={shimocha.melds}
                     riichiState={shimocha.riichiState}
                     riichiTurn={shimocha.riichiTurn}
+                    side="right"
                   />
                 ) : (
                   <div className="h-full bg-black/10 rounded-lg flex items-center justify-center min-h-[80px]">
