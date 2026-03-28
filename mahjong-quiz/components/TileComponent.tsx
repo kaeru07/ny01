@@ -8,7 +8,7 @@ import {
 import { TileStr } from '@/lib/types'
 
 export type TileSize = 'xs' | 'sm' | 'md' | 'lg'
-export type TileVariant = 'default' | 'selected' | 'hit' | 'miss' | 'missed' | 'dora'
+export type TileVariant = 'default' | 'selected' | 'hit' | 'miss' | 'missed' | 'dora' | 'tried'
 
 const SIZE_CLASSES: Record<TileSize, { outer: string; main: string; sub: string }> = {
   xs: { outer: 'w-7 h-9',  main: 'text-xs',  sub: 'text-[9px]'  },
@@ -24,6 +24,7 @@ const VARIANT_CLASSES: Record<TileVariant, string> = {
   miss:     'bg-red-50 border-red-400 border-2',
   missed:   'bg-amber-50 border-amber-400 border-2',
   dora:     'bg-yellow-50 border-yellow-400 border-2',
+  tried:    'bg-gray-50 border-gray-300 opacity-50',
 }
 
 interface TileComponentProps {

@@ -4,6 +4,8 @@ import { TileStr, Meld } from '@/lib/types'
 
 interface ResultPanelProps {
   isCorrect: boolean
+  attemptsUsed: number
+  maxAttempts: number
   waits: TileStr[]
   hand: TileStr[]
   melds: Meld[]
@@ -15,6 +17,8 @@ interface ResultPanelProps {
 
 export default function ResultPanel({
   isCorrect,
+  attemptsUsed,
+  maxAttempts,
   waits,
   hand,
   melds,
@@ -33,9 +37,24 @@ export default function ResultPanel({
             : 'bg-red-50 border-red-400'
         }`}
       >
-        <p className={`text-xl font-extrabold mb-2 ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
+        <p className={`text-xl font-extrabold mb-1 ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
           {isCorrect ? '✓ 正解！' : '✗ 不正解'}
         </p>
+        {isCorrect && attemptsUsed > 1 && (
+          <p className="text-sm text-green-600 mb-2">
+            {attemptsUsed}回目で正解（最大{maxAttempts}回）
+          </p>
+        )}
+        {isCorrect && attemptsUsed === 1 && (
+          <p className="text-sm text-green-600 mb-2">
+            一発正解！（最大{maxAttempts}回）
+          </p>
+        )}
+        {!isCorrect && (
+          <p className="text-sm text-red-600 mb-2">
+            {maxAttempts}回すべて使い切りました
+          </p>
+        )}
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-sm font-medium text-gray-700">正解の待ち牌：</span>
           <div className="flex gap-1 flex-wrap">

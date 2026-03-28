@@ -23,6 +23,7 @@ function answerStateToVariant(state: TileAnswerState): TileVariant {
     case 'hit':          return 'hit'
     case 'miss':         return 'miss'
     case 'missed_wait':  return 'missed'
+    case 'wrong_tried':  return 'tried'
     default:             return 'default'
   }
 }
@@ -30,6 +31,8 @@ function answerStateToVariant(state: TileAnswerState): TileVariant {
 interface AnswerPanelProps {
   phase: 'answering' | 'submitted'
   selectedTiles: TileStr[]
+  attemptsUsed: number
+  maxAttempts: number
   getTileAnswerState: (tile: TileStr) => TileAnswerState
   onToggle: (tile: TileStr) => void
   onSubmit: () => void
@@ -38,20 +41,53 @@ interface AnswerPanelProps {
 export default function AnswerPanel({
   phase,
   selectedTiles,
+  attemptsUsed,
+  maxAttempts,
   getTileAnswerState,
   onToggle,
   onSubmit,
 }: AnswerPanelProps) {
   const isAnswering = phase === 'answering'
+  const remaining = maxAttempts - attemptsUsed
+  const showWrongFeedback = isAnswering && attemptsUsed > 0
 
   return (
     <div className="space-y-3">
+      {/* Attempts counter */}
+      {isAnswering && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-semibold text-gray-700">
+            待ち牌をすべて選んでください（複数可）
+          </p>
+          <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
+            remaining <= 1
+              ? 'bg-red-50 border-red-300 text-red-700'
+              : remaining === 2
+              ? 'bg-orange-50 border-orange-300 text-orange-700'
+              : 'bg-gray-100 border-gray-300 text-gray-600'
+          }`}>
+            残り{remaining}回
+          </span>
+        </div>
+      )}
+
+      {/* Wrong answer feedback */}
+      {showWrongFeedback && (
+        <div className="bg-orange-50 border border-orange-300 rounded-lg px-3 py-2">
+          <p className="text-sm font-bold text-orange-800">
+            不正解。残り{remaining}回です
+          </p>
+          <p className="text-xs text-orange-600 mt-0.5">
+            薄くなった牌は前回の回答に含まれていた牌です
+          </p>
+        </div>
+      )}
+
       <div>
-        <p className="text-sm font-semibold text-gray-700 mb-2">
-          {isAnswering
-            ? '待ち牌をすべて選んでください（複数可）'
-            : '回答した牌'}
-        </p>
+        {/* Submitted header */}
+        {!isAnswering && (
+          <p className="text-sm font-semibold text-gray-700 mb-2">回答した牌</p>
+        )}
 
         {/* Legend (after submission) */}
         {!isAnswering && (
@@ -67,6 +103,16 @@ export default function AnswerPanel({
             <span className="flex items-center gap-1">
               <span className="w-3 h-3 rounded-sm bg-amber-50 border border-amber-400 inline-block" />
               選び忘れ
+            </span>
+          </div>
+        )}
+
+        {/* Legend (during answering, after 1+ wrong) */}
+        {isAnswering && attemptsUsed > 0 && (
+          <div className="flex flex-wrap gap-3 text-xs text-gray-500 mb-2">
+            <span className="flex items-center gap-1">
+              <span className="w-3 h-3 rounded-sm bg-gray-50 border border-gray-300 opacity-50 inline-block" />
+              過去の回答に含めた牌
             </span>
           </div>
         )}

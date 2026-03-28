@@ -39,6 +39,45 @@ export const kifuQuestions: QuizQuestion[] = [
       riichiTurn: 6,
       turn: 8,
       doraIndicators: ['4m'],
+      // 他家データ（参考）
+      players: [
+        {
+          seat: '上家（北家）',
+          discards: [
+            { tile: '4z', tsumokiri: false },
+            { tile: '3z', tsumokiri: false },
+            { tile: '9m', tsumokiri: true },
+            { tile: '1p', tsumokiri: true },
+            { tile: '7p', tsumokiri: false },
+            { tile: '8m', tsumokiri: true },
+          ],
+          melds: [],
+          riichiState: false,
+        },
+        {
+          seat: '対面（西家）',
+          discards: [
+            { tile: '1z', tsumokiri: false },
+            { tile: '9p', tsumokiri: false },
+            { tile: '8s', tsumokiri: true },
+            { tile: '7z', tsumokiri: false },
+            { tile: '3m', tsumokiri: true },
+            { tile: '6p', tsumokiri: false },
+          ],
+          melds: [],
+          riichiState: false,
+        },
+        {
+          seat: '下家（南家）',
+          discards: [
+            { tile: '2z', tsumokiri: false },
+            { tile: '1m', tsumokiri: false },
+            { tile: '9s', tsumokiri: true },
+          ],
+          melds: [{ type: 'pon', tiles: ['6z', '6z', '6z'] }],
+          riichiState: false,
+        },
+      ],
     },
     answer: {
       waits: ['2s', '5s'],

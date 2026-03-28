@@ -25,8 +25,19 @@ interface QuizGameProps {
 
 export default function QuizGame({ question }: QuizGameProps) {
   const router = useRouter()
-  const { phase, selectedTiles, isCorrect, toggleTile, submit, getTileAnswerState } =
-    useQuiz(question)
+  const {
+    phase,
+    selectedTiles,
+    lastSubmission,
+    attemptsUsed,
+    maxAttempts,
+    wrongAnswers,
+    isCleared,
+    isFailed,
+    toggleTile,
+    submit,
+    getTileAnswerState,
+  } = useQuiz(question)
   const { saveAttempt, loaded } = useHistory()
 
   const allQuestions = getAllQuestionsSync()
@@ -36,11 +47,15 @@ export default function QuizGame({ question }: QuizGameProps) {
   // Save attempt once on submission
   useEffect(() => {
     if (phase === 'submitted' && loaded) {
+      const wrongTriedTiles = [...new Set(wrongAnswers.flat())]
       saveAttempt({
         questionId: question.id,
-        selectedTiles,
-        isCorrect,
+        selectedTiles: lastSubmission,
+        isCorrect: isCleared,
         answeredAt: new Date().toISOString(),
+        attemptsUsed,
+        maxAttempts,
+        wrongTiles: wrongTriedTiles,
       })
     }
     // Only run when phase transitions to 'submitted'
@@ -137,7 +152,7 @@ export default function QuizGame({ question }: QuizGameProps) {
           </p>
         </div>
 
-        {/* Board info: discards, melds, riichi, dora */}
+        {/* Board info: discards, melds, riichi, dora, other players */}
         <BoardInfo
           turn={visibleInfo.turn}
           doraIndicators={visibleInfo.doraIndicators}
@@ -145,6 +160,8 @@ export default function QuizGame({ question }: QuizGameProps) {
           riichiTurn={visibleInfo.riichiTurn}
           discards={visibleInfo.discards}
           melds={visibleInfo.melds}
+          seatWind={question.sourceMeta?.seatWind}
+          players={visibleInfo.players}
         />
 
         {/* Divider */}
@@ -154,6 +171,8 @@ export default function QuizGame({ question }: QuizGameProps) {
         <AnswerPanel
           phase={phase}
           selectedTiles={selectedTiles}
+          attemptsUsed={attemptsUsed}
+          maxAttempts={maxAttempts}
           getTileAnswerState={getTileAnswerState}
           onToggle={toggleTile}
           onSubmit={submit}
@@ -162,7 +181,9 @@ export default function QuizGame({ question }: QuizGameProps) {
         {/* Result + hand reveal (after submission) */}
         {phase === 'submitted' && (
           <ResultPanel
-            isCorrect={isCorrect}
+            isCorrect={isCleared}
+            attemptsUsed={attemptsUsed}
+            maxAttempts={maxAttempts}
             waits={answer.waits}
             hand={answer.hand}
             melds={visibleInfo.melds}

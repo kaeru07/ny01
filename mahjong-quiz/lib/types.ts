@@ -27,14 +27,24 @@ export interface SourceMeta {
   roundWind?: string // 場風 e.g., "東", "南"
 }
 
+/** One player's visible board state (捨て牌・副露・リーチ) */
+export interface PlayerVisibleInfo {
+  seat: string        // '上家' | '対面' | '下家'
+  discards: Discard[]
+  melds: Meld[]
+  riichiState: boolean
+  riichiTurn?: number
+}
+
 /** Information visible to all players (河・鳴き・リーチ状態など) */
 export interface VisibleInfo {
-  discards: Discard[]        // 捨て牌（ツモ切り/手出し区別あり）
-  melds: Meld[]              // 副露（チー・ポン・カン）
-  riichiState: boolean       // リーチ宣言済みか
-  riichiTurn?: number        // リーチ宣言した巡目
+  discards: Discard[]        // 和了者の捨て牌（ツモ切り/手出し区別あり）
+  melds: Meld[]              // 和了者の副露（チー・ポン・カン）
+  riichiState: boolean       // 和了者のリーチ宣言済みか
+  riichiTurn?: number        // 和了者のリーチ宣言した巡目
   turn: number               // 現在の巡目
   doraIndicators: TileStr[]  // ドラ表示牌
+  players?: PlayerVisibleInfo[] // 他家（上家・対面・下家）の河情報（optional）
 }
 
 /** Hidden information revealed only after answering */
@@ -56,11 +66,15 @@ export interface QuizQuestion {
   tags: string[]
   visibleInfo: VisibleInfo
   answer: QuizAnswer
+  maxAttempts?: number // override difficulty default (beginner=3, intermediate=4, advanced=5)
 }
 
 export interface QuizAttempt {
   questionId: string
-  selectedTiles: TileStr[]
+  selectedTiles: TileStr[] // last submitted tile set
   isCorrect: boolean
   answeredAt: string // ISO date string
+  attemptsUsed: number
+  maxAttempts: number
+  wrongTiles: TileStr[] // unique tiles that appeared in wrong submissions
 }
