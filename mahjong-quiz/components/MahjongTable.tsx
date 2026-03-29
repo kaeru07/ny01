@@ -43,9 +43,9 @@ function DiscardGrid({
   }
 
   return (
-    <div className={`flex flex-col gap-[4px] ${dim ? 'opacity-80' : ''}`}>
+    <div className={`flex flex-col gap-[2px] ${dim ? 'opacity-80' : ''}`}>
       {Array.from({ length: Math.ceil(discards.length / tilesPerRow) }, (_, row) => (
-        <div key={row} className="flex gap-[4px]">
+        <div key={row} className="flex gap-[2px]">
           {discards.slice(row * tilesPerRow, (row + 1) * tilesPerRow).map((d, col) => {
             const i = row * tilesPerRow + col
             return (
@@ -68,16 +68,16 @@ function DiscardGrid({
 function MeldBadges({ melds }: { melds: Meld[] }) {
   if (melds.length === 0) return null
   return (
-    <div className="flex flex-wrap gap-[3px]">
+    <div className="flex flex-wrap gap-[2px]">
       {melds.map((meld, i) => (
         <div
           key={i}
-          className="flex items-center gap-[2px] bg-amber-50 border border-amber-300/80 rounded px-[3px] py-px"
+          className="flex items-center gap-[1px] bg-amber-900/30 border border-amber-700/60 rounded-sm px-[2px] py-px"
         >
           {meld.tiles.map((tile, j) => (
             <TileComponent key={j} tile={tile} size="xs" />
           ))}
-          <span className="text-[8px] font-bold text-amber-700 ml-[2px]">
+          <span className="text-[8px] font-bold text-amber-500 ml-[1px]">
             {getMeldTypeLabel(meld.type)}
           </span>
         </div>
@@ -112,14 +112,14 @@ function HorizontalZone({
 }) {
   return (
     <div
-      className={`rounded-lg p-2 ${
+      className={`rounded p-1.5 ${
         isSubject
-          ? 'bg-indigo-900/30 ring-2 ring-yellow-400/80 shadow-[0_0_12px_rgba(250,204,21,0.25)]'
+          ? 'bg-indigo-900/30 ring-1 ring-yellow-400/80'
           : 'bg-black/20'
       }`}
     >
       {/* Header row */}
-      <div className="flex items-center gap-1.5 mb-1.5">
+      <div className="flex items-center gap-1 mb-1">
         <span
           className={`text-[10px] font-bold leading-none ${
             isSubject ? 'text-yellow-300' : 'text-gray-300'
@@ -142,7 +142,7 @@ function HorizontalZone({
 
       {/* Melds — separated below the river */}
       {melds.length > 0 && (
-        <div className="mt-1.5 pt-1.5 border-t border-white/10">
+        <div className="mt-1 pt-1 border-t border-white/10">
           <MeldBadges melds={melds} />
         </div>
       )}
@@ -180,13 +180,13 @@ function SideZone({
 
       {/* Melds — separated by a divider so they never reduce the discard area */}
       {melds.length > 0 && (
-        <div className="flex flex-col gap-[3px] pt-1 border-t border-white/10">
+        <div className="flex flex-col gap-[2px] pt-1 border-t border-white/10">
           {melds.map((meld, i) => (
-            <div key={i} className="flex flex-col gap-[2px]">
-              <span className="text-[8px] font-bold text-amber-500 leading-none">
+            <div key={i} className="flex flex-col gap-[1px]">
+              <span className="text-[7px] font-bold text-amber-500 leading-none">
                 {getMeldTypeLabel(meld.type)}
               </span>
-              <div className="flex flex-wrap gap-[2px]">
+              <div className="flex flex-wrap gap-[1px]">
                 {meld.tiles.map((tile, j) => (
                   <TileComponent key={j} tile={tile} size="xs" />
                 ))}
@@ -352,8 +352,8 @@ export default function MahjongTable({
       <DiscardLegend showRiichi={riichiState} />
 
       {/* Table */}
-      <div className="rounded-2xl overflow-hidden border-[3px] border-amber-900/70 shadow-lg bg-green-900">
-        <div className="p-1.5 space-y-1.5">
+      <div className="rounded overflow-hidden border border-amber-900/70 bg-green-900">
+        <div className="p-1 space-y-1">
 
           {/* TOP: 対面 */}
           {hasOtherPlayers && (
@@ -376,10 +376,10 @@ export default function MahjongTable({
           )}
 
           {/* MIDDLE: 上家 | Center | 下家 */}
-          <div className="flex gap-1.5 items-stretch">
+          <div className="flex gap-1 items-stretch">
             {/* LEFT: 上家 */}
             {hasOtherPlayers && (
-              <div className="w-[100px] shrink-0">
+              <div className="w-[82px] shrink-0">
                 {kamicha ? (
                   <SideZone
                     label="上家"
@@ -412,7 +412,7 @@ export default function MahjongTable({
 
             {/* RIGHT: 下家 */}
             {hasOtherPlayers && (
-              <div className="w-[100px] shrink-0">
+              <div className="w-[82px] shrink-0">
                 {shimocha ? (
                   <SideZone
                     label="下家"

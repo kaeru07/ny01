@@ -18,11 +18,11 @@ const MELD_LABEL_CLASS: Record<MeldType, string> = {
 
 export default function HandDisplay({ hand, melds = [], riichiState = false }: HandDisplayProps) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-1">
       {/* Closed hand */}
       <div className="flex items-center gap-1">
         <div className="overflow-x-auto">
-          <div className="flex gap-1 pb-1">
+          <div className="flex gap-[2px] pb-0.5">
             {hand.map((tile, i) => (
               <TileComponent key={`${tile}-${i}`} tile={tile} size="sm" />
             ))}
@@ -37,15 +37,15 @@ export default function HandDisplay({ hand, melds = [], riichiState = false }: H
 
       {/* Open melds */}
       {melds.length > 0 && (
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-2">
           {melds.map((meld, mi) => (
-            <div key={mi} className="flex flex-col items-center gap-0.5">
-              <div className="flex gap-0.5">
+            <div key={mi} className="flex flex-col items-center gap-px">
+              <div className="flex gap-[1px]">
                 {meld.tiles.map((tile, ti) => (
                   <TileComponent key={ti} tile={tile} size="xs" />
                 ))}
               </div>
-              <span className={`text-[10px] font-semibold ${MELD_LABEL_CLASS[meld.type]}`}>
+              <span className={`text-[9px] font-semibold ${MELD_LABEL_CLASS[meld.type]}`}>
                 {getMeldTypeLabel(meld.type)}
               </span>
             </div>

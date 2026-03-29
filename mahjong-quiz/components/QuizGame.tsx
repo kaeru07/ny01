@@ -77,7 +77,7 @@ export default function QuizGame({ question }: QuizGameProps) {
     <div className="min-h-screen bg-gray-950">
       {/* Header */}
       <header className="bg-gray-900 border-b border-gray-800 sticky top-0 z-10">
-        <div className="max-w-lg mx-auto px-4 py-2.5 flex items-center justify-between">
+        <div className="max-w-lg mx-auto px-3 py-1.5 flex items-center justify-between">
           <Link href="/" className="text-sm text-gray-400 hover:text-gray-200 flex items-center gap-1">
             ← 問題一覧
           </Link>
@@ -96,53 +96,41 @@ export default function QuizGame({ question }: QuizGameProps) {
         </div>
       </header>
 
-      <main className="max-w-lg mx-auto px-3 py-3 space-y-3">
+      <main className="max-w-lg mx-auto px-2 py-2 space-y-2">
         {/* Title + meta row */}
-        <div className="space-y-1">
-          <h1 className="text-sm font-bold text-gray-100 leading-snug">
+        <div className="flex flex-wrap items-center gap-1 overflow-x-auto">
+          <h1 className="text-xs font-bold text-gray-200 leading-snug shrink-0">
             {question.title}
           </h1>
-          <div className="flex flex-nowrap gap-1 items-center overflow-x-auto pb-0.5">
-            <span className={`text-[10px] font-bold px-1.5 py-px rounded border ${getCategoryBadgeClass(question.category)}`}>
-              {getCategoryLabel(question.category)}
+          <span className={`text-[9px] font-bold px-1 py-px rounded border ${getCategoryBadgeClass(question.category)}`}>
+            {getCategoryLabel(question.category)}
+          </span>
+          {question.sourceType !== 'manual' && (() => {
+            const { label, className } = getSourceTypeBadge(question.sourceType)
+            return (
+              <span className={`text-[9px] font-bold px-1 py-px rounded border ${className}`}>
+                {label}
+              </span>
+            )
+          })()}
+          {question.sourceMeta && (
+            <span className="text-[9px] text-gray-500">
+              {question.sourceMeta.round}
+              {question.sourceMeta.honba > 0 && `${question.sourceMeta.honba}本場`}
+              {question.sourceMeta.kyotaku > 0 && `・供託${question.sourceMeta.kyotaku}`}
             </span>
-            {question.sourceType !== 'manual' && (() => {
-              const { label, className } = getSourceTypeBadge(question.sourceType)
-              return (
-                <span className={`text-[10px] font-bold px-1.5 py-px rounded border ${className}`}>
-                  {label}
-                </span>
-              )
-            })()}
-            {question.sourceMeta && (
-              <span className="text-[10px] text-gray-500">
-                {question.sourceMeta.round}
-                {question.sourceMeta.honba > 0 && `${question.sourceMeta.honba}本場`}
-                {question.sourceMeta.kyotaku > 0 && `・供託${question.sourceMeta.kyotaku}`}
-              </span>
-            )}
-            {question.rankTier && (
-              <span className="text-[10px] text-gray-600">{question.rankTier}</span>
-            )}
-            {question.tags.map((tag) => (
-              <span
-                key={tag}
-                className="text-[10px] bg-gray-800 text-gray-400 px-1.5 py-px rounded-full border border-gray-700"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Challenge prompt */}
-        <div className="bg-indigo-950/60 border border-indigo-800/50 rounded-lg px-3 py-1.5">
-          <p className="text-xs font-semibold text-indigo-300">
-            この対局者（読みの対象）の待ち牌を読んでください
-          </p>
-          <p className="text-[10px] text-indigo-500 mt-0.5">
-            手牌は非公開。捨て牌・副露・リーチなどの情報から推理してください。
-          </p>
+          )}
+          {question.rankTier && (
+            <span className="text-[9px] text-gray-600">{question.rankTier}</span>
+          )}
+          {question.tags.map((tag) => (
+            <span
+              key={tag}
+              className="text-[9px] bg-gray-800 text-gray-400 px-1 py-px rounded border border-gray-700"
+            >
+              {tag}
+            </span>
+          ))}
         </div>
 
         {/* 2D table */}
@@ -191,7 +179,7 @@ export default function QuizGame({ question }: QuizGameProps) {
         )}
 
         {/* Bottom spacer */}
-        <div className="pb-4" />
+        <div className="pb-2" />
       </main>
     </div>
   )

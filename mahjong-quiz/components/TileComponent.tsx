@@ -15,18 +15,18 @@ export type TileSize = 'xs' | 'sm' | 'md' | 'lg'
 export type TileVariant = 'default' | 'selected' | 'hit' | 'miss' | 'missed' | 'dora' | 'tried'
 
 const SIZE_CLASSES: Record<TileSize, { outer: string; main: string; sub: string }> = {
-  xs: { outer: 'w-7 h-9',   main: 'text-xs',   sub: 'text-[9px]'  },
-  sm: { outer: 'w-8 h-11',  main: 'text-sm',   sub: 'text-[10px]' },
-  md: { outer: 'w-9 h-12',  main: 'text-sm',   sub: 'text-xs'     },
-  lg: { outer: 'w-11 h-14', main: 'text-base',  sub: 'text-xs'    },
+  xs: { outer: 'w-5 h-[26px]',  main: 'text-[9px]',  sub: 'text-[7px]'  },
+  sm: { outer: 'w-[22px] h-8',  main: 'text-[10px]', sub: 'text-[8px]'  },
+  md: { outer: 'w-[26px] h-9',  main: 'text-xs',     sub: 'text-[9px]'  },
+  lg: { outer: 'w-8 h-11',      main: 'text-sm',     sub: 'text-[10px]' },
 }
 
 // Wrapper dimensions when tile is rotated 90° (w/h swapped)
 const ROTATED_OUTER: Record<TileSize, string> = {
-  xs: 'w-9 h-7',
-  sm: 'w-11 h-8',
-  md: 'w-12 h-9',
-  lg: 'w-14 h-11',
+  xs: 'w-[26px] h-5',
+  sm: 'w-8 h-[22px]',
+  md: 'w-9 h-[26px]',
+  lg: 'w-11 h-8',
 }
 
 // Ring highlight per variant (image mode)
@@ -88,7 +88,7 @@ export default function TileComponent({
         {...clickProps}
         className={[
           outer,
-          'rounded overflow-hidden shrink-0 select-none',
+          'rounded-sm overflow-hidden shrink-0 select-none',
           ringClass,
           dimClass,
           interactiveClass,
