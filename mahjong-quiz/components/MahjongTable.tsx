@@ -68,7 +68,7 @@ function DiscardGrid({
 function MeldBadges({ melds }: { melds: Meld[] }) {
   if (melds.length === 0) return null
   return (
-    <div className="flex flex-wrap gap-[3px] mt-1">
+    <div className="flex flex-wrap gap-[3px]">
       {melds.map((meld, i) => (
         <div
           key={i}
@@ -135,10 +135,17 @@ function HorizontalZone({
         {riichiState && <RiichiBadge riichiTurn={riichiTurn} />}
       </div>
 
+      {/* River — fixed display area, never reduced by melds */}
       <div className={flipped ? 'rotate-180' : ''}>
         <DiscardGrid discards={discards} riichiState={riichiState} tilesPerRow={6} dim={!isSubject} />
       </div>
-      <MeldBadges melds={melds} />
+
+      {/* Melds — separated below the river */}
+      {melds.length > 0 && (
+        <div className="mt-1.5 pt-1.5 border-t border-white/10">
+          <MeldBadges melds={melds} />
+        </div>
+      )}
     </div>
   )
 }
@@ -150,7 +157,6 @@ function SideZone({
   melds,
   riichiState,
   riichiTurn,
-  side,
 }: {
   label: string
   discards: Discard[]
@@ -161,20 +167,20 @@ function SideZone({
 }) {
   return (
     <div className="flex flex-col gap-1 bg-black/20 rounded-lg p-1.5">
-      {/* Seat label */}
-      <span className="text-[9px] font-bold text-gray-400 leading-none">{label}</span>
+      {/* Seat label + Riichi badge — same row to save vertical space */}
+      <div className="flex flex-wrap items-center gap-1">
+        <span className="text-[9px] font-bold text-gray-400 leading-none">{label}</span>
+        {riichiState && <RiichiBadge riichiTurn={riichiTurn} />}
+      </div>
 
-      {/* Riichi badge */}
-      {riichiState && <RiichiBadge riichiTurn={riichiTurn} />}
-
-      {/* Discards: 3 per row, no rotation */}
-      <div className="flex-1 w-full overflow-hidden">
+      {/* Discards: 3 per row — always rendered at natural height, never clipped */}
+      <div className="w-full">
         <DiscardGrid discards={discards} riichiState={riichiState} tilesPerRow={3} dim />
       </div>
 
-      {/* Melds */}
+      {/* Melds — separated by a divider so they never reduce the discard area */}
       {melds.length > 0 && (
-        <div className="flex flex-col gap-[3px] mt-0.5">
+        <div className="flex flex-col gap-[3px] pt-1 border-t border-white/10">
           {melds.map((meld, i) => (
             <div key={i} className="flex flex-col gap-[2px]">
               <span className="text-[8px] font-bold text-amber-500 leading-none">
@@ -217,7 +223,7 @@ function TableCenter({
   const doraActual = doraIndicators.map(getDoraTile)
 
   return (
-    <div className="flex flex-col items-center justify-center gap-2 py-2 h-full text-center">
+    <div className="flex flex-col items-center justify-center gap-1.5 py-1 h-full text-center">
       {/* Round / seat wind */}
       {(roundWind || seatWind) && (
         <div className="text-[10px] text-green-300/80 font-bold leading-none">

@@ -1,9 +1,13 @@
+'use client'
+
+import { useState } from 'react'
 import {
   getTileSuit,
   getTileValue,
   JIHAI_LABELS,
   SUIT_KANJI,
   getTileColorClass,
+  getTileLabel,
 } from '@/lib/mahjong-utils'
 import { TileStr } from '@/lib/types'
 
@@ -11,13 +15,13 @@ export type TileSize = 'xs' | 'sm' | 'md' | 'lg'
 export type TileVariant = 'default' | 'selected' | 'hit' | 'miss' | 'missed' | 'dora' | 'tried'
 
 const SIZE_CLASSES: Record<TileSize, { outer: string; main: string; sub: string }> = {
-  xs: { outer: 'w-7 h-9',  main: 'text-xs',  sub: 'text-[9px]'  },
-  sm: { outer: 'w-8 h-11', main: 'text-sm',  sub: 'text-[10px]' },
-  md: { outer: 'w-9 h-12', main: 'text-sm',  sub: 'text-xs'     },
-  lg: { outer: 'w-11 h-14',main: 'text-base',sub: 'text-xs'     },
+  xs: { outer: 'w-7 h-9',   main: 'text-xs',   sub: 'text-[9px]'  },
+  sm: { outer: 'w-8 h-11',  main: 'text-sm',   sub: 'text-[10px]' },
+  md: { outer: 'w-9 h-12',  main: 'text-sm',   sub: 'text-xs'     },
+  lg: { outer: 'w-11 h-14', main: 'text-base',  sub: 'text-xs'    },
 }
 
-// rotated時にwrapperが確保するスペース（縦横逆）
+// Wrapper dimensions when tile is rotated 90° (w/h swapped)
 const ROTATED_OUTER: Record<TileSize, string> = {
   xs: 'w-9 h-7',
   sm: 'w-11 h-8',
@@ -25,7 +29,19 @@ const ROTATED_OUTER: Record<TileSize, string> = {
   lg: 'w-14 h-11',
 }
 
-const VARIANT_CLASSES: Record<TileVariant, string> = {
+// Ring highlight per variant (image mode)
+const VARIANT_RING: Record<TileVariant, string> = {
+  default:  '',
+  selected: 'ring-2 ring-blue-500',
+  hit:      'ring-2 ring-green-500',
+  miss:     'ring-2 ring-red-400',
+  missed:   'ring-2 ring-amber-400',
+  dora:     'ring-2 ring-yellow-400',
+  tried:    '',
+}
+
+// Background + border classes for text fallback mode
+const VARIANT_TEXT_CLASSES: Record<TileVariant, string> = {
   default:  'bg-white border-gray-300 shadow-sm',
   selected: 'bg-blue-50 border-blue-500 border-2 shadow',
   hit:      'bg-green-50 border-green-500 border-2',
@@ -54,26 +70,74 @@ export default function TileComponent({
   className = '',
   rotated = false,
 }: TileComponentProps) {
+  const [imgError, setImgError] = useState(false)
+
+  const { outer, main, sub } = SIZE_CLASSES[size]
+  const Tag = onClick ? 'button' : 'div'
+  const clickProps = onClick ? { onClick: disabled ? undefined : onClick, disabled, type: 'button' as const } : {}
+  const interactiveClass = onClick && !disabled ? 'cursor-pointer active:scale-95 transition-transform' : ''
+  const disabledClass = disabled ? 'opacity-40 cursor-not-allowed' : ''
+
+  // ── Image-based rendering ────────────────────────────────────────
+  if (!imgError) {
+    const ringClass = VARIANT_RING[variant]
+    const dimClass  = variant === 'tried' ? 'opacity-40' : ''
+
+    const imgTile = (
+      <Tag
+        {...clickProps}
+        className={[
+          outer,
+          'rounded overflow-hidden shrink-0 select-none',
+          ringClass,
+          dimClass,
+          interactiveClass,
+          disabledClass,
+          className,
+          rotated ? 'rotate-90' : '',
+        ].filter(Boolean).join(' ')}
+      >
+        <img
+          src={`/tiles/${tile}.svg`}
+          alt={getTileLabel(tile)}
+          width={60}
+          height={80}
+          onError={() => setImgError(true)}
+          className="w-full h-full object-contain"
+          draggable={false}
+        />
+      </Tag>
+    )
+
+    if (rotated) {
+      return (
+        <div className={`${ROTATED_OUTER[size]} flex items-center justify-center shrink-0`}>
+          {imgTile}
+        </div>
+      )
+    }
+
+    return imgTile
+  }
+
+  // ── Text fallback (original rendering) ──────────────────────────
   const suit = getTileSuit(tile)
   const isJihai = suit === 'z'
   const colorClass = getTileColorClass(tile)
-  const { outer, main, sub } = SIZE_CLASSES[size]
-  const variantClass = VARIANT_CLASSES[variant]
+  const variantClass = VARIANT_TEXT_CLASSES[variant]
 
-  const Tag = onClick ? 'button' : 'div'
-
-  const tileElement = (
+  const textTile = (
     <Tag
-      {...(onClick ? { onClick, disabled, type: 'button' as const } : {})}
-      className={`
-        ${outer}
-        ${variantClass}
-        border rounded flex flex-col items-center justify-center leading-none select-none
-        ${onClick && !disabled ? 'cursor-pointer hover:brightness-95 active:scale-95 transition-transform' : ''}
-        ${disabled ? 'opacity-40 cursor-not-allowed' : ''}
-        ${rotated ? 'rotate-90' : ''}
-        ${className}
-      `}
+      {...clickProps}
+      className={[
+        outer,
+        variantClass,
+        'border rounded flex flex-col items-center justify-center leading-none select-none shrink-0',
+        interactiveClass,
+        disabledClass,
+        rotated ? 'rotate-90' : '',
+        className,
+      ].filter(Boolean).join(' ')}
     >
       {isJihai ? (
         <span className={`${colorClass} ${main} font-bold`}>
@@ -95,10 +159,10 @@ export default function TileComponent({
   if (rotated) {
     return (
       <div className={`${ROTATED_OUTER[size]} flex items-center justify-center shrink-0`}>
-        {tileElement}
+        {textTile}
       </div>
     )
   }
 
-  return tileElement
+  return textTile
 }
