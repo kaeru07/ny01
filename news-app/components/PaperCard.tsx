@@ -25,6 +25,11 @@ export function PaperCard({ item }: Props) {
         <h2 className="text-sm font-bold text-gray-900 leading-snug mb-1">
           {item.title}
         </h2>
+        {item.originalTitle && (
+          <p className="text-xs text-gray-400 leading-snug mb-1 line-clamp-2">
+            {item.originalTitle}
+          </p>
+        )}
         {item.arxivId && (
           <p className="text-xs text-pink-500 mb-2">arXiv: {item.arxivId}</p>
         )}

@@ -16,7 +16,7 @@ export function NewsCard({ item }: Props) {
           <div className="flex items-center gap-2">
             <CategoryBadge category={item.category} />
             {item.isSummarized && (
-              <span className="text-xs text-blue-500 font-medium">🤖 AI要約</span>
+              <span className="text-xs text-blue-500 font-medium">🌐 翻訳済</span>
             )}
           </div>
           <span className="text-xs text-gray-400">
@@ -24,10 +24,17 @@ export function NewsCard({ item }: Props) {
           </span>
         </div>
 
-        {/* タイトル */}
-        <h2 className="text-sm font-bold text-gray-900 leading-snug mb-2 line-clamp-3">
+        {/* タイトル（日本語） */}
+        <h2 className="text-sm font-bold text-gray-900 leading-snug mb-1 line-clamp-3">
           {item.title}
         </h2>
+
+        {/* 英語原題（翻訳済みの場合のみ表示） */}
+        {item.originalTitle && (
+          <p className="text-xs text-gray-400 leading-snug line-clamp-2 mb-2">
+            {item.originalTitle}
+          </p>
+        )}
 
         {/* 要約 */}
         <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">

@@ -17,6 +17,9 @@ export default async function NewsDetailPage({ params }: Props) {
   if (!item) notFound();
 
   const validUrl = normalizeUrl(item.url);
+  const translateUrl = validUrl
+    ? `https://translate.google.com/translate?sl=auto&tl=ja&u=${encodeURIComponent(validUrl)}`
+    : null;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -41,17 +44,24 @@ export default async function NewsDetailPage({ params }: Props) {
           <div className="flex items-center gap-2 mb-4">
             <CategoryBadge category={item.category} />
             {item.isSummarized && (
-              <span className="text-xs text-blue-500 font-medium">🤖 AI要約</span>
+              <span className="text-xs text-blue-500 font-medium">🌐 翻訳済</span>
             )}
             <span className="ml-auto text-xs text-gray-400">
               {formatRelativeTime(item.publishedAt)}
             </span>
           </div>
 
-          {/* タイトル */}
-          <h1 className="text-base font-bold text-gray-900 leading-snug mb-4">
+          {/* タイトル（日本語） */}
+          <h1 className="text-base font-bold text-gray-900 leading-snug mb-1">
             {item.title}
           </h1>
+
+          {/* 英語原題（翻訳済みの場合のみ） */}
+          {item.originalTitle && (
+            <p className="text-sm text-gray-400 leading-snug mb-4">
+              {item.originalTitle}
+            </p>
+          )}
 
           {/* 要約 */}
           <div className="bg-slate-50 rounded-xl p-4 mb-4">
@@ -71,16 +81,29 @@ export default async function NewsDetailPage({ params }: Props) {
             )}
           </div>
 
-          {/* 元記事リンク */}
+          {/* リンクボタン */}
           {validUrl ? (
-            <a
-              href={validUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block w-full text-center bg-gray-900 text-white text-sm font-semibold py-3 rounded-xl active:bg-gray-700 transition-colors"
-            >
-              元記事を読む →
-            </a>
+            <div className="flex flex-col gap-2">
+              {/* 英語記事には翻訳リンクを表示 */}
+              {item.originalTitle && translateUrl && (
+                <a
+                  href={translateUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full text-center bg-blue-600 text-white text-sm font-semibold py-3 rounded-xl active:bg-blue-700 transition-colors"
+                >
+                  🌐 翻訳して読む →
+                </a>
+              )}
+              <a
+                href={validUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full text-center bg-gray-900 text-white text-sm font-semibold py-3 rounded-xl active:bg-gray-700 transition-colors"
+              >
+                {item.originalTitle ? "原文で読む →" : "元記事を読む →"}
+              </a>
+            </div>
           ) : (
             <div className="block w-full text-center bg-gray-300 text-gray-500 text-sm font-semibold py-3 rounded-xl cursor-not-allowed">
               リンクなし

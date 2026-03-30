@@ -53,17 +53,20 @@ export async function fetchHackerNews(limit = 15): Promise<NewsItem[]> {
       // 記事URL優先、無効な場合はHNディスカッションページ
       const articleUrl = normalizeUrl(story.url);
       const canonicalUrl = articleUrl ?? hnFallbackUrl(story.id);
+      const isEng = isEnglish(story.title);
+      const translatedTitle = translated[i];
 
       return {
         id: `hn-${story.id}`,
-        title: translated[i] ?? story.title,
+        title: translatedTitle ?? story.title,
+        originalTitle: isEng && translatedTitle ? story.title : undefined,
         summary: `Hacker Newsで話題。スコア: ${story.score}点、${story.descendants ?? 0}件のコメント。`,
         url: canonicalUrl,
         source: "Hacker News",
         category: "tech" as NewsCategory,
         publishedAt: new Date(story.time * 1000).toISOString(),
         score: story.score,
-        isSummarized: isEnglish(story.title) && translated[i] !== null,
+        isSummarized: isEng && translatedTitle !== null,
       };
     });
   } catch (err) {
@@ -174,6 +177,102 @@ export async function fetchZennTechNews(limit = 5): Promise<NewsItem[]> {
   }
 }
 
+// ─── Dev.to（技術、英語） ──────────────────────────────────────────────────────
+
+export async function fetchDevToNews(limit = 5): Promise<NewsItem[]> {
+  try {
+    const xml = await fetchRSS("https://dev.to/feed");
+    const items = parseRSSItems(xml).slice(0, limit);
+
+    // 英語タイトルを一括翻訳
+    const titles = items.map((item) => item.title);
+    const translated = await translateBatch(titles);
+
+    const result: NewsItem[] = [];
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const url = normalizeUrl(item.link);
+      if (!url) continue;
+      const isEng = isEnglish(item.title);
+      const translatedTitle = translated[i];
+      result.push({
+        id: `devto-${i}-${Date.now()}`,
+        title: translatedTitle ?? item.title,
+        originalTitle: isEng && translatedTitle ? item.title : undefined,
+        summary: item.description
+          ? item.description.replace(/<[^>]+>/g, "").slice(0, 150)
+          : "Dev.toの技術記事です。",
+        url,
+        source: "Dev.to",
+        category: "tech" as NewsCategory,
+        publishedAt: new Date(item.pubDate).toISOString(),
+        isSummarized: isEng && translatedTitle !== null,
+      });
+    }
+    return result;
+  } catch (err) {
+    console.error("[fetchDevToNews] error:", err);
+    return [];
+  }
+}
+
+// ─── GitHub Trending ──────────────────────────────────────────────────────────
+
+export async function fetchGitHubTrending(limit = 5): Promise<NewsItem[]> {
+  try {
+    // 過去7日間に作成された人気リポジトリを取得
+    const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+    const apiUrl = `https://api.github.com/search/repositories?q=created:>${since}&sort=stars&order=desc&per_page=${limit}`;
+    const res = await fetch(apiUrl, {
+      headers: {
+        "User-Agent": "NewsApp/1.0",
+        Accept: "application/vnd.github.v3+json",
+      },
+      next: { revalidate: 3600 }, // 1時間キャッシュ
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+
+    const repos: Array<{
+      id: number;
+      full_name: string;
+      description: string | null;
+      html_url: string;
+      stargazers_count: number;
+      created_at: string;
+      language: string | null;
+    }> = (data.items ?? []).slice(0, limit);
+
+    // 説明文を翻訳
+    const descriptions = repos.map((r) => r.description ?? "");
+    const translated = await translateBatch(descriptions);
+
+    return repos.map((repo, i) => {
+      const rawDesc = repo.description ?? "";
+      const translatedDesc = translated[i];
+      const langBadge = repo.language ? ` [${repo.language}]` : "";
+      return {
+        id: `gh-${repo.id}`,
+        title: `${repo.full_name}${langBadge} ⭐${repo.stargazers_count}`,
+        summary:
+          translatedDesc ??
+          (rawDesc
+            ? rawDesc.slice(0, 150)
+            : "GitHubトレンドのリポジトリです。"),
+        url: repo.html_url,
+        source: "GitHub Trending",
+        category: "tech" as NewsCategory,
+        publishedAt: repo.created_at,
+      };
+    });
+  } catch (err) {
+    console.error("[fetchGitHubTrending] error:", err);
+    return [];
+  }
+}
+
 // ─── 海外ニュース RSS ─────────────────────────────────────────────────────────
 
 /** NHK国際ニュース（日本語、翻訳不要） */
@@ -234,18 +333,21 @@ async function fetchBBCJapanese(limit = 7): Promise<NewsItem[]> {
 
 /**
  * カテゴリ別目標件数:
- *   tech:          20件 (HN 15 + Zenn 5)
+ *   tech:          30件 (HN 15 + Zenn 5 + Dev.to 5 + GitHub 5)
  *   domestic:      15件 (NHK)
  *   international: 15件 (NHK国際 8 + BBC 7)
  */
 export async function fetchAllNews(): Promise<NewsItem[]> {
-  const [hn, nhk, zenn, nhkIntl, bbc] = await Promise.allSettled([
-    fetchHackerNews(15),
-    fetchNHKNews(15),
-    fetchZennTechNews(5),
-    fetchNHKInternational(8),
-    fetchBBCJapanese(7),
-  ]);
+  const [hn, nhk, zenn, nhkIntl, bbc, devto, github] =
+    await Promise.allSettled([
+      fetchHackerNews(15),
+      fetchNHKNews(15),
+      fetchZennTechNews(5),
+      fetchNHKInternational(8),
+      fetchBBCJapanese(7),
+      fetchDevToNews(5),
+      fetchGitHubTrending(5),
+    ]);
 
   const getValue = <T>(result: PromiseSettledResult<T[]>, fallback: T[] = []): T[] =>
     result.status === "fulfilled" ? result.value : fallback;
@@ -253,6 +355,8 @@ export async function fetchAllNews(): Promise<NewsItem[]> {
   const items: NewsItem[] = [
     ...getValue(hn, mockNewsItems.filter((n) => n.category === "tech")),
     ...getValue(zenn),
+    ...getValue(devto),
+    ...getValue(github),
     ...getValue(nhk, mockNewsItems.filter((n) => n.category === "domestic")),
     ...getValue(nhkIntl, mockNewsItems.filter((n) => n.category === "international")),
     ...getValue(bbc),

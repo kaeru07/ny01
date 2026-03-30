@@ -27,32 +27,18 @@ describe("isEnglish", () => {
 });
 
 describe("translateToJapanese", () => {
-  beforeEach(() => {
-    // APIキーなしの環境でテスト
-    delete process.env.ANTHROPIC_API_KEY;
-  });
-
-  test("APIキーなしは null を返す", async () => {
-    const result = await translateToJapanese("New AI model improves reasoning");
+  test("日本語テキストはスキップして null を返す", async () => {
+    const result = await translateToJapanese("すでに日本語のテキスト");
     expect(result).toBeNull();
   });
 
-  test("日本語テキストはスキップして null を返す", async () => {
-    const result = await translateToJapanese("すでに日本語のテキスト");
+  test("空文字は null を返す", async () => {
+    const result = await translateToJapanese("");
     expect(result).toBeNull();
   });
 });
 
 describe("translateBatch", () => {
-  beforeEach(() => {
-    delete process.env.ANTHROPIC_API_KEY;
-  });
-
-  test("APIキーなしは全て null の配列を返す", async () => {
-    const results = await translateBatch(["Hello", "World", "Test"]);
-    expect(results).toEqual([null, null, null]);
-  });
-
   test("空配列は空配列を返す", async () => {
     const results = await translateBatch([]);
     expect(results).toEqual([]);
@@ -62,5 +48,10 @@ describe("translateBatch", () => {
     const inputs = ["Hello", "World"];
     const results = await translateBatch(inputs);
     expect(results).toHaveLength(inputs.length);
+  });
+
+  test("日本語のみの配列は全て null を返す", async () => {
+    const results = await translateBatch(["こんにちは", "世界", "テスト日本語"]);
+    expect(results).toEqual([null, null, null]);
   });
 });

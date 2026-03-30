@@ -1,12 +1,10 @@
 /**
  * 翻訳モジュール
- * ANTHROPIC_API_KEY が設定されていれば Claude Haiku で英→日翻訳を実行する。
- * 未設定の場合は null を返し、呼び出し側は元テキストをそのまま使用する。
+ * Google翻訳の非公式APIを利用した無料翻訳。
+ * 翻訳失敗時はnullを返し、呼び出し側は元テキストをそのまま使用する。
  */
 
-const API_URL = "https://api.anthropic.com/v1/messages";
-const MODEL = "claude-haiku-4-5-20251001";
-const MAX_TOKENS = 512;
+const GTRANS_URL = "https://translate.googleapis.com/translate_a/single";
 
 /** テキストが主に英語かどうかを判定
  * - ひらがな・カタカナ・漢字が1文字でもあれば日本語として扱う
@@ -23,90 +21,59 @@ export function isEnglish(text: string): boolean {
 }
 
 /**
- * 英語テキストを日本語に翻訳する。
- * APIキー未設定またはエラー時は null を返す。
+ * Google翻訳の非公式APIで英語→日本語翻訳。
+ * 失敗時はnullを返す。
  */
-export async function translateToJapanese(text: string): Promise<string | null> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return null;
-  if (!isEnglish(text)) return null; // 既に日本語なら翻訳不要
-
+async function googleTranslate(text: string): Promise<string | null> {
   try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: MAX_TOKENS,
-        messages: [
-          {
-            role: "user",
-            content: `以下の英語テキストを自然な日本語に翻訳してください。翻訳結果のみを出力し、説明や原文は不要です。\n\n${text}`,
-          },
-        ],
-      }),
+    const params = new URLSearchParams({
+      client: "gtx",
+      sl: "auto",
+      tl: "ja",
+      dt: "t",
+      q: text,
     });
-
+    const res = await fetch(`${GTRANS_URL}?${params}`, {
+      headers: { "User-Agent": "Mozilla/5.0" },
+      next: { revalidate: 86400 }, // 翻訳結果を1日キャッシュ
+    });
     if (!res.ok) return null;
     const data = await res.json();
-    const translated: string | undefined = data?.content?.[0]?.text;
-    return translated?.trim() ?? null;
+    // レスポンス形式: [[["翻訳テキスト","原文",...],...], null, "en"]
+    const parts: string[] = (data?.[0] ?? [])
+      .map((item: unknown[]) => item?.[0])
+      .filter((s: unknown): s is string => typeof s === "string" && s.length > 0);
+    return parts.length > 0 ? parts.join("") : null;
   } catch {
     return null;
   }
 }
 
 /**
- * 複数テキストをまとめて翻訳する（APIを1回だけ呼ぶ）。
- * 返り値は入力と同じ順序の配列。翻訳できなかった要素は null。
+ * 英語テキストを日本語に翻訳する。
+ * 日本語テキストまたはエラー時はnullを返す。
+ */
+export async function translateToJapanese(text: string): Promise<string | null> {
+  if (!text || text.trim().length === 0) return null;
+  if (!isEnglish(text)) return null;
+  return googleTranslate(text);
+}
+
+/**
+ * 複数テキストをまとめて翻訳する（英語のみ対象、並列実行）。
+ * 返り値は入力と同じ順序の配列。翻訳できなかった要素はnull。
  */
 export async function translateBatch(texts: string[]): Promise<(string | null)[]> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return texts.map(() => null);
+  const results: (string | null)[] = texts.map(() => null);
+  const targets = texts.map((t, i) => ({ i, t })).filter(({ t }) => isEnglish(t));
 
-  const targets = texts
-    .map((t, i) => ({ i, t }))
-    .filter(({ t }) => isEnglish(t));
+  if (targets.length === 0) return results;
 
-  if (targets.length === 0) return texts.map(() => null);
+  await Promise.all(
+    targets.map(async ({ i, t }) => {
+      results[i] = await googleTranslate(t);
+    })
+  );
 
-  const numbered = targets.map(({ i, t }) => `[${i + 1}] ${t}`).join("\n\n");
-
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: MAX_TOKENS * texts.length,
-        messages: [
-          {
-            role: "user",
-            content: `以下の番号付き英語テキストをそれぞれ日本語に翻訳してください。同じ番号形式 [N] で翻訳結果のみを出力してください。\n\n${numbered}`,
-          },
-        ],
-      }),
-    });
-
-    if (!res.ok) return texts.map(() => null);
-    const data = await res.json();
-    const raw: string = data?.content?.[0]?.text ?? "";
-
-    const results: (string | null)[] = texts.map(() => null);
-    for (const { i } of targets) {
-      const match = raw.match(new RegExp(`\\[${i + 1}\\]\\s*([\\s\\S]*?)(?=\\[\\d+\\]|$)`));
-      if (match) results[i] = match[1].trim() || null;
-    }
-    return results;
-  } catch {
-    return texts.map(() => null);
-  }
+  return results;
 }

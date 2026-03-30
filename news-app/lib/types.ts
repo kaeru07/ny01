@@ -5,6 +5,7 @@ export type FilterTab = "all" | NewsCategory;
 export interface NewsItem {
   id: string;
   title: string;
+  originalTitle?: string; // 翻訳前の英語タイトル
   summary: string; // 日本語要約
   url: string;
   source: string;
@@ -18,6 +19,7 @@ export interface NewsItem {
 export interface PaperItem {
   id: string;
   title: string;
+  originalTitle?: string; // 翻訳前の英語タイトル
   summary: string;
   authors: string[];
   url: string;

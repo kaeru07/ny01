@@ -108,6 +108,7 @@ export async function fetchPapers(): Promise<PaperItem[]> {
   return top15.map((paper, i) => ({
     ...paper,
     title: translatedTitles[i] ?? paper.title,
+    originalTitle: translatedTitles[i] ? paper.title : undefined,
     summary: translatedSummaries[i] ?? paper.summary,
   }));
 }
