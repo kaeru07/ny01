@@ -32,8 +32,37 @@ export function normalizeUrl(url: string | undefined | null): string | null {
 }
 
 /**
- * Hacker News の HN discussion URL を生成（記事URLが無効な場合のフォールバック）
+ * Hacker News の discussion URL を生成（記事URLが無効な場合のフォールバック）
  */
 export function hnFallbackUrl(hnId: number): string {
   return `https://news.ycombinator.com/item?id=${hnId}`;
+}
+
+/**
+ * RSSのXML実体参照をデコードする。
+ * BBCなど一部RSSフィードは <link> 内に &amp; 等を含む。
+ */
+export function xmlDecodeUrl(url: string): string {
+  return url
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+}
+
+/**
+ * URLから決定論的な安定IDを生成する（FNV-1a 32-bit hash）。
+ * Date.now() を使わず、同じURLからは常に同じIDを返す。
+ *
+ * @param prefix - ソース識別子 ("nhk", "bbc", "zenn" など)
+ * @param url    - 記事URL（guidが望ましい）
+ */
+export function stableId(prefix: string, url: string): string {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < url.length; i++) {
+    h ^= url.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return `${prefix}-${h.toString(36)}`;
 }

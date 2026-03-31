@@ -1,6 +1,6 @@
 import { NewsItem, NewsCategory } from "./types";
 import { mockNewsItems } from "./mockData";
-import { normalizeUrl, hnFallbackUrl } from "./normalizeUrl";
+import { normalizeUrl, hnFallbackUrl, xmlDecodeUrl, stableId } from "./normalizeUrl";
 import { translateBatch, isEnglish } from "./translate";
 
 // ─── Hacker News ──────────────────────────────────────────────────────────────
@@ -51,12 +51,14 @@ export async function fetchHackerNews(limit = 15): Promise<NewsItem[]> {
 
     return valid.map((story, i) => {
       // 記事URL優先、無効な場合はHNディスカッションページ
+      // HN story.url が null/undefined の場合も常に有効URLを保証する
       const articleUrl = normalizeUrl(story.url);
       const canonicalUrl = articleUrl ?? hnFallbackUrl(story.id);
       const isEng = isEnglish(story.title);
       const translatedTitle = translated[i];
 
       return {
+        // HN の story.id は整数で安定しており、Date.now() 不使用
         id: `hn-${story.id}`,
         title: translatedTitle ?? story.title,
         originalTitle: isEng && translatedTitle ? story.title : undefined,
@@ -86,63 +88,101 @@ async function fetchRSS(url: string): Promise<string> {
   return res.text();
 }
 
-function parseRSSItems(xml: string): Array<{
+/**
+ * RSS <item> を解析して返す。
+ * - link: XML実体参照デコード済み記事URL
+ * - guid: 記事の一意識別子（安定ID生成に使用）
+ *
+ * ソースごとのlink/guid形式:
+ *   NHK     : <link>http://www3.nhk.or.jp/...</link>  <guid isPermaLink="true">同URL</guid>
+ *   Zenn    : <link>https://zenn.dev/...</link>         <guid isPermaLink="true">同URL</guid>
+ *   BBC     : <link>https://bbc.com/...?at_medium=RSS&amp;...</link>  <guid isPermaLink="false">https://bbc.com/...#0</guid>
+ *   Dev.to  : <link>https://dev.to/...</link>           <guid>同URL</guid>
+ */
+export function parseRSSItems(xml: string): Array<{
   title: string;
   link: string;
+  guid: string;
   description: string;
   pubDate: string;
 }> {
   const items: Array<{
     title: string;
     link: string;
+    guid: string;
     description: string;
     pubDate: string;
   }> = [];
+
   const itemRegex = /<item>([\s\S]*?)<\/item>/g;
   let match;
   while ((match = itemRegex.exec(xml)) !== null) {
     const block = match[1];
+
     const title =
       (/<title><!\[CDATA\[(.*?)\]\]><\/title>/.exec(block) ||
         /<title>(.*?)<\/title>/.exec(block))?.[1] ?? "";
-    const link =
+
+    // link: XML実体参照(&amp; 等)をデコードして正しいURLに戻す
+    const rawLink =
       (/<link>(.*?)<\/link>/.exec(block) ||
         /<link\s+href="(.*?)"/.exec(block))?.[1] ?? "";
+    const link = xmlDecodeUrl(rawLink.trim());
+
+    // guid: 安定ID生成に使用（linkと同じことが多いが、BBCはguidが追跡クエリなし）
+    const rawGuid =
+      (/<guid[^>]*><!\[CDATA\[(.*?)\]\]><\/guid>/.exec(block) ||
+        /<guid[^>]*>(.*?)<\/guid>/.exec(block))?.[1]?.trim() ?? "";
+    const guid = xmlDecodeUrl(rawGuid);
+
     const description =
       (/<description><!\[CDATA\[(.*?)\]\]><\/description>/.exec(block) ||
         /<description>(.*?)<\/description>/.exec(block))?.[1] ?? "";
+
     const pubDate =
       (/<pubDate>(.*?)<\/pubDate>/.exec(block))?.[1] ??
       new Date().toISOString();
-    if (title && link) {
-      items.push({ title, link, description, pubDate });
+
+    // link か guid のどちらかがあれば有効なアイテムとして扱う
+    const effectiveLink = link || guid;
+    if (title && effectiveLink) {
+      items.push({
+        title,
+        link: effectiveLink,
+        guid: guid || effectiveLink,
+        description,
+        pubDate,
+      });
     }
   }
   return items;
 }
 
 // ─── NHK（国内） ──────────────────────────────────────────────────────────────
+// URL形式: http://www3.nhk.or.jp/news/html/YYYYMMDD/kXXXXXXXXXXXXX000.html
+// ID戦略: stableId("nhk", guid) — guidはlinkと同一で安定
 
 export async function fetchNHKNews(limit = 15): Promise<NewsItem[]> {
   try {
     const xml = await fetchRSS("https://www3.nhk.or.jp/rss/news/cat0.xml");
     const items = parseRSSItems(xml).slice(0, limit);
     return items
-      .map((item, i) => {
+      .map((item) => {
         const url = normalizeUrl(item.link);
+        if (!url) return null;
         return {
-          id: `nhk-${i}-${Date.now()}`,
+          id: stableId("nhk", item.guid || item.link),
           title: item.title,
           summary: item.description
             ? item.description.replace(/<[^>]+>/g, "").slice(0, 150)
             : "続きはリンク先でご確認ください。",
-          url: url ?? null!, // null の場合は詳細ページでボタン非表示
+          url,
           source: "NHK",
           category: "domestic" as NewsCategory,
           publishedAt: new Date(item.pubDate).toISOString(),
         };
       })
-      .filter((item) => item.url !== null); // URL無効なものは除外
+      .filter((item): item is NewsItem => item !== null);
   } catch (err) {
     console.error("[fetchNHKNews] error:", err);
     return [];
@@ -150,27 +190,30 @@ export async function fetchNHKNews(limit = 15): Promise<NewsItem[]> {
 }
 
 // ─── Zenn（技術） ─────────────────────────────────────────────────────────────
+// URL形式: https://zenn.dev/{user}/articles/{slug}
+// ID戦略: stableId("zenn", guid) — guidはlinkと同一で安定
 
 export async function fetchZennTechNews(limit = 5): Promise<NewsItem[]> {
   try {
     const xml = await fetchRSS("https://zenn.dev/feed");
     const items = parseRSSItems(xml).slice(0, limit);
     return items
-      .map((item, i) => {
+      .map((item) => {
         const url = normalizeUrl(item.link);
+        if (!url) return null;
         return {
-          id: `zenn-${i}-${Date.now()}`,
+          id: stableId("zenn", item.guid || item.link),
           title: item.title,
           summary: item.description
             ? item.description.replace(/<[^>]+>/g, "").slice(0, 150)
             : "Zennの技術記事です。",
-          url: url ?? null!,
+          url,
           source: "Zenn",
           category: "tech" as NewsCategory,
           publishedAt: new Date(item.pubDate).toISOString(),
         };
       })
-      .filter((item) => item.url !== null);
+      .filter((item): item is NewsItem => item !== null);
   } catch (err) {
     console.error("[fetchZennTechNews] error:", err);
     return [];
@@ -178,6 +221,8 @@ export async function fetchZennTechNews(limit = 5): Promise<NewsItem[]> {
 }
 
 // ─── Dev.to（技術、英語） ──────────────────────────────────────────────────────
+// URL形式: https://dev.to/{user}/{slug}
+// ID戦略: stableId("devto", guid) — guidはlinkと同一で安定
 
 export async function fetchDevToNews(limit = 5): Promise<NewsItem[]> {
   try {
@@ -196,7 +241,7 @@ export async function fetchDevToNews(limit = 5): Promise<NewsItem[]> {
       const isEng = isEnglish(item.title);
       const translatedTitle = translated[i];
       result.push({
-        id: `devto-${i}-${Date.now()}`,
+        id: stableId("devto", item.guid || item.link),
         title: translatedTitle ?? item.title,
         originalTitle: isEng && translatedTitle ? item.title : undefined,
         summary: item.description
@@ -217,6 +262,8 @@ export async function fetchDevToNews(limit = 5): Promise<NewsItem[]> {
 }
 
 // ─── GitHub Trending ──────────────────────────────────────────────────────────
+// URL: https://github.com/{owner}/{repo}
+// ID戦略: `gh-${repo.id}` — GitHub repo integer ID は永続的に安定
 
 export async function fetchGitHubTrending(limit = 5): Promise<NewsItem[]> {
   try {
@@ -254,13 +301,12 @@ export async function fetchGitHubTrending(limit = 5): Promise<NewsItem[]> {
       const translatedDesc = translated[i];
       const langBadge = repo.language ? ` [${repo.language}]` : "";
       return {
+        // GitHub repo.id は整数で変わらない
         id: `gh-${repo.id}`,
         title: `${repo.full_name}${langBadge} ⭐${repo.stargazers_count}`,
         summary:
           translatedDesc ??
-          (rawDesc
-            ? rawDesc.slice(0, 150)
-            : "GitHubトレンドのリポジトリです。"),
+          (rawDesc ? rawDesc.slice(0, 150) : "GitHubトレンドのリポジトリです。"),
         url: repo.html_url,
         source: "GitHub Trending",
         category: "tech" as NewsCategory,
@@ -275,54 +321,63 @@ export async function fetchGitHubTrending(limit = 5): Promise<NewsItem[]> {
 
 // ─── 海外ニュース RSS ─────────────────────────────────────────────────────────
 
-/** NHK国際ニュース（日本語、翻訳不要） */
+/** NHK国際ニュース（日本語、翻訳不要）
+ * URL形式: http://www3.nhk.or.jp/news/html/...
+ * ID戦略: stableId("nhk-intl", guid)
+ */
 async function fetchNHKInternational(limit = 8): Promise<NewsItem[]> {
   try {
     const xml = await fetchRSS("https://www3.nhk.or.jp/rss/news/cat6.xml");
     const items = parseRSSItems(xml).slice(0, limit);
     return items
-      .map((item, i) => {
+      .map((item) => {
         const url = normalizeUrl(item.link);
+        if (!url) return null;
         return {
-          id: `nhk-intl-${i}-${Date.now()}`,
+          id: stableId("nhk-intl", item.guid || item.link),
           title: item.title,
           summary: item.description
             ? item.description.replace(/<[^>]+>/g, "").slice(0, 150)
             : "続きはリンク先でご確認ください。",
-          url: url ?? null!,
+          url,
           source: "NHK国際",
           category: "international" as NewsCategory,
           publishedAt: new Date(item.pubDate).toISOString(),
         };
       })
-      .filter((item) => item.url !== null);
+      .filter((item): item is NewsItem => item !== null);
   } catch (err) {
     console.error("[fetchNHKInternational] error:", err);
     return [];
   }
 }
 
-/** BBC日本語（日本語、翻訳不要） */
+/** BBC日本語（日本語、翻訳不要）
+ * URL形式: https://www.bbc.com/japanese/articles/XXXXXXXX?at_medium=RSS&at_campaign=rss
+ * guid形式: https://www.bbc.com/japanese/articles/XXXXXXXX#0  （追跡クエリなし）
+ * ID戦略: stableId("bbc", guid) — guid は #0 付きだが安定
+ */
 async function fetchBBCJapanese(limit = 7): Promise<NewsItem[]> {
   try {
     const xml = await fetchRSS("https://feeds.bbci.co.uk/japanese/rss.xml");
     const items = parseRSSItems(xml).slice(0, limit);
     return items
-      .map((item, i) => {
+      .map((item) => {
         const url = normalizeUrl(item.link);
+        if (!url) return null;
         return {
-          id: `bbc-${i}-${Date.now()}`,
+          id: stableId("bbc", item.guid || item.link),
           title: item.title,
           summary: item.description
             ? item.description.replace(/<[^>]+>/g, "").slice(0, 150)
             : "BBC日本語の記事です。",
-          url: url ?? null!,
+          url,
           source: "BBC",
           category: "international" as NewsCategory,
           publishedAt: new Date(item.pubDate).toISOString(),
         };
       })
-      .filter((item) => item.url !== null);
+      .filter((item): item is NewsItem => item !== null);
   } catch (err) {
     console.error("[fetchBBCJapanese] error:", err);
     return [];
@@ -336,6 +391,11 @@ async function fetchBBCJapanese(limit = 7): Promise<NewsItem[]> {
  *   tech:          30件 (HN 15 + Zenn 5 + Dev.to 5 + GitHub 5)
  *   domestic:      15件 (NHK)
  *   international: 15件 (NHK国際 8 + BBC 7)
+ *
+ * IDの安定性保証:
+ *   全ソースが Date.now() を使わず URL ベースの決定論的 ID を生成するため、
+ *   一覧ページと詳細ページで fetchAllNews() を別々に呼び出しても
+ *   同じ記事には必ず同じ ID が付与される。
  */
 export async function fetchAllNews(): Promise<NewsItem[]> {
   const [hn, nhk, zenn, nhkIntl, bbc, devto, github] =
