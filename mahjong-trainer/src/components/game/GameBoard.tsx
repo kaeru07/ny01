@@ -37,14 +37,6 @@ export default function GameBoard({
             {players[2].score.toLocaleString()}点
           </span>
           {turn === 2 && <span className="text-yellow-400 text-xs">●</span>}
-          {onStartReading && (
-            <button
-              onClick={() => onStartReading(2)}
-              className="text-xs px-1.5 py-0.5 bg-purple-800 hover:bg-purple-700 text-purple-200 rounded"
-            >
-              読む
-            </button>
-          )}
         </div>
         <PlayerHand
           player={players[2]}
@@ -67,14 +59,6 @@ export default function GameBoard({
             orientation="vertical"
             showTiles={phase === "review"}
           />
-          {onStartReading && (
-            <button
-              onClick={() => onStartReading(3)}
-              className="text-xs px-1 py-0.5 bg-purple-800 hover:bg-purple-700 text-purple-200 rounded mt-1"
-            >
-              読む
-            </button>
-          )}
         </div>
 
         {/* 卓中央エリア */}
@@ -125,14 +109,6 @@ export default function GameBoard({
             orientation="vertical"
             showTiles={phase === "review"}
           />
-          {onStartReading && (
-            <button
-              onClick={() => onStartReading(1)}
-              className="text-xs px-1 py-0.5 bg-purple-800 hover:bg-purple-700 text-purple-200 rounded mt-1"
-            >
-              読む
-            </button>
-          )}
         </div>
       </div>
 
@@ -162,6 +138,21 @@ export default function GameBoard({
           showTiles={true}
         />
       </div>
+
+      {/* 読むボタン行 */}
+      {onStartReading && (
+        <div className="flex gap-2 justify-center shrink-0">
+          {([1, 2, 3] as PlayerIndex[]).map((idx) => (
+            <button
+              key={idx}
+              onClick={() => onStartReading(idx)}
+              className="flex-1 py-2.5 bg-purple-700 hover:bg-purple-600 active:bg-purple-800 text-white font-bold rounded-lg text-sm shadow-md transition-colors"
+            >
+              📖 {playerLabel(idx)}を読む
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

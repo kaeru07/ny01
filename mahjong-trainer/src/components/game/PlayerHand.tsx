@@ -50,7 +50,7 @@ export default function PlayerHand({
   }
 
   return (
-    <div className="flex items-end gap-0.5 flex-wrap">
+    <div className="flex items-end gap-1 overflow-x-auto pb-1" style={{ flexWrap: "nowrap" }}>
       {/* 手牌 */}
       {player.hand.map((tile, i) => (
         <TileComponent
@@ -59,13 +59,14 @@ export default function PlayerHand({
           size={tileSize}
           faceDown={!showTiles}
           onClick={canDiscard ? () => onDiscard?.(tile) : undefined}
+          className="shrink-0"
         />
       ))}
 
       {/* ツモ牌 (手牌から少し離して表示) */}
       {player.drawnTile !== null && (
         <>
-          <div className="w-2" />
+          <div className="w-3 shrink-0" />
           <TileComponent
             key="drawn"
             tileIndex={player.drawnTile}
@@ -73,13 +74,14 @@ export default function PlayerHand({
             highlighted={isHuman}
             faceDown={!showTiles}
             onClick={canDiscard ? () => onDiscard?.(player.drawnTile!) : undefined}
+            className="shrink-0"
           />
         </>
       )}
 
       {/* 鳴き面子 */}
       {player.melds.map((meld, mi) => (
-        <div key={`meld-${mi}`} className="flex gap-0.5 ml-2 border-l-2 border-yellow-400 pl-1">
+        <div key={`meld-${mi}`} className="flex gap-1 ml-2 border-l-2 border-yellow-400 pl-1 shrink-0">
           {meld.tiles.map((tile, ti) => (
             <TileComponent
               key={`meld-${mi}-${ti}`}
@@ -93,7 +95,7 @@ export default function PlayerHand({
 
       {/* 立直棒アイコン */}
       {player.riichi && (
-        <span className="ml-2 text-red-500 font-bold text-sm self-center">
+        <span className="ml-2 text-red-500 font-bold text-sm self-center shrink-0">
           ⚡立直
         </span>
       )}

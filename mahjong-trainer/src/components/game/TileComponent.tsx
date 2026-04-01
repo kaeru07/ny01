@@ -53,7 +53,7 @@ function getTileDisplay(tileIndex: TileIndex): { char: string; color: string } {
 const sizeClasses = {
   sm: "w-7 h-10 text-xs",
   md: "w-9 h-12 text-sm",
-  lg: "w-12 h-16 text-base",
+  lg: "w-11 h-14 text-sm",
 };
 
 const suitLabel: Record<string, string> = {
