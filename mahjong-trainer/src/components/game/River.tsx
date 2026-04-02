@@ -27,7 +27,7 @@ export default function River({
   return (
     <div className="flex flex-col items-start gap-1">
       <span className="text-gray-300 text-xs mb-0.5">{label}の河</span>
-      <div className="grid gap-1" style={{ gridTemplateColumns: "repeat(6, auto)" }}>
+      <div className="river-grid">
         {discards.map((tile, i) => (
           <TileComponent
             key={`river-${i}`}

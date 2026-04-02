@@ -26,9 +26,9 @@ export default function GameBoard({
   const { players, dora, turn, phase } = gameState;
 
   return (
-    <div className="flex flex-col h-full gap-1 select-none">
+    <div className="flex flex-col h-full gap-1 landscape:gap-0.5 select-none">
       {/* 上家 (CPU西, index=2) */}
-      <div className="flex flex-col items-center gap-1 p-2 bg-gray-800 rounded-lg border border-gray-700">
+      <div className="flex flex-col items-center gap-1 landscape:gap-0.5 p-2 landscape:p-1 bg-gray-800 rounded-lg border border-gray-700">
         <div className="flex items-center gap-2">
           <span className="text-xs text-gray-400">
             {WIND_LABELS[players[2].wind]} {playerLabel(2)}
@@ -46,9 +46,9 @@ export default function GameBoard({
       </div>
 
       {/* 中段: 左家(CPU北,3) | 卓中央 | 右家(CPU南,1) */}
-      <div className="flex flex-1 gap-1 min-h-0">
+      <div className="flex flex-1 gap-1 landscape:gap-0.5 min-h-0">
         {/* 左家 (CPU北, index=3) */}
-        <div className="flex flex-col items-center justify-center gap-1 p-2 bg-gray-800 rounded-lg border border-gray-700 w-20">
+        <div className="flex flex-col items-center justify-center gap-1 landscape:gap-0.5 p-2 landscape:p-1 bg-gray-800 rounded-lg border border-gray-700 w-20 landscape:w-14">
           <span className="text-xs text-gray-400 [writing-mode:vertical-rl]">
             {WIND_LABELS[players[3].wind]} {playerLabel(3)}
           </span>
@@ -64,7 +64,7 @@ export default function GameBoard({
         {/* 卓中央エリア */}
         <div className="flex-1 flex flex-col bg-green-900 rounded-xl border-2 border-green-700 overflow-hidden">
           {/* 河エリア */}
-          <div className="flex-1 grid grid-cols-2 gap-2 p-2 overflow-auto">
+          <div className="flex-1 grid grid-cols-2 gap-2 landscape:gap-1 p-2 landscape:p-1 overflow-auto">
             {/* 上家河 */}
             <div className="col-span-2 flex justify-center">
               <River discards={players[2].discards} label={playerLabel(2)} />
@@ -84,7 +84,7 @@ export default function GameBoard({
           </div>
 
           {/* 卓中央: ドラ・残り牌数 */}
-          <div className="flex items-center justify-center gap-3 p-1 bg-green-800 border-t border-green-700">
+          <div className="flex items-center justify-center gap-3 landscape:gap-2 p-1 landscape:py-0.5 bg-green-800 border-t border-green-700">
             <div className="flex items-center gap-1">
               <span className="text-xs text-green-300">ドラ</span>
               {dora.map((t, i) => (
@@ -98,7 +98,7 @@ export default function GameBoard({
         </div>
 
         {/* 右家 (CPU南, index=1) */}
-        <div className="flex flex-col items-center justify-center gap-1 p-2 bg-gray-800 rounded-lg border border-gray-700 w-20">
+        <div className="flex flex-col items-center justify-center gap-1 landscape:gap-0.5 p-2 landscape:p-1 bg-gray-800 rounded-lg border border-gray-700 w-20 landscape:w-14">
           <span className="text-xs text-gray-400 [writing-mode:vertical-rl]">
             {WIND_LABELS[players[1].wind]} {playerLabel(1)}
           </span>
@@ -113,8 +113,8 @@ export default function GameBoard({
       </div>
 
       {/* 自分の手牌エリア (下) */}
-      <div className="p-2 bg-gray-800 rounded-lg border border-gray-700">
-        <div className="flex items-center justify-between mb-1">
+      <div className="p-2 landscape:p-1 bg-gray-800 rounded-lg border border-gray-700">
+        <div className="flex items-center justify-between mb-1 landscape:mb-0.5">
           <div className="flex items-center gap-2">
             <span className="text-xs text-gray-300 font-bold">
               あなた ({WIND_LABELS[players[0].wind]})
@@ -146,7 +146,7 @@ export default function GameBoard({
             <button
               key={idx}
               onClick={() => onStartReading(idx)}
-              className="flex-1 py-2.5 bg-purple-700 hover:bg-purple-600 active:bg-purple-800 text-white font-bold rounded-lg text-sm shadow-md transition-colors"
+              className="flex-1 py-2 landscape:py-1.5 bg-purple-700 hover:bg-purple-600 active:bg-purple-800 text-white font-bold rounded-lg text-sm landscape:text-xs shadow-md transition-colors"
             >
               📖 {playerLabel(idx)}を読む
             </button>

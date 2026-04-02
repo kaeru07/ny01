@@ -18,6 +18,74 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* === レスポンシブタイルサイズ (CSS変数) === */
+:root {
+  /* 手牌 (人間プレイヤー) */
+  --tile-hand-w: 34px;
+  --tile-hand-h: 48px;
+  /* 小タイル (河・CPU手牌) */
+  --tile-sm-w: 28px;
+  --tile-sm-h: 40px;
+  /* 中タイル (モーダル選択等) */
+  --tile-md-w: 32px;
+  --tile-md-h: 44px;
+  /* 手牌行レイアウト */
+  --hand-gap: 3px;
+  --hand-px: 8px;
+  /* 河レイアウト */
+  --river-gap: 2px;
+}
+
+@media (orientation: landscape) {
+  :root {
+    --tile-hand-w: 30px;
+    --tile-hand-h: 42px;
+    --tile-sm-w: 23px;
+    --tile-sm-h: 33px;
+    --tile-md-w: 28px;
+    --tile-md-h: 39px;
+    --hand-gap: 2px;
+    --hand-px: 6px;
+    --river-gap: 1px;
+  }
+}
+
+/* タイルサイズクラス */
+.tile-hand {
+  width: var(--tile-hand-w);
+  height: var(--tile-hand-h);
+  flex-shrink: 0;
+}
+.tile-sm {
+  width: var(--tile-sm-w);
+  height: var(--tile-sm-h);
+  flex-shrink: 0;
+}
+.tile-md {
+  width: var(--tile-md-w);
+  height: var(--tile-md-h);
+  flex-shrink: 0;
+}
+
+/* 手牌行 */
+.hand-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--hand-gap);
+  overflow-x: auto;
+  padding-left: var(--hand-px);
+  padding-right: var(--hand-px);
+  padding-bottom: 2px;
+  align-items: flex-end;
+}
+
+/* 河グリッド */
+.river-grid {
+  display: grid;
+  grid-template-columns: repeat(6, auto);
+  gap: var(--river-gap);
+}
+
 /* スクロールバーをダークテーマに */
 ::-webkit-scrollbar {
   width: 4px;

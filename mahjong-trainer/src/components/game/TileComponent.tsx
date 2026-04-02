@@ -50,10 +50,11 @@ function getTileDisplay(tileIndex: TileIndex): { char: string; color: string } {
   };
 }
 
+// サイズはglobals.cssのCSS変数 (--tile-*) で制御
 const sizeClasses = {
-  sm: "w-7 h-10 text-xs",
-  md: "w-9 h-12 text-sm",
-  lg: "w-11 h-14 text-sm",
+  sm: "tile-sm text-xs",
+  md: "tile-md text-xs",
+  lg: "tile-hand text-xs",
 };
 
 const suitLabel: Record<string, string> = {
@@ -109,7 +110,7 @@ export default function TileComponent({
       onClick={onClick}
       title={tileName(tileIndex)}
     >
-      <span className={`font-bold leading-none ${color} ${size === "sm" ? "text-xs" : "text-sm"}`}>
+      <span className={`font-bold leading-none ${color} text-xs`}>
         {char}
       </span>
       {tile.suit !== "honor" && (
