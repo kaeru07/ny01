@@ -51,7 +51,6 @@ const categoryColor: Record<PromptCategory, string> = {
 const allPhases = Object.keys(phaseLabel) as ProjectPhase[];
 const allRoles = Object.keys(roleLabel) as AICOMPANYRole[];
 
-// 担当別メモのフィールドマッピング
 type RoleNoteField =
   | 'secretaryNotes'
   | 'researcherNotes'
@@ -104,18 +103,14 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [devNote, setDevNote] = useState<DevNote | null>(null);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
 
-  // Phase/owner quick update
   const [showPhaseDialog, setShowPhaseDialog] = useState(false);
   const [quickUpdate, setQuickUpdate] = useState<QuickUpdateState>({ currentPhase: '', currentOwner: '', nextOwner: '' });
 
-  // Role note editing
   const [editingRole, setEditingRole] = useState<AICOMPANYRole | null>(null);
   const [editingNoteValue, setEditingNoteValue] = useState('');
 
-  // Project delete
   const [showDeleteProjectDialog, setShowDeleteProjectDialog] = useState(false);
 
-  // Prompt management
   const [promptFilter, setPromptFilter] = useState<PromptFilterTab>('all');
   const [promptDialogOpen, setPromptDialogOpen] = useState(false);
   const [editingPrompt, setEditingPrompt] = useState<Prompt | undefined>(undefined);
@@ -202,6 +197,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
   if (!project) return <div className="p-6 text-gray-400">読み込み中...</div>;
 
+  const missingNotes = allRoles.filter((r) => !project[roleNoteField[r]]);
+
   return (
     <div className="p-6 space-y-5">
       {/* Breadcrumb */}
@@ -215,7 +212,6 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-2">
           <h1 className="text-xl font-bold text-white">{project.title}</h1>
-          {/* AICOMPANY進行バー */}
           <div className="flex items-center gap-2 flex-wrap">
             {project.currentPhase ? (
               <Badge className={cn('text-xs', phaseColor[project.currentPhase])}>
@@ -246,9 +242,14 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               onClick={openPhaseDialog}
             >
               <RefreshCw className="w-3 h-3 mr-1" />
-              更新
+              工程を更新
             </Button>
           </div>
+          {missingNotes.length > 0 && (
+            <p className="text-xs text-orange-400">
+              メモ未記入: {missingNotes.map((r) => roleLabel[r]).join(' / ')}
+            </p>
+          )}
         </div>
         <div className="flex gap-2 shrink-0">
           <Button variant="outline" size="sm" className="border-gray-700 text-gray-300 hover:bg-gray-700 h-8 text-xs" onClick={() => router.push(`/projects/${id}/edit`)}>
@@ -263,27 +264,95 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="overview">
-        <TabsList className="bg-gray-800 border border-gray-700 flex-wrap h-auto gap-0">
+      <Tabs defaultValue="notes">
+        <TabsList className="bg-gray-800 border border-gray-700 h-auto">
+          <TabsTrigger value="notes" className="data-[state=active]:bg-gray-700 text-gray-400 data-[state=active]:text-white text-xs">
+            担当メモ
+            {missingNotes.length > 0 && (
+              <span className="ml-1.5 text-[10px] bg-orange-600 text-white rounded-full px-1.5 py-0">
+                {missingNotes.length}
+              </span>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="overview" className="data-[state=active]:bg-gray-700 text-gray-400 data-[state=active]:text-white text-xs">概要</TabsTrigger>
-          {allRoles.map((role) => {
-            const noteField = roleNoteField[role];
-            const hasNote = !!(project[noteField]);
-            const isCurrent = project.currentOwner === role;
-            return (
-              <TabsTrigger key={role} value={role} className="data-[state=active]:bg-gray-700 text-gray-400 data-[state=active]:text-white text-xs relative">
-                {roleLabel[role]}
-                {isCurrent && <span className="ml-1 w-1.5 h-1.5 rounded-full bg-blue-400 inline-block" />}
-                {!hasNote && <span className="ml-1 w-1.5 h-1.5 rounded-full bg-red-500 inline-block" />}
-              </TabsTrigger>
-            );
-          })}
           <TabsTrigger value="prompts" className="data-[state=active]:bg-gray-700 text-gray-400 data-[state=active]:text-white text-xs">
-            プロンプト {prompts.length > 0 && <span className="ml-1 text-[10px] text-gray-500">({prompts.length})</span>}
+            プロンプト
+            {prompts.length > 0 && <span className="ml-1 text-[10px] text-gray-500">({prompts.length})</span>}
           </TabsTrigger>
         </TabsList>
 
-        {/* Overview Tab */}
+        {/* 担当メモ — カードグリッド */}
+        <TabsContent value="notes" className="mt-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            {allRoles.map((role) => {
+              const noteField = roleNoteField[role];
+              const noteValue = project[noteField] ?? '';
+              const isCurrent = project.currentOwner === role;
+              const isNext = project.nextOwner === role;
+              const isEmpty = !noteValue;
+              const isEditing = editingRole === role;
+
+              return (
+                <Card
+                  key={role}
+                  className={cn(
+                    'border transition-colors',
+                    isCurrent ? 'bg-gray-800 border-blue-700' :
+                    isEmpty ? 'bg-gray-900 border-gray-700' :
+                    'bg-gray-800 border-gray-700'
+                  )}
+                >
+                  <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Badge className={cn('text-[10px] px-1.5 py-0', roleColor[role])}>
+                        {roleLabel[role]}
+                      </Badge>
+                      {isCurrent && <Badge className="text-[10px] px-1.5 py-0 bg-blue-700 text-white">現在担当</Badge>}
+                      {isNext && <Badge className="text-[10px] px-1.5 py-0 bg-gray-600 text-white">次担当</Badge>}
+                      {isEmpty && !isEditing && (
+                        <span className="text-[10px] text-orange-400 font-medium">未記入</span>
+                      )}
+                    </div>
+                    {!isEditing && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-gray-700 text-gray-400 hover:bg-gray-700 h-6 text-xs px-2"
+                        onClick={() => startEditRoleNote(role)}
+                      >
+                        <Pencil className="w-3 h-3 mr-1" />
+                        {isEmpty ? '記入' : '編集'}
+                      </Button>
+                    )}
+                  </CardHeader>
+                  <CardContent>
+                    {isEditing ? (
+                      <div className="space-y-2">
+                        <Textarea
+                          value={editingNoteValue}
+                          onChange={(e) => setEditingNoteValue(e.target.value)}
+                          rows={5}
+                          placeholder={`${roleLabel[role]}の作業メモを入力...`}
+                          className="bg-gray-700 border-gray-600 text-gray-100 text-sm resize-y"
+                        />
+                        <div className="flex gap-2">
+                          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 h-7 text-xs" onClick={saveRoleNote}>保存</Button>
+                          <Button size="sm" variant="outline" className="border-gray-700 text-gray-300 hover:bg-gray-700 h-7 text-xs" onClick={() => setEditingRole(null)}>キャンセル</Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className={cn('text-sm whitespace-pre-wrap min-h-[2.5rem]', isEmpty ? 'text-gray-700 italic' : 'text-gray-300')}>
+                        {noteValue || '未記入'}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </TabsContent>
+
+        {/* 概要 */}
         <TabsContent value="overview" className="mt-4">
           <Card className="bg-gray-800 border-gray-700">
             <CardContent className="p-5">
@@ -309,60 +378,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           </Card>
         </TabsContent>
 
-        {/* Role Note Tabs */}
-        {allRoles.map((role) => {
-          const noteField = roleNoteField[role];
-          const noteValue = project[noteField] ?? '';
-          const isCurrent = project.currentOwner === role;
-          const isNext = project.nextOwner === role;
-          return (
-            <TabsContent key={role} value={role} className="mt-4">
-              <Card className="bg-gray-800 border-gray-700">
-                <CardHeader className="pb-3 flex flex-row items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <CardTitle className="text-sm text-gray-200">{roleLabel[role]} メモ</CardTitle>
-                    {isCurrent && <Badge className="text-[10px] px-1.5 py-0 bg-blue-700 text-white">現在担当</Badge>}
-                    {isNext && <Badge className="text-[10px] px-1.5 py-0 bg-gray-600 text-white">次担当</Badge>}
-                  </div>
-                  {editingRole !== role && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-gray-700 text-gray-300 hover:bg-gray-700 h-7 text-xs"
-                      onClick={() => startEditRoleNote(role)}
-                    >
-                      <Pencil className="w-3 h-3 mr-1" />
-                      編集
-                    </Button>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  {editingRole === role ? (
-                    <div className="space-y-2">
-                      <Textarea
-                        value={editingNoteValue}
-                        onChange={(e) => setEditingNoteValue(e.target.value)}
-                        rows={8}
-                        placeholder={`${roleLabel[role]}の作業メモを入力...`}
-                        className="bg-gray-700 border-gray-600 text-gray-100 text-sm resize-y"
-                      />
-                      <div className="flex gap-2">
-                        <Button size="sm" className="bg-blue-600 hover:bg-blue-700 h-7 text-xs" onClick={saveRoleNote}>保存</Button>
-                        <Button size="sm" variant="outline" className="border-gray-700 text-gray-300 hover:bg-gray-700 h-7 text-xs" onClick={() => setEditingRole(null)}>キャンセル</Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-sm text-gray-300 whitespace-pre-wrap min-h-[4rem]">
-                      {noteValue || <span className="text-gray-600 italic">未記入</span>}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          );
-        })}
-
-        {/* Prompts Tab */}
+        {/* プロンプト */}
         <TabsContent value="prompts" className="mt-4">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
