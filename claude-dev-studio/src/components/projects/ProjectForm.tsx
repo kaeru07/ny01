@@ -69,7 +69,7 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* 案件名 / ステータス */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label htmlFor="title" className="text-xs">案件名 *</Label>
           <Input
@@ -84,7 +84,7 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
         <div className="space-y-1.5">
           <Label htmlFor="status" className="text-xs">ステータス</Label>
           <Select value={form.status} onValueChange={(v) => set('status', v as ProjectStatus)}>
-            <SelectTrigger className="bg-gray-800 border-gray-700 h-9 text-sm">
+            <SelectTrigger className="w-full bg-gray-800 border-gray-700 h-9 text-sm text-gray-100">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-gray-800 border-gray-700">
@@ -99,14 +99,14 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
       {/* AICOMPANY進行管理 */}
       <div className="border border-gray-700 rounded-lg p-4 space-y-3">
         <p className="text-xs text-gray-400 font-medium">AICOMPANY 進行管理</p>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="space-y-1.5">
             <Label className="text-xs text-gray-500">現在の工程</Label>
             <Select
               value={form.currentPhase ?? ''}
               onValueChange={(v) => set('currentPhase', v || undefined)}
             >
-              <SelectTrigger className="bg-gray-800 border-gray-700 h-8 text-xs">
+              <SelectTrigger className="w-full bg-gray-800 border-gray-700 h-8 text-xs text-gray-100">
                 <SelectValue placeholder="未設定" />
               </SelectTrigger>
               <SelectContent className="bg-gray-800 border-gray-700">
@@ -123,7 +123,7 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
               value={form.currentOwner ?? ''}
               onValueChange={(v) => set('currentOwner', v || undefined)}
             >
-              <SelectTrigger className="bg-gray-800 border-gray-700 h-8 text-xs">
+              <SelectTrigger className="w-full bg-gray-800 border-gray-700 h-8 text-xs text-gray-100">
                 <SelectValue placeholder="未設定" />
               </SelectTrigger>
               <SelectContent className="bg-gray-800 border-gray-700">
@@ -140,7 +140,7 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
               value={form.nextOwner ?? ''}
               onValueChange={(v) => set('nextOwner', v || undefined)}
             >
-              <SelectTrigger className="bg-gray-800 border-gray-700 h-8 text-xs">
+              <SelectTrigger className="w-full bg-gray-800 border-gray-700 h-8 text-xs text-gray-100">
                 <SelectValue placeholder="未設定" />
               </SelectTrigger>
               <SelectContent className="bg-gray-800 border-gray-700">

@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/select';
 import { PromptFormDialog } from '@/components/prompts/PromptFormDialog';
 import { cn } from '@/lib/utils';
-import { Pencil, Trash2, Copy, Plus, ChevronRight, RefreshCw, ArrowRight } from 'lucide-react';
+import { Pencil, Trash2, Copy, Plus, ChevronRight, RefreshCw, ArrowRight, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { phaseLabel, phaseColor, roleLabel, roleColor } from '@/app/page';
 
@@ -116,12 +116,16 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [editingPrompt, setEditingPrompt] = useState<Prompt | undefined>(undefined);
   const [deletePromptTarget, setDeletePromptTarget] = useState<Prompt | null>(null);
 
+  const [promptModalRole, setPromptModalRole] = useState<AICOMPANYRole | null>(null);
+  const [allPrompts, setAllPrompts] = useState<Prompt[]>([]);
+
   const loadData = () => {
     const p = projectRepository.findById(id);
     if (!p) { router.push('/projects'); return; }
     setProject(p);
     setDevNote(devNoteRepository.findByProjectId(id));
     setPrompts(promptRepository.findByProjectId(id));
+    setAllPrompts(promptRepository.findAll());
   };
 
   useEffect(() => {
@@ -200,7 +204,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const missingNotes = allRoles.filter((r) => !project[roleNoteField[r]]);
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-4 sm:p-6 space-y-5">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-xs text-gray-500">
         <Link href="/projects" className="hover:text-white transition-colors">案件管理</Link>
@@ -209,7 +213,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
       </nav>
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div className="space-y-2">
           <h1 className="text-xl font-bold text-white">{project.title}</h1>
           <div className="flex items-center gap-2 flex-wrap">
@@ -292,6 +296,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               const isEmpty = !noteValue;
               const isEditing = editingRole === role;
 
+              const rolePrompts = allPrompts.filter((p) => p.targetRole === role);
+
               return (
                 <Card
                   key={role}
@@ -302,8 +308,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     'bg-gray-800 border-gray-700'
                   )}
                 >
-                  <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <CardHeader className="pb-2 flex flex-row items-center justify-between gap-2 flex-wrap">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <Badge className={cn('text-[10px] px-1.5 py-0', roleColor[role])}>
                         {roleLabel[role]}
                       </Badge>
@@ -313,17 +319,30 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                         <span className="text-[10px] text-orange-400 font-medium">未記入</span>
                       )}
                     </div>
-                    {!isEditing && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-gray-700 text-gray-400 hover:bg-gray-700 h-6 text-xs px-2"
-                        onClick={() => startEditRoleNote(role)}
-                      >
-                        <Pencil className="w-3 h-3 mr-1" />
-                        {isEmpty ? '記入' : '編集'}
-                      </Button>
-                    )}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {rolePrompts.length > 0 && !isEditing && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-blue-800 text-blue-400 hover:bg-blue-900/30 h-6 text-xs px-2"
+                          onClick={() => setPromptModalRole(role)}
+                        >
+                          <FileText className="w-3 h-3 mr-1" />
+                          プロンプト({rolePrompts.length})
+                        </Button>
+                      )}
+                      {!isEditing && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-gray-700 text-gray-400 hover:bg-gray-700 h-6 text-xs px-2"
+                          onClick={() => startEditRoleNote(role)}
+                        >
+                          <Pencil className="w-3 h-3 mr-1" />
+                          {isEmpty ? '記入' : '編集'}
+                        </Button>
+                      )}
+                    </div>
                   </CardHeader>
                   <CardContent>
                     {isEditing ? (
@@ -558,6 +577,54 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         onOpenChange={setPromptDialogOpen}
         onSave={handleSavePrompt}
       />
+
+      {/* Role Prompt Modal */}
+      <Dialog open={!!promptModalRole} onOpenChange={(open) => !open && setPromptModalRole(null)}>
+        <DialogContent className="bg-gray-800 border-gray-700 text-gray-100 max-w-lg w-[calc(100vw-2rem)] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-sm flex items-center gap-2">
+              <FileText className="w-4 h-4 text-blue-400" />
+              {promptModalRole && roleLabel[promptModalRole]} 用プロンプト
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 mt-1">
+            {promptModalRole && allPrompts.filter((p) => p.targetRole === promptModalRole).map((pr) => (
+              <div key={pr.id} className="border border-gray-700 rounded-lg p-3 space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="space-y-0.5 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge className={cn('text-[10px]', categoryColor[pr.category])}>
+                        {categoryLabel[pr.category]}
+                      </Badge>
+                      <Badge variant="outline" className="text-[10px] border-gray-600 text-gray-400">{pr.version}</Badge>
+                    </div>
+                    <p className="text-xs font-medium text-white mt-1">{pr.title}</p>
+                    {pr.changeMemo && (
+                      <p className="text-[10px] text-gray-500">{pr.changeMemo}</p>
+                    )}
+                  </div>
+                  <Button
+                    size="sm"
+                    className="bg-blue-600 hover:bg-blue-700 h-7 text-xs px-2.5 shrink-0"
+                    onClick={() =>
+                      navigator.clipboard.writeText(pr.body).then(() => toast.success('コピーしました'))
+                    }
+                  >
+                    <Copy className="w-3 h-3 mr-1" />
+                    コピー
+                  </Button>
+                </div>
+                <pre className="text-xs text-gray-300 whitespace-pre-wrap font-mono bg-gray-900 rounded p-2.5 max-h-36 overflow-y-auto leading-relaxed">
+                  {pr.body}
+                </pre>
+              </div>
+            ))}
+            {promptModalRole && allPrompts.filter((p) => p.targetRole === promptModalRole).length === 0 && (
+              <p className="text-gray-500 text-sm py-2">このロール用のプロンプトはありません</p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

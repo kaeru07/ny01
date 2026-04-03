@@ -98,7 +98,7 @@ export default function DashboardPage() {
   const allRoles = Object.keys(roleLabel) as AICOMPANYRole[];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -115,7 +115,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { label: '全案件', value: projects.length, color: 'text-white' },
           { label: '進行中', value: activeProjects.length, color: 'text-blue-400' },
@@ -139,7 +139,8 @@ export default function DashboardPage() {
         {activeProjects.length === 0 ? (
           <p className="text-gray-600 text-sm py-3">進行中の案件はありません</p>
         ) : (
-          <div className="border border-gray-700 rounded-lg overflow-hidden">
+          <div className="border border-gray-700 rounded-lg overflow-hidden overflow-x-auto">
+            <div className="min-w-[520px]">
             {/* Header row */}
             <div className="grid grid-cols-[1fr_120px_140px_100px_auto] gap-3 px-4 py-2 bg-gray-800/60 text-xs text-gray-500 font-medium border-b border-gray-700">
               <span>案件名</span>
@@ -212,12 +213,13 @@ export default function DashboardPage() {
                 </Link>
               );
             })}
+            </div>
           </div>
         )}
       </div>
 
       {/* 工程別 / 担当別サマリー */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
           <h3 className="text-xs font-semibold text-gray-400 mb-3">工程別（進行中）</h3>
           <div className="space-y-1.5">

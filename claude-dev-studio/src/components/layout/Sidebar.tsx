@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, FolderKanban, Settings, FileText } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, Settings, FileText, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -12,16 +12,36 @@ const navItems = [
   { href: '/settings', label: '設定', icon: Settings },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-56 shrink-0 bg-gray-950 flex flex-col h-screen sticky top-0">
-      <div className="p-4 border-b border-gray-800">
+    <aside
+      className={cn(
+        'w-56 shrink-0 bg-gray-950 flex flex-col',
+        // Desktop: sticky in flex layout
+        'sm:sticky sm:top-0 sm:h-screen',
+        // Mobile: fixed drawer, slides in/out
+        'max-sm:fixed max-sm:inset-y-0 max-sm:left-0 max-sm:z-30 max-sm:h-full max-sm:transition-transform max-sm:duration-200',
+        open ? 'max-sm:translate-x-0' : 'max-sm:-translate-x-full'
+      )}
+    >
+      <div className="p-4 border-b border-gray-800 flex items-center justify-between">
         <div className="flex flex-col gap-0.5">
           <span className="text-white font-bold text-sm">AICOMPANY</span>
           <span className="text-gray-500 text-xs">案件司令塔</span>
         </div>
+        <button
+          onClick={onClose}
+          className="sm:hidden text-gray-500 hover:text-white p-0.5"
+        >
+          <X className="w-4 h-4" />
+        </button>
       </div>
       <nav className="flex-1 p-3 space-y-1">
         {navItems.map((item) => {
@@ -34,6 +54,7 @@ export function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={onClose}
               className={cn(
                 'flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors',
                 isActive

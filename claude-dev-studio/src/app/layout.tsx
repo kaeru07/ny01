@@ -25,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="ja" className={`${geistSans.variable} ${geistMono.variable} dark`}>
       <body className="bg-gray-900 text-gray-100 antialiased">
         <AppShell>{children}</AppShell>
         <Toaster richColors position="top-right" />
