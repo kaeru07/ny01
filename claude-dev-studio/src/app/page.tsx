@@ -8,6 +8,9 @@ import { promptRepository } from '@/lib/repository/promptRepository';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Plus, CheckSquare, TrendingUp, ListTodo, AlertCircle, Clock } from 'lucide-react';
+import { toast } from 'sonner';
+import { isSupabaseConfigured, supabase } from '@/lib/supabase';
+import { storage } from '@/lib/repository/storage';
 
 // プロンプト管理ページで使用するため引き続きエクスポート
 export const roleLabel: Record<AICOMPANYRole, string> = {
@@ -86,13 +89,83 @@ export function getDueDateStatus(
   return 'upcoming';
 }
 
+async function migrateFromLocalStorage() {
+  if (!isSupabaseConfigured || !supabase) return;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  // 既にSupabaseにデータがあれば移行しない
+  const existing = await projectRepository.findAll();
+  if (existing.length > 0) return;
+
+  const localProjects = storage.get<Project[]>('cds_projects') ?? [];
+  if (localProjects.length === 0) return;
+
+  // localStorageのプロジェクトとプロンプトをインポート
+  for (const p of localProjects) {
+    await supabase.from('projects').insert({
+      id: p.id,
+      user_id: user.id,
+      title: p.title,
+      summary: p.summary,
+      target: p.target,
+      problem: p.problem,
+      mvp_features: p.mvpFeatures,
+      future_features: p.futureFeatures,
+      tech_stack: p.techStack,
+      design_policy: p.designPolicy,
+      memo: p.memo,
+      status: p.status,
+      todos: p.todos ?? [],
+      next_action: p.nextAction ?? '',
+      created_at: p.createdAt,
+      updated_at: p.updatedAt,
+    });
+  }
+
+  const localPrompts = storage.get<{
+    id: string; projectId: string; category: string; version: string;
+    title: string; body: string; changeMemo: string; targetRole?: string;
+    createdAt: string; updatedAt: string;
+  }[]>('cds_prompts') ?? [];
+
+  for (const pr of localPrompts) {
+    await supabase.from('prompts').insert({
+      id: pr.id,
+      user_id: user.id,
+      project_id: pr.projectId,
+      category: pr.category,
+      version: pr.version,
+      title: pr.title,
+      body: pr.body,
+      change_memo: pr.changeMemo,
+      target_role: pr.targetRole ?? '',
+      created_at: pr.createdAt,
+      updated_at: pr.updatedAt,
+    });
+  }
+
+  toast.success(
+    `ローカルデータを移行しました（案件 ${localProjects.length}件、プロンプト ${localPrompts.length}件）`,
+    { duration: 5000 }
+  );
+}
+
 export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [promptCount, setPromptCount] = useState(0);
 
   useEffect(() => {
-    setProjects(projectRepository.findAll());
-    setPromptCount(promptRepository.findAll().length);
+    async function load() {
+      await migrateFromLocalStorage();
+      const [ps, prs] = await Promise.all([
+        projectRepository.findAll(),
+        promptRepository.findAll(),
+      ]);
+      setProjects(ps);
+      setPromptCount(prs.length);
+    }
+    load();
   }, []);
 
   const activeProjects = projects.filter((p) => p.status === 'active' || p.status === 'adjusting');

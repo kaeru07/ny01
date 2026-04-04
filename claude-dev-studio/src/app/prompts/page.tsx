@@ -40,9 +40,13 @@ export default function PromptsPage() {
   const [deleteTarget, setDeleteTarget] = useState<Prompt | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
 
-  const load = () => {
-    setPrompts(promptRepository.findAll());
-    setProjects(projectRepository.findAll());
+  const load = async () => {
+    const [prs, ps] = await Promise.all([
+      promptRepository.findAll(),
+      projectRepository.findAll(),
+    ]);
+    setPrompts(prs);
+    setProjects(ps);
   };
 
   useEffect(() => { load(); }, []);
@@ -55,9 +59,9 @@ export default function PromptsPage() {
     .filter((p) => search === '' || p.title.toLowerCase().includes(search.toLowerCase()) || p.body.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!deleteTarget) return;
-    promptRepository.delete(deleteTarget.id);
+    await promptRepository.delete(deleteTarget.id);
     toast.success('削除しました');
     setDeleteTarget(null);
     load();

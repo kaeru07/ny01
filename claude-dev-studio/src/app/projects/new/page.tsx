@@ -9,8 +9,8 @@ import { toast } from 'sonner';
 export default function NewProjectPage() {
   const router = useRouter();
 
-  const handleSubmit = (data: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const project = projectRepository.create(data);
+  const handleSubmit = async (data: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const project = await projectRepository.create(data);
     toast.success('案件を作成しました');
     router.push(`/projects/${project.id}`);
   };

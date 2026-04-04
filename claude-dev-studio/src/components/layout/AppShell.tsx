@@ -1,11 +1,46 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { Menu } from 'lucide-react';
 import { Sidebar } from './Sidebar';
+import { useAuth } from '@/contexts/AuthContext';
+import { isSupabaseConfigured } from '@/lib/supabase';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    if (loading) return;
+    if (!user && pathname !== '/login') {
+      router.replace('/login');
+    }
+    if (user && pathname === '/login') {
+      router.replace('/');
+    }
+  }, [user, loading, pathname, router]);
+
+  // ログインページはシェルなしで表示
+  if (pathname === '/login') {
+    return <>{children}</>;
+  }
+
+  // Supabase設定済みかつ未ログイン中は何も表示しない
+  if (isSupabaseConfigured && loading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <p className="text-gray-500 text-sm">読み込み中...</p>
+      </div>
+    );
+  }
+
+  if (isSupabaseConfigured && !user) {
+    return null;
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-900">

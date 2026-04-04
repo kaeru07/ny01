@@ -14,16 +14,16 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
   const [project, setProject] = useState<Project | null>(null);
 
   useEffect(() => {
-    const p = projectRepository.findById(id);
-    if (!p) {
-      router.push('/projects');
-      return;
+    async function load() {
+      const p = await projectRepository.findById(id);
+      if (!p) { router.push('/projects'); return; }
+      setProject(p);
     }
-    setProject(p);
+    load();
   }, [id, router]);
 
-  const handleSubmit = (data: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => {
-    projectRepository.update(id, data);
+  const handleSubmit = async (data: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => {
+    await projectRepository.update(id, data);
     toast.success('案件を更新しました');
     router.push(`/projects/${id}`);
   };

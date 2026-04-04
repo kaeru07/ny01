@@ -163,11 +163,14 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [editingPrompt, setEditingPrompt] = useState<Prompt | undefined>(undefined);
   const [deletePromptTarget, setDeletePromptTarget] = useState<Prompt | null>(null);
 
-  const loadData = () => {
-    const p = projectRepository.findById(id);
+  const loadData = async () => {
+    const [p, prs] = await Promise.all([
+      projectRepository.findById(id),
+      promptRepository.findByProjectId(id),
+    ]);
     if (!p) { router.push('/projects'); return; }
     setProject(p);
-    setPrompts(promptRepository.findByProjectId(id));
+    setPrompts(prs);
   };
 
   useEffect(() => {
@@ -175,15 +178,15 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const handleDeleteProject = () => {
-    projectRepository.delete(id);
+  const handleDeleteProject = async () => {
+    await projectRepository.delete(id);
     toast.success('案件を削除しました');
     router.push('/projects');
   };
 
   // --- Todo operations ---
 
-  const handleAddTodo = () => {
+  const handleAddTodo = async () => {
     if (!newTodoTitle.trim() || !project) return;
     const newTodo: Todo = {
       id: crypto.randomUUID(),
@@ -194,59 +197,59 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
       createdAt: new Date().toISOString(),
     };
     const todos = [...(project.todos ?? []), newTodo];
-    projectRepository.update(id, { todos });
+    await projectRepository.update(id, { todos });
     setNewTodoTitle('');
     setNewTodoDueDate('');
     loadData();
   };
 
-  const handleToggleTodo = (todoId: string) => {
+  const handleToggleTodo = async (todoId: string) => {
     if (!project) return;
     const todos = (project.todos ?? []).map((t) =>
       t.id === todoId ? { ...t, completed: !t.completed } : t
     );
-    projectRepository.update(id, { todos });
+    await projectRepository.update(id, { todos });
     loadData();
   };
 
-  const handleDeleteTodo = (todoId: string) => {
+  const handleDeleteTodo = async (todoId: string) => {
     if (!project) return;
     const todos = (project.todos ?? []).filter((t) => t.id !== todoId);
-    projectRepository.update(id, { todos });
+    await projectRepository.update(id, { todos });
     loadData();
   };
 
-  const handleSaveTodoNote = (todoId: string, note: string) => {
+  const handleSaveTodoNote = async (todoId: string, note: string) => {
     if (!project) return;
     const todos = (project.todos ?? []).map((t) =>
       t.id === todoId ? { ...t, note } : t
     );
-    projectRepository.update(id, { todos });
+    await projectRepository.update(id, { todos });
     setEditingNote(null);
     loadData();
   };
 
   // --- Prompt operations ---
 
-  const handleSavePrompt = (data: Omit<Prompt, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const handleSavePrompt = async (data: Omit<Prompt, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (editingPrompt) {
-      promptRepository.update(editingPrompt.id, data);
+      await promptRepository.update(editingPrompt.id, data);
       toast.success('プロンプトを更新しました');
     } else {
-      promptRepository.create(data);
+      await promptRepository.create(data);
       toast.success('プロンプトを追加しました');
     }
     setPromptDialogOpen(false);
     setEditingPrompt(undefined);
-    setPrompts(promptRepository.findByProjectId(id));
+    setPrompts(await promptRepository.findByProjectId(id));
   };
 
-  const handleDeletePrompt = () => {
+  const handleDeletePrompt = async () => {
     if (!deletePromptTarget) return;
-    promptRepository.delete(deletePromptTarget.id);
+    await promptRepository.delete(deletePromptTarget.id);
     toast.success('プロンプトを削除しました');
     setDeletePromptTarget(null);
-    setPrompts(promptRepository.findByProjectId(id));
+    setPrompts(await promptRepository.findByProjectId(id));
   };
 
   const filteredPrompts = prompts

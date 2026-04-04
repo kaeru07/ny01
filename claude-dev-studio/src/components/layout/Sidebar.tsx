@@ -2,8 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, FolderKanban, Settings, FileText, X } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, Settings, FileText, X, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { isSupabaseConfigured } from '@/lib/supabase';
 
 const navItems = [
   { href: '/', label: 'ダッシュボード', icon: LayoutDashboard },
@@ -19,6 +21,12 @@ interface SidebarProps {
 
 export function Sidebar({ open, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    onClose();
+  };
 
   return (
     <aside
@@ -68,8 +76,20 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           );
         })}
       </nav>
-      <div className="p-3 border-t border-gray-800">
-        <span className="text-xs text-gray-600">Studio v2.0</span>
+      <div className="p-3 border-t border-gray-800 space-y-2">
+        {isSupabaseConfigured && user && (
+          <>
+            <p className="text-[11px] text-gray-600 truncate px-1">{user.email}</p>
+            <button
+              onClick={handleSignOut}
+              className="flex items-center gap-2 w-full px-3 py-1.5 rounded-md text-xs text-gray-500 hover:bg-gray-800 hover:text-white transition-colors"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              ログアウト
+            </button>
+          </>
+        )}
+        <span className="text-xs text-gray-700 block px-1">Studio v2.0</span>
       </div>
     </aside>
   );

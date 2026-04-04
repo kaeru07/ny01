@@ -38,7 +38,7 @@ export default function ProjectsPage() {
   const [search, setSearch] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
 
-  const load = () => setProjects(projectRepository.findAll());
+  const load = async () => setProjects(await projectRepository.findAll());
 
   useEffect(() => { load(); }, []);
 
@@ -47,9 +47,9 @@ export default function ProjectsPage() {
     .filter((p) => search === '' || p.title.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!deleteTarget) return;
-    projectRepository.delete(deleteTarget.id);
+    await projectRepository.delete(deleteTarget.id);
     toast.success('案件を削除しました');
     setDeleteTarget(null);
     load();
