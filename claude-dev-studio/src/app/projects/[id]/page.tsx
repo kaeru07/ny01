@@ -724,7 +724,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
         {/* AIテンプレ */}
         <TabsContent value="templates" className="mt-4">
-          <TemplatePromptsPanel projectId={id} />
+          <TemplatePromptsPanel project={project} />
         </TabsContent>
       </Tabs>
 

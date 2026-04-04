@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { TemplatePrompt } from '@/types';
+import { TemplatePrompt, Project } from '@/types';
 import { templatePromptRepository } from '@/lib/repository/templatePromptRepository';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,27 @@ import { cn } from '@/lib/utils';
 import { Copy, Check, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
+
+// ---------- 変数置換 ----------
+
+/**
+ * プロンプト本文の {{project.xxx}} を案件データで置換する
+ * 将来: {{project.todo}}, {{project.status}} 等を追加するだけでOK
+ */
+function resolveVariables(content: string, project?: Project | null): string {
+  if (!project) return content;
+  return content
+    .replace(/\{\{project\.title\}\}/g, project.title ?? '')
+    .replace(/\{\{project\.summary\}\}/g, project.summary ?? '')
+    .replace(/\{\{project\.problem\}\}/g, project.problem ?? '')
+    .replace(/\{\{project\.targetUsers\}\}/g, project.target ?? '')
+    .replace(/\{\{project\.tech\}\}/g, project.techStack ?? '')
+    .replace(/\{\{project\.memo\}\}/g, project.memo ?? '')
+    // 将来拡張用（定義だけしておく）
+    .replace(/\{\{project\.status\}\}/g, project.status ?? '')
+    .replace(/\{\{project\.mvp\}\}/g, project.mvpFeatures ?? '')
+    .replace(/\{\{project\.design\}\}/g, project.designPolicy ?? '');
+}
 
 // カテゴリ優先表示順
 const PRIORITY_CATEGORIES = ['案件生成', 'ToDo生成', '改修', '設計', '調査'];
@@ -49,19 +70,24 @@ function sortCategories(categories: string[]): string[] {
 interface CardProps {
   prompt: TemplatePrompt;
   categoryColor: string;
+  project?: Project | null;
   onShowFull: () => void;
 }
 
-function TemplatePromptCard({ prompt, categoryColor, onShowFull }: CardProps) {
+function TemplatePromptCard({ prompt, categoryColor, project, onShowFull }: CardProps) {
   const [copied, setCopied] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(prompt.content);
+    const resolved = resolveVariables(prompt.content, project);
+    await navigator.clipboard.writeText(resolved);
     setCopied(true);
     toast.success('コピーしました');
     setTimeout(() => setCopied(false), 2000);
   };
+
+  // 変数が含まれているかどうか
+  const hasVars = /\{\{project\.\w+\}\}/.test(prompt.content);
 
   const tagList = prompt.tags
     ? prompt.tags.split(',').map((t) => t.trim()).filter(Boolean)
@@ -85,7 +111,19 @@ function TemplatePromptCard({ prompt, categoryColor, onShowFull }: CardProps) {
                 </span>
               ))}
             </div>
-            <h4 className="text-white text-sm font-semibold leading-snug">{prompt.name}</h4>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <h4 className="text-white text-sm font-semibold leading-snug">{prompt.name}</h4>
+              {hasVars && project && (
+                <span className="text-[10px] text-green-400 bg-green-900/30 px-1.5 py-0.5 rounded">
+                  案件埋め込み済
+                </span>
+              )}
+              {hasVars && !project && (
+                <span className="text-[10px] text-gray-500 bg-gray-700/60 px-1.5 py-0.5 rounded">
+                  変数あり
+                </span>
+              )}
+            </div>
             {prompt.description && (
               <p className="text-xs text-gray-500 mt-0.5">{prompt.description}</p>
             )}
@@ -151,15 +189,20 @@ function TemplatePromptCard({ prompt, categoryColor, onShowFull }: CardProps) {
 
 interface FullModalProps {
   prompt: TemplatePrompt | null;
+  project?: Project | null;
   onClose: () => void;
 }
 
-function FullContentModal({ prompt, onClose }: FullModalProps) {
+function FullContentModal({ prompt, project, onClose }: FullModalProps) {
   const [copied, setCopied] = useState(false);
+
+  const resolvedContent = prompt ? resolveVariables(prompt.content, project) : '';
+  const hasVars = prompt ? /\{\{project\.\w+\}\}/.test(prompt.content) : false;
+  const isResolved = hasVars && !!project;
 
   const handleCopy = async () => {
     if (!prompt) return;
-    await navigator.clipboard.writeText(prompt.content);
+    await navigator.clipboard.writeText(resolvedContent);
     setCopied(true);
     toast.success('コピーしました');
     setTimeout(() => setCopied(false), 2000);
@@ -172,9 +215,16 @@ function FullContentModal({ prompt, onClose }: FullModalProps) {
           <div className="flex items-start justify-between gap-3 pr-6">
             <div className="min-w-0">
               <DialogTitle className="text-white text-base leading-snug">{prompt?.name}</DialogTitle>
-              {prompt?.description && (
-                <p className="text-xs text-gray-500 mt-0.5">{prompt.description}</p>
-              )}
+              <div className="flex items-center gap-2 mt-0.5">
+                {prompt?.description && (
+                  <p className="text-xs text-gray-500">{prompt.description}</p>
+                )}
+                {isResolved && (
+                  <span className="text-[10px] text-green-400 bg-green-900/30 px-1.5 py-0.5 rounded shrink-0">
+                    案件情報埋め込み済
+                  </span>
+                )}
+              </div>
             </div>
             <Button
               size="sm"
@@ -197,7 +247,7 @@ function FullContentModal({ prompt, onClose }: FullModalProps) {
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto min-h-0">
           <pre className="text-xs text-gray-300 whitespace-pre-wrap font-mono leading-relaxed bg-gray-800/60 rounded-lg p-4">
-            {prompt?.content}
+            {resolvedContent}
           </pre>
         </div>
       </DialogContent>
@@ -208,12 +258,11 @@ function FullContentModal({ prompt, onClose }: FullModalProps) {
 // ---------- Main Panel ----------
 
 interface Props {
-  /** 将来: 案件情報を渡してカテゴリ自動絞り込みなどに使用 */
-  projectId?: string;
-  projectCategory?: string;
+  /** 案件情報（変数置換に使用） */
+  project?: Project | null;
 }
 
-export function TemplatePromptsPanel({ projectId: _projectId, projectCategory: _projectCategory }: Props) {
+export function TemplatePromptsPanel({ project }: Props) {
   const [templates, setTemplates] = useState<TemplatePrompt[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -302,6 +351,7 @@ export function TemplatePromptsPanel({ projectId: _projectId, projectCategory: _
               key={t.id}
               prompt={t}
               categoryColor={getCategoryColor(t.category, allCategories)}
+              project={project}
               onShowFull={() => setFullViewTarget(t)}
             />
           ))}
@@ -311,6 +361,7 @@ export function TemplatePromptsPanel({ projectId: _projectId, projectCategory: _
       {/* Full content modal */}
       <FullContentModal
         prompt={fullViewTarget}
+        project={project}
         onClose={() => setFullViewTarget(null)}
       />
     </div>
