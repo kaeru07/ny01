@@ -8,6 +8,8 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  signInWithPassword: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<void>;
   signInWithOtp: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -16,6 +18,8 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   session: null,
   loading: false,
+  signInWithPassword: async () => {},
+  signUp: async () => {},
   signInWithOtp: async () => {},
   signOut: async () => {},
 });
@@ -42,6 +46,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
+  const signInWithPassword = async (email: string, password: string) => {
+    if (!supabase) throw new Error('Supabase が設定されていません');
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+  };
+
+  const signUp = async (email: string, password: string) => {
+    if (!supabase) throw new Error('Supabase が設定されていません');
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: getURL('/auth/callback') },
+    });
+    if (error) throw error;
+  };
+
   const signInWithOtp = async (email: string) => {
     if (!supabase) throw new Error('Supabase が設定されていません');
     const { error } = await supabase.auth.signInWithOtp({
@@ -60,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signInWithOtp, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, signInWithPassword, signUp, signInWithOtp, signOut }}>
       {children}
     </AuthContext.Provider>
   );
