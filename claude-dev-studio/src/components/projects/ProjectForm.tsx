@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Project, ProjectStatus } from '@/types';
+import { Project, ProjectStatus, Todo } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,6 +14,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { FileJson } from 'lucide-react';
 
 type FormData = Omit<Project, 'id' | 'createdAt' | 'updatedAt'>;
 
@@ -88,6 +95,68 @@ function toUserMessage(err: unknown): string {
   return `保存に失敗しました: ${msg}${extra ? ` (${extra})` : ''}`;
 }
 
+const VALID_STATUSES: ProjectStatus[] = ['planning', 'active', 'adjusting', 'done', 'paused'];
+
+function arrayToText(value: unknown): string {
+  if (Array.isArray(value)) return value.map((v) => String(v)).filter(Boolean).join('\n');
+  if (typeof value === 'string') return value;
+  return '';
+}
+
+function parseTodos(value: unknown): Todo[] {
+  if (!Array.isArray(value)) return [];
+  return value.map((item) => {
+    const now = new Date().toISOString();
+    if (typeof item === 'string') {
+      return { id: crypto.randomUUID(), title: item, completed: false, priority: 'medium' as const, createdAt: now };
+    }
+    if (item && typeof item === 'object') {
+      const o = item as Record<string, unknown>;
+      return {
+        id: typeof o.id === 'string' ? o.id : crypto.randomUUID(),
+        title: typeof o.title === 'string' ? o.title : String(o.title ?? ''),
+        completed: Boolean(o.completed),
+        priority: (['high', 'medium', 'low'] as const).includes(o.priority as 'high') ? o.priority as Todo['priority'] : 'medium',
+        dueDate: typeof o.dueDate === 'string' ? o.dueDate : null,
+        note: typeof o.note === 'string' ? o.note : undefined,
+        createdAt: typeof o.createdAt === 'string' ? o.createdAt : now,
+      };
+    }
+    return { id: crypto.randomUUID(), title: String(item), completed: false, priority: 'medium' as const, createdAt: now };
+  }).filter((t) => t.title.trim() !== '');
+}
+
+// JSON → FormData に変換。不正なら例外を投げる
+function parseProjectJson(raw: string): Partial<FormData> {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error('JSON形式が正しくありません');
+  }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error('JSON形式が正しくありません');
+  }
+  const o = parsed as Record<string, unknown>;
+  const result: Partial<FormData> = {};
+
+  if (typeof o.title === 'string') result.title = o.title;
+  if (typeof o.status === 'string' && VALID_STATUSES.includes(o.status as ProjectStatus))
+    result.status = o.status as ProjectStatus;
+  if (typeof o.url === 'string') result.url = o.url;
+  if (typeof o.summary === 'string') result.summary = o.summary;
+  if (o.targetUsers !== undefined) result.target = arrayToText(o.targetUsers);
+  if (o.problem !== undefined) result.problem = arrayToText(o.problem);
+  if (o.mvp !== undefined) result.mvpFeatures = arrayToText(o.mvp);
+  if (o.future !== undefined) result.futureFeatures = arrayToText(o.future);
+  if (o.tech !== undefined) result.techStack = arrayToText(o.tech);
+  if (o.design !== undefined) result.designPolicy = arrayToText(o.design);
+  if (typeof o.memo === 'string') result.memo = o.memo;
+  if (o.todo !== undefined) result.todos = parseTodos(o.todo);
+
+  return result;
+}
+
 export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
   const router = useRouter();
   const [form, setForm] = useState<FormData>({
@@ -110,8 +179,25 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
   const [saveErrorDetail, setSaveErrorDetail] = useState<{ code?: string; details?: string; hint?: string } | null>(null);
   const [saved, setSaved] = useState(false);
 
+  // JSON インポートモーダル
+  const [jsonModalOpen, setJsonModalOpen] = useState(false);
+  const [jsonInput, setJsonInput] = useState('');
+  const [jsonError, setJsonError] = useState('');
+
   const set = (field: keyof FormData, value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
+
+  const handleLoadJson = () => {
+    setJsonError('');
+    try {
+      const patch = parseProjectJson(jsonInput);
+      setForm((prev) => ({ ...prev, ...patch }));
+      setJsonModalOpen(false);
+      setJsonInput('');
+    } catch (err) {
+      setJsonError(err instanceof Error ? err.message : 'JSON形式が正しくありません');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -152,7 +238,24 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
   const buttonLabel = saving ? '保存中...' : saved ? '保存完了' : '保存する';
 
   return (
+    <>
     <form onSubmit={handleSubmit} className="space-y-5">
+      {/* JSON インポート */}
+      {!initialData && (
+        <div className="flex justify-end">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="border-gray-600 text-gray-400 hover:bg-gray-800 hover:text-gray-200 h-8 text-xs gap-1.5"
+            onClick={() => { setJsonModalOpen(true); setJsonError(''); setJsonInput(''); }}
+          >
+            <FileJson className="w-3.5 h-3.5" />
+            JSONから作成
+          </Button>
+        </div>
+      )}
+
       {/* 案件名 / ステータス */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
@@ -278,5 +381,53 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
         </Button>
       </div>
     </form>
+
+    {/* JSON インポートモーダル */}
+    <Dialog open={jsonModalOpen} onOpenChange={(open) => { setJsonModalOpen(open); if (!open) setJsonError(''); }}>
+      <DialogContent className="bg-gray-900 border-gray-700 text-gray-100 w-[92vw] max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="text-sm font-semibold flex items-center gap-2">
+            <FileJson className="w-4 h-4 text-blue-400" />
+            JSONから作成
+          </DialogTitle>
+        </DialogHeader>
+
+        <p className="text-xs text-gray-500 -mt-1">
+          ChatGPT / Claude で生成した JSON を貼り付けてください。フォームに反映します。
+        </p>
+
+        <Textarea
+          value={jsonInput}
+          onChange={(e) => { setJsonInput(e.target.value); setJsonError(''); }}
+          rows={10}
+          placeholder={'{\n  "title": "案件名",\n  "summary": "概要",\n  "mvp": ["機能A", "機能B"],\n  "todo": ["タスク1"]\n}'}
+          className="bg-gray-800 border-gray-700 text-gray-100 text-xs font-mono resize-y"
+        />
+
+        {jsonError && (
+          <p className="text-red-400 text-xs">{jsonError}</p>
+        )}
+
+        <div className="flex gap-2 justify-end pt-1">
+          <Button
+            type="button"
+            variant="outline"
+            className="border-gray-600 text-gray-400 hover:bg-gray-800 h-9 text-sm"
+            onClick={() => setJsonModalOpen(false)}
+          >
+            キャンセル
+          </Button>
+          <Button
+            type="button"
+            disabled={!jsonInput.trim()}
+            className="bg-blue-600 hover:bg-blue-700 h-9 text-sm"
+            onClick={handleLoadJson}
+          >
+            読み込む
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
