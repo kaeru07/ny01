@@ -199,6 +199,16 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
     }
   };
 
+  const handleFormatJson = () => {
+    try {
+      const parsed = JSON.parse(jsonInput);
+      setJsonInput(JSON.stringify(parsed, null, 2));
+      setJsonError('');
+    } catch {
+      setJsonError('JSON形式が正しくありません');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaveError('');
@@ -384,35 +394,77 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
 
     {/* JSON インポートモーダル */}
     <Dialog open={jsonModalOpen} onOpenChange={(open) => { setJsonModalOpen(open); if (!open) setJsonError(''); }}>
-      <DialogContent className="bg-gray-900 border-gray-700 text-gray-100 w-[92vw] max-w-lg">
-        <DialogHeader>
+      {/*
+        flex flex-col: grid → flex に変換してヘッダー / ボディ / フッターを縦に並べる
+        max-h-[88dvh]: dvh = dynamic viewport height（iPhone Safari のアドレスバーを考慮）
+        overflow-hidden: 子要素がはみ出さないよう制御
+      */}
+      <DialogContent className="bg-gray-900 border-gray-700 text-gray-100 w-[92vw] max-w-lg flex flex-col max-h-[88dvh] overflow-hidden">
+
+        {/* ── ヘッダー（固定） ── */}
+        <DialogHeader className="shrink-0">
           <DialogTitle className="text-sm font-semibold flex items-center gap-2">
             <FileJson className="w-4 h-4 text-blue-400" />
             JSONから作成
           </DialogTitle>
+          <p className="text-xs text-gray-500 font-normal">
+            ChatGPT / Claude で生成した JSON を貼り付けてください。
+          </p>
         </DialogHeader>
 
-        <p className="text-xs text-gray-500 -mt-1">
-          ChatGPT / Claude で生成した JSON を貼り付けてください。フォームに反映します。
-        </p>
+        {/* ── スクロール可能なボディ ── */}
+        {/*
+          flex-1: 残り高さをすべて取る
+          overflow-y-auto: コンテンツが溢れたらスクロール
+          min-h-0: flex 子要素がデフォルトで min-h: auto になるバグを回避
+        */}
+        <div className="flex-1 overflow-y-auto min-h-0 space-y-2">
+          <Textarea
+            value={jsonInput}
+            onChange={(e) => { setJsonInput(e.target.value); setJsonError(''); }}
+            placeholder={'{\n  "title": "案件名",\n  "summary": "概要",\n  "mvp": ["機能A", "機能B"],\n  "todo": ["タスク1"]\n}'}
+            className={[
+              'bg-gray-800 border-gray-700 text-gray-100 text-xs font-mono',
+              'min-h-[200px] max-h-[40vh]', // 高さを固定範囲に収める
+              'resize-none',                  // 手動リサイズ無効（無限伸びを防ぐ）
+              'overflow-y-auto',              // 入力欄内でスクロール
+            ].join(' ')}
+          />
 
-        <Textarea
-          value={jsonInput}
-          onChange={(e) => { setJsonInput(e.target.value); setJsonError(''); }}
-          rows={10}
-          placeholder={'{\n  "title": "案件名",\n  "summary": "概要",\n  "mvp": ["機能A", "機能B"],\n  "todo": ["タスク1"]\n}'}
-          className="bg-gray-800 border-gray-700 text-gray-100 text-xs font-mono resize-y"
-        />
+          {/* 文字数 + 整形ボタン */}
+          <div className="flex items-center justify-between px-0.5">
+            <span className="text-[10px] text-gray-600">
+              {jsonInput.length > 0 ? `${jsonInput.length} 文字` : ''}
+            </span>
+            {jsonInput.trim() && (
+              <button
+                type="button"
+                onClick={handleFormatJson}
+                className="text-[10px] text-gray-500 hover:text-gray-300 transition-colors underline-offset-2 hover:underline"
+              >
+                JSONを整形
+              </button>
+            )}
+          </div>
 
-        {jsonError && (
-          <p className="text-red-400 text-xs">{jsonError}</p>
-        )}
+          {jsonError && (
+            <p className="text-red-400 text-xs px-0.5">{jsonError}</p>
+          )}
+        </div>
 
-        <div className="flex gap-2 justify-end pt-1">
+        {/* ── フッター（常時表示） ── */}
+        {/*
+          shrink-0: 高さが圧縮されない
+          -mx-4 -mb-4: DialogContent の p-4 を打ち消して端まで広げる
+          border-t: ボディとの視覚的区切り
+          flex-col: iPhone 縦では縦積み（full width タップ）
+          sm:flex-row: デスクトップでは横並び右寄せ
+        */}
+        <div className="shrink-0 -mx-4 -mb-4 flex flex-col gap-2 rounded-b-xl border-t border-gray-700/70 bg-gray-900 px-4 py-3 sm:flex-row sm:justify-end">
           <Button
             type="button"
             variant="outline"
-            className="border-gray-600 text-gray-400 hover:bg-gray-800 h-9 text-sm"
+            className="border-gray-600 text-gray-300 hover:bg-gray-800 h-10 w-full sm:w-auto sm:h-9 text-sm"
             onClick={() => setJsonModalOpen(false)}
           >
             キャンセル
@@ -420,7 +472,7 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
           <Button
             type="button"
             disabled={!jsonInput.trim()}
-            className="bg-blue-600 hover:bg-blue-700 h-9 text-sm"
+            className="bg-blue-600 hover:bg-blue-700 disabled:opacity-40 h-10 w-full sm:w-auto sm:h-9 text-sm"
             onClick={handleLoadJson}
           >
             読み込む
