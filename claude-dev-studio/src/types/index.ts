@@ -66,3 +66,15 @@ export interface Prompt {
   createdAt: string;
   updatedAt: string;
 }
+
+// AI作業テンプレート（プロンプト管理画面用）
+export interface TemplatePrompt {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  content: string;
+  tags: string; // カンマ区切り
+  createdAt: string;
+  updatedAt: string;
+}
