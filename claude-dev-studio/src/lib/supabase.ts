@@ -9,3 +9,16 @@ export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
 export const supabase = isSupabaseConfigured
   ? createClient(supabaseUrl!, supabaseAnonKey!)
   : null;
+
+/**
+ * 環境に応じたベース URL を返す。
+ * 優先順位: NEXT_PUBLIC_SITE_URL > window.location.origin > localhost:3000
+ */
+export function getURL(path = '/') {
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+  const normalizedBase = base.replace(/\/$/, '');
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${normalizedBase}${normalizedPath}`;
+}
