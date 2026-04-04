@@ -32,10 +32,13 @@ import { PromptFormDialog } from '@/components/prompts/PromptFormDialog';
 import { cn } from '@/lib/utils';
 import {
   Pencil, Trash2, Copy, Plus, ChevronRight, CheckSquare, Square,
-  ChevronDown, ChevronUp,
+  ChevronDown, ChevronUp, CalendarDays, AlertCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { calcProgress, ProgressBar, statusLabel, statusColor, roleLabel, roleColor } from '@/app/page';
+import {
+  calcProgress, ProgressBar, statusLabel, statusColor,
+  roleLabel, roleColor, getTodayStr, getWeekEndStr, getDueDateStatus,
+} from '@/app/page';
 
 const categoryLabel: Record<PromptCategory, string> = {
   new: '新規開発',
@@ -63,6 +66,39 @@ const priorityColor: Record<TodoPriority, string> = {
   low: 'bg-gray-600 text-white',
 };
 
+type SortOption = 'pending_first' | 'priority' | 'dueDate' | 'createdAt';
+const sortOptions: { value: SortOption; label: string }[] = [
+  { value: 'pending_first', label: '未完了優先' },
+  { value: 'dueDate', label: '期限順' },
+  { value: 'priority', label: '優先度順' },
+  { value: 'createdAt', label: '作成日順' },
+];
+
+const priorityOrder: Record<TodoPriority, number> = { high: 0, medium: 1, low: 2 };
+
+function sortTodos(todos: Todo[], sortBy: SortOption): Todo[] {
+  return [...todos].sort((a, b) => {
+    if (sortBy === 'dueDate') {
+      // 期限あり → 近い順、未設定は最後。完了済みは常に末尾。
+      if (a.completed !== b.completed) return a.completed ? 1 : -1;
+      const aDate = a.dueDate ?? '9999-12-31';
+      const bDate = b.dueDate ?? '9999-12-31';
+      if (aDate !== bDate) return aDate.localeCompare(bDate);
+      return priorityOrder[a.priority] - priorityOrder[b.priority];
+    }
+    if (sortBy === 'priority') {
+      if (a.completed !== b.completed) return a.completed ? 1 : -1;
+      return priorityOrder[a.priority] - priorityOrder[b.priority];
+    }
+    if (sortBy === 'createdAt') {
+      return a.createdAt.localeCompare(b.createdAt);
+    }
+    // pending_first (default)
+    if (a.completed !== b.completed) return a.completed ? 1 : -1;
+    return priorityOrder[a.priority] - priorityOrder[b.priority];
+  });
+}
+
 type PromptFilterTab = 'all' | PromptCategory;
 const promptFilterTabs: { value: PromptFilterTab; label: string }[] = [
   { value: 'all', label: '全て' },
@@ -82,6 +118,28 @@ function FieldRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+function DueDateBadge({ dueDate, completed }: { dueDate?: string | null; completed: boolean }) {
+  const status = getDueDateStatus(dueDate, completed);
+  if (!dueDate) return <span className="text-[10px] text-gray-600">期限: 未設定</span>;
+
+  const colorMap = {
+    overdue: 'text-red-400',
+    today: 'text-yellow-400',
+    upcoming: 'text-gray-500',
+    none: 'text-gray-600',
+  };
+  const label = status === 'overdue' ? '期限切れ' : status === 'today' ? '今日' : '';
+
+  return (
+    <span className={cn('text-[10px] flex items-center gap-1', colorMap[status])}>
+      {status === 'overdue' && <AlertCircle className="w-3 h-3" />}
+      <CalendarDays className="w-3 h-3" />
+      {dueDate}
+      {label && <span className="font-medium">({label})</span>}
+    </span>
+  );
+}
+
 export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
@@ -94,6 +152,8 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   // Todo state
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [newTodoPriority, setNewTodoPriority] = useState<TodoPriority>('medium');
+  const [newTodoDueDate, setNewTodoDueDate] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>('pending_first');
   const [expandedTodo, setExpandedTodo] = useState<string | null>(null);
   const [editingNote, setEditingNote] = useState<{ id: string; value: string } | null>(null);
 
@@ -130,11 +190,13 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
       title: newTodoTitle.trim(),
       completed: false,
       priority: newTodoPriority,
+      dueDate: newTodoDueDate || null,
       createdAt: new Date().toISOString(),
     };
     const todos = [...(project.todos ?? []), newTodo];
     projectRepository.update(id, { todos });
     setNewTodoTitle('');
+    setNewTodoDueDate('');
     loadData();
   };
 
@@ -198,12 +260,13 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const doneTodos = todos.filter((t) => t.completed).length;
   const pendingTodos = todos.filter((t) => !t.completed);
 
-  // Sort: incomplete first by priority, then completed
-  const priorityOrder: Record<TodoPriority, number> = { high: 0, medium: 1, low: 2 };
-  const sortedTodos = [...todos].sort((a, b) => {
-    if (a.completed !== b.completed) return a.completed ? 1 : -1;
-    return priorityOrder[a.priority] - priorityOrder[b.priority];
-  });
+  const today = getTodayStr();
+  const weekEnd = getWeekEndStr();
+  const overdueCount = todos.filter((t) => !t.completed && t.dueDate && t.dueDate < today).length;
+  const todayCount = todos.filter((t) => !t.completed && t.dueDate === today).length;
+  const weekCount = todos.filter((t) => !t.completed && t.dueDate && t.dueDate > today && t.dueDate <= weekEnd).length;
+
+  const sortedTodos = sortTodos(todos, sortBy);
 
   return (
     <div className="p-4 sm:p-6 space-y-5">
@@ -223,6 +286,12 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               {statusLabel[project.status] ?? project.status}
             </Badge>
             <span className="text-xs text-gray-500">{doneTodos}/{todos.length} Todo完了</span>
+            {overdueCount > 0 && (
+              <span className="text-xs text-red-400 flex items-center gap-1">
+                <AlertCircle className="w-3.5 h-3.5" />
+                期限切れ {overdueCount}件
+              </span>
+            )}
           </div>
           {/* Progress bar */}
           <div className="flex items-center gap-3 max-w-sm">
@@ -267,39 +336,95 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
         {/* ToDo タブ */}
         <TabsContent value="todos" className="mt-4 space-y-4">
+
+          {/* 期限サマリー */}
+          {(overdueCount > 0 || todayCount > 0 || weekCount > 0) && (
+            <div className="flex flex-wrap gap-2">
+              {overdueCount > 0 && (
+                <div className="flex items-center gap-1.5 bg-red-900/30 border border-red-800/50 rounded-md px-2.5 py-1.5">
+                  <AlertCircle className="w-3.5 h-3.5 text-red-400" />
+                  <span className="text-xs text-red-400 font-medium">期限切れ {overdueCount}件</span>
+                </div>
+              )}
+              {todayCount > 0 && (
+                <div className="flex items-center gap-1.5 bg-yellow-900/30 border border-yellow-800/50 rounded-md px-2.5 py-1.5">
+                  <CalendarDays className="w-3.5 h-3.5 text-yellow-400" />
+                  <span className="text-xs text-yellow-400 font-medium">今日期限 {todayCount}件</span>
+                </div>
+              )}
+              {weekCount > 0 && (
+                <div className="flex items-center gap-1.5 bg-blue-900/30 border border-blue-800/50 rounded-md px-2.5 py-1.5">
+                  <CalendarDays className="w-3.5 h-3.5 text-blue-400" />
+                  <span className="text-xs text-blue-400 font-medium">今週期限 {weekCount}件</span>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Add form */}
           <Card className="bg-gray-800 border-gray-700">
             <CardContent className="p-4">
               <p className="text-xs font-medium text-gray-400 mb-3">ToDoを追加</p>
-              <div className="flex flex-col sm:flex-row gap-2">
+              <div className="space-y-2">
                 <Input
                   value={newTodoTitle}
                   onChange={(e) => setNewTodoTitle(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleAddTodo()}
                   placeholder="ToDoのタイトルを入力..."
-                  className="flex-1 bg-gray-700 border-gray-600 h-9 text-sm text-gray-100 placeholder:text-gray-500"
+                  className="bg-gray-700 border-gray-600 h-9 text-sm text-gray-100 placeholder:text-gray-500"
                 />
-                <Select value={newTodoPriority} onValueChange={(v) => setNewTodoPriority(v as TodoPriority)}>
-                  <SelectTrigger className="w-full sm:w-24 bg-gray-700 border-gray-600 h-9 text-sm text-gray-100">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-700">
-                    <SelectItem value="high">高</SelectItem>
-                    <SelectItem value="medium">中</SelectItem>
-                    <SelectItem value="low">低</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button
-                  onClick={handleAddTodo}
-                  disabled={!newTodoTitle.trim()}
-                  className="bg-blue-600 hover:bg-blue-700 h-9 text-sm shrink-0"
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  追加
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <Label className="text-[10px] text-gray-500 shrink-0">優先度</Label>
+                    <Select value={newTodoPriority} onValueChange={(v) => setNewTodoPriority(v as TodoPriority)}>
+                      <SelectTrigger className="flex-1 bg-gray-700 border-gray-600 h-8 text-xs text-gray-100">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-700">
+                        <SelectItem value="high">高</SelectItem>
+                        <SelectItem value="medium">中</SelectItem>
+                        <SelectItem value="low">低</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <Label className="text-[10px] text-gray-500 shrink-0">期限</Label>
+                    <input
+                      type="date"
+                      value={newTodoDueDate}
+                      onChange={(e) => setNewTodoDueDate(e.target.value)}
+                      className="flex-1 bg-gray-700 border border-gray-600 rounded-md h-8 px-2 text-xs text-gray-100 min-w-0 [color-scheme:dark]"
+                    />
+                  </div>
+                  <Button
+                    onClick={handleAddTodo}
+                    disabled={!newTodoTitle.trim()}
+                    className="bg-blue-600 hover:bg-blue-700 h-8 text-xs shrink-0"
+                  >
+                    <Plus className="w-3.5 h-3.5 mr-1" />
+                    追加
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
+
+          {/* Sort control */}
+          {todos.length > 1 && (
+            <div className="flex items-center justify-end gap-2">
+              <Label className="text-[10px] text-gray-500">並び替え</Label>
+              <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+                <SelectTrigger className="w-32 bg-gray-800 border-gray-700 h-7 text-xs text-gray-300">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-800 border-gray-700">
+                  {sortOptions.map((o) => (
+                    <SelectItem key={o.value} value={o.value} className="text-xs">{o.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Todo list */}
           {todos.length === 0 ? (
@@ -309,13 +434,20 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               {sortedTodos.map((todo) => {
                 const isExpanded = expandedTodo === todo.id;
                 const isEditingNote = editingNote?.id === todo.id;
+                const dueSt = getDueDateStatus(todo.dueDate, todo.completed);
 
                 return (
                   <Card
                     key={todo.id}
                     className={cn(
                       'border transition-colors',
-                      todo.completed ? 'bg-gray-900 border-gray-800' : 'bg-gray-800 border-gray-700'
+                      todo.completed
+                        ? 'bg-gray-900 border-gray-800'
+                        : dueSt === 'overdue'
+                          ? 'bg-gray-800 border-red-800/60'
+                          : dueSt === 'today'
+                            ? 'bg-gray-800 border-yellow-800/60'
+                            : 'bg-gray-800 border-gray-700'
                     )}
                   >
                     <CardContent className="p-3">
@@ -345,7 +477,12 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                             </Badge>
                           </div>
 
-                          {/* Note preview or edit */}
+                          {/* Due date */}
+                          <div className="mt-1">
+                            <DueDateBadge dueDate={todo.dueDate} completed={todo.completed} />
+                          </div>
+
+                          {/* Note */}
                           {isEditingNote ? (
                             <div className="mt-2 space-y-2">
                               <Textarea
@@ -361,16 +498,14 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                               </div>
                             </div>
                           ) : (
-                            <>
-                              {todo.note && (
-                                <p className={cn(
-                                  'text-xs mt-1',
-                                  isExpanded ? 'text-gray-400 whitespace-pre-wrap' : 'text-gray-500 truncate'
-                                )}>
-                                  {todo.note}
-                                </p>
-                              )}
-                            </>
+                            todo.note && (
+                              <p className={cn(
+                                'text-xs mt-1.5',
+                                isExpanded ? 'text-gray-400 whitespace-pre-wrap' : 'text-gray-500 truncate'
+                              )}>
+                                {todo.note}
+                              </p>
+                            )
                           )}
                         </div>
 

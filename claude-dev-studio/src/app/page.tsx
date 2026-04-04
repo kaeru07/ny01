@@ -7,7 +7,7 @@ import { projectRepository } from '@/lib/repository/projectRepository';
 import { promptRepository } from '@/lib/repository/promptRepository';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Plus, CheckSquare, TrendingUp, ListTodo } from 'lucide-react';
+import { Plus, CheckSquare, TrendingUp, ListTodo, AlertCircle, Clock } from 'lucide-react';
 
 // プロンプト管理ページで使用するため引き続きエクスポート
 export const roleLabel: Record<AICOMPANYRole, string> = {
@@ -62,6 +62,30 @@ export function ProgressBar({ pct, className }: { pct: number; className?: strin
   );
 }
 
+// 期限ユーティリティ（[id]/page.tsx でも使用）
+export function getTodayStr(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+export function getWeekEndStr(): string {
+  const d = new Date();
+  d.setDate(d.getDate() + 7);
+  return d.toISOString().slice(0, 10);
+}
+
+export type DueDateStatus = 'overdue' | 'today' | 'upcoming' | 'none';
+
+export function getDueDateStatus(
+  dueDate: string | null | undefined,
+  completed: boolean
+): DueDateStatus {
+  if (completed || !dueDate) return 'none';
+  const today = getTodayStr();
+  if (dueDate < today) return 'overdue';
+  if (dueDate === today) return 'today';
+  return 'upcoming';
+}
+
 export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [promptCount, setPromptCount] = useState(0);
@@ -81,6 +105,22 @@ export default function DashboardPage() {
     nonDone.length === 0
       ? 0
       : Math.round(nonDone.reduce((acc, p) => acc + calcProgress(p.todos ?? []), 0) / nonDone.length);
+
+  // 期限関連集計（完了以外の全案件の未完了Todo）
+  const today = getTodayStr();
+  const weekEnd = getWeekEndStr();
+  let overdueCount = 0;
+  let todayCount = 0;
+  let weekCount = 0;
+  for (const p of projects) {
+    if (p.status === 'done') continue;
+    for (const t of p.todos ?? []) {
+      if (t.completed || !t.dueDate) continue;
+      if (t.dueDate < today) overdueCount++;
+      else if (t.dueDate === today) todayCount++;
+      else if (t.dueDate <= weekEnd) weekCount++;
+    }
+  }
 
   // 未完了Todoが多い案件 top3
   const topPendingTodo = [...projects]
@@ -104,6 +144,8 @@ export default function DashboardPage() {
     .filter((p) => p.status !== 'done')
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
     .slice(0, 8);
+
+  const hasDueAlerts = overdueCount > 0 || todayCount > 0 || weekCount > 0;
 
   return (
     <div className="p-4 sm:p-6 space-y-6">
@@ -137,6 +179,45 @@ export default function DashboardPage() {
         ))}
       </div>
 
+      {/* 期限アラート */}
+      {hasDueAlerts && (
+        <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Clock className="w-4 h-4 text-gray-400" />
+            <h3 className="text-xs font-semibold text-gray-300">期限アラート</h3>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {overdueCount > 0 && (
+              <div className="flex items-center gap-2 bg-red-900/30 border border-red-800/50 rounded-lg px-3 py-2">
+                <AlertCircle className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                <div>
+                  <p className="text-xs text-red-400 font-medium">期限切れ</p>
+                  <p className="text-lg font-bold text-red-300">{overdueCount}件</p>
+                </div>
+              </div>
+            )}
+            {todayCount > 0 && (
+              <div className="flex items-center gap-2 bg-yellow-900/30 border border-yellow-800/50 rounded-lg px-3 py-2">
+                <AlertCircle className="w-3.5 h-3.5 text-yellow-400 shrink-0" />
+                <div>
+                  <p className="text-xs text-yellow-400 font-medium">今日期限</p>
+                  <p className="text-lg font-bold text-yellow-300">{todayCount}件</p>
+                </div>
+              </div>
+            )}
+            {weekCount > 0 && (
+              <div className="flex items-center gap-2 bg-blue-900/30 border border-blue-800/50 rounded-lg px-3 py-2">
+                <Clock className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                <div>
+                  <p className="text-xs text-blue-400 font-medium">今週期限</p>
+                  <p className="text-lg font-bold text-blue-300">{weekCount}件</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* 進行中の案件 */}
       <div>
         <div className="flex items-center justify-between mb-2">
@@ -152,11 +233,14 @@ export default function DashboardPage() {
               const pct = calcProgress(p.todos ?? []);
               const totalTodos = (p.todos ?? []).length;
               const pendingTodos = (p.todos ?? []).filter((t) => !t.completed).length;
+              const projectOverdue = (p.todos ?? []).some(
+                (t) => !t.completed && t.dueDate && t.dueDate < today
+              );
               return (
                 <Link
                   key={p.id}
                   href={`/projects/${p.id}`}
-                  className="flex items-center gap-3 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-750 hover:border-gray-600 transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors"
                 >
                   <div className="flex-1 min-w-0 space-y-1.5">
                     <div className="flex items-center gap-2">
@@ -164,6 +248,9 @@ export default function DashboardPage() {
                       <Badge className={cn('text-[10px] px-1.5 py-0 shrink-0', statusColor[p.status] ?? 'bg-gray-600 text-white')}>
                         {statusLabel[p.status] ?? p.status}
                       </Badge>
+                      {projectOverdue && (
+                        <AlertCircle className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                      )}
                     </div>
                     <ProgressBar pct={pct} />
                   </div>

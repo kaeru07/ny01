@@ -17,6 +17,7 @@ export interface Todo {
   title: string;
   completed: boolean;
   priority: TodoPriority;
+  dueDate?: string | null; // YYYY-MM-DD or null
   note?: string;
   createdAt: string;
 }
