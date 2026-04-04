@@ -71,7 +71,8 @@ const local = {
 
 // --- Supabase ---
 async function getCurrentUserId(): Promise<string> {
-  const { data: { user } } = await supabase!.auth.getUser();
+  const { data: { user }, error } = await supabase!.auth.getUser();
+  console.log('[projectRepository] getCurrentUserId:', user?.id ?? null, error ?? null);
   if (!user) throw new Error('ログインしてください');
   return user.id;
 }
@@ -102,15 +103,21 @@ export const projectRepository = {
   },
 
   async create(data: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>): Promise<Project> {
+    console.log('[projectRepository] create called, supabaseConfigured:', isSupabaseConfigured);
     if (!isSupabaseConfigured || !supabase) return local.create(data);
     const userId = await getCurrentUserId();
     const row = { ...toDB(data), user_id: userId };
+    console.log('[projectRepository] inserting row:', row);
     const { data: created, error } = await supabase
       .from('projects')
       .insert(row)
       .select()
       .single();
-    if (error) throw error;
+    if (error) {
+      console.error('[projectRepository] insert error:', error);
+      throw error;
+    }
+    console.log('[projectRepository] insert success:', created?.id);
     return fromDB(created);
   },
 
@@ -118,15 +125,21 @@ export const projectRepository = {
     id: string,
     data: Partial<Omit<Project, 'id' | 'createdAt'>>
   ): Promise<Project | null> {
+    console.log('[projectRepository] update called, id:', id, 'supabaseConfigured:', isSupabaseConfigured);
     if (!isSupabaseConfigured || !supabase) return local.update(id, data);
     const row = { ...toDB(data), updated_at: new Date().toISOString() };
+    console.log('[projectRepository] updating row:', row);
     const { data: updated, error } = await supabase
       .from('projects')
       .update(row)
       .eq('id', id)
       .select()
       .single();
-    if (error) throw error;
+    if (error) {
+      console.error('[projectRepository] update error:', error);
+      throw error;
+    }
+    console.log('[projectRepository] update success:', updated?.id);
     return fromDB(updated);
   },
 

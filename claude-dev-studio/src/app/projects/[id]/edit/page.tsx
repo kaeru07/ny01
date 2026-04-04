@@ -23,7 +23,9 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
   }, [id, router]);
 
   const handleSubmit = async (data: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => {
+    console.log('[EditProjectPage] handleSubmit called, id:', id);
     await projectRepository.update(id, data);
+    console.log('[EditProjectPage] update success');
     toast.success('案件を更新しました');
     router.push(`/projects/${id}`);
   };

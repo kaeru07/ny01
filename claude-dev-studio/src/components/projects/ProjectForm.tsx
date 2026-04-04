@@ -19,7 +19,7 @@ type FormData = Omit<Project, 'id' | 'createdAt' | 'updatedAt'>;
 
 interface ProjectFormProps {
   initialData?: Project;
-  onSubmit: (data: FormData) => void;
+  onSubmit: (data: FormData) => Promise<void>;
 }
 
 const statusOptions: { value: ProjectStatus; label: string }[] = [
@@ -29,6 +29,16 @@ const statusOptions: { value: ProjectStatus; label: string }[] = [
   { value: 'done', label: '完了' },
   { value: 'paused', label: '保留' },
 ];
+
+function toUserMessage(err: unknown): string {
+  const msg = err instanceof Error ? err.message : String(err);
+  if (msg.includes('ログイン') || msg.includes('auth')) return 'ログインが必要です';
+  if (msg.includes('fetch') || msg.includes('network') || msg.includes('Failed to fetch'))
+    return 'DB接続エラーが発生しました';
+  if (msg.includes('violates') || msg.includes('policy') || msg.includes('permission'))
+    return 'DB接続エラーが発生しました（RLSポリシー違反）';
+  return `保存に失敗しました: ${msg}`;
+}
 
 export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
   const router = useRouter();
@@ -46,14 +56,41 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
     todos: initialData?.todos ?? [],
     nextAction: initialData?.nextAction ?? '',
   });
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const [saved, setSaved] = useState(false);
 
   const set = (field: keyof FormData, value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(form);
+    setSaveError('');
+    setSaved(false);
+
+    if (!form.title.trim()) {
+      setSaveError('入力内容を確認してください（案件名は必須です）');
+      console.warn('[ProjectForm] validation failed: title empty');
+      return;
+    }
+
+    setSaving(true);
+    console.log('[ProjectForm] submit started');
+    console.log('[ProjectForm] payload:', form);
+
+    try {
+      await onSubmit(form);
+      console.log('[ProjectForm] submit success');
+      setSaved(true);
+    } catch (err) {
+      console.error('[ProjectForm] submit failed:', err);
+      setSaveError(toUserMessage(err));
+    } finally {
+      setSaving(false);
+    }
   };
+
+  const buttonLabel = saving ? '保存中...' : saved ? '保存完了' : '保存する';
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
@@ -138,9 +175,26 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
         <Textarea id="memo" value={form.memo} onChange={(e) => set('memo', e.target.value)} rows={3} className="bg-gray-800 border-gray-700 text-sm" />
       </div>
 
+      {saveError && (
+        <p className="text-red-400 text-sm rounded-lg bg-red-950/50 border border-red-800/60 px-3 py-2">
+          {saveError}
+        </p>
+      )}
+
       <div className="flex gap-3 pt-2">
-        <Button type="submit" className="bg-blue-600 hover:bg-blue-700 h-9">保存する</Button>
-        <Button type="button" variant="outline" className="border-gray-700 text-gray-300 hover:bg-gray-800 h-9" onClick={() => router.back()}>
+        <Button
+          type="submit"
+          disabled={saving}
+          className="bg-blue-600 hover:bg-blue-700 h-9 min-w-[96px]"
+        >
+          {buttonLabel}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className="border-gray-700 text-gray-300 hover:bg-gray-800 h-9"
+          onClick={() => router.back()}
+        >
           キャンセル
         </Button>
       </div>

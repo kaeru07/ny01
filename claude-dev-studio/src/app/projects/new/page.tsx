@@ -10,7 +10,9 @@ export default function NewProjectPage() {
   const router = useRouter();
 
   const handleSubmit = async (data: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => {
+    console.log('[NewProjectPage] handleSubmit called');
     const project = await projectRepository.create(data);
+    console.log('[NewProjectPage] create success:', project.id);
     toast.success('案件を作成しました');
     router.push(`/projects/${project.id}`);
   };
