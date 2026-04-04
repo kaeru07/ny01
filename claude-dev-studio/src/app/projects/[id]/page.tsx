@@ -91,7 +91,7 @@ function sortTodos(todos: Todo[], sortBy: SortOption): Todo[] {
       return priorityOrder[a.priority] - priorityOrder[b.priority];
     }
     if (sortBy === 'createdAt') {
-      return a.createdAt.localeCompare(b.createdAt);
+      return (a.createdAt ?? '').localeCompare(b.createdAt ?? '');
     }
     // pending_first (default)
     if (a.completed !== b.completed) return a.completed ? 1 : -1;
@@ -271,7 +271,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
   const filteredPrompts = prompts
     .filter((p) => promptFilter === 'all' || p.category === promptFilter)
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    .sort((a, b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''));
 
   if (loadError) return (
     <div className="p-6 space-y-3">
@@ -599,11 +599,11 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                 <FieldRow label="メモ" value={project.memo} />
                 <div className="py-2.5 border-b border-gray-700">
                   <dt className="text-xs text-gray-500 mb-0.5">作成日</dt>
-                  <dd className="text-sm text-gray-100">{project.createdAt.slice(0, 10)}</dd>
+                  <dd className="text-sm text-gray-100">{(project.createdAt ?? project.updatedAt ?? '').slice(0, 10)}</dd>
                 </div>
                 <div className="py-2.5">
                   <dt className="text-xs text-gray-500 mb-0.5">最終更新</dt>
-                  <dd className="text-sm text-gray-100">{project.updatedAt.slice(0, 10)}</dd>
+                  <dd className="text-sm text-gray-100">{(project.updatedAt ?? project.createdAt ?? '').slice(0, 10)}</dd>
                 </div>
               </dl>
             </CardContent>
@@ -661,7 +661,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                             {roleLabel[pr.targetRole as AICOMPANYRole]}
                           </Badge>
                         )}
-                        <span className="text-xs text-gray-500">{pr.updatedAt.slice(0, 10)}</span>
+                        <span className="text-xs text-gray-500">{(pr.updatedAt ?? pr.createdAt ?? '').slice(0, 10)}</span>
                       </div>
                       <h3 className="text-white text-sm font-medium mb-1">{pr.title}</h3>
                       {pr.changeMemo && (

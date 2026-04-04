@@ -57,7 +57,7 @@ export default function PromptsPage() {
     .filter((p) => categoryFilter === 'all' || p.category === categoryFilter)
     .filter((p) => roleFilter === 'all' || p.targetRole === roleFilter)
     .filter((p) => search === '' || p.title.toLowerCase().includes(search.toLowerCase()) || p.body.toLowerCase().includes(search.toLowerCase()))
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    .sort((a, b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''));
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -127,7 +127,7 @@ export default function PromptsPage() {
                       {pr.version}
                     </Badge>
                     <span className="text-xs text-gray-600">{getProjectTitle(pr.projectId)}</span>
-                    <span className="text-xs text-gray-600">{pr.updatedAt.slice(0, 10)}</span>
+                    <span className="text-xs text-gray-600">{(pr.updatedAt ?? pr.createdAt ?? '').slice(0, 10)}</span>
                   </div>
                   <h3 className="text-white text-sm font-medium mb-1">{pr.title}</h3>
                   {pr.changeMemo && (

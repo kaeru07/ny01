@@ -15,8 +15,8 @@ function fromDB(row: any): Prompt {
     body: row.body ?? '',
     changeMemo: row.change_memo ?? '',
     targetRole: row.target_role ?? '',
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
+    createdAt: row.created_at ?? new Date().toISOString(),
+    updatedAt: row.updated_at ?? row.created_at ?? new Date().toISOString(),
   };
 }
 

@@ -21,8 +21,8 @@ function fromDB(row: any): Project {
     status: row.status ?? 'planning',
     todos: Array.isArray(row.todos) ? row.todos : [],
     nextAction: row.next_action ?? '',
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
+    createdAt: row.created_at ?? new Date().toISOString(),
+    updatedAt: row.updated_at ?? row.created_at ?? new Date().toISOString(),
   };
 }
 

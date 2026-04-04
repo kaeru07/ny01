@@ -224,13 +224,13 @@ export default function DashboardPage() {
   // 次アクションがある案件
   const hasNextAction = projectList
     .filter((p) => p.status !== 'done' && p.nextAction)
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+    .sort((a, b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''))
     .slice(0, 5);
 
   // 進行中の案件一覧（ダッシュボード表示用）
   const displayProjects = [...projectList]
     .filter((p) => p.status !== 'done')
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+    .sort((a, b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''))
     .slice(0, 8);
 
   const hasDueAlerts = overdueCount > 0 || todayCount > 0 || weekCount > 0;

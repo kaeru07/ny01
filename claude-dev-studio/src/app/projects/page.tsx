@@ -61,7 +61,7 @@ export default function ProjectsPage() {
   const filtered = (projects ?? [])
     .filter((p) => filter === 'all' || p.status === filter)
     .filter((p) => search === '' || p.title.toLowerCase().includes(search.toLowerCase()))
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    .sort((a, b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''));
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
