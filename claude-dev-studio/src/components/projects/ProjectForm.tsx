@@ -30,14 +30,62 @@ const statusOptions: { value: ProjectStatus; label: string }[] = [
   { value: 'paused', label: '保留' },
 ];
 
+// Supabase エラーは Error インスタンスではなく { message, code, details, hint } 形式
+type SupabaseErrorLike = {
+  message?: string;
+  code?: string;
+  details?: string;
+  hint?: string;
+};
+
+function isSupabaseErrorLike(err: unknown): err is SupabaseErrorLike {
+  return err !== null && typeof err === 'object' && 'message' in err;
+}
+
+function extractErrorInfo(err: unknown): { msg: string; code?: string; details?: string; hint?: string } {
+  // Supabase の PostgrestError は plain object（Error インスタンスではない）だが、
+  // 念のり Error インスタンスでも code/details/hint を取り出せるよう両方チェックする
+  if (isSupabaseErrorLike(err)) {
+    return {
+      msg: err.message ?? JSON.stringify(err),
+      code: err.code,
+      details: err.details,
+      hint: err.hint,
+    };
+  }
+  if (err instanceof Error) return { msg: err.message };
+  if (typeof err === 'string') return { msg: err };
+  try { return { msg: JSON.stringify(err) }; } catch { return { msg: String(err) }; }
+}
+
 function toUserMessage(err: unknown): string {
-  const msg = err instanceof Error ? err.message : String(err);
-  if (msg.includes('ログイン') || msg.includes('auth')) return 'ログインが必要です';
-  if (msg.includes('fetch') || msg.includes('network') || msg.includes('Failed to fetch'))
-    return 'DB接続エラーが発生しました';
-  if (msg.includes('violates') || msg.includes('policy') || msg.includes('permission'))
-    return 'DB接続エラーが発生しました（RLSポリシー違反）';
-  return `保存に失敗しました: ${msg}`;
+  // 開発用: 生のエラーオブジェクトをコンソールに出力
+  console.error('[ProjectForm] ❌ 保存エラー (raw):', err);
+
+  const { msg, code, details, hint } = extractErrorInfo(err);
+
+  console.error('[ProjectForm] エラー詳細:', { message: msg, code, details, hint });
+
+  // ユーザー向けメッセージ生成（DB エラーコードを優先して評価）
+  const lower = msg.toLowerCase();
+  if (code === '42P01')
+    return 'projects テーブルが存在しません。supabase-setup.sql を Supabase の SQL エディタで実行してください。';
+  if (code === '42501' || lower.includes('permission denied') || lower.includes('violates row-level security'))
+    return '権限エラーで保存できませんでした（RLS ポリシー違反）。ログイン状態と Supabase の RLS ポリシーを確認してください。';
+  if (code === '23502')
+    return 'DBのカラム構成が一致していません（NOT NULL 制約違反）。';
+  if (code === '23505')
+    return 'すでに同じデータが存在します（一意制約違反）。';
+  if (code === 'PGRST301' || lower.includes('jwt expired'))
+    return 'セッションが期限切れです。再ログインしてください。';
+  if (lower.includes('ログイン') || lower.includes('not authenticated') || lower.includes('jwt'))
+    return 'ログインが必要です。再度ログインしてください。';
+  if (lower.includes('failed to fetch'))
+    return 'ネットワークエラーが発生しました。接続を確認してください。';
+
+  // コード・詳細がある場合は付記
+  const extra = [code && `コード: ${code}`, hint && `ヒント: ${hint}`].filter(Boolean).join(' / ');
+  return `保存に失敗しました: ${msg}${extra ? ` (${extra})` : ''}`;
 }
 
 export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
@@ -58,6 +106,7 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
   });
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [saveErrorDetail, setSaveErrorDetail] = useState<{ code?: string; details?: string; hint?: string } | null>(null);
   const [saved, setSaved] = useState(false);
 
   const set = (field: keyof FormData, value: string) =>
@@ -66,6 +115,7 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaveError('');
+    setSaveErrorDetail(null);
     setSaved(false);
 
     if (!form.title.trim()) {
@@ -76,7 +126,7 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
 
     setSaving(true);
     console.log('[ProjectForm] submit started');
-    console.log('[ProjectForm] payload:', form);
+    console.log('[ProjectForm] payload:', JSON.stringify(form, null, 2));
 
     try {
       await onSubmit(form);
@@ -85,6 +135,9 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
     } catch (err) {
       console.error('[ProjectForm] submit failed:', err);
       setSaveError(toUserMessage(err));
+      if (isSupabaseErrorLike(err)) {
+        setSaveErrorDetail({ code: err.code, details: err.details, hint: err.hint });
+      }
     } finally {
       setSaving(false);
     }
@@ -176,9 +229,16 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
       </div>
 
       {saveError && (
-        <p className="text-red-400 text-sm rounded-lg bg-red-950/50 border border-red-800/60 px-3 py-2">
-          {saveError}
-        </p>
+        <div className="text-red-400 text-sm rounded-lg bg-red-950/50 border border-red-800/60 px-3 py-2 space-y-1">
+          <p>{saveError}</p>
+          {saveErrorDetail && (saveErrorDetail.code || saveErrorDetail.details || saveErrorDetail.hint) && (
+            <ul className="text-xs text-red-300/80 list-none space-y-0.5 mt-1 border-t border-red-800/40 pt-1">
+              {saveErrorDetail.code && <li>コード: {saveErrorDetail.code}</li>}
+              {saveErrorDetail.details && <li>詳細: {saveErrorDetail.details}</li>}
+              {saveErrorDetail.hint && <li>ヒント: {saveErrorDetail.hint}</li>}
+            </ul>
+          )}
+        </div>
       )}
 
       <div className="flex gap-3 pt-2">

@@ -70,11 +70,13 @@ const local = {
 };
 
 // --- Supabase ---
-async function getCurrentUserId(): Promise<string> {
+async function getCurrentUser() {
   const { data: { user }, error } = await supabase!.auth.getUser();
-  console.log('[projectRepository] getCurrentUserId:', user?.id ?? null, error ?? null);
+  console.log('[ProjectRepository] current user:', user ?? null);
+  console.log('[ProjectRepository] user_id:', user?.id ?? null);
+  if (error) console.warn('[ProjectRepository] auth.getUser error:', error);
   if (!user) throw new Error('ログインしてください');
-  return user.id;
+  return user;
 }
 
 export const projectRepository = {
@@ -84,7 +86,10 @@ export const projectRepository = {
       .from('projects')
       .select('*')
       .order('updated_at', { ascending: false });
-    if (error) throw error;
+    if (error) {
+      console.error('[ProjectRepository] ❌ findAll error:', { message: error.message, code: error.code, details: error.details, hint: error.hint });
+      throw error;
+    }
     return (data ?? []).map(fromDB);
   },
 
@@ -103,21 +108,38 @@ export const projectRepository = {
   },
 
   async create(data: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>): Promise<Project> {
-    console.log('[projectRepository] create called, supabaseConfigured:', isSupabaseConfigured);
-    if (!isSupabaseConfigured || !supabase) return local.create(data);
-    const userId = await getCurrentUserId();
-    const row = { ...toDB(data), user_id: userId };
-    console.log('[projectRepository] inserting row:', row);
+    console.log('[ProjectRepository] create called, supabaseConfigured:', isSupabaseConfigured);
+    if (!isSupabaseConfigured || !supabase) {
+      console.log('[ProjectRepository] Supabase 未設定 → localStorage fallback');
+      return local.create(data);
+    }
+
+    const user = await getCurrentUser();
+    const row = { ...toDB(data), user_id: user.id };
+
+    // カラム名確認用: toDB が何を生成したか
+    console.log('[ProjectRepository] insert payload:', JSON.stringify(row, null, 2));
+    console.log('[ProjectRepository] payload keys:', Object.keys(row));
+
     const { data: created, error } = await supabase
       .from('projects')
       .insert(row)
       .select()
       .single();
+
+    // Supabase 生の返り値を必ず出す
+    console.log('[ProjectRepository] supabase response: data =', created, '/ error =', error);
+
     if (error) {
-      console.error('[projectRepository] insert error:', error);
+      console.error('[ProjectRepository] supabase error:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+      });
       throw error;
     }
-    console.log('[projectRepository] insert success:', created?.id);
+    console.log('[ProjectRepository] ✅ insert success, id:', created?.id);
     return fromDB(created);
   },
 
@@ -125,21 +147,37 @@ export const projectRepository = {
     id: string,
     data: Partial<Omit<Project, 'id' | 'createdAt'>>
   ): Promise<Project | null> {
-    console.log('[projectRepository] update called, id:', id, 'supabaseConfigured:', isSupabaseConfigured);
+    console.log('[ProjectRepository] update called, id:', id, 'supabaseConfigured:', isSupabaseConfigured);
     if (!isSupabaseConfigured || !supabase) return local.update(id, data);
+
+    // update でも current user を確認（RLS デバッグ用）
+    await getCurrentUser();
+
     const row = { ...toDB(data), updated_at: new Date().toISOString() };
-    console.log('[projectRepository] updating row:', row);
+
+    console.log('[ProjectRepository] insert payload:', JSON.stringify(row, null, 2));
+    console.log('[ProjectRepository] payload keys:', Object.keys(row));
+
     const { data: updated, error } = await supabase
       .from('projects')
       .update(row)
       .eq('id', id)
       .select()
       .single();
+
+    // Supabase 生の返り値を必ず出す
+    console.log('[ProjectRepository] supabase response: data =', updated, '/ error =', error);
+
     if (error) {
-      console.error('[projectRepository] update error:', error);
+      console.error('[ProjectRepository] supabase error:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+      });
       throw error;
     }
-    console.log('[projectRepository] update success:', updated?.id);
+    console.log('[ProjectRepository] ✅ update success, id:', updated?.id);
     return fromDB(updated);
   },
 
