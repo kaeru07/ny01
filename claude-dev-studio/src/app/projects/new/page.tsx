@@ -14,6 +14,7 @@ export default function NewProjectPage() {
     const project = await projectRepository.create(data);
     console.log('[NewProjectPage] create success:', project.id);
     toast.success('案件を作成しました');
+    console.log('[ProjectForm] after save navigation start → /projects/' + project.id);
     router.push(`/projects/${project.id}`);
   };
 

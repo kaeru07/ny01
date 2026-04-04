@@ -33,16 +33,32 @@ const filterTabs: { value: FilterTab; label: string }[] = [
 
 export default function ProjectsPage() {
   const router = useRouter();
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<Project[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterTab>('all');
   const [search, setSearch] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
 
-  const load = async () => setProjects(await projectRepository.findAll());
+  const load = async () => {
+    console.log('[ProjectList] load start');
+    setLoadError(null);
+    try {
+      const ps = await projectRepository.findAll();
+      console.log('[ProjectList] projects loaded count:', ps.length);
+      setProjects(ps);
+    } catch (err) {
+      console.error('[ProjectList] load error:', err);
+      const msg = err instanceof Error ? err.message
+        : (err !== null && typeof err === 'object' && 'message' in err)
+          ? String((err as { message: unknown }).message)
+          : String(err);
+      setLoadError(`読み込みに失敗しました: ${msg}`);
+    }
+  };
 
   useEffect(() => { load(); }, []);
 
-  const filtered = projects
+  const filtered = (projects ?? [])
     .filter((p) => filter === 'all' || p.status === filter)
     .filter((p) => search === '' || p.title.toLowerCase().includes(search.toLowerCase()))
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
@@ -107,7 +123,16 @@ export default function ProjectsPage() {
 
       {/* List */}
       <div className="space-y-2">
-        {filtered.length === 0 && (
+        {projects === null && !loadError && (
+          <p className="text-gray-500 text-sm py-4">読み込み中...</p>
+        )}
+        {loadError && (
+          <div className="space-y-2 py-2">
+            <p className="text-red-400 text-sm">{loadError}</p>
+            <button onClick={load} className="text-xs text-blue-400 hover:underline">再読み込み</button>
+          </div>
+        )}
+        {projects !== null && !loadError && filtered.length === 0 && (
           <p className="text-gray-500 text-sm py-4">案件がありません</p>
         )}
         {filtered.map((p) => {

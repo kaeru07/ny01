@@ -27,6 +27,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
     await projectRepository.update(id, data);
     console.log('[EditProjectPage] update success');
     toast.success('案件を更新しました');
+    console.log('[ProjectForm] after save navigation start → /projects/' + id);
     router.push(`/projects/${id}`);
   };
 

@@ -152,28 +152,43 @@ async function migrateFromLocalStorage() {
 }
 
 export default function DashboardPage() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<Project[] | null>(null);
   const [promptCount, setPromptCount] = useState(0);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
-      await migrateFromLocalStorage();
-      const [ps, prs] = await Promise.all([
-        projectRepository.findAll(),
-        promptRepository.findAll(),
-      ]);
-      setProjects(ps);
-      setPromptCount(prs.length);
+      console.log('[Dashboard] load start');
+      setLoadError(null);
+      try {
+        await migrateFromLocalStorage();
+        const [ps, prs] = await Promise.all([
+          projectRepository.findAll(),
+          promptRepository.findAll(),
+        ]);
+        console.log('[Dashboard] projects loaded count:', ps.length);
+        setProjects(ps);
+        setPromptCount(prs.length);
+      } catch (err) {
+        console.error('[Dashboard] load error:', err);
+        const msg = err instanceof Error ? err.message
+          : (err !== null && typeof err === 'object' && 'message' in err)
+            ? String((err as { message: unknown }).message)
+            : String(err);
+        setLoadError(`読み込みに失敗しました: ${msg}`);
+        setProjects([]);
+      }
     }
     load();
   }, []);
 
-  const activeProjects = projects.filter((p) => p.status === 'active' || p.status === 'adjusting');
-  const doneProjects = projects.filter((p) => p.status === 'done');
-  const pausedProjects = projects.filter((p) => p.status === 'paused');
+  const projectList = projects ?? [];
+  const activeProjects = projectList.filter((p) => p.status === 'active' || p.status === 'adjusting');
+  const doneProjects = projectList.filter((p) => p.status === 'done');
+  const pausedProjects = projectList.filter((p) => p.status === 'paused');
 
   // 平均進捗率（完了以外の全案件）
-  const nonDone = projects.filter((p) => p.status !== 'done');
+  const nonDone = projectList.filter((p) => p.status !== 'done');
   const avgProgress =
     nonDone.length === 0
       ? 0
@@ -185,7 +200,7 @@ export default function DashboardPage() {
   let overdueCount = 0;
   let todayCount = 0;
   let weekCount = 0;
-  for (const p of projects) {
+  for (const p of projectList) {
     if (p.status === 'done') continue;
     for (const t of p.todos ?? []) {
       if (t.completed || !t.dueDate) continue;
@@ -196,7 +211,7 @@ export default function DashboardPage() {
   }
 
   // 未完了Todoが多い案件 top3
-  const topPendingTodo = [...projects]
+  const topPendingTodo = [...projectList]
     .filter((p) => p.status !== 'done')
     .map((p) => ({
       ...p,
@@ -207,13 +222,13 @@ export default function DashboardPage() {
     .slice(0, 3);
 
   // 次アクションがある案件
-  const hasNextAction = projects
+  const hasNextAction = projectList
     .filter((p) => p.status !== 'done' && p.nextAction)
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
     .slice(0, 5);
 
   // 進行中の案件一覧（ダッシュボード表示用）
-  const displayProjects = [...projects]
+  const displayProjects = [...projectList]
     .filter((p) => p.status !== 'done')
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
     .slice(0, 8);
@@ -298,7 +313,13 @@ export default function DashboardPage() {
           <Link href="/projects" className="text-xs text-blue-400 hover:text-blue-300">一覧へ →</Link>
         </div>
 
-        {displayProjects.length === 0 ? (
+        {projects === null ? (
+          <p className="text-gray-500 text-sm py-3">読み込み中...</p>
+        ) : loadError ? (
+          <div className="space-y-1 py-2">
+            <p className="text-red-400 text-sm">{loadError}</p>
+          </div>
+        ) : displayProjects.length === 0 ? (
           <p className="text-gray-600 text-sm py-3">案件がありません</p>
         ) : (
           <div className="space-y-2">

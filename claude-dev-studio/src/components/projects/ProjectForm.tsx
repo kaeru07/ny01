@@ -130,7 +130,7 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
 
     try {
       await onSubmit(form);
-      console.log('[ProjectForm] submit success');
+      console.log('[ProjectForm] save success');
       setSaved(true);
     } catch (err) {
       console.error('[ProjectForm] submit failed:', err);

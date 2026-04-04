@@ -81,27 +81,43 @@ async function getCurrentUser() {
 
 export const projectRepository = {
   async findAll(): Promise<Project[]> {
-    if (!isSupabaseConfigured || !supabase) return local.findAll();
+    console.log('[ProjectRepository] list called, supabaseConfigured:', isSupabaseConfigured);
+    if (!isSupabaseConfigured || !supabase) {
+      const rows = local.findAll();
+      console.log('[ProjectRepository] list query result (local):', rows.length, 'rows');
+      return rows;
+    }
+    const { data: { user } } = await supabase.auth.getUser();
+    console.log('[ProjectRepository] list current user:', user?.id ?? null);
+
     const { data, error } = await supabase
       .from('projects')
       .select('*')
       .order('updated_at', { ascending: false });
+
+    console.log('[ProjectRepository] list query result: data=', data?.length ?? null, 'rows, error=', error);
     if (error) {
-      console.error('[ProjectRepository] ❌ findAll error:', { message: error.message, code: error.code, details: error.details, hint: error.hint });
+      console.error('[ProjectRepository] list error:', { message: error.message, code: error.code, details: error.details, hint: error.hint });
       throw error;
     }
     return (data ?? []).map(fromDB);
   },
 
   async findById(id: string): Promise<Project | null> {
+    console.log('[ProjectRepository] findById called, id:', id);
     if (!isSupabaseConfigured || !supabase) return local.findById(id);
     const { data, error } = await supabase
       .from('projects')
       .select('*')
       .eq('id', id)
       .single();
+    console.log('[ProjectRepository] findById result: data=', data?.id ?? null, 'error=', error?.code ?? null);
     if (error) {
-      if (error.code === 'PGRST116') return null; // not found
+      if (error.code === 'PGRST116') {
+        console.warn('[ProjectRepository] findById: not found (PGRST116), id:', id);
+        return null;
+      }
+      console.error('[ProjectRepository] findById error:', { message: error.message, code: error.code, details: error.details, hint: error.hint });
       throw error;
     }
     return fromDB(data);

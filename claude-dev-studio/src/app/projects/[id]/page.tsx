@@ -146,6 +146,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
   const [project, setProject] = useState<Project | null>(null);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const [showDeleteProjectDialog, setShowDeleteProjectDialog] = useState(false);
 
@@ -164,13 +165,29 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [deletePromptTarget, setDeletePromptTarget] = useState<Prompt | null>(null);
 
   const loadData = async () => {
-    const [p, prs] = await Promise.all([
-      projectRepository.findById(id),
-      promptRepository.findByProjectId(id),
-    ]);
-    if (!p) { router.push('/projects'); return; }
-    setProject(p);
-    setPrompts(prs);
+    console.log('[ProjectDetail] loadData start, id:', id);
+    setLoadError(null);
+    try {
+      const [p, prs] = await Promise.all([
+        projectRepository.findById(id),
+        promptRepository.findByProjectId(id),
+      ]);
+      console.log('[ProjectDetail] loadData result: project=', p?.id ?? null, 'prompts=', prs.length);
+      if (!p) {
+        console.warn('[ProjectDetail] project not found, redirecting to /projects');
+        router.push('/projects');
+        return;
+      }
+      setProject(p);
+      setPrompts(prs);
+    } catch (err) {
+      console.error('[ProjectDetail] loadData error:', err);
+      const msg = err instanceof Error ? err.message
+        : (err !== null && typeof err === 'object' && 'message' in err)
+          ? String((err as { message: unknown }).message)
+          : String(err);
+      setLoadError(`データの読み込みに失敗しました: ${msg}`);
+    }
   };
 
   useEffect(() => {
@@ -256,6 +273,12 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     .filter((p) => promptFilter === 'all' || p.category === promptFilter)
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 
+  if (loadError) return (
+    <div className="p-6 space-y-3">
+      <p className="text-red-400 text-sm">{loadError}</p>
+      <button onClick={loadData} className="text-xs text-blue-400 hover:underline">再読み込み</button>
+    </div>
+  );
   if (!project) return <div className="p-6 text-gray-400">読み込み中...</div>;
 
   const todos = project.todos ?? [];
