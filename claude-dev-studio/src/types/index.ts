@@ -1,17 +1,8 @@
-export type ProjectStatus = 'planning' | 'active' | 'done' | 'paused';
+export type ProjectStatus = 'planning' | 'active' | 'adjusting' | 'done' | 'paused';
 export type PromptCategory = 'new' | 'fix' | 'ui' | 'debug';
+export type TodoPriority = 'low' | 'medium' | 'high';
 
-export type ProjectPhase =
-  | 'consulting'
-  | 'requirements'
-  | 'research'
-  | 'design'
-  | 'ui_design'
-  | 'implementation'
-  | 'review'
-  | 'deploy_prep'
-  | 'done';
-
+// AICOMPANYロール（プロンプト管理で引き続き使用）
 export type AICOMPANYRole =
   | 'secretary'
   | 'researcher'
@@ -20,6 +11,15 @@ export type AICOMPANYRole =
   | 'coder'
   | 'reviewer'
   | 'deployer';
+
+export interface Todo {
+  id: string;
+  title: string;
+  completed: boolean;
+  priority: TodoPriority;
+  note?: string;
+  createdAt: string;
+}
 
 export interface Project {
   id: string;
@@ -33,18 +33,8 @@ export interface Project {
   designPolicy: string;
   memo: string;
   status: ProjectStatus;
-  // AICOMPANY進行管理
-  currentPhase?: ProjectPhase;
-  currentOwner?: AICOMPANYRole;
-  nextOwner?: AICOMPANYRole | '';
-  // 担当別メモ
-  secretaryNotes?: string;
-  researcherNotes?: string;
-  architectNotes?: string;
-  uiDesignerNotes?: string;
-  coderNotes?: string;
-  reviewerNotes?: string;
-  deployerNotes?: string;
+  todos: Todo[];
+  nextAction?: string;
   createdAt: string;
   updatedAt: string;
 }

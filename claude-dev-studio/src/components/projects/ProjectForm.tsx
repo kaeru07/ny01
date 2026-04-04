@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Project, ProjectStatus, ProjectPhase, AICOMPANYRole } from '@/types';
+import { Project, ProjectStatus } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { phaseLabel, roleLabel } from '@/app/page';
 
 type FormData = Omit<Project, 'id' | 'createdAt' | 'updatedAt'>;
 
@@ -24,14 +23,12 @@ interface ProjectFormProps {
 }
 
 const statusOptions: { value: ProjectStatus; label: string }[] = [
-  { value: 'planning', label: '計画中' },
-  { value: 'active', label: '着手中' },
+  { value: 'planning', label: '未着手' },
+  { value: 'active', label: '進行中' },
+  { value: 'adjusting', label: '調整中' },
   { value: 'done', label: '完了' },
-  { value: 'paused', label: '一時停止' },
+  { value: 'paused', label: '保留' },
 ];
-
-const allPhases = Object.keys(phaseLabel) as ProjectPhase[];
-const allRoles = Object.keys(roleLabel) as AICOMPANYRole[];
 
 export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
   const router = useRouter();
@@ -46,19 +43,11 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
     designPolicy: initialData?.designPolicy ?? '',
     memo: initialData?.memo ?? '',
     status: initialData?.status ?? 'planning',
-    currentPhase: initialData?.currentPhase,
-    currentOwner: initialData?.currentOwner,
-    nextOwner: initialData?.nextOwner ?? '',
-    secretaryNotes: initialData?.secretaryNotes ?? '',
-    researcherNotes: initialData?.researcherNotes ?? '',
-    architectNotes: initialData?.architectNotes ?? '',
-    uiDesignerNotes: initialData?.uiDesignerNotes ?? '',
-    coderNotes: initialData?.coderNotes ?? '',
-    reviewerNotes: initialData?.reviewerNotes ?? '',
-    deployerNotes: initialData?.deployerNotes ?? '',
+    todos: initialData?.todos ?? [],
+    nextAction: initialData?.nextAction ?? '',
   });
 
-  const set = (field: keyof FormData, value: string | undefined) =>
+  const set = (field: keyof FormData, value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -96,62 +85,16 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
         </div>
       </div>
 
-      {/* AICOMPANY進行管理 */}
-      <div className="border border-gray-700 rounded-lg p-4 space-y-3">
-        <p className="text-xs text-gray-400 font-medium">AICOMPANY 進行管理</p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="space-y-1.5">
-            <Label className="text-xs text-gray-500">現在の工程</Label>
-            <Select
-              value={form.currentPhase ?? ''}
-              onValueChange={(v) => set('currentPhase', v || undefined)}
-            >
-              <SelectTrigger className="w-full bg-gray-800 border-gray-700 h-8 text-xs text-gray-100">
-                <SelectValue placeholder="未設定" />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
-                <SelectItem value="">未設定</SelectItem>
-                {allPhases.map((ph) => (
-                  <SelectItem key={ph} value={ph}>{phaseLabel[ph]}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs text-gray-500">現在の担当</Label>
-            <Select
-              value={form.currentOwner ?? ''}
-              onValueChange={(v) => set('currentOwner', v || undefined)}
-            >
-              <SelectTrigger className="w-full bg-gray-800 border-gray-700 h-8 text-xs text-gray-100">
-                <SelectValue placeholder="未設定" />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
-                <SelectItem value="">未設定</SelectItem>
-                {allRoles.map((r) => (
-                  <SelectItem key={r} value={r}>{roleLabel[r]}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs text-gray-500">次の担当</Label>
-            <Select
-              value={form.nextOwner ?? ''}
-              onValueChange={(v) => set('nextOwner', v || undefined)}
-            >
-              <SelectTrigger className="w-full bg-gray-800 border-gray-700 h-8 text-xs text-gray-100">
-                <SelectValue placeholder="未設定" />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-800 border-gray-700">
-                <SelectItem value="">未設定</SelectItem>
-                {allRoles.map((r) => (
-                  <SelectItem key={r} value={r}>{roleLabel[r]}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+      {/* 次のアクション */}
+      <div className="space-y-1.5">
+        <Label htmlFor="nextAction" className="text-xs">次のアクション</Label>
+        <Input
+          id="nextAction"
+          value={form.nextAction ?? ''}
+          onChange={(e) => set('nextAction', e.target.value)}
+          placeholder="例: デザインレビューを依頼する"
+          className="bg-gray-800 border-gray-700 h-9 text-sm"
+        />
       </div>
 
       {/* 概要 */}
