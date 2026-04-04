@@ -32,7 +32,7 @@ import { PromptFormDialog } from '@/components/prompts/PromptFormDialog';
 import { cn } from '@/lib/utils';
 import {
   Pencil, Trash2, Copy, Plus, ChevronRight, CheckSquare, Square,
-  ChevronDown, ChevronUp, CalendarDays, AlertCircle,
+  ChevronDown, ChevronUp, CalendarDays, AlertCircle, ExternalLink,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -330,12 +330,23 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             </p>
           )}
         </div>
-        <div className="flex gap-2 shrink-0">
-          <Button variant="outline" size="sm" className="border-gray-700 text-gray-300 hover:bg-gray-700 h-8 text-xs" onClick={() => router.push(`/projects/${id}/edit`)}>
+        <div className="flex flex-wrap gap-2 shrink-0">
+          {project.url && (
+            <a
+              href={project.url}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex items-center gap-1.5 border border-blue-700 text-blue-400 hover:bg-blue-900/30 rounded-md h-9 px-3 text-xs font-medium transition-colors"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              URLを開く
+            </a>
+          )}
+          <Button variant="outline" size="sm" className="border-gray-700 text-gray-300 hover:bg-gray-700 h-9 text-xs" onClick={() => router.push(`/projects/${id}/edit`)}>
             <Pencil className="w-3.5 h-3.5 mr-1" />
             編集
           </Button>
-          <Button variant="outline" size="sm" className="border-red-900 text-red-400 hover:bg-red-900/30 h-8 text-xs" onClick={() => setShowDeleteProjectDialog(true)}>
+          <Button variant="outline" size="sm" className="border-red-900 text-red-400 hover:bg-red-900/30 h-9 text-xs" onClick={() => setShowDeleteProjectDialog(true)}>
             <Trash2 className="w-3.5 h-3.5 mr-1" />
             削除
           </Button>
@@ -590,6 +601,21 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               <dl>
                 <FieldRow label="概要" value={project.summary} />
                 <FieldRow label="次のアクション" value={project.nextAction ?? ''} />
+                {project.url && (
+                  <div className="py-2.5 border-b border-gray-700">
+                    <dt className="text-xs text-gray-500 mb-0.5">URL</dt>
+                    <dd>
+                      <a
+                        href={project.url}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        className="text-sm text-blue-400 hover:text-blue-300 underline break-all"
+                      >
+                        {project.url}
+                      </a>
+                    </dd>
+                  </div>
+                )}
                 <FieldRow label="対象ユーザー" value={project.target} />
                 <FieldRow label="解決したい課題" value={project.problem} />
                 <FieldRow label="MVP機能" value={project.mvpFeatures} />

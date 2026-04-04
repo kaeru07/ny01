@@ -36,6 +36,7 @@ export interface Project {
   status: ProjectStatus;
   todos: Todo[];
   nextAction?: string;
+  url?: string;
   createdAt: string;
   updatedAt: string;
 }

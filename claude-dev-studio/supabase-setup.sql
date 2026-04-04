@@ -24,6 +24,9 @@ create table if not exists projects (
   updated_at timestamptz default now()
 );
 
+-- url カラム追加（既存テーブルに追加する場合はこちらを実行）
+alter table projects add column if not exists url text default '';
+
 -- projects に RLS を有効化
 alter table projects enable row level security;
 

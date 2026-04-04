@@ -103,6 +103,7 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
     status: initialData?.status ?? 'planning',
     todos: initialData?.todos ?? [],
     nextAction: initialData?.nextAction ?? '',
+    url: initialData?.url ?? '',
   });
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
@@ -124,12 +125,17 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
       return;
     }
 
+    // URL が入力済みで http/https 以外なら https:// を補完
+    const normalizedUrl = form.url?.trim()
+      ? form.url.trim().match(/^https?:\/\//) ? form.url.trim() : `https://${form.url.trim()}`
+      : '';
+
     setSaving(true);
     console.log('[ProjectForm] submit started');
-    console.log('[ProjectForm] payload:', JSON.stringify(form, null, 2));
+    console.log('[ProjectForm] payload:', JSON.stringify({ ...form, url: normalizedUrl }, null, 2));
 
     try {
-      await onSubmit(form);
+      await onSubmit({ ...form, url: normalizedUrl });
       console.log('[ProjectForm] save success');
       setSaved(true);
     } catch (err) {
@@ -183,6 +189,19 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
           value={form.nextAction ?? ''}
           onChange={(e) => set('nextAction', e.target.value)}
           placeholder="例: デザインレビューを依頼する"
+          className="bg-gray-800 border-gray-700 h-9 text-sm"
+        />
+      </div>
+
+      {/* URL */}
+      <div className="space-y-1.5">
+        <Label htmlFor="url" className="text-xs">URL</Label>
+        <Input
+          id="url"
+          type="url"
+          value={form.url ?? ''}
+          onChange={(e) => set('url', e.target.value)}
+          placeholder="https://example.com"
           className="bg-gray-800 border-gray-700 h-9 text-sm"
         />
       </div>

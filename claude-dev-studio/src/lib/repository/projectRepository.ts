@@ -21,6 +21,7 @@ function fromDB(row: any): Project {
     status: row.status ?? 'planning',
     todos: Array.isArray(row.todos) ? row.todos : [],
     nextAction: row.next_action ?? '',
+    url: row.url ?? '',
     createdAt: row.created_at ?? new Date().toISOString(),
     updatedAt: row.updated_at ?? row.created_at ?? new Date().toISOString(),
   };
@@ -40,6 +41,7 @@ function toDB(data: Partial<Omit<Project, 'id' | 'createdAt' | 'updatedAt'>>) {
   if (data.status !== undefined) row.status = data.status;
   if (data.todos !== undefined) row.todos = data.todos;
   if (data.nextAction !== undefined) row.next_action = data.nextAction;
+  if (data.url !== undefined) row.url = data.url;
   return row;
 }
 
