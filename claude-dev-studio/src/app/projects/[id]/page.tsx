@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { PromptFormDialog } from '@/components/prompts/PromptFormDialog';
+import { TemplatePromptsPanel } from '@/components/prompts/TemplatePromptsPanel';
 import { cn } from '@/lib/utils';
 import {
   Pencil, Trash2, Copy, Plus, ChevronRight, CheckSquare, Square,
@@ -368,6 +369,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           <TabsTrigger value="prompts" className="data-[state=active]:bg-gray-700 text-gray-400 data-[state=active]:text-white text-xs">
             プロンプト
             {prompts.length > 0 && <span className="ml-1 text-[10px] text-gray-500">({prompts.length})</span>}
+          </TabsTrigger>
+          <TabsTrigger value="templates" className="data-[state=active]:bg-gray-700 text-gray-400 data-[state=active]:text-white text-xs">
+            AIテンプレ
           </TabsTrigger>
         </TabsList>
 
@@ -716,6 +720,11 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               </Card>
             ))}
           </div>
+        </TabsContent>
+
+        {/* AIテンプレ */}
+        <TabsContent value="templates" className="mt-4">
+          <TemplatePromptsPanel projectId={id} />
         </TabsContent>
       </Tabs>
 
