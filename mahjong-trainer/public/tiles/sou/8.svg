@@ -1,24 +1,58 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 48">
   <!-- shadow -->
-  <rect x="2" y="3" width="31" height="44" rx="3" fill="#00000033"/>
-  <!-- body -->
-  <rect x="1" y="1" width="31" height="44" rx="3" fill="#f5f0e8" stroke="#8b7355" stroke-width="1.5"/>
-  <!-- bevel highlight -->
-  <rect x="2.5" y="2.5" width="28" height="41" rx="2" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="0.8"/>
-  <circle cx="10.5" cy="8" r="3" fill="#16a34a" stroke="#14532d" stroke-width="0.6"/>
-  <circle cx="10.5" cy="8" r="1.26" fill="#bbf7d0"/>
-  <circle cx="23.5" cy="8" r="3" fill="#16a34a" stroke="#14532d" stroke-width="0.6"/>
-  <circle cx="23.5" cy="8" r="1.26" fill="#bbf7d0"/>
-  <circle cx="10.5" cy="19" r="3" fill="#16a34a" stroke="#14532d" stroke-width="0.6"/>
-  <circle cx="10.5" cy="19" r="1.26" fill="#bbf7d0"/>
-  <circle cx="23.5" cy="19" r="3" fill="#16a34a" stroke="#14532d" stroke-width="0.6"/>
-  <circle cx="23.5" cy="19" r="1.26" fill="#bbf7d0"/>
-  <circle cx="10.5" cy="29" r="3" fill="#16a34a" stroke="#14532d" stroke-width="0.6"/>
-  <circle cx="10.5" cy="29" r="1.26" fill="#bbf7d0"/>
-  <circle cx="23.5" cy="29" r="3" fill="#16a34a" stroke="#14532d" stroke-width="0.6"/>
-  <circle cx="23.5" cy="29" r="1.26" fill="#bbf7d0"/>
-  <circle cx="10.5" cy="40" r="3" fill="#16a34a" stroke="#14532d" stroke-width="0.6"/>
-  <circle cx="10.5" cy="40" r="1.26" fill="#bbf7d0"/>
-  <circle cx="23.5" cy="40" r="3" fill="#16a34a" stroke="#14532d" stroke-width="0.6"/>
-  <circle cx="23.5" cy="40" r="1.26" fill="#bbf7d0"/>
+  <rect x="2" y="3" width="31" height="44" rx="3" fill="#00000028"/>
+  <!-- body: やや白めの象牙色 -->
+  <rect x="1" y="1" width="31" height="44" rx="3" fill="#faf7f0" stroke="#9b8566" stroke-width="1.4"/>
+  <!-- top-left bevel -->
+  <rect x="2.5" y="2.5" width="28" height="41" rx="2" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="0.7"/>
+  
+  <!-- stalk body -->
+  <rect x="8" y="4" width="5" height="8" rx="2.5" fill="#166534"/>
+  <!-- joint ring -->
+  <ellipse cx="10.5" cy="8" rx="4" ry="2.3" fill="#22c55e"/>
+  <!-- upper highlight -->
+  <rect x="9" y="5.5" width="3" height="2" rx="1.5" fill="#bbf7d0" opacity="0.35"/>
+  <!-- stalk body -->
+  <rect x="21" y="4" width="5" height="8" rx="2.5" fill="#166534"/>
+  <!-- joint ring -->
+  <ellipse cx="23.5" cy="8" rx="4" ry="2.3" fill="#22c55e"/>
+  <!-- upper highlight -->
+  <rect x="22" y="5.5" width="3" height="2" rx="1.5" fill="#bbf7d0" opacity="0.35"/>
+  <!-- stalk body -->
+  <rect x="8" y="15" width="5" height="8" rx="2.5" fill="#166534"/>
+  <!-- joint ring -->
+  <ellipse cx="10.5" cy="19" rx="4" ry="2.3" fill="#22c55e"/>
+  <!-- upper highlight -->
+  <rect x="9" y="16.5" width="3" height="2" rx="1.5" fill="#bbf7d0" opacity="0.35"/>
+  <!-- stalk body -->
+  <rect x="21" y="15" width="5" height="8" rx="2.5" fill="#166534"/>
+  <!-- joint ring -->
+  <ellipse cx="23.5" cy="19" rx="4" ry="2.3" fill="#22c55e"/>
+  <!-- upper highlight -->
+  <rect x="22" y="16.5" width="3" height="2" rx="1.5" fill="#bbf7d0" opacity="0.35"/>
+  <!-- stalk body -->
+  <rect x="8" y="25" width="5" height="8" rx="2.5" fill="#166534"/>
+  <!-- joint ring -->
+  <ellipse cx="10.5" cy="29" rx="4" ry="2.3" fill="#22c55e"/>
+  <!-- upper highlight -->
+  <rect x="9" y="26.5" width="3" height="2" rx="1.5" fill="#bbf7d0" opacity="0.35"/>
+  <!-- stalk body -->
+  <rect x="21" y="25" width="5" height="8" rx="2.5" fill="#166534"/>
+  <!-- joint ring -->
+  <ellipse cx="23.5" cy="29" rx="4" ry="2.3" fill="#22c55e"/>
+  <!-- upper highlight -->
+  <rect x="22" y="26.5" width="3" height="2" rx="1.5" fill="#bbf7d0" opacity="0.35"/>
+  <!-- stalk body -->
+  <rect x="8" y="36" width="5" height="8" rx="2.5" fill="#166534"/>
+  <!-- joint ring -->
+  <ellipse cx="10.5" cy="40" rx="4" ry="2.3" fill="#22c55e"/>
+  <!-- upper highlight -->
+  <rect x="9" y="37.5" width="3" height="2" rx="1.5" fill="#bbf7d0" opacity="0.35"/>
+  <!-- stalk body -->
+  <rect x="21" y="36" width="5" height="8" rx="2.5" fill="#166534"/>
+  <!-- joint ring -->
+  <ellipse cx="23.5" cy="40" rx="4" ry="2.3" fill="#22c55e"/>
+  <!-- upper highlight -->
+  <rect x="22" y="37.5" width="3" height="2" rx="1.5" fill="#bbf7d0" opacity="0.35"/>
+  
 </svg>

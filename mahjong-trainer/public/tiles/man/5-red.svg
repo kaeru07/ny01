@@ -8,9 +8,9 @@
   
   <text x="17" y="23" text-anchor="middle" dominant-baseline="middle"
     font-family="'Noto Serif SC','Source Han Serif CK','HiraMinProN-W6','MS Mincho',serif"
-    font-size="21" font-weight="900" fill="#dc2626">一</text>
+    font-size="21" font-weight="900" fill="#e11d48">五</text>
   <text x="17" y="39" text-anchor="middle" dominant-baseline="middle"
     font-family="'Noto Serif SC','Source Han Serif CK','HiraMinProN-W6','MS Mincho',serif"
-    font-size="10" font-weight="700" fill="#dc2626bb">萬</text>
-  
+    font-size="10" font-weight="700" fill="#e11d48cc">萬</text>
+  <circle cx="5" cy="6" r="3" fill="#e11d48"/>
 </svg>

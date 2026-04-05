@@ -10,17 +10,19 @@ interface TileComponentProps {
   selected?: boolean;
   highlighted?: boolean; // ツモ牌ハイライト
   faceDown?: boolean;    // 裏向き表示
+  redFive?: boolean;     // 赤5牌
   onClick?: () => void;
   className?: string;
 }
 
 const HONOR_NAMES = ['east','south','west','north','white','green','red'] as const;
 
-function getTileSrc(tileIndex: TileIndex): string {
+function getTileSrc(tileIndex: TileIndex, redFive = false): string {
   const tile = indexToTile(tileIndex);
-  if (tile.suit === 'man')   return `/tiles/man/${tile.number}.svg`;
-  if (tile.suit === 'pin')   return `/tiles/pin/${tile.number}.svg`;
-  if (tile.suit === 'sou')   return `/tiles/sou/${tile.number}.svg`;
+  const isRed = redFive && tile.number === 5;
+  if (tile.suit === 'man')   return isRed ? `/tiles/man/5-red.svg` : `/tiles/man/${tile.number}.svg`;
+  if (tile.suit === 'pin')   return isRed ? `/tiles/pin/5-red.svg` : `/tiles/pin/${tile.number}.svg`;
+  if (tile.suit === 'sou')   return isRed ? `/tiles/sou/5-red.svg` : `/tiles/sou/${tile.number}.svg`;
   return `/tiles/honor/${HONOR_NAMES[tile.number - 1]}.svg`;
 }
 
@@ -37,10 +39,11 @@ export default function TileComponent({
   selected = false,
   highlighted = false,
   faceDown = false,
+  redFive = false,
   onClick,
   className = "",
 }: TileComponentProps) {
-  const src  = faceDown ? '/tiles/back.svg' : getTileSrc(tileIndex);
+  const src  = faceDown ? '/tiles/back.svg' : getTileSrc(tileIndex, redFive);
   const alt  = faceDown ? '裏向き' : tileName(tileIndex);
 
   const baseClasses = [

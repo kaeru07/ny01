@@ -1,10 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 48">
   <!-- shadow -->
-  <rect x="2" y="3" width="31" height="44" rx="3" fill="#00000033"/>
+  <rect x="2" y="3" width="31" height="44" rx="3" fill="#00000028"/>
+  <!-- body: やや白めの象牙色 -->
+  <rect x="1" y="1" width="31" height="44" rx="3" fill="#faf7f0" stroke="#9b8566" stroke-width="1.4"/>
+  <!-- top-left bevel -->
+  <rect x="2.5" y="2.5" width="28" height="41" rx="2" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="0.7"/>
+  
+  <!-- 1索: 鳥 -->
   <!-- body -->
-  <rect x="1" y="1" width="31" height="44" rx="3" fill="#f5f0e8" stroke="#8b7355" stroke-width="1.5"/>
-  <!-- bevel highlight -->
-  <rect x="2.5" y="2.5" width="28" height="41" rx="2" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="0.8"/>
-  <circle cx="17" cy="24" r="7.5" fill="#16a34a" stroke="#14532d" stroke-width="0.6"/>
-  <circle cx="17" cy="24" r="3.15" fill="#bbf7d0"/>
+  <ellipse cx="19" cy="27" rx="9" ry="6.5" fill="#166534"/>
+  <!-- neck+head area (merged) -->
+  <ellipse cx="11.5" cy="22.5" rx="5.5" ry="5" fill="#166534"/>
+  <!-- smooth neck connector -->
+  <path d="M10,25 Q14,24 16,28 Q14,30 19,30 Q13,31 10,28Z" fill="#166534"/>
+  <!-- beak -->
+  <polygon points="6,22 10.5,20 10.5,25" fill="#ca8a04"/>
+  <!-- eye -->
+  <circle cx="9" cy="21" r="1.5" fill="white"/>
+  <circle cx="9.1" cy="21" r="0.75" fill="#111"/>
+  <!-- wing shading -->
+  <ellipse cx="20" cy="26" rx="7" ry="4" fill="#14532d" opacity="0.5" transform="rotate(-12,20,26)"/>
+  <!-- wing highlight -->
+  <ellipse cx="18" cy="25" rx="4" ry="2.5" fill="#22c55e" opacity="0.35" transform="rotate(-12,18,25)"/>
+  <!-- tail -->
+  <path d="M27,26 C31,21 33,29 29,33 C28,30 27,26 27,26Z" fill="#14532d"/>
+  <path d="M27,27 C30,24 31,30 28,32 C27.5,30 27,27 27,27Z" fill="#166534"/>
+  <!-- left leg -->
+  <line x1="16" y1="33" x2="14" y2="40" stroke="#14532d" stroke-width="1.6" stroke-linecap="round"/>
+  <line x1="14" y1="40" x2="11" y2="42" stroke="#14532d" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="14" y1="40" x2="15" y2="43" stroke="#14532d" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- right leg -->
+  <line x1="20" y1="33" x2="22" y2="40" stroke="#14532d" stroke-width="1.6" stroke-linecap="round"/>
+  <line x1="22" y1="40" x2="19" y2="42" stroke="#14532d" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="22" y1="40" x2="24" y2="43" stroke="#14532d" stroke-width="1.2" stroke-linecap="round"/>
 </svg>
