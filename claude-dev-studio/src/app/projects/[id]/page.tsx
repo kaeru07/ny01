@@ -41,6 +41,56 @@ import {
   roleLabel, roleColor, getTodayStr, getWeekEndStr, getDueDateStatus,
 } from '@/app/page';
 
+// --- Supabase / 汎用エラー抽出ユーティリティ ---
+// Supabase の PostgrestError は plain object（Error インスタンスではない）
+interface ExtractedError {
+  message: string;
+  code?: string;
+  details?: string;
+  hint?: string;
+  display: string; // 画面表示用の整形済みテキスト
+}
+
+function extractBulkImportError(err: unknown): ExtractedError {
+  // Error インスタンスの場合
+  if (err instanceof Error) {
+    const isAuth = /ログイン|auth|jwt|401/i.test(err.message);
+    return {
+      message: err.message,
+      display: isAuth
+        ? `ログインが必要です\nmessage: ${err.message}`
+        : `ToDoの追加に失敗しました\nmessage: ${err.message}`,
+    };
+  }
+
+  // Supabase PostgrestError（plain object）
+  if (err !== null && typeof err === 'object') {
+    const e = err as Record<string, unknown>;
+    const message = typeof e.message === 'string' ? e.message : JSON.stringify(e.message ?? '');
+    const code    = typeof e.code    === 'string' ? e.code    : undefined;
+    const details = typeof e.details === 'string' ? e.details : undefined;
+    const hint    = typeof e.hint    === 'string' ? e.hint    : undefined;
+
+    const isAuth = /ログイン|auth|jwt|401/i.test(message)
+      || code === '401'
+      || /rls|row.level.security|permission denied/i.test(message + (details ?? '') + (hint ?? ''));
+
+    const lines = [
+      isAuth ? 'ログインが必要かRLSエラーです' : 'ToDoの追加に失敗しました',
+      `message: ${message || '(なし)'}`,
+      code    ? `code: ${code}`       : null,
+      details ? `details: ${details}` : null,
+      hint    ? `hint: ${hint}`       : null,
+    ].filter(Boolean).join('\n');
+
+    return { message, code, details, hint, display: lines };
+  }
+
+  // その他（文字列など）
+  const raw = String(err);
+  return { message: raw, display: `ToDoの追加に失敗しました\nmessage: ${raw}` };
+}
+
 const categoryLabel: Record<PromptCategory, string> = {
   new: '新規開発',
   fix: '改修用',
@@ -328,6 +378,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     }
 
     console.log('[TodoBulkImport] validation passed, newTodos count:', newTodos.length);
+    console.log('[TodoBulkImport] target project id:', id);
 
     // --- 保存 ---
     setJsonLoading(true);
@@ -335,6 +386,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     try {
       const todos = [...(project.todos ?? []), ...newTodos];
       console.log('[TodoBulkImport] addTodo called, total todos after:', todos.length);
+      console.log('[TodoBulkImport] insert payload (todos):', JSON.stringify(todos, null, 2));
       await projectRepository.update(id, { todos });
       console.log('[TodoBulkImport] success count:', newTodos.length);
       setJsonModalOpen(false);
@@ -343,13 +395,11 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
       toast.success(`${newTodos.length}件のToDoを追加しました`);
       loadData();
     } catch (err) {
-      console.error('[TodoBulkImport] error:', err);
-      const msg = err instanceof Error ? err.message : String(err);
-      const isAuthError = msg.includes('ログイン') || msg.includes('auth') || msg.includes('JWT') || msg.includes('401');
-      setJsonError(isAuthError
-        ? `ログインが必要です（${msg}）`
-        : `ToDoの追加に失敗しました: ${msg}`
-      );
+      // Supabase エラーは Error インスタンスではなく plain object なので専用抽出
+      console.error('[TodoBulkImport] error (raw):', err);
+      const info = extractBulkImportError(err);
+      console.error('[TodoBulkImport] error (parsed):', info);
+      setJsonError(info.display);
     } finally {
       setJsonLoading(false);
     }
@@ -954,7 +1004,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             {/* エラー表示（フッター直前で常に見える位置） */}
             {jsonError && (
               <div className="rounded-md bg-red-900/40 border border-red-700/60 px-3 py-2">
-                <p className="text-red-300 text-xs leading-relaxed">{jsonError}</p>
+                <p className="text-red-300 text-xs leading-relaxed whitespace-pre-wrap font-mono">{jsonError}</p>
               </div>
             )}
           </div>
