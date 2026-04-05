@@ -33,7 +33,7 @@ import { TemplatePromptsPanel } from '@/components/prompts/TemplatePromptsPanel'
 import { cn } from '@/lib/utils';
 import {
   Pencil, Trash2, Copy, Plus, ChevronRight, CheckSquare, Square,
-  ChevronDown, ChevronUp, CalendarDays, AlertCircle, ExternalLink, FileJson,
+  ChevronDown, ChevronUp, CalendarDays, AlertCircle, ExternalLink, FileJson, BookOpen,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -532,13 +532,22 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-xs font-medium text-gray-400">ToDoを追加</p>
-                <button
-                  onClick={() => { setJsonModalOpen(true); setJsonError(''); }}
-                  className="flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300 transition-colors"
-                >
-                  <FileJson className="w-3.5 h-3.5" />
-                  JSONから追加
-                </button>
+                <div className="flex items-center gap-3">
+                  <Link
+                    href="/prompts?category=ToDo生成"
+                    className="flex items-center gap-1 text-[11px] text-gray-500 hover:text-blue-400 transition-colors"
+                  >
+                    <BookOpen className="w-3 h-3" />
+                    ToDo生成プロンプト
+                  </Link>
+                  <button
+                    onClick={() => { setJsonModalOpen(true); setJsonError(''); }}
+                    className="flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300 transition-colors"
+                  >
+                    <FileJson className="w-3.5 h-3.5" />
+                    JSONから追加
+                  </button>
+                </div>
               </div>
               <div className="space-y-2">
                 <Input

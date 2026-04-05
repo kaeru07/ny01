@@ -20,7 +20,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { FileJson } from 'lucide-react';
+import { FileJson, BookOpen } from 'lucide-react';
+import Link from 'next/link';
 
 type FormData = Omit<Project, 'id' | 'createdAt' | 'updatedAt'>;
 
@@ -250,9 +251,16 @@ export function ProjectForm({ initialData, onSubmit }: ProjectFormProps) {
   return (
     <>
     <form onSubmit={handleSubmit} className="space-y-5">
-      {/* JSON インポート */}
+      {/* JSON インポート + 案件生成プロンプト導線 */}
       {!initialData && (
-        <div className="flex justify-end">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <Link
+            href="/prompts?category=案件生成"
+            className="flex items-center gap-1 text-[11px] text-gray-500 hover:text-blue-400 transition-colors"
+          >
+            <BookOpen className="w-3 h-3" />
+            案件生成プロンプトを見る
+          </Link>
           <Button
             type="button"
             variant="outline"

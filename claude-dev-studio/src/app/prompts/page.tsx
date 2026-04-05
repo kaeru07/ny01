@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { TemplatePrompt } from '@/types';
 import { templatePromptRepository } from '@/lib/repository/templatePromptRepository';
 import { Card, CardContent } from '@/components/ui/card';
@@ -428,10 +429,13 @@ function PromptCard({ prompt, categoryColor, onEdit, onDelete }: PromptCardProps
 
 // ---- Main Page ----
 
-export default function PromptsPage() {
+function PromptsPageInner() {
+  const searchParams = useSearchParams();
+  const initialCategory = searchParams.get('category') ?? 'all';
+
   const [prompts, setPrompts] = useState<TemplatePrompt[]>([]);
   const [loading, setLoading] = useState(true);
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>(initialCategory);
   const [formOpen, setFormOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<TemplatePrompt | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<TemplatePrompt | null>(null);
@@ -614,5 +618,13 @@ export default function PromptsPage() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export default function PromptsPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-gray-400">読み込み中...</div>}>
+      <PromptsPageInner />
+    </Suspense>
   );
 }
