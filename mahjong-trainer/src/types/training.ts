@@ -1,16 +1,34 @@
 import { PlayerIndex, TileIndex } from "./mahjong";
 
+// 手牌スタイルタグ
+export const HAND_STYLES = [
+  { id: 'menzen',  label: '面前寄り',  desc: 'ポンチーなし' },
+  { id: 'nakite',  label: '仕掛け寄り', desc: '鳴き主体' },
+  { id: 'somete',  label: '染め手',    desc: '一色集中' },
+  { id: 'toitsu',  label: '対子系',    desc: '対々・七対子' },
+  { id: 'yakuhai', label: '役牌系',    desc: '字牌の重ね' },
+  { id: 'tanyao',  label: '断么九',    desc: '中張牌中心' },
+  { id: 'chiitoi', label: '七対子系',  desc: '対子7組狙い' },
+  { id: 'honitsu', label: '染め手強',  desc: '混一/清一色' },
+] as const;
+
+export type HandStyleId = typeof HAND_STYLES[number]['id'];
+
 // ユーザーが読みを行ったときの記録
 export interface ReadAttempt {
   id: string;
   targetPlayer: PlayerIndex;    // 誰を読んだか
   turnCount: number;            // 何巡目か
-  tileRangePrediction: TileIndex[];  // 手牌に含まれると予想した牌
+  handStyleTags: HandStyleId[]; // 手牌スタイル予想タグ (NEW)
+  tileRangePrediction: TileIndex[];  // 手牌に含まれると予想した牌 (詳細版)
   rolePrediction: string[];     // 予想した役: ['tanyao', 'honitsu', ...]
   waitPrediction: TileIndex[];  // 待ち牌予想
   freeNote: string;
   submittedAt: number;
 }
+
+// 読み評価グレード
+export type ReviewGrade = 'hit' | 'close' | 'miss';
 
 // 局後の答え合わせ結果
 export interface ReviewResult {
@@ -18,8 +36,11 @@ export interface ReviewResult {
   targetPlayer: PlayerIndex;
   actualHand: TileIndex[];
   actualWaits: TileIndex[];
+  grade: ReviewGrade;        // 当たり / 近い / 外れ
+  yakuHints: string[];       // 実際の手牌から推定した役の傾向
   scores: {
     waitScore: number;    // 0-100: 待ち予想の正確さ
+    styleScore: number;   // 0-100: スタイルタグ予想の正確さ
     rangeScore: number;   // 0-100: 手牌レンジ予想の正確さ
     roleScore: number;    // 0-100: 役予想の正確さ
     total: number;        // 0-100: 総合点

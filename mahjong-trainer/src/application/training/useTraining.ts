@@ -28,6 +28,7 @@ export function useTraining(gameState: GameState) {
         id: uuidv4(),
         targetPlayer,
         turnCount: gameState.round.turnCount,
+        handStyleTags: [],
         tileRangePrediction: [],
         rolePrediction: [],
         waitPrediction: [],

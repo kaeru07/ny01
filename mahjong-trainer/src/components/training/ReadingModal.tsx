@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from "react";
 import { PlayerIndex, TileIndex } from "@/types/mahjong";
-import { ReadAttempt, PREDICTABLE_ROLES } from "@/types/training";
+import { ReadAttempt, PREDICTABLE_ROLES, HAND_STYLES, HandStyleId } from "@/types/training";
 import { GameState } from "@/types/game";
 import TileComponent from "@/components/game/TileComponent";
 import { tileName } from "@/domain/mahjong/tile";
@@ -47,16 +47,16 @@ export default function ReadingModal({
     [currentAttempt.waitPrediction, onUpdate]
   );
 
-  // レンジ牌選択のトグル
-  const toggleRange = useCallback(
-    (tile: TileIndex) => {
-      const current = currentAttempt.tileRangePrediction ?? [];
-      const next = current.includes(tile)
-        ? current.filter((t) => t !== tile)
-        : [...current, tile];
-      onUpdate({ tileRangePrediction: next });
+  // 手牌スタイルタグのトグル
+  const toggleStyle = useCallback(
+    (styleId: HandStyleId) => {
+      const current = (currentAttempt.handStyleTags ?? []) as HandStyleId[];
+      const next = current.includes(styleId)
+        ? current.filter((s) => s !== styleId)
+        : [...current, styleId];
+      onUpdate({ handStyleTags: next });
     },
-    [currentAttempt.tileRangePrediction, onUpdate]
+    [currentAttempt.handStyleTags, onUpdate]
   );
 
   // 役選択のトグル
@@ -143,10 +143,9 @@ export default function ReadingModal({
           )}
 
           {activeTab === "range" && (
-            <TileSelector
-              title="手牌に含まれると思う牌を選んでください"
-              selected={currentAttempt.tileRangePrediction ?? []}
-              onToggle={toggleRange}
+            <HandStyleSelector
+              selected={(currentAttempt.handStyleTags ?? []) as HandStyleId[]}
+              onToggle={toggleStyle}
             />
           )}
 
@@ -193,7 +192,7 @@ export default function ReadingModal({
         {/* フッター: 現在の入力サマリー */}
         <div className="p-2 bg-gray-800 border-t border-gray-700 text-xs text-gray-400">
           待ち: {(currentAttempt.waitPrediction ?? []).length}枚 |{" "}
-          レンジ: {(currentAttempt.tileRangePrediction ?? []).length}枚 |{" "}
+          スタイル: {(currentAttempt.handStyleTags ?? []).length}個 |{" "}
           役: {(currentAttempt.rolePrediction ?? []).length}個
         </div>
 
@@ -213,6 +212,57 @@ export default function ReadingModal({
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ============================================================
+// ============================================================
+// 手牌スタイルタグ選択コンポーネント
+// ============================================================
+function HandStyleSelector({
+  selected,
+  onToggle,
+}: {
+  selected: HandStyleId[];
+  onToggle: (id: HandStyleId) => void;
+}) {
+  const selectedSet = new Set(selected);
+  return (
+    <div>
+      <p className="text-xs text-gray-400 mb-3">
+        相手の手牌の傾向をすべて選んでください（複数可）
+      </p>
+      <div className="grid grid-cols-2 gap-2">
+        {HAND_STYLES.map((style) => {
+          const on = selectedSet.has(style.id);
+          return (
+            <button
+              key={style.id}
+              onClick={() => onToggle(style.id)}
+              className={`flex flex-col items-start p-3 rounded-xl border-2 transition-all text-left active:scale-95 ${
+                on
+                  ? "bg-purple-700 border-purple-400 text-white shadow-md"
+                  : "bg-gray-800 border-gray-600 text-gray-300 hover:border-gray-400"
+              }`}
+            >
+              <span className="font-bold text-sm leading-tight">
+                {on ? "✓ " : ""}{style.label}
+              </span>
+              <span className={`text-xs mt-0.5 leading-tight ${on ? "text-purple-200" : "text-gray-500"}`}>
+                {style.desc}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      {selected.length > 0 && (
+        <div className="mt-3 p-2 bg-purple-900/30 border border-purple-700 rounded-lg">
+          <p className="text-xs text-purple-300">
+            選択中: {selected.map(id => HAND_STYLES.find(s => s.id === id)?.label).join(" / ")}
+          </p>
+        </div>
+      )}
     </div>
   );
 }

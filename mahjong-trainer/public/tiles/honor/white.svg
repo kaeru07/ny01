@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 48">
+  <!-- shadow -->
+  <rect x="2" y="3" width="31" height="44" rx="3" fill="#00000033"/>
+  <!-- body -->
+  <rect x="1" y="1" width="31" height="44" rx="3" fill="#f5f0e8" stroke="#8b7355" stroke-width="1.5"/>
+  <!-- bevel highlight -->
+  <rect x="2.5" y="2.5" width="28" height="41" rx="2" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="0.8"/>
+  
+  <rect x="7" y="7" width="20" height="30" rx="2" fill="none" stroke="#9ca3af" stroke-width="1.5"/>
+  <text x="17" y="28" text-anchor="middle" dominant-baseline="middle"
+    font-family="'Noto Serif SC','Source Han Serif CK','HiraMinProN-W6','MS Mincho',serif"
+    font-size="20" font-weight="900" fill="#6b7280">白</text>
+</svg>

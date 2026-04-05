@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 48">
+  <!-- shadow -->
+  <rect x="2" y="3" width="31" height="44" rx="3" fill="#00000033"/>
+  <!-- body -->
+  <rect x="1" y="1" width="31" height="44" rx="3" fill="#f5f0e8" stroke="#8b7355" stroke-width="1.5"/>
+  <!-- bevel highlight -->
+  <rect x="2.5" y="2.5" width="28" height="41" rx="2" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="0.8"/>
+  <circle cx="10.5" cy="13" r="4.5" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="0.6"/>
+  <circle cx="17" cy="24" r="4.5" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="0.6"/>
+  <circle cx="23.5" cy="35" r="4.5" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="0.6"/>
+</svg>

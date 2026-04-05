@@ -124,9 +124,6 @@ export default function HomePage() {
                   gameState={state}
                   canDiscard={canDiscard}
                   onDiscard={discardTile}
-                  onStartReading={
-                    state.phase === "playing" ? handleStartReading : undefined
-                  }
                 />
               </div>
 

@@ -2,7 +2,6 @@
 
 import React from "react";
 import { GameState } from "@/types/game";
-import { PlayerIndex } from "@/types/mahjong";
 import PlayerHand from "./PlayerHand";
 import River from "./River";
 import TileComponent from "./TileComponent";
@@ -12,7 +11,6 @@ interface GameBoardProps {
   gameState: GameState;
   canDiscard: boolean;
   onDiscard: (tileIndex: number) => void;
-  onStartReading?: (target: PlayerIndex) => void;
 }
 
 const WIND_LABELS = { east: "東", south: "南", west: "西", north: "北" };
@@ -21,7 +19,6 @@ export default function GameBoard({
   gameState,
   canDiscard,
   onDiscard,
-  onStartReading,
 }: GameBoardProps) {
   const { players, dora, turn, phase } = gameState;
 
@@ -48,17 +45,19 @@ export default function GameBoard({
       {/* 中段: 左家(CPU北,3) | 卓中央 | 右家(CPU南,1) */}
       <div className="flex flex-1 gap-1 landscape:gap-0.5 min-h-0">
         {/* 左家 (CPU北, index=3) */}
-        <div className="flex flex-col items-center justify-center gap-1 landscape:gap-0.5 p-2 landscape:p-1 bg-gray-800 rounded-lg border border-gray-700 w-20 landscape:w-14">
+        <div className="flex flex-col items-center justify-center gap-1 landscape:gap-0.5 p-1 bg-gray-800 rounded-lg border border-gray-700 w-14 landscape:w-10 overflow-hidden min-h-0">
           <span className="text-xs text-gray-400 [writing-mode:vertical-rl]">
             {WIND_LABELS[players[3].wind]} {playerLabel(3)}
           </span>
           {turn === 3 && <span className="text-yellow-400 text-xs">●</span>}
-          <PlayerHand
-            player={players[3]}
-            isHuman={false}
-            orientation="vertical"
-            showTiles={phase === "review"}
-          />
+          <div className="overflow-hidden flex-1 min-h-0 flex items-center">
+            <PlayerHand
+              player={players[3]}
+              isHuman={false}
+              orientation="vertical"
+              showTiles={phase === "review"}
+            />
+          </div>
         </div>
 
         {/* 卓中央エリア */}
@@ -98,17 +97,19 @@ export default function GameBoard({
         </div>
 
         {/* 右家 (CPU南, index=1) */}
-        <div className="flex flex-col items-center justify-center gap-1 landscape:gap-0.5 p-2 landscape:p-1 bg-gray-800 rounded-lg border border-gray-700 w-20 landscape:w-14">
+        <div className="flex flex-col items-center justify-center gap-1 landscape:gap-0.5 p-1 bg-gray-800 rounded-lg border border-gray-700 w-14 landscape:w-10 overflow-hidden min-h-0">
           <span className="text-xs text-gray-400 [writing-mode:vertical-rl]">
             {WIND_LABELS[players[1].wind]} {playerLabel(1)}
           </span>
           {turn === 1 && <span className="text-yellow-400 text-xs">●</span>}
-          <PlayerHand
-            player={players[1]}
-            isHuman={false}
-            orientation="vertical"
-            showTiles={phase === "review"}
-          />
+          <div className="overflow-hidden flex-1 min-h-0 flex items-center">
+            <PlayerHand
+              player={players[1]}
+              isHuman={false}
+              orientation="vertical"
+              showTiles={phase === "review"}
+            />
+          </div>
         </div>
       </div>
 
@@ -139,20 +140,6 @@ export default function GameBoard({
         />
       </div>
 
-      {/* 読むボタン行 */}
-      {onStartReading && (
-        <div className="flex gap-2 justify-center shrink-0">
-          {([1, 2, 3] as PlayerIndex[]).map((idx) => (
-            <button
-              key={idx}
-              onClick={() => onStartReading(idx)}
-              className="flex-1 py-2 landscape:py-1.5 bg-purple-700 hover:bg-purple-600 active:bg-purple-800 text-white font-bold rounded-lg text-sm landscape:text-xs shadow-md transition-colors"
-            >
-              📖 {playerLabel(idx)}を読む
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

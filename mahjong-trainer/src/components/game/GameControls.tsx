@@ -74,45 +74,41 @@ export default function GameControls({
   }
 
   return (
-    <div className="flex flex-col gap-2 p-2">
-      {/* 一時停止 / 再開 */}
-      <div className="flex gap-2 flex-wrap justify-center">
+    <div className="flex flex-col gap-1.5 p-2 landscape:p-1.5">
+      {/* 停止/再開 + 読みボタンを1行に */}
+      <div className="flex gap-1.5 items-center">
         {!isPaused ? (
           <button
             onClick={onPause}
-            className="px-4 py-2 bg-yellow-600 hover:bg-yellow-500 text-white font-bold rounded-lg text-sm shadow transition-all"
+            className="shrink-0 px-3 py-1.5 bg-yellow-600 hover:bg-yellow-500 active:bg-yellow-700 text-white font-bold rounded-lg text-xs shadow transition-all"
           >
-            ⏸ 一時停止
+            ⏸ 停止
           </button>
         ) : (
           <button
             onClick={onResume}
-            className="px-4 py-2 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg text-sm shadow transition-all animate-pulse"
+            className="shrink-0 px-3 py-1.5 bg-green-600 hover:bg-green-500 active:bg-green-700 text-white font-bold rounded-lg text-xs shadow transition-all animate-pulse"
           >
             ▶ 再開
           </button>
         )}
-      </div>
-
-      {/* 読みトレーニングボタン */}
-      <div className="flex gap-1 flex-wrap justify-center">
-        {PLAYER_LABELS.map((label, i) => (
-          <button
-            key={i}
-            onClick={() => onStartReading(PLAYER_INDICES[i])}
-            className="px-3 py-1.5 bg-purple-700 hover:bg-purple-600 text-white font-semibold rounded-lg text-xs shadow transition-all"
-          >
-            📖 {label}を読む
-          </button>
-        ))}
+        <div className="flex flex-1 gap-1">
+          {PLAYER_LABELS.map((label, i) => (
+            <button
+              key={i}
+              onClick={() => onStartReading(PLAYER_INDICES[i])}
+              className="flex-1 py-1.5 bg-purple-700 hover:bg-purple-600 active:bg-purple-800 text-white font-semibold rounded-lg text-xs shadow transition-all"
+            >
+              📖 {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ゲーム状態表示 */}
-      <div className="text-center text-xs text-gray-400">
-        山残り: {gameState.wall.length}枚 | {巡目label(gameState)}
-        {isPaused && (
-          <span className="ml-2 text-yellow-400 font-bold">⏸ 停止中</span>
-        )}
+      <div className="text-center text-xs text-gray-500">
+        山: {gameState.wall.length}枚 | {巡目label(gameState)}
+        {isPaused && <span className="ml-2 text-yellow-400 font-bold">⏸ 停止中</span>}
       </div>
     </div>
   );

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 48">
+  <rect x="2" y="3" width="31" height="44" rx="3" fill="#00000033"/>
+  <rect x="1" y="1" width="31" height="44" rx="3" fill="#166534" stroke="#14532d" stroke-width="1.5"/>
+  <rect x="3" y="3" width="27" height="40" rx="2" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.8"/>
+  <line x1="5"  y1="5"  x2="29" y2="41" stroke="rgba(255,255,255,0.09)" stroke-width="1.2"/>
+  <line x1="29" y1="5"  x2="5"  y2="41" stroke="rgba(255,255,255,0.09)" stroke-width="1.2"/>
+  <line x1="17" y1="4"  x2="17" y2="44" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+  <circle cx="17" cy="24" r="8" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>
+  <text x="17" y="28" text-anchor="middle" dominant-baseline="middle"
+    font-family="serif" font-size="11" fill="rgba(255,255,255,0.28)">雀</text>
+</svg>

@@ -14,54 +14,21 @@ interface TileComponentProps {
   className?: string;
 }
 
-// 各スート・数字の表示文字
-function getTileDisplay(tileIndex: TileIndex): { char: string; color: string } {
+const HONOR_NAMES = ['east','south','west','north','white','green','red'] as const;
+
+function getTileSrc(tileIndex: TileIndex): string {
   const tile = indexToTile(tileIndex);
-
-  if (tile.suit === "honor") {
-    const chars = ["東", "南", "西", "北", "白", "発", "中"];
-    const colors = [
-      "text-blue-700",
-      "text-red-600",
-      "text-gray-600",
-      "text-green-700",
-      "text-gray-300",
-      "text-green-600",
-      "text-red-600",
-    ];
-    return { char: chars[tile.number - 1], color: colors[tile.number - 1] };
-  }
-
-  const suitColors: Record<string, string> = {
-    man: "text-red-600",
-    pin: "text-blue-600",
-    sou: "text-green-700",
-  };
-
-  const suitChars: Record<string, string[]> = {
-    man: ["一", "二", "三", "四", "五", "六", "七", "八", "九"],
-    pin: ["①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨"],
-    sou: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
-  };
-
-  return {
-    char: suitChars[tile.suit][tile.number - 1],
-    color: suitColors[tile.suit],
-  };
+  if (tile.suit === 'man')   return `/tiles/man/${tile.number}.svg`;
+  if (tile.suit === 'pin')   return `/tiles/pin/${tile.number}.svg`;
+  if (tile.suit === 'sou')   return `/tiles/sou/${tile.number}.svg`;
+  return `/tiles/honor/${HONOR_NAMES[tile.number - 1]}.svg`;
 }
 
 // サイズはglobals.cssのCSS変数 (--tile-*) で制御
-const sizeClasses = {
-  sm: "tile-sm text-xs",
-  md: "tile-md text-xs",
-  lg: "tile-hand text-xs",
-};
-
-const suitLabel: Record<string, string> = {
-  man: "m",
-  pin: "p",
-  sou: "s",
-  honor: "",
+const sizeClasses: Record<string, string> = {
+  sm: "tile-sm",
+  md: "tile-md",
+  lg: "tile-hand",
 };
 
 export default function TileComponent({
@@ -73,50 +40,44 @@ export default function TileComponent({
   onClick,
   className = "",
 }: TileComponentProps) {
-  const tile = indexToTile(tileIndex);
-  const { char, color } = getTileDisplay(tileIndex);
+  const src  = faceDown ? '/tiles/back.svg' : getTileSrc(tileIndex);
+  const alt  = faceDown ? '裏向き' : tileName(tileIndex);
 
-  const baseClasses = `
-    inline-flex flex-col items-center justify-center
-    rounded border-2 font-bold select-none
-    transition-all duration-150
-    ${sizeClasses[size]}
-    ${onClick ? "cursor-pointer" : "cursor-default"}
-  `;
+  const baseClasses = [
+    "relative inline-block rounded select-none overflow-hidden",
+    "transition-all duration-150",
+    sizeClasses[size],
+    onClick ? "cursor-pointer" : "cursor-default",
+  ].join(" ");
 
-  const stateClasses = faceDown
-    ? "bg-green-800 border-green-600"
-    : selected
-    ? "bg-yellow-200 border-yellow-500 -translate-y-2 shadow-lg"
+  const stateClasses = selected
+    ? "-translate-y-2 shadow-lg ring-2 ring-yellow-400"
     : highlighted
-    ? "bg-orange-100 border-orange-400 -translate-y-1 shadow-md"
-    : "bg-amber-50 border-amber-300 hover:border-amber-500 hover:shadow";
-
-  if (faceDown) {
-    return (
-      <div
-        className={`${baseClasses} ${stateClasses} ${className}`}
-        onClick={onClick}
-        title="裏向き"
-      >
-        <span className="text-green-300 text-lg">🀫</span>
-      </div>
-    );
-  }
+    ? "-translate-y-1 shadow-md ring-2 ring-orange-400"
+    : onClick
+    ? "hover:-translate-y-0.5 hover:shadow"
+    : "";
 
   return (
     <div
       className={`${baseClasses} ${stateClasses} ${className}`}
       onClick={onClick}
-      title={tileName(tileIndex)}
+      title={alt}
     >
-      <span className={`font-bold leading-none ${color} text-xs`}>
-        {char}
-      </span>
-      {tile.suit !== "honor" && (
-        <span className="text-gray-400 leading-none" style={{ fontSize: "8px" }}>
-          {suitLabel[tile.suit]}
-        </span>
+      <img
+        src={src}
+        alt={alt}
+        width="100%"
+        height="100%"
+        style={{ display: "block", width: "100%", height: "100%" }}
+        draggable={false}
+      />
+      {/* 選択・ハイライトのカラーオーバーレイ */}
+      {selected && (
+        <div className="absolute inset-0 rounded bg-yellow-400/20 pointer-events-none" />
+      )}
+      {highlighted && (
+        <div className="absolute inset-0 rounded bg-orange-400/20 pointer-events-none" />
       )}
     </div>
   );
