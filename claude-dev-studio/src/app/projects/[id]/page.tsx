@@ -33,7 +33,7 @@ import { TemplatePromptsPanel } from '@/components/prompts/TemplatePromptsPanel'
 import { cn } from '@/lib/utils';
 import {
   Pencil, Trash2, Copy, Plus, ChevronRight, CheckSquare, Square,
-  ChevronDown, ChevronUp, CalendarDays, AlertCircle, ExternalLink,
+  ChevronDown, ChevronUp, CalendarDays, AlertCircle, ExternalLink, FileJson,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -159,6 +159,11 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [expandedTodo, setExpandedTodo] = useState<string | null>(null);
   const [editingNote, setEditingNote] = useState<{ id: string; value: string } | null>(null);
 
+  // Bulk add (JSON) state
+  const [jsonModalOpen, setJsonModalOpen] = useState(false);
+  const [jsonInput, setJsonInput] = useState('');
+  const [jsonError, setJsonError] = useState('');
+
   // Prompt state
   const [promptFilter, setPromptFilter] = useState<PromptFilterTab>('all');
   const [promptDialogOpen, setPromptDialogOpen] = useState(false);
@@ -246,6 +251,87 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     setEditingNote(null);
     loadData();
   };
+
+  const handleBulkAddTodos = async () => {
+    if (!project) return;
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(jsonInput);
+    } catch {
+      setJsonError('JSON形式が正しくありません');
+      return;
+    }
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      setJsonError('JSON形式が正しくありません');
+      return;
+    }
+    const obj = parsed as Record<string, unknown>;
+    if (!Array.isArray(obj.todo)) {
+      setJsonError('todo 配列が見つかりません');
+      return;
+    }
+    const raw = obj.todo as unknown[];
+    const newTodos: Todo[] = [];
+    for (let i = 0; i < raw.length; i++) {
+      const item = raw[i];
+      if (typeof item !== 'object' || item === null) {
+        setJsonError(`todo[${i}]: オブジェクト形式が正しくありません`);
+        return;
+      }
+      const t = item as Record<string, unknown>;
+      if (!t.title || typeof t.title !== 'string' || !t.title.trim()) {
+        setJsonError(`todo[${i}]: title が空です`);
+        return;
+      }
+      const priority = (t.priority ?? 'medium') as string;
+      if (!['low', 'medium', 'high'].includes(priority)) {
+        setJsonError(`todo[${i}]: priority の値が不正です（low / medium / high）`);
+        return;
+      }
+      const dueDate = t.dueDate ? String(t.dueDate) : null;
+      if (dueDate && !/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) {
+        setJsonError(`todo[${i}]: dueDate の形式が正しくありません（YYYY-MM-DD）`);
+        return;
+      }
+      newTodos.push({
+        id: crypto.randomUUID(),
+        title: t.title.trim(),
+        completed: false,
+        priority: priority as TodoPriority,
+        dueDate: dueDate || null,
+        note: t.note ? String(t.note) : undefined,
+        createdAt: new Date().toISOString(),
+      });
+    }
+    if (newTodos.length === 0) {
+      setJsonError('todo 配列が空です');
+      return;
+    }
+    const todos = [...(project.todos ?? []), ...newTodos];
+    await projectRepository.update(id, { todos });
+    setJsonModalOpen(false);
+    setJsonInput('');
+    setJsonError('');
+    toast.success(`${newTodos.length}件のToDoを追加しました`);
+    loadData();
+  };
+
+  const handleFormatTodoJson = () => {
+    try {
+      setJsonInput(JSON.stringify(JSON.parse(jsonInput), null, 2));
+      setJsonError('');
+    } catch {
+      setJsonError('JSON形式が正しくありません');
+    }
+  };
+
+  const sampleTodoJson = JSON.stringify({
+    todo: [
+      { title: 'デザインカンプを確認する', priority: 'high', dueDate: '2026-04-10', note: 'Figmaリンクを確認' },
+      { title: 'API仕様書を作成する', priority: 'medium', dueDate: '', note: '' },
+      { title: 'テスト環境を構築する', priority: 'low' },
+    ],
+  }, null, 2);
 
   // --- Prompt operations ---
 
@@ -405,7 +491,16 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           {/* Add form */}
           <Card className="bg-gray-800 border-gray-700">
             <CardContent className="p-4">
-              <p className="text-xs font-medium text-gray-400 mb-3">ToDoを追加</p>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-medium text-gray-400">ToDoを追加</p>
+                <button
+                  onClick={() => { setJsonModalOpen(true); setJsonError(''); }}
+                  className="flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                  <FileJson className="w-3.5 h-3.5" />
+                  JSONから追加
+                </button>
+              </div>
               <div className="space-y-2">
                 <Input
                   value={newTodoTitle}
@@ -759,6 +854,77 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         onOpenChange={setPromptDialogOpen}
         onSave={handleSavePrompt}
       />
+
+      {/* JSON一括追加モーダル */}
+      <Dialog open={jsonModalOpen} onOpenChange={(open) => { setJsonModalOpen(open); if (!open) { setJsonInput(''); setJsonError(''); } }}>
+        <DialogContent className="bg-gray-900 border-gray-700 text-gray-100 w-[92vw] max-w-lg flex flex-col max-h-[88dvh] overflow-hidden">
+          <DialogHeader className="shrink-0">
+            <DialogTitle className="text-sm font-semibold flex items-center gap-2">
+              <FileJson className="w-4 h-4 text-blue-400" />
+              JSONからToDoを一括追加
+            </DialogTitle>
+            <p className="text-xs text-gray-500 font-normal">
+              ChatGPT / Claude で生成した JSON を貼り付けてください。
+            </p>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto min-h-0 space-y-2">
+            <Textarea
+              value={jsonInput}
+              onChange={(e) => { setJsonInput(e.target.value); setJsonError(''); }}
+              placeholder={'{\n  "todo": [\n    {\n      "title": "タスク名",\n      "priority": "medium",\n      "dueDate": "2026-04-10",\n      "note": "メモ"\n    }\n  ]\n}'}
+              className="bg-gray-800 border-gray-700 text-gray-100 text-xs font-mono min-h-[200px] max-h-[40vh] resize-none overflow-y-auto"
+            />
+
+            <div className="flex items-center justify-between px-0.5">
+              <span className="text-[10px] text-gray-600">
+                {jsonInput.length > 0 ? `${jsonInput.length} 文字` : ''}
+              </span>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => { setJsonInput(sampleTodoJson); setJsonError(''); }}
+                  className="text-[10px] text-gray-500 hover:text-gray-300 transition-colors underline-offset-2 hover:underline"
+                >
+                  サンプルを挿入
+                </button>
+                {jsonInput.trim() && (
+                  <button
+                    type="button"
+                    onClick={handleFormatTodoJson}
+                    className="text-[10px] text-gray-500 hover:text-gray-300 transition-colors underline-offset-2 hover:underline"
+                  >
+                    JSONを整形
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {jsonError && (
+              <p className="text-red-400 text-xs px-0.5">{jsonError}</p>
+            )}
+          </div>
+
+          <div className="shrink-0 -mx-4 -mb-4 flex flex-col gap-2 rounded-b-xl border-t border-gray-700/70 bg-gray-900 px-4 py-3 sm:flex-row sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              className="border-gray-600 text-gray-300 hover:bg-gray-800 h-10 w-full sm:w-auto sm:h-9 text-sm"
+              onClick={() => setJsonModalOpen(false)}
+            >
+              キャンセル
+            </Button>
+            <Button
+              type="button"
+              disabled={!jsonInput.trim()}
+              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-40 h-10 w-full sm:w-auto sm:h-9 text-sm"
+              onClick={handleBulkAddTodos}
+            >
+              一括追加
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
