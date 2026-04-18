@@ -1,4 +1,4 @@
-import { NewsItem, NewsCategory } from "./types";
+import { NewsItem, NewsCategory, FeedTier } from "./types";
 import { mockNewsItems } from "./mockData";
 import { normalizeUrl, hnFallbackUrl, xmlDecodeUrl, stableId } from "./normalizeUrl";
 import { translateBatch, isEnglish } from "./translate";
@@ -15,6 +15,7 @@ interface HNStory {
   score: number;
   by: string;
   time: number;
+  type?: string; // "story" | "ask" | "show" | "job" | "poll"
   descendants?: number;
 }
 
@@ -28,6 +29,19 @@ async function fetchHNStory(id: number): Promise<HNStory | null> {
   } catch {
     return null;
   }
+}
+
+/**
+ * Hacker News の canonicalUrl 決定ルール:
+ *   story type かつ story.url がある → 外部記事URL
+ *   それ以外（Ask / Show / Job / Poll / url欠落）→ HN ディスカッションページ
+ */
+function hnCanonicalUrl(story: HNStory): string {
+  if (story.type === "story" && story.url) {
+    const validated = normalizeUrl(story.url);
+    if (validated) return validated;
+  }
+  return hnFallbackUrl(story.id);
 }
 
 export async function fetchHackerNews(limit = 15): Promise<NewsItem[]> {
@@ -50,22 +64,19 @@ export async function fetchHackerNews(limit = 15): Promise<NewsItem[]> {
     const translated = await translateBatch(titles);
 
     return valid.map((story, i) => {
-      // 記事URL優先、無効な場合はHNディスカッションページ
-      // HN story.url が null/undefined の場合も常に有効URLを保証する
-      const articleUrl = normalizeUrl(story.url);
-      const canonicalUrl = articleUrl ?? hnFallbackUrl(story.id);
+      const url = hnCanonicalUrl(story);
       const isEng = isEnglish(story.title);
       const translatedTitle = translated[i];
 
       return {
-        // HN の story.id は整数で安定しており、Date.now() 不使用
         id: `hn-${story.id}`,
         title: translatedTitle ?? story.title,
         originalTitle: isEng && translatedTitle ? story.title : undefined,
         summary: `Hacker Newsで話題。スコア: ${story.score}点、${story.descendants ?? 0}件のコメント。`,
-        url: canonicalUrl,
+        url,
         source: "Hacker News",
         category: "tech" as NewsCategory,
+        sourceTier: "main",
         publishedAt: new Date(story.time * 1000).toISOString(),
         score: story.score,
         isSummarized: isEng && translatedTitle !== null,
@@ -96,7 +107,6 @@ async function fetchRSS(url: string): Promise<string> {
  * ソースごとのlink/guid形式:
  *   NHK     : <link>http://www3.nhk.or.jp/...</link>  <guid isPermaLink="true">同URL</guid>
  *   Zenn    : <link>https://zenn.dev/...</link>         <guid isPermaLink="true">同URL</guid>
- *   BBC     : <link>https://bbc.com/...?at_medium=RSS&amp;...</link>  <guid isPermaLink="false">https://bbc.com/...#0</guid>
  *   Dev.to  : <link>https://dev.to/...</link>           <guid>同URL</guid>
  */
 export function parseRSSItems(xml: string): Array<{
@@ -129,7 +139,7 @@ export function parseRSSItems(xml: string): Array<{
         /<link\s+href="(.*?)"/.exec(block))?.[1] ?? "";
     const link = xmlDecodeUrl(rawLink.trim());
 
-    // guid: 安定ID生成に使用（linkと同じことが多いが、BBCはguidが追跡クエリなし）
+    // guid: 安定ID生成に使用（linkと同じことが多い）
     const rawGuid =
       (/<guid[^>]*><!\[CDATA\[(.*?)\]\]><\/guid>/.exec(block) ||
         /<guid[^>]*>(.*?)<\/guid>/.exec(block))?.[1]?.trim() ?? "";
@@ -143,7 +153,6 @@ export function parseRSSItems(xml: string): Array<{
       (/<pubDate>(.*?)<\/pubDate>/.exec(block))?.[1] ??
       new Date().toISOString();
 
-    // link か guid のどちらかがあれば有効なアイテムとして扱う
     const effectiveLink = link || guid;
     if (title && effectiveLink) {
       items.push({
@@ -159,8 +168,6 @@ export function parseRSSItems(xml: string): Array<{
 }
 
 // ─── NHK（国内） ──────────────────────────────────────────────────────────────
-// URL形式: http://www3.nhk.or.jp/news/html/YYYYMMDD/kXXXXXXXXXXXXX000.html
-// ID戦略: stableId("nhk", guid) — guidはlinkと同一で安定
 
 export async function fetchNHKNews(limit = 15): Promise<NewsItem[]> {
   try {
@@ -179,6 +186,7 @@ export async function fetchNHKNews(limit = 15): Promise<NewsItem[]> {
           url,
           source: "NHK",
           category: "domestic" as NewsCategory,
+          sourceTier: "main" as FeedTier,
           publishedAt: new Date(item.pubDate).toISOString(),
         };
       })
@@ -190,8 +198,6 @@ export async function fetchNHKNews(limit = 15): Promise<NewsItem[]> {
 }
 
 // ─── Zenn（技術） ─────────────────────────────────────────────────────────────
-// URL形式: https://zenn.dev/{user}/articles/{slug}
-// ID戦略: stableId("zenn", guid) — guidはlinkと同一で安定
 
 export async function fetchZennTechNews(limit = 5): Promise<NewsItem[]> {
   try {
@@ -210,6 +216,7 @@ export async function fetchZennTechNews(limit = 5): Promise<NewsItem[]> {
           url,
           source: "Zenn",
           category: "tech" as NewsCategory,
+          sourceTier: "main" as FeedTier,
           publishedAt: new Date(item.pubDate).toISOString(),
         };
       })
@@ -221,15 +228,12 @@ export async function fetchZennTechNews(limit = 5): Promise<NewsItem[]> {
 }
 
 // ─── Dev.to（技術、英語） ──────────────────────────────────────────────────────
-// URL形式: https://dev.to/{user}/{slug}
-// ID戦略: stableId("devto", guid) — guidはlinkと同一で安定
 
 export async function fetchDevToNews(limit = 5): Promise<NewsItem[]> {
   try {
     const xml = await fetchRSS("https://dev.to/feed");
     const items = parseRSSItems(xml).slice(0, limit);
 
-    // 英語タイトルを一括翻訳
     const titles = items.map((item) => item.title);
     const translated = await translateBatch(titles);
 
@@ -250,6 +254,7 @@ export async function fetchDevToNews(limit = 5): Promise<NewsItem[]> {
         url,
         source: "Dev.to",
         category: "tech" as NewsCategory,
+        sourceTier: "main" as FeedTier,
         publishedAt: new Date(item.pubDate).toISOString(),
         isSummarized: isEng && translatedTitle !== null,
       });
@@ -261,13 +266,11 @@ export async function fetchDevToNews(limit = 5): Promise<NewsItem[]> {
   }
 }
 
-// ─── GitHub Trending ──────────────────────────────────────────────────────────
-// URL: https://github.com/{owner}/{repo}
-// ID戦略: `gh-${repo.id}` — GitHub repo integer ID は永続的に安定
+// ─── GitHub Trending（supplemental） ──────────────────────────────────────────
+// sourceTier: "supplemental" — main feed には混ぜない
 
-export async function fetchGitHubTrending(limit = 5): Promise<NewsItem[]> {
+export async function fetchGitHubTrending(limit = 10): Promise<NewsItem[]> {
   try {
-    // 過去7日間に作成された人気リポジトリを取得
     const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
       .toISOString()
       .slice(0, 10);
@@ -277,7 +280,7 @@ export async function fetchGitHubTrending(limit = 5): Promise<NewsItem[]> {
         "User-Agent": "NewsApp/1.0",
         Accept: "application/vnd.github.v3+json",
       },
-      next: { revalidate: 3600 }, // 1時間キャッシュ
+      next: { revalidate: 3600 },
     });
     if (!res.ok) return [];
     const data = await res.json();
@@ -292,7 +295,6 @@ export async function fetchGitHubTrending(limit = 5): Promise<NewsItem[]> {
       language: string | null;
     }> = (data.items ?? []).slice(0, limit);
 
-    // 説明文を翻訳
     const descriptions = repos.map((r) => r.description ?? "");
     const translated = await translateBatch(descriptions);
 
@@ -301,7 +303,6 @@ export async function fetchGitHubTrending(limit = 5): Promise<NewsItem[]> {
       const translatedDesc = translated[i];
       const langBadge = repo.language ? ` [${repo.language}]` : "";
       return {
-        // GitHub repo.id は整数で変わらない
         id: `gh-${repo.id}`,
         title: `${repo.full_name}${langBadge} ⭐${repo.stargazers_count}`,
         summary:
@@ -310,7 +311,10 @@ export async function fetchGitHubTrending(limit = 5): Promise<NewsItem[]> {
         url: repo.html_url,
         source: "GitHub Trending",
         category: "tech" as NewsCategory,
+        sourceTier: "supplemental" as FeedTier,
         publishedAt: repo.created_at,
+        language: repo.language ?? undefined,
+        stars: repo.stargazers_count,
       };
     });
   } catch (err) {
@@ -319,12 +323,8 @@ export async function fetchGitHubTrending(limit = 5): Promise<NewsItem[]> {
   }
 }
 
-// ─── 海外ニュース RSS ─────────────────────────────────────────────────────────
+// ─── NHK国際 ─────────────────────────────────────────────────────────────────
 
-/** NHK国際ニュース（日本語、翻訳不要）
- * URL形式: http://www3.nhk.or.jp/news/html/...
- * ID戦略: stableId("nhk-intl", guid)
- */
 async function fetchNHKInternational(limit = 8): Promise<NewsItem[]> {
   try {
     const xml = await fetchRSS("https://www3.nhk.or.jp/rss/news/cat6.xml");
@@ -342,6 +342,7 @@ async function fetchNHKInternational(limit = 8): Promise<NewsItem[]> {
           url,
           source: "NHK国際",
           category: "international" as NewsCategory,
+          sourceTier: "main" as FeedTier,
           publishedAt: new Date(item.pubDate).toISOString(),
         };
       })
@@ -352,77 +353,40 @@ async function fetchNHKInternational(limit = 8): Promise<NewsItem[]> {
   }
 }
 
-/** BBC日本語（日本語、翻訳不要）
- * URL形式: https://www.bbc.com/japanese/articles/XXXXXXXX?at_medium=RSS&at_campaign=rss
- * guid形式: https://www.bbc.com/japanese/articles/XXXXXXXX#0  （追跡クエリなし）
- * ID戦略: stableId("bbc", guid) — guid は #0 付きだが安定
- */
-async function fetchBBCJapanese(limit = 7): Promise<NewsItem[]> {
-  try {
-    const xml = await fetchRSS("https://feeds.bbci.co.uk/japanese/rss.xml");
-    const items = parseRSSItems(xml).slice(0, limit);
-    return items
-      .map((item) => {
-        const url = normalizeUrl(item.link);
-        if (!url) return null;
-        return {
-          id: stableId("bbc", item.guid || item.link),
-          title: item.title,
-          summary: item.description
-            ? item.description.replace(/<[^>]+>/g, "").slice(0, 150)
-            : "BBC日本語の記事です。",
-          url,
-          source: "BBC",
-          category: "international" as NewsCategory,
-          publishedAt: new Date(item.pubDate).toISOString(),
-        };
-      })
-      .filter((item): item is NewsItem => item !== null);
-  } catch (err) {
-    console.error("[fetchBBCJapanese] error:", err);
-    return [];
-  }
-}
-
-// ─── 全ニュース取得 ────────────────────────────────────────────────────────────
+// ─── 全ニュース取得（main feed のみ） ─────────────────────────────────────────
 
 /**
- * カテゴリ別目標件数:
- *   tech:          30件 (HN 15 + Zenn 5 + Dev.to 5 + GitHub 5)
- *   domestic:      15件 (NHK)
- *   international: 15件 (NHK国際 8 + BBC 7)
+ * main feed 向けニュースを返す。
+ * GitHub Trending（supplemental）・X系（x）は含まない。
  *
- * IDの安定性保証:
- *   全ソースが Date.now() を使わず URL ベースの決定論的 ID を生成するため、
- *   一覧ページと詳細ページで fetchAllNews() を別々に呼び出しても
- *   同じ記事には必ず同じ ID が付与される。
+ * カテゴリ別目標件数:
+ *   tech:          25件 (HN 15 + Zenn 5 + Dev.to 5)
+ *   domestic:      15件 (NHK)
+ *   international:  8件 (NHK国際)
  */
 export async function fetchAllNews(): Promise<NewsItem[]> {
-  const [hn, nhk, zenn, nhkIntl, bbc, devto, github] =
-    await Promise.allSettled([
-      fetchHackerNews(15),
-      fetchNHKNews(15),
-      fetchZennTechNews(5),
-      fetchNHKInternational(8),
-      fetchBBCJapanese(7),
-      fetchDevToNews(5),
-      fetchGitHubTrending(5),
-    ]);
+  const [hn, nhk, zenn, nhkIntl, devto] = await Promise.allSettled([
+    fetchHackerNews(15),
+    fetchNHKNews(15),
+    fetchZennTechNews(5),
+    fetchNHKInternational(8),
+    fetchDevToNews(5),
+  ]);
 
-  const getValue = <T>(result: PromiseSettledResult<T[]>, fallback: T[] = []): T[] =>
+  const getValue = <T>(
+    result: PromiseSettledResult<T[]>,
+    fallback: T[] = []
+  ): T[] =>
     result.status === "fulfilled" ? result.value : fallback;
 
   const items: NewsItem[] = [
     ...getValue(hn, mockNewsItems.filter((n) => n.category === "tech")),
     ...getValue(zenn),
     ...getValue(devto),
-    ...getValue(github),
     ...getValue(nhk, mockNewsItems.filter((n) => n.category === "domestic")),
     ...getValue(nhkIntl, mockNewsItems.filter((n) => n.category === "international")),
-    ...getValue(bbc),
   ];
 
-  // カテゴリ別に新しい順、全体は tech → domestic → international の優先度
   const CATEGORY_PRIORITY: Record<NewsCategory, number> = {
     tech: 0,
     domestic: 1,

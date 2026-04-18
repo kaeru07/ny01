@@ -1,6 +1,9 @@
 export type NewsCategory = "tech" | "domestic" | "international" | "paper";
 
-export type FilterTab = "all" | NewsCategory;
+/** ソースの階層: main=メインフィード, supplemental=補助, x=Xで話題 */
+export type FeedTier = "main" | "supplemental" | "x";
+
+export type FilterTab = "all" | NewsCategory | "github" | "x";
 
 export interface NewsItem {
   id: string;
@@ -10,10 +13,14 @@ export interface NewsItem {
   url: string;
   source: string;
   category: NewsCategory;
+  sourceTier: FeedTier;
   publishedAt: string; // ISO 8601
   imageUrl?: string;
   isSummarized?: boolean; // 海外ニュースはtrue
   score?: number; // HackerNews等のスコア
+  // GitHub Trending 専用
+  language?: string;
+  stars?: number;
 }
 
 export interface PaperItem {
@@ -25,6 +32,13 @@ export interface PaperItem {
   url: string;
   publishedAt: string;
   arxivId?: string;
+}
+
+/** X (Twitter) フィード取得結果 */
+export interface XFeedResult {
+  items: NewsItem[];
+  isDegraded: boolean;
+  degradedSources: string[];
 }
 
 // 将来: 信頼性評価

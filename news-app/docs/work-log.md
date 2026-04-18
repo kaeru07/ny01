@@ -69,3 +69,32 @@
 - `app/page.tsx`: `mockPapers` を `fetchPapers()` に差し替え、統計バーに論文件数を追加
 - `components/NewsList.tsx`: 「論文機能 開発中」バナーを除去し、実データ表示に変更
 - `next build` ✅
+
+## 2026-04-18
+
+### [coder] source階層化・URL品質改善・翻訳導線・X枠分離
+
+**変更ファイル:**
+- `lib/types.ts` — `FeedTier`, `XFeedResult` 追加, `FilterTab` に "github"/"x" 追加, `NewsItem` に `sourceTier` / `language` / `stars` 追加
+- `lib/sourcePolicy.ts` (新規) — `classifySource()`, `evaluateArticleQuality()`, `isMainFeedSource()`
+- `lib/fetchNews.ts` — 全ソースに `sourceTier` 付与, HN の canonicalUrl ルール明文化, BBC 削除, GitHub Trending を supplemental へ
+- `lib/fetchXFeed.ts` (新規) — Nitter RSS 経由で X ソース取得（graceful degradation 対応）
+- `lib/mockData.ts` — `sourceTier: "main"` を全モックアイテムに追加
+- `components/CategoryFilter.tsx` — "話題のリポジトリ"(📦) / "Xで話題"(🐦) タブ追加
+- `components/NewsList.tsx` — github/x タブのレンダリング, degraded 表示, main のみフィルタ
+- `app/page.tsx` — `fetchGitHubTrending` / `fetchXFeeds` を別取得して NewsList へ渡す
+- `app/news/[id]/page.tsx` — 全記事に「翻訳して読む」ボタン表示, supplemental/x バッジ追加, GitHub/X アイテムも検索対象
+- `tests/source-policy.test.ts` (新規) — source tier / article quality テスト
+- `tests/url.test.ts` (新規) — HN URL ルール / example.com 排除 / 翻訳リンク生成テスト
+
+**確認:**
+- TypeScript エラー: 0
+- テスト: 109件 全 pass
+- Next.js build: ✅ 成功
+
+### [coder] PaperCard 翻訳導線追加
+- `components/PaperCard.tsx` — 全体リンク `<a>` を廃止し、ボタン方式に変更
+  - 「🌐 翻訳して読む」→ Google翻訳URL
+  - 「原文 (arXiv)」→ abstract URL
+  - 「PDF」→ `arxivId` がある場合のみ表示
+- TypeScript エラー: 0、テスト: 109件 全 pass

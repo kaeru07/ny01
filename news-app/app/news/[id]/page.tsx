@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { fetchAllNews } from "@/lib/fetchNews";
+import { fetchAllNews, fetchGitHubTrending } from "@/lib/fetchNews";
+import { fetchXFeeds } from "@/lib/fetchXFeed";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { formatRelativeTime } from "@/lib/utils";
 import { normalizeUrl } from "@/lib/normalizeUrl";
@@ -11,8 +12,16 @@ interface Props {
 
 export default async function NewsDetailPage({ params }: Props) {
   const id = decodeURIComponent(params.id);
-  const items = await fetchAllNews();
-  const item = items.find((n) => n.id === id);
+
+  // main + supplemental + x の全アイテムを対象に検索
+  const [mainItems, githubItems, xFeedResult] = await Promise.all([
+    fetchAllNews(),
+    fetchGitHubTrending(10).catch(() => []),
+    fetchXFeeds().catch(() => ({ items: [], isDegraded: false, degradedSources: [] })),
+  ]);
+
+  const allItems = [...mainItems, ...githubItems, ...xFeedResult.items];
+  const item = allItems.find((n) => n.id === id);
 
   if (!item) notFound();
 
@@ -20,6 +29,8 @@ export default async function NewsDetailPage({ params }: Props) {
   const translateUrl = validUrl
     ? `https://translate.google.com/translate?sl=auto&tl=ja&u=${encodeURIComponent(validUrl)}`
     : null;
+
+  const isExternalArticle = item.originalTitle != null || item.isSummarized;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -45,6 +56,12 @@ export default async function NewsDetailPage({ params }: Props) {
             <CategoryBadge category={item.category} />
             {item.isSummarized && (
               <span className="text-xs text-blue-500 font-medium">🌐 翻訳済</span>
+            )}
+            {item.sourceTier === "supplemental" && (
+              <span className="text-xs text-green-600 font-medium">📦 GitHub</span>
+            )}
+            {item.sourceTier === "x" && (
+              <span className="text-xs text-sky-500 font-medium">🐦 X</span>
             )}
             <span className="ml-auto text-xs text-gray-400">
               {formatRelativeTime(item.publishedAt)}
@@ -84,8 +101,8 @@ export default async function NewsDetailPage({ params }: Props) {
           {/* リンクボタン */}
           {validUrl ? (
             <div className="flex flex-col gap-2">
-              {/* 英語記事には翻訳リンクを表示 */}
-              {item.originalTitle && translateUrl && (
+              {/* 翻訳して読む（全記事に表示） */}
+              {translateUrl && (
                 <a
                   href={translateUrl}
                   target="_blank"
@@ -95,13 +112,14 @@ export default async function NewsDetailPage({ params }: Props) {
                   🌐 翻訳して読む →
                 </a>
               )}
+              {/* 原文で読む */}
               <a
                 href={validUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full text-center bg-gray-900 text-white text-sm font-semibold py-3 rounded-xl active:bg-gray-700 transition-colors"
               >
-                {item.originalTitle ? "原文で読む →" : "元記事を読む →"}
+                {isExternalArticle ? "原文で読む →" : "元記事を読む →"}
               </a>
             </div>
           ) : (

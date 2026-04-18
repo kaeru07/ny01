@@ -15,6 +15,7 @@ export const mockNewsItems: NewsItem[] = [
     url: "https://openai.com/news/",
     source: "Hacker News",
     category: "tech",
+    sourceTier: "main",
     publishedAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
     score: 1842,
     isSummarized: true,
@@ -27,6 +28,7 @@ export const mockNewsItems: NewsItem[] = [
     url: "https://vercel.com/blog",
     source: "Hacker News",
     category: "tech",
+    sourceTier: "main",
     publishedAt: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
     score: 743,
     isSummarized: true,
@@ -39,6 +41,7 @@ export const mockNewsItems: NewsItem[] = [
     url: "https://zenn.dev",
     source: "Zenn",
     category: "tech",
+    sourceTier: "main",
     publishedAt: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
   },
   {
@@ -49,6 +52,7 @@ export const mockNewsItems: NewsItem[] = [
     url: "https://blog.rust-lang.org",
     source: "Hacker News",
     category: "tech",
+    sourceTier: "main",
     publishedAt: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
     score: 521,
     isSummarized: true,
@@ -62,6 +66,7 @@ export const mockNewsItems: NewsItem[] = [
     url: "https://www3.nhk.or.jp/news/",
     source: "NHK",
     category: "domestic",
+    sourceTier: "main",
     publishedAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
   },
   {
@@ -72,17 +77,19 @@ export const mockNewsItems: NewsItem[] = [
     url: "https://www3.nhk.or.jp/news/",
     source: "NHK",
     category: "domestic",
+    sourceTier: "main",
     publishedAt: new Date(Date.now() - 1000 * 60 * 150).toISOString(),
   },
-  // 海外ニュース（フォールバック用・日本語済み）
+  // 海外ニュース
   {
     id: "intl-1",
     title: "Anthropic、Claude 4を発表 — コーディング性能が飛躍的向上",
     summary:
       "AnthropicがClaude 4シリーズを発表。SWE-benchスコアが過去最高を記録し、複数ファイルにまたがるコード編集が可能に。Enterprise向けには長期記憶機能も搭載。",
     url: "https://www.anthropic.com/news",
-    source: "Anthropic",
+    source: "NHK国際",
     category: "international",
+    sourceTier: "main",
     publishedAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
     isSummarized: true,
   },
@@ -92,8 +99,9 @@ export const mockNewsItems: NewsItem[] = [
     summary:
       "EUのAI規制法「AI Act」第一段階が発効。社会的スコアリングや感情認識AIなど禁止対象システムの公式リストが公開された。違反企業には年商の6%相当の制裁金が課される。",
     url: "https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai",
-    source: "EU Commission",
+    source: "NHK国際",
     category: "international",
+    sourceTier: "main",
     publishedAt: new Date(Date.now() - 1000 * 60 * 240).toISOString(),
     isSummarized: true,
   },

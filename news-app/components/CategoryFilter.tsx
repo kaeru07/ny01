@@ -8,6 +8,8 @@ const TABS: { id: FilterTab; label: string; emoji: string }[] = [
   { id: "domestic", label: "国内", emoji: "🇯🇵" },
   { id: "international", label: "海外", emoji: "🌏" },
   { id: "paper", label: "論文", emoji: "📄" },
+  { id: "github", label: "話題のリポジトリ", emoji: "📦" },
+  { id: "x", label: "Xで話題", emoji: "🐦" },
 ];
 
 interface Props {
