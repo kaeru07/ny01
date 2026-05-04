@@ -1,0 +1,80 @@
+{"time":"2026-04-27T09:00:00+09:00","project":"company-mgmt","type":"task_started","title":"PROGRESS_DATA_PATH 実データ設定","detail":"data/real/ ディレクトリ作成・app-progress.json・project-tasks.json 作成"}
+{"time":"2026-04-27T09:20:00+09:00","project":"company-mgmt","type":"task_completed","title":"PROGRESS_DATA_PATH 実データ設定完了","detail":"data/real/ 作成・.env.local 設定・progress アプリ実データ確認（5進行中・1ブロック・6合計）"}
+{"time":"2026-04-27T09:30:00+09:00","project":"company-mgmt","type":"task_completed","title":"確認最小化ルール反映","detail":"CLAUDE.local.md + focus.md(2箇所) に確認最小化ルール追加。確認3ケース・進める原則・判断優先順位・出力形式を定義"}
+{"time":"2026-04-27T09:35:00+09:00","project":"shogi-kakoi-trainer","type":"task_completed","title":"task-st-2 完了確認","detail":"eb4c533で実装済みと確認。全7囲いに buildGuideSteps+MoveSpec動的盤面が適用されている"}
+{"time":"2026-04-27T09:38:00+09:00","project":"mahjong","type":"task_started","title":"Vercelデプロイ準備","detail":"vercel.json 作成"}
+{"time":"2026-04-27T09:40:00+09:00","project":"mahjong","type":"task_completed","title":"Vercelデプロイ準備完了","detail":"vercel.json作成・build成功。GitHub push後にVercel自動デプロイ可能"}
+{"time":"2026-04-27T09:41:00+09:00","project":"ny01-mahjong-trainer","type":"task_started","title":"engine/domain ゲームロジック確認","detail":"コード読み取り・実装内容把握"}
+{"time":"2026-04-27T09:45:00+09:00","project":"ny01-mahjong-trainer","type":"task_completed","title":"engine/domain確認完了","detail":"gameEngine: 4人麻雀ステートマシン・RIICHI TODO。shanten: 向聴数計算実装済み。cpuPlayer: 向聴数最小化AI。ロン未実装"}
+{"time":"2026-04-27T15:06:57.279Z","project":"company-mgmt","type":"task_added","title":"ダークモード適用","detail":"priority:high status:todo"}
+{"time":"2026-04-27T15:07:33.206Z","project":"company-mgmt","type":"task_added","title":"日別の進捗をまとめて確認できるようにする","detail":"priority:high status:todo"}
+{"time":"2026-04-28T00:00:00+09:00","project":"company-mgmt","type":"task_started","title":"ダークモード適用 着手","detail":"tailwind darkMode:class + ThemeProvider + 全コンポーネント dark: クラス追加"}
+{"time":"2026-04-28T00:10:00+09:00","project":"company-mgmt","type":"task_completed","title":"ダークモード適用完了","detail":"tailwind darkMode:class + ThemeProvider(自前) + 全14ファイルに dark: クラス追加。build成功"}
+{"time":"2026-04-28T00:11:00+09:00","project":"company-mgmt","type":"task_started","title":"日別の進捗まとめ機能 着手","detail":"/daily ページ新設。work-log を日付でグループし完了タスク・案件別サマリーを表示"}
+{"time":"2026-04-28T00:20:00+09:00","project":"company-mgmt","type":"task_completed","title":"日別進捗ページ完了","detail":"/daily ページ新設・BottomNav 日別アイコン追加・build成功"}
+{"time":"2026-04-28T00:21:00+09:00","project":"memo","type":"task_started","title":"pip環境構築・backend起動確認 着手","detail":"python3.12 -m ensurepip または apt install python3-pip を試みる"}
+{"time":"2026-04-28T00:30:00+09:00","project":"memo","type":"task_completed","title":"pip環境構築・backend起動確認完了","detail":"python3.12-venv インストール + venv作成 + uvicorn起動確認。blocker解消"}
+{"time":"2026-04-28T00:31:00+09:00","project":"shogi-kakoi-trainer","type":"task_started","title":"学習記録機能 着手","detail":"localStorage に完了済み囲いを保存 → /records に表示"}
+{"time":"2026-04-28T00:40:00+09:00","project":"shogi-kakoi-trainer","type":"task_completed","title":"学習記録機能追加完了","detail":"learningRecords.ts + GuideClient useEffect + /records client component。build成功"}
+{"time":"2026-04-28T00:50:00+09:00","project":"memo","type":"task_completed","title":"frontend+backend統合確認完了","detail":"backend port 8000・health+API正常。Vite proxy port 8000向き確認。blocker完全解消"}
+{"time":"2026-04-28T00:55:00+09:00","project":"company-mgmt","type":"summary","title":"集中作業セッション完了","detail":"完了: ダークモード・日別進捗ページ・memo blocker解消・shogi学習記録。残: デプロイ系はユーザー操作待ち"}
+{"time":"2026-04-28T10:00:00+09:00","project":"shogi-kakoi-trainer","type":"task_completed","title":"学習記録機能 push完了","detail":"commit ddae9a4 を main にpush。Vercel自動デプロイ中。本番確認: /records"}
+{"time":"2026-04-28T10:05:00+09:00","project":"shogi-kakoi-trainer","type":"task_status_updated","title":"progress 正本運用レビュー反映","detail":"status: in_progress → user_action_pending / assignee フィールド追加 / task-st-4（ユーザー本番確認）追加"}
+{"time":"2026-04-28T10:05:00+09:00","project":"mahjong","type":"task_status_updated","title":"progress 正本運用レビュー反映","detail":"status: in_progress → deploy_ready / task-mj-3（GitHub push・assignee:user）追加"}
+{"time":"2026-04-28T10:05:00+09:00","project":"ny-ai","type":"task_status_updated","title":"progress 正本運用レビュー反映","detail":"status: in_progress → user_action_pending / task-nyai-2 assignee: user に変更"}
+{"time":"2026-04-28T10:05:00+09:00","project":"company-mgmt","type":"project_summary_updated","title":"company-mgmt サマリー更新","detail":"nextAction → 完了 / 全タスク done 確認済み / progress 正本運用レビュー反映完了"}
+{"time":"2026-04-29T09:21:20.433Z","project":"memo","type":"task_status_updated","title":"frontend確認","detail":"done → in_progress"}
+{"time":"2026-04-29T09:24:32.844Z","project":"company-mgmt","type":"task_added","title":"着手判定タブで、フィルター機能追加。","detail":"priority:medium status:todo assignee:claude"}
+{"time":"2026-04-29T09:29:43.655Z","project":"company-mgmt","type":"task_status_updated","title":"着手判定タブで、フィルター機能追加。","detail":"todo → in_progress"}
+{"time":"2026-04-29T09:29:46.503Z","project":"company-mgmt","type":"task_status_updated","title":"着手判定タブで、フィルター機能追加。","detail":"in_progress → todo"}
+{"time":"2026-04-29T09:30:25.125Z","project":"company-mgmt","type":"task_added","title":"追加済みタスクを編集できるように","detail":"priority:high status:todo assignee:claude"}
+{"time":"2026-04-29T09:33:19.622Z","project":"company-mgmt","type":"task_added","title":"タスク追加をjson形式でまとめて取り込めるようにする。","detail":"priority:medium status:todo assignee:claude"}
+{"time":"2026-04-29T09:34:18.604Z","project":"company-mgmt","type":"task_added","title":"タスクに作業指示プロンプト欄を追加する。","detail":"priority:high status:todo assignee:claude"}
+{"time":"2026-04-29T09:36:15.369Z","project":"company-mgmt","type":"task_added","title":"todoを取り込む用のjson取得用プロンプトをを画面からコピーできるようにする","detail":"priority:medium status:todo assignee:claude"}
+{"time":"2026-05-01T00:00:00+09:00","project":"company-mgmt","type":"task_started","title":"ローカルAICOMPANY補助アプリ 導線・編集・ヘルプ改善","detail":"着手判定導線追加/ToDo編集UI/ヘルプモーダル/BottomNav更新"}
+{"time":"2026-05-01T01:00:00+09:00","project":"company-mgmt","type":"task_completed","title":"ローカルAICOMPANY補助アプリ 導線・編集・ヘルプ改善","detail":"BottomNavにホーム追加/ToDo編集フォーム拡張(8フィールド)/HelpModal更新/Task型拡張/build成功"}
+{"time":"2026-05-02T10:00:00+09:00","project":"company-mgmt","type":"task_completed","title":"着手判定と作業指示プロンプト欄の改善","detail":"/pendingフォールバック表示/FallbackTaskCard/PendingFilters/targetApp追加/taskPromptをEditFormに統合/HelpModal更新/build成功"}
+{"time":"2026-05-03T11:32:55.157Z","project":"shogi-kakoi-trainer","type":"task_added","title":"タスク一括追加 2件","detail":"ExecutionRunの完了判定を未確認項目に応じてpartialにする / テスト用に追加されたtest.tsxの有無を確認し不要なら削除する"}
+{"time":"2026-05-03T11:53:47.943Z","project":"company-mgmt","type":"task_added","title":"タスク一括追加 2件","detail":"JSON取り込み時の保存先案件とtargetApp不一致を修正する / ToDoを画面から削除できるようにする"}
+{"time":"2026-05-03T11:56:38.786Z","project":"company-mgmt","type":"task_status_updated","title":"タスクに作業指示プロンプト欄を追加する。","detail":"todo → impl_done"}
+{"time":"2026-05-03T11:59:01.489Z","project":"company-mgmt","type":"task_status_updated","title":"タスクに作業指示プロンプト欄を追加する。","detail":"impl_done → done"}
+{"time":"2026-05-03T11:59:01.496Z","project":"company-mgmt","type":"project_summary_updated","title":"Company Management サマリー更新","detail":"nextAction → \"progressアプリ /morning のgrid-cols-4 → モバイル最適化\""}
+{"time":"2026-05-03T11:59:44.872Z","project":"company-mgmt","type":"task_status_updated","title":"着手判定タブで、フィルター機能追加。","detail":"todo → impl_done"}
+{"time":"2026-05-03T11:59:48.819Z","project":"company-mgmt","type":"task_status_updated","title":"着手判定タブで、フィルター機能追加。","detail":"impl_done → todo"}
+{"time":"2026-05-03T12:00:25.881Z","project":"company-mgmt","type":"task_status_updated","title":"タスク追加をjson形式でまとめて取り込めるようにする。","detail":"status: todo → done"}
+{"time":"2026-05-03T12:04:08.853Z","project":"company-mgmt","type":"task_status_updated","title":"JSON取り込み時の保存先案件とtargetApp不一致を修正する","detail":"pending_approval → todo"}
+{"time":"2026-05-03T12:04:09.978Z","project":"company-mgmt","type":"task_status_updated","title":"ToDoを画面から削除できるようにする","detail":"pending_approval → todo"}
+{"time":"2026-05-03T12:20:12.232Z","project":"company-mgmt","type":"task_status_updated","title":"ToDoを画面から削除できるようにする","detail":"todo → done"}
+{"time":"2026-05-03T12:20:12.236Z","project":"company-mgmt","type":"project_summary_updated","title":"Company Management サマリー更新","detail":"nextAction → \"JSON取り込み時の保存先案件とtargetApp不一致を修正する\""}
+{"time":"2026-05-03T12:20:14.665Z","project":"company-mgmt","type":"task_status_updated","title":"JSON取り込み時の保存先案件とtargetApp不一致を修正する","detail":"todo → done"}
+{"time":"2026-05-03T12:20:14.668Z","project":"company-mgmt","type":"project_summary_updated","title":"Company Management サマリー更新","detail":"nextAction → \"progressアプリ /morning のgrid-cols-4 → モバイル最適化\""}
+{"time":"2026-05-03T12:25:08.416Z","project":"company-mgmt","type":"task_added","title":"タスク一括追加 2件","detail":"ExecutionRun登録時にchangedFilesとchecksがレビュー用コピーへ正しく反映されるようにする / 削除機能とJSON取り込み不一致警告をブラウザで実操作確認する"}
+{"time":"2026-05-03T12:26:01.727Z","project":"company-mgmt","type":"task_status_updated","title":"セッション終了時にwork-log.ndjsonへ追記","detail":"backlog → deleted"}
+{"time":"2026-05-03T12:31:06.222Z","project":"memo","type":"task_status_updated","title":"frontend確認","detail":"in_progress → done"}
+{"time":"2026-05-03T12:31:06.226Z","project":"memo","type":"project_summary_updated","title":"memo サマリー更新","detail":"nextAction → \"frontend+backend統合起動確認（再起動後）\""}
+{"time":"2026-05-03T12:31:06.243Z","project":"company-mgmt","type":"task_status_updated","title":"着手判定タブで、フィルター機能追加。","detail":"todo → done"}
+{"time":"2026-05-03T12:31:06.260Z","project":"company-mgmt","type":"task_status_updated","title":"todoを取り込む用のjson取得用プロンプトをを画面からコピーできるようにする","detail":"todo → done"}
+{"time":"2026-05-03T12:31:53.918Z","project":"company-mgmt","type":"task_status_updated","title":"progressアプリ /morning のgrid-cols-4 → モバイル最適化","detail":"backlog → done"}
+{"time":"2026-05-03T12:31:53.942Z","project":"company-mgmt","type":"project_summary_updated","title":"Company Management サマリー更新","detail":"nextAction → \"overall-progress.md の手動更新をprogress画面から自動化\""}
+{"time":"2026-05-03T12:35:32.663Z","project":"company-mgmt","type":"project_summary_updated","title":"Company Management サマリー更新","detail":"currentTask → \"今日のキュー全件処理完了（stale解消・changedFiles修正・削除除外確認・morningモバイル最適化）\" / nextAction → \"ブラウザでUI実操作確認（削除・JSON不一致警告）\""}
+{"time":"2026-05-03T12:42:17.600Z","project":"company-mgmt","type":"task_added","title":"タスク一括追加 1件","detail":"集中作業モードの着手対象判定を修正する"}
+{"time":"2026-05-03T12:56:46.195Z","project":"company-mgmt","type":"task_added","title":"タスク一括追加 1件","detail":"JSON取り込み時の保存先案件選択をユーザー明示選択に変更する"}
+{"time":"2026-05-03T13:02:26.002Z","project":"company-mgmt","type":"task_added","title":"タスク一括追加 1件","detail":"ToDo管理・着手判定・今日の順番の役割を整理する"}
+{"time":"2026-05-03T13:12:52.435Z","project":"company-mgmt","type":"task_status_updated","title":"JSON取り込み時の保存先案件選択をユーザー明示選択に変更する","detail":"pending_approval → done"}
+{"time":"2026-05-03T13:12:52.497Z","project":"company-mgmt","type":"project_summary_updated","title":"Company Management サマリー更新","detail":"nextAction → \"overall-progress.md の手動更新をprogress画面から自動化\""}
+{"time":"2026-05-03T13:12:52.586Z","project":"company-mgmt","type":"task_status_updated","title":"ToDo管理・着手判定・今日の順番の役割を整理する","detail":"pending_approval → done"}
+{"time":"2026-05-03T13:13:02.890Z","project":"company-mgmt","type":"project_summary_updated","title":"Company Management サマリー更新","detail":"currentTask → \"2件完了: JSON取り込み保存先を未選択初期化・mismatch保存ブロック削除 / 着手判定fallbackをpending_approvalのみに整理\" / nextAction → \"work-queueが空。次の作業は /queue または /tasks から今日の作業に追加してください\""}
+{"time":"2026-05-03T14:49:44.667Z","project":"company-mgmt","type":"task_added","title":"タスク一括追加 1件","detail":"Codex用の集中作業モード指示プロンプトを作成する"}
+{"time":"2026-05-04T03:23:17.655Z","project":"company-mgmt","type":"task_status_updated","title":"集中作業モードの着手対象判定を修正する","detail":"pending_approval → done"}
+{"time":"2026-05-04T03:23:17.655Z","project":"company-mgmt","type":"task_status_updated","title":"集中作業モードの着手対象判定を修正する","detail":"pending_approval → done"}
+{"time":"2026-05-04T03:23:17.665Z","project":"company-mgmt","type":"project_summary_updated","title":"Company Management サマリー更新","detail":"nextAction → \"overall-progress.md の手動更新をprogress画面から自動化\""}
+{"time":"2026-05-04T03:23:17.666Z","project":"company-mgmt","type":"project_summary_updated","title":"Company Management サマリー更新","detail":"nextAction → \"overall-progress.md の手動更新をprogress画面から自動化\""}
+{"time":"2026-05-04T03:23:21.824Z","project":"company-mgmt","type":"task_status_updated","title":"Codex用の集中作業モード指示プロンプトを作成する","detail":"pending_approval → done"}
+{"time":"2026-05-04T03:28:02.527Z","project":"company-mgmt","type":"task_added","title":"タスク一括追加 1件","detail":"集中作業モードで1タスク1レビューを徹底する"}
+{"time":"2026-05-04T03:31:09.942Z","project":"company-mgmt","type":"task_added","title":"タスク一括追加 1件","detail":"着手判定とToDo管理を/tasksに統合し完了タスクをアーカイブ化する"}
+{"time":"2026-05-04T03:36:54.625Z","project":"company-mgmt","type":"task_completed","title":"集中作業モードで1タスク1レビューを徹底する","detail":"work-queue autoOrder=15 done。nextAction -> \"着手判定とToDo管理を/tasksに統合し完了タスクをアーカイブ化する\""}
+{"time":"2026-05-04T03:40:48.345Z","project":"company-mgmt","type":"task_added","title":"json取り込み時に、今日の作業対象にするか否かのチェックボックスを追加して。初期は追加するでチェック済みにする","detail":"priority:high status:todo assignee:claude"}
+{"time":"2026-05-04T04:50:19.630Z","project":"company-mgmt","type":"task_status_updated","title":"着手判定とToDo管理を/tasksに統合し完了タスクをアーカイブ化する","detail":"pending_approval → done"}
+{"time":"2026-05-04T04:50:19.634Z","project":"company-mgmt","type":"project_summary_updated","title":"Company Management サマリー更新","detail":"nextAction → \"json取り込み時に、今日の作業対象にするか否かのチェックボックスを追加して。初期は追加するでチェック済みにする\""}
+{"time":"2026-05-04T11:34:17.469Z","project":"company-mgmt","type":"task_status_updated","title":"json取り込み時に、今日の作業対象にするか否かのチェックボックスを追加して。初期は追加するでチェック済みにする","detail":"todo → done"}
+{"time":"2026-05-04T11:34:17.479Z","project":"company-mgmt","type":"project_summary_updated","title":"Company Management サマリー更新","detail":"nextAction → \"次の今日の作業キューを確認\""}

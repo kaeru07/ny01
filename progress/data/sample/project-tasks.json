@@ -1,0 +1,109 @@
+{
+  "projects": [
+    {
+      "projectId": "netscope",
+      "tasks": [
+        {
+          "id": "task-ns-1",
+          "title": "filter不整合修正",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "フィルタ適用後のデータが一致しない問題を修正",
+          "createdAt": "2026-04-26T15:00:00+09:00",
+          "updatedAt": "2026-04-26T15:20:00+09:00"
+        },
+        {
+          "id": "task-ns-2",
+          "title": "verify export output matches filtered list",
+          "status": "in_progress",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "エクスポート出力をフィルタ済み一覧と照合確認",
+          "createdAt": "2026-04-26T15:20:00+09:00",
+          "updatedAt": "2026-04-26T16:20:00+09:00"
+        },
+        {
+          "id": "task-ns-3",
+          "title": "UIレスポンシブ対応",
+          "status": "in_progress",
+          "priority": "medium",
+          "assignee": "claude",
+          "memo": "スマホ幅での表示崩れを修正",
+          "createdAt": "2026-04-26T16:00:00+09:00",
+          "updatedAt": "2026-04-26T15:58:24.734Z"
+        }
+      ]
+    },
+    {
+      "projectId": "progress-app",
+      "tasks": [
+        {
+          "id": "task-pa-1",
+          "title": "Next.jsアプリ初期設定",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "",
+          "createdAt": "2026-04-26T16:30:00+09:00",
+          "updatedAt": "2026-04-26T17:00:00+09:00"
+        },
+        {
+          "id": "task-pa-2",
+          "title": "ダッシュボード実装",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "統計バー・案件カード・ログ表示・タスク一覧",
+          "createdAt": "2026-04-26T17:00:00+09:00",
+          "updatedAt": "2026-04-27T00:00:00+09:00"
+        },
+        {
+          "id": "task-pa-3",
+          "title": "タスク追加UI実装",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "API Route経由でproject-tasks.jsonに書き込み・work-log追記",
+          "createdAt": "2026-04-26T17:00:00+09:00",
+          "updatedAt": "2026-04-27T00:00:00+09:00"
+        },
+        {
+          "id": "task-pa-4",
+          "title": "iPhoneレイアウト確認",
+          "status": "todo",
+          "priority": "medium",
+          "assignee": "user",
+          "memo": "実機またはシミュレータで下タブ・カード・フォームの操作性確認",
+          "createdAt": "2026-04-26T17:00:00+09:00",
+          "updatedAt": "2026-04-26T17:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "projectId": "company-mgmt",
+      "tasks": [
+        {
+          "id": "task-cm-1",
+          "title": "朝会ブリーフィング自動化",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "CLAUDE.mdで定義済み",
+          "createdAt": "2026-04-20T09:00:00+09:00",
+          "updatedAt": "2026-04-25T09:00:00+09:00"
+        },
+        {
+          "id": "task-cm-2",
+          "title": "progress app連携",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "CLAUDE.local.md（朝会・集中作業モードのprogress正本運用定義）+ /focus コマンド作成完了（2026-04-27）",
+          "createdAt": "2026-04-26T09:00:00+09:00",
+          "updatedAt": "2026-04-27T03:51:41+09:00"
+        }
+      ]
+    }
+  ]
+}

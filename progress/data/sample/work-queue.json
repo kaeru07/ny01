@@ -1,0 +1,45 @@
+{
+  "items": [
+    {
+      "id": "queue-sample-1",
+      "candidateId": "cand-sample-1",
+      "projectId": "netscope",
+      "projectName": "NetScope",
+      "taskId": "task-ns-2",
+      "taskTitle": "verify export output matches filtered list",
+      "description": "エクスポート出力をフィルタ済み一覧と照合確認",
+      "priority": "high",
+      "status": "queued",
+      "autoOrder": 1,
+      "reason": "in_progress 状態のタスク。フィルタ修正後の確認が未完了",
+      "doneCondition": "エクスポートCSVとフィルタ済み表示が一致することを確認",
+      "userMemo": "",
+      "workLog": "",
+      "createdAt": "2026-04-28T09:05:00+09:00",
+      "updatedAt": "2026-04-28T09:05:00+09:00"
+    },
+    {
+      "id": "queue-sample-2",
+      "candidateId": "cand-sample-2",
+      "projectId": "netscope",
+      "projectName": "NetScope",
+      "taskId": "task-ns-3",
+      "taskTitle": "UIレスポンシブ対応",
+      "description": "スマホ幅での表示崩れを修正",
+      "priority": "medium",
+      "status": "queued",
+      "autoOrder": 2,
+      "manualOrder": 2,
+      "orderUpdatedBy": "user",
+      "orderUpdatedAt": "2026-04-28T09:15:00+09:00",
+      "orderMemo": "export確認が終わってからやる",
+      "reason": "in_progress 状態のタスク。スマホ確認が必要",
+      "doneCondition": "iPhone幅(375px)でメインページが崩れない",
+      "userMemo": "",
+      "workLog": "",
+      "createdAt": "2026-04-28T09:05:00+09:00",
+      "updatedAt": "2026-04-28T09:15:00+09:00"
+    }
+  ],
+  "lastGenerated": "2026-04-28T09:05:00+09:00"
+}

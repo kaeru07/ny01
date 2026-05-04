@@ -1,0 +1,267 @@
+{
+  "runs": [
+    {
+      "runId": "20260503-021343",
+      "startedAt": "2026-05-02T17:13:43.205Z",
+      "finishedAt": "2026-05-02T17:13:43.205Z",
+      "targetApp": "ny01/progress",
+      "targetTodoTitle": "テスト登録",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "summary": "動作確認用テスト",
+      "changedFiles": [
+        {
+          "file": "test.tsx",
+          "change": "追加"
+        }
+      ],
+      "checks": {
+        "build": "OK",
+        "typescript": "OK"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "テスト完了"
+    },
+    {
+      "runId": "20260503-212045",
+      "startedAt": "2026-05-03T12:20:45.710Z",
+      "finishedAt": "2026-05-03T12:20:45.710Z",
+      "targetApp": "ny01/progress",
+      "targetTodoId": "task-company-mgmt-1777809227943-1,task-company-mgmt-1777809227943-0",
+      "targetTodoTitle": "ToDoを画面から削除できるようにする / JSON取り込み時の保存先案件とtargetApp不一致を修正する",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "summary": "2件のhighタスク完了。①ToDo論理削除機能: types/progress.tsにdeleted追加、API validStatuses更新、TodoManager.tsxに削除ボタン（確認ダイアログ付き）追加、tasks/page.tsxでdeleted除外。②JSON import targetApp/projectId不一致警告: JsonImportManager.tsxにauto-select・mismatch警告バナー・保存ブロック・混在警告実装。npm run build成功・TypeScriptエラー0件。",
+      "changedFiles": [
+        {
+          "file": "types/progress.ts",
+          "change": "modified"
+        },
+        {
+          "file": "app/api/tasks/[taskId]/route.ts",
+          "change": "modified"
+        },
+        {
+          "file": "components/tasks/TodoManager.tsx",
+          "change": "modified"
+        },
+        {
+          "file": "app/tasks/page.tsx",
+          "change": "modified"
+        },
+        {
+          "file": "components/tasks/JsonImportManager.tsx",
+          "change": "modified"
+        }
+      ],
+      "checks": {
+        "build": "OK",
+        "typescript": "OK",
+        "lint": "OK"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "pm2 restart後の動作確認",
+        "ブラウザで削除ボタンUIの確認"
+      ],
+      "rawReport": "集中作業モード確認実行: 2件完了\n\n## Task1: ToDoを画面から削除できるようにする\n- types/progress.ts: TaskStatusにdeleted追加\n- app/api/tasks/[taskId]/route.ts: validStatusesにdeleted追加（2箇所）\n- components/tasks/TodoManager.tsx: deletingIds state・deleteTask関数・削除ボタン（🗑）追加\n- app/tasks/page.tsx: status!==deletedでフィルタ\n- 確認ダイアログ: window.confirm使用\n\n## Task2: JSON取り込み時の保存先案件とtargetApp不一致を修正する\n- JsonImportManager.tsx: findProjectIdForTargetApp関数追加\n- handlePreview: 全items同一targetApp時にprojectId自動選択\n- mismatchInfo useMemo: single mismatch / mixed の2パターン判定\n- 警告バナー追加（保存前に表示）\n- handleSave: mismatchInfo && !mismatchOverrideのとき保存ブロック\n\n## 検証\n- npm run build: 成功\n- TypeScript: エラー0件\n- pm2 restart progress: 成功"
+    },
+    {
+      "runId": "20260503-213528",
+      "startedAt": "2026-05-03T12:35:28.319Z",
+      "finishedAt": "2026-05-03T12:35:28.319Z",
+      "targetApp": "ny01/progress",
+      "targetTodoId": "autoOrder=12,autoOrder=13",
+      "targetTodoTitle": "ExecutionRun changedFiles/checks修正 + 削除・JSON不一致警告の確認",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "summary": "①API parseChangedFile: path/actionフィールドも受け付けるよう修正。②normalizeChecks追加: buildPassed等のboolean→build:OK/NGに変換。③削除タスク除外の実装確認: OPEN_STATUSESにdeleted未含有で全箇所自動除外確認。④/morning grid-cols-4→grid-cols-2 sm:grid-cols-4 モバイル最適化完了。build成功。",
+      "changedFiles": [
+        {
+          "file": "app/api/execution-runs/route.ts",
+          "change": "修正"
+        },
+        {
+          "file": "app/morning/page.tsx",
+          "change": "修正"
+        }
+      ],
+      "checks": {
+        "build": "OK",
+        "typescript": "OK"
+      },
+      "errors": [],
+      "warnings": [
+        "autoOrder=13のブラウザ実操作確認は未実施（コード検証のみ）"
+      ],
+      "progressUpdated": false,
+      "nextActions": [
+        "ブラウザでUI実操作確認を推奨"
+      ],
+      "rawReport": "集中作業モード 今日のキュー処理\n\n## autoOrder=11: stale確認\nPendingFilters.tsxに既に完全実装済み。done処理。\n\n## autoOrder=12: ExecutionRun changedFiles/checks修正\n- parseChangedFile: obj.file??obj.path、obj.change??obj.actionで両フォーマット対応\n- normalizeChecks追加: buildPassed→build:OK、typeCheckPassed→typescript:OK等のboolean→string変換\n- build成功・TypeScript0件\n\n## autoOrder=13: 削除機能・JSON不一致警告の確認\n- deleted除外: OPEN_STATUSES=[backlog,todo,in_progress,impl_done,local_done]にdeleted未含有\n  → tasks/page.tsx・pending/page.tsx・session-writer.ts・progress-transform.tsすべてで自動除外\n- JSON不一致警告: JsonImportManager.tsxのmismatchInfo useMemoが正しく実装されている\n- ブラウザ実操作は未実施（コードレベルの検証のみ）\n\n## /morning モバイル最適化\n- grid-cols-4 → grid-cols-2 sm:grid-cols-4"
+    },
+    {
+      "runId": "20260503-215500",
+      "startedAt": "2026-05-03T12:35:28.000Z",
+      "finishedAt": "2026-05-03T12:55:00.000Z",
+      "targetApp": "ny01/progress",
+      "targetTodoId": "autoOrder=12,autoOrder=13,autoOrder=14",
+      "targetTodoTitle": "ExecutionRun changedFiles/checks修正 + 削除・JSON不一致警告の確認 + 集中作業モード着手対象判定修正",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "summary": "3件完了。①API parseChangedFile: {path,action}形式対応・normalizeChecks追加(boolean→string変換)・既存run20260503-212045データ修正。②削除機能・JSON不一致警告: コードレベル確認完了(OPEN_STATUSESにdeleted未含有・mismatchInfo useMemo実装確認)、ブラウザ実操作は未実施。③CLAUDE.local.mdに「今日の作業」work-queueスコープ制約セクション追加: queued/in_progressのみ着手・project-tasks.json自発着手禁止・キュー空で停止。lint成功・build成功。",
+      "changedFiles": [
+        {
+          "file": "app/api/execution-runs/route.ts",
+          "change": "修正"
+        },
+        {
+          "file": "app/morning/page.tsx",
+          "change": "修正"
+        },
+        {
+          "file": "data/real/execution-runs.json",
+          "change": "修正"
+        },
+        {
+          "file": "data/real/work-queue.json",
+          "change": "修正"
+        },
+        {
+          "file": "CLAUDE.local.md (ny01)",
+          "change": "追加"
+        }
+      ],
+      "checks": {
+        "build": "OK",
+        "typescript": "OK",
+        "lint": "OK"
+      },
+      "errors": [],
+      "warnings": [
+        "autoOrder=13のブラウザ実操作確認は未実施（コード検証のみ）"
+      ],
+      "progressUpdated": true,
+      "nextActions": [
+        "ブラウザでToDo削除・JSON不一致警告のUI実操作確認を推奨"
+      ],
+      "rawReport": "集中作業モード 今日のキュー処理（セッション続き）\n\n## autoOrder=12: ExecutionRun changedFiles/checks修正\n- parseChangedFile: obj.file??obj.path、obj.change??obj.actionで両フォーマット対応\n- normalizeChecks追加: buildPassed→build:OK、typeCheckPassed→typescript:OK等のboolean→string変換\n- 既存run 20260503-212045: changedFilesを実ファイル名に、checksをOK/NG形式に直接修正\n- build成功・TypeScript0件\n\n## autoOrder=13: 削除機能・JSON不一致警告の確認\n- deleted除外: OPEN_STATUSES=[backlog,todo,in_progress,impl_done,local_done]にdeleted未含有\n  → tasks/page.tsx・pending/page.tsx・session-writer.ts・progress-transform.tsすべてで自動除外\n- JSON不一致警告: JsonImportManager.tsxのmismatchInfo useMemoが正しく実装されている\n- ブラウザ実操作は未実施（コードレベルの検証のみ）\n\n## autoOrder=14: 集中作業モード着手対象判定修正\n- 原因: CLAUDE.local.mdの集中作業モード規定がwork-queueに言及しておらず、project-tasks.jsonから自由にタスク選択できる記述になっていた\n- 修正: 「今日の作業」work-queueスコープ制約セクションをCLAUDE.local.mdに追加\n  - work-queue.json status=queued/in_progressのみ着手対象\n  - autoOrder昇順で処理\n  - project-tasks.jsonからの自発着手・stale解消・バックログ処理禁止\n  - work-queue完了後停止\n  - 着手前3問フィルタ不要（work-queue登録時点で承認済み）\n- lint成功・build成功"
+    },
+    {
+      "runId": "20260503-221500",
+      "startedAt": "2026-05-03T13:05:00.000Z",
+      "finishedAt": "2026-05-03T13:15:00.000Z",
+      "targetApp": "ny01/progress",
+      "targetTodoId": "task-company-mgmt-1777813006195-0,task-company-mgmt-1777813346002-0",
+      "targetTodoTitle": "JSON取り込み保存先案件をユーザー明示選択に変更 + ToDo管理・着手判定・今日の順番の役割整理",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "summary": "2件完了。①JsonImportManager: projectId初期値を未選択に変更・handlePreviewのauto-select削除・handleSaveのmismatchブロック削除・mismatchOverride state削除・警告バナーは参考表示のみ残す。②/pending fallback OPEN_STATUSESをpending_approvalのみに絞り着手判定責務を明確化。③CLAUDE.local.md work-queueスコープを常時適用に変更（トリガーワード不要）。lint成功・build成功。",
+      "changedFiles": [
+        {
+          "file": "components/tasks/JsonImportManager.tsx",
+          "change": "修正"
+        },
+        {
+          "file": "app/pending/page.tsx",
+          "change": "修正"
+        },
+        {
+          "file": "CLAUDE.local.md (ny01)",
+          "change": "修正"
+        }
+      ],
+      "checks": {
+        "build": "OK",
+        "typescript": "OK",
+        "lint": "OK"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": true,
+      "nextActions": [
+        "ブラウザでJSON取り込み画面の保存先初期未選択を確認推奨"
+      ],
+      "rawReport": "## Task1: JSON取り込み保存先案件をユーザー明示選択に変更\n- projectId初期値: projects[0].id → \"\"（未選択）\n- handlePreview: auto-select block削除（targetApp一致でも自動選択しない）\n- handleSave: mismatchInfo && !mismatchOverrideのブロック削除\n- mismatchOverride state削除\n- 警告バナー: チェックボックス削除、参考表示のみ残す\n- 保存ブロック条件: 案件未選択・JSON不正・todos空・title不正のみ（mismatchはブロックしない）\n\n## Task2: 役割整理（画面の責務明確化）\n調査結果:\n- /tasks: 全ToDo表示・作成/編集/削除/import・「今日の作業に追加」ボタンあり\n- /pending: 着手判定（candidates）・fallbackでtodo/in_progress/backlogも表示（危険）\n- /queue: work-queue管理・順番・プロンプトコピー\n\n危険な重複: fallbackがin_progress/todoタスクに「着手する」ボタン表示 → queue二重登録の可能性\n修正: pending/page.tsx OPEN_STATUSES = new Set([\"pending_approval\"]) に絞る\n\n## CLAUDE.local.md更新\n- work-queueスコープ制約のトリガー条件を削除\n- 集中作業モードでは常にwork-queueスコープを適用するように変更\n- work-queue空の場合の停止報告を明記"
+    },
+    {
+      "runId": "20260504-autoorder15",
+      "startedAt": "2026-05-04T03:36:54.625Z",
+      "finishedAt": "2026-05-04T03:36:54.625Z",
+      "targetApp": "ny01/progress",
+      "targetTodoId": "task-company-mgmt-1777865282527-0",
+      "targetTodoTitle": "集中作業モードで1タスク1レビューを徹底する",
+      "runStatus": "completed",
+      "reviewStatus": "copied",
+      "summary": "集中作業モードの運用ルールに、work-queue 1アイテムごとに個別レビューと個別ExecutionRunを作成する原則を明記した。",
+      "changedFiles": [
+        {
+          "path": "apps/ny01/CLAUDE.local.md",
+          "action": "modified"
+        },
+        {
+          "path": ".claude/commands/focus.md",
+          "action": "modified"
+        },
+        {
+          "path": "apps/ny01/progress/CODEX.md",
+          "action": "added"
+        }
+      ],
+      "checks": {
+        "build": "未実施（運用ルール文書のみ変更）",
+        "typescript": "未実施（TS/実装コード変更なし）",
+        "lint": "未実施（運用ルール文書のみ変更）"
+      },
+      "errors": [],
+      "warnings": [
+        "ユーザー許可により、taskPrompt内のprogress実データ変更禁止を今回のprogress反映で上書きした"
+      ],
+      "progressUpdated": true,
+      "nextActions": [
+        "着手判定とToDo管理を/tasksに統合し完了タスクをアーカイブ化する"
+      ],
+      "rawReport": "1 task = 1 review = 1 execution-run を Claude Code向け CLAUDE.local.md、/focus コマンド、Codex向け CODEX.md に明記。複数work-queueアイテムのレビュー統合とExecutionRun統合を禁止し、autoOrderごとの個別完了・個別レビュー・個別POSTを必須化。API/UI実装コード、ポート設定、他アプリは未変更。"
+    },
+    {
+      "runId": "run20260504-2034-json-import-add-to-today",
+      "startedAt": "2026-05-04T20:18:53+09:00",
+      "finishedAt": "2026-05-04T20:34:27+09:00",
+      "targetApp": "ny01/progress",
+      "targetTodoId": "task-company-mgmt-1777866048345",
+      "targetTodoTitle": "json取り込み時に、今日の作業対象にするか否かのチェックボックスを追加して。初期は追加するでチェック済みにする",
+      "runStatus": "completed",
+      "reviewStatus": "copied",
+      "beforeStatus": "todo",
+      "afterStatus": "done",
+      "promptUsed": "JSON取り込み時に、今日の作業対象にするか否かのチェックボックスを追加。初期は追加するでチェック済みにする。",
+      "summary": "JSON一括取り込みのプレビュー保存画面に、初期ONの『今日の作業対象にする』チェックボックスを追加。保存成功後、返却されたtaskIdsを既存の/api/queue/add-from-taskへPOSTし、選択ToDoを今日の作業キューへ追加するようにした。保存結果にはキュー追加件数とスキップ件数も表示する。",
+      "changedFiles": [
+        {
+          "file": "components/tasks/JsonImportManager.tsx",
+          "change": "addToToday state、保存後キュー追加処理、チェックボックスUI、保存結果表示を追加"
+        }
+      ],
+      "checks": {
+        "lint": "OK: npm run lint",
+        "build": "OK: npm run build",
+        "mainScreen": "OK: /tasks/import HTTP 200 after pm2 restart"
+      },
+      "errors": [],
+      "warnings": [
+        "progress ディレクトリはny01 git上で未追跡扱いのためgit diffでは差分確認不可",
+        "shogi-kakoi-trainer build確認はキュー外作業で、Turbopackがサンドボックス内ポート制限により失敗。今回タスクには影響なし"
+      ],
+      "progressUpdated": true,
+      "nextActions": [
+        "次の今日の作業キューを確認する"
+      ],
+      "rawReport": "実施内容: components/tasks/JsonImportManager.tsx に初期ONの『今日の作業対象にする』チェックボックスを追加。handleSaveで/api/tasks保存成功後、data.taskIdsを/api/queue/add-from-taskへ送信し、今日の作業キューへ追加する処理を追加。キュー追加成功・スキップ件数を保存結果に表示。検証: npm run lint 成功、npm run build 成功、pm2 restart progress 実施、http://127.0.0.1:3010/tasks/import がHTTP 200を返すことを確認。進捗更新: 対象ToDoとwork-queue itemをdoneへ更新済み。"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "candidates": [
+    {
+      "id": "cand-sample-1",
+      "projectId": "netscope",
+      "projectName": "NetScope",
+      "taskId": "task-ns-2",
+      "taskTitle": "verify export output matches filtered list",
+      "description": "エクスポート出力をフィルタ済み一覧と照合確認",
+      "priority": "high",
+      "estimatedEffort": "small",
+      "reason": "in_progress 状態のタスク。フィルタ修正後の確認が未完了",
+      "prerequisites": "filter不整合修正が完了していること（task-ns-1: done）",
+      "risks": "テスト環境のデータが本番と異なる可能性",
+      "doneCondition": "エクスポートCSVとフィルタ済み表示が一致することを確認",
+      "status": "pending_decision",
+      "userMemo": "",
+      "autoScore": 35,
+      "createdAt": "2026-04-28T09:00:00+09:00",
+      "updatedAt": "2026-04-28T09:00:00+09:00"
+    },
+    {
+      "id": "cand-sample-2",
+      "projectId": "netscope",
+      "projectName": "NetScope",
+      "taskId": "task-ns-3",
+      "taskTitle": "UIレスポンシブ対応",
+      "description": "スマホ幅での表示崩れを修正",
+      "priority": "medium",
+      "estimatedEffort": "medium",
+      "reason": "in_progress 状態のタスク。スマホ確認が必要",
+      "prerequisites": "dev起動確認済みであること",
+      "risks": "既存デスクトップレイアウトが崩れる可能性",
+      "doneCondition": "iPhone幅(375px)でメインページが崩れない",
+      "status": "pending_decision",
+      "userMemo": "",
+      "autoScore": 20,
+      "createdAt": "2026-04-28T09:00:00+09:00",
+      "updatedAt": "2026-04-28T09:00:00+09:00"
+    },
+    {
+      "id": "cand-sample-3",
+      "projectId": "progress-app",
+      "projectName": "Progress App",
+      "taskId": "task-pa-4",
+      "taskTitle": "iPhoneレイアウト確認",
+      "description": "実機またはシミュレータで下タブ・カード・フォームの操作性確認",
+      "priority": "medium",
+      "estimatedEffort": "small",
+      "reason": "todo状態のタスク。ユーザー担当だが確認待ち",
+      "prerequisites": "devサーバーが起動していること",
+      "risks": "実機がないと確認できない",
+      "doneCondition": "iPhone幅でナビ・カード・フォームが操作できる",
+      "status": "held",
+      "userMemo": "実機で後で確認する",
+      "autoScore": 15,
+      "createdAt": "2026-04-28T09:00:00+09:00",
+      "updatedAt": "2026-04-28T09:10:00+09:00"
+    }
+  ],
+  "lastRefreshed": "2026-04-28T09:00:00+09:00"
+}

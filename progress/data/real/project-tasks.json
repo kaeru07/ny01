@@ -1,0 +1,3080 @@
+{
+  "projects": [
+    {
+      "projectId": "shogi-kakoi-trainer",
+      "tasks": [
+        {
+          "id": "task-st-1",
+          "title": "Next.js初期設定・7囲い実装・Vercelデプロイ",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "全9画面・五角形駒・誘導モード実装済み（2026-04-26）",
+          "createdAt": "2026-04-26T09:00:00+09:00",
+          "updatedAt": "2026-04-26T20:00:00+09:00"
+        },
+        {
+          "id": "task-st-2",
+          "title": "他6囲いの盤面動的化",
+          "status": "done",
+          "priority": "medium",
+          "assignee": "claude",
+          "memo": "commit eb4c533で完了済み。全7囲いに buildGuideSteps + MoveSpec(from/to)実装済み",
+          "createdAt": "2026-04-27T09:00:00+09:00",
+          "updatedAt": "2026-04-27T09:35:00+09:00"
+        },
+        {
+          "id": "task-st-3",
+          "title": "学習記録機能追加",
+          "status": "done",
+          "priority": "low",
+          "assignee": "claude",
+          "memo": "learningRecords.ts 追加。GuideClient: 最終ステップで recordLearned() 実行。/records: localStorage から習得済み・未習得を表示。build成功（2026-04-28）",
+          "createdAt": "2026-04-27T09:00:00+09:00",
+          "updatedAt": "2026-04-28T00:40:00+09:00"
+        },
+        {
+          "id": "task-st-4",
+          "title": "本番確認: /records ページ表示",
+          "status": "todo",
+          "priority": "medium",
+          "assignee": "user",
+          "memo": "commit ddae9a4 push済み・Vercel自動デプロイ後に https://shogi-kakoi-trainer.vercel.app/records を確認",
+          "createdAt": "2026-04-28T10:00:00+09:00",
+          "updatedAt": "2026-04-28T10:00:00+09:00"
+        },
+        {
+          "id": "task-st-r01",
+          "title": "build確認（最新ソースで再実行）",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "前回build確認から日数が経過しているため、現在のソースでbuildが通るか確認が必要",
+          "doneCriteria": [
+            "npm run build が成功する",
+            "TypeScriptエラーが0件"
+          ],
+          "allowed": [
+            "buildエラー修正（軽微なもの）"
+          ],
+          "forbidden": [
+            "package.json変更",
+            "npm install"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-st-r02",
+          "title": "lint確認（ESLint）",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "lintエラーが積み重なると将来の修正コストが上がるため定期確認が必要",
+          "doneCriteria": [
+            "npm run lint がエラーなし、またはエラー内容を記録する"
+          ],
+          "allowed": [
+            "lintエラー修正（auto-fix対象）"
+          ],
+          "forbidden": [
+            "eslint設定変更",
+            "大規模リファクタ"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-st-r03",
+          "title": "iPhone幅表示確認（/records・各囲いガイド）",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "学習記録・囲いガイドはモバイルで使われる想定だが、iPhone幅での表示を未確認",
+          "doneCriteria": [
+            "375px幅でガイド画面・/records が崩れないことを確認",
+            "ボタンが押しやすいサイズであることを確認"
+          ],
+          "allowed": [
+            "CSS/Tailwindクラス調整",
+            "レイアウト軽微修正"
+          ],
+          "forbidden": [
+            "コンポーネントの大幅変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-st-r04",
+          "title": "学習記録のlocalStorage依存を整理・ドキュメント化",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "both",
+          "source": "project_reanalysis_20260429",
+          "reason": "学習記録はlocalStorageに保存されているが、ブラウザクリア時に消える。将来的な永続化の検討が必要",
+          "doneCriteria": [
+            "localStorage依存箇所をリストアップ",
+            "永続化方針（維持 or Supabase等）をdecision-logに記録"
+          ],
+          "allowed": [
+            "コード読み取り",
+            "ドキュメント追記"
+          ],
+          "forbidden": [
+            "DB追加",
+            ".env変更",
+            "大規模実装"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-st-r05",
+          "title": "README更新（Vercel URL・起動方法・機能一覧）",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "現在のREADMEはcreate-next-appデフォルトのまま。実際の機能・デプロイURLが記載されていない",
+          "doneCriteria": [
+            "Vercel URLが記載される",
+            "起動コマンドが明記される",
+            "実装済み機能一覧が書かれる"
+          ],
+          "allowed": [
+            "README.md編集のみ"
+          ],
+          "forbidden": [
+            "コード変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-st-r06",
+          "title": "本番URL・progressデータ登録確認",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "Vercel本番URLがapp-progress.jsonに未登録の可能性がある",
+          "doneCriteria": [
+            "app-progress.jsonのshogi-kakoi-trainerにurlフィールドが登録される"
+          ],
+          "allowed": [
+            "app-progress.json更新"
+          ],
+          "forbidden": [
+            "コード変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-st-r07",
+          "title": "/test ディレクトリの確認・不要ファイル整理",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "app/testディレクトリが存在するが、内容と用途が不明",
+          "doneCriteria": [
+            "testディレクトリの内容を確認し、用途をメモに残す",
+            "不要であれば削除候補としてリストアップ"
+          ],
+          "allowed": [
+            "ファイル読み取り",
+            "削除は要確認"
+          ],
+          "forbidden": [
+            "コード変更",
+            "無断削除"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-shogi-kakoi-trainer-1777807975157-0",
+          "title": "ExecutionRunの完了判定を未確認項目に応じてpartialにする",
+          "status": "pending_approval",
+          "priority": "medium",
+          "assignee": "claude",
+          "memo": "",
+          "taskPrompt": "ExecutionRunの完了判定ロジックを確認し、未確認または未更新が残っている場合はcompletedではなくpartialまたは要確認として扱うように最小修正してください。レビュー待ちカードとChatGPTレビュー用コピーにも要確認であることが分かる表示を追加してください。既存機能は壊さず、buildとTypeScript確認を行い、完了時は/api/execution-runsへ結果をPOSTしてください。",
+          "taskPromptUpdatedAt": "2026-05-03T11:32:55.157Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "未確認項目があるExecutionRunがcompletedではなくpartialまたは要確認として扱われること"
+          ],
+          "targetApp": "ny01/progress",
+          "createdAt": "2026-05-03T11:32:55.157Z",
+          "updatedAt": "2026-05-03T11:32:55.157Z"
+        },
+        {
+          "id": "task-shogi-kakoi-trainer-1777807975157-1",
+          "title": "テスト用に追加されたtest.tsxの有無を確認し不要なら削除する",
+          "status": "pending_approval",
+          "priority": "low",
+          "assignee": "claude",
+          "memo": "",
+          "taskPrompt": "ny01/progress内にテスト用のtest.tsxが実ファイルとして残っていないか確認してください。存在し、実装に不要なファイルであれば削除してください。ExecutionRunのサンプルデータ上の表示だけで実ファイルがない場合は変更不要です。buildとTypeScript確認を行い、結果を/api/execution-runsへPOSTしてください。",
+          "taskPromptUpdatedAt": "2026-05-03T11:32:55.157Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "不要なtest.tsxが残っていない、またはテストデータのみで実ファイルが存在しないことが確認されていること"
+          ],
+          "targetApp": "ny01/progress",
+          "createdAt": "2026-05-03T11:32:55.157Z",
+          "updatedAt": "2026-05-03T11:32:55.157Z"
+        }
+      ]
+    },
+    {
+      "projectId": "mahjong",
+      "tasks": [
+        {
+          "id": "task-mj-1",
+          "title": "ブラウザ実UIフロー確認",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "全フロー確認済み・BoardView表示可（2026-04-25）",
+          "createdAt": "2026-04-25T09:00:00+09:00",
+          "updatedAt": "2026-04-25T20:00:00+09:00"
+        },
+        {
+          "id": "task-mj-2",
+          "title": "Vercelデプロイ準備",
+          "status": "done",
+          "priority": "medium",
+          "assignee": "claude",
+          "memo": "vercel.json作成・build成功確認済み。GitHub pushでVercel自動デプロイ可能状態",
+          "createdAt": "2026-04-27T09:00:00+09:00",
+          "updatedAt": "2026-04-27T09:40:00+09:00"
+        },
+        {
+          "id": "task-mj-3",
+          "title": "GitHub push → Vercel デプロイ",
+          "status": "todo",
+          "priority": "medium",
+          "assignee": "user",
+          "memo": "vercel.json作成済み・build確認済み。git push origin main でVercel自動デプロイ",
+          "createdAt": "2026-04-28T10:00:00+09:00",
+          "updatedAt": "2026-04-28T10:00:00+09:00"
+        },
+        {
+          "id": "task-mj-r01",
+          "title": "Vercel本番URL確認・progress登録",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "user",
+          "source": "project_reanalysis_20260429",
+          "reason": "デプロイ後の本番URLがapp-progress.jsonに未登録",
+          "doneCriteria": [
+            "本番URLをブラウザで確認",
+            "app-progress.jsonのmahjong.urlを更新"
+          ],
+          "allowed": [
+            "app-progress.json更新"
+          ],
+          "forbidden": [
+            "コード変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mj-r02",
+          "title": "対局画面のiPhone幅確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "BoardView・DiscardArea・HandDisplayがモバイル幅で崩れていないか未確認",
+          "doneCriteria": [
+            "375px幅で対局画面が正常表示される",
+            "横スクロール不要であることを確認"
+          ],
+          "allowed": [
+            "CSS/Tailwind調整"
+          ],
+          "forbidden": [
+            "ゲームロジック変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mj-r03",
+          "title": "lint確認",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "lintを定期確認してコード品質を維持する",
+          "doneCriteria": [
+            "npm run lint がエラー0件、またはエラー内容を記録"
+          ],
+          "allowed": [
+            "lintエラー修正"
+          ],
+          "forbidden": [
+            "eslint設定変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mj-r04",
+          "title": "空ゲーム状態・エラー時の画面確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "ゲームデータが空の状態やネットワークエラー時に画面が崩れないか確認が必要",
+          "doneCriteria": [
+            "初期状態で画面が正常表示される",
+            "エラー発生時のUI表示を確認"
+          ],
+          "allowed": [
+            "エラーハンドリング追加"
+          ],
+          "forbidden": [
+            "ゲームロジック変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mj-r05",
+          "title": "README更新（起動コマンド・ポート番号明記）",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "READMEがcreate-next-appデフォルト。実際の起動手順・ポートが未記載",
+          "doneCriteria": [
+            "起動コマンドが明記される",
+            "ポート番号が記載される",
+            "機能概要が追記される"
+          ],
+          "allowed": [
+            "README.md編集のみ"
+          ],
+          "forbidden": [
+            "コード変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mj-r06",
+          "title": "import機能（JSONアップロード）の動作確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "ImportJsonPanel・ImportTextPanelコンポーネントが存在するが動作確認が未実施",
+          "doneCriteria": [
+            "JSONアップロードが動作する",
+            "テキストインポートが動作する"
+          ],
+          "allowed": [
+            "読み取り・確認のみ",
+            "バグ修正（軽微）"
+          ],
+          "forbidden": [
+            "コンポーネント大幅変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mj-r07",
+          "title": "ゲーム終了・スコア表示の動作確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "ゲームフローの終端（和了・流局後）のUI表示が確認されていない",
+          "doneCriteria": [
+            "ゲーム終了後にスコアまたは結果が表示される",
+            "再スタート導線が確認できる"
+          ],
+          "allowed": [
+            "動作確認のみ",
+            "軽微なUI修正"
+          ],
+          "forbidden": [
+            "ゲームロジック変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mj-r08",
+          "title": "build確認（最新ソース）",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "deploy後にソース変更があった場合に備えてbuildを再確認する",
+          "doneCriteria": [
+            "npm run build 成功",
+            "TypeScriptエラー0件"
+          ],
+          "allowed": [
+            "軽微なビルドエラー修正"
+          ],
+          "forbidden": [
+            "package.json変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "projectId": "ny-ai",
+      "tasks": [
+        {
+          "id": "task-nyai-1",
+          "title": "build/dev確認",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "build成功・dev HTTP200確認済み（2026-04-25）",
+          "createdAt": "2026-04-25T09:00:00+09:00",
+          "updatedAt": "2026-04-25T20:00:00+09:00"
+        },
+        {
+          "id": "task-nyai-2",
+          "title": "Vercelデプロイ URL確認",
+          "status": "todo",
+          "priority": "medium",
+          "assignee": "user",
+          "memo": "vercel.json あり・すぐデプロイ可能。Vercel管理画面でURL確認またはgit push",
+          "createdAt": "2026-04-27T09:00:00+09:00",
+          "updatedAt": "2026-04-28T10:00:00+09:00"
+        },
+        {
+          "id": "task-nyai-r01",
+          "title": "クイズ5問の動作確認（初級→上級）",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "サンプル問題5問が正常に出題・回答・採点できるか未確認",
+          "doneCriteria": [
+            "初級・中級・上級の各問題で回答→正誤判定→次へ が動作する",
+            "スコア集計が正しく表示される"
+          ],
+          "allowed": [
+            "動作確認のみ",
+            "軽微なバグ修正"
+          ],
+          "forbidden": [
+            "クイズデータ変更",
+            "大規模実装"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-nyai-r02",
+          "title": "iPhone幅確認（全34牌の回答ボタン領域）",
+          "status": "backlog",
+          "priority": "high",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "34種の牌を選択するUIがiPhone幅（375px）で押しやすいサイズかを確認していない",
+          "doneCriteria": [
+            "375px幅で全34牌ボタンが表示される",
+            "タップ可能なサイズ（最低44x44px）であることを確認"
+          ],
+          "allowed": [
+            "CSS/Tailwindレイアウト調整"
+          ],
+          "forbidden": [
+            "クイズロジック変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-nyai-r03",
+          "title": "JSONアップロード機能の動作確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "JSONフォーマットのアップロードで問題を読み込む機能が実装されているが動作未確認",
+          "doneCriteria": [
+            "サンプルJSONをアップロードして問題が追加される",
+            "不正JSONでエラーが表示される"
+          ],
+          "allowed": [
+            "動作確認のみ",
+            "エラー表示改善"
+          ],
+          "forbidden": [
+            "アップロードロジック変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-nyai-r04",
+          "title": "難易度フィルタ・ヒント機能の動作確認",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "難易度フィルタ・ヒントON/OFF切り替えが実装されているが動作確認が未実施",
+          "doneCriteria": [
+            "難易度フィルタで問題が絞り込まれる",
+            "ヒントON/OFFが切り替わる"
+          ],
+          "allowed": [
+            "動作確認のみ"
+          ],
+          "forbidden": [
+            "機能変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-nyai-r05",
+          "title": "lint確認",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "lintを定期確認してコード品質を維持する",
+          "doneCriteria": [
+            "npm run lint がエラーなし、またはエラー内容を記録"
+          ],
+          "allowed": [
+            "lintエラー修正（auto-fix）"
+          ],
+          "forbidden": [
+            "eslint設定変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-nyai-r06",
+          "title": "README更新（起動方法・機能説明）",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "READMEに実際の機能・起動方法・デプロイURLが記載されていない",
+          "doneCriteria": [
+            "起動コマンドが記載される",
+            "クイズフォーマット例が記載される",
+            "Vercel URLが記載される"
+          ],
+          "allowed": [
+            "README.md編集のみ"
+          ],
+          "forbidden": [
+            "コード変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-nyai-r07",
+          "title": "ny01/mahjong-quizとの重複・差分確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "both",
+          "source": "project_reanalysis_20260429",
+          "reason": "ny-aiとny01/mahjong-quizが同様の内容（麻雀クイズ）と思われ、両者の関係を整理する必要がある",
+          "doneCriteria": [
+            "両プロジェクトの差分を確認",
+            "統合か継続かをdecision-logに記録"
+          ],
+          "allowed": [
+            "コード読み取り",
+            "ドキュメント更新"
+          ],
+          "forbidden": [
+            "コード変更",
+            "削除"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-nyai-r08",
+          "title": "問題追加（オリジナル問題データの追加）",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "both",
+          "source": "project_reanalysis_20260429",
+          "reason": "現在5問のみ。学習ツールとして使うには問題数が不足している",
+          "doneCriteria": [
+            "10問以上に増やす",
+            "難易度バランスを維持する"
+          ],
+          "allowed": [
+            "data/sampleProblems.ts 編集"
+          ],
+          "forbidden": [
+            "型定義変更",
+            "パーサロジック変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "medium",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-nyai-r09",
+          "title": "天鳳パーサ実装（XMLイベント列 → QuizProblem変換）",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "parser/tenhouParser.tsはスタブのみ。XMLパースを実装することで牌譜から自動問題生成が可能になる",
+          "doneCriteria": [
+            "天鳳XML文字列をパースしてQuizProblem[]を返す",
+            "基本的なバリデーションが動作する"
+          ],
+          "allowed": [
+            "parser/tenhouParser.ts実装",
+            "lib/extractorDesign.ts実装"
+          ],
+          "forbidden": [
+            "既存クイズデータ変更",
+            "UIコンポーネント変更"
+          ],
+          "risk": "medium",
+          "estimatedEffort": "large",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "projectId": "memo",
+      "tasks": [
+        {
+          "id": "task-memo-1",
+          "title": "frontend確認",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "React/Vite dev HTTP200確認済み（2026-04-25・port 4006）",
+          "createdAt": "2026-04-25T09:00:00+09:00",
+          "updatedAt": "2026-05-03T12:31:06.218Z"
+        },
+        {
+          "id": "task-memo-2",
+          "title": "pip環境構築・backend起動",
+          "status": "done",
+          "priority": "medium",
+          "assignee": "claude",
+          "memo": "apt python3.12-venv + venv作成 + pip install 成功。uvicorn port 8001起動・API routes確認済み（2026-04-28）",
+          "createdAt": "2026-04-27T09:00:00+09:00",
+          "updatedAt": "2026-04-28T00:30:00+09:00"
+        },
+        {
+          "id": "task-memo-r01",
+          "title": "frontend+backend統合起動確認（再起動後）",
+          "status": "backlog",
+          "priority": "high",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "前回起動から時間が経過しており、VPS再起動後に両サービスが正常起動するか確認が必要",
+          "doneCriteria": [
+            "frontend dev（port 4006）が起動する",
+            "backend uvicorn（port 8001）が起動する",
+            "frontend → backend API疎通が確認できる"
+          ],
+          "allowed": [
+            "起動確認のみ",
+            "軽微な起動スクリプト修正"
+          ],
+          "forbidden": [
+            ".env変更",
+            "requirements.txt変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-memo-r02",
+          "title": "シナリオデータ追加・フロント表示確認",
+          "status": "backlog",
+          "priority": "high",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "シナリオデータが不足しており、フロントエンドでの実データ表示が未確認",
+          "doneCriteria": [
+            "シナリオデータを追加する",
+            "フロントエンドでシナリオ一覧が表示される"
+          ],
+          "allowed": [
+            "data/ディレクトリのJSON/Python追加",
+            "frontend/srcの軽微な修正"
+          ],
+          "forbidden": [
+            ".env変更",
+            "DB変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "medium",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-memo-r03",
+          "title": "iPhone幅でのUI確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "メモアプリはモバイルで使われる可能性が高いがiPhone幅確認が未実施",
+          "doneCriteria": [
+            "375px幅でメイン画面が崩れない",
+            "入力フォームが使いやすい"
+          ],
+          "allowed": [
+            "CSS/Tailwind調整"
+          ],
+          "forbidden": [
+            "ロジック変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-memo-r04",
+          "title": "API接続失敗時のエラーハンドリング確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "backendが停止中にfrontendを開いた場合のエラー表示が未確認",
+          "doneCriteria": [
+            "backend停止時にfrontendが適切なエラーメッセージを表示する"
+          ],
+          "allowed": [
+            "エラーハンドリング追加",
+            "表示文言修正"
+          ],
+          "forbidden": [
+            "大規模リファクタ"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-memo-r05",
+          "title": "Vercelデプロイ設定確認（frontendのみ）",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "both",
+          "source": "project_reanalysis_20260429",
+          "reason": "frontendはVite/Reactなので静的ビルドでVercelデプロイ可能な可能性がある",
+          "doneCriteria": [
+            "npm run build が成功する",
+            "Vercelデプロイの可否を判断してdecision-logに記録"
+          ],
+          "allowed": [
+            "build確認のみ"
+          ],
+          "forbidden": [
+            ".env変更",
+            "vercel.json作成（要確認後）"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-memo-r06",
+          "title": "README更新（frontend/backend起動手順）",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "READMEが空のため、次回作業者が起動方法を把握できない",
+          "doneCriteria": [
+            "frontend起動手順が記載される",
+            "backend起動手順（venv含む）が記載される",
+            "ポート番号が記載される"
+          ],
+          "allowed": [
+            "README.md編集のみ"
+          ],
+          "forbidden": [
+            "コード変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-memo-r07",
+          "title": "データ永続化方法の確認・方針決定",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "both",
+          "source": "project_reanalysis_20260429",
+          "reason": "現在データがどこに保存されているか（ファイル・DB・メモリ）が不明",
+          "doneCriteria": [
+            "データ保存先を確認する",
+            "永続化方針をdecision-logに記録する"
+          ],
+          "allowed": [
+            "コード読み取りのみ"
+          ],
+          "forbidden": [
+            "DB変更",
+            ".env変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-memo-r08",
+          "title": "build確認（frontend Vite）",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "npm run build（Vite）が成功するか未確認",
+          "doneCriteria": [
+            "npm run build が成功する",
+            "dist/ が生成される"
+          ],
+          "allowed": [
+            "軽微なビルドエラー修正"
+          ],
+          "forbidden": [
+            "package.json変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "projectId": "ny01-mahjong-trainer",
+      "tasks": [
+        {
+          "id": "task-mtr-1",
+          "title": "build/dev確認",
+          "status": "done",
+          "priority": "medium",
+          "assignee": "claude",
+          "memo": "build/dev HTTP200確認済み（2026-04-25）",
+          "createdAt": "2026-04-25T09:00:00+09:00",
+          "updatedAt": "2026-04-25T20:00:00+09:00"
+        },
+        {
+          "id": "task-mtr-2",
+          "title": "engine/domain ゲームロジック確認",
+          "status": "done",
+          "priority": "medium",
+          "assignee": "claude",
+          "memo": "確認完了。gameEngine: START/DRAW/DISCARD/RIICHI実装・RIICHIはTODOあり。shanten.ts: 向聴数計算・isTenpai実装済み。cpuPlayer: 向聴数最小化AI。ロン・複合和了は未実装",
+          "createdAt": "2026-04-27T09:00:00+09:00",
+          "updatedAt": "2026-04-27T09:45:00+09:00"
+        },
+        {
+          "id": "task-mtr-r01",
+          "title": "RIICHI完全実装（TODO: 立直宣言の完全実装）",
+          "status": "backlog",
+          "priority": "high",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "gameEngine.tsにTODO: 立直宣言の完全実装コメントあり。リーチは麻雀の基本機能",
+          "doneCriteria": [
+            "立直宣言が正常に機能する",
+            "リーチ後は牌交換できない",
+            "build成功"
+          ],
+          "allowed": [
+            "engine/gameEngine.ts修正",
+            "関連テスト追加"
+          ],
+          "forbidden": [
+            "UI大幅変更",
+            "ゲームルール根本変更"
+          ],
+          "risk": "medium",
+          "estimatedEffort": "medium",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mtr-r02",
+          "title": "ロン判定実装（TODO: CPU和了処理）",
+          "status": "backlog",
+          "priority": "high",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "gameEngine.ts・cpuPlayer.tsにTODO: CPU和了処理コメントあり。ロン未実装はゲームとして未完成",
+          "doneCriteria": [
+            "CPUがロン和了できる",
+            "ロン判定ロジックが動作する",
+            "build成功"
+          ],
+          "allowed": [
+            "engine/gameEngine.ts修正",
+            "engine/cpuPlayer.ts修正",
+            "domain/scoring.ts参照"
+          ],
+          "forbidden": [
+            "UI大幅変更"
+          ],
+          "risk": "medium",
+          "estimatedEffort": "large",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mtr-r03",
+          "title": "流局処理実装（TODO: 流局処理）",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "useGame.tsにTODO: 流局処理コメントあり。山が尽きたときの処理が未実装",
+          "doneCriteria": [
+            "山牌が尽きたときに流局画面が表示される",
+            "build成功"
+          ],
+          "allowed": [
+            "application/game/useGame.ts修正"
+          ],
+          "forbidden": [
+            "UI大幅変更"
+          ],
+          "risk": "medium",
+          "estimatedEffort": "medium",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mtr-r04",
+          "title": "iPhone幅でのゲーム盤面確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "麻雀牌の表示は縦横サイズが重要でiPhone幅での崩れが起きやすい",
+          "doneCriteria": [
+            "375px幅でゲーム盤面が崩れない",
+            "手牌・捨て牌が読みやすく表示される"
+          ],
+          "allowed": [
+            "CSS/Tailwind調整"
+          ],
+          "forbidden": [
+            "ゲームロジック変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mtr-r05",
+          "title": "build確認（最新ソース）",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "エンジン修正後にbuildが通ることを確認する必要がある",
+          "doneCriteria": [
+            "npm run build 成功",
+            "TypeScriptエラー0件"
+          ],
+          "allowed": [
+            "軽微なビルドエラー修正"
+          ],
+          "forbidden": [
+            "package.json変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mtr-r06",
+          "title": "lint確認",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "lintを定期確認してコード品質を維持する",
+          "doneCriteria": [
+            "npm run lint がエラーなし、またはエラー内容を記録"
+          ],
+          "allowed": [
+            "lintエラー修正"
+          ],
+          "forbidden": [
+            "eslint設定変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mtr-r07",
+          "title": "役予想採点ロジックの実装（scoring.ts TODO）",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "scoring.tsに「TODO: 将来的に実際の手牌から役を自動推定して比較」コメントあり",
+          "doneCriteria": [
+            "手牌から役を自動推定できる",
+            "役予想と実際の役を比較できる"
+          ],
+          "allowed": [
+            "domain/training/scoring.ts実装"
+          ],
+          "forbidden": [
+            "ゲームルール変更"
+          ],
+          "risk": "medium",
+          "estimatedEffort": "large",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mtr-r08",
+          "title": "README更新（ゲームルール・起動方法・TODO一覧）",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "READMEがcreate-next-appデフォルト。未実装機能のTODO一覧も記載すべき",
+          "doneCriteria": [
+            "起動コマンドが記載される",
+            "実装済み機能が記載される",
+            "未実装TODO一覧が記載される"
+          ],
+          "allowed": [
+            "README.md編集のみ"
+          ],
+          "forbidden": [
+            "コード変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "projectId": "company-mgmt",
+      "tasks": [
+        {
+          "id": "task-cm-1",
+          "title": "朝会ブリーフィング自動化",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "CLAUDE.md定義済み",
+          "createdAt": "2026-04-20T09:00:00+09:00",
+          "updatedAt": "2026-04-25T09:00:00+09:00"
+        },
+        {
+          "id": "task-cm-2",
+          "title": "progress app連携設計",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "CLAUDE.local.md + /focus コマンド作成完了（2026-04-27）",
+          "createdAt": "2026-04-26T09:00:00+09:00",
+          "updatedAt": "2026-04-27T03:51:41+09:00"
+        },
+        {
+          "id": "task-cm-3",
+          "title": "PROGRESS_DATA_PATH 実データ設定",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "data/real/ ディレクトリ作成 + .env.local 設定完了。progress アプリ実データ読み込み確認済み（2026-04-27）",
+          "createdAt": "2026-04-27T09:00:00+09:00",
+          "updatedAt": "2026-04-27T09:20:00+09:00"
+        },
+        {
+          "id": "task-company-mgmt-1777302417279",
+          "title": "ダークモード適用",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "tailwind darkMode:class + ThemeProvider + 全コンポーネント dark: クラス追加。build成功（2026-04-28）",
+          "createdAt": "2026-04-27T15:06:57.279Z",
+          "updatedAt": "2026-04-28T00:00:00+09:00"
+        },
+        {
+          "id": "task-company-mgmt-1777302453206",
+          "title": "日別の進捗をまとめて確認できるようにする",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "/daily ページ新設。work-logを日付でグループ化し完了/開始/追加バッジ付きで表示。BottomNavに日別アイコン追加（2026-04-28）",
+          "createdAt": "2026-04-27T15:07:33.206Z",
+          "updatedAt": "2026-04-28T00:20:00+09:00"
+        },
+        {
+          "id": "task-cm-r01",
+          "title": "progressアプリ /morning のgrid-cols-4 → モバイル最適化",
+          "status": "done",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "/morning のstatsがgrid-cols-4固定でiPhone SE（375px）では「着手待ち」などの4文字ラベルが窮屈",
+          "doneCriteria": [
+            "375px幅でstatsが見やすく表示される",
+            "grid-cols-2 sm:grid-cols-4 等で対応",
+            "build成功"
+          ],
+          "allowed": [
+            "app/morning/page.tsx のTailwindクラス修正のみ"
+          ],
+          "forbidden": [
+            "ロジック変更",
+            "データ変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-05-03T12:31:53.885Z"
+        },
+        {
+          "id": "task-cm-r02",
+          "title": "session-reader と session-utils の重複関数をリファクタ",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "getEffectiveOrder・sortedQueueItems・calcCandidateScoreが両ファイルに重複している",
+          "doneCriteria": [
+            "session-readerがsession-utilsをre-exportする形に統一",
+            "build成功",
+            "lint成功"
+          ],
+          "allowed": [
+            "lib/session-reader.ts・lib/session-utils.ts修正"
+          ],
+          "forbidden": [
+            "API route変更",
+            "型定義変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-cm-r03",
+          "title": "セッション終了時にwork-log.ndjsonへ追記",
+          "status": "deleted",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "endSession()はtoday-session.jsonのみ更新し、work-log.ndjsonにセッション終了ログを残さない",
+          "doneCriteria": [
+            "endSession時にwork-log.ndjsonへsummaryエントリが追記される",
+            "既存ログは消えない"
+          ],
+          "allowed": [
+            "app/api/session/route.ts修正",
+            "lib/session-writer.ts修正"
+          ],
+          "forbidden": [
+            "既存ログ削除",
+            "データ形式変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-05-03T12:26:01.718Z"
+        },
+        {
+          "id": "task-cm-r04",
+          "title": "overall-progress.md の手動更新をprogress画面から自動化",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "both",
+          "source": "project_reanalysis_20260429",
+          "reason": "overall-progress.mdは手動更新になっておりproject-tasks.jsonと乖離しやすい",
+          "doneCriteria": [
+            "app-progress.jsonとproject-tasks.jsonからoverall-progress.mdを生成するAPIを実装、またはUI上のボタンで更新できる"
+          ],
+          "allowed": [
+            "APIルート追加",
+            "ボタンコンポーネント追加"
+          ],
+          "forbidden": [
+            "既存ファイル削除",
+            "データ形式変更"
+          ],
+          "risk": "medium",
+          "estimatedEffort": "medium",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-cm-r05",
+          "title": "progressアプリのhandoff生成にworkLogを含める改善",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "endSession()で生成するhandoff文にQueueCardのworkLogが含まれない。次回Claudeへの引き継ぎ精度が低い",
+          "doneCriteria": [
+            "workLogが空でないアイテムのlogをhandoff文に含める",
+            "build成功"
+          ],
+          "allowed": [
+            "components/queue/QueueControls.tsx修正"
+          ],
+          "forbidden": [
+            "データ形式変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-cm-r06",
+          "title": "progressデータのバックアップ手順を整備",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "both",
+          "source": "project_reanalysis_20260429",
+          "reason": "data/real/ 配下のJSONが唯一の正本であり、破損・消去した場合の復旧手段がない",
+          "doneCriteria": [
+            "バックアップ方法をREADMEまたはCLAUDE.local.mdに記載する"
+          ],
+          "allowed": [
+            "ドキュメント追記"
+          ],
+          "forbidden": [
+            "データ変更",
+            "スクリプト自動実行"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-company-mgmt-1777454672844",
+          "title": "着手判定タブで、フィルター機能追加。",
+          "status": "done",
+          "priority": "medium",
+          "assignee": "claude",
+          "memo": "",
+          "createdAt": "2026-04-29T09:24:32.844Z",
+          "updatedAt": "2026-05-03T12:31:06.241Z"
+        },
+        {
+          "id": "task-company-mgmt-1777455025125",
+          "title": "追加済みタスクを編集できるように",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "TodoManager に編集モード追加。PATCH /api/tasks/[taskId] を fullUpdate 対応に拡張。progress-writer に updateTask 関数追加。build成功（2026-05-01）",
+          "createdAt": "2026-04-29T09:30:25.125Z",
+          "updatedAt": "2026-05-01T00:00:00+09:00"
+        },
+        {
+          "id": "task-company-mgmt-1777455199622",
+          "title": "タスク追加をjson形式でまとめて取り込めるようにする。",
+          "status": "done",
+          "priority": "medium",
+          "assignee": "claude",
+          "memo": "このチャットの内容から、この案件で必要な作業ToDoを抽出してください。\n\n以下のルールでJSON形式で出力してください。\n\n# ルール\n- 必ずJSONのみ出力\n- 説明文は不要\n- 不明な項目は空文字または空配列\n- ToDoは実際に作業できる粒度で分ける\n- 抽象的すぎる項目は避ける\n- 重複ToDoはまとめる\n\n# JSON形式\n\n{\n  \"todo\": []\n}\n\n# todo形式\n\n{\n  \"title\": \"\",\n  \"priority\": \"medium\",\n  \"note\": \"\"\n}\n\n# priority\n- high\n- medium\n- low\n\n# 抽出ルール\n\ntitle:\n- 実際に作業として実行できる短いタスク名\n- できるだけ1タスク1行動にする\n\npriority:\n- 重要度と着手優先度をもとに推定\n- 迷ったら medium\n\nnote:\n- 必要なら補足を書く\n- 不要なら空文字でよい\n\n# 抽出対象\n- このチャットで決まった実装タスク\n- 修正タスク\n- 調査タスク\n- UI改善タスク\n- DB対応タスク\n- 認証や保存処理などの技術タスク\n\n# 抽出方針\n- 会話の中で明示された作業を優先\n- 暗黙に必要な実装作業も、妥当なら含めてよい\n- 将来案ではなく、今やるべきToDoを優先\n- 大きすぎる作業は分割する\n\nこのチャット全体を分析して生成してください。",
+          "createdAt": "2026-04-29T09:33:19.622Z",
+          "updatedAt": "2026-05-03T12:00:25.881Z",
+          "taskPrompt": "",
+          "taskPromptUpdatedAt": "2026-05-03T12:00:25.881Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [],
+          "allowed": [],
+          "forbidden": [],
+          "risk": "",
+          "blockedReason": "",
+          "unblockAction": "",
+          "nextQuestion": "",
+          "targetPath": "",
+          "targetApp": ""
+        },
+        {
+          "id": "task-company-mgmt-1777455258604",
+          "title": "タスクに作業指示プロンプト欄を追加する。",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "作業指示プロンプト欄に入力がある場合、それを元に改修を進める",
+          "createdAt": "2026-04-29T09:34:18.604Z",
+          "updatedAt": "2026-05-03T11:59:01.485Z"
+        },
+        {
+          "id": "task-company-mgmt-1777455375369",
+          "title": "todoを取り込む用のjson取得用プロンプトをを画面からコピーできるようにする",
+          "status": "done",
+          "priority": "medium",
+          "assignee": "claude",
+          "memo": "このチャットの内容から、この案件で必要な作業ToDoを抽出してください。\n\n以下のルールでJSON形式で出力してください。\n\n# ルール\n- 必ずJSONのみ出力\n- 説明文は不要\n- 不明な項目は空文字または空配列\n- ToDoは実際に作業できる粒度で分ける\n- 抽象的すぎる項目は避ける\n- 重複ToDoはまとめる\n\n# JSON形式\n\n{\n  \"todo\": []\n}\n\n# todo形式\n\n{\n  \"title\": \"\",\n  \"priority\": \"medium\",\n  \"note\": \"\"\n}\n\n# priority\n- high\n- medium\n- low\n\n# 抽出ルール\n\ntitle:\n- 実際に作業として実行できる短いタスク名\n- できるだけ1タスク1行動にする\n\npriority:\n- 重要度と着手優先度をもとに推定\n- 迷ったら medium\n\nnote:\n- 必要なら補足を書く\n- 不要なら空文字でよい\n\n# 抽出対象\n- このチャットで決まった実装タスク\n- 修正タスク\n- 調査タスク\n- UI改善タスク\n- DB対応タスク\n- 認証や保存処理などの技術タスク\n\n# 抽出方針\n- 会話の中で明示された作業を優先\n- 暗黙に必要な実装作業も、妥当なら含めてよい\n- 将来案ではなく、今やるべきToDoを優先\n- 大きすぎる作業は分割する\n\nこのチャット全体を分析して生成してください。",
+          "createdAt": "2026-04-29T09:36:15.369Z",
+          "updatedAt": "2026-05-03T12:31:06.258Z"
+        },
+        {
+          "id": "task-company-mgmt-1777809227943-0",
+          "title": "JSON取り込み時の保存先案件とtargetApp不一致を修正する",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "",
+          "taskPrompt": "JSON一括取り込み機能を確認し、保存先案件とToDo内targetAppがズレないように最小修正してください。JSON内にtargetAppがある場合は原則targetAppを優先し、保存先案件selectと不一致なら警告を表示してください。可能ならtargetAppに合わせて保存先案件を自動選択し、自動選択できない場合は保存を止めてユーザーに選択を促してください。複数ToDoでtargetAppが混在する場合は、targetAppごとに保存先を分けるか、混在警告を出して保存前に確認させてください。既存のJSON取り込み、着手判定、作業対象、taskPrompt、ExecutionRun機能は壊さないでください。buildとTypeScript確認を行い、完了時は/api/execution-runsへ結果をPOSTしてください。",
+          "taskPromptUpdatedAt": "2026-05-03T11:53:47.943Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "targetAppがny01/progressのToDoを取り込んだとき、保存先案件もny01/progressになること。保存先案件とtargetAppがズレたまま保存されないこと。不一致時にユーザーが分かる警告が表示されること。"
+          ],
+          "targetApp": "ny01/progress",
+          "createdAt": "2026-05-03T11:53:47.943Z",
+          "updatedAt": "2026-05-03T12:20:14.661Z"
+        },
+        {
+          "id": "task-company-mgmt-1777809227943-1",
+          "title": "ToDoを画面から削除できるようにする",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "",
+          "taskPrompt": "ToDo削除機能を追加してください。まずは物理削除ではなく論理削除を優先し、既存データ構造に合わせてstatus: deleted、isDeleted: true、archivedAtのいずれか安全な方式を選んでください。削除ボタンはToDo詳細画面に追加し、可能ならToDoカードの詳細メニューにも追加してください。削除前に確認ダイアログを表示し、削除後は通常一覧、着手判定待ち、作業対象、集中作業モード用プロンプトから除外してください。可能ならevent logまたはwork logにtask_deletedまたはtask_archivedとして記録してください。既存ToDoを勝手に削除せず、削除操作はユーザー操作時のみ行ってください。buildとTypeScript確認を行い、完了時は/api/execution-runsへ結果をPOSTしてください。",
+          "taskPromptUpdatedAt": "2026-05-03T11:53:47.943Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "ToDo詳細から削除できること。削除前に確認ダイアログが出ること。削除後、通常一覧・着手判定待ち・作業対象・集中作業モード用プロンプトに出ないこと。他のToDoが消えないこと。"
+          ],
+          "targetApp": "ny01/progress",
+          "createdAt": "2026-05-03T11:53:47.943Z",
+          "updatedAt": "2026-05-03T12:20:12.229Z"
+        },
+        {
+          "id": "task-company-mgmt-1777811108416-0",
+          "title": "ExecutionRun登録時にchangedFilesとchecksがレビュー用コピーへ正しく反映されるようにする",
+          "status": "pending_approval",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "",
+          "taskPrompt": "ExecutionRun登録処理とレビュー用コピー生成処理を確認し、changedFilesとchecksが正しく反映されるように最小修正してください。現在、rawReportには変更ファイルやnpm run build成功が含まれているのに、レビュー用コピー上部では変更ファイルが空、buildとTypeScriptが未確認になっています。POSTテンプレート、ExecutionRun生成、コピー生成のどこで欠落しているか特定し、構造化フィールドに正しく入るようにしてください。既存のToDo、JSON取り込み、削除機能、レビュー待ち画面は壊さないでください。buildとTypeScript確認を行い、完了時は/api/execution-runsへ結果をPOSTしてください。",
+          "taskPromptUpdatedAt": "2026-05-03T12:25:08.416Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "ExecutionRun登録後、レビュー用コピーの変更ファイル欄に実際の変更ファイルが表示され、buildとTypeScriptの結果が未確認ではなく成功として表示されること。"
+          ],
+          "targetApp": "ny01/progress",
+          "createdAt": "2026-05-03T12:25:08.416Z",
+          "updatedAt": "2026-05-03T12:25:08.416Z"
+        },
+        {
+          "id": "task-company-mgmt-1777811108417-1",
+          "title": "削除機能とJSON取り込み不一致警告をブラウザで実操作確認する",
+          "status": "pending_approval",
+          "priority": "medium",
+          "assignee": "claude",
+          "memo": "",
+          "taskPrompt": "今回追加したToDo削除機能とJSON取り込み時のtargetApp不一致警告をブラウザ上で実操作確認してください。確認対象は、削除ボタン表示、確認ダイアログ、status: deletedへの更新、deleted ToDoの通常一覧・着手判定・今日の順番・集中作業プロンプトからの除外、JSON取り込みでtargetAppと保存先案件がズレた場合の警告表示と保存ブロックです。iPhone幅でも主要操作ができるか確認してください。必要な場合のみ最小修正し、結果を/api/execution-runsへPOSTしてください。",
+          "taskPromptUpdatedAt": "2026-05-03T12:25:08.416Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "削除ボタンが表示され確認ダイアログ後にdeleted扱いになること、deleted ToDoが一覧や集中作業対象から除外されること、targetApp不一致時に警告と保存ブロックが動作することが確認されていること。"
+          ],
+          "targetApp": "ny01/progress",
+          "createdAt": "2026-05-03T12:25:08.416Z",
+          "updatedAt": "2026-05-03T12:25:08.416Z"
+        },
+        {
+          "id": "task-company-mgmt-1777812137600-0",
+          "title": "集中作業モードの着手対象判定を修正する",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "",
+          "taskPrompt": "集中作業モードで、今日の作業に含まれていない、かつ着手判定待ちのタスクへ勝手に着手してしまう問題を修正してください。まず現在の集中作業モード・タスク選定・今日の作業判定・着手判定待ちステータスの扱いを調査し、原因を特定してください。そのうえで、集中作業モードでは今日の作業対象、明示的に選定されたタスク、または承認済みのpending/in_progressタスクのみを扱うようにしてください。着手判定待ちや未承認タスクは自動着手対象から除外してください。ロジック/API/データ構造の破壊的変更は避け、最小変更で対応してください。progress実データ・他アプリ・ポート設定は変更しないでください。実装後にnpm run lintとnpm run buildを実行し、変更ファイル・原因・検証結果・残課題を報告してください。",
+          "taskPromptUpdatedAt": "2026-05-03T12:42:17.600Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "集中作業モードで、今日の作業に含まれていないタスクへ勝手に着手しない",
+            "着手判定待ちのタスクが自動選定対象から除外される",
+            "除外理由または選定理由が画面・ログ・報告で分かる",
+            "承認済みのpending/in_progressタスクは従来どおり扱える",
+            "既存のpending/in_progress/done/blocked表示が壊れていない",
+            "npm run lintが成功する",
+            "npm run buildが成功する",
+            "変更ファイル・原因・検証結果・残課題が報告される"
+          ],
+          "allowed": [
+            "集中作業モード時のタスク選定ロジックを調査する",
+            "今日の作業対象の定義を確認する",
+            "着手判定待ちタスクのステータスや判定条件を確認する",
+            "着手判定待ちタスクを自動着手対象から除外する条件を追加する",
+            "必要に応じてUI上の説明文・警告文を追加する",
+            "npm run lintで検証する",
+            "npm run buildで検証する"
+          ],
+          "forbidden": [
+            "progress実データを勝手に大きく書き換えない",
+            "他アプリを変更しない",
+            "API仕様を破壊的に変更しない",
+            "データ保存形式を勝手に変更しない",
+            "集中作業モード以外の通常タスク選定を不用意に変えない",
+            "未承認タスクを自動でin_progressにしない",
+            "ポート設定を変更しない"
+          ],
+          "risk": "medium",
+          "targetPath": "/root/company/apps/ny01/progress",
+          "targetApp": "ny01/progress",
+          "createdAt": "2026-05-03T12:42:17.600Z",
+          "updatedAt": "2026-05-04T03:23:17.653Z"
+        },
+        {
+          "id": "task-company-mgmt-1777813006195-0",
+          "title": "JSON取り込み時の保存先案件選択をユーザー明示選択に変更する",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "",
+          "taskPrompt": "JSON取り込み時の保存先案件選択仕様を見直してください。ChatGPTが生成するToDo JSONにはtargetApp/targetPath/projectIdが含まれることがありますが、ChatGPT側はprogressアプリ内の正確な案件ID・保存先パス・現在のアプリ一覧を把握していない可能性が高いです。そのため、JSON内のtargetAppやtargetPathを信頼して保存先を自動確定するのではなく、JSON取り込み画面では保存先案件の初期表示を未選択にし、ユーザーが画面上で保存先案件を明示的に選ぶ仕様に変更してください。JSON内targetApp/targetPathは参考情報として扱い、保存先案件と不一致の場合は警告を出してください。ただし、targetApp/targetPath不一致だけでは原則保存ブロックしないでください。保存をブロックするのは、保存先案件未選択、JSON形式不正、todos配列が空、必須項目titleなし、priorityなど許容値外などに限定してください。targetPathは空でも許容してください。progress実データ・他アプリ・ポート設定は変更しないでください。既存のJSONプレビュー機能を壊さず、最小変更で対応してください。実装後にnpm run lintとnpm run buildを実行し、変更ファイル・仕様変更点・検証結果・残課題を報告してください。",
+          "taskPromptUpdatedAt": "2026-05-03T12:56:46.195Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "JSON貼り付け直後は保存先案件が未選択になる",
+            "ユーザーが保存先案件を選ぶまで保存できない",
+            "JSON内targetAppが1種類でもprojectIdが自動選択されない",
+            "JSON内targetApp/targetPathが参考情報として扱われる",
+            "保存先案件とJSON内targetAppが不一致の場合に警告が表示される",
+            "targetApp不一致だけではユーザー確認後に保存できる",
+            "targetPathが空でも取り込みできる",
+            "既存のJSONプレビューが壊れていない",
+            "npm run lintが成功する",
+            "npm run buildが成功する",
+            "TypeScriptエラーがない",
+            "変更ファイル・仕様変更点・検証結果・残課題が報告される"
+          ],
+          "allowed": [
+            "components/tasks/JsonImportManager.tsxを調査する",
+            "JSON取り込み画面の保存先案件初期値を未選択に変更する",
+            "JSON内targetAppによるprojectId自動選択ロジックを削除または無効化する",
+            "JSON内targetApp/targetPathを参考情報として表示する",
+            "保存先案件とJSON内targetAppが不一致の場合に警告を表示する",
+            "targetApp/targetPath不一致だけでは保存ブロックしない仕様に変更する",
+            "保存先案件未選択時のみ保存をブロックする",
+            "targetPathが空でも取り込みできるようにする",
+            "既存のJSONプレビュー機能を維持する",
+            "npm run lintで検証する",
+            "npm run buildで検証する"
+          ],
+          "forbidden": [
+            "progress実データを勝手に編集しない",
+            "他アプリを変更しない",
+            "API仕様を破壊的に変更しない",
+            "データ保存形式を勝手に変更しない",
+            "ポート設定を変更しない",
+            "package.jsonやpm2設定を変更しない",
+            "JSON内targetAppやtargetPathを絶対視して保存先を自動確定しない",
+            "targetApp/targetPath不一致だけで保存不能にしない",
+            "既存のJSONプレビュー機能を壊さない"
+          ],
+          "risk": "medium",
+          "targetApp": "ny01/progress",
+          "createdAt": "2026-05-03T12:56:46.195Z",
+          "updatedAt": "2026-05-03T13:12:52.421Z"
+        },
+        {
+          "id": "task-company-mgmt-1777813346002-0",
+          "title": "ToDo管理・着手判定・今日の順番の役割を整理する",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "",
+          "taskPrompt": "ToDo管理・着手判定・今日の順番の役割重複を調査し、画面ごとの責務を整理してください。ToDo管理はToDoの作成・編集・削除・JSON取り込み・検索を中心にし、着手判定はpending_approvalのOK/保留/却下を中心にし、今日の順番はapproved/queuedから今日やる作業を選び順番を決めて集中作業モードに渡す画面として整理してください。まず既存UIの重複操作を洗い出し、危険な重複操作を最小限整理してください。既存データ構造やToDoそのものは壊さず、buildとTypeScript確認を行い、完了時は/api/execution-runsへ結果をPOSTしてください。",
+          "taskPromptUpdatedAt": "2026-05-03T13:02:26.002Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "ToDo管理・着手判定・今日の順番の役割が画面上で明確になり、各画面の説明文や操作ボタンが責務に沿って整理されていること。"
+          ],
+          "targetApp": "ny01/progress",
+          "createdAt": "2026-05-03T13:02:26.002Z",
+          "updatedAt": "2026-05-03T13:12:52.564Z"
+        },
+        {
+          "id": "task-company-mgmt-1777819784667-0",
+          "title": "Codex用の集中作業モード指示プロンプトを作成する",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "Codexでもwork-queue承認済みタスクだけを安全に処理させるためのプロンプト作成。",
+          "taskPrompt": "現在Claude Codeで使っている集中作業モードの作業ルールを調査し、Codexでも同じ運用ができる指示プロンプトを作成してください。目的は、work-queue.jsonを今日の作業対象として扱い、status=queued/in_progressのみをautoOrder昇順で処理し、pending_approvalや未承認タスク、project-tasks.jsonからの自発着手を禁止するCodex用プロンプトを作ることです。変更範囲は調査とプロンプト作成のみです。コード変更、progress実データ更新、work-queue.json変更、project-tasks.json変更、他アプリ変更、ポート設定変更は禁止です。確認対象はCLAUDE.local.md、data/real/work-queue.json、data/real/project-tasks.json、data/real/app-progress.json、data/real/execution-runs.json、data/real/work-log.ndjsonです。成果物としてCodex向け集中作業モードプロンプトlong版、short版、CODEX.md草案、Claude CodeとCodexの違いによる注意点を出してください。完了後は/api/execution-runsへPOSTしてください。",
+          "taskPromptUpdatedAt": "2026-05-03T14:49:44.667Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "Claude Code集中作業モードのルールが整理されている",
+            "Codex向けlong版プロンプトが作成されている",
+            "Codex向けshort版プロンプトが作成されている",
+            "CODEX.md草案が作成されている",
+            "work-queue優先とqueued/in_progressのみ着手が明記されている",
+            "pending_approval禁止が明記されている",
+            "実装や実データ更新をしていない",
+            "/api/execution-runsへPOSTされている"
+          ],
+          "allowed": [
+            "CLAUDE.local.mdを読む",
+            "data/real/work-queue.jsonを読む",
+            "data/real/project-tasks.jsonを読む",
+            "data/real/app-progress.jsonを読む",
+            "data/real/execution-runs.jsonを読む",
+            "data/real/work-log.ndjsonを読む",
+            "Codex向けlong版プロンプトを作成する",
+            "Codex向けshort版プロンプトを作成する",
+            "CODEX.md草案を作成する",
+            "/api/execution-runsへPOSTする"
+          ],
+          "forbidden": [
+            "コード変更",
+            "progress実データ編集",
+            "work-queue.json変更",
+            "project-tasks.json変更",
+            "他アプリ変更",
+            "ポート設定変更",
+            "未承認タスクのqueued化",
+            "git commit",
+            "デプロイ"
+          ],
+          "risk": "medium",
+          "targetApp": "ny01/progress",
+          "createdAt": "2026-05-03T14:49:44.667Z",
+          "updatedAt": "2026-05-04T03:23:21.820Z"
+        },
+        {
+          "id": "task-company-mgmt-1777865282527-0",
+          "title": "集中作業モードで1タスク1レビューを徹底する",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "運用ルール文書に1 task = 1 review = 1 execution-runを明文化。CLAUDE.local.md、/focusコマンド、Codex向けCODEX.mdを更新。API/UI/progress実データは作業時点では未変更、ユーザー許可後にprogress反映。",
+          "taskPrompt": "集中作業モードで複数タスクを処理した際に、複数タスクを1つのレビューや1つのexecution-runに統合しないよう、Claude Code用ルールとCodex用ルールの両方を修正してください。目的は「1 task = 1 review = 1 execution-run」を明文化し、work-queueの1アイテムごとに個別レビューを作成し、/api/execution-runsへ1件ずつPOSTさせることです。まずCLAUDE.local.md、CODEX.md、集中作業モード関連ドキュメントを調査し、追記すべき場所を特定してください。変更範囲は運用ルール文書に限定し、progress実データ、API実装、UI実装、ポート設定、他アプリは変更禁止です。完了後は、変更ファイル、追加したルール、Claude Code向け反映内容、Codex向け反映内容、未変更範囲、残課題を報告してください。",
+          "taskPromptUpdatedAt": "2026-05-04T03:28:02.527Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "1 task = 1 review = 1 execution-run の原則が明記されている",
+            "work-queueの1アイテムごとに個別レビューを作成するルールが明記されている",
+            "work-queueの1アイテムごとに/api/execution-runsへPOSTするルールが明記されている",
+            "複数タスクを1つのレビューにまとめることが禁止されている",
+            "複数タスクを1つの/api/execution-runs POSTにまとめることが禁止されている",
+            "autoOrderが複数ある場合でも各autoOrderごとに個別レビューを作成するルールが明記されている",
+            "セッションサマリーは個別レビューの代わりにしてはいけないと明記されている",
+            "Claude Code向けルールに反映されている",
+            "Codex向けルールに反映されている",
+            "progress実データを変更していない",
+            "API実装コードとUI実装コードを変更していない",
+            "変更ファイルと追加ルールが報告されている"
+          ],
+          "allowed": [
+            "~/company/apps/ny01/CLAUDE.local.md",
+            "~/company/apps/ny01/progress/CLAUDE.local.md",
+            "~/company/apps/ny01/progress/CODEX.md",
+            "~/company/apps/ny01/progress 配下のCodex集中作業モード関連ドキュメント",
+            "~/company 配下のCODEX.md / CLAUDE.md / .claude/commands関連ファイルの調査",
+            "Claude Code集中作業モードの運用ルール文書の修正",
+            "Codex集中作業モードの運用ルール文書の修正"
+          ],
+          "forbidden": [
+            "progress実データを変更しない",
+            "data/real/work-queue.jsonを変更しない",
+            "data/real/project-tasks.jsonを変更しない",
+            "data/real/app-progress.jsonを変更しない",
+            "data/real/work-log.ndjsonを変更しない",
+            "data/real/execution-runs.jsonを変更しない",
+            "API実装コードを変更しない",
+            "UI実装コードを変更しない",
+            "package.jsonを変更しない",
+            "pm2設定を変更しない",
+            ".envや.env.localを変更しない",
+            "他アプリを変更しない",
+            "git commitしない",
+            "デプロイしない",
+            "ポート設定を変更しない"
+          ],
+          "risk": "medium",
+          "targetApp": "ny01/progress",
+          "createdAt": "2026-05-04T03:28:02.527Z",
+          "updatedAt": "2026-05-04T03:36:54.625Z"
+        },
+        {
+          "id": "task-company-mgmt-1777865469942-0",
+          "title": "着手判定とToDo管理を/tasksに統合し完了タスクをアーカイブ化する",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "着手判定とToDo管理の機能重複を解消するための統合タスク。まずは/tasks側に集約し、古い着手判定ページは削除せず残す。完了済みタスクはアーカイブ扱いにして基本表示から外す。",
+          "taskPrompt": "着手判定画面とToDo管理画面の役割が重複しているため、/tasksを中心に統合してください。/tasks内で、pending_approvalを着手判定、queued/in_progressを今日の作業、backlog/todo/pendingなどを通常ToDo、done/skipped/deletedを完了アーカイブとして扱えるように整理してください。完了タスクは基本表示から除外し、明示的にアーカイブを開いた場合のみ表示してください。まずapp/tasks/page.tsx、components/tasks/TodoManager.tsx、着手判定関連画面、work-queue関連処理、types/progress.ts、lib/progress-transform.ts、API routeのstatus更新処理を調査してください。既存ページはいきなり削除せず、既存APIやデータ保存形式を破壊的に変更しないでください。pending_approvalを自動でqueuedにせず、集中作業モード対象はqueued/in_progressのまま維持してください。progress実データ、work-queue.json、project-tasks.json、他アプリ、ポート設定は変更禁止です。実装後にnpm run lintとnpm run buildを実行し、完了時は/api/execution-runsへPOSTしてください。",
+          "taskPromptUpdatedAt": "2026-05-04T03:31:09.942Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "/tasksでpending_approvalが着手判定対象として表示される",
+            "/tasksでqueued/in_progressが今日の作業として表示される",
+            "/tasksで通常ToDoが分かりやすく表示される",
+            "done/skipped/deletedが基本表示から除外される",
+            "完了タスクをアーカイブとして明示的に表示できる",
+            "既存のToDo編集、削除、JSON取り込み、プロンプトコピーが壊れていない",
+            "集中作業モード対象がqueued/in_progressのまま維持されている",
+            "pending_approvalが勝手に作業対象にならない",
+            "既存APIやデータ保存形式を破壊的に変更していない",
+            "npm run lintが成功する",
+            "npm run buildが成功する",
+            "TypeScriptエラーがない",
+            "/api/execution-runsへ実行結果がPOSTされている"
+          ],
+          "allowed": [
+            "app/tasks/page.tsx",
+            "components/tasks/TodoManager.tsx",
+            "components/tasks配下の表示用コンポーネント",
+            "着手判定画面に関係するpage/componentの調査",
+            "work-queue関連処理の調査",
+            "types/progress.tsの調査",
+            "lib/progress-transform.tsの調査",
+            "API routeのstatus更新処理の調査",
+            "既存classNameや表示分類の調整",
+            "必要最小限のUI補助コンポーネント追加",
+            "npm run lint",
+            "npm run build",
+            "/api/execution-runsへPOSTする"
+          ],
+          "forbidden": [
+            "既存ページをいきなり削除しない",
+            "既存APIを破壊的に変更しない",
+            "progress実データを編集しない",
+            "work-queue.jsonを変更しない",
+            "project-tasks.jsonを変更しない",
+            "app-progress.jsonを変更しない",
+            "work-log.ndjsonを変更しない",
+            "execution-runs.jsonを直接編集しない",
+            "pending_approvalを自動でqueuedにしない",
+            "done/skipped/deletedを通常一覧に混ぜない",
+            "データ保存形式を勝手に変更しない",
+            "他アプリを触らない",
+            "ポート設定を変更しない",
+            "package.jsonやpm2設定を変更しない",
+            "git commitしない",
+            "デプロイしない"
+          ],
+          "risk": "medium",
+          "targetApp": "ny01/progress",
+          "createdAt": "2026-05-04T03:31:09.942Z",
+          "updatedAt": "2026-05-04T04:50:19.627Z"
+        },
+        {
+          "id": "task-company-mgmt-1777866048345",
+          "title": "json取り込み時に、今日の作業対象にするか否かのチェックボックスを追加して。初期は追加するでチェック済みにする",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "",
+          "createdAt": "2026-05-04T03:40:48.345Z",
+          "updatedAt": "2026-05-04T11:34:17.464Z"
+        }
+      ]
+    },
+    {
+      "projectId": "dashboard",
+      "tasks": [
+        {
+          "id": "task-dashboard-r01",
+          "title": "build確認",
+          "status": "backlog",
+          "priority": "high",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "dashboard（my-dashboard）の現在のbuild状態が不明",
+          "doneCriteria": [
+            "npm run build 成功",
+            "TypeScriptエラーが0件"
+          ],
+          "allowed": [
+            "軽微なビルドエラー修正"
+          ],
+          "forbidden": [
+            "package.json変更",
+            "npm install"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-dashboard-r02",
+          "title": "dev起動確認・主要画面表示確認",
+          "status": "backlog",
+          "priority": "high",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "dashboardの目的・主要画面の内容が未確認",
+          "doneCriteria": [
+            "npm run dev が起動する",
+            "トップページが表示される",
+            "各ウィジェット画面が表示される"
+          ],
+          "allowed": [
+            "起動確認のみ"
+          ],
+          "forbidden": [
+            "コード変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-dashboard-r03",
+          "title": "APIルートの動作確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "app/apiディレクトリが存在するが、どのAPIが動作するか未確認",
+          "doneCriteria": [
+            "各APIルートにcurlでアクセスしてレスポンスを確認",
+            "エラーが返るものをリストアップ"
+          ],
+          "allowed": [
+            "読み取り・確認のみ"
+          ],
+          "forbidden": [
+            "コード変更",
+            "DB操作"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-dashboard-r04",
+          "title": "iPhone幅確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "dashboardはPC向けレイアウトが多いがモバイル表示が崩れていないか確認が必要",
+          "doneCriteria": [
+            "375px幅でレイアウトが崩れないことを確認",
+            "横スクロールが最小限であることを確認"
+          ],
+          "allowed": [
+            "CSS/Tailwind調整"
+          ],
+          "forbidden": [
+            "大規模リファクタ"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-dashboard-r05",
+          "title": "lint確認",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "lintを定期確認してコード品質を維持する",
+          "doneCriteria": [
+            "npm run lint がエラーなし、またはエラー内容を記録"
+          ],
+          "allowed": [
+            "lintエラー修正"
+          ],
+          "forbidden": [
+            "eslint設定変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-dashboard-r06",
+          "title": "README更新（目的・起動方法・ウィジェット一覧）",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "READMEが空でdashboardの目的・機能が不明",
+          "doneCriteria": [
+            "dashboardの目的が記載される",
+            "起動コマンドが記載される",
+            "主要ウィジェット一覧が記載される"
+          ],
+          "allowed": [
+            "README.md編集のみ"
+          ],
+          "forbidden": [
+            "コード変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-dashboard-r07",
+          "title": "未接続ウィジェットの確認・TDo化",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "widgets/・layout/・ui/ ディレクトリがあるが、どのウィジェットが動作するか未確認",
+          "doneCriteria": [
+            "動作するウィジェット・未接続ウィジェットをリストアップする",
+            "未接続分をbacklogに追加する"
+          ],
+          "allowed": [
+            "コード読み取り",
+            "ドキュメント追記"
+          ],
+          "forbidden": [
+            "コード変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "projectId": "scrape-lab",
+      "tasks": [
+        {
+          "id": "task-scrapelab-r01",
+          "title": "build確認（Playwright依存あり）",
+          "status": "backlog",
+          "priority": "high",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "playwright-coreを含むnpm run buildが現環境で成功するか不明",
+          "doneCriteria": [
+            "npm run build 成功",
+            "TypeScriptエラー0件"
+          ],
+          "allowed": [
+            "軽微なビルドエラー修正"
+          ],
+          "forbidden": [
+            "package.json変更",
+            "npm install"
+          ],
+          "risk": "medium",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-scrapelab-r02",
+          "title": "dev起動確認・staticモード動作確認",
+          "status": "backlog",
+          "priority": "high",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "スクレイピングツールのstatic（fetch+Cheerio）モードが正常動作するか未確認",
+          "doneCriteria": [
+            "npm run dev が起動する",
+            "URLを入力してstatic取得が成功する"
+          ],
+          "allowed": [
+            "起動確認のみ"
+          ],
+          "forbidden": [
+            "コード変更",
+            "外部APIへの大量リクエスト"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-scrapelab-r03",
+          "title": "JSON/CSVエクスポート機能の動作確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "READMEにJSON/CSVエクスポートが実装済みと記載されているが動作未確認",
+          "doneCriteria": [
+            "スクレイプ結果をJSON・CSVでエクスポートできる"
+          ],
+          "allowed": [
+            "動作確認のみ",
+            "軽微なバグ修正"
+          ],
+          "forbidden": [
+            "大規模変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-scrapelab-r04",
+          "title": "localStorage履歴の動作確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "page.tsxにlocalStorage履歴保存コードがあるが、履歴の読み書きが正常に動作するか未確認",
+          "doneCriteria": [
+            "スクレイプ後に履歴が保存される",
+            "ページリロード後も履歴が残る"
+          ],
+          "allowed": [
+            "動作確認のみ"
+          ],
+          "forbidden": [
+            "localStorage実装変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-scrapelab-r05",
+          "title": "iPhone幅確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "スクレイプ結果（リンク一覧・Metaタグ等）がモバイルで見やすいか未確認",
+          "doneCriteria": [
+            "375px幅でURL入力・結果表示が崩れない"
+          ],
+          "allowed": [
+            "CSS/Tailwind調整"
+          ],
+          "forbidden": [
+            "大規模変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-scrapelab-r06",
+          "title": "定期実行機能のToDo化・実装計画",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "both",
+          "source": "project_reanalysis_20260429",
+          "reason": "READMEに「定期実行: 未実装」と明記されている。将来的に必要な機能",
+          "doneCriteria": [
+            "定期実行の実装方針をdecision-logに記録する"
+          ],
+          "allowed": [
+            "ドキュメント追記のみ"
+          ],
+          "forbidden": [
+            "実装開始（方針未定のため）"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-scrapelab-r07",
+          "title": "lint確認",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "lintを定期確認してコード品質を維持する",
+          "doneCriteria": [
+            "npm run lint がエラーなし、またはエラー内容を記録"
+          ],
+          "allowed": [
+            "lintエラー修正"
+          ],
+          "forbidden": [
+            "eslint設定変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "projectId": "ny-note",
+      "tasks": [
+        {
+          "id": "task-nynote-r01",
+          "title": "Supabase環境変数設定確認",
+          "status": "blocked",
+          "priority": "high",
+          "assignee": "user",
+          "source": "project_reanalysis_20260429",
+          "reason": "ny-noteはSupabase依存。.env.localにURL/Anon Keyが設定されていないと起動できない",
+          "doneCriteria": [
+            ".env.localにNEXT_PUBLIC_SUPABASE_URLとNEXT_PUBLIC_SUPABASE_ANON_KEYが設定される"
+          ],
+          "allowed": [
+            ".env.local作成（中身はユーザーが入力）"
+          ],
+          "forbidden": [
+            ".env.local中身の読み取り・出力"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-nynote-r02",
+          "title": "build確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "ny-noteのbuild状態が未確認",
+          "doneCriteria": [
+            "npm run build 成功",
+            "TypeScriptエラー0件"
+          ],
+          "allowed": [
+            "軽微なビルドエラー修正"
+          ],
+          "forbidden": [
+            "package.json変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-nynote-r03",
+          "title": "Supabase未接続時のフォールバック確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "page.tsxにhasSupabaseEnv()があり、Supabase未接続時のフォールバックが実装されているが動作未確認",
+          "doneCriteria": [
+            "環境変数なしでもエラー画面ではなく適切な案内が表示される"
+          ],
+          "allowed": [
+            "動作確認のみ",
+            "エラーメッセージ改善"
+          ],
+          "forbidden": [
+            "Supabase接続ロジック変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-nynote-r04",
+          "title": "ノート保存・読み込み動作確認（Supabase接続後）",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "both",
+          "source": "project_reanalysis_20260429",
+          "reason": "Supabase設定後にCRUD操作が正常に動作するか確認が必要",
+          "doneCriteria": [
+            "ノートの作成・更新・削除が動作する",
+            "リロード後もノートが残る"
+          ],
+          "allowed": [
+            "動作確認のみ"
+          ],
+          "forbidden": [
+            "DBスキーマ変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-nynote-r05",
+          "title": "iPhone幅確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "シンプルなノートアプリはモバイルで使われる想定だがiPhone幅確認が未実施",
+          "doneCriteria": [
+            "375px幅でノート一覧・編集画面が崩れない"
+          ],
+          "allowed": [
+            "CSS/Tailwind調整"
+          ],
+          "forbidden": [
+            "機能変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-nynote-r06",
+          "title": "lint確認・README更新",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "lintとREADME更新をまとめて実施する",
+          "doneCriteria": [
+            "npm run lint がエラーなし",
+            "README にSupabase設定方法と起動コマンドが記載される"
+          ],
+          "allowed": [
+            "lintエラー修正",
+            "README.md編集"
+          ],
+          "forbidden": [
+            "コード大幅変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "projectId": "ny01-mahjong-quiz",
+      "tasks": [
+        {
+          "id": "task-mq-r01",
+          "title": "build確認",
+          "status": "backlog",
+          "priority": "high",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "ny01/mahjong-quizのbuild状態が未確認",
+          "doneCriteria": [
+            "npm run build 成功",
+            "TypeScriptエラー0件"
+          ],
+          "allowed": [
+            "軽微なビルドエラー修正"
+          ],
+          "forbidden": [
+            "package.json変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mq-r02",
+          "title": "dev起動確認・クイズ動作確認",
+          "status": "backlog",
+          "priority": "high",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "ny01/mahjong-quizの起動と基本クイズ動作が未確認",
+          "doneCriteria": [
+            "npm run dev が起動する",
+            "クイズ問題が表示される",
+            "回答→判定が動作する"
+          ],
+          "allowed": [
+            "起動確認のみ"
+          ],
+          "forbidden": [
+            "コード変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mq-r03",
+          "title": "basicQuestions・kifuQuestionsの動作確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "ny01/mahjong-quizにはbasicQuestions・kifuQuestionsの2種類のデータがあり、それぞれの動作確認が必要",
+          "doneCriteria": [
+            "basicQuestionsで問題が出題できる",
+            "kifuQuestionsで問題が出題できる"
+          ],
+          "allowed": [
+            "動作確認のみ"
+          ],
+          "forbidden": [
+            "問題データ変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mq-r04",
+          "title": "iPhone幅確認（回答ボタン領域）",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "牌の選択ボタンがiPhone幅で押しやすいか確認が必要",
+          "doneCriteria": [
+            "375px幅でクイズ画面が崩れない",
+            "回答ボタンが押しやすいサイズ"
+          ],
+          "allowed": [
+            "CSS/Tailwind調整"
+          ],
+          "forbidden": [
+            "ロジック変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mq-r05",
+          "title": "lint確認",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "lintを定期確認してコード品質を維持する",
+          "doneCriteria": [
+            "npm run lint がエラーなし、またはエラー内容を記録"
+          ],
+          "allowed": [
+            "lintエラー修正"
+          ],
+          "forbidden": [
+            "eslint設定変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mq-r06",
+          "title": "ny-aiとの差分確認・重複整理",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "both",
+          "source": "project_reanalysis_20260429",
+          "reason": "ny-aiとny01/mahjong-quizが類似コンテンツと思われ、両者の関係を整理する必要がある",
+          "doneCriteria": [
+            "両プロジェクトの差分（問題データ・機能）を確認する",
+            "統合・継続方針をdecision-logに記録"
+          ],
+          "allowed": [
+            "コード読み取り",
+            "ドキュメント更新"
+          ],
+          "forbidden": [
+            "コード変更",
+            "削除"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mq-r07",
+          "title": "Vercelデプロイ準備・URL確認",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "both",
+          "source": "project_reanalysis_20260429",
+          "reason": "vercel.jsonが未存在の可能性。Vercelデプロイ準備が整っているか確認が必要",
+          "doneCriteria": [
+            "vercel.jsonの有無を確認",
+            "デプロイ可否をdecision-logに記録"
+          ],
+          "allowed": [
+            "vercel.json作成（必要であれば）"
+          ],
+          "forbidden": [
+            "git push（ユーザー操作）"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "projectId": "ny01-mahjong-analyzer",
+      "tasks": [
+        {
+          "id": "task-mza-r01",
+          "title": "build確認",
+          "status": "backlog",
+          "priority": "high",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "ny01/mahjong-analyzerのbuild状態が未確認",
+          "doneCriteria": [
+            "npm run build 成功",
+            "TypeScriptエラー0件"
+          ],
+          "allowed": [
+            "軽微なビルドエラー修正"
+          ],
+          "forbidden": [
+            "package.json変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mza-r02",
+          "title": "dev起動確認・手牌解析動作確認",
+          "status": "backlog",
+          "priority": "high",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "mahjong-analyzerの手牌入力→解析フローが動作するか未確認",
+          "doneCriteria": [
+            "npm run dev が起動する",
+            "手牌を入力して解析結果が表示される"
+          ],
+          "allowed": [
+            "起動確認のみ"
+          ],
+          "forbidden": [
+            "コード変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mza-r03",
+          "title": "エラーハンドリング確認（不正な手牌入力時）",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "page.tsxにconsole.error(e)があるが、UIでのエラー表示が確認できていない",
+          "doneCriteria": [
+            "不正な手牌を入力したときにエラーメッセージが表示される"
+          ],
+          "allowed": [
+            "エラーメッセージ改善"
+          ],
+          "forbidden": [
+            "解析ロジック変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mza-r04",
+          "title": "iPhone幅確認（手牌選択・解析結果）",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "手牌選択UIがiPhone幅で押しやすいか確認が必要",
+          "doneCriteria": [
+            "375px幅で手牌選択・解析結果が崩れない"
+          ],
+          "allowed": [
+            "CSS/Tailwind調整"
+          ],
+          "forbidden": [
+            "解析ロジック変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mza-r05",
+          "title": "lint確認",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "lintを定期確認してコード品質を維持する",
+          "doneCriteria": [
+            "npm run lint がエラーなし、またはエラー内容を記録"
+          ],
+          "allowed": [
+            "lintエラー修正"
+          ],
+          "forbidden": [
+            "eslint設定変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-mza-r06",
+          "title": "README更新・解析アルゴリズムのドキュメント化",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "READMEがcreate-next-appデフォルト。解析アルゴリズムの説明がない",
+          "doneCriteria": [
+            "起動方法が記載される",
+            "どんな解析ができるか記載される"
+          ],
+          "allowed": [
+            "README.md編集のみ"
+          ],
+          "forbidden": [
+            "コード変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "projectId": "ny01-news-app",
+      "tasks": [
+        {
+          "id": "task-news-r01",
+          "title": "build確認",
+          "status": "backlog",
+          "priority": "high",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "ny01/news-appのbuild状態が未確認",
+          "doneCriteria": [
+            "npm run build 成功",
+            "TypeScriptエラー0件"
+          ],
+          "allowed": [
+            "軽微なビルドエラー修正"
+          ],
+          "forbidden": [
+            "package.json変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-news-r02",
+          "title": "dev起動確認・ニュース一覧画面確認",
+          "status": "backlog",
+          "priority": "high",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "news-appの起動・主要画面が動作するか未確認",
+          "doneCriteria": [
+            "npm run dev が起動する",
+            "ニュース一覧が表示される"
+          ],
+          "allowed": [
+            "起動確認のみ"
+          ],
+          "forbidden": [
+            "コード変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-news-r03",
+          "title": "jest test確認（npm test）",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "jest設定があるがテストが通るか未確認",
+          "doneCriteria": [
+            "npm test が成功する、またはエラー内容を記録"
+          ],
+          "allowed": [
+            "テスト確認のみ"
+          ],
+          "forbidden": [
+            "テストを削除・無効化"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-news-r04",
+          "title": "APIデータソースの確認（モック or 実API）",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "app/api/ディレクトリとlib/mock/ディレクトリがある。実APIを叩いているかモックかを確認",
+          "doneCriteria": [
+            "データソースを確認する",
+            "モックデータで動作するか確認する",
+            "実API接続が必要な場合は別タスク化"
+          ],
+          "allowed": [
+            "コード読み取りのみ"
+          ],
+          "forbidden": [
+            "外部APIへの大量リクエスト",
+            ".env変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-news-r05",
+          "title": "iPhone幅確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "ニュースアプリはモバイルで読まれる想定だがiPhone幅確認が未実施",
+          "doneCriteria": [
+            "375px幅でニュース一覧・詳細が崩れない"
+          ],
+          "allowed": [
+            "CSS/Tailwind調整"
+          ],
+          "forbidden": [
+            "大規模変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-news-r06",
+          "title": "lint確認",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "lintを定期確認してコード品質を維持する",
+          "doneCriteria": [
+            "npm run lint がエラーなし、またはエラー内容を記録"
+          ],
+          "allowed": [
+            "lintエラー修正"
+          ],
+          "forbidden": [
+            "eslint設定変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-news-r07",
+          "title": "README更新（目的・起動方法・データソース）",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "READMEがcreate-next-appデフォルト。news-appの目的が未記載",
+          "doneCriteria": [
+            "アプリの目的が記載される",
+            "起動コマンドが記載される",
+            "データソースの説明が記載される"
+          ],
+          "allowed": [
+            "README.md編集のみ"
+          ],
+          "forbidden": [
+            "コード変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "projectId": "ny01-claude-dev-studio",
+      "tasks": [
+        {
+          "id": "task-cds-r01",
+          "title": "Supabase環境変数設定確認",
+          "status": "blocked",
+          "priority": "high",
+          "assignee": "user",
+          "source": "project_reanalysis_20260429",
+          "reason": "supabase-setup.sqlがあり、Supabase接続が必要と思われる。.env.localが未設定の場合は起動しても動作しない",
+          "doneCriteria": [
+            ".env.localにSupabase接続情報が設定される"
+          ],
+          "allowed": [
+            ".env.local存在確認のみ"
+          ],
+          "forbidden": [
+            ".env.local中身の読み取り・出力"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-cds-r02",
+          "title": "build確認",
+          "status": "backlog",
+          "priority": "high",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "claude-dev-studioのbuild状態が未確認",
+          "doneCriteria": [
+            "npm run build 成功",
+            "TypeScriptエラー0件"
+          ],
+          "allowed": [
+            "軽微なビルドエラー修正"
+          ],
+          "forbidden": [
+            "package.json変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-cds-r03",
+          "title": "dev起動確認・主要画面確認",
+          "status": "backlog",
+          "priority": "high",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "claude-dev-studioの目的・主要画面が未確認",
+          "doneCriteria": [
+            "npm run dev が起動する",
+            "主要画面が表示される"
+          ],
+          "allowed": [
+            "起動確認のみ"
+          ],
+          "forbidden": [
+            "コード変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-cds-r04",
+          "title": "Supabase未接続時のフォールバック確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "Supabase未接続状態でUIがクラッシュせず適切な案内を表示するか確認",
+          "doneCriteria": [
+            "Supabase未接続でも画面がクラッシュしない",
+            "適切なエラー案内が表示される"
+          ],
+          "allowed": [
+            "エラーハンドリング追加"
+          ],
+          "forbidden": [
+            "Supabase接続ロジック変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-cds-r05",
+          "title": "iPhone幅確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "claude-dev-studioのiPhone幅表示が未確認",
+          "doneCriteria": [
+            "375px幅で主要画面が崩れない"
+          ],
+          "allowed": [
+            "CSS/Tailwind調整"
+          ],
+          "forbidden": [
+            "大規模変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-cds-r06",
+          "title": "README更新（目的・起動方法・Supabaseセットアップ）",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "READMEがcreate-next-appデフォルト。Supabaseセットアップ手順が未記載",
+          "doneCriteria": [
+            "アプリの目的が記載される",
+            "起動コマンドが記載される",
+            "supabase-setup.sqlの使い方が記載される"
+          ],
+          "allowed": [
+            "README.md編集のみ"
+          ],
+          "forbidden": [
+            "コード変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "projectId": "map",
+      "tasks": [
+        {
+          "id": "task-map-r01",
+          "title": "webアプリ（Next.js）のbuild確認",
+          "status": "backlog",
+          "priority": "high",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "map/web/のNext.jsアプリのbuild状態が未確認",
+          "doneCriteria": [
+            "npm run build 成功（web/ディレクトリで実行）",
+            "TypeScriptエラー0件"
+          ],
+          "allowed": [
+            "軽微なビルドエラー修正"
+          ],
+          "forbidden": [
+            "Prisma変更",
+            "DB変更",
+            "package.json変更"
+          ],
+          "risk": "medium",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-map-r02",
+          "title": "データなし状態でのUI確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "キャプチャデータがない状態でもUIが崩れないか確認が必要",
+          "doneCriteria": [
+            "DBにデータがない状態で画面が正常に表示される",
+            "空状態の案内メッセージが適切"
+          ],
+          "allowed": [
+            "動作確認のみ",
+            "空状態UI改善"
+          ],
+          "forbidden": [
+            "tshark実行",
+            "DB破壊的操作"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-map-r03",
+          "title": "VPS側セットアップ手順のREADME整備",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "VPS側のtshark/WireGuard/キャプチャスクリプトのセットアップ手順が未整備",
+          "doneCriteria": [
+            "VPS側のセットアップ手順がREADMEに記載される",
+            "capture.sh・import.shの使い方が記載される"
+          ],
+          "allowed": [
+            "README.md編集のみ"
+          ],
+          "forbidden": [
+            "VPS操作",
+            "スクリプト変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-map-r04",
+          "title": "iPhone幅確認（通信可視化UI）",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "NetScopeはiPhone→VPSの通信可視化が目的。iPhoneで見ることが想定されるのでモバイル幅確認が必要",
+          "doneCriteria": [
+            "375px幅でパケット一覧・フィルタUIが崩れない"
+          ],
+          "allowed": [
+            "CSS/Tailwind調整"
+          ],
+          "forbidden": [
+            "DB変更",
+            "スクリプト変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-map-r05",
+          "title": "tsharkキャプチャ→import→表示の全フロー確認（VPS上）",
+          "status": "blocked",
+          "priority": "high",
+          "assignee": "user",
+          "source": "project_reanalysis_20260429",
+          "reason": "VPS上でtsharkとWireGuardが動作している必要があるため、Claude Codeだけでは実行できない",
+          "doneCriteria": [
+            "VPS上でcapture.sh・import.shが動作する",
+            "webアプリにキャプチャデータが表示される"
+          ],
+          "allowed": [
+            "スクリプト確認・修正"
+          ],
+          "forbidden": [
+            "VPS本番DB破壊的操作"
+          ],
+          "risk": "high",
+          "estimatedEffort": "medium",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "projectId": "ai-dev-clone",
+      "tasks": [
+        {
+          "id": "task-aidev-r01",
+          "title": "目的・使い方の確認・progress登録",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "ai-dev-cloneはPowerShellスクリプト群。READMEと実行方法.txtを読んで目的をapp-progress.jsonに登録する",
+          "doneCriteria": [
+            "ai-dev-cloneの目的を把握する",
+            "app-progress.jsonに概要が登録される"
+          ],
+          "allowed": [
+            "README.md・実行方法.txtの読み取り",
+            "app-progress.json更新"
+          ],
+          "forbidden": [
+            "PowerShellスクリプト実行",
+            ".env変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-aidev-r02",
+          "title": "copy-repo Next.js部分のbuild確認",
+          "status": "backlog",
+          "priority": "medium",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "copy-repoはPowerShell+Next.jsのハイブリッド構成。Next.js部分がbuildできるか確認が必要",
+          "doneCriteria": [
+            "copy-repo/でnpm run build が成功する"
+          ],
+          "allowed": [
+            "build確認のみ"
+          ],
+          "forbidden": [
+            "package.json変更",
+            "PowerShellスクリプト変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-aidev-r03",
+          "title": "設定ファイル（config/）の確認・ドキュメント化",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "claude",
+          "source": "project_reanalysis_20260429",
+          "reason": "config/ディレクトリの内容・用途が不明",
+          "doneCriteria": [
+            "config/の内容を読んで用途をメモに残す"
+          ],
+          "allowed": [
+            "読み取りのみ"
+          ],
+          "forbidden": [
+            "設定ファイル変更"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        },
+        {
+          "id": "task-aidev-r04",
+          "title": "リフレッシュトークン更新手順の確認・整理",
+          "status": "backlog",
+          "priority": "low",
+          "assignee": "both",
+          "source": "project_reanalysis_20260429",
+          "reason": "リフレッシュトークン手動更新手順.xlsxが存在する。手順をMarkdownに転記してアクセスしやすくする",
+          "doneCriteria": [
+            "手順がMarkdownファイルに転記される"
+          ],
+          "allowed": [
+            "Markdownファイル作成のみ"
+          ],
+          "forbidden": [
+            "xlsxファイル変更",
+            "外部APIへのアクセス"
+          ],
+          "risk": "low",
+          "estimatedEffort": "small",
+          "createdAt": "2026-04-29T09:00:00+09:00",
+          "updatedAt": "2026-04-29T09:00:00+09:00"
+        }
+      ]
+    }
+  ]
+}

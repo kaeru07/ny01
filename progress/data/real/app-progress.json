@@ -1,0 +1,191 @@
+{
+  "projects": [
+    {
+      "id": "shogi-kakoi-trainer",
+      "name": "shogi-kakoi-trainer",
+      "status": "user_action_pending",
+      "phase": "v1 deployed",
+      "progress": 100,
+      "currentTask": "学習記録機能 push済み（ddae9a4）→ Vercel自動デプロイ完了",
+      "nextAction": "ユーザー操作待ち: 本番確認: /records ページ表示",
+      "blockers": [],
+      "url": "https://shogi-kakoi-trainer.vercel.app",
+      "updatedAt": "2026-04-28T10:05:00+09:00"
+    },
+    {
+      "id": "mahjong",
+      "name": "mahjong",
+      "status": "deploy_ready",
+      "phase": "deploy-ready",
+      "progress": 85,
+      "currentTask": "vercel.json作成・build確認済み",
+      "nextAction": "ユーザー操作待ち: GitHub push → Vercel デプロイ",
+      "blockers": [],
+      "url": "http://localhost:3000",
+      "updatedAt": "2026-04-28T10:05:00+09:00"
+    },
+    {
+      "id": "ny-ai",
+      "name": "ny-ai（麻雀クイズ）",
+      "status": "user_action_pending",
+      "phase": "confirmed",
+      "progress": 75,
+      "currentTask": "build/dev確認済み",
+      "nextAction": "ユーザー操作待ち: Vercelデプロイ URL確認",
+      "blockers": [],
+      "url": "http://localhost:3000",
+      "updatedAt": "2026-04-28T10:05:00+09:00"
+    },
+    {
+      "id": "memo",
+      "name": "memo",
+      "status": "in_progress",
+      "phase": "full-stack confirmed",
+      "progress": 85,
+      "currentTask": "backend port 8000 起動確認・API正常・Vite proxy統合確認済み",
+      "nextAction": "frontend+backend統合起動確認（再起動後）",
+      "blockers": [],
+      "url": "http://localhost:3000",
+      "updatedAt": "2026-05-03T12:31:06.225Z"
+    },
+    {
+      "id": "ny01-mahjong-trainer",
+      "name": "ny01/mahjong-trainer",
+      "status": "in_progress",
+      "phase": "confirmed",
+      "progress": 75,
+      "currentTask": "engine/domain確認済み",
+      "nextAction": "ロン判定・RIICHI完全実装またはVercelデプロイ検討",
+      "blockers": [],
+      "url": "http://localhost:3000",
+      "updatedAt": "2026-04-27T09:45:00+09:00"
+    },
+    {
+      "id": "company-mgmt",
+      "name": "Company Management",
+      "status": "active",
+      "phase": "maintenance",
+      "progress": 100,
+      "currentTask": "完了: 集中作業モードで1タスク1レビューを徹底する",
+      "nextAction": "次の今日の作業キューを確認",
+      "blockers": [],
+      "url": "",
+      "updatedAt": "2026-05-04T11:34:17.475Z"
+    },
+    {
+      "id": "dashboard",
+      "name": "dashboard（my-dashboard）",
+      "status": "active",
+      "phase": "unknown",
+      "progress": 10,
+      "currentTask": "未確認",
+      "nextAction": "build確認・dev起動確認",
+      "blockers": [],
+      "url": "http://localhost:3000",
+      "updatedAt": "2026-04-29T09:00:00+09:00"
+    },
+    {
+      "id": "scrape-lab",
+      "name": "scrape-lab（スクレイピングツール）",
+      "status": "active",
+      "phase": "unknown",
+      "progress": 20,
+      "currentTask": "未確認",
+      "nextAction": "build確認・staticモード動作確認",
+      "blockers": [],
+      "url": "http://localhost:3000",
+      "updatedAt": "2026-04-29T09:00:00+09:00"
+    },
+    {
+      "id": "ny-note",
+      "name": "ny-note（Supabaseノート）",
+      "status": "active",
+      "phase": "unknown",
+      "progress": 10,
+      "currentTask": "未確認",
+      "nextAction": "Supabase環境変数設定確認（ユーザー操作）",
+      "blockers": [
+        "Supabase環境変数（.env.local）未設定の可能性"
+      ],
+      "url": "http://localhost:3000",
+      "updatedAt": "2026-04-29T09:00:00+09:00"
+    },
+    {
+      "id": "ny01-mahjong-quiz",
+      "name": "ny01/mahjong-quiz",
+      "status": "active",
+      "phase": "unknown",
+      "progress": 20,
+      "currentTask": "未確認",
+      "nextAction": "build確認・クイズ動作確認",
+      "blockers": [],
+      "url": "http://localhost:3000",
+      "updatedAt": "2026-04-29T09:00:00+09:00"
+    },
+    {
+      "id": "ny01-mahjong-analyzer",
+      "name": "ny01/mahjong-analyzer",
+      "status": "active",
+      "phase": "unknown",
+      "progress": 20,
+      "currentTask": "未確認",
+      "nextAction": "build確認・手牌解析動作確認",
+      "blockers": [],
+      "url": "http://localhost:3000",
+      "updatedAt": "2026-04-29T09:00:00+09:00"
+    },
+    {
+      "id": "ny01-news-app",
+      "name": "ny01/news-app",
+      "status": "active",
+      "phase": "unknown",
+      "progress": 20,
+      "currentTask": "未確認",
+      "nextAction": "build確認・dev起動確認",
+      "blockers": [],
+      "url": "http://localhost:3000",
+      "updatedAt": "2026-04-29T09:00:00+09:00"
+    },
+    {
+      "id": "ny01-claude-dev-studio",
+      "name": "ny01/claude-dev-studio",
+      "status": "active",
+      "phase": "unknown",
+      "progress": 10,
+      "currentTask": "未確認",
+      "nextAction": "Supabase環境変数設定確認（ユーザー操作）→build確認",
+      "blockers": [
+        "Supabase環境変数（.env.local）未設定の可能性"
+      ],
+      "url": "http://localhost:3000",
+      "updatedAt": "2026-04-29T09:00:00+09:00"
+    },
+    {
+      "id": "map",
+      "name": "map（NetScope 通信可視化）",
+      "status": "active",
+      "phase": "unknown",
+      "progress": 20,
+      "currentTask": "未確認",
+      "nextAction": "webアプリbuild確認",
+      "blockers": [
+        "VPS上のtshark/WireGuard動作確認はユーザー操作が必要"
+      ],
+      "url": "http://localhost:3000",
+      "updatedAt": "2026-04-29T09:00:00+09:00"
+    },
+    {
+      "id": "ai-dev-clone",
+      "name": "ai-dev-clone / copy-repo（PowerShellツール）",
+      "status": "active",
+      "phase": "unknown",
+      "progress": 10,
+      "currentTask": "未確認",
+      "nextAction": "目的・使い方の確認・progress登録",
+      "blockers": [],
+      "url": "",
+      "excluded": true,
+      "updatedAt": "2026-04-29T09:00:00+09:00"
+    }
+  ]
+}

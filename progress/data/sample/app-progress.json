@@ -1,0 +1,40 @@
+{
+  "projects": [
+    {
+      "id": "netscope",
+      "name": "NetScope",
+      "status": "in_progress",
+      "phase": "implementation",
+      "progress": 74,
+      "currentTask": "export検証完了",
+      "nextAction": "UIレスポンシブ修正",
+      "blockers": [],
+      "url": "https://github.com/example/netscope",
+      "updatedAt": "2026-04-26T16:12:41.066Z"
+    },
+    {
+      "id": "progress-app",
+      "name": "Progress App",
+      "status": "in_progress",
+      "phase": "v1 complete",
+      "progress": 85,
+      "currentTask": "サマリー更新UIの実装",
+      "nextAction": "iPhoneで動作確認する",
+      "blockers": [],
+      "url": "http://localhost:3001",
+      "updatedAt": "2026-04-27T00:00:00+09:00"
+    },
+    {
+      "id": "company-mgmt",
+      "name": "Company Management",
+      "status": "active",
+      "phase": "maintenance",
+      "progress": 95,
+      "currentTask": "CLAUDE.local.md + /focus コマンド作成完了",
+      "nextAction": "PROGRESS_DATA_PATH を実データパスに設定して本番 progress 運用を開始する",
+      "blockers": [],
+      "url": "",
+      "updatedAt": "2026-04-27T03:51:41+09:00"
+    }
+  ]
+}

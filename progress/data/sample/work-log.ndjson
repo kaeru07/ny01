@@ -1,0 +1,14 @@
+{"time":"2026-04-26T09:00:00+09:00","project":"company-mgmt","type":"summary","title":"朝会完了","detail":"today.md更新、優先順位確認"}
+{"time":"2026-04-26T15:00:00+09:00","project":"netscope","type":"task_started","title":"filter不整合修正開始"}
+{"time":"2026-04-26T15:20:00+09:00","project":"netscope","type":"task_completed","title":"filter不整合修正完了","detail":"フィルタ適用後のデータ照合OK"}
+{"time":"2026-04-26T15:20:00+09:00","project":"netscope","type":"task_started","title":"export検証開始"}
+{"time":"2026-04-26T16:20:00+09:00","project":"netscope","type":"summary","title":"NetScope作業チェックポイント","detail":"export検証中断、次回再開予定"}
+{"time":"2026-04-26T16:30:00+09:00","project":"progress-app","type":"task_started","title":"Progress App開発開始"}
+{"time":"2026-04-26T17:00:00+09:00","project":"progress-app","type":"task_completed","title":"Next.js初期設定完了"}
+{"time":"2026-04-26T17:30:00+09:00","project":"progress-app","type":"task_started","title":"ダッシュボード実装中"}
+{"time":"2026-04-27T00:00:00+09:00","project":"progress-app","type":"task_completed","title":"Progress App v1実装完了","detail":"ダッシュボード・案件一覧・詳細・タスク管理・ログ画面・タスク追加API完成"}
+{"time":"2026-04-26T15:58:24.737Z","project":"netscope","type":"task_status_updated","title":"UIレスポンシブ対応","detail":"todo → in_progress"}
+{"time":"2026-04-26T16:12:41.069Z","project":"netscope","type":"project_summary_updated","title":"NetScope サマリー更新","detail":"currentTask → \"export検証完了\" / nextAction → \"UIレスポンシブ修正\" / progress: 68 → 74 / url → \"https://github.com/example/netscope\""}
+{"time":"2026-04-27T03:51:41+09:00","project":"company-mgmt","type":"task_started","title":"progress app連携 着手","detail":"task-cm-2: CLAUDE.local.md + /focus コマンド作成"}
+{"time":"2026-04-27T03:51:41+09:00","project":"company-mgmt","type":"task_completed","title":"progress app連携 完了","detail":"CLAUDE.local.md（朝会・集中作業モードのprogress正本運用）+ /focus コマンド（.claude/commands/focus.md）作成済み"}
+{"time":"2026-04-27T09:00:00+09:00","project":"company-mgmt","type":"task_started","title":"PROGRESS_DATA_PATH 実データ設定着手","detail":"data/real/ ディレクトリ + .env.local 作成"}

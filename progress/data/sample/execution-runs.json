@@ -1,0 +1,52 @@
+{
+  "runs": [
+    {
+      "runId": "20260428-001",
+      "startedAt": "2026-04-28T14:00:00+09:00",
+      "finishedAt": "2026-04-28T15:30:00+09:00",
+      "targetApp": "company-mgmt",
+      "targetTodoId": "task-001",
+      "targetTodoTitle": "着手判定タブのフィルター機能追加",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "beforeStatus": "todo",
+      "afterStatus": "done",
+      "summary": "着手判定タブにステータスフィルター・担当者フィルターを追加。",
+      "changedFiles": [
+        { "file": "app/pending/page.tsx", "change": "修正" },
+        { "file": "components/pending/CandidateCard.tsx", "change": "修正" }
+      ],
+      "checks": { "build": "OK", "typescript": "OK", "lint": "OK" },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": true,
+      "nextActions": ["タスク編集機能の実装"],
+      "rawReport": "着手判定フィルター追加完了。build/TypeScript確認済み。"
+    },
+    {
+      "runId": "20260429-001",
+      "startedAt": "2026-04-29T09:00:00+09:00",
+      "finishedAt": "2026-04-29T10:30:00+09:00",
+      "targetApp": "company-mgmt",
+      "targetTodoId": "task-002",
+      "targetTodoTitle": "タスク編集機能の実装",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "beforeStatus": "todo",
+      "afterStatus": "impl_done",
+      "summary": "タスクのタイトル・priority・status・assigneeを編集できるUIを追加。",
+      "changedFiles": [
+        { "file": "app/tasks/page.tsx", "change": "修正" },
+        { "file": "components/tasks/TaskCard.tsx", "change": "修正" },
+        { "file": "components/tasks/TaskEditModal.tsx", "change": "追加" },
+        { "file": "app/api/tasks/[taskId]/route.ts", "change": "追加" }
+      ],
+      "checks": { "build": "OK", "typescript": "OK", "mainScreen": "OK", "mobileLayout": "OK" },
+      "errors": [],
+      "warnings": ["編集後のrefreshが若干遅い可能性あり"],
+      "progressUpdated": true,
+      "nextActions": ["JSON一括取り込み機能の実装"],
+      "rawReport": "タスク編集機能を実装しました。モーダルUIで全フィールド編集可。"
+    }
+  ]
+}
