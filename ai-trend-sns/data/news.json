@@ -1,0 +1,13 @@
+[
+  {
+    "id": "news-1777970422919-279d70",
+    "title": "AIコーディング運用の更新",
+    "sourceUrl": "https://example.com/ai-coding",
+    "sourceName": "Example AI News",
+    "summary": "AIコーディングの実務利用が進み、個人開発でもレビューと検証の設計が重要になっている。",
+    "category": "coding",
+    "importance": 4,
+    "memo": "Claude Code / Codex利用者向けに、作業ログと検証の残し方へ接続する。",
+    "createdAt": "2026-05-05T08:40:22.919Z"
+  }
+]
