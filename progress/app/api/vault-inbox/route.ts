@@ -4,19 +4,42 @@ import path from 'node:path'
 import crypto from 'node:crypto'
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
+import { getDataPath } from '@/lib/progress-reader'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 const execFileAsync = promisify(execFile)
 
-// 投函指示で固定: GitHub 管理 Vault の 00_inbox に保存
-const VAULT_ROOT = '/root/company/obsidian-vault'
-const INBOX_DIR = path.join(VAULT_ROOT, '00_inbox')
+// 保存先 Vault ルート。未設定時は GitHub 管理 Vault をデフォルト。
+function vaultRoot(): string {
+  const v = process.env.VAULT_ROOT
+  return v && v.trim() ? v.trim() : '/root/company/obsidian-vault'
+}
+function inboxDir(): string {
+  return path.join(vaultRoot(), '00_inbox')
+}
+// push 先ブランチ。未設定時は main。
+function gitBranch(): string {
+  const b = process.env.VAULT_GIT_BRANCH
+  return b && b.trim() ? b.trim() : 'main'
+}
 
 const TITLE_MAX = 200
 const BODY_MAX = 20_000
 const ALLOWED_TYPES = new Set(['todo', 'idea', 'note', 'memo'])
+
+// 投函の簡易ログ。title 全文 / body 本文 / token は記録しない。
+async function appendInboxLog(entry: Record<string, unknown>): Promise<void> {
+  try {
+    const dir = getDataPath()
+    await fs.mkdir(dir, { recursive: true })
+    const line = JSON.stringify({ ts: new Date().toISOString(), ...entry }) + '\n'
+    await fs.appendFile(path.join(dir, 'vault-inbox-log.ndjson'), line, 'utf-8')
+  } catch {
+    // ログ失敗は API 本体を壊さない（握りつぶすが安全側）
+  }
+}
 
 type Body = { title?: unknown; body?: unknown; type?: unknown }
 
@@ -84,6 +107,7 @@ function frontmatter(title: string, type: string, created: string): string {
 export async function POST(req: NextRequest) {
   const auth = checkAuth(req)
   if (!auth.ok) {
+    await appendInboxLog({ result: 'auth_fail', httpStatus: auth.status })
     return NextResponse.json({ error: auth.error }, { status: auth.status })
   }
 
@@ -91,6 +115,7 @@ export async function POST(req: NextRequest) {
   try {
     parsed = (await req.json()) as Body
   } catch {
+    await appendInboxLog({ result: 'bad_json', httpStatus: 400 })
     return NextResponse.json({ error: 'JSON ボディが不正です' }, { status: 400 })
   }
 
@@ -129,10 +154,11 @@ export async function POST(req: NextRequest) {
   const ts = created.slice(0, 19).replace(/[:T-]/g, '').slice(0, 14) // YYYYMMDDHHMMSS
   const slug = safeSlug(title)
 
-  await fs.mkdir(INBOX_DIR, { recursive: true })
+  const dir = inboxDir()
+  await fs.mkdir(dir, { recursive: true })
 
   const content = frontmatter(title, type, created) + bodyText.trim() + '\n'
-  const inboxResolved = path.resolve(INBOX_DIR)
+  const inboxResolved = path.resolve(dir)
 
   // 同名衝突回避: wx で既存上書き禁止、衝突したら連番。保存先は 00_inbox 配下に固定
   let fileName = ''
@@ -140,7 +166,7 @@ export async function POST(req: NextRequest) {
   let saved = false
   for (let i = 0; i < 50 && !saved; i++) {
     const candidate = i === 0 ? `${ts}_${slug}.md` : `${ts}_${slug}-${i}.md`
-    const candAbs = path.resolve(INBOX_DIR, candidate)
+    const candAbs = path.resolve(dir, candidate)
     if (path.dirname(candAbs) !== inboxResolved) {
       return NextResponse.json({ error: '不正なファイルパス' }, { status: 400 })
     }
@@ -165,22 +191,24 @@ export async function POST(req: NextRequest) {
   }
 
   // git add / commit / push を試行（execFile = シェル非経由。title/body はコマンドに混ぜない）
+  const root = vaultRoot()
+  const branch = gitBranch()
   const relForGit = path.join('00_inbox', fileName)
   const git: { committed: boolean; pushed: boolean; error?: string } = {
     committed: false,
     pushed: false,
   }
   try {
-    await execFileAsync('git', ['-C', VAULT_ROOT, 'add', '--', relForGit], {
+    await execFileAsync('git', ['-C', root, 'add', '--', relForGit], {
       timeout: 15_000,
     })
     await execFileAsync(
       'git',
-      ['-C', VAULT_ROOT, 'commit', '-m', `inbox: ChatGPT投函 ${slug} (${ts})`, '--', relForGit],
+      ['-C', root, 'commit', '-m', `inbox: ChatGPT投函 ${slug} (${ts})`, '--', relForGit],
       { timeout: 15_000 },
     )
     git.committed = true
-    await execFileAsync('git', ['-C', VAULT_ROOT, 'push', 'origin', 'main'], {
+    await execFileAsync('git', ['-C', root, 'push', 'origin', branch], {
       timeout: 30_000,
     })
     git.pushed = true
@@ -190,6 +218,20 @@ export async function POST(req: NextRequest) {
       .toString()
       .slice(0, 500)
   }
+
+  // 簡易ログ（title 全文 / body 本文 / token は記録しない）
+  await appendInboxLog({
+    result: 'saved',
+    httpStatus: 200,
+    file: fileName,
+    type,
+    titleLen: title.length,
+    bodyLen: bodyText.length,
+    branch,
+    gitCommitted: git.committed,
+    gitPushed: git.pushed,
+    gitFailed: !!git.error,
+  })
 
   // git 失敗でも Markdown 保存は成功扱い
   return NextResponse.json(
