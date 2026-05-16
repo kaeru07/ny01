@@ -1,0 +1,6 @@
+# 実験フォルダ内の生成物のみ無視。progress 本体の .gitignore は変更しない。
+__pycache__/
+*.pyc
+.venv/
+out/
+*.local.json

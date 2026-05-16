@@ -15,6 +15,18 @@ const navItems = [
     ),
   },
   {
+    href: '/goal-planner',
+    label: '目標',
+    exact: false,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+        <circle cx="12" cy="12" r="9" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="12" cy="12" r="5" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="12" cy="12" r="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
     href: '/tasks',
     label: 'ToDo',
     exact: false,

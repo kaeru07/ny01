@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { TaskStatus, TaskPriority } from '@/types/progress'
+import { copyTextToClipboard } from '@/lib/clipboard'
 
 const VALID_STATUSES: TaskStatus[] = ['pending_approval', 'backlog', 'todo', 'in_progress', 'impl_done', 'local_done', 'done', 'blocked']
 const VALID_PRIORITIES: TaskPriority[] = ['high', 'medium', 'low']
@@ -277,8 +278,9 @@ export default function JsonImportManager({ projects, existingTasks }: Props) {
 
   async function copyToClipboard(text: string) {
     try {
-      await navigator.clipboard.writeText(text)
-      return true
+      const ok = await copyTextToClipboard(text)
+      if (!ok) setFallbackText(text)
+      return ok
     } catch {
       setFallbackText(text)
       return false

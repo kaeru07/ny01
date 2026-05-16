@@ -6,6 +6,8 @@ import LogList from '@/components/logs/LogList'
 import ExecutionRunList from '@/components/logs/ExecutionRunList'
 import ExecutionRunTemplateButton from '@/components/logs/ExecutionRunTemplateButton'
 import ProjectFilterSelect from '@/components/logs/ProjectFilterSelect'
+import AdhocReviewCopyPanel from '@/components/logs/AdhocReviewCopyPanel'
+import SnsTrendReviewPanel from '@/components/logs/SnsTrendReviewPanel'
 
 type LogMode = 'event' | 'history' | 'review' | 'daily'
 
@@ -150,7 +152,13 @@ export default async function LogsPage({ searchParams }: Props) {
           <ExecutionRunList initialRuns={filteredRuns} reviewOnly={false} />
         </>
       )}
-      {mode === 'review' && <ExecutionRunList initialRuns={filteredRuns} reviewOnly={true} />}
+      {mode === 'review' && (
+        <>
+          <AdhocReviewCopyPanel />
+          <SnsTrendReviewPanel />
+          <ExecutionRunList initialRuns={filteredRuns} reviewOnly={true} />
+        </>
+      )}
     </div>
   )
 }

@@ -6,10 +6,13 @@ import { usePathname } from 'next/navigation'
 const navItems = [
   { href: '/', label: 'ダッシュボード', exact: true },
   { href: '/morning', label: '朝会', exact: false },
+  { href: '/goal-planner', label: '目標', exact: false },
   { href: '/tasks', label: 'ToDo', exact: false },
   { href: '/queue', label: 'キュー', exact: false },
   { href: '/projects', label: '案件', exact: true },
+  { href: '/inbox', label: 'Inbox', exact: false },
   { href: '/logs', label: 'ログ', exact: false },
+  { href: '/codex', label: 'Codex', exact: false },
   { href: '/daily', label: '日別', exact: false },
 ]
 

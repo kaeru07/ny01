@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import type { WorkQueueItem } from '@/types/session'
+import CodexTrigger from '@/components/codex/CodexTrigger'
 
 const PRIORITY_COLOR: Record<string, string> = {
   high: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
@@ -207,6 +208,20 @@ export default function QueueCard({ item, effectiveOrder, isFirst, isLast }: Pro
                 className="px-2 py-1.5 text-xs rounded-lg border border-violet-200 dark:border-violet-800 text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 disabled:opacity-50 self-start">
                 保存
               </button>
+            </div>
+            <div className="mt-2 pt-2 border-t border-gray-50 dark:border-gray-700">
+              <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">
+                Codex 実験（保存済みプロンプトを使用 / 空ならタスク説明を使用）
+              </p>
+              <CodexTrigger
+                compact
+                prompt={(taskPrompt.trim() || item.description || item.taskTitle).trim()}
+                queueItemId={item.id}
+                targetTodoId={item.taskId}
+                targetTodoTitle={item.taskTitle}
+                projectId={item.projectId}
+                projectName={item.projectName}
+              />
             </div>
           </div>
         </div>
