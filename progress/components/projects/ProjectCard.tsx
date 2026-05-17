@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import type { Project } from '@/types/progress'
 import { StatusBadge } from '@/components/tasks/TaskBadge'
-import { formatDateTime } from '@/lib/progress-transform'
+import { formatDateTime, getStagnation } from '@/lib/progress-transform'
 
 interface ProjectCardProps {
   project: Project
@@ -16,6 +16,7 @@ const progressBarColor: Record<string, string> = {
 export default function ProjectCard({ project, taskCount }: ProjectCardProps) {
   const isBlocked = project.status === 'blocked'
   const barColor = progressBarColor[project.status] ?? 'bg-blue-500'
+  const stagnation = getStagnation(project)
 
   return (
     <Link href={`/projects/${project.id}`}>
@@ -62,7 +63,18 @@ export default function ProjectCard({ project, taskCount }: ProjectCardProps) {
         )}
 
         <div className="flex items-center justify-between pt-2 border-t border-gray-50 dark:border-gray-700">
-          <span className="text-xs text-gray-400 dark:text-gray-500">{formatDateTime(project.updatedAt)}</span>
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-xs text-gray-400 dark:text-gray-500">{formatDateTime(project.updatedAt)}</span>
+            {stagnation.level !== 'fresh' && (
+              <span className={`flex-shrink-0 text-xs font-semibold px-1.5 py-0.5 rounded-md ${
+                stagnation.level === 'stalled'
+                  ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                  : 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-500'
+              }`}>
+                ◷ {stagnation.days}日放置
+              </span>
+            )}
+          </div>
           {taskCount !== undefined && (
             <span className="text-xs text-gray-400 dark:text-gray-500">{taskCount} タスク</span>
           )}

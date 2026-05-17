@@ -141,6 +141,40 @@ export function calcDashboardStats(projects: Project[]): DashboardStats {
   }
 }
 
+export type StagnationLevel = 'fresh' | 'aging' | 'stalled'
+
+export interface Stagnation {
+  days: number
+  level: StagnationLevel
+}
+
+const STAGNATION_TARGET_STATUSES = ['in_progress', 'active']
+
+export function getStagnation(project: Project, now: Date = new Date()): Stagnation {
+  const days = Math.floor((now.getTime() - new Date(project.updatedAt).getTime()) / 86400000)
+  if (!STAGNATION_TARGET_STATUSES.includes(project.status)) {
+    return { days, level: 'fresh' }
+  }
+  if (days >= 7) return { days, level: 'stalled' }
+  if (days >= 3) return { days, level: 'aging' }
+  return { days, level: 'fresh' }
+}
+
+export function sortByAttention(projects: Project[], now: Date = new Date()): Project[] {
+  const score = (p: Project): number => {
+    const st = getStagnation(p, now)
+    if (st.level === 'stalled') return 100 + st.days
+    if (p.status === 'blocked') return 80
+    if (st.level === 'aging') return 60 + st.days
+    return 0
+  }
+  return [...projects].sort((a, b) => {
+    const diff = score(b) - score(a)
+    if (diff !== 0) return diff
+    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+  })
+}
+
 export function getProjectTaskStats(tasks: Task[]) {
   const DONE_FAMILY = ['done', 'impl_done', 'local_done']
   const BACKLOG_FAMILY = ['backlog', 'todo']

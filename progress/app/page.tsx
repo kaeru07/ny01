@@ -5,7 +5,7 @@ import { readAppProgress, readWorkLog } from '@/lib/progress-reader'
 import { readProjectTasks } from '@/lib/progress-reader'
 import { readWorkQueue, sortedQueueItems } from '@/lib/session-reader'
 import { readGoals, findMainGoal } from '@/lib/goal-reader'
-import { calcDashboardStats } from '@/lib/progress-transform'
+import { calcDashboardStats, sortByAttention } from '@/lib/progress-transform'
 import StatsBar from '@/components/dashboard/StatsBar'
 import NextActions from '@/components/dashboard/NextActions'
 import ProjectCards from '@/components/dashboard/ProjectCards'
@@ -33,9 +33,7 @@ export default async function DashboardPage() {
     taskCounts[pt.projectId] = pt.tasks.length
   }
 
-  const sorted = [...progressData.projects].sort(
-    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-  )
+  const sorted = sortByAttention(progressData.projects)
 
   const pendingCount = tasksData.projects.reduce(
     (count, pt) => count + pt.tasks.filter((t) => t.status === 'pending_approval').length,
