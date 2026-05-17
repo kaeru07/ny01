@@ -47,6 +47,17 @@ const navItems = [
     ),
   },
   {
+    href: '/radar',
+    label: 'レーダー',
+    exact: false,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+        <circle cx="12" cy="12" r="9" strokeLinecap="round" strokeLinejoin="round" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 12l5-3M12 3v3" />
+      </svg>
+    ),
+  },
+  {
     href: '/projects',
     label: '案件',
     exact: true,

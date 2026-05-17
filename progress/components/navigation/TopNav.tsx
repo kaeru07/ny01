@@ -9,6 +9,7 @@ const navItems = [
   { href: '/goal-planner', label: '目標', exact: false },
   { href: '/tasks', label: 'ToDo', exact: false },
   { href: '/queue', label: 'キュー', exact: false },
+  { href: '/radar', label: 'レーダー', exact: false },
   { href: '/projects', label: '案件', exact: true },
   { href: '/inbox', label: 'Inbox', exact: false },
   { href: '/logs', label: 'ログ', exact: false },
