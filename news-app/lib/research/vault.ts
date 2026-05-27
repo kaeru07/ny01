@@ -15,9 +15,14 @@ import {
 } from "./types";
 import { parseDoc } from "./parser";
 
+/**
+ * 既定の参照先は news-app 内の content/research（Vault からコピーした表示用コピー）。
+ * Vercel では Vault 本体が存在しないため、リポジトリ同梱の copy を読む。
+ * 環境変数 VAULT_RESEARCH_ROOT で別パス（例: ローカル Vault 本体）に切り替えられる。
+ */
 export const VAULT_RESEARCH_ROOT =
   process.env.VAULT_RESEARCH_ROOT ??
-  "/root/company/obsidian-vault/06_research";
+  path.join(process.cwd(), "content/research");
 
 const CATEGORY_SUBDIR: Record<ResearchCategory, string | null> = {
   market: "daily-market-research",
