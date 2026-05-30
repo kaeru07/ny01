@@ -30,6 +30,8 @@ export interface ExecutionRun {
   targetTodoTitle: string
   runStatus: RunStatus
   reviewStatus: ReviewStatus
+  /** 任意。Run の発生源。例: 'codex_mobile'（Codexモバイルで実行しProgressへ手動で戻したRun）。 */
+  source?: string
   executorUsed?: ExecutorType
   preferredExecutor?: ExecutorType
   fallbackExecutor?: ExecutorType

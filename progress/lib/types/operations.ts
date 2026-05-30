@@ -202,6 +202,25 @@ export interface AutomationConfig {
   updatedAt: string
 }
 
+/**
+ * Codex 引き継ぎプロンプト（半自動切替）。Claude 上限時にユーザーがモバイルでコピーし Codex へ貼る。
+ * promptText は単一プレーンテキスト（入れ子コードブロック・長い JSON を含まない）。handoff は内部名で UI には出さない。
+ */
+export interface CodexPrompt {
+  promptText: string
+  meta: {
+    epicId?: string
+    epicTitle?: string
+    sourceRunId?: string
+    targetApp?: string
+    nextActionsCount: number
+    approvalsPending: number
+    /** 冒頭に Codex 側の安全判定指示を含むか。 */
+    hasSafetyGuard: boolean
+    generatedAt: string
+  }
+}
+
 /** Epic 詳細・実行履歴カードで使う ExecutionRun の軽量表現。 */
 export interface ExecutionRunBrief {
   runId: string

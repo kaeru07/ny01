@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import type { AutomationReadiness, HealthSummary, AutomationConfig, ExecutorSummary } from '@/lib/types/operations'
+import CodexHandoffPanel from '@/components/codex/CodexHandoffPanel'
+import CodexReportForm from '@/components/codex/CodexReportForm'
 
 interface AutoexecStatus {
   name: string | null
@@ -168,6 +170,20 @@ export default function AutomationPage() {
               ))}
           </div>
         )}
+      </section>
+
+      {/* Codex へ引き継ぐ（半自動切替・モバイルコピー） */}
+      <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Codexへ引き継ぐ</h2>
+        <p className="mt-0.5 mb-3 text-[11px] text-gray-400">Claude 上限で止まったら生成 → モバイルでコピー → Codex へ貼り付け（安全判定付き）</p>
+        <CodexHandoffPanel />
+      </section>
+
+      {/* Codex 結果を戻す */}
+      <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Codex 結果を戻す</h2>
+        <p className="mt-0.5 mb-3 text-[11px] text-gray-400">Codex の作業報告を ExecutionRun として登録（executorUsed=codex / source=codex_mobile）</p>
+        <CodexReportForm />
       </section>
 
       {/* Codex 自動切替ポリシー */}

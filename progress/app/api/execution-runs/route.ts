@@ -126,6 +126,7 @@ export async function POST(request: Request) {
       targetTodoTitle: String(body.targetTodoTitle).trim(),
       runStatus: body.runStatus as RunStatus,
       reviewStatus,
+      source: typeof body.source === 'string' && body.source.trim() ? body.source.trim() : undefined,
       executorUsed: VALID_EXECUTORS.includes(body.executorUsed) ? body.executorUsed : undefined,
       preferredExecutor: VALID_EXECUTORS.includes(body.preferredExecutor) ? body.preferredExecutor : undefined,
       fallbackExecutor: VALID_EXECUTORS.includes(body.fallbackExecutor) ? body.fallbackExecutor : undefined,

@@ -16,6 +16,7 @@ import type {
   EpicDetail,
   ExecutionRunBrief,
   AutomationConfig,
+  CodexPrompt,
 } from './types/operations'
 import type { WorkQueueData } from '@/types/session'
 import type { AppProgress, ProjectTasksData, Task, TaskPriority } from '@/types/progress'
@@ -619,6 +620,85 @@ export async function generateHandoffView(epicId?: string): Promise<GeneratedHan
   ].join('\n\n')
 
   return handoff
+}
+
+// ---- Codex 引き継ぎプロンプト（半自動切替 / モバイルコピー用 / 単一プレーンテキスト） ----
+
+const CODEX_SAFETY_GUARD = [
+  '[1] まず安全判定',
+  'この作業がCodexで安全に実行可能か判定してください。',
+  'Codexで実行してよい作業: lint修正 / typecheck修正 / build修正 / test追加 / docs整理 / Vault整理 / Issue整理 / UI微修正 / 方針決定済み実装 / destructiveでない変更',
+  'Codexで実行してはいけない作業: 課金 / 本番DB変更 / 認証情報利用 / secret・token・.env利用 / destructive操作 / 外部公開 / deploy / pm2・cron・systemd変更 / migration / 方針未決定設計 / Approval待ち / Decision待ち',
+  '上記の禁止に該当する場合は実行せず、blocked または approval_required として理由を報告してください。',
+]
+
+/**
+ * Codex へ手動で引き継ぐためのコピペ用プロンプトを生成する。
+ * 既存正本（ExecutionRun / Decision Log / Next Actions / Approval Queue / Epic / 変更ファイル / 未完了作業）を集約。
+ * 出力は単一プレーンテキスト：markdown コードフェンス（```）も長い JSON も含めない（モバイルコピー用）。
+ */
+export async function generateCodexPrompt(epicId?: string): Promise<CodexPrompt> {
+  const [runsData, allDecisions, allApprovals, epic] = await Promise.all([
+    readJson<ExecutionRunsData>('execution-runs.json', { runs: [] }),
+    getOperationalDecisions(),
+    getPendingApprovals(),
+    epicId ? getEpic(epicId) : Promise.resolve(null),
+  ])
+
+  const sorted = [...runsData.runs].sort((a, b) => Date.parse(b.finishedAt) - Date.parse(a.finishedAt))
+  let scopedRuns = sorted
+  if (epic) {
+    const matched = sorted.filter((run) => runBelongsToEpic(run, epic))
+    if (matched.length > 0 || epicHasScopeKeys(epic)) scopedRuns = matched
+  }
+  const latestRun = scopedRuns[0]
+  const decisions = epic ? allDecisions.filter((d) => d.epicId === epic.epicId) : allDecisions
+  const approvals = epic ? allApprovals.filter((a) => a.epicId === epic.epicId) : allApprovals
+  const nextActions = buildNextTodoCandidates(scopedRuns).slice(0, 5)
+  const changedFiles = (latestRun?.changedFiles ?? []).map((f) => f.file).slice(0, 8)
+  const targetApp = epic?.targetApps?.[0] ?? latestRun?.targetApp
+
+  const lines: string[] = []
+  lines.push('あなたはCodexです。以下はProgress（AI工場の管制塔）からの引き継ぎです。Claudeが上限で停止したため続きをお願いします。')
+  lines.push('')
+  lines.push(...CODEX_SAFETY_GUARD)
+  lines.push('')
+  lines.push('[2] 対象')
+  if (epic) lines.push(`Epic: ${epic.title}（${epic.epicId}） 目標: ${epic.goal}`)
+  if (targetApp) lines.push(`対象アプリ: ${targetApp}`)
+  lines.push(`直近の作業: ${latestRun ? `${latestRun.summary}（runId ${latestRun.runId}）` : 'なし'}`)
+  lines.push(`変更済みファイル: ${changedFiles.length > 0 ? changedFiles.join(' , ') : 'なし'}`)
+  lines.push('')
+  lines.push('[3] 決定事項（これに反する作業はしない）')
+  lines.push(decisions.length > 0 ? decisions.slice(-5).map((d) => `- ${d.topic} → ${d.decision}`).join('\n') : '- なし')
+  lines.push('')
+  lines.push('[4] 承認待ち（これには触らない。未承認の作業はしない）')
+  lines.push(approvals.length > 0 ? approvals.map((a) => `- ${a.title}（${a.priority}）`).join('\n') : '- なし')
+  lines.push('')
+  lines.push('[5] 次にやること（安全判定OKのものだけ）')
+  lines.push(nextActions.length > 0 ? nextActions.map((a) => `- ${a.title}`).join('\n') : '- なし')
+  lines.push('')
+  lines.push('[6] 進め方')
+  lines.push('- 安全判定OKの作業だけ実行する')
+  lines.push('- build / lint / typecheck まで検証を通す')
+  lines.push('- 完了したら作業報告を簡潔にまとめる（変更ファイル / 実行コマンド / 検証結果 / 次アクション / 残課題）')
+  lines.push('')
+  lines.push('[7] 完了後')
+  lines.push('作業報告をそのままユーザーへ返してください。ユーザーがProgressのExecutionRunへ登録します。')
+
+  return {
+    promptText: lines.join('\n'),
+    meta: {
+      epicId: epic?.epicId,
+      epicTitle: epic?.title,
+      sourceRunId: latestRun?.runId,
+      targetApp,
+      nextActionsCount: nextActions.length,
+      approvalsPending: approvals.length,
+      hasSafetyGuard: true,
+      generatedAt: new Date().toISOString(),
+    },
+  }
 }
 
 export async function computeAutomationReadiness(): Promise<AutomationReadiness> {

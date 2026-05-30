@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { getEpicDetail } from '@/lib/operations-store'
 import type { EpicDetail } from '@/lib/types/operations'
 import ResumeButton from '@/components/epic/ResumeButton'
+import CodexHandoffPanel from '@/components/codex/CodexHandoffPanel'
 
 const STATUS_LABEL: Record<string, { label: string; cls: string }> = {
   active: { label: '実行中', cls: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' },
@@ -157,6 +158,10 @@ export default async function EpicDetailPage({ params }: { params: { epicId: str
         <p className="mt-1.5 text-center text-[11px] text-gray-400">
           前回作業・決定事項・次回予定・承認待ちから実行コンテキストを生成します
         </p>
+        <div className="mt-3">
+          <p className="mb-1.5 text-[11px] text-gray-400">Claude 上限で止まったら、Codex へ引き継いでモバイルで続行できます</p>
+          <CodexHandoffPanel epicId={epic.epicId} />
+        </div>
       </Section>
 
       {/* 承認待ち（この Epic 分のみ。横断は /approvals） */}
