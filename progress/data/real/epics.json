@@ -1,0 +1,1 @@
+[{"epicId":"epic-91","githubIssue":91,"title":"AI工場オペレーションセンター","goal":"ProgressをAI工場の管制塔にし、AIが止まらずToDoを継続消化できる運用基盤を作る","progress":20,"remainingWork":["/operations ページ実装","ヘルスダッシュボード","選択式承認カード","Epic進行カード"],"latestRunId":null,"nextAction":"Step 2以降を実装する","decisionPolicy":"autonomous","status":"active","updatedAt":"2026-05-30"}]
