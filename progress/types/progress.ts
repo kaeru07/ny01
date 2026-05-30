@@ -63,6 +63,9 @@ export interface Task {
   executorUsed?: ExecutorType
   fallbackReason?: string
   memo: string
+  source?: string
+  sourceRunId?: string
+  sourceType?: 'user' | 'ai_generated' | 'execution_review' | 'market_research' | 'vault' | 'github_issue'
   taskPrompt?: string
   taskPromptUpdatedAt?: string
   taskPromptUpdatedBy?: 'user' | 'system'
@@ -108,6 +111,9 @@ export interface NewTaskInput {
   canRunOnCodex?: boolean
   requiresClaude?: boolean
   memo: string
+  source?: string
+  sourceRunId?: string
+  sourceType?: Task['sourceType']
   taskPrompt?: string
   doneCriteria?: string[]
   allowed?: string[]

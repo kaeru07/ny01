@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { WorkQueueItem } from '@/types/session'
 import { getEffectiveOrder } from '@/lib/session-utils'
 
 interface Props { items: WorkQueueItem[] }
 
-function generatePrompt(items: WorkQueueItem[]): string {
+function generatePrompt(items: WorkQueueItem[], decisionContext: string): string {
   const date = new Date().toLocaleDateString('ja-JP', {
     timeZone: 'Asia/Tokyo',
     year: 'numeric',
@@ -69,6 +69,8 @@ function generatePrompt(items: WorkQueueItem[]): string {
 - Codex へ自動切替してよいのは、軽微な修正、lint/typecheck/build修正、テスト追加、ドキュメント整備、Vault整理、GitHub Issue整理、UI微修正、方針決定済み実装、反復作業
 - 課金、本番DB変更、destructive操作、認証情報利用、外部公開、方針未決定の設計、高リスク作業は Codex へ自動切替せず Approval Queue または waiting にする
 
+${decisionContext}
+
 ## 作業ルール
 - 上から順番に、1件ずつ処理する
 - 作業開始時に status を in_progress にする
@@ -124,7 +126,17 @@ progress 正本: /root/company/apps/ny01/progress/data/real/`
 export default function PromptCopy({ items }: Props) {
   const [copied, setCopied] = useState(false)
   const [shown, setShown] = useState(false)
-  const prompt = generatePrompt(items)
+  const [decisionContext, setDecisionContext] = useState('')
+  const prompt = generatePrompt(items, decisionContext)
+
+  useEffect(() => {
+    fetch('/api/operations/decisions/context', { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { promptBlock?: string } | null) => {
+        if (data?.promptBlock) setDecisionContext(data.promptBlock)
+      })
+      .catch(() => setDecisionContext(''))
+  }, [])
 
   async function copy() {
     try {

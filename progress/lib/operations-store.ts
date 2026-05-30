@@ -6,12 +6,16 @@ import type {
   OperationalDecision,
   HealthSummary,
   AutomationReadiness,
+  ApprovalCategory,
   ExecutorSummary,
   ExecutorType,
+  DecisionContext,
+  GeneratedHandoff,
   NextTodoCandidate,
+  PendingTodoGenerationResult,
 } from './types/operations'
 import type { WorkQueueData } from '@/types/session'
-import type { AppProgress, ProjectTasksData, Task } from '@/types/progress'
+import type { AppProgress, ProjectTasksData, Task, TaskPriority } from '@/types/progress'
 import type { ExecutionRunsData, ExecutionRun } from '@/types/execution-run'
 import type { WorkSession } from '@/types/session'
 
@@ -84,10 +88,69 @@ export async function decideApproval(
   return decided
 }
 
+export async function createApproval(input: {
+  epicId?: string
+  title: string
+  category: ApprovalCategory
+  priority?: ApprovalPriority
+  options: Approval['options']
+  recommended: string
+  reason: string
+  createdRunId?: string
+}): Promise<Approval> {
+  const approvals = await getApprovals()
+  const now = new Date().toISOString()
+  const approval: Approval = {
+    approvalId: `appr-${Date.now()}`,
+    epicId: input.epicId,
+    title: input.title,
+    category: input.category,
+    priority: input.priority ?? 'normal',
+    options: input.options,
+    recommended: input.recommended,
+    reason: input.reason,
+    status: 'pending',
+    createdRunId: input.createdRunId,
+    createdAt: now,
+  }
+  approvals.push(approval)
+  await writeJson('approvals.json', approvals)
+  return approval
+}
+
 // ---- Operational decisions ----
 
 export async function getOperationalDecisions(): Promise<OperationalDecision[]> {
   return readNdjson<OperationalDecision>('operational-decisions.ndjson')
+}
+
+export async function buildDecisionContext(limit = 20): Promise<DecisionContext> {
+  const decisions = (await getOperationalDecisions()).slice(-limit)
+  const lines = decisions.map((d) => {
+    const scope = d.epicId ? `${d.epicId}: ` : ''
+    return `- ${scope}${d.topic} => ${d.decision} (${d.decidedAt})`
+  })
+  return {
+    decisions,
+    promptBlock: [
+      '## Decision Log（前回までの確定判断）',
+      lines.length > 0 ? lines.join('\n') : '- まだ確定判断はありません',
+      '',
+      'この判断と矛盾する作業は実行せず、必要なら Approval Queue に登録してください。',
+    ].join('\n'),
+    readTiming: [
+      'vloop開始時',
+      'executor開始時',
+      'handoff生成時',
+      'Approval Queueを作る前',
+    ],
+    injectionTargets: [
+      '集中作業プロンプト',
+      'Codex実行プロンプト',
+      'handoff生成ビュー',
+      'ExecutionRunレビューからの次ToDo生成',
+    ],
+  }
 }
 
 // ---- Health summary (read-only aggregation, no new persistence) ----
@@ -206,6 +269,106 @@ function buildNextTodoCandidates(runs: ExecutionRun[]): NextTodoCandidate[] {
     )
 }
 
+function isRiskyNextAction(title: string): boolean {
+  const text = title.toLowerCase()
+  const riskySignals = ['課金', '本番db', 'destructive', 'secret', 'token', '外部公開', '認証情報', 'production', 'pm2', 'cron', 'systemd']
+  return riskySignals.some((signal) => text.includes(signal))
+}
+
+function inferPriority(title: string): TaskPriority {
+  return isRiskyNextAction(title) ? 'high' : 'medium'
+}
+
+function slugForId(value: string): string {
+  const ascii = value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  if (ascii) return ascii.slice(0, 40)
+  let hash = 0
+  for (const char of value) {
+    hash = (hash * 31 + char.charCodeAt(0)) >>> 0
+  }
+  return hash.toString(36)
+}
+
+function findExistingTask(tasksData: ProjectTasksData, candidate: NextTodoCandidate): boolean {
+  return tasksData.projects.some((project) =>
+    project.tasks.some((task) =>
+      (task.sourceRunId === candidate.sourceRunId && task.title === candidate.title) ||
+      ((task.memo ?? '').includes(`sourceRunId:${candidate.sourceRunId}`) && task.title === candidate.title),
+    ),
+  )
+}
+
+export async function getNextActionCandidates(limit = 20): Promise<NextTodoCandidate[]> {
+  const runsData = await readJson<ExecutionRunsData>('execution-runs.json', { runs: [] })
+  const runs = [...runsData.runs].sort((a, b) => Date.parse(b.finishedAt) - Date.parse(a.finishedAt))
+  return buildNextTodoCandidates(runs).slice(0, limit)
+}
+
+export async function generatePendingApprovalTasks(limit = 10): Promise<PendingTodoGenerationResult> {
+  const [tasksData, candidates] = await Promise.all([
+    readJson<ProjectTasksData>('project-tasks.json', { projects: [] }),
+    getNextActionCandidates(limit),
+  ])
+  const now = new Date().toISOString()
+  const taskIds: string[] = []
+  let skipped = 0
+
+  for (const candidate of candidates) {
+    if (findExistingTask(tasksData, candidate)) {
+      skipped++
+      continue
+    }
+
+    const projectId = candidate.targetApp || 'company-meta'
+    const taskId = `task-${projectId}-run-${candidate.sourceRunId}-${slugForId(candidate.title)}`
+    const task: Task = {
+      id: taskId,
+      title: candidate.title,
+      status: 'pending_approval',
+      priority: inferPriority(candidate.title),
+      assignee: 'both',
+      preferredExecutor: isRiskyNextAction(candidate.title) ? 'manual' : 'claude',
+      fallbackExecutor: isRiskyNextAction(candidate.title) ? undefined : 'codex',
+      autoFallback: !isRiskyNextAction(candidate.title),
+      canRunOnCodex: !isRiskyNextAction(candidate.title),
+      requiresClaude: false,
+      memo: `ExecutionRun nextActions から自動生成。sourceRunId:${candidate.sourceRunId}`,
+      source: 'execution-run-next-actions',
+      sourceRunId: candidate.sourceRunId,
+      sourceType: 'execution_review',
+      taskPrompt: [
+        `ExecutionRun ${candidate.sourceRunId} の nextActions 由来ToDoです。`,
+        'ユーザー承認前に着手しないでください。',
+        `対象: ${candidate.targetApp}`,
+        `内容: ${candidate.title}`,
+      ].join('\n'),
+      doneCriteria: ['ユーザーが承認または保留判断をする', '承認後に実行対象へ移す'],
+      forbidden: ['pending_approval のまま実行しない', '未承認で queued にしない'],
+      createdAt: now,
+      updatedAt: now,
+    }
+
+    const project = tasksData.projects.find((p) => p.projectId === projectId)
+    if (project) {
+      project.tasks.push(task)
+    } else {
+      tasksData.projects.push({ projectId, tasks: [task] })
+    }
+    taskIds.push(taskId)
+  }
+
+  if (taskIds.length > 0) {
+    await writeJson('project-tasks.json', tasksData)
+  }
+
+  return {
+    created: taskIds.length,
+    skipped,
+    taskIds,
+    candidates,
+  }
+}
+
 function summarizeHandoff(session: WorkSession) {
   const text = session.handoffText ?? ''
   const missingSections = HANDOFF_SECTIONS.filter((section) => !text.includes(section))
@@ -219,6 +382,61 @@ function summarizeHandoff(session: WorkSession) {
     requiredSections: HANDOFF_SECTIONS,
     missingSections,
   }
+}
+
+export async function generateHandoffView(): Promise<GeneratedHandoff> {
+  const [runsData, decisions, approvals, nextActions] = await Promise.all([
+    readJson<ExecutionRunsData>('execution-runs.json', { runs: [] }),
+    getOperationalDecisions(),
+    getPendingApprovals(),
+    getNextActionCandidates(10),
+  ])
+  const latestRun = [...runsData.runs].sort((a, b) => Date.parse(b.finishedAt) - Date.parse(a.finishedAt))[0]
+  const changedFiles = latestRun?.changedFiles.map((f) => `${f.file}${f.change ? `: ${f.change}` : ''}`) ?? []
+  const decisionLines = decisions.slice(-10).map((d) => `${d.topic} => ${d.decision}`)
+  const approvalLines = approvals.map((a) => `${a.title} (${a.priority})`)
+  const forbidden = [
+    'pending_approvalを未承認で実行しない',
+    '外部公開・課金・秘密情報操作を自動実行しない',
+    'handoffを独立した正本にしない',
+  ]
+  const checks = latestRun ? Object.entries(latestRun.checks).map(([k, v]) => `${k}: ${v}`) : []
+  const remainingWork = [
+    ...nextActions.slice(0, 5).map((a) => `${a.targetApp}: ${a.title}`),
+    ...approvalLines.map((a) => `承認待ち: ${a}`),
+  ]
+
+  const handoff: GeneratedHandoff = {
+    source: 'generated',
+    objective: 'AI工場が止まらず再開できるよう、既存正本から次executorへ文脈を渡す',
+    currentState: latestRun
+      ? `最新ExecutionRun ${latestRun.runId}: ${latestRun.summary}`
+      : 'ExecutionRunがまだありません',
+    changedFiles,
+    remainingWork,
+    forbidden,
+    checks,
+    decisionLog: decisionLines,
+    approvalsPending: approvalLines,
+    nextActions,
+    generatedAt: new Date().toISOString(),
+    promptBlock: '',
+  }
+
+  handoff.promptBlock = [
+    '# Handoff View（生成ビュー / 正本ではない）',
+    '',
+    `## 目的\n${handoff.objective}`,
+    `## 現在地\n${handoff.currentState}`,
+    `## 変更済みファイル\n${changedFiles.map((f) => `- ${f}`).join('\n') || '- なし'}`,
+    `## 未完了作業\n${remainingWork.map((w) => `- ${w}`).join('\n') || '- なし'}`,
+    `## 禁止事項\n${forbidden.map((f) => `- ${f}`).join('\n')}`,
+    `## 検証条件\n${checks.map((c) => `- ${c}`).join('\n') || '- 未記録'}`,
+    `## Decision Log\n${decisionLines.map((d) => `- ${d}`).join('\n') || '- なし'}`,
+    `## 承認待ち事項\n${approvalLines.map((a) => `- ${a}`).join('\n') || '- なし'}`,
+  ].join('\n\n')
+
+  return handoff
 }
 
 export async function computeAutomationReadiness(): Promise<AutomationReadiness> {
@@ -273,6 +491,12 @@ export async function computeAutomationReadiness(): Promise<AutomationReadiness>
     },
     executors: summarizeExecutors(tasks, queue, runs),
     handoff: summarizeHandoff(session),
+    generatedHandoff: {
+      available: runs.length > 0 || decisions.length > 0 || candidates.length > 0 || approvals.length > 0,
+      source: 'ExecutionRun + Decision Log + nextActions + Approval Queue',
+      nextActions: candidates.length,
+      pendingApprovals: approvals.length,
+    },
     restartReadiness: {
       canResumeFromQueue: queue.items.some((item) => item.status === 'queued' || item.status === 'in_progress'),
       canResumeFromDecisionLog: decisions.length > 0,

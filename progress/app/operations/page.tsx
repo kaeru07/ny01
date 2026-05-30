@@ -71,6 +71,20 @@ export default function OperationsPage() {
     }
   }
 
+  async function generatePendingTodos() {
+    setBusy(true)
+    try {
+      await fetch('/api/operations/next-actions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ limit: 10 }),
+      })
+      await refresh()
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <div className="max-w-lg mx-auto px-4 py-4 space-y-6">
       <h1 className="text-lg font-bold">工場オペレーション</h1>
@@ -144,6 +158,13 @@ export default function OperationsPage() {
               <Metric label="handoff" value={automation.handoff.exists ? 'あり' : 'なし'} />
               <Metric label="Codex可" value={automation.restartReadiness.canFallbackToCodex ? 'あり' : 'なし'} />
             </div>
+            <button
+              disabled={busy || automation.aiGeneratedTodos.fromExecutionRunNextActions === 0}
+              onClick={generatePendingTodos}
+              className="mt-3 w-full rounded bg-blue-600 px-3 py-2 text-sm text-white disabled:opacity-50"
+            >
+              AI次ToDoを承認待ち化
+            </button>
             {automation.restartReadiness.blockers.length > 0 && (
               <div className="mt-3 rounded border border-amber-200 bg-amber-50 p-2">
                 <p className="text-xs font-medium text-amber-800">再開前の確認</p>
@@ -168,7 +189,10 @@ export default function OperationsPage() {
           <div className="rounded-lg border border-gray-200 p-3">
             <h3 className="text-sm font-medium">handoff</h3>
             <p className="mt-1 text-xs text-gray-600">
-              source: {automation.handoff.source} / status: {automation.handoff.status}
+              source: {automation.generatedHandoff.source} / status: {automation.handoff.status}
+            </p>
+            <p className="mt-1 text-xs text-gray-600">
+              生成元: ExecutionRun + Decision Log + Next Actions
             </p>
             {automation.handoff.missingSections.length > 0 && (
               <p className="mt-2 text-xs text-amber-700">

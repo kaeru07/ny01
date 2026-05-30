@@ -6,6 +6,8 @@ interface Params {
   params: { taskId: string }
 }
 
+const VALID_SOURCE_TYPES = ['user', 'ai_generated', 'execution_review', 'market_research', 'vault', 'github_issue'] as const
+
 export async function PATCH(request: NextRequest, { params }: Params) {
   try {
     const { taskId } = params
@@ -14,6 +16,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       projectId, status, nextAction, assignee, taskPrompt, title, priority, memo, fullUpdate,
       doneCriteria, allowed, forbidden, risk, blockedReason, unblockAction, nextQuestion, targetPath, targetApp,
       preferredExecutor, fallbackExecutor, autoFallback, canRunOnCodex, requiresClaude,
+      source, sourceRunId, sourceType,
     } = body
 
     if (!projectId || typeof projectId !== 'string') {
@@ -50,6 +53,11 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       if (typeof autoFallback === 'boolean') updates.autoFallback = autoFallback
       if (typeof canRunOnCodex === 'boolean') updates.canRunOnCodex = canRunOnCodex
       if (typeof requiresClaude === 'boolean') updates.requiresClaude = requiresClaude
+      if (typeof source === 'string') updates.source = source
+      if (typeof sourceRunId === 'string') updates.sourceRunId = sourceRunId
+      if (typeof sourceType === 'string' && VALID_SOURCE_TYPES.includes(sourceType as typeof VALID_SOURCE_TYPES[number])) {
+        updates.sourceType = sourceType as typeof VALID_SOURCE_TYPES[number]
+      }
       await updateTask(projectId, taskId, updates)
       return NextResponse.json({ success: true })
     }

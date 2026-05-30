@@ -71,6 +71,9 @@ function buildNewTask(input: NewTaskInput, taskId: string, now: string): Task {
     status,
     priority,
     memo,
+    source,
+    sourceRunId,
+    sourceType,
     assignee = 'claude',
     taskPrompt,
     doneCriteria,
@@ -101,6 +104,9 @@ function buildNewTask(input: NewTaskInput, taskId: string, now: string): Task {
     ...(typeof canRunOnCodex === 'boolean' ? { canRunOnCodex } : {}),
     ...(typeof requiresClaude === 'boolean' ? { requiresClaude } : {}),
     memo,
+    ...(source ? { source } : {}),
+    ...(sourceRunId ? { sourceRunId } : {}),
+    ...(sourceType ? { sourceType } : {}),
     ...(taskPrompt ? { taskPrompt, taskPromptUpdatedAt: now, taskPromptUpdatedBy: 'user' as const } : {}),
     ...(doneCriteria ? { doneCriteria } : {}),
     ...(allowed ? { allowed } : {}),
@@ -218,6 +224,9 @@ export async function updateTask(
     nextQuestion?: string
     targetPath?: string
     targetApp?: string
+    source?: string
+    sourceRunId?: string
+    sourceType?: Task['sourceType']
     preferredExecutor?: Task['preferredExecutor']
     fallbackExecutor?: Task['fallbackExecutor']
     autoFallback?: boolean
@@ -252,6 +261,9 @@ export async function updateTask(
   if (updates.nextQuestion !== undefined) task.nextQuestion = updates.nextQuestion
   if (updates.targetPath !== undefined) task.targetPath = updates.targetPath
   if (updates.targetApp !== undefined) task.targetApp = updates.targetApp
+  if (updates.source !== undefined) task.source = updates.source
+  if (updates.sourceRunId !== undefined) task.sourceRunId = updates.sourceRunId
+  if (updates.sourceType !== undefined) task.sourceType = updates.sourceType
   if (updates.preferredExecutor !== undefined) { changes.push(`preferredExecutor: ${task.preferredExecutor ?? ''} → ${updates.preferredExecutor}`); task.preferredExecutor = updates.preferredExecutor }
   if (updates.fallbackExecutor !== undefined) { changes.push(`fallbackExecutor: ${task.fallbackExecutor ?? ''} → ${updates.fallbackExecutor}`); task.fallbackExecutor = updates.fallbackExecutor }
   if (updates.autoFallback !== undefined) task.autoFallback = updates.autoFallback

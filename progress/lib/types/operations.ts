@@ -78,6 +78,35 @@ export interface NextTodoCandidate {
   createdAt: string
 }
 
+export interface PendingTodoGenerationResult {
+  created: number
+  skipped: number
+  taskIds: string[]
+  candidates: NextTodoCandidate[]
+}
+
+export interface DecisionContext {
+  decisions: OperationalDecision[]
+  promptBlock: string
+  readTiming: string[]
+  injectionTargets: string[]
+}
+
+export interface GeneratedHandoff {
+  source: 'generated'
+  objective: string
+  currentState: string
+  changedFiles: string[]
+  remainingWork: string[]
+  forbidden: string[]
+  checks: string[]
+  decisionLog: string[]
+  approvalsPending: string[]
+  nextActions: NextTodoCandidate[]
+  promptBlock: string
+  generatedAt: string
+}
+
 export interface HandoffSummary {
   exists: boolean
   source: 'today-session' | 'none'
@@ -109,6 +138,12 @@ export interface AutomationReadiness {
   }
   executors: ExecutorSummary[]
   handoff: HandoffSummary
+  generatedHandoff: {
+    available: boolean
+    source: string
+    nextActions: number
+    pendingApprovals: number
+  }
   restartReadiness: {
     canResumeFromQueue: boolean
     canResumeFromDecisionLog: boolean
