@@ -1,5 +1,6 @@
 export type RunStatus = 'running' | 'completed' | 'failed' | 'partial'
 export type ReviewStatus = 'not_reviewed' | 'copied' | 'reviewed' | 'needs_followup'
+export type ExecutorType = 'claude' | 'codex' | 'manual' | 'other'
 
 export interface ChangedFile {
   file: string
@@ -27,6 +28,11 @@ export interface ExecutionRun {
   targetTodoTitle: string
   runStatus: RunStatus
   reviewStatus: ReviewStatus
+  executorUsed?: ExecutorType
+  preferredExecutor?: ExecutorType
+  fallbackExecutor?: ExecutorType
+  autoFallback?: boolean
+  fallbackReason?: string
   beforeStatus?: string
   afterStatus?: string
   promptUsed?: string

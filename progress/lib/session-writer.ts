@@ -53,9 +53,14 @@ export async function refreshCandidates(): Promise<{ added: number }> {
       const isOpen = OPEN_STATUSES.includes(task.status)
       const assignee = task.assignee ?? 'claude'
       const isClaude = assignee === 'claude' || assignee === 'both'
+      const executorAllowed =
+        isClaude ||
+        task.preferredExecutor === 'codex' ||
+        task.fallbackExecutor === 'codex' ||
+        task.canRunOnCodex === true
       const key = `${pt.projectId}::${task.id}`
 
-      if (!isOpen || !isClaude || existing.has(key)) continue
+      if (!isOpen || !executorAllowed || existing.has(key)) continue
 
       const priority = task.priority ?? 'medium'
       const effort = 'medium'
@@ -70,8 +75,13 @@ export async function refreshCandidates(): Promise<{ added: number }> {
         taskTitle: task.title,
         description: task.memo || task.title,
         priority,
+        preferredExecutor: task.preferredExecutor,
+        fallbackExecutor: task.fallbackExecutor,
+        autoFallback: task.autoFallback,
+        canRunOnCodex: task.canRunOnCodex,
+        requiresClaude: task.requiresClaude,
         estimatedEffort: effort,
-        reason: `${task.status === 'in_progress' ? '進行中のタスク' : 'TODO タスク'}（assignee: ${assignee}・priority: ${priority}）`,
+        reason: `${task.status === 'in_progress' ? '進行中のタスク' : 'TODO タスク'}（assignee: ${assignee}・preferredExecutor: ${task.preferredExecutor ?? 'claude'}・priority: ${priority}）`,
         prerequisites: '',
         risks: '',
         doneCondition: task.memo || '完了条件を確認してください',
@@ -135,6 +145,11 @@ async function addCandidateToQueue(candidate: WorkCandidate): Promise<void> {
     taskTitle: candidate.taskTitle,
     description: candidate.description,
     priority: candidate.priority,
+    preferredExecutor: candidate.preferredExecutor,
+    fallbackExecutor: candidate.fallbackExecutor,
+    autoFallback: candidate.autoFallback,
+    canRunOnCodex: candidate.canRunOnCodex,
+    requiresClaude: candidate.requiresClaude,
     status: 'queued',
     autoOrder: maxOrder + 1,
     reason: candidate.reason,
@@ -294,6 +309,11 @@ export async function addTaskDirectlyToQueue(projectId: string, taskId: string):
     taskTitle: task.title,
     description: task.memo || task.title,
     priority: task.priority,
+    preferredExecutor: task.preferredExecutor,
+    fallbackExecutor: task.fallbackExecutor,
+    autoFallback: task.autoFallback,
+    canRunOnCodex: task.canRunOnCodex,
+    requiresClaude: task.requiresClaude,
     status: 'queued',
     autoOrder: maxOrder + 1,
     reason: 'ToDo管理から直接追加',

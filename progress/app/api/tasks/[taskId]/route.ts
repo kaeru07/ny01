@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { updateTask, updateTaskStatus, updateTaskPrompt } from '@/lib/progress-writer'
-import type { TaskStatus, TaskAssignee, TaskPriority } from '@/types/progress'
+import type { ExecutorType, TaskStatus, TaskAssignee, TaskPriority } from '@/types/progress'
 
 interface Params {
   params: { taskId: string }
@@ -13,6 +13,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     const {
       projectId, status, nextAction, assignee, taskPrompt, title, priority, memo, fullUpdate,
       doneCriteria, allowed, forbidden, risk, blockedReason, unblockAction, nextQuestion, targetPath, targetApp,
+      preferredExecutor, fallbackExecutor, autoFallback, canRunOnCodex, requiresClaude,
     } = body
 
     if (!projectId || typeof projectId !== 'string') {
@@ -27,6 +28,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       const validStatuses: TaskStatus[] = ['pending_approval', 'backlog', 'todo', 'in_progress', 'impl_done', 'local_done', 'done', 'blocked', 'deleted', 'skipped']
       const validAssignees: TaskAssignee[] = ['claude', 'user', 'both']
       const validPriorities: TaskPriority[] = ['high', 'medium', 'low']
+      const validExecutors: ExecutorType[] = ['claude', 'codex', 'manual', 'other']
       const updates: Parameters<typeof updateTask>[2] = {}
       if (typeof title === 'string' && title.trim()) updates.title = title.trim()
       if (typeof status === 'string' && validStatuses.includes(status as TaskStatus)) updates.status = status as TaskStatus
@@ -43,6 +45,11 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       if (typeof nextQuestion === 'string') updates.nextQuestion = nextQuestion
       if (typeof targetPath === 'string') updates.targetPath = targetPath
       if (typeof targetApp === 'string') updates.targetApp = targetApp
+      if (typeof preferredExecutor === 'string' && validExecutors.includes(preferredExecutor as ExecutorType)) updates.preferredExecutor = preferredExecutor as ExecutorType
+      if (typeof fallbackExecutor === 'string' && validExecutors.includes(fallbackExecutor as ExecutorType)) updates.fallbackExecutor = fallbackExecutor as ExecutorType
+      if (typeof autoFallback === 'boolean') updates.autoFallback = autoFallback
+      if (typeof canRunOnCodex === 'boolean') updates.canRunOnCodex = canRunOnCodex
+      if (typeof requiresClaude === 'boolean') updates.requiresClaude = requiresClaude
       await updateTask(projectId, taskId, updates)
       return NextResponse.json({ success: true })
     }

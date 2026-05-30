@@ -62,6 +62,13 @@ function generatePrompt(items: WorkQueueItem[]): string {
 - リストにないタスクを勝手に追加・実行しない
 - 仕様・設計・優先順位の判断はユーザーが行う。自分で判断しない
 
+## Executorルール
+- 実行者は Claude 固定ではない。Claude Code / Codex / manual / other のいずれでも、このキューと ExecutionRun を正本にする
+- preferredExecutor / fallbackExecutor / canRunOnCodex / requiresClaude がある場合はそれを優先する
+- Claude 上限などで継続不能になった場合は、会話履歴ではなく handoff を正本として次 executor に引き継ぐ
+- Codex へ自動切替してよいのは、軽微な修正、lint/typecheck/build修正、テスト追加、ドキュメント整備、Vault整理、GitHub Issue整理、UI微修正、方針決定済み実装、反復作業
+- 課金、本番DB変更、destructive操作、認証情報利用、外部公開、方針未決定の設計、高リスク作業は Codex へ自動切替せず Approval Queue または waiting にする
+
 ## 作業ルール
 - 上から順番に、1件ずつ処理する
 - 作業開始時に status を in_progress にする
@@ -104,6 +111,7 @@ ExecutionRun 登録例:
 ## 上限・中断時
 - 上限が近い場合は新しい作業を始めず、中断状態と残ToDoを記録する
 - 中断前に必ず progress を最新状態に更新する
+- handoff には 目的 / 現在地 / 変更済みファイル / 未完了作業 / 禁止事項 / 検証条件 / Decision Log / 承認待ち事項 を残す
 
 ## 本日の作業リスト
 

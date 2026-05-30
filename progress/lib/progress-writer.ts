@@ -82,6 +82,11 @@ function buildNewTask(input: NewTaskInput, taskId: string, now: string): Task {
     nextQuestion,
     targetPath,
     targetApp,
+    preferredExecutor,
+    fallbackExecutor,
+    autoFallback,
+    canRunOnCodex,
+    requiresClaude,
   } = input
 
   return {
@@ -90,6 +95,11 @@ function buildNewTask(input: NewTaskInput, taskId: string, now: string): Task {
     status,
     priority,
     assignee,
+    ...(preferredExecutor ? { preferredExecutor } : {}),
+    ...(fallbackExecutor ? { fallbackExecutor } : {}),
+    ...(typeof autoFallback === 'boolean' ? { autoFallback } : {}),
+    ...(typeof canRunOnCodex === 'boolean' ? { canRunOnCodex } : {}),
+    ...(typeof requiresClaude === 'boolean' ? { requiresClaude } : {}),
     memo,
     ...(taskPrompt ? { taskPrompt, taskPromptUpdatedAt: now, taskPromptUpdatedBy: 'user' as const } : {}),
     ...(doneCriteria ? { doneCriteria } : {}),
@@ -208,6 +218,11 @@ export async function updateTask(
     nextQuestion?: string
     targetPath?: string
     targetApp?: string
+    preferredExecutor?: Task['preferredExecutor']
+    fallbackExecutor?: Task['fallbackExecutor']
+    autoFallback?: boolean
+    canRunOnCodex?: boolean
+    requiresClaude?: boolean
   }
 ): Promise<void> {
   const filePath = path.join(getDataPath(), 'project-tasks.json')
@@ -237,6 +252,11 @@ export async function updateTask(
   if (updates.nextQuestion !== undefined) task.nextQuestion = updates.nextQuestion
   if (updates.targetPath !== undefined) task.targetPath = updates.targetPath
   if (updates.targetApp !== undefined) task.targetApp = updates.targetApp
+  if (updates.preferredExecutor !== undefined) { changes.push(`preferredExecutor: ${task.preferredExecutor ?? ''} → ${updates.preferredExecutor}`); task.preferredExecutor = updates.preferredExecutor }
+  if (updates.fallbackExecutor !== undefined) { changes.push(`fallbackExecutor: ${task.fallbackExecutor ?? ''} → ${updates.fallbackExecutor}`); task.fallbackExecutor = updates.fallbackExecutor }
+  if (updates.autoFallback !== undefined) task.autoFallback = updates.autoFallback
+  if (updates.canRunOnCodex !== undefined) task.canRunOnCodex = updates.canRunOnCodex
+  if (updates.requiresClaude !== undefined) task.requiresClaude = updates.requiresClaude
   task.updatedAt = now
 
   await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8')

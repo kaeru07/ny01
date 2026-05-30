@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { addExecutionRun } from '@/lib/execution-run-writer'
-import type { RunStatus, ReviewStatus, ChangedFile } from '@/types/execution-run'
+import type { ExecutorType, RunStatus, ReviewStatus, ChangedFile } from '@/types/execution-run'
 
 const VALID_RUN_STATUSES: RunStatus[] = ['running', 'completed', 'failed', 'partial']
 const VALID_REVIEW_STATUSES: ReviewStatus[] = ['not_reviewed', 'copied', 'reviewed', 'needs_followup']
+const VALID_EXECUTORS: ExecutorType[] = ['claude', 'codex', 'manual', 'other']
 
 function generateRunId(): string {
   const now = new Date()
@@ -114,6 +115,11 @@ export async function POST(request: Request) {
       targetTodoTitle: String(body.targetTodoTitle).trim(),
       runStatus: body.runStatus as RunStatus,
       reviewStatus,
+      executorUsed: VALID_EXECUTORS.includes(body.executorUsed) ? body.executorUsed : undefined,
+      preferredExecutor: VALID_EXECUTORS.includes(body.preferredExecutor) ? body.preferredExecutor : undefined,
+      fallbackExecutor: VALID_EXECUTORS.includes(body.fallbackExecutor) ? body.fallbackExecutor : undefined,
+      autoFallback: typeof body.autoFallback === 'boolean' ? body.autoFallback : undefined,
+      fallbackReason: typeof body.fallbackReason === 'string' ? body.fallbackReason : undefined,
       beforeStatus: typeof body.beforeStatus === 'string' ? body.beforeStatus : undefined,
       afterStatus: typeof body.afterStatus === 'string' ? body.afterStatus : undefined,
       promptUsed: typeof body.promptUsed === 'string' ? body.promptUsed : undefined,

@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import type { Epic, Approval, HealthSummary } from '@/lib/types/operations'
+import type { Epic, Approval, AutomationReadiness, ExecutorSummary, HealthSummary } from '@/lib/types/operations'
 
 interface AutoexecStatus {
   name: string | null
@@ -21,19 +21,22 @@ export default function OperationsPage() {
   const [autoexec, setAutoexec] = useState<AutoexecStatus | null>(null)
   const [approvals, setApprovals] = useState<Approval[]>([])
   const [epics, setEpics] = useState<Epic[]>([])
+  const [automation, setAutomation] = useState<AutomationReadiness | null>(null)
   const [busy, setBusy] = useState(false)
 
   const refresh = useCallback(async () => {
-    const [h, a, ap, ep] = await Promise.all([
+    const [h, a, ap, ep, au] = await Promise.all([
       getJson<HealthSummary>('/api/operations/health').catch(() => null),
       getJson<AutoexecStatus>('/api/operations/autoexec').catch(() => null),
       getJson<Approval[]>('/api/operations/approvals').catch(() => []),
       getJson<Epic[]>('/api/operations/epics').catch(() => []),
+      getJson<AutomationReadiness>('/api/operations/automation').catch(() => null),
     ])
     setHealth(h)
     setAutoexec(a)
     setApprovals(ap)
     setEpics(ep.filter((e) => e.status === 'active'))
+    setAutomation(au)
   }, [])
 
   useEffect(() => {
@@ -131,6 +134,51 @@ export default function OperationsPage() {
         </div>
       </section>
 
+      {automation && (
+        <section className="space-y-3">
+          <h2 className="text-sm font-bold">自動化基盤</h2>
+          <div className="rounded-lg border border-gray-200 p-3">
+            <div className="grid grid-cols-2 gap-2">
+              <Metric label="Decision Log" value={automation.decisionLog.entries} />
+              <Metric label="AI次ToDo" value={automation.aiGeneratedTodos.fromExecutionRunNextActions} />
+              <Metric label="handoff" value={automation.handoff.exists ? 'あり' : 'なし'} />
+              <Metric label="Codex可" value={automation.restartReadiness.canFallbackToCodex ? 'あり' : 'なし'} />
+            </div>
+            {automation.restartReadiness.blockers.length > 0 && (
+              <div className="mt-3 rounded border border-amber-200 bg-amber-50 p-2">
+                <p className="text-xs font-medium text-amber-800">再開前の確認</p>
+                <ul className="mt-1 space-y-1">
+                  {automation.restartReadiness.blockers.map((b) => (
+                    <li key={b} className="text-xs text-amber-700">{b}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-lg border border-gray-200 p-3">
+            <h3 className="text-sm font-medium">Executor</h3>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              {automation.executors.map((executor) => (
+                <ExecutorCard key={executor.executor} executor={executor} />
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-gray-200 p-3">
+            <h3 className="text-sm font-medium">handoff</h3>
+            <p className="mt-1 text-xs text-gray-600">
+              source: {automation.handoff.source} / status: {automation.handoff.status}
+            </p>
+            {automation.handoff.missingSections.length > 0 && (
+              <p className="mt-2 text-xs text-amber-700">
+                不足: {automation.handoff.missingSections.join(' / ')}
+              </p>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* ③ 承認待ち（0件なら非表示） */}
       {approvals.length > 0 && (
         <section className="space-y-3">
@@ -179,9 +227,33 @@ function HealthChip({
   )
 }
 
+function Metric({ label, value }: { label: string; value: number | string }) {
+  return (
+    <div className="rounded border border-gray-100 bg-gray-50 px-2 py-2">
+      <div className="text-base font-bold leading-none">{value}</div>
+      <div className="mt-1 text-[11px] text-gray-600">{label}</div>
+    </div>
+  )
+}
+
+function ExecutorCard({ executor }: { executor: ExecutorSummary }) {
+  return (
+    <div className="rounded border border-gray-100 bg-white px-2 py-2">
+      <div className="text-sm font-medium">{executor.executor}</div>
+      <div className="mt-1 text-[11px] text-gray-600">
+        実行可 {executor.runnable} / 実行中 {executor.running}
+      </div>
+      <div className="mt-1 text-[11px] text-gray-500">
+        完了 {executor.completedRuns} / 失敗 {executor.failedRuns}
+      </div>
+    </div>
+  )
+}
+
 const PRIORITY_BADGE: Record<Approval['priority'], string> = {
   critical: 'bg-red-100 text-red-700',
   high: 'bg-amber-100 text-amber-700',
+  normal: 'bg-blue-100 text-blue-700',
   low: 'bg-gray-100 text-gray-600',
 }
 

@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { addTask, addTasks } from '@/lib/progress-writer'
-import type { NewTaskInput, TaskStatus, TaskPriority, TaskAssignee } from '@/types/progress'
+import type { ExecutorType, NewTaskInput, TaskStatus, TaskPriority, TaskAssignee } from '@/types/progress'
 
 const validStatuses: TaskStatus[] = ['pending_approval', 'backlog', 'todo', 'in_progress', 'impl_done', 'local_done', 'done', 'blocked', 'deleted', 'skipped']
 const validPriorities: TaskPriority[] = ['high', 'medium', 'low']
 const validAssignees: TaskAssignee[] = ['claude', 'user', 'both']
+const validExecutors: ExecutorType[] = ['claude', 'codex', 'manual', 'other']
 
 function asStringArray(value: unknown): string[] | undefined {
   if (!Array.isArray(value)) return undefined
@@ -26,6 +27,11 @@ function normalizeTask(body: Record<string, unknown>, fallbackProjectId?: string
     status: validStatuses.includes(body.status as TaskStatus) ? body.status as TaskStatus : 'todo',
     priority: validPriorities.includes(body.priority as TaskPriority) ? body.priority as TaskPriority : 'medium',
     assignee: validAssignees.includes(body.assignee as TaskAssignee) ? body.assignee as TaskAssignee : 'claude',
+    preferredExecutor: validExecutors.includes(body.preferredExecutor as ExecutorType) ? body.preferredExecutor as ExecutorType : undefined,
+    fallbackExecutor: validExecutors.includes(body.fallbackExecutor as ExecutorType) ? body.fallbackExecutor as ExecutorType : undefined,
+    autoFallback: typeof body.autoFallback === 'boolean' ? body.autoFallback : undefined,
+    canRunOnCodex: typeof body.canRunOnCodex === 'boolean' ? body.canRunOnCodex : undefined,
+    requiresClaude: typeof body.requiresClaude === 'boolean' ? body.requiresClaude : undefined,
     memo: typeof body.memo === 'string' ? body.memo.trim() : '',
     taskPrompt: typeof body.taskPrompt === 'string' ? body.taskPrompt.trim() : undefined,
     doneCriteria: asStringArray(body.doneCriteria),

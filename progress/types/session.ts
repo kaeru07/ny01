@@ -1,4 +1,4 @@
-import type { TaskPriority } from '@/types/progress'
+import type { ExecutorType, TaskPriority } from '@/types/progress'
 
 export type { TaskPriority }
 
@@ -18,6 +18,11 @@ export interface WorkCandidate {
   taskTitle: string
   description: string
   priority: TaskPriority
+  preferredExecutor?: ExecutorType
+  fallbackExecutor?: ExecutorType
+  autoFallback?: boolean
+  canRunOnCodex?: boolean
+  requiresClaude?: boolean
   estimatedEffort: WorkEffort
   reason: string
   prerequisites: string
@@ -44,6 +49,13 @@ export interface WorkQueueItem {
   taskTitle: string
   description: string
   priority: TaskPriority
+  preferredExecutor?: ExecutorType
+  fallbackExecutor?: ExecutorType
+  autoFallback?: boolean
+  canRunOnCodex?: boolean
+  requiresClaude?: boolean
+  executorUsed?: ExecutorType
+  fallbackReason?: string
   status: WorkItemStatus
   autoOrder: number
   manualOrder?: number
@@ -70,8 +82,22 @@ export interface WorkSession {
   date: string
   status: SessionStatus
   handoffText: string
+  handoff?: HandoffState
   startedAt?: string
   endedAt?: string
   createdAt: string
+  updatedAt: string
+}
+
+export interface HandoffState {
+  objective: string
+  currentState: string
+  changedFiles: string[]
+  remainingWork: string[]
+  forbidden: string[]
+  checks: string[]
+  decisionLog: string[]
+  approvalsPending: string[]
+  codexPrompt?: string
   updatedAt: string
 }

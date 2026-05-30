@@ -1,6 +1,17 @@
 export type DecisionPolicy = 'autonomous' | 'approval_required' | 'budget_sensitive' | 'destructive_sensitive'
-export type ApprovalPriority = 'critical' | 'high' | 'low'
-export type ApprovalCategory = 'goal_change' | 'billing' | 'destructive' | 'monetization' | 'multi_option'
+export type ApprovalPriority = 'critical' | 'high' | 'normal' | 'low'
+export type ApprovalCategory =
+  | 'goal_change'
+  | 'billing'
+  | 'destructive'
+  | 'production_risk'
+  | 'secret'
+  | 'external_publish'
+  | 'monetization'
+  | 'multi_option'
+  | 'executor_fallback'
+
+export type ExecutorType = 'claude' | 'codex' | 'manual' | 'other'
 
 export interface Epic {
   epicId: string
@@ -22,7 +33,7 @@ export interface ApprovalOption {
   key: string
   label: string
   detail?: string
-  flag?: 'billing' | 'destructive'
+  flag?: 'billing' | 'destructive' | 'secret' | 'external_publish'
 }
 
 export interface Approval {
@@ -49,6 +60,61 @@ export interface OperationalDecision {
   decision: string
   approvalId?: string
   decidedAt: string
+}
+
+export interface ExecutorSummary {
+  executor: ExecutorType
+  runnable: number
+  running: number
+  completedRuns: number
+  failedRuns: number
+}
+
+export interface NextTodoCandidate {
+  sourceRunId: string
+  targetApp: string
+  title: string
+  reviewStatus: string
+  createdAt: string
+}
+
+export interface HandoffSummary {
+  exists: boolean
+  source: 'today-session' | 'none'
+  status: string
+  hasStructuredHandoff: boolean
+  textLength: number
+  updatedAt?: string
+  requiredSections: string[]
+  missingSections: string[]
+}
+
+export interface AutomationReadiness {
+  vloopSourceOfTruth: string
+  executionTarget: string
+  approvalQueue: {
+    pending: number
+    critical: number
+    high: number
+    mobileSelectable: number
+  }
+  decisionLog: {
+    entries: number
+    latestDecisionAt?: string
+  }
+  aiGeneratedTodos: {
+    fromExecutionRunNextActions: number
+    persistedAsTasks: number
+    candidates: NextTodoCandidate[]
+  }
+  executors: ExecutorSummary[]
+  handoff: HandoffSummary
+  restartReadiness: {
+    canResumeFromQueue: boolean
+    canResumeFromDecisionLog: boolean
+    canFallbackToCodex: boolean
+    blockers: string[]
+  }
 }
 
 export interface HealthSummary {

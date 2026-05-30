@@ -13,6 +13,8 @@ export type TaskStatus = 'pending_approval' | 'backlog' | 'todo' | 'in_progress'
 
 export type TaskPriority = 'high' | 'medium' | 'low'
 
+export type ExecutorType = 'claude' | 'codex' | 'manual' | 'other'
+
 // claude: Claude が実行できる / user: ユーザー操作が必要 / both: 両者が関与
 export type TaskAssignee = 'claude' | 'user' | 'both'
 
@@ -53,6 +55,13 @@ export interface Task {
   status: TaskStatus
   priority: TaskPriority
   assignee: TaskAssignee
+  preferredExecutor?: ExecutorType
+  fallbackExecutor?: ExecutorType
+  autoFallback?: boolean
+  canRunOnCodex?: boolean
+  requiresClaude?: boolean
+  executorUsed?: ExecutorType
+  fallbackReason?: string
   memo: string
   taskPrompt?: string
   taskPromptUpdatedAt?: string
@@ -93,6 +102,11 @@ export interface NewTaskInput {
   status: TaskStatus
   priority: TaskPriority
   assignee?: TaskAssignee
+  preferredExecutor?: ExecutorType
+  fallbackExecutor?: ExecutorType
+  autoFallback?: boolean
+  canRunOnCodex?: boolean
+  requiresClaude?: boolean
   memo: string
   taskPrompt?: string
   doneCriteria?: string[]
