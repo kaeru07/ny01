@@ -13,6 +13,8 @@ import type {
   GeneratedHandoff,
   NextTodoCandidate,
   PendingTodoGenerationResult,
+  EpicDetail,
+  ExecutionRunBrief,
 } from './types/operations'
 import type { WorkQueueData } from '@/types/session'
 import type { AppProgress, ProjectTasksData, Task, TaskPriority } from '@/types/progress'
@@ -30,6 +32,11 @@ const PRIORITY_ORDER: Record<ApprovalPriority, number> = {
 
 export async function getEpics(): Promise<Epic[]> {
   return readJson<Epic[]>('epics.json', [])
+}
+
+export async function getEpic(epicId: string): Promise<Epic | null> {
+  const epics = await getEpics()
+  return epics.find((e) => e.epicId === epicId) ?? null
 }
 
 export async function updateEpic(epicId: string, patch: Partial<Epic>): Promise<Epic | null> {
@@ -254,15 +261,27 @@ function summarizeExecutors(tasks: Task[], queue: WorkQueueData, runs: Execution
   })
 }
 
+// nextActions は型上 string[] だが、executor が誤って {title,...} 等のオブジェクトを
+// POST するケースがあるため、描画前にここで必ず文字列へ正規化する（全経路が通る防御点）。
+function nextActionText(action: unknown): string {
+  if (typeof action === 'string') return action
+  if (action && typeof action === 'object') {
+    const o = action as Record<string, unknown>
+    if (typeof o.title === 'string') return o.title
+    if (typeof o.text === 'string') return o.text
+  }
+  return String(action)
+}
+
 function buildNextTodoCandidates(runs: ExecutionRun[]): NextTodoCandidate[] {
   return runs
-    .filter((run) => run.nextActions.length > 0)
+    .filter((run) => Array.isArray(run.nextActions) && run.nextActions.length > 0)
     .slice(0, 10)
     .flatMap((run) =>
       run.nextActions.slice(0, 3).map((action) => ({
         sourceRunId: run.runId,
         targetApp: run.targetApp,
-        title: action,
+        title: nextActionText(action),
         reviewStatus: run.reviewStatus,
         createdAt: run.finishedAt,
       })),
@@ -369,6 +388,106 @@ export async function generatePendingApprovalTasks(limit = 10): Promise<PendingT
   }
 }
 
+// ---- Epic detail (read-only aggregation, no new source of truth) ----
+
+function normalizeApp(value: string): string {
+  return value.toLowerCase().split('/').map((s) => s.trim()).filter(Boolean).pop() ?? value.toLowerCase().trim()
+}
+
+/**
+ * Run が Epic に属するかを判定する。優先順位:
+ * 1) run.epicId が一致（executor がタグ付けした正確な結合）
+ * 2) run.targetTodoId が epic.relatedTodoIds に含まれる
+ * 3) run.runId === epic.latestRunId
+ * 4) epic.targetApps に run.targetApp（正規化後）が含まれる
+ */
+function runBelongsToEpic(run: ExecutionRun, epic: Epic): boolean {
+  if (run.epicId) return run.epicId === epic.epicId
+  if (run.targetTodoId && epic.relatedTodoIds?.includes(run.targetTodoId)) return true
+  if (epic.latestRunId && run.runId === epic.latestRunId) return true
+  if (epic.targetApps && epic.targetApps.length > 0) {
+    const apps = epic.targetApps.map(normalizeApp)
+    if (apps.includes(normalizeApp(run.targetApp))) return true
+  }
+  return false
+}
+
+function epicHasScopeKeys(epic: Epic): boolean {
+  return Boolean(
+    (epic.relatedTodoIds && epic.relatedTodoIds.length > 0) ||
+      (epic.targetApps && epic.targetApps.length > 0) ||
+      epic.latestRunId,
+  )
+}
+
+function toRunBrief(run: ExecutionRun): ExecutionRunBrief {
+  return {
+    runId: run.runId,
+    finishedAt: run.finishedAt,
+    targetApp: run.targetApp,
+    targetTodoTitle: run.targetTodoTitle,
+    runStatus: run.runStatus,
+    reviewStatus: run.reviewStatus,
+    summary: run.summary,
+    executor: executorFromRun(run),
+    changedFilesCount: run.changedFiles?.length ?? 0,
+    nextActions: (run.nextActions ?? []).map(nextActionText),
+  }
+}
+
+export async function getEpicDetail(epicId: string, recentLimit = 5): Promise<EpicDetail | null> {
+  const epic = await getEpic(epicId)
+  if (!epic) return null
+
+  const [runsData, decisions, approvals, queue, tasksData] = await Promise.all([
+    readJson<ExecutionRunsData>('execution-runs.json', { runs: [] }),
+    getOperationalDecisions(),
+    getApprovals(),
+    readJson<WorkQueueData>('work-queue.json', { items: [], lastGenerated: '' }),
+    readJson<ProjectTasksData>('project-tasks.json', { projects: [] }),
+  ])
+
+  const sortedRuns = [...runsData.runs].sort((a, b) => Date.parse(b.finishedAt) - Date.parse(a.finishedAt))
+
+  // ExecutionRun を Epic にスコープ。結合キーが未整備でマッチ 0 件なら、画面が空にならないよう
+  // 全体の直近を 'global-fallback' として仮表示する（Run に epicId が付くにつれ自動で正確化する）。
+  let scopedRuns = sortedRuns.filter((run) => runBelongsToEpic(run, epic))
+  let runScope: EpicDetail['runScope'] = 'epic'
+  if (scopedRuns.length === 0 && !epicHasScopeKeys(epic)) {
+    scopedRuns = sortedRuns
+    runScope = 'global-fallback'
+  }
+
+  const scopedDecisions = decisions.filter((d) => d.epicId === epic.epicId)
+  const recentDecisions = (scopedDecisions.length > 0 ? scopedDecisions : []).slice(-recentLimit).reverse()
+  const pendingApprovals = approvals
+    .filter((a) => a.status === 'pending' && a.epicId === epic.epicId)
+    .sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority])
+
+  const nextActions = buildNextTodoCandidates(scopedRuns).slice(0, recentLimit)
+
+  const tasks = tasksData.projects.flatMap((project) => project.tasks)
+  const executors = summarizeExecutors(tasks, queue, scopedRuns)
+  const running = queue.items.filter((item) => item.status === 'in_progress').length
+  const stopped = queue.items.filter((item) => item.status === 'blocked').length
+
+  return {
+    epic,
+    runScope,
+    latestRun: scopedRuns[0] ? toRunBrief(scopedRuns[0]) : null,
+    recentRuns: scopedRuns.slice(0, recentLimit).map(toRunBrief),
+    recentDecisions,
+    nextActions,
+    pendingApprovals,
+    automation: {
+      executors,
+      running,
+      stopped,
+      pendingApproval: pendingApprovals.length,
+    },
+  }
+}
+
 function summarizeHandoff(session: WorkSession) {
   const text = session.handoffText ?? ''
   const missingSections = HANDOFF_SECTIONS.filter((section) => !text.includes(section))
@@ -384,14 +503,25 @@ function summarizeHandoff(session: WorkSession) {
   }
 }
 
-export async function generateHandoffView(): Promise<GeneratedHandoff> {
-  const [runsData, decisions, approvals, nextActions] = await Promise.all([
+export async function generateHandoffView(epicId?: string): Promise<GeneratedHandoff> {
+  const [runsData, allDecisions, allApprovals, epic] = await Promise.all([
     readJson<ExecutionRunsData>('execution-runs.json', { runs: [] }),
     getOperationalDecisions(),
     getPendingApprovals(),
-    getNextActionCandidates(10),
+    epicId ? getEpic(epicId) : Promise.resolve(null),
   ])
-  const latestRun = [...runsData.runs].sort((a, b) => Date.parse(b.finishedAt) - Date.parse(a.finishedAt))[0]
+
+  // epicId 指定時は対象 Epic にスコープ。未指定 / 結合キー未整備時は全体を使う（従来挙動）。
+  const sorted = [...runsData.runs].sort((a, b) => Date.parse(b.finishedAt) - Date.parse(a.finishedAt))
+  let scopedRuns = sorted
+  if (epic) {
+    const matched = sorted.filter((run) => runBelongsToEpic(run, epic))
+    if (matched.length > 0 || epicHasScopeKeys(epic)) scopedRuns = matched
+  }
+  const decisions = epic ? allDecisions.filter((d) => d.epicId === epic.epicId) : allDecisions
+  const approvals = epic ? allApprovals.filter((a) => a.epicId === epic.epicId) : allApprovals
+  const nextActions = buildNextTodoCandidates(scopedRuns).slice(0, 10)
+  const latestRun = scopedRuns[0]
   const changedFiles = latestRun?.changedFiles.map((f) => `${f.file}${f.change ? `: ${f.change}` : ''}`) ?? []
   const decisionLines = decisions.slice(-10).map((d) => `${d.topic} => ${d.decision}`)
   const approvalLines = approvals.map((a) => `${a.title} (${a.priority})`)

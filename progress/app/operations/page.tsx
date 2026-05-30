@@ -155,7 +155,7 @@ export default function OperationsPage() {
             <div className="grid grid-cols-2 gap-2">
               <Metric label="Decision Log" value={automation.decisionLog.entries} />
               <Metric label="AI次ToDo" value={automation.aiGeneratedTodos.fromExecutionRunNextActions} />
-              <Metric label="handoff" value={automation.handoff.exists ? 'あり' : 'なし'} />
+              <Metric label="継続情報" value={automation.generatedHandoff.available ? '生成可' : '不足'} />
               <Metric label="Codex可" value={automation.restartReadiness.canFallbackToCodex ? 'あり' : 'なし'} />
             </div>
             <button
@@ -187,18 +187,13 @@ export default function OperationsPage() {
           </div>
 
           <div className="rounded-lg border border-gray-200 p-3">
-            <h3 className="text-sm font-medium">handoff</h3>
+            <h3 className="text-sm font-medium">継続実行情報</h3>
             <p className="mt-1 text-xs text-gray-600">
-              source: {automation.generatedHandoff.source} / status: {automation.handoff.status}
+              状態: {automation.generatedHandoff.available ? '生成可能' : '素材不足'}
             </p>
             <p className="mt-1 text-xs text-gray-600">
-              生成元: ExecutionRun + Decision Log + Next Actions
+              ExecutionRun・決定事項・次回予定・承認待ちから内部生成（独立した正本ではありません）
             </p>
-            {automation.handoff.missingSections.length > 0 && (
-              <p className="mt-2 text-xs text-amber-700">
-                不足: {automation.handoff.missingSections.join(' / ')}
-              </p>
-            )}
           </div>
         </section>
       )}

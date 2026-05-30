@@ -111,6 +111,7 @@ export async function POST(request: Request) {
       startedAt: typeof body.startedAt === 'string' ? body.startedAt : now,
       finishedAt: typeof body.finishedAt === 'string' ? body.finishedAt : now,
       targetApp: String(body.targetApp).trim(),
+      epicId: typeof body.epicId === 'string' && body.epicId.trim() ? body.epicId.trim() : undefined,
       targetTodoId: typeof body.targetTodoId === 'string' ? body.targetTodoId : undefined,
       targetTodoTitle: String(body.targetTodoTitle).trim(),
       runStatus: body.runStatus as RunStatus,
