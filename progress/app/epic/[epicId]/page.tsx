@@ -81,7 +81,10 @@ export default async function EpicDetailPage({ params }: { params: { epicId: str
 
       {/* Automation 状態（最低限: executor / running / stopped / 承認待ち件数） */}
       <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-        <h2 className="mb-2 text-sm font-bold text-gray-900 dark:text-gray-100">自動実行の状態</h2>
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">自動実行の状態</h2>
+          <Link href="/automation" className="text-xs text-blue-600 hover:underline dark:text-blue-400">制御へ →</Link>
+        </div>
         <div className="grid grid-cols-3 gap-2 text-center">
           <div className="rounded-lg bg-gray-50 py-2 dark:bg-gray-800/50">
             <div className="text-lg font-bold text-gray-900 dark:text-gray-100">{automation.running}</div>

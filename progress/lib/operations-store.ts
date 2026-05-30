@@ -15,6 +15,7 @@ import type {
   PendingTodoGenerationResult,
   EpicDetail,
   ExecutionRunBrief,
+  AutomationConfig,
 } from './types/operations'
 import type { WorkQueueData } from '@/types/session'
 import type { AppProgress, ProjectTasksData, Task, TaskPriority } from '@/types/progress'
@@ -37,6 +38,30 @@ export async function getEpics(): Promise<Epic[]> {
 export async function getEpic(epicId: string): Promise<Epic | null> {
   const epics = await getEpics()
   return epics.find((e) => e.epicId === epicId) ?? null
+}
+
+/**
+ * ExecutionRun を Epic に自動結合する。POST で epicId 明示があればそれを尊重、
+ * 無ければ targetApp / targetTodoId から Epic.targetApps / relatedTodoIds で推定する。
+ * 該当 Epic が無ければ undefined（無理に結合しない）。
+ */
+export async function resolveEpicId(input: {
+  epicId?: string
+  targetApp?: string
+  targetTodoId?: string
+}): Promise<string | undefined> {
+  if (input.epicId) return input.epicId
+  const epics = await getEpics()
+  if (input.targetTodoId) {
+    const byTodo = epics.find((e) => e.relatedTodoIds?.includes(input.targetTodoId!))
+    if (byTodo) return byTodo.epicId
+  }
+  if (input.targetApp) {
+    const app = normalizeApp(input.targetApp)
+    const byApp = epics.find((e) => (e.targetApps ?? []).map(normalizeApp).includes(app))
+    if (byApp) return byApp.epicId
+  }
+  return undefined
 }
 
 export async function updateEpic(epicId: string, patch: Partial<Epic>): Promise<Epic | null> {
@@ -211,6 +236,37 @@ const HANDOFF_SECTIONS = [
   '承認待ち',
 ]
 
+// ---- Executor 適格性ポリシー（Claude→Codex 自動切替の共有判定） ----
+// handoff は UI 非表示のまま、この判定に基づき内部で executor を選ぶ。
+
+/** Codex へ渡してよい安全シグナル（方針決定済み・非破壊作業） */
+export const CODEX_ALLOW_SIGNALS = [
+  'lint', 'typecheck', 'type check', 'build', 'test', 'テスト', 'document', 'docs', 'ドキュメント',
+  'vault', 'integ', 'issue', 'ui', 'copy', '文言', 'リファクタ', '整理', 'スタイル', 'format',
+]
+
+/** Codex へ渡さない危険シグナル（Claude 専任 / 人間判断が必要） */
+export const CODEX_DENY_SIGNALS = [
+  '課金', 'billing', '本番db', 'production db', '本番', 'destructive', '削除', 'drop ', 'truncate',
+  'secret', 'token', '認証', 'credential', '外部公開', 'publish', 'deploy', 'デプロイ',
+  'pm2', 'cron', 'systemd', 'migration', 'マイグレーション', 'スキーマ変更', '.env',
+]
+
+export interface CodexEligibility {
+  eligible: boolean
+  reason: string
+}
+
+/** テキストから Codex 自動切替の可否を判定する（最終ゲートは requiresClaude / Approval Queue）。 */
+export function classifyCodexEligibility(text: string): CodexEligibility {
+  const t = text.toLowerCase()
+  const deny = CODEX_DENY_SIGNALS.find((s) => t.includes(s))
+  if (deny) return { eligible: false, reason: `危険シグナル「${deny}」を含むため Claude 専任` }
+  const allow = CODEX_ALLOW_SIGNALS.find((s) => t.includes(s))
+  if (allow) return { eligible: true, reason: `安全シグナル「${allow}」に該当` }
+  return { eligible: false, reason: '安全シグナル未検出のため既定で Claude' }
+}
+
 function getTaskExecutor(task: Task): ExecutorType {
   if (task.preferredExecutor) return task.preferredExecutor
   if (task.assignee === 'user') return 'manual'
@@ -222,10 +278,8 @@ function canRunOnCodex(task: Task): boolean {
   if (task.canRunOnCodex) return true
   if (task.fallbackExecutor === 'codex') return true
   if (task.assignee === 'both') return true
-  const text = `${task.title} ${task.memo} ${task.taskPrompt ?? ''}`.toLowerCase()
-  const safeSignals = ['lint', 'typecheck', 'build', 'test', 'document', 'docs', 'vault', 'github issue', 'ui', 'copy']
-  const riskySignals = ['課金', '本番db', 'destructive', 'secret', 'token', '外部公開', '認証情報', 'production']
-  return safeSignals.some((s) => text.includes(s)) && !riskySignals.some((s) => text.includes(s))
+  const text = `${task.title} ${task.memo} ${task.taskPrompt ?? ''}`
+  return classifyCodexEligibility(text).eligible
 }
 
 function executorFromRun(run: ExecutionRun): ExecutorType {
@@ -289,9 +343,7 @@ function buildNextTodoCandidates(runs: ExecutionRun[]): NextTodoCandidate[] {
 }
 
 function isRiskyNextAction(title: string): boolean {
-  const text = title.toLowerCase()
-  const riskySignals = ['課金', '本番db', 'destructive', 'secret', 'token', '外部公開', '認証情報', 'production', 'pm2', 'cron', 'systemd']
-  return riskySignals.some((signal) => text.includes(signal))
+  return !classifyCodexEligibility(title).eligible && CODEX_DENY_SIGNALS.some((s) => title.toLowerCase().includes(s))
 }
 
 function inferPriority(title: string): TaskPriority {
@@ -634,4 +686,31 @@ export async function computeAutomationReadiness(): Promise<AutomationReadiness>
       blockers,
     },
   }
+}
+
+// ---- Automation config (運用スイッチの永続化。新正本ではなく設定ファイル) ----
+
+const DEFAULT_AUTOMATION_CONFIG: AutomationConfig = {
+  executorMode: 'both',
+  autoResume: false,
+  autoFallback: false,
+  updatedAt: '',
+}
+
+export async function getAutomationConfig(): Promise<AutomationConfig> {
+  return readJson<AutomationConfig>('automation-config.json', DEFAULT_AUTOMATION_CONFIG)
+}
+
+export async function updateAutomationConfig(
+  patch: Partial<Omit<AutomationConfig, 'updatedAt'>>,
+): Promise<AutomationConfig> {
+  const current = await getAutomationConfig()
+  const next: AutomationConfig = {
+    executorMode: patch.executorMode ?? current.executorMode,
+    autoResume: patch.autoResume ?? current.autoResume,
+    autoFallback: patch.autoFallback ?? current.autoFallback,
+    updatedAt: new Date().toISOString(),
+  }
+  await writeJson('automation-config.json', next)
+  return next
 }

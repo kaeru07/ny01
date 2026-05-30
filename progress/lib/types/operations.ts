@@ -188,6 +188,20 @@ export interface EpicDetail {
   }
 }
 
+/**
+ * Automation（AI工場のエンジン）設定。Claude 上限で止まらないための運用スイッチ。
+ * MVP では値の永続化のみ行い、実際の自動実行（Auto Resume / Auto Fallback）の発火は別途実装する。
+ */
+export interface AutomationConfig {
+  /** 既定の実行者。both = Claude 優先・不可なら Codex。 */
+  executorMode: 'claude' | 'codex' | 'both'
+  /** Claude 上限などで停止したとき、安全な作業を自動で再開するか（enforcement は後続実装）。 */
+  autoResume: boolean
+  /** Claude が使えないとき、Codex 適格な作業を自動で Codex へ回すか（enforcement は後続実装）。 */
+  autoFallback: boolean
+  updatedAt: string
+}
+
 /** Epic 詳細・実行履歴カードで使う ExecutionRun の軽量表現。 */
 export interface ExecutionRunBrief {
   runId: string

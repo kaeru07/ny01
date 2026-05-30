@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { addExecutionRun } from '@/lib/execution-run-writer'
+import { resolveEpicId } from '@/lib/operations-store'
 import type { ExecutorType, RunStatus, ReviewStatus, ChangedFile } from '@/types/execution-run'
 
 const VALID_RUN_STATUSES: RunStatus[] = ['running', 'completed', 'failed', 'partial']
@@ -106,13 +107,22 @@ export async function POST(request: Request) {
       ? body.changedFiles.map(parseChangedFile)
       : []
 
+    const targetApp = String(body.targetApp).trim()
+    const targetTodoId = typeof body.targetTodoId === 'string' ? body.targetTodoId : undefined
+    // epicId は明示優先。無ければ targetApp / targetTodoId から Epic を自動結合する。
+    const epicId = await resolveEpicId({
+      epicId: typeof body.epicId === 'string' && body.epicId.trim() ? body.epicId.trim() : undefined,
+      targetApp,
+      targetTodoId,
+    })
+
     const run = {
       runId,
       startedAt: typeof body.startedAt === 'string' ? body.startedAt : now,
       finishedAt: typeof body.finishedAt === 'string' ? body.finishedAt : now,
-      targetApp: String(body.targetApp).trim(),
-      epicId: typeof body.epicId === 'string' && body.epicId.trim() ? body.epicId.trim() : undefined,
-      targetTodoId: typeof body.targetTodoId === 'string' ? body.targetTodoId : undefined,
+      targetApp,
+      epicId,
+      targetTodoId,
       targetTodoTitle: String(body.targetTodoTitle).trim(),
       runStatus: body.runStatus as RunStatus,
       reviewStatus,
