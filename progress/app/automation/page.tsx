@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import type { AutomationReadiness, HealthSummary, AutomationConfig, ExecutorSummary } from '@/lib/types/operations'
 import CodexHandoffPanel from '@/components/codex/CodexHandoffPanel'
 import CodexReportForm from '@/components/codex/CodexReportForm'
+import AutoFallbackPanel from '@/components/codex/AutoFallbackPanel'
 
 interface AutoexecStatus {
   name: string | null
@@ -172,9 +173,18 @@ export default function AutomationPage() {
         )}
       </section>
 
+      {/* Auto Fallback（Claude上限検知 → 安全判定 → Codexプロンプト自動生成） */}
+      <section className="rounded-2xl border border-amber-200 bg-amber-50/40 p-4 dark:border-amber-800/60 dark:bg-amber-900/10">
+        <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Auto Fallback</h2>
+        <p className="mt-0.5 mb-3 text-[11px] text-gray-500">
+          Claude 上限で止まったら押す → 厳格な安全判定 → OK なら Codex プロンプト自動生成・通知（Codex は自動起動しません）
+        </p>
+        <AutoFallbackPanel />
+      </section>
+
       {/* Codex へ引き継ぐ（半自動切替・モバイルコピー） */}
       <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-        <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Codexへ引き継ぐ</h2>
+        <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Codexへ引き継ぐ（手動）</h2>
         <p className="mt-0.5 mb-3 text-[11px] text-gray-400">Claude 上限で止まったら生成 → モバイルでコピー → Codex へ貼り付け（安全判定付き）</p>
         <CodexHandoffPanel />
       </section>

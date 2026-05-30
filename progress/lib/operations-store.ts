@@ -17,6 +17,9 @@ import type {
   ExecutionRunBrief,
   AutomationConfig,
   CodexPrompt,
+  AutoFallbackResult,
+  FallbackBlock,
+  AutomationLogEntry,
 } from './types/operations'
 import type { WorkQueueData } from '@/types/session'
 import type { AppProgress, ProjectTasksData, Task, TaskPriority } from '@/types/progress'
@@ -684,7 +687,8 @@ export async function generateCodexPrompt(epicId?: string): Promise<CodexPrompt>
   lines.push('- 完了したら作業報告を簡潔にまとめる（変更ファイル / 実行コマンド / 検証結果 / 次アクション / 残課題）')
   lines.push('')
   lines.push('[7] 完了後')
-  lines.push('作業報告をそのままユーザーへ返してください。ユーザーがProgressのExecutionRunへ登録します。')
+  lines.push('作業報告（変更ファイル / 実行コマンド / 検証結果 / 次アクション）をそのままユーザーへ返してください。')
+  lines.push('ユーザーが Progress の「Codex結果を戻す」に貼り、executorUsed=codex / source=codex_mobile として ExecutionRun に登録します。')
 
   return {
     promptText: lines.join('\n'),
@@ -793,4 +797,145 @@ export async function updateAutomationConfig(
   }
   await writeJson('automation-config.json', next)
   return next
+}
+
+// ---- Auto Fallback（Claude 上限時の半自動 Codex 引き継ぎ）----
+// Codex は自動起動しない。安全判定 OK のときだけプロンプトを生成して通知する。
+
+/** Epic にスコープした未完了タスク（targetApps / relatedTodoIds で結合）。 */
+async function getScopedOpenTasks(epic: Epic | null): Promise<Task[]> {
+  const tasksData = await readJson<ProjectTasksData>('project-tasks.json', { projects: [] })
+  const all = tasksData.projects.flatMap((p) =>
+    p.tasks.map((t) => ({ projectId: p.projectId, task: t })),
+  )
+  return all
+    .filter(({ projectId, task }) => {
+      if (!OPEN_TASK_STATUSES.includes(task.status) && task.status !== 'pending_approval') return false
+      if (!epic) return true
+      if (epic.relatedTodoIds?.includes(task.id)) return true
+      if ((epic.targetApps ?? []).map(normalizeApp).includes(normalizeApp(projectId))) return true
+      return false
+    })
+    .map(({ task }) => task)
+}
+
+/**
+ * Claude 上限扱いになったときに Codex へ安全に引き継げるかを厳格判定する。
+ * 優先順: Auto Fallback設定 → 承認待ち → 決定待ち(decisionPolicy) → 対象作業の承認待ち
+ *        → requiresClaude → キーワード deny/allow（補助）。文字列判定は最後。
+ */
+export async function evaluateAutoFallback(
+  epicId?: string,
+  reason = 'claude_rate_limited',
+): Promise<AutoFallbackResult> {
+  const now = new Date().toISOString()
+  const [config, epic] = await Promise.all([
+    getAutomationConfig(),
+    epicId ? getEpic(epicId) : Promise.resolve(null),
+  ])
+  const blocked: FallbackBlock[] = []
+
+  // 0) 設定ゲート
+  if (!config.autoFallback) {
+    blocked.push({ kind: 'disabled', reason: 'Auto Fallback が OFF です（Automation で ON にしてください）' })
+  }
+  if (config.executorMode !== 'both' && config.executorMode !== 'codex') {
+    blocked.push({ kind: 'disabled', reason: `executorMode が ${config.executorMode}（Codex fallback 不可）` })
+  }
+
+  // 1) 承認待ち（最優先ゲート）
+  const allPending = await getPendingApprovals()
+  const pending = epic ? allPending.filter((a) => a.epicId === epic.epicId) : allPending
+  if (pending.length > 0) {
+    blocked.push({ kind: 'approval_required', reason: `承認待ち ${pending.length} 件があるため Codex へ渡しません` })
+  }
+
+  // 2) 決定待ち（decisionPolicy が autonomous 以外なら人間判断が必要）
+  if (epic && epic.decisionPolicy !== 'autonomous') {
+    blocked.push({ kind: 'decision_required', reason: `Epic の decisionPolicy が ${epic.decisionPolicy}（決定待ち）` })
+  }
+
+  // 3) 対象作業のメタデータ（承認待ち status / requiresClaude）
+  const openTasks = await getScopedOpenTasks(epic)
+  if (openTasks.some((t) => t.status === 'pending_approval')) {
+    blocked.push({ kind: 'requires_approval', reason: '対象作業に承認待ち(pending_approval)があります' })
+  }
+  if (openTasks.some((t) => t.requiresClaude)) {
+    blocked.push({ kind: 'requires_claude', reason: '対象作業に Claude 専任(requiresClaude)があります' })
+  }
+
+  // 4) 次アクションのキーワード判定（補助・最後）
+  const runsData = await readJson<ExecutionRunsData>('execution-runs.json', { runs: [] })
+  const sorted = [...runsData.runs].sort((a, b) => Date.parse(b.finishedAt) - Date.parse(a.finishedAt))
+  let scopedRuns = sorted
+  if (epic) {
+    const matched = sorted.filter((run) => runBelongsToEpic(run, epic))
+    if (matched.length > 0 || epicHasScopeKeys(epic)) scopedRuns = matched
+  }
+  const candidates = buildNextTodoCandidates(scopedRuns).slice(0, 10)
+  const denyHits = candidates.filter((c) => {
+    const e = classifyCodexEligibility(c.title)
+    return !e.eligible && CODEX_DENY_SIGNALS.some((s) => c.title.toLowerCase().includes(s))
+  })
+  const eligible = candidates.filter((c) => classifyCodexEligibility(c.title).eligible)
+  if (candidates.length === 0) {
+    blocked.push({ kind: 'no_codex_candidate', reason: 'Codex へ渡せる次アクションがありません' })
+  } else if (eligible.length === 0) {
+    blocked.push(
+      denyHits.length > 0
+        ? { kind: 'destructive', reason: `危険シグナルを含む作業のみのため Codex へ渡しません（${denyHits.length} 件）` }
+        : { kind: 'no_codex_candidate', reason: '安全判定 OK の次アクションが残っていません' },
+    )
+  }
+
+  const isBlocked = blocked.length > 0
+  let prompt: CodexPrompt | undefined
+  if (!isBlocked) {
+    prompt = await generateCodexPrompt(epicId)
+  }
+
+  return {
+    triggered: true,
+    status: isBlocked ? 'blocked' : 'codex_ready',
+    fallbackReason: reason,
+    fallbackTarget: 'codex',
+    safetyGuard: true,
+    codexPromptGenerated: Boolean(prompt),
+    codexPromptSourceRunId: prompt?.meta.sourceRunId,
+    epicId: epic?.epicId,
+    epicTitle: epic?.title,
+    blocked,
+    prompt,
+    evaluatedAt: now,
+  }
+}
+
+// ---- Automation Log（追記専用イベントログ。新しい正本ではなく運用ログ）----
+
+export async function appendAutomationLog(entry: Omit<AutomationLogEntry, 'id' | 'at'>): Promise<AutomationLogEntry> {
+  const full: AutomationLogEntry = { id: `alog-${Date.now()}`, at: new Date().toISOString(), ...entry }
+  await appendNdjson('automation-log.ndjson', full)
+  return full
+}
+
+export async function getAutomationLog(limit = 20): Promise<AutomationLogEntry[]> {
+  const all = await readNdjson<AutomationLogEntry>('automation-log.ndjson')
+  return all.slice(-limit).reverse()
+}
+
+/** 評価 → Automation Log 追記 → 結果返却。API から呼ぶ入口。 */
+export async function triggerAutoFallback(epicId?: string, reason = 'claude_rate_limited'): Promise<AutoFallbackResult> {
+  const result = await evaluateAutoFallback(epicId, reason)
+  await appendAutomationLog({
+    event: 'auto_fallback',
+    fallbackTriggered: result.triggered,
+    fallbackReason: result.fallbackReason,
+    fallbackTarget: result.fallbackTarget,
+    codexPromptGenerated: result.codexPromptGenerated,
+    codexPromptSourceRunId: result.codexPromptSourceRunId,
+    safetyGuard: result.safetyGuard,
+    blockedReason: result.blocked.map((b) => b.kind).join(',') || undefined,
+    epicId: result.epicId,
+  })
+  return result
 }

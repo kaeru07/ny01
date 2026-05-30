@@ -221,6 +221,55 @@ export interface CodexPrompt {
   }
 }
 
+/** Auto Fallback の安全判定でブロックされた理由。優先度の高い順に評価する。 */
+export type FallbackBlockKind =
+  | 'disabled'            // Auto Fallback OFF / executorMode が both・codex でない
+  | 'approval_required'   // 承認待ちあり
+  | 'decision_required'   // 決定待ち / decisionPolicy が承認・破壊・予算センシティブ
+  | 'requires_approval'   // 対象作業が承認待ち(pending_approval)
+  | 'requires_claude'     // 対象作業が Claude 専任
+  | 'destructive'         // 危険シグナル(destructive/secret/deploy/...)を含む
+  | 'no_codex_candidate'  // Codex 可の安全な作業が残っていない
+
+export interface FallbackBlock {
+  kind: FallbackBlockKind
+  reason: string
+}
+
+/**
+ * Auto Fallback（Claude 上限時の半自動 Codex 引き継ぎ）の評価結果。
+ * Codex を自動起動はしない。安全なら Codex 用プロンプトを生成して通知表示するだけ。
+ */
+export interface AutoFallbackResult {
+  triggered: boolean
+  status: 'codex_ready' | 'blocked'
+  fallbackReason: string        // 例: 'claude_rate_limited'
+  fallbackTarget: 'codex'
+  safetyGuard: boolean          // 生成プロンプト冒頭に安全判定を含むか
+  codexPromptGenerated: boolean
+  codexPromptSourceRunId?: string
+  epicId?: string
+  epicTitle?: string
+  blocked: FallbackBlock[]
+  prompt?: CodexPrompt          // status === 'codex_ready' のときのみ
+  evaluatedAt: string
+}
+
+/** Automation Log（Auto Fallback などエンジン側イベントの追記専用ログ）。 */
+export interface AutomationLogEntry {
+  id: string
+  at: string
+  event: 'auto_fallback'
+  fallbackTriggered: boolean
+  fallbackReason: string
+  fallbackTarget: string
+  codexPromptGenerated: boolean
+  codexPromptSourceRunId?: string
+  safetyGuard: boolean
+  blockedReason?: string
+  epicId?: string
+}
+
 /** Epic 詳細・実行履歴カードで使う ExecutionRun の軽量表現。 */
 export interface ExecutionRunBrief {
   runId: string
