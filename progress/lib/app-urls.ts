@@ -1,7 +1,7 @@
 import { readJson } from '@/lib/store'
 
 export type AppUrlStatus = 'active' | 'unknown' | 'deploy_ready' | 'local_only' | 'archived'
-export type AppUrlKind = 'vercel' | 'vps' | 'local_dev' | 'ssh_port_forward' | 'api' | 'unknown'
+export type AppUrlKind = 'vercel' | 'vps' | 'vps_internal' | 'local_dev' | 'ssh_port_forward' | 'api' | 'unknown'
 export type AppUrlConfidence = 'confirmed' | 'documented' | 'unknown'
 
 export interface AppUrlRecord {
@@ -86,9 +86,10 @@ const PUBLIC_KIND_PRIORITY: Record<AppUrlKind, number> = {
   vercel: 0,
   vps: 1,
   api: 2,
-  local_dev: 3,
-  ssh_port_forward: 4,
-  unknown: 5,
+  vps_internal: 3,
+  local_dev: 4,
+  ssh_port_forward: 5,
+  unknown: 6,
 }
 
 export interface EnrichedAppUrl extends AppUrlEntry {
