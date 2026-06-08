@@ -1,0 +1,18 @@
+[Unit]
+Description=Factory boot run (Progress AI factory / VPS 起動時)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/root/company/apps/ny01/progress
+# 安全側初回運用: 1 起動あたり最大 1 Run。安定後に値を上げる or 行ごと削除（API 既定=最大3）。
+Environment=FACTORY_MAX_RUNS=1
+# progress(3010) の起動待ちはスクリプト側 wait_for_health が最大 60 秒行う。
+# pm2-root.service(enabled) + dump.pm2 に progress が含まれるため再起動後に自動復帰する。
+# Factory OFF なら何も起動しない（API 側で skip=factory_off 判定）。
+ExecStart=/root/company/apps/ny01/progress/docs/factory-schedule/factory-schedule-trigger.sh boot startup
+
+[Install]
+WantedBy=multi-user.target

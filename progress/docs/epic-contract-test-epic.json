@@ -1,0 +1,19 @@
+{
+  "title": "Progress文言の軽微修正テスト",
+  "goal": "Progressアプリ内の表示文言を1箇所だけ軽微に修正し、ExecutionRunに結果を残すことで、自動化ループの安全な動作確認を行う",
+  "doneCriteria": [
+    "対象文言が1箇所だけ変更されている",
+    "build または typecheck が成功している",
+    "ExecutionRunに executorUsed と結果が記録されている",
+    "追加の未承認作業が発生していない"
+  ],
+  "decisionPolicy": "autonomous",
+  "priority": "P1",
+  "riskFlags": [],
+  "notes": "最初の自動化テスト用。安全な軽微変更のみ。Factory/Auto Resume の動作確認が目的。",
+  "targetApp": "progress",
+  "relatedRepo": "",
+  "preferredExecutor": "claude",
+  "fallbackExecutor": "codex",
+  "factoryEligible": true
+}

@@ -1,0 +1,11 @@
+# 未有効化。/etc/systemd/system/ へ置いて enable するのはユーザー承認後。
+[Unit]
+Description=Progress Factory runner (oneshot, default dry_run)
+After=network.target
+
+[Service]
+Type=oneshot
+# 既定は dry_run。auto にするなら Environment=MODE=auto CONFIRM=1 を明示。
+Environment=MODE=dry_run
+Environment=MAX_RUNS=3
+ExecStart=/root/company/apps/ny01/progress/docs/factory-schedule/factory-runner.sh

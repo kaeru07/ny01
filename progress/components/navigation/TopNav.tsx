@@ -6,6 +6,8 @@ import { usePathname } from 'next/navigation'
 const navItems = [
   { href: '/', label: 'ダッシュボード', exact: true },
   { href: '/epic', label: '工場', exact: false },
+  { href: '/monetization', label: '収益化', exact: false },
+  { href: '/recommended-epics', label: 'おすすめEpic', exact: false },
   { href: '/automation', label: '自動化', exact: false },
   { href: '/approvals', label: '承認', exact: false },
   { href: '/morning', label: '朝会', exact: false },

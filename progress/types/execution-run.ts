@@ -30,13 +30,36 @@ export interface ExecutionRun {
   targetTodoTitle: string
   runStatus: RunStatus
   reviewStatus: ReviewStatus
-  /** 任意。Run の発生源。例: 'codex_mobile'（Codexモバイルで実行しProgressへ手動で戻したRun）。 */
+  /** 任意。Run の発生源。例: 'codex_mobile'（Codexモバイルで実行しProgressへ手動で戻したRun）/
+   *  'factory_runner'（Factory が生成）/ 'schedule'（定時実行）/ 'boot'（VPS 起動時）。 */
   source?: string
+  /** 任意。スケジュール起動のトリガ手段。'systemd' / 'cron' / 'startup'。 */
+  trigger?: string
   executorUsed?: ExecutorType
   preferredExecutor?: ExecutorType
   fallbackExecutor?: ExecutorType
   autoFallback?: boolean
   fallbackReason?: string
+  // 任意。Factory Dispatch（手動コピー運用）でこの Run が生成/戻された場合のメタ。
+  factoryDispatch?: boolean
+  /** 例: 'manual_copy'（完全自動ではなくユーザーがコピーして実行）。 */
+  dispatchMode?: string
+  dispatchPlanId?: string
+  executorCandidate?: ExecutorType
+  promptGenerated?: boolean
+  resultReturned?: boolean
+  /** factory-runner が生成した Run か。 */
+  factoryRun?: boolean
+  /** runner のモード（dry_run / manual / auto）。 */
+  runnerMode?: string
+  /** Factory 起動内での 1 始まり Run 番号。 */
+  runIndex?: number
+  /** この Run 後の doneCriteria 判定（done / continue）。 */
+  doneCriteriaStatus?: string
+  /** この Run の停止理由（epic_done / max_runs_reached / blocked など）。 */
+  stopReason?: string
+  /** 次アクション件数（= 未達 doneCriteria 件数）。 */
+  nextActionCount?: number
   beforeStatus?: string
   afterStatus?: string
   promptUsed?: string

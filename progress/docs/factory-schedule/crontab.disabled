@@ -1,0 +1,5 @@
+# 未有効化（cron 代替案）。crontab -e で追記するのはユーザー承認後のみ。
+# 毎朝 11:00 に dry_run:
+# 0 11 * * * MODE=dry_run /root/company/apps/ny01/progress/docs/factory-schedule/factory-runner.sh >> /var/log/factory-runner.log 2>&1
+# VPS 起動時に dry_run:
+# @reboot MODE=dry_run /root/company/apps/ny01/progress/docs/factory-schedule/factory-runner.sh >> /var/log/factory-runner.log 2>&1

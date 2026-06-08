@@ -21,6 +21,7 @@ export async function POST(request: Request) {
   }
   if (typeof body.autoResume === 'boolean') patch.autoResume = body.autoResume
   if (typeof body.autoFallback === 'boolean') patch.autoFallback = body.autoFallback
+  if (typeof body.factoryEnabled === 'boolean') patch.factoryEnabled = body.factoryEnabled
   const updated = await updateAutomationConfig(patch)
   return NextResponse.json(updated)
 }

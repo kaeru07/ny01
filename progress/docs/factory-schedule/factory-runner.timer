@@ -1,0 +1,11 @@
+# 未有効化。毎朝 11:00 起動案。enable はユーザー承認後。
+[Unit]
+Description=Run Progress Factory runner daily at 11:00
+
+[Timer]
+OnCalendar=*-*-* 11:00:00
+Persistent=true
+Unit=factory-runner.service
+
+[Install]
+WantedBy=timers.target

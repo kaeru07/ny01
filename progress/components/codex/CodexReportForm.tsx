@@ -7,13 +7,17 @@ interface Props {
   defaultTargetApp?: string
   /** 紐付ける Epic（省略可） */
   epicId?: string
+  /** Factory Dispatch 由来なら dispatchPlanId を付与（結果戻しと dispatch を結合）。 */
+  dispatchPlanId?: string
+  /** 実行者（codex / claude）。既定は codex。 */
+  executor?: 'codex' | 'claude'
 }
 
 /**
- * Codex モバイルでの作業報告を Progress の ExecutionRun へ戻すフォーム。
- * executorUsed=codex / source=codex_mobile を記録する。
+ * Codex / Claude モバイルでの作業報告を Progress の ExecutionRun へ戻すフォーム。
+ * executorUsed と source を記録する。Factory Dispatch 由来なら dispatchPlanId 等も付与する。
  */
-export default function CodexReportForm({ defaultTargetApp, epicId }: Props) {
+export default function CodexReportForm({ defaultTargetApp, epicId, dispatchPlanId, executor = 'codex' }: Props) {
   const [targetApp, setTargetApp] = useState(defaultTargetApp ?? '')
   const [title, setTitle] = useState('')
   const [report, setReport] = useState('')
@@ -37,10 +41,20 @@ export default function CodexReportForm({ defaultTargetApp, epicId }: Props) {
           epicId,
           targetTodoTitle: title.trim(),
           runStatus,
-          executorUsed: 'codex',
-          source: 'codex_mobile',
+          executorUsed: executor,
+          source: dispatchPlanId ? 'factory_dispatch' : 'codex_mobile',
           summary: title.trim(),
           rawReport: report.trim(),
+          ...(dispatchPlanId
+            ? {
+                factoryDispatch: true,
+                dispatchMode: 'manual_copy',
+                dispatchPlanId,
+                executorCandidate: executor,
+                promptGenerated: true,
+                resultReturned: true,
+              }
+            : {}),
         }),
       })
       const json = await res.json()

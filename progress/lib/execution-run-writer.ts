@@ -34,3 +34,13 @@ export async function addExecutionRun(run: ExecutionRun): Promise<void> {
   runs.push(run)
   await writeAll(runs)
 }
+
+/** 既存 Run に追記フィールド（doneCriteriaStatus / stopReason 等）をパッチする。 */
+export async function updateExecutionRunFields(runId: string, patch: Partial<ExecutionRun>): Promise<boolean> {
+  const runs = await readAll()
+  const idx = runs.findIndex((r) => r.runId === runId)
+  if (idx === -1) return false
+  runs[idx] = { ...runs[idx], ...patch, runId }
+  await writeAll(runs)
+  return true
+}

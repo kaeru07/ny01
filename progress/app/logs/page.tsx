@@ -12,7 +12,20 @@ import SnsTrendReviewPanel from '@/components/logs/SnsTrendReviewPanel'
 type LogMode = 'event' | 'history' | 'review' | 'daily'
 
 interface Props {
-  searchParams: { project?: string; type?: string; mode?: string }
+  searchParams: { project?: string; type?: string; mode?: string; factory?: string }
+}
+
+// 定期実行(Factory/スケジュール)由来の Run か。ExecutionRun の既存フィールドだけで判定（新JSON不要）。
+function isFactoryRun(r: { factoryRun?: boolean; source?: string; trigger?: string }): boolean {
+  return (
+    r.factoryRun === true ||
+    r.source === 'schedule' ||
+    r.source === 'boot' ||
+    r.source === 'factory_runner' ||
+    r.trigger === 'systemd' ||
+    r.trigger === 'cron' ||
+    r.trigger === 'startup'
+  )
 }
 
 export default async function LogsPage({ searchParams }: Props) {
@@ -41,6 +54,11 @@ export default async function LogsPage({ searchParams }: Props) {
     if (projectFilter && r.targetApp !== projectFilter) return false
     return true
   })
+
+  // 実行履歴モードで「定期実行のみ」フィルタが有効なら Factory/スケジュール由来に絞る。
+  const factoryOnly = mode === 'history' && searchParams.factory === '1'
+  const historyRuns = factoryOnly ? filteredRuns.filter(isFactoryRun) : filteredRuns
+  const factoryRunCount = filteredRuns.filter(isFactoryRun).length
 
   const reviewPendingCount = allRuns.filter(
     (r) => r.reviewStatus === 'not_reviewed' || r.reviewStatus === 'copied' || r.reviewStatus === 'needs_followup'
@@ -80,7 +98,7 @@ export default async function LogsPage({ searchParams }: Props) {
     : mode === 'review' ? filteredRuns.filter(
         (r) => r.reviewStatus === 'not_reviewed' || r.reviewStatus === 'copied' || r.reviewStatus === 'needs_followup'
       ).length
-    : filteredRuns.length
+    : historyRuns.length
 
   return (
     <div className="px-4 pt-6 pb-4">
@@ -148,8 +166,31 @@ export default async function LogsPage({ searchParams }: Props) {
       {mode === 'event' && <LogList logs={filteredLogs} />}
       {mode === 'history' && (
         <>
+          {/* 定期実行(Factory)フィルタ: 既存 ExecutionRun を source/trigger/factoryRun で絞る（新規ページ/JSON/API なし） */}
+          <div className="mb-3 flex gap-2">
+            <a
+              href={buildUrl({ factory: '' })}
+              className={`flex-1 text-center rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                !factoryOnly
+                  ? 'bg-gray-700 dark:bg-gray-500 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              すべての実行 {filteredRuns.length}
+            </a>
+            <a
+              href={buildUrl({ factory: '1' })}
+              className={`flex-1 text-center rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                factoryOnly
+                  ? 'bg-violet-600 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              🏭 定期実行のみ {factoryRunCount}
+            </a>
+          </div>
           <ExecutionRunTemplateButton />
-          <ExecutionRunList initialRuns={filteredRuns} reviewOnly={false} />
+          <ExecutionRunList initialRuns={historyRuns} reviewOnly={false} />
         </>
       )}
       {mode === 'review' && (

@@ -202,6 +202,41 @@ export default function ExecutionRunCard({ run, onReviewStatusChange }: Props) {
           )}
         </div>
 
+        {/* Factory / 定期実行メタ（該当 Run のみ。source/trigger/stopReason を可視化） */}
+        {(run.factoryRun ||
+          run.source === 'schedule' ||
+          run.source === 'boot' ||
+          run.source === 'factory_runner' ||
+          run.trigger === 'systemd' ||
+          run.trigger === 'cron' ||
+          run.trigger === 'startup') && (
+          <div className="flex flex-wrap gap-1.5">
+            <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
+              🏭 定期実行{run.runnerMode ? `(${run.runnerMode})` : ''}
+            </span>
+            {run.source && (
+              <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                src: {run.source}
+              </span>
+            )}
+            {run.trigger && (
+              <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                trig: {run.trigger}
+              </span>
+            )}
+            {typeof run.runIndex === 'number' && (
+              <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                Run #{run.runIndex}
+              </span>
+            )}
+            {run.stopReason && (
+              <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+                stop: {run.stopReason}
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Actions */}
         <div className="flex flex-wrap gap-2 pt-1">
           <button

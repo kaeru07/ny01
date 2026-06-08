@@ -1,0 +1,286 @@
+import fs from 'fs/promises'
+import path from 'path'
+import { getDataPath } from '@/lib/progress-reader'
+import { getAutomationConfig, appendAutomationLog } from './operations-store'
+import { computeFactoryStatus } from './factory-status'
+import { runFactory } from './factory-runner'
+import { addExecutionRun, updateExecutionRunFields } from './execution-run-writer'
+import { syncCandidatesFromVault } from './monetization-vault-sync'
+import type { ExecutionRun } from '@/types/execution-run'
+import type { FactoryRunReport } from './executors/types'
+
+// factory-schedule: スケジューラ（systemd timer / cron / boot）から Factory を「ユーザー操作なし」で起動する入口。
+// P3 の責務は「起動するか否かの安全判定 + 二重起動防止 + 起動記録」だけ。
+// 実際の Run ループ・安全ゲート（blocked / approval / riskFlags / decision 待ち）は既存の runFactory に委譲する。
+// 禁止: 複数 Epic ループの新規実装 / 既存安全ゲートの変更 / Approval・riskFlags Epic の実行。
+
+/** スケジュール起動の発生源。 */
+export type ScheduleSource = 'schedule' | 'boot'
+/** スケジュール起動のトリガ手段。 */
+export type ScheduleTrigger = 'systemd' | 'cron' | 'startup'
+
+const LOCK_FILE = 'factory-schedule.lock'
+/** ロックが残ったまま死んだ場合に備え、この時間を超えた lock は stale として奪取する。 */
+const LOCK_STALE_MS = 30 * 60 * 1000
+
+export interface ScheduleRunInput {
+  source: ScheduleSource
+  trigger: ScheduleTrigger
+  maxRuns?: number
+  maxPerEpic?: number
+  /** テスト用に runFactory を実起動せず擬似化したい場合のオプションを素通しする。 */
+  passthrough?: Record<string, unknown>
+}
+
+export interface ScheduleRunResult {
+  triggered: boolean
+  skipped: boolean
+  skipReason?: string
+  source: ScheduleSource
+  trigger: ScheduleTrigger
+  factoryEnabled: boolean
+  factoryRunState?: string
+  stoppedReason?: string
+  runsExecuted: number
+  taggedRunIds: string[]
+  envelopeRunId: string
+  startedAt: string
+  finishedAt: string
+}
+
+function generateRunId(): string {
+  const now = new Date()
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`
+}
+
+function lockPath(): string {
+  return path.join(getDataPath(), LOCK_FILE)
+}
+
+interface LockInfo {
+  pid: number
+  startedAt: string
+  source: string
+  trigger: string
+}
+
+/** 実行中ロックを取得する。既に有効な lock があれば null（= 二重起動なので skip）。 */
+async function acquireLock(source: string, trigger: string): Promise<boolean> {
+  const file = lockPath()
+  try {
+    const raw = await fs.readFile(file, 'utf-8')
+    const info = JSON.parse(raw) as LockInfo
+    const age = Date.now() - Date.parse(info.startedAt)
+    if (Number.isFinite(age) && age < LOCK_STALE_MS) {
+      // 有効な lock が存在 → 実行中とみなして取得失敗（skip）。
+      return false
+    }
+    // stale lock は奪取する。
+  } catch {
+    // lock 無し / 壊れている → 取得続行。
+  }
+  await fs.mkdir(path.dirname(file), { recursive: true })
+  const info: LockInfo = { pid: process.pid, startedAt: new Date().toISOString(), source, trigger }
+  await fs.writeFile(file, JSON.stringify(info), 'utf-8')
+  return true
+}
+
+async function releaseLock(): Promise<void> {
+  try {
+    await fs.rm(lockPath(), { force: true })
+  } catch {
+    /* noop */
+  }
+}
+
+async function recordEnvelope(args: {
+  source: ScheduleSource
+  trigger: ScheduleTrigger
+  runStatus: ExecutionRun['runStatus']
+  summary: string
+  rawReport: string
+  startedAt: string
+  stoppedReason?: string
+  runsExecuted: number
+}): Promise<string> {
+  const runId = generateRunId()
+  const now = new Date().toISOString()
+  const run: ExecutionRun = {
+    runId,
+    startedAt: args.startedAt,
+    finishedAt: now,
+    targetApp: 'progress',
+    targetTodoTitle: `Factory schedule (${args.source}/${args.trigger})`,
+    runStatus: args.runStatus,
+    reviewStatus: 'not_reviewed',
+    source: args.source,
+    trigger: args.trigger,
+    factoryRun: true,
+    runnerMode: 'auto',
+    stopReason: args.stoppedReason,
+    summary: args.summary,
+    changedFiles: [],
+    checks: {},
+    errors: [],
+    warnings: [],
+    progressUpdated: false,
+    nextActions: [],
+    rawReport: args.rawReport,
+  }
+  await addExecutionRun(run)
+  return runId
+}
+
+/**
+ * スケジューラ（systemd timer / cron / boot service）から呼ばれる Factory 起動入口。
+ * 起動条件: factoryEnabled=true かつ factoryRunState !== 'Blocked'。
+ * 二重起動防止: lock ファイルが有効なら skip='already_running'。
+ * 起動後は runFactory(auto) が生成した各 Run に source / trigger を後付けし、
+ * さらに 1 件の envelope ExecutionRun（source / trigger / 結果サマリー）を必ず残す。
+ */
+export async function runScheduledFactory(input: ScheduleRunInput): Promise<ScheduleRunResult> {
+  const startedAt = new Date().toISOString()
+  const base = {
+    triggered: false,
+    skipped: true,
+    source: input.source,
+    trigger: input.trigger,
+    runsExecuted: 0,
+    taggedRunIds: [] as string[],
+  }
+
+  // 0) 収益化候補の定期取り込み（Vault→Hub）。
+  //    Factory ON/OFF・Blocked に関わらず毎回実行する（取り込みは候補追加のみで安全）。
+  //    best-effort: 失敗しても Factory 本体は止めない（Vault は読み取りのみ・Epic化なし）。
+  try {
+    const sync = await syncCandidatesFromVault({ source: input.source, trigger: input.trigger })
+    if (sync.added > 0 || sync.updated > 0) {
+      await appendAutomationLog({
+        event: 'monetization_sync',
+        fallbackReason: `added=${sync.added} updated=${sync.updated}`,
+        detectionStatus: input.source,
+      } as never)
+    }
+  } catch {
+    // 取り込み失敗は無視して Factory 本体へ進む
+  }
+
+  // 1) Factory ON/OFF（OFF なら何も起動しない）
+  const config = await getAutomationConfig()
+  if (!config.factoryEnabled) {
+    const envelopeRunId = await recordEnvelope({
+      source: input.source,
+      trigger: input.trigger,
+      runStatus: 'completed',
+      summary: `Factory OFF のため起動しません（${input.source}/${input.trigger}）`,
+      rawReport: `[factory-schedule] skip=factory_off source=${input.source} trigger=${input.trigger}`,
+      startedAt,
+      stoppedReason: 'factory_off',
+      runsExecuted: 0,
+    })
+    await appendAutomationLog({ event: 'factory_schedule', fallbackReason: 'factory_off', detectionStatus: input.source } as never)
+    return { ...base, factoryEnabled: false, skipReason: 'factory_off', envelopeRunId, startedAt, finishedAt: new Date().toISOString() }
+  }
+
+  // 2) 起動条件: state !== Blocked
+  const status = await computeFactoryStatus()
+  if (status.factoryRunState === 'Blocked') {
+    const envelopeRunId = await recordEnvelope({
+      source: input.source,
+      trigger: input.trigger,
+      runStatus: 'completed',
+      summary: `factoryRunState=Blocked のため起動しません（${input.source}/${input.trigger}）`,
+      rawReport: `[factory-schedule] skip=blocked source=${input.source} trigger=${input.trigger} state=${status.factoryRunState}`,
+      startedAt,
+      stoppedReason: 'blocked',
+      runsExecuted: 0,
+    })
+    await appendAutomationLog({ event: 'factory_schedule', fallbackReason: 'blocked', detectionStatus: input.source } as never)
+    return {
+      ...base,
+      factoryEnabled: true,
+      factoryRunState: status.factoryRunState,
+      skipReason: 'blocked',
+      envelopeRunId,
+      startedAt,
+      finishedAt: new Date().toISOString(),
+    }
+  }
+
+  // 3) 二重起動防止
+  const locked = await acquireLock(input.source, input.trigger)
+  if (!locked) {
+    const envelopeRunId = await recordEnvelope({
+      source: input.source,
+      trigger: input.trigger,
+      runStatus: 'completed',
+      summary: `Factory 実行中のため skip（二重起動防止 / ${input.source}/${input.trigger}）`,
+      rawReport: `[factory-schedule] skip=already_running source=${input.source} trigger=${input.trigger}`,
+      startedAt,
+      stoppedReason: 'already_running',
+      runsExecuted: 0,
+    })
+    await appendAutomationLog({ event: 'factory_schedule', fallbackReason: 'already_running', detectionStatus: input.source } as never)
+    return {
+      ...base,
+      factoryEnabled: true,
+      factoryRunState: status.factoryRunState,
+      skipReason: 'already_running',
+      envelopeRunId,
+      startedAt,
+      finishedAt: new Date().toISOString(),
+    }
+  }
+
+  // 4) 起動（auto / confirm）。Epic ループ・安全ゲートは runFactory に委譲（P3 では何も変えない）。
+  try {
+    const report: FactoryRunReport = await runFactory({
+      mode: 'auto',
+      confirm: true,
+      maxRuns: input.maxRuns,
+      maxPerEpic: input.maxPerEpic,
+      ...(input.passthrough ?? {}),
+    })
+
+    // runFactory が記録した各 Run に source / trigger を後付け（誰がスケジュール起動したかを残す）。
+    const taggedRunIds: string[] = []
+    for (const step of report.steps) {
+      if (step.recordedRunId) {
+        await updateExecutionRunFields(step.recordedRunId, { source: input.source, trigger: input.trigger })
+        taggedRunIds.push(step.recordedRunId)
+      }
+    }
+
+    const runStatus: ExecutionRun['runStatus'] = report.runsExecuted > 0 ? 'completed' : 'partial'
+    const envelopeRunId = await recordEnvelope({
+      source: input.source,
+      trigger: input.trigger,
+      runStatus,
+      summary: `Factory 起動: ${report.runsExecuted} Run 実行 / 停止理由=${report.stoppedReason}（${input.source}/${input.trigger}）`,
+      rawReport: `[factory-schedule] source=${input.source} trigger=${input.trigger} runs=${report.runsExecuted} stopped=${report.stoppedReason} tagged=${taggedRunIds.join(',') || 'none'}`,
+      startedAt,
+      stoppedReason: report.stoppedReason,
+      runsExecuted: report.runsExecuted,
+    })
+
+    await appendAutomationLog({ event: 'factory_schedule', fallbackReason: report.stoppedReason, detectionStatus: input.source } as never)
+
+    return {
+      triggered: true,
+      skipped: false,
+      source: input.source,
+      trigger: input.trigger,
+      factoryEnabled: true,
+      factoryRunState: status.factoryRunState,
+      stoppedReason: report.stoppedReason,
+      runsExecuted: report.runsExecuted,
+      taggedRunIds,
+      envelopeRunId,
+      startedAt,
+      finishedAt: new Date().toISOString(),
+    }
+  } finally {
+    await releaseLock()
+  }
+}

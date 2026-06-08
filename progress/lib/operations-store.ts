@@ -20,7 +20,12 @@ import type {
   AutoFallbackResult,
   FallbackBlock,
   AutomationLogEntry,
+  ClaudeLimitDetection,
+  EpicContractInput,
+  EpicRiskFlag,
+  FactoryEligibility,
 } from './types/operations'
+import { evaluateFactoryEligibility, buildExecutionGuard } from './epic-contract'
 import type { WorkQueueData } from '@/types/session'
 import type { AppProgress, ProjectTasksData, Task, TaskPriority } from '@/types/progress'
 import type { ExecutionRunsData, ExecutionRun } from '@/types/execution-run'
@@ -76,6 +81,58 @@ export async function updateEpic(epicId: string, patch: Partial<Epic>): Promise<
   epics[idx] = updated
   await writeJson('epics.json', epics)
   return updated
+}
+
+function slugForEpicId(title: string): string {
+  const ascii = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 24)
+  if (ascii) return ascii
+  return Math.random().toString(36).slice(2, 8)
+}
+
+/**
+ * Epic Contract から新しい Epic を作成する（epics.json に追記。新正本は作らない）。
+ * 既存 Epic は破壊しない。targetApp は targetApps[0] にマップする。
+ */
+export async function createEpic(input: EpicContractInput & { epicId?: string }): Promise<Epic> {
+  const epics = await getEpics()
+  const now = new Date().toISOString()
+  let epicId = input.epicId?.trim() || `epic-${slugForEpicId(input.title)}`
+  if (epics.some((e) => e.epicId === epicId)) {
+    epicId = `${epicId}-${Date.now().toString(36).slice(-4)}`
+  }
+
+  const epic: Epic = {
+    epicId,
+    title: input.title,
+    goal: input.goal,
+    progress: 0,
+    remainingWork: [],
+    nextAction: '',
+    decisionPolicy: input.decisionPolicy,
+    status: 'active',
+    updatedAt: now,
+    doneCriteria: input.doneCriteria,
+    priority: input.priority,
+    riskFlags: input.riskFlags,
+    notes: input.notes,
+    relatedRepo: input.relatedRepo,
+    preferredExecutor: input.preferredExecutor,
+    fallbackExecutor: input.fallbackExecutor,
+    factoryEligible: input.factoryEligible,
+    targetApps: input.targetApp ? [input.targetApp] : undefined,
+  }
+  epics.push(epic)
+  await writeJson('epics.json', epics)
+  return epic
+}
+
+/** Epic の Factory/Auto Resume 自動実行対象判定（承認待ち件数を加味）。 */
+export async function getFactoryEligibility(epicId: string): Promise<FactoryEligibility | null> {
+  const epic = await getEpic(epicId)
+  if (!epic) return null
+  const pending = await getPendingApprovals()
+  const pendingApprovalCount = pending.filter((a) => a.epicId === epicId).length
+  return evaluateFactoryEligibility(epic, { pendingApprovalCount })
 }
 
 // ---- Approvals ----
@@ -541,6 +598,7 @@ export async function getEpicDetail(epicId: string, recentLimit = 5): Promise<Ep
       stopped,
       pendingApproval: pendingApprovals.length,
     },
+    factoryEligibility: evaluateFactoryEligibility(epic, { pendingApprovalCount: pendingApprovals.length }),
   }
 }
 
@@ -627,13 +685,20 @@ export async function generateHandoffView(epicId?: string): Promise<GeneratedHan
 
 // ---- Codex 引き継ぎプロンプト（半自動切替 / モバイルコピー用 / 単一プレーンテキスト） ----
 
-const CODEX_SAFETY_GUARD = [
-  '[1] まず安全判定',
-  'この作業がCodexで安全に実行可能か判定してください。',
-  'Codexで実行してよい作業: lint修正 / typecheck修正 / build修正 / test追加 / docs整理 / Vault整理 / Issue整理 / UI微修正 / 方針決定済み実装 / destructiveでない変更',
-  'Codexで実行してはいけない作業: 課金 / 本番DB変更 / 認証情報利用 / secret・token・.env利用 / destructive操作 / 外部公開 / deploy / pm2・cron・systemd変更 / migration / 方針未決定設計 / Approval待ち / Decision待ち',
-  '上記の禁止に該当する場合は実行せず、blocked または approval_required として理由を報告してください。',
-]
+// Codex 安全ガード。riskFlags 連動で deploy は「禁止」ではなく「注意」に回す（buildExecutionGuard と方針一致）。
+// deploy のみは止めず実装〜検証〜必要な push まで進めてよい。課金/本番DB/認証/migration/destructive/外部公開は禁止のまま。
+function codexSafetyGuard(riskFlags?: EpicRiskFlag[]): string[] {
+  const guard = buildExecutionGuard(riskFlags)
+  const lines = [
+    '[1] まず安全判定',
+    'この作業がCodexで安全に実行可能か判定してください。',
+    'Codexで実行してよい作業: lint修正 / typecheck修正 / build修正 / test追加 / docs整理 / Vault整理 / Issue整理 / UI微修正 / 方針決定済み実装 / destructiveでない変更',
+    'Codexで実行してはいけない作業: 課金 / 本番DB変更 / 認証情報利用 / secret・token・.env利用 / destructive操作 / 外部公開 / pm2・cron・systemd変更 / migration / 方針未決定設計 / Approval待ち / Decision待ち',
+  ]
+  for (const c of guard.cautions) lines.push(`注意（禁止ではない）: ${c}`)
+  lines.push('上記の禁止に該当する場合は実行せず、blocked または approval_required として理由を報告してください。注意項目は止めず、進めた上で報告してください。')
+  return lines
+}
 
 /**
  * Codex へ手動で引き継ぐためのコピペ用プロンプトを生成する。
@@ -664,7 +729,7 @@ export async function generateCodexPrompt(epicId?: string): Promise<CodexPrompt>
   const lines: string[] = []
   lines.push('あなたはCodexです。以下はProgress（AI工場の管制塔）からの引き継ぎです。Claudeが上限で停止したため続きをお願いします。')
   lines.push('')
-  lines.push(...CODEX_SAFETY_GUARD)
+  lines.push(...codexSafetyGuard(epic?.riskFlags))
   lines.push('')
   lines.push('[2] 対象')
   if (epic) lines.push(`Epic: ${epic.title}（${epic.epicId}） 目標: ${epic.goal}`)
@@ -778,11 +843,14 @@ const DEFAULT_AUTOMATION_CONFIG: AutomationConfig = {
   executorMode: 'both',
   autoResume: false,
   autoFallback: false,
+  factoryEnabled: false,
   updatedAt: '',
 }
 
 export async function getAutomationConfig(): Promise<AutomationConfig> {
-  return readJson<AutomationConfig>('automation-config.json', DEFAULT_AUTOMATION_CONFIG)
+  const stored = await readJson<Partial<AutomationConfig>>('automation-config.json', DEFAULT_AUTOMATION_CONFIG)
+  // 旧 config に新フィールド（factoryEnabled 等）が無くても既定で補完する。
+  return { ...DEFAULT_AUTOMATION_CONFIG, ...stored }
 }
 
 export async function updateAutomationConfig(
@@ -793,6 +861,7 @@ export async function updateAutomationConfig(
     executorMode: patch.executorMode ?? current.executorMode,
     autoResume: patch.autoResume ?? current.autoResume,
     autoFallback: patch.autoFallback ?? current.autoFallback,
+    factoryEnabled: patch.factoryEnabled ?? current.factoryEnabled,
     updatedAt: new Date().toISOString(),
   }
   await writeJson('automation-config.json', next)
@@ -921,6 +990,23 @@ export async function appendAutomationLog(entry: Omit<AutomationLogEntry, 'id' |
 export async function getAutomationLog(limit = 20): Promise<AutomationLogEntry[]> {
   const all = await readNdjson<AutomationLogEntry>('automation-log.ndjson')
   return all.slice(-limit).reverse()
+}
+
+/** Claude 上限自動検知の結果を Automation Log（追記専用）へ記録する。検知の足跡を正本に残す。 */
+export async function appendDetectionLog(detection: ClaudeLimitDetection): Promise<AutomationLogEntry> {
+  const full: AutomationLogEntry = {
+    id: `alog-${Date.now()}`,
+    at: new Date().toISOString(),
+    event: 'claude_limit_detection',
+    fallbackReason: detection.reason,
+    detectionStatus: detection.status,
+    detectionConfidence: detection.confidence,
+    detectionRecommendation: detection.recommendation,
+    signalCount: detection.signals.length,
+    signalSources: Array.from(new Set(detection.signals.map((s) => s.source))),
+  }
+  await appendNdjson('automation-log.ndjson', full)
+  return full
 }
 
 /** 評価 → Automation Log 追記 → 結果返却。API から呼ぶ入口。 */

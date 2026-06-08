@@ -5,6 +5,12 @@ import type { AutomationReadiness, HealthSummary, AutomationConfig, ExecutorSumm
 import CodexHandoffPanel from '@/components/codex/CodexHandoffPanel'
 import CodexReportForm from '@/components/codex/CodexReportForm'
 import AutoFallbackPanel from '@/components/codex/AutoFallbackPanel'
+import AutoResumePanel from '@/components/automation/AutoResumePanel'
+import FactoryDispatchPanel from '@/components/automation/FactoryDispatchPanel'
+import FactoryProgressCard from '@/components/automation/FactoryProgressCard'
+import FactoryStatusCard from '@/components/automation/FactoryStatusCard'
+import FactoryRunnerPanel from '@/components/automation/FactoryRunnerPanel'
+import DevModeGate, { DevModeToggle } from '@/components/DevModeGate'
 
 interface AutoexecStatus {
   name: string | null
@@ -87,8 +93,14 @@ export default function AutomationPage() {
     <div className="mx-auto max-w-lg space-y-5 px-4 py-6">
       <header>
         <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Automation</h1>
-        <p className="mt-0.5 text-sm text-gray-400">AI工場のエンジン。自動実行の制御専用。</p>
+        <p className="mt-0.5 text-sm text-gray-400">AI工場のエンジン。状態中心で確認する（Executor は内部状態）。</p>
       </header>
+
+      {/* Factory状態カード（最上位・一般ユーザー向けの一目確認） */}
+      <FactoryStatusCard />
+
+      {/* Factory 進行状況（状態中心・詳細） */}
+      <FactoryProgressCard />
 
       {/* 現在状態 */}
       <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
@@ -148,7 +160,7 @@ export default function AutomationPage() {
         <Toggle
           className="mt-4"
           label="Auto Resume"
-          desc="停止後に安全な作業を自動再開（実装は後続）"
+          desc="Claude上限後に安全な作業だけ自動再開（下に状態・再開件数・最終再開時刻）"
           on={config?.autoResume ?? false}
           busy={busy}
           onChange={(v) => patchConfig({ autoResume: v })}
@@ -161,6 +173,11 @@ export default function AutomationPage() {
           busy={busy}
           onChange={(v) => patchConfig({ autoFallback: v })}
         />
+
+        {/* Auto Resume 状態（Claude上限後に安全作業だけ自動継続） */}
+        <div className="mt-4">
+          <AutoResumePanel />
+        </div>
 
         {automation && (
           <div className="mt-4 grid grid-cols-2 gap-2">
@@ -177,17 +194,41 @@ export default function AutomationPage() {
       <section className="rounded-2xl border border-amber-200 bg-amber-50/40 p-4 dark:border-amber-800/60 dark:bg-amber-900/10">
         <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Auto Fallback</h2>
         <p className="mt-0.5 mb-3 text-[11px] text-gray-500">
-          Claude 上限で止まったら押す → 厳格な安全判定 → OK なら Codex プロンプト自動生成・通知（Codex は自動起動しません）
+          vloop実行ログ / ExecutionRun / Automation Log から Claude 上限を自動検知 → 検知時のみ厳格な安全判定 → OK なら Codex プロンプト自動生成・通知（Codex は自動起動しません）。誤判定時は blocked。手動上書きは開発者モード時のみ。
         </p>
         <AutoFallbackPanel />
       </section>
 
-      {/* Codex へ引き継ぐ（半自動切替・モバイルコピー） */}
-      <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-        <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Codexへ引き継ぐ（手動）</h2>
-        <p className="mt-0.5 mb-3 text-[11px] text-gray-400">Claude 上限で止まったら生成 → モバイルでコピー → Codex へ貼り付け（安全判定付き）</p>
-        <CodexHandoffPanel />
-      </section>
+      {/* Factory Runner（開発者モード限定 / 既定 dry-run・caps付き） */}
+      <DevModeGate>
+        <section className="rounded-2xl border border-indigo-200 bg-indigo-50/40 p-4 dark:border-indigo-800/60 dark:bg-indigo-900/10">
+          <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Factory Runner（自動実行・実験）</h2>
+          <p className="mt-0.5 mb-3 text-[11px] text-gray-500">
+            scan→pick→Dispatch→（adapter で）Run→ExecutionRun 記録→Epic 内ループ。既定 dry-run（実起動なし）。auto は claude/codex を実起動するため確認チェック必須。
+          </p>
+          <FactoryRunnerPanel />
+        </section>
+      </DevModeGate>
+
+      {/* Factory Dispatch（手動 executor 選択・開発者モード限定 / 疎通テスト用） */}
+      <DevModeGate>
+        <section className="rounded-2xl border border-indigo-200 bg-indigo-50/40 p-4 dark:border-indigo-800/60 dark:bg-indigo-900/10">
+          <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Factory Dispatch（準備・手動）</h2>
+          <p className="mt-0.5 mb-3 text-[11px] text-gray-500">
+            手動で Epic を Claude / Codex へ渡す準備（疎通テスト用）。通常運用では Executor は内部で自動選択され、ユーザーは選びません。riskFlags / 承認待ち / 決定待ち / manual は dispatch 不可。
+          </p>
+          <FactoryDispatchPanel />
+        </section>
+      </DevModeGate>
+
+      {/* Codex へ引き継ぐ（手動・開発者モード限定。通常運用は AutoFallback が自動生成） */}
+      <DevModeGate>
+        <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+          <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Codexへ引き継ぐ（手動）</h2>
+          <p className="mt-0.5 mb-3 text-[11px] text-gray-400">開発・デバッグ用の手動引き継ぎ。通常運用では Claude 上限時に AutoFallback が自動で Codex プロンプトを生成します。</p>
+          <CodexHandoffPanel />
+        </section>
+      </DevModeGate>
 
       {/* Codex 結果を戻す */}
       <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
@@ -232,6 +273,9 @@ export default function AutomationPage() {
           <p className="mt-2 text-sm text-gray-400">次回実行予定はありません</p>
         )}
       </section>
+
+      {/* 開発者モード切替（手動 Executor 操作の表示制御） */}
+      <DevModeToggle />
 
       {/* Factory（今後・配置のみ） */}
       <section className="rounded-2xl border border-dashed border-gray-200 p-4 opacity-60 dark:border-gray-800">

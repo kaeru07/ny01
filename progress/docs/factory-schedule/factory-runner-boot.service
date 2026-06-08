@@ -1,0 +1,13 @@
+# 未有効化。VPS 起動時に 1 回 dry_run する案。enable はユーザー承認後。
+[Unit]
+Description=Progress Factory runner at boot (dry_run)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+Environment=MODE=dry_run
+ExecStart=/root/company/apps/ny01/progress/docs/factory-schedule/factory-runner.sh
+
+[Install]
+WantedBy=multi-user.target

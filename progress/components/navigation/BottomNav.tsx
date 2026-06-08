@@ -25,6 +25,27 @@ const navItems = [
     ),
   },
   {
+    href: '/monetization',
+    label: '収益化',
+    exact: false,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+        <circle cx="12" cy="12" r="9" strokeLinecap="round" strokeLinejoin="round" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v10M9.5 9.5h3.2a1.8 1.8 0 010 3.6H10m-.5 0h3.5" />
+      </svg>
+    ),
+  },
+  {
+    href: '/recommended-epics',
+    label: '推奨Epic',
+    exact: false,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3l2.09 4.26L18.5 8l-3.5 3.4.83 4.85L12 14l-3.83 2.25L9 11.4 5.5 8l4.41-.74L12 3z" />
+      </svg>
+    ),
+  },
+  {
     href: '/goal-planner',
     label: '目標',
     exact: false,

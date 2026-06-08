@@ -6,6 +6,11 @@ import { getEpicDetail } from '@/lib/operations-store'
 import type { EpicDetail } from '@/lib/types/operations'
 import ResumeButton from '@/components/epic/ResumeButton'
 import CodexHandoffPanel from '@/components/codex/CodexHandoffPanel'
+import FactoryGuideModal from '@/components/epic/FactoryGuideModal'
+import InlineApprovalPanel from '@/components/epic/InlineApprovalPanel'
+import DevModeGate from '@/components/DevModeGate'
+import { decisionPolicyLabel, describeFactory } from '@/lib/epic-contract'
+import { getDoneCriteriaForEpic } from '@/lib/done-criteria'
 
 const STATUS_LABEL: Record<string, { label: string; cls: string }> = {
   active: { label: '実行中', cls: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' },
@@ -52,17 +57,22 @@ function fmt(dt: string): string {
 export default async function EpicDetailPage({ params }: { params: { epicId: string } }) {
   const detail = await getEpicDetail(params.epicId)
   if (!detail) notFound()
+  const doneEval = await getDoneCriteriaForEpic(params.epicId)
 
-  const { epic, latestRun, recentRuns, recentDecisions, nextActions, pendingApprovals, automation, runScope } = detail
+  const { epic, latestRun, recentRuns, recentDecisions, nextActions, pendingApprovals, automation, runScope, factoryEligibility } = detail
+  const factoryDisplay = describeFactory(factoryEligibility)
 
   return (
     <div className="space-y-4 px-4 pb-4 pt-6">
       {/* ヘッダー: Epic名 / 状態 / 進捗 */}
       <header className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Link href="/epic" className="text-xs text-gray-400 hover:underline">工場</Link>
-          <span className="text-xs text-gray-300">/</span>
-          <span className="text-xs text-gray-500">{epic.epicId}</span>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Link href="/epic" className="text-xs text-gray-400 hover:underline">工場</Link>
+            <span className="text-xs text-gray-300">/</span>
+            <span className="text-xs text-gray-500">{epic.epicId}</span>
+          </div>
+          <FactoryGuideModal variant="icon" />
         </div>
         <div className="flex items-start justify-between gap-3">
           <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">{epic.title}</h1>
@@ -79,6 +89,77 @@ export default async function EpicDetailPage({ params }: { params: { epicId: str
           </div>
         </div>
       </header>
+
+      {/* Epic Contract（自動化テストの明示的契約 + Factory 対象判定） */}
+      <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Epic Contract</h2>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${factoryDisplay.managed ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'}`}>
+              {factoryDisplay.primaryLabel}
+            </span>
+            {factoryDisplay.secondaryLabel && (
+              <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${factoryDisplay.needsApproval ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'}`}>
+              {factoryDisplay.secondaryLabel}
+            </span>
+            )}
+            {factoryDisplay.cautionLabel && (
+              <span className="rounded-full bg-orange-100 px-2.5 py-1 text-[11px] font-semibold text-orange-700 dark:bg-orange-900/30 dark:text-orange-300">
+                {factoryDisplay.cautionLabel}
+              </span>
+            )}
+          </div>
+        </div>
+        <dl className="space-y-1.5 text-sm">
+          <div className="flex gap-2"><dt className="w-24 shrink-0 text-xs text-gray-400">decisionPolicy</dt><dd className="text-gray-700 dark:text-gray-200">{decisionPolicyLabel(epic.decisionPolicy)}</dd></div>
+          <div className="flex gap-2"><dt className="w-24 shrink-0 text-xs text-gray-400">priority</dt><dd className="text-gray-700 dark:text-gray-200">{epic.priority ?? '未設定'}</dd></div>
+          <div className="flex gap-2"><dt className="w-24 shrink-0 text-xs text-gray-400">riskFlags</dt><dd className="text-gray-700 dark:text-gray-200">{epic.riskFlags && epic.riskFlags.length > 0 ? epic.riskFlags.join(', ') : 'なし'}</dd></div>
+          <div className="flex gap-2">
+            <dt className="w-24 shrink-0 text-xs text-gray-400">doneCriteria</dt>
+            <dd className="text-gray-700 dark:text-gray-200">
+              {epic.doneCriteria && epic.doneCriteria.length > 0 ? (
+                <ul className="list-disc space-y-0.5 pl-4">{epic.doneCriteria.map((c, i) => <li key={i}>{c}</li>)}</ul>
+              ) : <span className="text-amber-600">未設定（Factory対象外）</span>}
+            </dd>
+          </div>
+          {epic.notes && <div className="flex gap-2"><dt className="w-24 shrink-0 text-xs text-gray-400">notes</dt><dd className="text-gray-600 dark:text-gray-300">{epic.notes}</dd></div>}
+        </dl>
+        {!factoryDisplay.managed && factoryDisplay.detail && (
+          <p className="mt-2 rounded-lg bg-gray-50 px-2.5 py-1.5 text-[11px] text-gray-600 dark:bg-gray-800/40 dark:text-gray-300">
+            Factory対象外の理由: {factoryDisplay.detail}
+          </p>
+        )}
+        {factoryDisplay.managed && factoryDisplay.needsApproval && (
+          <p className="mt-2 rounded-lg bg-amber-50 px-2.5 py-1.5 text-[11px] text-amber-700 dark:bg-amber-900/20 dark:text-amber-300">
+            要承認の理由: {factoryDisplay.detail}（自動実行は承認後。Factory対象からは外しません）
+          </p>
+        )}
+        {factoryDisplay.managed && !factoryDisplay.needsApproval && factoryDisplay.cautionLabel && (
+          <p className="mt-2 rounded-lg bg-orange-50 px-2.5 py-1.5 text-[11px] text-orange-700 dark:bg-orange-900/20 dark:text-orange-300">
+            {factoryDisplay.cautionLabel}: 自動実行対象のままです（承認は不要）。デプロイ時の影響範囲だけ確認してください。
+          </p>
+        )}
+      </section>
+
+      {/* doneCriteria 自動判定（ExecutionRun から評価。done/continue） */}
+      {doneEval && doneEval.hasContract && (
+        <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+          <div className="mb-2 flex items-center justify-between">
+            <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">doneCriteria 達成状況</h2>
+            <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${doneEval.verdict === 'done' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'}`}>
+              {doneEval.verdict === 'done' ? 'DONE' : 'CONTINUE'} · 達成率 {doneEval.ratio}
+            </span>
+          </div>
+          <ul className="space-y-1">
+            {doneEval.criteria.map((c, i) => (
+              <li key={i} className="text-sm text-gray-700 dark:text-gray-200">
+                <span className={c.met ? 'text-green-600' : 'text-rose-500'}>{c.met ? '✓' : '✗'}</span> {c.text}
+                <span className="ml-1 text-[11px] text-gray-400">[{c.level}] {c.evidence}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* Automation 状態（最低限: executor / running / stopped / 承認待ち件数） */}
       <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
@@ -156,28 +237,19 @@ export default async function EpicDetailPage({ params }: { params: { epicId: str
         )}
         <ResumeButton epicId={epic.epicId} />
         <p className="mt-1.5 text-center text-[11px] text-gray-400">
-          前回作業・決定事項・次回予定・承認待ちから実行コンテキストを生成します
+          Claudeへ続きを依頼するための情報をまとめます（前回作業・決定事項・次回予定・承認待ち）
         </p>
-        <div className="mt-3">
-          <p className="mb-1.5 text-[11px] text-gray-400">Claude 上限で止まったら、Codex へ引き継いでモバイルで続行できます</p>
-          <CodexHandoffPanel epicId={epic.epicId} />
-        </div>
+        <DevModeGate>
+          <div className="mt-3">
+            <p className="mb-1.5 text-[11px] text-gray-400">（開発者モード）手動で Codex へ引き継ぐプロンプトを作ります。通常運用では Claude 上限時に AutoFallback が自動生成します。</p>
+            <CodexHandoffPanel epicId={epic.epicId} />
+          </div>
+        </DevModeGate>
       </Section>
 
-      {/* 承認待ち（この Epic 分のみ。横断は /approvals） */}
-      <Section title="承認待ち" href="/approvals" hrefLabel="横断管理へ">
-        {pendingApprovals.length > 0 ? (
-          <ul className="space-y-2">
-            {pendingApprovals.map((a) => (
-              <li key={a.approvalId} className="rounded-lg border border-rose-200 bg-rose-50 p-2 text-sm dark:border-rose-900/40 dark:bg-rose-900/20">
-                <span className="font-medium text-gray-900 dark:text-gray-100">{a.title}</span>
-                <span className="ml-2 text-[11px] text-rose-600">{a.priority}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-sm text-gray-400">承認待ちはありません</p>
-        )}
+      {/* 承認待ち（この Epic 分をその場で承認/却下。横断受信箱は /approvals） */}
+      <Section title="承認待ち（その場で即処理）" href="/approvals" hrefLabel="横断受信箱へ">
+        <InlineApprovalPanel initial={pendingApprovals} />
       </Section>
 
       {/* 実行履歴（最新数件。全件は /logs） */}

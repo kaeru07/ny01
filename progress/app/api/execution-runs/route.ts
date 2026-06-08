@@ -132,6 +132,13 @@ export async function POST(request: Request) {
       fallbackExecutor: VALID_EXECUTORS.includes(body.fallbackExecutor) ? body.fallbackExecutor : undefined,
       autoFallback: typeof body.autoFallback === 'boolean' ? body.autoFallback : undefined,
       fallbackReason: typeof body.fallbackReason === 'string' ? body.fallbackReason : undefined,
+      // Factory Dispatch メタ（任意・手動コピー運用の追跡用）。
+      factoryDispatch: typeof body.factoryDispatch === 'boolean' ? body.factoryDispatch : undefined,
+      dispatchMode: typeof body.dispatchMode === 'string' ? body.dispatchMode : undefined,
+      dispatchPlanId: typeof body.dispatchPlanId === 'string' ? body.dispatchPlanId : undefined,
+      executorCandidate: VALID_EXECUTORS.includes(body.executorCandidate) ? body.executorCandidate : undefined,
+      promptGenerated: typeof body.promptGenerated === 'boolean' ? body.promptGenerated : undefined,
+      resultReturned: typeof body.resultReturned === 'boolean' ? body.resultReturned : undefined,
       beforeStatus: typeof body.beforeStatus === 'string' ? body.beforeStatus : undefined,
       afterStatus: typeof body.afterStatus === 'string' ? body.afterStatus : undefined,
       promptUsed: typeof body.promptUsed === 'string' ? body.promptUsed : undefined,

@@ -1,0 +1,12 @@
+# Factory スケジュール実行 — cron 代替設定（systemd timer を使わない場合のみ）
+# 反映: crontab /root/company/apps/ny01/progress/docs/factory-schedule/crontab.example
+# 解除: crontab -r  （他の cron 設定がある場合は crontab -e で該当行のみ削除）
+#
+# 注意: 本番では systemd timer 版（factory-schedule.timer / factory-schedule-boot.service）を推奨。
+# 理由は README.md の「スケジューラ選定」を参照。cron はログ・状態確認・boot 順序制御が弱い。
+
+# 定時実行（毎日 09:00）
+0 9 * * * /root/company/apps/ny01/progress/docs/factory-schedule/factory-schedule-trigger.sh schedule cron
+
+# VPS 起動時（cron デーモンが @reboot をサポートする場合）
+@reboot /root/company/apps/ny01/progress/docs/factory-schedule/factory-schedule-trigger.sh boot startup
