@@ -9,6 +9,7 @@ import { getResearchDoc } from "@/lib/research/vault";
 import { MarkdownView } from "@/components/research/MarkdownView";
 import { UtilizationView } from "@/components/research/UtilizationView";
 import { PaperInfoCard } from "@/components/research/PaperInfoCard";
+import { StructuredResearchView } from "@/components/research/StructuredResearchView";
 
 export const revalidate = 60;
 
@@ -94,9 +95,23 @@ export default async function ResearchDetailPage({ params }: Props) {
 
         <UtilizationView utilization={doc.utilization} showEmpty={true} />
 
-        <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
-          <MarkdownView markdown={doc.raw} />
-        </section>
+        {doc.structured && doc.structured.topics.length > 0 ? (
+          <>
+            <StructuredResearchView data={doc.structured} docDate={doc.date} />
+            <details className="bg-white rounded-2xl border border-gray-100 p-4">
+              <summary className="text-xs font-semibold text-gray-700 cursor-pointer">
+                原文 Markdown を表示
+              </summary>
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                <MarkdownView markdown={doc.raw} />
+              </div>
+            </details>
+          </>
+        ) : (
+          <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
+            <MarkdownView markdown={doc.raw} />
+          </section>
+        )}
 
         {doc.sections.length > 0 && (
           <details className="bg-white rounded-2xl border border-gray-100 p-4">

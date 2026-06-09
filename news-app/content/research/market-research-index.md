@@ -13,5 +13,33 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+- 2026-06-09: AIノート・議事録 / OpenAI、ChatGPTを「スーパーアプリ」化する計画が報道 / Codex plugins / サブスク: AI議事録、AIノート、AI動画広告生成など、継続利用が発生する業務・制作系は月額課金と… / エラーなし / partial(market,news,tools)
+- 2026-06-08: AI業務エージェント / OpenAI frontier models と Codex が AWS で一般提供 / Codex Sites / 月額課金: 議事録、調査、SNS投稿、営業メールなど反復タスクを月額 $9-29 程度で提供する。 / エラーなし / partial(market,tools)
+- 2026-06-07: AIチャット・AIエージェント / Codexが知識労働向けに拡大 / GitHub Copilot app / 月額課金: 特定業務向けのAIエージェント、例: 営業メモ整理、学習計画、契約書読み上げ。 / エラーなし / partial(market,news,tools)
+- 2026-06-06: AI会議メモ / OpenAI、Codexを職種別プラグインと共有可能なSitesへ拡張 / Buzzy Builder MCP / 会議メモ・音声入力・PDF要約など、利用頻度が高いユーティリティは月額 $6-$20 程度のサブスク… / エラーなし / partial(market,news,tools)
+- 2026-06-05: AI アプリ発見最適化 / OpenAI が Codex を非エンジニア業務にも拡張 / GitHub Copilot App / Google Play 向けに「Ask Play 対応 ASO 診断」「Play Shorts 用 … / エラーなし / partial(market,news,tools)
+- 2026-06-04: AI生産性アプリ / Codex が「知識労働ツール」化 / GitHub Copilot App technical preview拡大 / 月額課金: 「AI要約」「読み上げ」「SNSトレンド監視」「定型業務エージェント」は月額980円から… / エラーなし / partial(market,news,tools)
+- 2026-06-03: AIエージェント実行管理 / Anthropic が Project Glasswing を約150組織へ拡大 / Base MCP / AIエージェント実行ログ・コスト・失敗理由を可視化する軽量SaaSを月額課金にする。 / エラーなし / partial(market,tools)
+- 2026-06-02: AIショート動画制作 / Microsoft Build 2026 開幕 / Google Antigravity 2.0 / AIショート動画の台本・字幕・投稿文・サムネ案を一括生成する月額ミニSaaS。 / エラーなし / partial(market,tools)
+- 2026-06-01: AI動画生成 / Claude Opus 4.8 公開 / Google Antigravity 2.0 / AIノート・議事録・学習ログ系は、無料枠 + 月額課金 + 文字起こし上限の組み合わせが作りやすい / エラーなし / partial(market,news,tools)
+- 2026-05-31: AIアプリ発見最適化 / Claude Opus 4.8 公開 / GitHub Copilot app / Google Play Shorts 対応を前提に、アプリの 15-30 秒デモ動画を自動生成するマ… / エラーなし / partial(market,news,tools)
+- 2026-05-30: AI動画生成 / Claude Opus 4.8 と Dynamic Workflows 公開 / Google Antigravity 2.0 / Google Play の Play Shorts 向けに、15-30秒の機能デモ動画を前提にしたテ… / エラーなし / partial(market,news,tools)
+- 2026-05-29: AI学習アプリ / Claude Opus 4.8 発表 / Claude Opus 4.8 / AI学習アプリ: 無料でPDF/動画1件まで変換、月額で無制限ノート・クイズ・暗記カードを解放 / エラーなし / partial(market,news,tools)
+- 2026-05-28: AI議事録・音声メモ / OpenAI、2026年選挙向け安全策を発表 / Google Antigravity 2.0 / 議事録・音声メモ系は無料枠＋月額課金、文字起こし時間制限、業種別テンプレ課金が合う。 / エラーなし / partial(market,news,tools)
 - 2026-05-27: AI 学習アプリ / Anthropic、韓国法人代表を任命 / Gemini API Managed Agents / AI 学習アプリ: 無料枠は少数の教材・生成回数に制限し、月額または年額で「無制限クイズ・要約・チュ… / エラーなし / partial(market,news,tools)
 - 2026-05-26: AI アプリ発見 / Google I/O 2026: Gemini 3.5 Flash / Google AI Studio Android app build / Google Play / エラーなし / partial(market,news,tools)

@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "sync:research": "node scripts/sync-research-content.mjs",
+    "prebuild": "node scripts/sync-research-content.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

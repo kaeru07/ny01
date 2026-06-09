@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CATEGORY_META, ResearchDoc } from "@/lib/research/types";
+import { summarizeDocTopics } from "@/lib/research/summary";
 
 interface Props {
   doc: ResearchDoc;
@@ -10,6 +11,7 @@ export function ResearchCard({ doc }: Props) {
   const href = meta.hasDetailPage
     ? `/research/${doc.category}/${doc.date}`
     : `/research/${doc.category}`;
+  const stats = summarizeDocTopics(doc);
 
   return (
     <Link href={href} className="block">
@@ -45,18 +47,62 @@ export function ResearchCard({ doc }: Props) {
           {doc.title}
         </h2>
 
-        {doc.summary && (
-          <p className="text-xs text-gray-500 leading-relaxed line-clamp-3">
-            {doc.summary}
-          </p>
+        {stats ? (
+          <>
+            <div className="flex items-center gap-1.5 flex-wrap mb-1.5">
+              <span className="text-[11px] font-semibold text-gray-600 bg-gray-100 rounded-full px-2 py-0.5">
+                Topics {stats.topicCount}
+              </span>
+              {stats.sCount > 0 && (
+                <span className="text-[11px] font-bold text-rose-700 bg-rose-50 border border-rose-200 rounded-full px-2 py-0.5">
+                  S {stats.sCount}
+                </span>
+              )}
+              {stats.aCount > 0 && (
+                <span className="text-[11px] font-bold text-orange-700 bg-orange-50 border border-orange-200 rounded-full px-2 py-0.5">
+                  A {stats.aCount}
+                </span>
+              )}
+              {stats.todoCount > 0 && (
+                <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
+                  Todo {stats.todoCount}
+                </span>
+              )}
+              {stats.staleCount > 0 && (
+                <span className="text-[11px] font-semibold text-yellow-800 bg-yellow-100 border border-yellow-300 rounded-full px-2 py-0.5">
+                  Stale {stats.staleCount}
+                </span>
+              )}
+            </div>
+            {stats.topTags.length > 0 && (
+              <div className="flex flex-wrap gap-1 mb-1.5">
+                {stats.topTags.map((t, i) => (
+                  <span key={i} className="text-[11px] text-sky-700 break-all">
+                    #{t}
+                  </span>
+                ))}
+              </div>
+            )}
+            <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">
+              <span className="text-gray-400">TL;DR: </span>
+              {stats.tlDr}
+            </p>
+          </>
+        ) : (
+          <>
+            {doc.summary && (
+              <p className="text-xs text-gray-500 leading-relaxed line-clamp-3">
+                {doc.summary}
+              </p>
+            )}
+            <div className="flex items-center justify-between mt-3 text-xs text-gray-400">
+              <span>{doc.sections.length} セクション</span>
+              {doc.utilization && (
+                <span className="text-emerald-600">🧭 活用レビューあり</span>
+              )}
+            </div>
+          </>
         )}
-
-        <div className="flex items-center justify-between mt-3 text-xs text-gray-400">
-          <span>{doc.sections.length} セクション</span>
-          {doc.utilization && (
-            <span className="text-emerald-600">🧭 活用レビューあり</span>
-          )}
-        </div>
       </article>
     </Link>
   );
