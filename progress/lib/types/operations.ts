@@ -35,16 +35,19 @@ export type ExecutorType = 'claude' | 'codex' | 'manual' | 'other'
 
 export interface Epic {
   epicId: string
+  goalId?: string
   githubIssue?: number
   title: string
   goal: string
   progress: number
   remainingWork: string[]
   latestRunId?: string | null
+  blockers?: string[]
+  lastReviewSummary?: string
   nextAction: string
   decisionPolicy: DecisionPolicy
   autoApprovalRule?: string
-  status: 'active' | 'paused' | 'blocked' | 'done'
+  status: 'proposed' | 'approved' | 'active' | 'in_review' | 'done' | 'merged' | 'split' | 'dropped' | 'paused' | 'blocked'
   relatedTodoIds?: string[]
   /** 任意。この Epic に属する ExecutionRun を targetApp でフォールバック結合するためのキー群（例: ["progress","ny01/progress"]）。 */
   targetApps?: string[]
@@ -59,6 +62,7 @@ export interface Epic {
   notes?: string
   /** 関連リポジトリ（任意）。 */
   relatedRepo?: string
+  targetApp?: string
   /** 優先実行者（executor 非依存。例: claude）。 */
   preferredExecutor?: ExecutorType
   /** フォールバック実行者（例: codex）。 */
@@ -70,6 +74,7 @@ export interface Epic {
 
 /** Epic 作成/インポートの入力契約（バリデーション前の生入力に近い形）。 */
 export interface EpicContractInput {
+  goalId?: string
   title: string
   goal: string
   doneCriteria: string[]
@@ -221,6 +226,12 @@ export interface OperationalDecision {
   decision: string
   approvalId?: string
   decidedAt: string
+  /** 操作種別: approve / reject / assignGoal / changePriority / markReviewed / pause / drop / factory_pause / factory_resume / goal_adjust 等。 */
+  action?: string
+  runId?: string
+  goalId?: string
+  /** 判断主体。human=UI操作 / ai=AI一次レビュー等の自動判断。 */
+  source?: 'human' | 'ai'
 }
 
 export interface ExecutorSummary {
@@ -422,7 +433,13 @@ export interface AutoFallbackResult {
 export interface AutomationLogEntry {
   id: string
   at: string
-  event: 'auto_fallback' | 'claude_limit_detection' | 'auto_resume' | 'factory_dispatch'
+  event:
+    | 'auto_fallback'
+    | 'claude_limit_detection'
+    | 'auto_resume'
+    | 'factory_dispatch'
+    | 'ai_review'
+    | 'factory_backpressure'
   // --- auto_fallback 用（detection イベントでは未設定可） ---
   fallbackTriggered?: boolean
   fallbackReason?: string
@@ -447,6 +464,11 @@ export interface AutomationLogEntry {
   dispatchPlanId?: string
   executorCandidate?: ExecutorChoice
   promptType?: DispatchPromptType
+  // --- ai_review 用（一括一次レビューの結果サマリー） ---
+  aiReviewCounts?: { processed: number; reviewed: number; needsHuman: number; partial: number; failed: number }
+  // --- factory_backpressure 用 ---
+  notReviewedCount?: number
+  backpressureAction?: 'slow_down' | 'pause'
 }
 
 // ---- Auto Resume（Claude 上限後に安全作業だけ自動継続）----

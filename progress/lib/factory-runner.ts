@@ -8,6 +8,8 @@ import {
 } from './operations-store'
 import { scanFactoryDispatch, buildDispatchPlan, generateClaudeFactoryPrompt } from './factory-dispatch'
 import { addExecutionRun, updateExecutionRunFields } from './execution-run-writer'
+import { readExecutionRuns } from './execution-run-reader'
+import { BACKPRESSURE_PAUSE_THRESHOLD, BACKPRESSURE_SLOW_THRESHOLD } from './factory-metrics'
 import { getAdapter } from './executors'
 import { runChecks } from './checks-runner'
 import type { ChecksRunResult } from './checks-runner'
@@ -106,7 +108,7 @@ async function recordRun(args: {
 
 export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunReport> {
   const mode: FactoryRunMode = opts.mode ?? 'dry_run'
-  const maxRuns = Math.max(1, Math.min(opts.maxRuns ?? 3, 3)) // 初期制限: 1 起動最大 3 Run
+  let maxRuns = Math.max(1, Math.min(opts.maxRuns ?? 3, 3)) // 初期制限: 1 起動最大 3 Run
   const maxPerEpic = Math.max(1, Math.min(opts.maxPerEpic ?? 3, 3))
   const startedAt = new Date().toISOString()
   const steps: FactoryRunStep[] = []
@@ -118,6 +120,30 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
   const config = await getAutomationConfig()
   if (!config.factoryEnabled) {
     return finalize('factory_off')
+  }
+
+  // Review バックプレッシャー: 未レビュー在庫が多いほど生産を絞る。
+  // factoryEnabled は変更しない（恒久OFFにしない）。auto の実起動のみ対象（dry_run / manual は影響なし）。
+  if (mode === 'auto') {
+    const notReviewedCount = (await readExecutionRuns()).filter((r) => r.reviewStatus === 'not_reviewed').length
+    if (notReviewedCount > BACKPRESSURE_PAUSE_THRESHOLD) {
+      await appendAutomationLog({
+        event: 'factory_backpressure',
+        fallbackReason: `not_reviewed=${notReviewedCount} > ${BACKPRESSURE_PAUSE_THRESHOLD}: 今回のFactory自動実行をスキップ（レビュー滞留の解消が先。factoryEnabledは変更しない）`,
+        notReviewedCount,
+        backpressureAction: 'pause',
+      })
+      return finalize('backpressure_paused')
+    }
+    if (notReviewedCount > BACKPRESSURE_SLOW_THRESHOLD) {
+      maxRuns = 1
+      await appendAutomationLog({
+        event: 'factory_backpressure',
+        fallbackReason: `not_reviewed=${notReviewedCount} > ${BACKPRESSURE_SLOW_THRESHOLD}: maxRuns=1 に減速して実行`,
+        notReviewedCount,
+        backpressureAction: 'slow_down',
+      })
+    }
   }
 
   const scan = await scanFactoryDispatch()

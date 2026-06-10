@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getRecommendation, changeStatus } from '@/lib/recommended-epics-store'
+import { recordOperationalDecision } from '@/lib/operations-store'
 import type { RecommendationStatus } from '@/types/recommended-epic'
 
 export const dynamic = 'force-dynamic'
@@ -24,5 +25,11 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
   const updated = await changeStatus(params.id, status, body.detail)
   if (!updated) return NextResponse.json({ ok: false, error: 'not found' }, { status: 404 })
+  await recordOperationalDecision({
+    action: status === 'rejected' ? 'reject' : 'changeCandidateStatus',
+    topic: `候補状態変更: ${updated.title}`,
+    decision: `status=${status}${body.detail ? `（${body.detail}）` : ''}`,
+    goalId: updated.goalId,
+  })
   return NextResponse.json({ ok: true, recommendation: updated })
 }

@@ -22,6 +22,7 @@ import type {
   AutomationLogEntry,
   ClaudeLimitDetection,
   EpicContractInput,
+  EpicPriority,
   EpicRiskFlag,
   FactoryEligibility,
 } from './types/operations'
@@ -77,9 +78,45 @@ export async function updateEpic(epicId: string, patch: Partial<Epic>): Promise<
   const epics = await getEpics()
   const idx = epics.findIndex((e) => e.epicId === epicId)
   if (idx === -1) return null
-  const updated: Epic = { ...epics[idx], ...patch, epicId }
+  const updated: Epic = { ...epics[idx], ...patch, epicId, updatedAt: new Date().toISOString() }
   epics[idx] = updated
   await writeJson('epics.json', epics)
+  return updated
+}
+
+export async function decideEpicAction(input: {
+  epicId: string
+  action: 'approve' | 'reject' | 'assignGoal' | 'changePriority' | 'pause' | 'drop'
+  goalId?: string
+  priority?: EpicPriority
+}): Promise<Epic | null> {
+  const patch: Partial<Epic> = {}
+  if (input.action === 'approve') patch.status = 'approved'
+  if (input.action === 'reject') patch.status = 'dropped'
+  if (input.action === 'pause') patch.status = 'paused'
+  if (input.action === 'drop') patch.status = 'dropped'
+  if (input.action === 'assignGoal') {
+    if (!input.goalId) throw new Error('goalId is required')
+    patch.goalId = input.goalId
+  }
+  if (input.action === 'changePriority') {
+    if (!input.priority || !['P0', 'P1', 'P2'].includes(input.priority)) throw new Error('valid priority is required')
+    patch.priority = input.priority
+  }
+  const updated = await updateEpic(input.epicId, patch)
+  if (updated) {
+    await recordOperationalDecision({
+      action: input.action,
+      topic: `Epic ${input.action}: ${updated.title}`,
+      decision: input.action === 'assignGoal'
+        ? `goalId=${input.goalId} に紐付け`
+        : input.action === 'changePriority'
+          ? `priority=${input.priority} に変更`
+          : `status=${updated.status} に変更`,
+      epicId: updated.epicId,
+      goalId: input.goalId,
+    })
+  }
   return updated
 }
 
@@ -103,6 +140,7 @@ export async function createEpic(input: EpicContractInput & { epicId?: string })
 
   const epic: Epic = {
     epicId,
+    goalId: input.goalId,
     title: input.title,
     goal: input.goal,
     progress: 0,
@@ -175,6 +213,9 @@ export async function decideApproval(
     decision: decidedOption,
     approvalId: decided.approvalId,
     decidedAt: now,
+    action: decidedOption === 'approve' || decidedOption === 'reject' ? decidedOption : 'approval_decided',
+    runId: decided.createdRunId,
+    source: 'human',
   }
   await appendNdjson('operational-decisions.ndjson', decision)
 
@@ -215,6 +256,36 @@ export async function createApproval(input: {
 
 export async function getOperationalDecisions(): Promise<OperationalDecision[]> {
   return readNdjson<OperationalDecision>('operational-decisions.ndjson')
+}
+
+let decisionSeq = 0
+
+/** 運用上の判断（approve / reject / assignGoal / markReviewed / factory pause 等）を Decision Log に追記する。 */
+export async function recordOperationalDecision(input: {
+  action: string
+  topic: string
+  decision: string
+  epicId?: string
+  runId?: string
+  goalId?: string
+  approvalId?: string
+  source?: 'human' | 'ai'
+}): Promise<OperationalDecision> {
+  decisionSeq = (decisionSeq + 1) % 1000
+  const entry: OperationalDecision = {
+    decisionId: `dec-${Date.now()}-${decisionSeq}`,
+    epicId: input.epicId,
+    topic: input.topic,
+    decision: input.decision,
+    approvalId: input.approvalId,
+    decidedAt: new Date().toISOString(),
+    action: input.action,
+    runId: input.runId,
+    goalId: input.goalId,
+    source: input.source ?? 'human',
+  }
+  await appendNdjson('operational-decisions.ndjson', entry)
+  return entry
 }
 
 export async function buildDecisionContext(limit = 20): Promise<DecisionContext> {
@@ -865,6 +936,13 @@ export async function updateAutomationConfig(
     updatedAt: new Date().toISOString(),
   }
   await writeJson('automation-config.json', next)
+  if (typeof patch.factoryEnabled === 'boolean' && patch.factoryEnabled !== current.factoryEnabled) {
+    await recordOperationalDecision({
+      action: patch.factoryEnabled ? 'factory_resume' : 'factory_pause',
+      topic: 'Factory ON/OFF 切替',
+      decision: `factoryEnabled=${patch.factoryEnabled}`,
+    })
+  }
   return next
 }
 

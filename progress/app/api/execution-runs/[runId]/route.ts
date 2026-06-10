@@ -1,18 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { updateReviewStatus } from '@/lib/execution-run-writer'
+import { runKnowledgeLoopForReviewedRun } from '@/lib/knowledge-loop'
+import { recordOperationalDecision } from '@/lib/operations-store'
 import type { ReviewStatus } from '@/types/execution-run'
 
 interface Params {
   params: { runId: string }
 }
 
-const VALID_REVIEW_STATUSES: ReviewStatus[] = ['not_reviewed', 'copied', 'reviewed', 'needs_followup']
+const VALID_REVIEW_STATUSES: ReviewStatus[] = ['not_reviewed', 'copied', 'reviewed', 'needs_followup', 'needs_human']
 
 export async function PATCH(request: NextRequest, { params }: Params) {
   try {
     const { runId } = params
     const body = await request.json()
     const { reviewStatus } = body
+    const reviewMemo = typeof body?.reviewMemo === 'string' ? body.reviewMemo : undefined
 
     if (!runId) {
       return NextResponse.json({ error: 'runId is required' }, { status: 400 })
@@ -21,11 +24,22 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       return NextResponse.json({ error: 'Invalid reviewStatus' }, { status: 400 })
     }
 
-    const updated = await updateReviewStatus(runId, reviewStatus as ReviewStatus)
+    const updated = await updateReviewStatus(runId, reviewStatus as ReviewStatus, reviewMemo)
     if (!updated) {
       return NextResponse.json({ error: 'Run not found' }, { status: 404 })
     }
-    return NextResponse.json({ success: true })
+    // 人間のレビュー操作を Decision Log に残す（UI / API からの状態変更が対象）。
+    await recordOperationalDecision({
+      action: reviewStatus === 'reviewed' ? 'markReviewed' : 'changeReviewStatus',
+      topic: `Runレビュー: ${updated.targetTodoTitle || runId}`,
+      decision: `reviewStatus=${reviewStatus}${reviewMemo ? '（memo更新あり）' : ''}`,
+      runId,
+      epicId: updated.epicId,
+    })
+    const knowledgeLoop = reviewStatus === 'reviewed'
+      ? await runKnowledgeLoopForReviewedRun(updated)
+      : null
+    return NextResponse.json({ success: true, knowledgeLoop })
   } catch (err) {
     console.error('Failed to update review status:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

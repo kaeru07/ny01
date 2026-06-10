@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { readGoals } from '@/lib/goal-reader'
 import { readAppProgress } from '@/lib/progress-reader'
-import { importGoal, validateGoalImport } from '@/lib/goal-writer'
+import { importGoal, upsertGoal, validateGoalImport } from '@/lib/goal-writer'
+import { recordOperationalDecision } from '@/lib/operations-store'
 
 export async function GET() {
   try {
@@ -16,6 +17,17 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+    if (body?.action === 'upsert') {
+      const goal = await upsertGoal(body.goal ?? body)
+      await recordOperationalDecision({
+        action: 'goal_adjust',
+        topic: `Goal調整: ${goal.title}`,
+        decision: `metric=${goal.metric ?? '-'} target=${goal.target ?? '-'} current=${goal.current ?? '-'} status=${goal.status}`,
+        goalId: goal.id,
+      })
+      return NextResponse.json({ success: true, goal })
+    }
+
     const progress = await readAppProgress()
     const projects = progress.projects.map((p) => ({ id: p.id, name: p.name }))
 
@@ -33,5 +45,23 @@ export async function POST(request: NextRequest) {
     console.error('Failed to import goal:', err)
     const msg = err instanceof Error ? err.message : 'Internal server error'
     return NextResponse.json({ error: msg }, { status: 500 })
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const goal = await upsertGoal(body.goal ?? body)
+    await recordOperationalDecision({
+      action: 'goal_adjust',
+      topic: `Goal調整: ${goal.title}`,
+      decision: `metric=${goal.metric ?? '-'} target=${goal.target ?? '-'} current=${goal.current ?? '-'} status=${goal.status}`,
+      goalId: goal.id,
+    })
+    return NextResponse.json({ success: true, goal })
+  } catch (err) {
+    console.error('Failed to save goal:', err)
+    const msg = err instanceof Error ? err.message : 'Internal server error'
+    return NextResponse.json({ error: msg }, { status: msg.includes('required') ? 400 : 500 })
   }
 }

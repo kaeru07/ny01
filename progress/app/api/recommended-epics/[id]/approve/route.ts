@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { approveRecommendation } from '@/lib/recommended-epics-store'
+import { approveRecommendation, getRecommendation } from '@/lib/recommended-epics-store'
+import { recordOperationalDecision } from '@/lib/operations-store'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,5 +11,12 @@ export async function POST(_request: Request, { params }: { params: { id: string
   if (!result.ok) {
     return NextResponse.json(result, { status: 409 })
   }
+  const rec = await getRecommendation(params.id)
+  await recordOperationalDecision({
+    action: 'approve',
+    topic: `候補承認: ${rec?.title ?? params.id}`,
+    decision: 'suggested → epic_created（Epic追加）',
+    goalId: rec?.goalId,
+  })
   return NextResponse.json(result)
 }

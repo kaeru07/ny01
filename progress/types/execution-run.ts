@@ -1,6 +1,19 @@
 export type RunStatus = 'running' | 'completed' | 'failed' | 'partial'
-export type ReviewStatus = 'not_reviewed' | 'copied' | 'reviewed' | 'needs_followup'
+/** needs_human: AI一次レビューが「人間判断が必要」と振り分けた状態（意思決定キュー行き）。 */
+export type ReviewStatus = 'not_reviewed' | 'copied' | 'reviewed' | 'needs_followup' | 'needs_human'
 export type ExecutorType = 'claude' | 'codex' | 'manual' | 'other'
+
+/** AI一次レビュー（ルールベース・LLM不使用）の判定結果。reviewStatus とは独立に判定根拠を保持する。 */
+export type AiReviewVerdict = 'reviewed' | 'needs_human' | 'partial' | 'failed'
+
+export interface AiReviewResult {
+  verdict: AiReviewVerdict
+  /** 判定理由（人間が読める1行）。reviewMemo にも同内容を追記する。 */
+  reason: string
+  /** 発火した判定ルールの識別子（例: clean_completed / risk_keyword / run_failed）。 */
+  rule: string
+  reviewedAt: string
+}
 
 export interface ChangedFile {
   file: string
@@ -30,6 +43,10 @@ export interface ExecutionRun {
   targetTodoTitle: string
   runStatus: RunStatus
   reviewStatus: ReviewStatus
+  reviewMemo?: string
+  reviewedAt?: string
+  /** AI一次レビューの判定結果（実施済みの場合のみ）。 */
+  aiReview?: AiReviewResult
   /** 任意。Run の発生源。例: 'codex_mobile'（Codexモバイルで実行しProgressへ手動で戻したRun）/
    *  'factory_runner'（Factory が生成）/ 'schedule'（定時実行）/ 'boot'（VPS 起動時）。 */
   source?: string
