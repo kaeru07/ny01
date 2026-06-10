@@ -1,4 +1,5 @@
 import { readJson, writeJson } from '@/lib/store'
+import { normalizeUrlString } from '@/lib/url-normalize'
 
 export type AppUrlStatus = 'active' | 'unknown' | 'deploy_ready' | 'local_only' | 'archived'
 export type AppUrlKind = 'vercel' | 'vps' | 'vps_internal' | 'local_dev' | 'ssh_port_forward' | 'api' | 'unknown'
@@ -62,7 +63,7 @@ function todayStr(): string {
 
 /** 1 件の入力 URL を正規化する。不正な kind / confidence は安全側へフォールバック。 */
 export function normalizeUrlInput(input: Partial<AppUrlRecord>): AppUrlRecord {
-  const url = (input.url ?? '').trim()
+  const url = normalizeUrlString(input.url ?? '')
   const kind: AppUrlKind = VALID_KINDS.includes(input.kind as AppUrlKind)
     ? (input.kind as AppUrlKind)
     : 'unknown'

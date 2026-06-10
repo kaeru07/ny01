@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { AppUrlKind, AppUrlRecord, AppUrlStatus, EnrichedAppUrl, IphoneAccess } from '@/lib/app-urls'
+import { normalizeUrlString } from '@/lib/url-normalize'
 
 const STATUS_META: Record<AppUrlStatus, { label: string; cls: string }> = {
   active: { label: '稼働中', cls: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' },
@@ -226,11 +227,15 @@ function AppUrlEditor({ app, onClose }: { app: EnrichedAppUrl; onClose: () => vo
             </button>
           </div>
           <input
-            type="url"
+            type="text"
             inputMode="url"
             value={row.url === '未確認' ? '' : row.url}
-            placeholder="https://example.com/path"
+            placeholder="example.com/path （https:// は自動補完）"
             onChange={(e) => updateRow(i, { url: e.target.value })}
+            onBlur={(e) => {
+              const v = e.target.value.trim()
+              if (v) updateRow(i, { url: normalizeUrlString(v) })
+            }}
             className="w-full rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
           />
         </div>
