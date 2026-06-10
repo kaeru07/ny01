@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import type { AppUrlKind, AppUrlRecord, AppUrlStatus, EnrichedAppUrl, IphoneAccess } from '@/lib/app-urls'
 
 const STATUS_META: Record<AppUrlStatus, { label: string; cls: string }> = {
@@ -146,9 +147,134 @@ function SupplementaryUrls({ app }: { app: EnrichedAppUrl }) {
   )
 }
 
+// 編集対象の URL 行（既存メタは保持しつつ kind / label / url を編集）
+type DraftUrl = Pick<AppUrlRecord, 'kind' | 'label' | 'url'> & Partial<AppUrlRecord>
+
+const EDITABLE_KINDS: AppUrlKind[] = [
+  'vercel', 'vps', 'vps_internal', 'local_dev', 'ssh_port_forward', 'api', 'unknown',
+]
+
+// URL をユーザーが手入力で編集するフォーム
+function AppUrlEditor({ app, onClose }: { app: EnrichedAppUrl; onClose: () => void }) {
+  const router = useRouter()
+  const [rows, setRows] = useState<DraftUrl[]>(() => app.urls.map((u) => ({ ...u })))
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  function updateRow(index: number, patch: Partial<DraftUrl>) {
+    setRows((prev) => prev.map((r, i) => (i === index ? { ...r, ...patch } : r)))
+  }
+  function addRow() {
+    setRows((prev) => [...prev, { kind: 'unknown', label: '', url: '' }])
+  }
+  function removeRow(index: number) {
+    setRows((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  async function save() {
+    setSaving(true)
+    setError(null)
+    try {
+      const res = await fetch(`/api/app-urls/${encodeURIComponent(app.id)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ urls: rows }),
+      })
+      if (!res.ok) {
+        const j = (await res.json().catch(() => ({}))) as { error?: string }
+        throw new Error(j.error || `保存に失敗しました (${res.status})`)
+      }
+      onClose()
+      router.refresh()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '保存に失敗しました')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="mt-4 space-y-3 rounded-xl border border-blue-200 bg-blue-50/50 p-3 dark:border-blue-900/40 dark:bg-blue-900/15">
+      <p className="text-xs font-semibold text-blue-800 dark:text-blue-200">URLを編集</p>
+
+      {rows.map((row, i) => (
+        <div key={i} className="space-y-2 rounded-lg border border-gray-200 bg-white p-2 dark:border-gray-700 dark:bg-gray-900">
+          <div className="flex items-center gap-2">
+            <select
+              value={row.kind}
+              onChange={(e) => updateRow(i, { kind: e.target.value as AppUrlKind })}
+              className="rounded-md border border-gray-300 bg-white px-2 py-1.5 text-xs text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+            >
+              {EDITABLE_KINDS.map((k) => (
+                <option key={k} value={k}>{KIND_META[k].label}</option>
+              ))}
+            </select>
+            <input
+              type="text"
+              value={row.label}
+              placeholder="ラベル（例: Vercel production）"
+              onChange={(e) => updateRow(i, { label: e.target.value })}
+              className="min-w-0 flex-1 rounded-md border border-gray-300 bg-white px-2 py-1.5 text-xs text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+            />
+            <button
+              type="button"
+              onClick={() => removeRow(i)}
+              className="shrink-0 rounded-md border border-red-200 px-2 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 dark:border-red-900/40 dark:text-red-400 dark:hover:bg-red-900/20"
+              aria-label="このURLを削除"
+            >
+              削除
+            </button>
+          </div>
+          <input
+            type="url"
+            inputMode="url"
+            value={row.url === '未確認' ? '' : row.url}
+            placeholder="https://example.com/path"
+            onChange={(e) => updateRow(i, { url: e.target.value })}
+            className="w-full rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+          />
+        </div>
+      ))}
+
+      <button
+        type="button"
+        onClick={addRow}
+        className="w-full rounded-lg border border-dashed border-gray-300 px-3 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+      >
+        ＋ URLを追加
+      </button>
+
+      {error && <p className="text-xs font-semibold text-red-600 dark:text-red-400">{error}</p>}
+
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={save}
+          disabled={saving}
+          className="flex-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+        >
+          {saving ? '保存中…' : '保存'}
+        </button>
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={saving}
+          className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+        >
+          キャンセル
+        </button>
+      </div>
+      <p className="text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
+        手入力したURLは「ユーザー入力」として保存され、iPhone到達性（公開URLか内部URLか）は自動で再判定されます。
+      </p>
+    </div>
+  )
+}
+
 function AppCard({ app }: { app: EnrichedAppUrl }) {
   const status = STATUS_META[app.status] ?? STATUS_META.unknown
   const access = ACCESS_META[app.iphoneAccess]
+  const [editing, setEditing] = useState(false)
 
   return (
     <article className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
@@ -160,11 +286,26 @@ function AppCard({ app }: { app: EnrichedAppUrl }) {
         <div className="flex shrink-0 flex-col items-end gap-1">
           <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${access.cls}`}>{access.label}</span>
           <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${status.cls}`}>{status.label}</span>
+          {!editing && (
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              className="mt-1 rounded-full border border-gray-300 px-2.5 py-1 text-[10px] font-semibold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+            >
+              ✏️ URL編集
+            </button>
+          )}
         </div>
       </div>
 
-      <IphonePrimaryBlock app={app} />
-      <SupplementaryUrls app={app} />
+      {editing ? (
+        <AppUrlEditor app={app} onClose={() => setEditing(false)} />
+      ) : (
+        <>
+          <IphonePrimaryBlock app={app} />
+          <SupplementaryUrls app={app} />
+        </>
+      )}
 
       <dl className="mt-4 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
         <div>

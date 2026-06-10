@@ -1,4 +1,4 @@
-import { readJson } from '@/lib/store'
+import { readJson, writeJson } from '@/lib/store'
 
 export type AppUrlStatus = 'active' | 'unknown' | 'deploy_ready' | 'local_only' | 'archived'
 export type AppUrlKind = 'vercel' | 'vps' | 'vps_internal' | 'local_dev' | 'ssh_port_forward' | 'api' | 'unknown'
@@ -37,6 +37,80 @@ export async function readAppUrls(): Promise<AppUrlRegistry> {
     operationMemo: '',
     apps: [],
   })
+}
+
+export async function writeAppUrls(registry: AppUrlRegistry): Promise<void> {
+  await writeJson<AppUrlRegistry>('app-urls.json', registry)
+}
+
+// ─────────────────────────────────────────────────────────────
+// ユーザー入力で URL を編集するための正規化
+//
+// 画面から手入力された URL レコードを安全な AppUrlRecord に整える。
+// 既存レコードを編集した場合は evidence 等のメタを維持し、新規行や空メタは
+// 「ユーザー入力」の既定値で埋める。kind / confidence は許可値のみ受け付ける。
+// ─────────────────────────────────────────────────────────────
+
+const VALID_KINDS: AppUrlKind[] = [
+  'vercel', 'vps', 'vps_internal', 'local_dev', 'ssh_port_forward', 'api', 'unknown',
+]
+const VALID_CONFIDENCE: AppUrlConfidence[] = ['confirmed', 'documented', 'unknown']
+
+function todayStr(): string {
+  return new Date().toISOString().slice(0, 10)
+}
+
+/** 1 件の入力 URL を正規化する。不正な kind / confidence は安全側へフォールバック。 */
+export function normalizeUrlInput(input: Partial<AppUrlRecord>): AppUrlRecord {
+  const url = (input.url ?? '').trim()
+  const kind: AppUrlKind = VALID_KINDS.includes(input.kind as AppUrlKind)
+    ? (input.kind as AppUrlKind)
+    : 'unknown'
+  const confidence: AppUrlConfidence = VALID_CONFIDENCE.includes(input.confidence as AppUrlConfidence)
+    ? (input.confidence as AppUrlConfidence)
+    : 'documented'
+  return {
+    kind,
+    label: (input.label ?? '').trim(),
+    url: url || '未確認',
+    confidence,
+    evidence: (input.evidence ?? '').trim() || 'ユーザー入力',
+    evidenceDetail: (input.evidenceDetail ?? '').trim() || '画面から手入力',
+    lastCheckedAt: (input.lastCheckedAt ?? '').trim() || todayStr(),
+  }
+}
+
+/**
+ * 指定アプリの URL 群（および任意のアプリ属性）をユーザー入力で置き換える。
+ * 見つからなければ null を返す。成功時は更新後の registry を返す。
+ */
+export function applyAppUrlEdit(
+  registry: AppUrlRegistry,
+  appId: string,
+  patch: { urls?: Partial<AppUrlRecord>[]; name?: string; purpose?: string; status?: AppUrlStatus; notes?: string },
+): AppUrlRegistry | null {
+  const idx = registry.apps.findIndex((a) => a.id === appId)
+  if (idx === -1) return null
+  const app = registry.apps[idx]
+  const next: AppUrlEntry = { ...app }
+
+  if (Array.isArray(patch.urls)) {
+    next.urls = patch.urls
+      // url も label も空の行は破棄
+      .filter((u) => ((u.url ?? '').trim() || (u.label ?? '').trim()))
+      .map(normalizeUrlInput)
+  }
+  if (typeof patch.name === 'string') next.name = patch.name.trim() || app.name
+  if (typeof patch.purpose === 'string') next.purpose = patch.purpose
+  if (typeof patch.notes === 'string') next.notes = patch.notes
+  if (patch.status && (['active', 'unknown', 'deploy_ready', 'local_only', 'archived'] as AppUrlStatus[]).includes(patch.status)) {
+    next.status = patch.status
+  }
+  next.lastCheckedAt = todayStr()
+
+  const apps = [...registry.apps]
+  apps[idx] = next
+  return { ...registry, apps, updatedAt: new Date().toISOString() }
 }
 
 // ─────────────────────────────────────────────────────────────
