@@ -3,7 +3,6 @@ import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { readAppProgress, readProjectTasks } from '@/lib/progress-reader'
 import { getAutomationConfig, getEpics, getPendingApprovals } from '@/lib/operations-store'
 import { computeFactoryMetrics, type FactoryMetrics } from '@/lib/factory-metrics'
-import { buildQueueSplit, type SplitQueueItem } from '@/lib/queue-split'
 import { readGoals } from '@/lib/goal-reader'
 import type { RecommendedEpic } from '@/types/recommended-epic'
 import type { ExecutionRun } from '@/types/execution-run'
@@ -22,6 +21,7 @@ export const TERMS: Record<string, { ja: string; help: string }> = {
   closedLoopRate: { ja: '自動化率', help: 'AIが人間の介入なしで作業を完了し、学習結果まで残せた割合' },
   notReviewed: { ja: '未確認の作業履歴', help: 'AIの作業結果のうち、まだ内容確認が済んでいないもの' },
   needsHuman: { ja: 'あなたの判断待ち', help: 'AIだけでは決められず、人間の判断を待っている項目' },
+  inbox: { ja: '今日の判断', help: 'あなたが「はい・いいえ・あとで」を選ぶだけの判断箱。処理すると消え、内部の管理はAIが行います' },
 }
 
 export interface TodayAction {
@@ -56,7 +56,7 @@ export interface RecentWin {
 
 export interface CommandCenterView {
   todayActions: TodayAction[]
-  decisions: SplitQueueItem[]
+  /** 今日の判断（Inbox）の残り件数。中身はホームに出さない（社長向け: 件数と入口だけ） */
   decisionCount: number
   factory: FactoryStateView
   milestones: Milestone[]
@@ -140,9 +140,9 @@ export async function buildRevenueMilestones(): Promise<Milestone[]> {
 const HIDDEN_WIN_PATTERN = /Factory schedule|定期取り込み/
 
 export async function buildCommandCenter(): Promise<CommandCenterView> {
-  const [metrics, queues, config, runs, milestones, tasksData] = await Promise.all([
+  const [metrics, inbox, config, runs, milestones, tasksData] = await Promise.all([
     computeFactoryMetrics(),
-    buildQueueSplit(),
+    buildInbox(),
     getAutomationConfig(),
     readExecutionRuns(),
     buildRevenueMilestones(),
@@ -151,13 +151,13 @@ export async function buildCommandCenter(): Promise<CommandCenterView> {
 
   const factory = buildFactoryState(metrics, config.factoryEnabled)
 
-  // 今日やること: ①判断（Inbox） ②AIに任せる確認 ③あなたの番の作業
+  // 今日やること: ①判断（今日の判断） ②AIに任せる確認 ③あなたの番の作業
   const todayActions: TodayAction[] = []
-  if (queues.human.length > 0) {
+  if (inbox.length > 0) {
     todayActions.push({
       kind: 'judge',
-      title: `判断する（${queues.human.length}件）`,
-      detail: `${queues.human[0].title} など。Inboxで承認・見送りを選ぶだけです`,
+      title: `判断する（${inbox.length}件）`,
+      detail: 'はい・いいえ・あとで を選ぶだけです。3〜5分で終わります',
       href: '/decide',
     })
   }
@@ -191,8 +191,7 @@ export async function buildCommandCenter(): Promise<CommandCenterView> {
 
   return {
     todayActions,
-    decisions: queues.human.slice(0, 5),
-    decisionCount: queues.human.length,
+    decisionCount: inbox.length,
     factory,
     milestones,
     recentWins,
@@ -200,7 +199,11 @@ export async function buildCommandCenter(): Promise<CommandCenterView> {
   }
 }
 
-// ---- Inbox（あなたの判断箱）----
+// ---- 今日の判断（社長向け承認カード）----
+// 内部分類（approval / needs_human run / orphan epic / suggested candidate）はここで畳み、
+// 画面には「作業結果の確認 / 次の作業 / Goal紐付け」の3種類しか出さない。
+// ExecutionRun / runId / reviewed / Knowledge 等の内部語は question に出さず、
+// detail（「詳細を見る」を押した時だけ表示）の中にのみ置く。
 
 const CATEGORY_LABEL: Record<string, string> = {
   billing: '課金の判断',
@@ -214,44 +217,57 @@ const CATEGORY_LABEL: Record<string, string> = {
   executor_fallback: '進め方の判断',
 }
 
-export type InboxItem =
-  | {
-      type: 'approval'
-      id: string
-      kindLabel: string
-      title: string
-      reason: string
-      approvalId: string
-      options: Array<{ key: string; label: string }>
-      recommended: string
-    }
-  | {
-      type: 'orphan_epic'
-      id: string
-      kindLabel: string
-      title: string
-      reason: string
-      epicId: string
-      goals: Array<{ id: string; title: string }>
-    }
-  | {
-      type: 'candidate'
-      id: string
-      kindLabel: string
-      title: string
-      reason: string
-      recId: string
-    }
-  | {
-      type: 'needs_human_run'
-      id: string
-      kindLabel: string
-      title: string
-      reason: string
-      runId: string
-    }
+export type InboxCardKind = 'confirm' | 'proceed' | 'goal'
 
-export async function buildInbox(): Promise<InboxItem[]> {
+export interface InboxCardAction {
+  label: string
+  tone: 'primary' | 'ghost' | 'danger'
+  api: { url: string; method: 'POST' | 'PATCH'; body: Record<string, unknown> }
+}
+
+export interface InboxCard {
+  id: string
+  kind: InboxCardKind
+  /** 画面上の3分類: 作業結果の確認 / 次の作業 / Goal紐付け */
+  kindLabel: string
+  /** 人間語の質問1文。内部語禁止 */
+  question: string
+  /** 「詳細を見る」内にだけ出す説明（内部ID・内部ステータス可） */
+  detail: string[]
+  actions: InboxCardAction[]
+  /** kind === 'goal' のときの紐付け先候補 */
+  goals?: Array<{ id: string; title: string }>
+  epicId?: string
+}
+
+/** 内部の命名規則（Run一次レビュー: / epic-xxx: / 次Epic候補 等）をタイトルから除く。 */
+function humanizeTitle(title: string): string {
+  let t = title
+  const patterns: Array<[RegExp, string]> = [
+    [/^Run一次レビュー:\s*/i, ''],
+    [/^レビュー起点:\s*/, ''],
+    [/^epic[-_][\w-]+:\s*/i, ''],
+    [/^Factory\(auto\):\s*/i, ''],
+    [/の次Epic候補$/i, ''],
+    [/\s*\((schedule|boot)\/[^)]*\)/gi, ''],
+  ]
+  for (const [re, rep] of patterns) t = t.replace(re, rep)
+  t = t.trim().replace(/[、。\s]+$/, '')
+  return t || title
+}
+
+/** 承認オプションのラベルを「はい/あとで/やめる」系の人間語へ寄せる。 */
+function humanizeOptionLabel(label: string): string {
+  if (/問題なし/.test(label)) return '問題なし'
+  if (/フォローアップ|修正|再試行/.test(label)) return '修正する'
+  if (/保留|あとで/.test(label)) return 'あとで'
+  if (/承認|進める|はい/.test(label)) return 'はい'
+  if (/却下|見送|やめる|中止/.test(label)) return 'やめる'
+  // 括弧内の内部語（reviewedにする 等）だけ落とす
+  return label.replace(/（[^）]*）|\([^)]*\)/g, '').trim() || label
+}
+
+export async function buildInbox(): Promise<InboxCard[]> {
   const [approvals, epics, recommendations, runs, goalsData] = await Promise.all([
     getPendingApprovals(),
     getEpics(),
@@ -260,46 +276,68 @@ export async function buildInbox(): Promise<InboxItem[]> {
     readGoals(),
   ])
   const goals = goalsData.goals.map((g) => ({ id: g.id, title: g.title }))
-  const items: InboxItem[] = []
+  const cards: InboxCard[] = []
 
+  // ① 承認待ち → 「作業結果の確認」or「次の作業」
   for (const a of approvals) {
-    items.push({
-      type: 'approval',
+    const isReviewDecision = a.options.some((o) => /問題なし|フォローアップ/.test(o.label))
+    const sorted = [...a.options].sort((x, y) => (x.key === a.recommended ? -1 : y.key === a.recommended ? 1 : 0))
+    cards.push({
       id: `approval-${a.approvalId}`,
-      kindLabel: CATEGORY_LABEL[a.category] ?? '判断',
-      title: a.title,
-      reason: a.reason,
-      approvalId: a.approvalId,
-      options: a.options.map((o) => ({ key: o.key, label: o.label })),
-      recommended: a.recommended,
+      kind: isReviewDecision ? 'confirm' : 'proceed',
+      kindLabel: isReviewDecision ? '作業結果の確認' : '次の作業',
+      question: isReviewDecision
+        ? `「${humanizeTitle(a.title)}」の作業が終わりました。問題ありませんか？`
+        : `「${humanizeTitle(a.title)}」を進めますか？`,
+      detail: [
+        `判断の種類: ${CATEGORY_LABEL[a.category] ?? a.category}`,
+        `AIの説明: ${a.reason}`,
+        ...(a.createdRunId ? [`元の作業履歴: ${a.createdRunId}`] : []),
+        `内部ID: ${a.approvalId}`,
+      ],
+      actions: sorted.map((o) => ({
+        label: humanizeOptionLabel(o.label),
+        tone: o.key === a.recommended ? 'primary' : /却下|見送|やめる|フォローアップ|修正/.test(o.label) ? 'danger' : 'ghost',
+        api: { url: '/api/operations/approvals', method: 'POST', body: { approvalId: a.approvalId, decidedOption: o.key } },
+      })),
     })
   }
 
+  // ② AIが判断を保留した作業結果 → 「作業結果の確認」
   const approvalRunIds = new Set(approvals.map((a) => a.createdRunId).filter(Boolean))
   for (const run of runs.filter((r) => r.reviewStatus === 'needs_human' && !approvalRunIds.has(r.runId))) {
-    items.push({
-      type: 'needs_human_run',
+    cards.push({
       id: `run-${run.runId}`,
+      kind: 'confirm',
       kindLabel: '作業結果の確認',
-      title: run.targetTodoTitle || run.runId,
-      reason: run.aiReview?.reason ?? 'AIだけでは判断できなかった作業結果です',
-      runId: run.runId,
+      question: `「${humanizeTitle(run.targetTodoTitle || run.summary || run.runId)}」の作業が終わりました。問題ありませんか？`,
+      detail: [
+        `AIの見解: ${run.aiReview?.reason ?? 'AIだけでは判断できなかった作業結果です'}`,
+        `元の作業履歴: ${run.runId}`,
+      ],
+      actions: [
+        { label: '問題なし', tone: 'primary', api: { url: `/api/execution-runs/${run.runId}`, method: 'PATCH', body: { reviewStatus: 'reviewed' } } },
+        { label: '修正する', tone: 'danger', api: { url: `/api/execution-runs/${run.runId}`, method: 'PATCH', body: { reviewStatus: 'needs_followup' } } },
+      ],
     })
   }
 
+  // ③ 目標未紐付けの大きな作業 → 「Goal紐付け」
   const openStatuses = new Set(['proposed', 'approved', 'active', 'in_review', 'paused', 'blocked'])
   for (const epic of epics.filter((e) => openStatuses.has(e.status) && !e.goalId)) {
-    items.push({
-      type: 'orphan_epic',
+    cards.push({
       id: `orphan-${epic.epicId}`,
-      kindLabel: '目標との紐付け',
-      title: epic.title,
-      reason: 'この大きな作業がどの目標のためのものか選んでください（不要なら「やめる」）',
-      epicId: epic.epicId,
+      kind: 'goal',
+      kindLabel: 'Goal紐付け',
+      question: `「${humanizeTitle(epic.title)}」— この作業はどの目標に紐付けますか？`,
+      detail: [`内部ID: ${epic.epicId}`, '紐付けが不要な作業は「不要」で取り下げられます'],
+      actions: [],
       goals,
+      epicId: epic.epicId,
     })
   }
 
+  // ④ おすすめ次作業 → 「次の作業」
   const priorityOrder: Record<string, number> = { P0: 0, P1: 1, P2: 2 }
   const topSuggested = recommendations
     .filter((r) => r.status === 'suggested')
@@ -310,17 +348,26 @@ export async function buildInbox(): Promise<InboxItem[]> {
     })
     .slice(0, 3)
   for (const rec of topSuggested) {
-    items.push({
-      type: 'candidate',
+    cards.push({
       id: `candidate-${rec.id}`,
-      kindLabel: 'おすすめ次作業の承認',
-      title: rec.title,
-      reason: rec.reason,
-      recId: rec.id,
+      kind: 'proceed',
+      kindLabel: '次の作業',
+      question: `「${humanizeTitle(rec.title)}」を進めますか？`,
+      detail: [
+        `なぜ提案された？: ${rec.reason}`,
+        ...(rec.sourceRunId ? [`元の作業履歴: ${rec.sourceRunId}`] : []),
+        ...(rec.sourceRef ? [`提案の出どころ: ${rec.sourceRef}`] : []),
+        `内部ID: ${rec.id}`,
+      ],
+      actions: [
+        { label: 'はい', tone: 'primary', api: { url: `/api/recommended-epics/${rec.id}/approve`, method: 'POST', body: {} } },
+        { label: 'あとで', tone: 'ghost', api: { url: `/api/recommended-epics/${rec.id}`, method: 'PATCH', body: { status: 'hold', detail: '今日の判断で「あとで」を選択' } } },
+        { label: 'やめる', tone: 'danger', api: { url: `/api/recommended-epics/${rec.id}`, method: 'PATCH', body: { status: 'rejected', detail: '今日の判断で「やめる」を選択' } } },
+      ],
     })
   }
 
-  return items
+  return cards
 }
 
 // ---- Projects（ポートフォリオ）----

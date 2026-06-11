@@ -95,24 +95,21 @@ export default async function CommandCenterPage() {
         </p>
       </section>
 
-      {/* 今日の判断事項 */}
-      <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">今日の判断事項（{view.decisionCount}件）</h2>
-          <Link href="/decide" className="text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">Inboxで処理する</Link>
-        </div>
-        {view.decisions.length === 0 ? (
-          <p className="mt-2 rounded-lg bg-gray-50 px-3 py-3 text-sm text-gray-500 dark:bg-gray-800/50">今日の判断事項はありません。</p>
-        ) : (
-          <ul className="mt-2 space-y-2">
-            {view.decisions.map((d) => (
-              <li key={d.id} className="rounded-lg border border-gray-100 p-3 dark:border-gray-800">
-                <p className="text-[11px] font-semibold text-rose-500">{d.kind}</p>
-                <p className="mt-0.5 line-clamp-2 text-sm font-medium text-gray-900 dark:text-gray-100">{d.title}</p>
-              </li>
-            ))}
-          </ul>
-        )}
+      {/* 今日の判断（中身は見せない。件数と入口だけ） */}
+      <section className="rounded-xl border-2 border-rose-200 bg-white p-4 dark:border-rose-900/50 dark:bg-gray-900">
+        <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">今日の判断</h2>
+        <p className="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">
+          {view.decisionCount === 0 ? 'なし 🎉' : `残り${view.decisionCount}件`}
+        </p>
+        <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+          {view.decisionCount === 0 ? '判断が必要になるとここに出ます' : 'はい・いいえ・あとで を選ぶだけ。3〜5分で終わります'}
+        </p>
+        <Link
+          href="/decide"
+          className="mt-3 block rounded-lg bg-blue-600 px-4 py-2.5 text-center text-sm font-bold text-white hover:bg-blue-700"
+        >
+          Inboxを開く
+        </Link>
       </section>
 
       {/* 最近の成果 */}

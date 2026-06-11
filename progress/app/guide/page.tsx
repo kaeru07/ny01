@@ -30,7 +30,7 @@ function FlowSteps({ steps }: { steps: string[] }) {
 }
 
 const FAQ: Array<{ q: string; a: string }> = [
-  { q: '毎日何をすればいい？', a: 'Inboxだけ見れば大丈夫です。判断が必要なものはすべてInboxに集まります。空なら何もしなくてOKです。' },
+  { q: '毎日何をすればいい？', a: 'Inbox（今日の判断）だけ見れば大丈夫です。カードごとに「はい・いいえ・あとで」を選ぶだけで、3〜5分で終わります。空なら何もしなくてOKです。' },
   { q: 'Goalって何？', a: 'AI工場が向かう目標です。すべての大きな作業はどれかの目標に紐付き、目標のない作業はInboxで紐付けを求められます。' },
   { q: 'レビュー待ちが増えても大丈夫？', a: '一定数までは問題ありません。10件を超えるとAI工場が自動で減速し、20件を超えると一時停止します。Inboxの「AIにまとめて確認させる」ボタンで解消できます。' },
   { q: 'Legacyタブは何？', a: '以前の画面がそのまま残っている場所です。普段は使いません。細かいデータを見たいときだけ開いてください。' },
@@ -46,13 +46,12 @@ export default async function OperationsGuidePage() {
     readOperatingModelMeta(),
   ])
 
-  // セクション4: 今日やること（Inboxの中身を種別ごとに集計）
-  const countBy = (type: string) => items.filter((i) => i.type === type).length
+  // セクション4: 今日やること（「今日の判断」のカード3分類で集計）
+  const countBy = (kind: string) => items.filter((i) => i.kind === kind).length
   const todayLines = [
-    { label: 'Goal未紐付け', count: countBy('orphan_epic') },
-    { label: '承認・判断', count: countBy('approval') },
-    { label: 'おすすめ次作業の承認', count: countBy('candidate') },
-    { label: '作業結果の確認', count: countBy('needs_human_run') },
+    { label: '作業結果の確認', count: countBy('confirm') },
+    { label: '次の作業を進めるか', count: countBy('proceed') },
+    { label: 'Goal紐付け', count: countBy('goal') },
   ].filter((l) => l.count > 0)
   const estimatedMinutes = Math.max(items.length, 1)
 
