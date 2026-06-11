@@ -33,6 +33,7 @@ const FAQ: Array<{ q: string; a: string }> = [
   { q: '毎日何をすればいい？', a: 'Inbox（今日の判断）だけ見れば大丈夫です。カードごとに「はい・いいえ・あとで」を選ぶだけで、3〜5分で終わります。空なら何もしなくてOKです。' },
   { q: 'Goalって何？', a: 'AI工場が向かう目標です。すべての大きな作業はどれかの目標に紐付き、目標のない作業はInboxで紐付けを求められます。' },
   { q: 'レビュー待ちが増えても大丈夫？', a: '一定数までは問題ありません。10件を超えるとAI工場が自動で減速し、20件を超えると一時停止します。Inboxの「AIにまとめて確認させる」ボタンで解消できます。' },
+  { q: 'AI保留って何？', a: '人間が判断する必要のないもの（定期実行・重複・内容不足）と、今日の3件に入らなかったものをAIが預かっている状態です。必要になれば順番に「今日の判断」へ出てきます。' },
   { q: 'Legacyタブは何？', a: '以前の画面がそのまま残っている場所です。普段は使いません。細かいデータを見たいときだけ開いてください。' },
   { q: 'AI工場を止めたいときは？', a: 'Legacy内の「自動化」画面からオフにできます。オフの間、AIは新しい作業を始めません。' },
 ]
@@ -46,12 +47,14 @@ export default async function OperationsGuidePage() {
     readOperatingModelMeta(),
   ])
 
-  // セクション4: 今日やること（「今日の判断」の3分類で集計。goalは画面上「確認」扱い）
+  // セクション4: 今日やること（「人間が何を判断するか」の分類で集計）
   const countBy = (kinds: string[]) => inbox.today.filter((i) => kinds.includes(i.kind)).length
   const todayLines = [
-    { label: '🚨 問題（止まっている・修正が必要）', count: countBy(['problem']) },
-    { label: '📈 改善（良くなる・効率化できる）', count: countBy(['improve']) },
-    { label: '✅ 確認（結果・公開・目標のチェック）', count: countBy(['confirm', 'goal']) },
+    { label: '危険判断（影響が大きい操作の許可）', count: countBy(['danger']) },
+    { label: '検収（AIの作業結果を見るだけ）', count: countBy(['acceptance']) },
+    { label: '方針選択（目標・優先順位を選ぶ）', count: countBy(['direction']) },
+    { label: '実行許可（AIに任せるか選ぶだけ）', count: countBy(['permission']) },
+    { label: '人間作業（AIでは実行できない作業）', count: countBy(['human_task']) },
   ].filter((l) => l.count > 0)
   const estimatedMinutes = inbox.estimatedMinutes
 

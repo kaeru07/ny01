@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
 import PageGuide from '@/components/newux/PageGuide'
-import { buildCommandCenter } from '@/lib/command-center'
+import { buildCommandCenter, KIND_CHIP_LABEL } from '@/lib/command-center'
 
 // 新UXのトップ = 司令塔。毎日最初に開く画面。
 // 「今日の5〜15分をどう使うか」だけが分かることを最優先にする。専門用語は出さない。
@@ -43,7 +43,12 @@ export default async function CommandCenterPage() {
               {view.todayDecisions.map((d, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm">
                   <span className="shrink-0 font-bold text-blue-600 dark:text-blue-400">{['①', '②', '③'][i] ?? `${i + 1}.`}</span>
-                  <span className="min-w-0 font-medium text-gray-900 dark:text-gray-100">{d.headline}</span>
+                  <span className="min-w-0">
+                    <span className="mr-1.5 rounded bg-gray-100 px-1 py-0.5 text-[10px] font-semibold text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                      {KIND_CHIP_LABEL[d.kind]}
+                    </span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{d.headline}</span>
+                  </span>
                 </li>
               ))}
             </ol>
