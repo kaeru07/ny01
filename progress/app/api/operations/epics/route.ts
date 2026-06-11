@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
-import { getEpics, createEpic } from '@/lib/operations-store'
+import { getEpics, createEpic, decideEpicAction } from '@/lib/operations-store'
 import { validateEpicContract, evaluateFactoryEligibility } from '@/lib/epic-contract'
+import { readGoals } from '@/lib/goal-reader'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,6 +23,13 @@ export async function POST(request: Request) {
   if (!result.ok || !result.normalized) {
     return NextResponse.json(
       { ok: false, errors: result.errors, warnings: result.warnings },
+      { status: dryRun ? 200 : 400 },
+    )
+  }
+  const goals = await readGoals()
+  if (!goals.goals.some((g) => g.id === result.normalized!.goalId)) {
+    return NextResponse.json(
+      { ok: false, errors: [`goalId が存在しません: ${result.normalized.goalId}`], warnings: result.warnings },
       { status: dryRun ? 200 : 400 },
     )
   }
@@ -52,4 +60,28 @@ export async function POST(request: Request) {
 
   const epic = await createEpic(result.normalized)
   return NextResponse.json({ ok: true, epic, warnings: result.warnings, factoryEligibility: eligibility })
+}
+
+export async function PATCH(request: Request) {
+  const body = await request.json().catch(() => null)
+  const epicId = typeof body?.epicId === 'string' ? body.epicId.trim() : ''
+  const action = body?.action
+  if (!epicId) return NextResponse.json({ error: 'epicId is required' }, { status: 400 })
+  if (!['approve', 'reject', 'assignGoal', 'changePriority', 'pause', 'drop'].includes(action)) {
+    return NextResponse.json({ error: 'invalid action' }, { status: 400 })
+  }
+
+  try {
+    const epic = await decideEpicAction({
+      epicId,
+      action,
+      goalId: typeof body?.goalId === 'string' ? body.goalId.trim() : undefined,
+      priority: body?.priority,
+    })
+    if (!epic) return NextResponse.json({ error: 'Epic not found' }, { status: 404 })
+    return NextResponse.json({ success: true, epic })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Internal server error'
+    return NextResponse.json({ error: msg }, { status: msg.includes('required') ? 400 : 500 })
+  }
 }

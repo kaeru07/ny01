@@ -1,1 +1,30 @@
-[]
+[
+  {
+    "approvalId": "appr-1781111791253",
+    "title": "Run一次レビュー: epic-vercel: 研究ビューのVercel本番反映を確認",
+    "category": "external_publish",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 公開・デプロイ関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "decided",
+    "createdRunId": "20260609-212602",
+    "createdAt": "2026-06-10T17:16:31.253Z",
+    "decidedOption": "keep",
+    "decidedBy": "operator",
+    "decidedAt": "2026-06-10T23:50:35.744Z"
+  }
+]

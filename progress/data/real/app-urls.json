@@ -1,0 +1,389 @@
+{
+  "updatedAt": "2026-06-10T12:14:40.345Z",
+  "operationMemo": "この一覧はiPhoneから動作確認するためのURL一覧。VPS稼働アプリ(0.0.0.0/*でLISTEN)は公開IP http://160.251.143.146:<port>/<path> 形式で kind=vps として登録し、これをiPhone確認URLとする。localhost/127.0.0.1 は kind=vps_internal の内部URLとして補助表示(iPhone直接不可)。confirmed は pm2/ss/curl で公開IPバインドと応答を確認したもの。外部FW/SG開放はiPhone実機で要確認。unknown は推測せず「未確認」。next dev デフォルトだけを理由に localhost:3000 を登録しない。",
+  "apps": [
+    {
+      "id": "progress",
+      "name": "progress",
+      "purpose": "AI工場・ToDo・実行履歴の司令塔",
+      "repoPath": "/root/company/apps/ny01/progress",
+      "status": "active",
+      "lastCheckedAt": "2026-06-10",
+      "urls": [
+        {
+          "kind": "vercel",
+          "label": "Vercel production",
+          "url": "未確認",
+          "confidence": "unknown",
+          "evidence": "unknown",
+          "evidenceDetail": "Vercel project link未確認",
+          "lastCheckedAt": "2026-06-08"
+        },
+        {
+          "kind": "vps",
+          "label": "VPS公開 (PM2)",
+          "url": "http://160.251.143.146:3010/app-urls",
+          "confidence": "confirmed",
+          "evidence": "ss + pm2 + curl",
+          "evidenceDetail": "ss: 0.0.0.0:3010 LISTEN (next-server) / pm2 progress online / curl 200",
+          "lastCheckedAt": "2026-06-10"
+        },
+        {
+          "kind": "vps_internal",
+          "label": "localhost (VPS内部)",
+          "url": "http://localhost:3010/app-urls",
+          "confidence": "confirmed",
+          "evidence": "pm2 + curl",
+          "evidenceDetail": "VPS内部からのみ到達。iPhone直接不可",
+          "lastCheckedAt": "2026-06-10"
+        }
+      ]
+    },
+    {
+      "id": "scrape-lab-v2",
+      "name": "Scrape Lab",
+      "purpose": "URL取得・スクレイピング検証ツール",
+      "repoPath": "/root/company/apps/scrape-lab-v2",
+      "status": "active",
+      "lastCheckedAt": "2026-06-08",
+      "urls": [
+        {
+          "kind": "vercel",
+          "label": "Vercel production",
+          "url": "未確認",
+          "confidence": "unknown",
+          "evidence": "unknown",
+          "evidenceDetail": "確認できるURL根拠なし",
+          "lastCheckedAt": "2026-06-08"
+        },
+        {
+          "kind": "vps_internal",
+          "label": "VPS内部 (localhost / 未起動)",
+          "url": "http://localhost:3030",
+          "confidence": "documented",
+          "evidence": "package.json + ss",
+          "evidenceDetail": "dev script: next dev -p 3030。ss で 3030 LISTEN を確認できず現在未起動。起動時のみ内部URLとして到達(iPhone直接不可)。公開には起動 + 0.0.0.0バインド + FW開放が必要",
+          "lastCheckedAt": "2026-06-09"
+        }
+      ]
+    },
+    {
+      "id": "mahjong",
+      "name": "mahjong",
+      "purpose": "麻雀の対局・練習アプリ",
+      "repoPath": "/root/company/apps/mahjong",
+      "status": "deploy_ready",
+      "lastCheckedAt": "2026-06-08",
+      "urls": [
+        {
+          "kind": "vercel",
+          "label": "Vercel production",
+          "url": "未確認",
+          "confidence": "unknown",
+          "evidence": "unknown",
+          "evidenceDetail": "確認できるURL根拠なし",
+          "lastCheckedAt": "2026-06-08"
+        },
+        {
+          "kind": "local_dev",
+          "label": "npm run dev",
+          "url": "未確認",
+          "confidence": "unknown",
+          "evidence": "README.md",
+          "evidenceDetail": "READMEはcreate-next-app標準のlocalhost:3000記載のみ。現在このアプリが3000で起動している根拠なし",
+          "lastCheckedAt": "2026-06-08"
+        }
+      ]
+    },
+    {
+      "id": "ny-ai",
+      "name": "ny-ai",
+      "purpose": "麻雀クイズ・何切る問題アプリ",
+      "repoPath": "/root/company/apps/ny-ai",
+      "status": "unknown",
+      "lastCheckedAt": "2026-06-10",
+      "urls": [
+        {
+          "kind": "vercel",
+          "label": "Vercel production",
+          "url": "https://shogi-kakoi-trainer.vercel.app",
+          "confidence": "unknown",
+          "evidence": "unknown",
+          "evidenceDetail": "確認できるURL根拠なし",
+          "lastCheckedAt": "2026-06-08"
+        },
+        {
+          "kind": "vercel",
+          "label": "npm run dev",
+          "url": "https://shogi-kakoi-trainer.vercel.app/",
+          "confidence": "unknown",
+          "evidence": "README.md",
+          "evidenceDetail": "READMEにlocalhost:3000記載はあるが、現在このアプリが3000で起動している根拠なし",
+          "lastCheckedAt": "2026-06-08"
+        }
+      ]
+    },
+    {
+      "id": "shogi-kakoi-trainer",
+      "name": "将棋 囲いトレーナー",
+      "purpose": "囲い手順の反復学習アプリ",
+      "repoPath": "/root/company/apps/shogi-kakoi-trainer",
+      "status": "active",
+      "lastCheckedAt": "2026-06-10",
+      "urls": [
+        {
+          "kind": "vercel",
+          "label": "Vercel production",
+          "url": "https://shogi-kakoi-trainer.vercel.app/",
+          "confidence": "unknown",
+          "evidence": "vercel_api",
+          "evidenceDetail": ".vercel/project.json は存在するが、Vercel APIが403 Forbiddenのため deployment URL未確認",
+          "lastCheckedAt": "2026-06-08"
+        },
+        {
+          "kind": "local_dev",
+          "label": "npm run dev",
+          "url": "未確認",
+          "confidence": "unknown",
+          "evidence": "README.md",
+          "evidenceDetail": "READMEはcreate-next-app標準のlocalhost:3000記載のみ。現在このアプリが3000で起動している根拠なし",
+          "lastCheckedAt": "2026-06-08"
+        }
+      ]
+    },
+    {
+      "id": "birdlog",
+      "name": "BirdLog",
+      "purpose": "野鳥観察ノート MVP",
+      "repoPath": "/root/company/apps/ny01/birdlog",
+      "status": "local_only",
+      "lastCheckedAt": "2026-06-08",
+      "urls": [
+        {
+          "kind": "vercel",
+          "label": "Vercel production",
+          "url": "未確認",
+          "confidence": "unknown",
+          "evidence": "unknown",
+          "evidenceDetail": "確認できるURL根拠なし",
+          "lastCheckedAt": "2026-06-08"
+        },
+        {
+          "kind": "local_dev",
+          "label": "npm run dev",
+          "url": "未確認",
+          "confidence": "unknown",
+          "evidence": "package.json",
+          "evidenceDetail": "dev scriptは next dev のみ。ポート未指定かつ現在起動確認なしのため localhost:3000 は登録しない",
+          "lastCheckedAt": "2026-06-08"
+        }
+      ]
+    },
+    {
+      "id": "map",
+      "name": "NetScope",
+      "purpose": "通信可視化・パケット統計ビューア",
+      "repoPath": "/root/company/apps/map",
+      "status": "active",
+      "lastCheckedAt": "2026-06-08",
+      "urls": [
+        {
+          "kind": "vercel",
+          "label": "Vercel production",
+          "url": "未確認",
+          "confidence": "unknown",
+          "evidence": "unknown",
+          "evidenceDetail": "/root/company/apps/map/web/.vercel/project.json は別階層に存在。Vercel API未照会のため URL未確認",
+          "lastCheckedAt": "2026-06-08"
+        },
+        {
+          "kind": "vps",
+          "label": "NetScope web UI (VPS公開)",
+          "url": "http://160.251.143.146:3000/packets",
+          "confidence": "confirmed",
+          "evidence": "ss + pm2 + curl",
+          "evidenceDetail": "ss: *:3000 LISTEN (next-server) cwd=/root/map/web / pm2 netscope online / curl http://160.251.143.146:3000/ 307→/packets, /packets 200 OK。公開IPバインド確認済。外部FW開放は実機確認推奨",
+          "lastCheckedAt": "2026-06-09"
+        },
+        {
+          "kind": "vps",
+          "label": "NetScope分析画面 (VPS公開)",
+          "url": "http://160.251.143.146:8080/",
+          "confidence": "confirmed",
+          "evidence": "ss + docker-proxy + curl",
+          "evidenceDetail": "ss: 0.0.0.0:8080 docker-proxy LISTEN / curl http://160.251.143.146:8080/ 200 OK Werkzeug。公開IPバインド確認済。外部FW開放は実機確認推奨",
+          "lastCheckedAt": "2026-06-09"
+        },
+        {
+          "kind": "vps",
+          "label": "訓練コンパネ (VPS公開)",
+          "url": "http://160.251.143.146:8888/",
+          "confidence": "confirmed",
+          "evidence": "ss + docker-proxy + curl",
+          "evidenceDetail": "ss: 0.0.0.0:8888 docker-proxy LISTEN / curl http://160.251.143.146:8888/ 200 OK Werkzeug。公開IPバインド確認済。外部FW開放は実機確認推奨",
+          "lastCheckedAt": "2026-06-09"
+        },
+        {
+          "kind": "api",
+          "label": "Stats API (VPS公開)",
+          "url": "http://160.251.143.146:3000/api/stats",
+          "confidence": "confirmed",
+          "evidence": "README.md + curl",
+          "evidenceDetail": "READMEに /api/stats 記載 / curl http://160.251.143.146:3000/api/stats 200 OK application/json",
+          "lastCheckedAt": "2026-06-09"
+        },
+        {
+          "kind": "vps_internal",
+          "label": "VPS内部 (localhost)",
+          "url": "http://localhost:3000/packets",
+          "confidence": "confirmed",
+          "evidence": "pm2 + curl",
+          "evidenceDetail": "VPS内部からのみ到達。iPhoneから直接不可。3000=web UI / 8080=分析 / 8888=訓練コンパネ も同様に内部はlocalhost",
+          "lastCheckedAt": "2026-06-09"
+        }
+      ],
+      "notes": "VPS公開IP 160.251.143.146 経由でiPhoneから確認する。web UIは / が307で /packets へ遷移するため確認URLは /packets。8080/8888はDocker proxy(Werkzeug)。localhostは内部URLとして補助表示(iPhone直接不可)。外部FW/SG開放はiPhone実機で要確認。"
+    },
+    {
+      "id": "memo",
+      "name": "memo",
+      "purpose": "FastAPI + React のメモアプリ",
+      "repoPath": "/root/company/apps/memo",
+      "status": "unknown",
+      "lastCheckedAt": "2026-06-08",
+      "urls": [
+        {
+          "kind": "vercel",
+          "label": "Vercel production",
+          "url": "未確認",
+          "confidence": "unknown",
+          "evidence": "unknown",
+          "evidenceDetail": "確認できるURL根拠なし",
+          "lastCheckedAt": "2026-06-08"
+        },
+        {
+          "kind": "local_dev",
+          "label": "frontend/backend",
+          "url": "未確認",
+          "confidence": "unknown",
+          "evidence": "app-index.md",
+          "evidenceDetail": "frontend/backend の起動ポート未確認",
+          "lastCheckedAt": "2026-06-08"
+        }
+      ],
+      "notes": "backend/frontend のポートは未確認。仮URLは登録しない。"
+    },
+    {
+      "id": "ny-note",
+      "name": "ny-note",
+      "purpose": "Next.js + Supabase のノート系アプリ",
+      "repoPath": "/root/company/apps/ny-note",
+      "status": "unknown",
+      "lastCheckedAt": "2026-06-10",
+      "urls": [
+        {
+          "kind": "vercel",
+          "label": "Vercel production",
+          "url": "https://shogi-kakoi-trainer.vercel.app",
+          "confidence": "unknown",
+          "evidence": "unknown",
+          "evidenceDetail": "確認できるURL根拠なし",
+          "lastCheckedAt": "2026-06-08"
+        },
+        {
+          "kind": "local_dev",
+          "label": "npm run dev",
+          "url": "未確認",
+          "confidence": "unknown",
+          "evidence": "app-index.md",
+          "evidenceDetail": "ポート未確認",
+          "lastCheckedAt": "2026-06-08"
+        }
+      ]
+    },
+    {
+      "id": "dashboard",
+      "name": "Dashboard",
+      "purpose": "ダッシュボードアプリ",
+      "repoPath": "/root/company/apps/dashboard",
+      "status": "unknown",
+      "lastCheckedAt": "2026-06-08",
+      "urls": [
+        {
+          "kind": "vercel",
+          "label": "Vercel production",
+          "url": "未確認",
+          "confidence": "unknown",
+          "evidence": "unknown",
+          "evidenceDetail": "確認できるURL根拠なし",
+          "lastCheckedAt": "2026-06-08"
+        },
+        {
+          "kind": "local_dev",
+          "label": "npm run dev",
+          "url": "未確認",
+          "confidence": "unknown",
+          "evidence": "app-index.md",
+          "evidenceDetail": "ポート未確認",
+          "lastCheckedAt": "2026-06-08"
+        }
+      ]
+    },
+    {
+      "id": "note",
+      "name": "note",
+      "purpose": "スクレイピング補助アプリ",
+      "repoPath": "/root/company/apps/note",
+      "status": "active",
+      "lastCheckedAt": "2026-06-08",
+      "urls": [
+        {
+          "kind": "vercel",
+          "label": "Vercel production",
+          "url": "未確認",
+          "confidence": "unknown",
+          "evidence": "unknown",
+          "evidenceDetail": "確認できるURL根拠なし",
+          "lastCheckedAt": "2026-06-08"
+        },
+        {
+          "kind": "local_dev",
+          "label": "npm run dev",
+          "url": "未確認",
+          "confidence": "unknown",
+          "evidence": "README.md",
+          "evidenceDetail": "READMEにlocalhost:3000記載はあるが、現在このアプリが3000で起動している根拠なし",
+          "lastCheckedAt": "2026-06-08"
+        }
+      ]
+    },
+    {
+      "id": "news-app",
+      "name": "news-app",
+      "purpose": "AI市場調査 Research DB",
+      "repoPath": "/root/company/apps/ny01/news-app",
+      "status": "active",
+      "lastCheckedAt": "2026-06-08",
+      "urls": [
+        {
+          "kind": "vercel",
+          "label": "Vercel production",
+          "url": "未確認",
+          "confidence": "unknown",
+          "evidence": "vercel_api",
+          "evidenceDetail": ".vercel/project.json は存在するが、Vercel APIが403 Forbiddenのため deployment URL未確認",
+          "lastCheckedAt": "2026-06-08"
+        },
+        {
+          "kind": "local_dev",
+          "label": "npm run dev",
+          "url": "未確認",
+          "confidence": "unknown",
+          "evidence": "package.json",
+          "evidenceDetail": "dev scriptは next dev のみ。ポート未指定かつ現在起動確認なしのため localhost:3000 は登録しない",
+          "lastCheckedAt": "2026-06-08"
+        }
+      ]
+    }
+  ]
+}

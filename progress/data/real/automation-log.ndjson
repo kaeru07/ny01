@@ -1,0 +1,61 @@
+{"id":"alog-1780157387545","at":"2026-05-30T16:09:47.545Z","event":"auto_fallback","fallbackTriggered":true,"fallbackReason":"claude_rate_limited","fallbackTarget":"codex","codexPromptGenerated":false,"safetyGuard":true,"blockedReason":"disabled,requires_approval,destructive","epicId":"epic-91"}
+{"id":"alog-1780157387637","at":"2026-05-30T16:09:47.637Z","event":"auto_fallback","fallbackTriggered":true,"fallbackReason":"claude_rate_limited","fallbackTarget":"codex","codexPromptGenerated":false,"safetyGuard":true,"blockedReason":"requires_approval,destructive","epicId":"epic-91"}
+{"id":"alog-1780157480557","at":"2026-05-30T16:11:20.558Z","event":"auto_fallback","fallbackTriggered":true,"fallbackReason":"claude_rate_limited","fallbackTarget":"codex","codexPromptGenerated":false,"safetyGuard":true,"blockedReason":"no_codex_candidate","epicId":"epic-tmp-test"}
+{"id":"alog-1780157558892","at":"2026-05-30T16:12:38.892Z","event":"auto_fallback","fallbackTriggered":true,"fallbackReason":"claude_rate_limited","fallbackTarget":"codex","codexPromptGenerated":true,"codexPromptSourceRunId":"20260531-011238","safetyGuard":true,"epicId":"epic-tmp2"}
+{"id":"alog-1780232721143","at":"2026-05-31T13:05:21.143Z","event":"auto_fallback","fallbackTriggered":true,"fallbackReason":"claude_rate_limited","fallbackTarget":"codex","codexPromptGenerated":false,"safetyGuard":true,"epicId":"epic-p2-factory-multiple-run-"}
+{"id":"alog-1780232728038","at":"2026-05-31T13:05:28.038Z","event":"auto_fallback","fallbackTriggered":true,"fallbackReason":"claude_rate_limited","fallbackTarget":"codex","codexPromptGenerated":false,"safetyGuard":true,"epicId":"epic-p2-factory-multiple-run-"}
+{"id":"alog-1780242642683","at":"2026-05-31T15:50:42.683Z","event":"factory_schedule","fallbackReason":"factory_off","detectionStatus":"schedule"}
+{"id":"alog-1780242659490","at":"2026-05-31T15:50:59.490Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1780242660136","at":"2026-05-31T15:51:00.136Z","event":"auto_fallback","fallbackTriggered":true,"fallbackReason":"claude_rate_limited","fallbackTarget":"codex","codexPromptGenerated":false,"safetyGuard":true,"epicId":"epic-p2-factory-multiple-run-"}
+{"id":"alog-1780242670726","at":"2026-05-31T15:51:10.726Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1780242681400","at":"2026-05-31T15:51:21.400Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"boot"}
+{"id":"alog-1780242681707","at":"2026-05-31T15:51:21.707Z","event":"factory_schedule","fallbackReason":"already_running","detectionStatus":"schedule"}
+{"id":"alog-1780242681886","at":"2026-05-31T15:51:21.886Z","event":"factory_schedule","fallbackReason":"factory_off","detectionStatus":"schedule"}
+{"id":"alog-1780242758498","at":"2026-05-31T15:52:38.498Z","event":"factory_schedule","fallbackReason":"factory_off","detectionStatus":"schedule"}
+{"id":"alog-1780315782668","at":"2026-06-01T12:09:42.668Z","event":"factory_schedule","fallbackReason":"factory_off","detectionStatus":"schedule"}
+{"id":"alog-1780315782800","at":"2026-06-01T12:09:42.800Z","event":"factory_schedule","fallbackReason":"factory_off","detectionStatus":"boot"}
+{"id":"alog-1780322435856","at":"2026-06-01T14:00:35.856Z","event":"factory_schedule","fallbackReason":"factory_off","detectionStatus":"schedule"}
+{"id":"alog-1780326881984","at":"2026-06-01T15:14:41.984Z","event":"factory_schedule","fallbackReason":"all_epics_done","detectionStatus":"schedule"}
+{"id":"alog-1780356251116","at":"2026-06-01T23:24:11.116Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"boot"}
+{"id":"alog-1780365913805","at":"2026-06-02T02:05:13.805Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1780376725084","at":"2026-06-02T05:05:25.084Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1780409069483","at":"2026-06-02T14:04:29.483Z","event":"factory_schedule","fallbackReason":"all_epics_done","detectionStatus":"schedule"}
+{"id":"alog-1780452004935","at":"2026-06-03T02:00:04.935Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1780462805831","at":"2026-06-03T05:00:05.831Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1780495206470","at":"2026-06-03T14:00:06.470Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1780538733684","at":"2026-06-04T02:05:33.684Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1780549202530","at":"2026-06-04T05:00:02.530Z","event":"monetization_sync","fallbackReason":"added=0 updated=1","detectionStatus":"schedule"}
+{"id":"alog-1780549517915","at":"2026-06-04T05:05:17.915Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1780581924141","at":"2026-06-04T14:05:24.141Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1780625119111","at":"2026-06-05T02:05:19.111Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1780635917789","at":"2026-06-05T05:05:17.789Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1780668328826","at":"2026-06-05T14:05:28.826Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1780711526239","at":"2026-06-06T02:05:26.239Z","event":"factory_schedule","fallbackReason":"all_epics_done","detectionStatus":"schedule"}
+{"id":"alog-1780748370032","at":"2026-06-06T12:19:30.032Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"boot"}
+{"id":"alog-1780748370035","at":"2026-06-06T12:19:30.035Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1780754414309","at":"2026-06-06T14:00:14.310Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1780797605294","at":"2026-06-07T02:00:05.295Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1780808418000","at":"2026-06-07T05:00:18.001Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1780840817459","at":"2026-06-07T14:00:17.460Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1780878800878","at":"2026-06-08T00:33:20.879Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"boot"}
+{"id":"alog-1780884321221","at":"2026-06-08T02:05:21.222Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1780894811070","at":"2026-06-08T05:00:11.071Z","event":"monetization_sync","fallbackReason":"added=0 updated=2","detectionStatus":"schedule"}
+{"id":"alog-1780895134960","at":"2026-06-08T05:05:34.967Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1780911780985","at":"2026-06-08T09:43:00.985Z","event":"factory_dispatch","dispatchPlanId":"dp-epic-progress-url-mq50w4to","epicId":"epic-progress-url","executorCandidate":"claude","promptType":"claude_factory"}
+{"id":"alog-1780911781074","at":"2026-06-08T09:43:01.074Z","event":"factory_dispatch","dispatchPlanId":"dp-epic-progress-todo-mq50w4w9","epicId":"epic-progress-todo","executorCandidate":"claude","promptType":"claude_factory"}
+{"id":"alog-1780922170684","at":"2026-06-08T12:36:10.667Z","event":"factory_epic_completed","epicId":"epic-progress-url","detectionStatus":"codex_manual","fallbackReason":"app-urls page added","runId":"20260608-123610"}
+{"id":"alog-1780927215119","at":"2026-06-08T14:00:15.119Z","event":"monetization_sync","fallbackReason":"added=0 updated=2","detectionStatus":"schedule"}
+{"id":"alog-1780927535116","at":"2026-06-08T14:05:35.117Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1780970723943","at":"2026-06-09T02:05:23.944Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1780981524098","at":"2026-06-09T05:05:24.099Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1781013606670","at":"2026-06-09T14:00:06.671Z","event":"monetization_sync","fallbackReason":"added=0 updated=2","detectionStatus":"schedule"}
+{"id":"alog-1781013924658","at":"2026-06-09T14:05:24.659Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1781057124687","at":"2026-06-10T02:05:24.688Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1781067927892","at":"2026-06-10T05:05:27.892Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1781100325530","at":"2026-06-10T14:05:25.530Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1781111764063","at":"2026-06-10T17:16:04.063Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=8 needs_human=0 partial=2 failed=0 / 残not_reviewed=57","aiReviewCounts":{"processed":10,"reviewed":8,"needsHuman":0,"partial":2,"failed":0}}
+{"id":"alog-1781111791261","at":"2026-06-10T17:16:31.261Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=7 needs_human=1 partial=2 failed=0 / 残not_reviewed=48","aiReviewCounts":{"processed":10,"reviewed":7,"needsHuman":1,"partial":2,"failed":0}}
+{"id":"alog-1781111822599","at":"2026-06-10T17:17:02.599Z","event":"factory_backpressure","fallbackReason":"not_reviewed=48 > 20: 今回のFactory自動実行をスキップ（レビュー滞留の解消が先。factoryEnabledは変更しない）","notReviewedCount":48,"backpressureAction":"pause"}
+{"id":"alog-1781111823166","at":"2026-06-10T17:17:03.166Z","event":"factory_backpressure","fallbackReason":"not_reviewed=48 > 20: 今回のFactory自動実行をスキップ（レビュー滞留の解消が先。factoryEnabledは変更しない）","notReviewedCount":48,"backpressureAction":"pause"}
+{"id":"alog-1781143203841","at":"2026-06-11T02:00:03.842Z","event":"monetization_sync","fallbackReason":"added=0 updated=2","detectionStatus":"schedule"}
+{"id":"alog-1781143203909","at":"2026-06-11T02:00:03.909Z","event":"factory_backpressure","fallbackReason":"not_reviewed=50 > 20: 今回のFactory自動実行をスキップ（レビュー滞留の解消が先。factoryEnabledは変更しない）","notReviewedCount":50,"backpressureAction":"pause"}

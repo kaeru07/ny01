@@ -2,7 +2,7 @@ import type { TaskPriority } from '@/types/progress'
 
 export type GoalRole = 'human' | 'claude' | 'codex'
 
-export type GoalStatus = 'active' | 'paused' | 'done' | 'archived'
+export type GoalStatus = 'active' | 'paused' | 'done' | 'dropped' | 'archived'
 
 export type GoalPhaseStatus = 'todo' | 'in_progress' | 'done'
 
@@ -39,8 +39,13 @@ export interface GoalTodo {
 
 export interface Goal {
   id: string
-  projectId: string
+  projectId?: string
   title: string
+  description?: string
+  metric?: string
+  target?: number
+  current?: number
+  isNorthStar?: boolean
   summary: string
   status: GoalStatus
   priority: TaskPriority
@@ -55,6 +60,19 @@ export interface GoalsData {
   goals: Goal[]
   mainGoalId?: string
   updatedAt: string
+}
+
+export interface GoalUpsertInput {
+  id?: string
+  title: string
+  description?: string
+  metric?: string
+  target?: number
+  current?: number
+  priority?: TaskPriority
+  status?: GoalStatus
+  isNorthStar?: boolean
+  setAsMain?: boolean
 }
 
 export interface GoalImportInputPhase {

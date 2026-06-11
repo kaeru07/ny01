@@ -1,267 +1,2514 @@
 {
   "runs": [
     {
-      "runId": "20260503-021343",
-      "startedAt": "2026-05-02T17:13:43.205Z",
-      "finishedAt": "2026-05-02T17:13:43.205Z",
-      "targetApp": "ny01/progress",
-      "targetTodoTitle": "テスト登録",
+      "runId": "20260606-211930",
+      "startedAt": "2026-06-06T12:19:29.013Z",
+      "finishedAt": "2026-06-06T12:19:30.007Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "Factory schedule (schedule/systemd)",
       "runStatus": "completed",
-      "reviewStatus": "reviewed",
-      "summary": "動作確認用テスト",
+      "reviewStatus": "not_reviewed",
+      "source": "schedule",
+      "trigger": "systemd",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "stopReason": "blocked",
+      "summary": "factoryRunState=Blocked のため起動しません（schedule/systemd）",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-schedule] skip=blocked source=schedule trigger=systemd state=Blocked"
+    },
+    {
+      "runId": "20260606-220319",
+      "startedAt": "2026-06-06T13:03:19.585Z",
+      "finishedAt": "2026-06-06T13:03:19.585Z",
+      "targetApp": "mahjong",
+      "targetTodoTitle": "当たり牌読み(捨て牌読み)練習モードの新規実装",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "mahjongアプリに『当たり牌だけを伏せて予想する』捨て牌読み練習モードを新規追加。4人の河・手出し/ツモ切り・リーチ宣言牌・副露・ドラ・点数・巡目を表示し、当たり牌のみ『？』で隠す。回答後に正解牌/ロンツモ/和了者/放銃者/待ち形/役/読み筋/危険理由/他選択肢の否定理由を表示。10巡目以降・読み要素ありの12問(リーチ/ダマ/染め手/対子落とし/リャンメン落とし/スジ/壁/字牌/手出しツモ切り/単騎/カンチャン/親リーチ/ツモ)を作成。既存の何切るクイズは非破壊・API非依存・全ルート静的のままビルド成功。",
       "changedFiles": [
         {
-          "file": "test.tsx",
-          "change": "追加"
+          "file": "types/yomi.ts",
+          "change": "新規: 当たり牌読み用の型定義(YomiQuestion/roundInfo/players/discards/result/question)"
+        },
+        {
+          "file": "lib/yomi.ts",
+          "change": "新規: JSON読み込み・フィルタ・採点・ラベル変換"
+        },
+        {
+          "file": "data/yomi-questions.json",
+          "change": "新規: 12問の問題データ"
+        },
+        {
+          "file": "components/YomiBoardView.tsx",
+          "change": "新規: 4人河+手出しツモ切り+リーチ宣言+副露+ドラ+当たり牌伏せ表示"
+        },
+        {
+          "file": "app/yomi/page.tsx",
+          "change": "新規: ホーム(難易度/タグ/問題数選択)"
+        },
+        {
+          "file": "app/yomi/quiz/page.tsx",
+          "change": "新規: 問題画面(選択肢=牌, 回答後に読み筋/解説)"
+        },
+        {
+          "file": "app/yomi/result/page.tsx",
+          "change": "新規: 結果画面(正答率+復習モード)"
+        },
+        {
+          "file": "components/HomeContent.tsx",
+          "change": "既存ホームに当たり牌読みへの導線ボタンを追加"
         }
       ],
       "checks": {
-        "build": "OK",
-        "typescript": "OK"
+        "build": "pass",
+        "typescript": "pass",
+        "dataValidation": "pass(12問 全整合チェックOK)"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "iPhone実機でのレイアウト確認(grid 2カラムの折返し)",
+        "問題数を20問以上に拡充(各テーマ複数問)",
+        "復習モードに解説再確認用の一覧追加検討",
+        "タグ別の苦手分野集計の追加検討"
+      ],
+      "rawReport": "対局形式の何切るアプリ(mahjong)を流用し、当たり牌読み練習モードを別ルート(/yomi)として非破壊で新設。TileDisplayスプライトを再利用。当たり牌はloserの最終打牌にhiddenWinTileフラグを立てて『？』表示、回答でreveal。tsumo問題は上部チップで『？』→正解牌を表示。検証: npx tsc --noEmit=0err / npm run build=成功(全9ルート ○Static) / データ整合スクリプトで correctTile∈choices, correctTile==result.hiddenTile, hiddenTile∈waits, loser最終打牌==hiddenTile, 河4人非空, turn>=10 を全12問でパス。未確認: iPhone実機表示。\n\n[Phase A任意フィールド]\nmonetizationImpact: low\ntheme: [app-strategy, workflow]\nobsidianSummary: mahjongアプリに当たり牌読み(捨て牌読み)練習モードを新設。4人河+手出し/ツモ切り+リーチ/副露/ドラ表示、当たり牌のみ伏せ、回答後に読み筋・危険理由・他選択肢否定を提示。12問(全必須テーマ網羅)。既存何切る非破壊・API非依存・静的ビルドOK。\nobsidianSaveTarget: 20_reviews/2026-06-06_mahjong-atari-yomi-mode.md"
+    },
+    {
+      "runId": "20260606-230014",
+      "startedAt": "2026-06-06T14:00:14.021Z",
+      "finishedAt": "2026-06-06T14:00:14.293Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "monetization_sync",
+      "trigger": "systemd",
+      "summary": "Vault走査 93 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=93 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    },
+    {
+      "runId": "20260606-230014",
+      "startedAt": "2026-06-06T14:00:14.018Z",
+      "finishedAt": "2026-06-06T14:00:14.309Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "Factory schedule (schedule/systemd)",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "schedule",
+      "trigger": "systemd",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "stopReason": "blocked",
+      "summary": "factoryRunState=Blocked のため起動しません（schedule/systemd）",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-schedule] skip=blocked source=schedule trigger=systemd state=Blocked"
+    },
+    {
+      "runId": "20260606-232717",
+      "startedAt": "2026-06-06T14:27:17.243Z",
+      "finishedAt": "2026-06-06T14:27:17.243Z",
+      "targetApp": "mahjong",
+      "targetTodoTitle": "当たり牌読みモード /yomi の仕上げ確認・本番反映(commit/push)",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "実装済みの /yomi 当たり牌読みモードを仕上げ確認しGitHub反映まで完了。git差分はHomeContentへの導線ボタン追加(additive)+yomi新規ファイルのみでデバッグ残りなし。iPhone幅(390px)でheadless Chromiumにより/yomi・/yomi/quiz・/yomi/resultを実機相当確認: 横スクロール0px・河4ゾーン表示・牌選択肢タップ領域84x59px・当たり牌のみ？で伏せ→回答後に読み筋/危険理由/待ち形/解説/他選択肢否定を表示・結果に正答率+復習モード。データ全12問の整合チェック(correctTile∈choices, ==result.hiddenTile, ∈waits, ron時loser最終打牌==hiddenTile, tsumo時河伏せ0, 河4人非空, turn>=10)パス。tsc 0err・build成功(全9ルート静的・API非依存)。commit 582fdd7 を origin/main へpush成功(fast-forward, 221eec4..582fdd7)。",
+      "changedFiles": [
+        {
+          "file": "components/HomeContent.tsx",
+          "change": "既存ホームに /yomi 導線ボタン追加(additiveのみ)"
+        },
+        {
+          "file": "app/yomi/, components/YomiBoardView.tsx, lib/yomi.ts, types/yomi.ts, data/yomi-questions.json",
+          "change": "前runで新規作成したファイルをcommit/push(内容変更なし)"
+        }
+      ],
+      "checks": {
+        "build": "pass",
+        "typescript": "pass",
+        "responsiveMobile": "pass(390px横スクロール0)",
+        "dataValidation": "pass(12問)",
+        "git": "committed 582fdd7 / pushed origin/main"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "Vercel本番デプロイ結果の確認(GitHub連携の自動デプロイ想定・URL未確認)",
+        "問題数を20問以上へ拡充",
+        "実機iPhone(Safari)での最終目視"
+      ],
+      "rawReport": "仕上げ確認フロー: (1)git status/diff=HomeContentボタン追加+yomi新規のみ・console/debugger/TODO/anyなし (2)headless Chromium(390x844,DSR3,isMobile)で3ページ確認・横スクロール0・タップ領域84x59・？伏せ→reveal・読み筋/危険/待ち形/解説/他選択肢/復習モード全表示 (3)データ12問整合スクリプトpass (4)tsc0err/build成功全9ルート○Static (5)commit 582fdd7 (6)pre-push: ahead1/behind0クリアFF・SSH remote・機密スキャンnone→push成功 221eec4..582fdd7 (7)post-push: origin/main=582fdd7・local/remote 0/0・clean。\n\n[Phase A任意]\nmonetizationImpact: low\ntheme: [app-strategy, workflow]\nobsidianSummary: /yomi当たり牌読みモードをiPhone幅で確認し本番反映。横スクロール0・？のみ伏せ・回答後に読み筋表示・12問整合OK。commit 582fdd7をorigin/mainへpush。Vercelは自動デプロイ想定(要URL確認)。\nobsidianSaveTarget: 20_reviews/2026-06-06_mahjong-yomi-verify-deploy.md"
+    },
+    {
+      "runId": "20260607-110004",
+      "startedAt": "2026-06-07T02:00:04.815Z",
+      "finishedAt": "2026-06-07T02:00:05.274Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "monetization_sync",
+      "trigger": "systemd",
+      "summary": "Vault走査 94 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=94 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    },
+    {
+      "runId": "20260607-110005",
+      "startedAt": "2026-06-07T02:00:04.810Z",
+      "finishedAt": "2026-06-07T02:00:05.293Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "Factory schedule (schedule/systemd)",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "schedule",
+      "trigger": "systemd",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "stopReason": "blocked",
+      "summary": "factoryRunState=Blocked のため起動しません（schedule/systemd）",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-schedule] skip=blocked source=schedule trigger=systemd state=Blocked"
+    },
+    {
+      "runId": "20260607-111753",
+      "startedAt": "2026-06-07T02:17:53.779Z",
+      "finishedAt": "2026-06-07T02:17:53.779Z",
+      "targetApp": "mahjong",
+      "targetTodoTitle": "当たり牌読み /yomi 盤面を縦並び廃止→麻雀卓レイアウト(雀魂風)に変更",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "YomiBoardViewを縦4段スタックから実際の麻雀卓配置(対面=上/上家=左/下家=右/自分=下)に全面刷新。牌を席ごとに回転(self0/toimen180/kamicha270/shimocha90)、河は6枚折返し、上家下家は縦積み。リーチ宣言牌は通常+90度で横向き表示、ツモ切りは半透明+青点、副露はプレイヤー脇に表示、当たり牌のみ？枠表示を維持(回答後にreveal)。中央パネルに局/本場/供託/巡目/ドラ、各プレイヤーに自風/座席/点数/リーチ/和了/放銃バッジ。解説部分(quiz/result)は無変更。TileDisplayに非破壊のplaceholderプロップを追加し？枠が牌のfootprint(回転含む)を保つように。iPhone幅390pxで卓全体が収まり横スクロール0を確認。",
+      "changedFiles": [
+        {
+          "file": "components/YomiBoardView.tsx",
+          "change": "縦並び廃止→麻雀卓レイアウト(席別回転/6枚折返し/リーチ横向き/副露脇表示/中央パネル)に全面刷新"
+        },
+        {
+          "file": "components/TileDisplay.tsx",
+          "change": "additive: placeholderプロップ追加(？枠を牌footprint・回転対応で描画)"
+        }
+      ],
+      "checks": {
+        "build": "pass",
+        "typescript": "pass",
+        "responsiveMobile": "pass(390px横スクロール0・卓358x450px収まる)",
+        "explanationUnchanged": "pass(quiz/result無変更)"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "実機iPhone Safariでの卓視認性・牌サイズ最終目視",
+        "commit/push(本タスクでは未指示のため未実施)",
+        "リーチ横向き牌の周辺余白の微調整検討"
+      ],
+      "rawReport": "目的=実戦に近い視認性。変更=YomiBoardView全面刷新+TileDisplay.placeholder追加。席別回転 self0/toimen180/kamicha270/shimocha90、河6枚折返し、上家下家は縦積み(下家90度は最新chunk中央寄りで逆順)、リーチ宣言牌は(rotation+90)で横向き、ツモ切り半透明+青点、副露はゾーン内でプレイヤー脇、当たり牌は牌枠？維持→reveal時に実牌+amber ring。中央=局/本場/供託/巡目/ドラ、各家=自風/座席/点数/リーチ/和了/放銃。解説は無変更(quiz/result触らず=コンポIF不変)。検証: tsc0err / build成功(全9ルート静的・API非依存) / headless Chromium 390x844で /yomi/quiz 横スクロール0・？描画あり・卓box358x450・回答後に読み筋表示・reveal確認。禁止事項遵守: 河省略なし/手出しツモ切り保持/相手情報保持/API非依存維持/何切るBoardView無変更。\n\n[Phase A任意]\nmonetizationImpact: low\ntheme: [app-strategy, workflow]\nobsidianSummary: /yomi盤面を縦並びから麻雀卓(雀魂風: 対面上/上家左/下家右/自分下)へ刷新。席別回転・河6枚折返し・リーチ横向き・ツモ切り半透明・副露脇・当たり牌？維持。iPhone幅で卓全体が収まる(横スクロール0)。解説部は無変更。\nobsidianSaveTarget: 20_reviews/2026-06-07_mahjong-yomi-table-layout.md"
+    },
+    {
+      "runId": "20260607-140017",
+      "startedAt": "2026-06-07T05:00:17.584Z",
+      "finishedAt": "2026-06-07T05:00:17.963Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "monetization_sync",
+      "trigger": "systemd",
+      "summary": "Vault走査 95 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=95 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    },
+    {
+      "runId": "20260607-140017",
+      "startedAt": "2026-06-07T05:00:17.577Z",
+      "finishedAt": "2026-06-07T05:00:17.997Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "Factory schedule (schedule/systemd)",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "schedule",
+      "trigger": "systemd",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "stopReason": "blocked",
+      "summary": "factoryRunState=Blocked のため起動しません（schedule/systemd）",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-schedule] skip=blocked source=schedule trigger=systemd state=Blocked"
+    },
+    {
+      "runId": "20260607-141704",
+      "startedAt": "2026-06-07T05:17:04.763Z",
+      "finishedAt": "2026-06-07T05:17:04.763Z",
+      "targetApp": "mahjong",
+      "targetTodoTitle": "/yomi 当たり牌読み 問題品質改善（実戦読み訓練化）",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "/yomiの問題集を暗記用から実戦読み訓練用へ改善。河枚数を巡目相当(13〜17巡)に拡張、ルール違反/材料不足の3問を削除、全10問にdangerLevel(危険度)とreadingBasis(読み根拠)を付与。回答後UIに危険度★と読み根拠を表示。型拡張・build・tsc・データ整合スクリプト検証まで完了。",
+      "changedFiles": [
+        {
+          "file": "apps/mahjong/types/yomi.ts",
+          "change": "YomiQuestionBodyにdangerLevel(number)を必須追加、readingBasis(YomiReadingBasis[])を任意追加。新interface YomiReadingBasisを定義"
+        },
+        {
+          "file": "apps/mahjong/data/yomi-questions.json",
+          "change": "12問→10問に厳選(y003/y010旧/y011削除、y005のリーチ後手出し=ルール違反を修正)。河を巡目相当に拡張。全問にdangerLevel・readingBasis・無スジ/スジ/現物/壁/字牌/対子落とし/リャンメン落とし等の根拠を付与"
+        },
+        {
+          "file": "apps/mahjong/app/yomi/quiz/page.tsx",
+          "change": "回答後リビールに危険度★★★★★(dangerLevel/5)と読み根拠(readingBasisラベル+詳細)セクションを追加"
+        }
+      ],
+      "checks": {
+        "build": "pass (next build 成功)",
+        "typescript": "pass (tsc --noEmit エラー0)",
+        "dataIntegrity": "pass (牌4枚制限・正解/待ち整合・リーチ後手出し違反・選択肢が当たり牌でない 等を自作nodeスクリプトで全件検証)",
+        "lint": "not_run (next lint --file 非対応)"
+      },
+      "errors": [],
+      "warnings": [
+        "mahjongは別Gitリポジトリ。commit/pushは未実施(ユーザー明示指示待ち)"
+      ],
+      "progressUpdated": false,
+      "nextActions": [
+        "ブラウザで/yomi/quizを実機確認(危険度★と読み根拠の表示)",
+        "良問判定の弱い問題(y005対子落とし/y006リャンメン落とし)の盤面が読み筋通りか有識者レビュー",
+        "必要なら問題数を10問から増やす(ワンチャンス専用問題の追加など)"
+      ],
+      "rawReport": "目的: /yomi(当たり牌読み)を暗記問題から実戦読みの訓練へ改善。\n\n実施:\n1) types/yomi.ts に dangerLevel(必須,1-5) と readingBasis(任意) を追加。\n2) data/yomi-questions.json を12→10問に再構築。削除=y003(ダマ材料薄)/旧y010(抽象)/y011(y004と染め手重複)。修正=y005はリーチ後に白を手出し=ルール上不可能だったためダマの対子落としに修正。河枚数を巡目相当(self≒巡目, 他家≒巡目-1〜2)に拡張。全問に無スジ/スジ/スジ引っ掛け/現物/壁(ノーチャンス)/字牌処理(生牌)/対子落とし/リャンメン落とし/ツモ切り手出し読み/親リーチ打点読み 等のreadingBasisを付与。\n3) quiz/page.tsx 回答後に危険度★★★★★(dangerLevel/5)と読み根拠セクションを表示。\n\n検証: next build 成功 / tsc エラー0 / 自作nodeスクリプトで牌4枚制限・correctTile=hiddenTile=waits整合・選択肢に当たり牌が混入していない・hiddenWinTileが放銃者に1枚・リーチ後tedashi無し を全10問パス。\n\n品質分類(良問優先で残置): 良問=y001,y002,y004,y007,y008,y009,y012 / 普通(改善して残置)=y005,y006,y010 / 削除した弱い問題=旧y003,旧y010,旧y011。\n\n未実施: mahjongリポジトリのcommit/push(ユーザー明示指示待ち)。\n\nmonetizationImpact: low / theme: app-strategy, workflow"
+    },
+    {
+      "runId": "20260607-160250",
+      "startedAt": "2026-06-07T07:02:50.777Z",
+      "finishedAt": "2026-06-07T07:02:50.777Z",
+      "targetApp": "company-meta",
+      "targetTodoTitle": "運用ルール更新 - 前進優先ルール(承認待ち停止しない)＋前タスクのGitHub反映完了",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "ユーザー指示により『承認待ちで停止しない』前進優先ルールを恒久化。承認必須を6点(本番データ削除/DBスキーマ破壊/外部課金/認証権限/不可逆操作/高セキュリティリスク)に限定し、通常のcommit&pushを含むそれ以外は事後報告で自動実施へ。旧『push/deploy明示指示まで保留』を上書き。CLAUDE.local.mdとメモリを更新。新ルール適用として前タスク(/yomi品質改善)の未pushをcommit&pushして完了(mahjong 582fdd7..1b98f02)。",
+      "changedFiles": [
+        {
+          "file": "CLAUDE.local.md",
+          "change": "§前進優先ルール(2026-06-07)を追記。承認必須6点に限定、通常push自動実施、旧push保留クローズを上書き宣言"
+        },
+        {
+          "file": "~/.claude/.../memory/feedback_execution_confirmation_policy.md",
+          "change": "2026-06-07更新節を追記。push保留撤回・承認必須6点・事後4点報告を反映"
+        }
+      ],
+      "checks": {
+        "secretScan": "pass (mahjong diff に機密パターン無し)",
+        "push": "pass (mahjong main 582fdd7..1b98f02 FF・local=origin=1b98f02・作業ツリーclean)"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "obsidian-vault(GitHubミラー)へ review file 2件をmirror+push",
+        "以降の作業は前進優先ルールで進める(承認必須6点のみ確認)"
+      ],
+      "rawReport": "何を議論/変更したか: ユーザーから『今後の作業ルール: ユーザー承認待ちで停止しない』指示。承認必須は6点(①本番データ削除②DBスキーマ破壊変更③外部課金発生④認証/権限変更⑤不可逆操作⑥高セキュリティリスク)のみ。それ以外(調査/設計/実装/リファクタ/テスト/build/lint/型チェック/通常のcommit&push/問題品質改善/UI改善/JSON修正/Obsidian反映/Progressレビュー作成)は承認待ちせず実装→検証→GitHub反映まで進め事後報告。\n\n選択肢: (a)メモリのみ更新 (b)CLAUDE.local.md(正本)+メモリ両方更新。→(b)を採用。CLAUDE.local.mdが運用の正本でハーネスに効くため。\n\n最終判断: CLAUDE.local.mdに§前進優先ルール(2026-06-07)を追記し、旧『push/deploy明示指示まで保留』と§commit後push必須化/§GitHub反映ルールのpush待ち保留を上書き。通常commit&pushは事後報告で自動実施。機密スキャン・push前後チェックは継続必須。本番デプロイは承認必須6点該当時のみ確認。メモリfeedback_execution_confirmation_policyにも同期。\n\n適用: 新ルールに従い前タスク(/yomi品質改善 runId 20260607-141704)の未pushを解消。2コミットに分割(804d12e 卓レイアウト/1b98f02 品質改善)しmahjong mainへpush成功。secret scan: 機密パターン無し。\n\n次に反映: obsidian-vaultミラーへreview push / 以降は前進優先で運用。\n\nmonetizationImpact: none / theme: workflow"
+    },
+    {
+      "runId": "20260607-190005",
+      "startedAt": "2026-06-07T10:00:05.637Z",
+      "finishedAt": "2026-06-07T10:00:05.637Z",
+      "targetApp": "mahjong",
+      "targetTodoTitle": "/yomi 牌譜取り込みルールの恒久化＋取り込みパイプライン土台の整備",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "麻雀/yomiへ実戦牌譜を承認待ちせず自走取り込みする運用ルールを恒久化。アプリ側に土台を整備: docs/yomi-ingestion.md(仕様)、scripts/validate-yomi.mjs(整合検証の機械化)、types/yomi.tsにYomiSource/YomiQualityRank追加、data/imported(B保留)・data/rejected(C隔離/D破棄)新設。品質優先・上級者帯(魂天/王座/鳳凰卓)優先・採用はS/Aのみ・問題は削除でなくrejected隔離。検証=validate全10問PASS/tsc0err/build成功。mahjong main 9e64d13へpush済み。CLAUDE.local.md・メモリにもルール反映。",
+      "changedFiles": [
+        {
+          "file": "apps/mahjong/docs/yomi-ingestion.md",
+          "change": "取り込み仕様新規(先/条件/ソース優先度/品質ランクS-D/標準フロー/報告フォーマット)"
+        },
+        {
+          "file": "apps/mahjong/scripts/validate-yomi.mjs",
+          "change": "整合検証スクリプト新規(4人河/ロンツモ/correctTile=hiddenTile∈waits/選択肢一意/リーチ後手出し違反/牌4枚/10巡目/読み根拠)"
+        },
+        {
+          "file": "apps/mahjong/types/yomi.ts",
+          "change": "YomiSource・YomiQualityRank型と任意フィールドsource/qualityRankを追加"
+        },
+        {
+          "file": "apps/mahjong/data/imported/README.md",
+          "change": "保留(B)バッチ置き場を新設"
+        },
+        {
+          "file": "apps/mahjong/data/rejected/README.md",
+          "change": "隔離(C)/破棄(D)置き場を新設(削除の代わりに理由付き隔離)"
+        },
+        {
+          "file": "CLAUDE.local.md",
+          "change": "§麻雀/yomi取り込みルールを追記"
+        },
+        {
+          "file": "~/.claude/.../memory/project_yomi_ingestion.md",
+          "change": "取り込みパイプラインのproject memory新規"
+        }
+      ],
+      "checks": {
+        "build": "pass (next build 成功)",
+        "typescript": "pass (tsc 0err)",
+        "dataIntegrity": "pass (validate-yomi.mjs 全10問PASS)",
+        "secretScan": "pass (機密無し)",
+        "push": "pass (mahjong 1b98f02..9e64d13 FF・local=origin・clean)"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "実際の牌譜データ提供時はvalidate-yomi.mjs→品質ランク判定→S/Aのみyomi-questions.jsonへマージの標準フローで自走取り込み",
+        "魂天/王座/鳳凰卓帯の牌譜を優先収集"
+      ],
+      "rawReport": "目的: 実戦牌譜・追加問題を承認待ちで止めず/yomiへ取り込めるようにする運用ルールの恒久化と土台整備。\n\n実施: (1)CLAUDE.local.mdに§麻雀/yomi取り込みルール追記(自走可/禁止/取り込み条件10項/ソース優先度4帯/品質ランクS-D/報告フォーマット)。(2)apps/mahjong/docs/yomi-ingestion.md新規=アプリ側実装仕様正本。(3)scripts/validate-yomi.mjs新規=取り込み条件と整合を機械検証、終了コードで採用可否。(4)types/yomi.tsにYomiSource/YomiQualityRankと任意source/qualityRank追加。(5)data/imported(B保留)/data/rejected(C隔離D破棄)をREADME付き新設。(6)メモリproject-yomi-ingestion新規+MEMORY.md更新。\n\n方針: 問題数より品質優先。上級者帯(雀魂魂天/王座の間/魂の間・天鳳鳳凰卓)優先。採用はS/Aのみ。問題は削除せずrejectedへ理由付き隔離。元牌譜削除/既存良問大量削除/force push/課金API/牌譜外部送信/認証情報保存/本番データ削除は禁止。\n\n検証: node scripts/validate-yomi.mjs 全10問PASS / tsc --noEmit 0err / next build 成功(全ルート静的)。secret scan 機密無し。mahjong main 1b98f02..9e64d13 FF push成功(local=origin=9e64d13/clean)。\n\n次: 実牌譜提供時に標準フローで自走取り込み。魂天/王座/鳳凰卓帯を優先収集。\n\nmonetizationImpact: low / theme: app-strategy, workflow"
+    },
+    {
+      "runId": "20260607-212218",
+      "startedAt": "2026-06-07T12:22:18.247Z",
+      "finishedAt": "2026-06-07T12:22:18.247Z",
+      "targetApp": "mahjong",
+      "targetTodoTitle": "天鳳 公開牌譜 収集方法の調査（/yomi 高品質牌譜収集）",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "天鳳の公開牌譜を認証不要・Cookie不要でdata/imported/へ集める方法を調査。結論=公開フル牌譜は鳳凰卓(scc)のみ(特上卓上位の公開フル牌譜は入手不可だが鳳凰卓が最上位公開帯で品質目的は達成)。推奨ツール=Apricot-S/houou-logs(収集)+mjlog2json/tenhou-to-mjai(変換)。難易度低〜中・継続/自動化可。最大の論点は技術でなく利用規約(牌譜再配布禁止)で、生牌譜のGitHub pushはNG。対策として.gitignoreに生牌譜除外を追加し、調査結果をdocs/tenhou-collection.mdに整理。実データ収集は未実行(調査のみ)。",
+      "changedFiles": [
+        {
+          "file": "apps/mahjong/docs/tenhou-collection.md",
+          "change": "天鳳公開牌譜収集の調査結果(収集方法/ツール/難易度/継続/自動化/規約リスクと対策)を新規"
+        },
+        {
+          "file": "apps/mahjong/.gitignore",
+          "change": "生牌譜(*.mjlog/data/imported配下のxml/json/raw/tenhou)を除外し誤コミット・再配布を防止(READMEは残す)"
+        }
+      ],
+      "checks": {
+        "secretScan": "pass (機密無し)",
+        "gitignore": "pass (git check-ignoreで生牌譜=ignored・README=tracked を確認)",
+        "push": "pass (mahjong 9e64d13..cb802fc FF・local=origin・clean)"
+      },
+      "errors": [],
+      "warnings": [
+        "利用規約: 天鳳は牌譜の再配布を禁止。生牌譜の公開リポジトリpushは規約抵触。牌譜由来の/yomi問題を公開する可否は人間の法務判断が必要(承認必須事項として自走しない)"
+      ],
+      "progressUpdated": false,
+      "nextActions": [
+        "公開可否(規約/法務)をユーザー判断 → OKなら houou-logs で鳳凰卓を収集しmjlog→JSON→/yomi変換アダプタを実装",
+        "NGならローカル生成のみ運用 or 規約が許す別ソース検討"
+      ],
+      "rawReport": "目的: /yomi用に天鳳の高品質公開牌譜を認証不要で集める方法の調査。\n\n調査結果(Web調査でApricot-S/houou-logs README・tenhou.net/sc/raw・Qiitaツール一覧を確認):\n- 公開アーカイブ https://tenhou.net/sc/raw/ は認証不要。年次zip scrawYYYY.zip(2006-2025)+list.cgi(約5分毎)。プレフィックス: sca個室/scb段位戦(一般上級特上)/scc鳳凰卓/scd雀荘戦/sce技能戦。\n- フル牌譜(replay ref)が公開なのは鳳凰卓(scc)のみ。特上以下は本人DLのみ=特上卓上位の公開フル牌譜は入手不可。鳳凰卓=七段+/特上点到達の最上位公開帯なので品質目的は達成。鳳凰内をさらに段位で絞ることも可。\n- 推奨ツール: Apricot-S/houou-logs(Python/MIT, phoenix-logs後継)。fetch(ID収集)→download(--players/--length絞り)→export(.xml mjlog)。レート制御内蔵(同時1session/20分間隔/圧縮優先)。変換: mjlog2json(XML→JSON), tenhou-to-mjai(→mjai), MahjongRepository/mahjong(パーサ)。\n\n各出力項目:\n- おすすめ収集方法: houou-logsで鳳凰卓scc収集→mjlog→JSON/mjai→/yomi変換→validate-yomi.mjs→S/A採用。\n- 必要ツール: Python3+pip/uv, houou-logs, mjlog2json or tenhou-to-mjai, 自作変換アダプタ。\n- 実装難易度: 低〜中(収集低・変換低・mjai→yomi変換アダプタが中)。\n- 継続収集: 可(list.cgi増分+年次zipバックフィル、SQLiteで差分管理)。\n- 自動化: 技術的に可(cron, 1session/20分マナー必須)。ただし生牌譜の自動pushは規約違反。\n\n最重要リスク: 天鳳/houou-logs双方が牌譜の再配布禁止を明記。生牌譜のGitHub push=再配布、/yomi(天鳳と無関係サービス)への適用もグレー。対策: .gitignoreに生牌譜除外を追加(git check-ignoreで検証済み、READMEはtracked維持)。牌譜由来問題の公開可否は人間の法務判断=承認必須として自走しない。\n\n実データ収集は未実行(調査のみ)。mahjong cb802fc push済み。\n\nmonetizationImpact: low / theme: market-research, app-strategy, workflow"
+    },
+    {
+      "runId": "20260607-224848",
+      "startedAt": "2026-06-07T13:48:48.923Z",
+      "finishedAt": "2026-06-07T13:48:48.923Z",
+      "targetApp": "mahjong",
+      "targetTodoTitle": "/yomi 牌譜取り込みを「生牌譜非保管・処理後削除」へ改修",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "牌譜取り込みを生牌譜を保管・公開しない運用へ改修。問題データのみ保存し処理後に元牌譜を削除。scripts/ingest-yomi.mjs(品質判定S/A採用→正本マージ→元牌譜削除→集計、dry-run対応)、共有検証scripts/lib/yomi-validate.mjs(source.gameId等の牌譜ポインタ保持を禁止)、scripts/yomi-stats.mjs(鳳凰卓/魂天/王座問題数集計)を追加。型YomiSourceをsourceType/sourceRank/importedAtへ整理(牌譜ポインタ廃止)、lib/yomi.tsにgetYomiSourceStats追加、.gitignoreでrejectedも除外(コミットはyomi-questions.jsonのみ)。ingest end-to-end検証(採用2/保留1/隔離2・raw削除・正本不変)・validate全10問PASS・stats動作・tsc0err・build成功。mahjong 4993af4 push済。CLAUDE.local.md/メモリ/docs反映。",
+      "changedFiles": [
+        {
+          "file": "apps/mahjong/scripts/ingest-yomi.mjs",
+          "change": "取り込みオーケストレータ新規(品質判定→S/A採用→正本マージ→元牌譜削除→集計、--dry-run/--raw)"
+        },
+        {
+          "file": "apps/mahjong/scripts/lib/yomi-validate.mjs",
+          "change": "検証を共有モジュール化。source.gameId/mjlog/xml/mjai/raw 等の牌譜ポインタ保持を禁止"
+        },
+        {
+          "file": "apps/mahjong/scripts/yomi-stats.mjs",
+          "change": "出典別集計(鳳凰卓/魂天/王座問題数)新規"
+        },
+        {
+          "file": "apps/mahjong/scripts/validate-yomi.mjs",
+          "change": "共有モジュール利用へリファクタ"
+        },
+        {
+          "file": "apps/mahjong/types/yomi.ts",
+          "change": "YomiSourceをsourceType/sourceRank/importedAtへ整理(gameId等の牌譜ポインタ廃止)"
+        },
+        {
+          "file": "apps/mahjong/lib/yomi.ts",
+          "change": "getYomiSourceStats・出典ラベルを追加"
+        },
+        {
+          "file": "apps/mahjong/.gitignore",
+          "change": "data/rejected配下も無視(コミットはyomi-questions.jsonのみ)"
+        },
+        {
+          "file": "apps/mahjong/docs/yomi-ingestion.md",
+          "change": "生牌譜非保管・元牌譜削除・sourceType/sourceRank・新フローを反映"
+        },
+        {
+          "file": "CLAUDE.local.md",
+          "change": "§麻雀/yomi取り込みルールを改修(生牌譜非保管・元牌譜削除・出典タグ・矛盾解消)"
+        },
+        {
+          "file": "~/.claude/.../memory/project_yomi_ingestion.md",
+          "change": "改修内容を反映"
+        }
+      ],
+      "checks": {
+        "build": "pass (next build 成功)",
+        "typescript": "pass (tsc 0err)",
+        "ingestE2E": "pass (候補5→採用2/保留1/隔離2・元牌譜削除・正本10件不変・dry-runで削除なし)",
+        "dataIntegrity": "pass (validate全10問PASS)",
+        "stats": "pass (yomi-stats動作)",
+        "secretScan": "pass",
+        "push": "pass (mahjong cb802fc..4993af4 FF・local=origin・clean)"
+      },
+      "errors": [],
+      "warnings": [
+        "生牌譜のGitHub保存・公開は禁止(再配布)。牌譜由来問題の公開可否は人間の法務判断(承認必須)"
+      ],
+      "progressUpdated": false,
+      "nextActions": [
+        "実牌譜提供時: houou-logsで取得→候補JSON生成→ingest-yomi.mjs --raw で採用+元牌譜削除",
+        "mjlog→候補JSON変換アダプタの実装(解析・候補生成・dangerLevel/readingBasis初期付与)"
+      ],
+      "rawReport": "目的: 生牌譜を保管せず問題生成後に削除する運用へ改修(利用規約=牌譜再配布禁止対応)。\n\n方針: 生牌譜をGitHub保存しない・公開しない・問題データのみ保存。フロー=牌譜取得→解析→候補生成→品質判定→S/A採用→yomi-questions.json保存→元牌譜削除。保持=問題/解説/読み筋/危険度/カテゴリ/出典(sourceType,sourceRank)。保持しない=生牌譜/mjlog/xml/mjai/gameId。\n\n実施:\n- scripts/ingest-yomi.mjs(新規): 候補JSON入力→整合検証→品質判定(S/A採用・B保留(data/imported/pending)・C/D隔離(data/rejected))→重複除外(id+盤面signature)→正本マージ→採用後再検証→元牌譜(--raw)削除→集計表示。--dry-runで書込/削除なし。\n- scripts/lib/yomi-validate.mjs(新規): 検証を共有化。source.gameId/mjlog/xml/mjai/raw の保持をエラー化(牌譜ポインタ禁止)。\n- scripts/yomi-stats.mjs(新規): sourceRank/sourceType別集計(鳳凰卓/魂天/王座問題数)。\n- validate-yomi.mjs: 共有モジュール利用へ。\n- types/yomi.ts: YomiSource={sourceType,sourceRank,importedAt}(gameId/platform/room/rankTier廃止)。\n- lib/yomi.ts: getYomiSourceStats・YOMI_SOURCE_RANK_LABEL追加。\n- .gitignore: data/rejected/**/*.json追加(コミットはyomi-questions.jsonのみ)。\n- docs/yomi-ingestion.md・CLAUDE.local.md・メモリ更新。旧ルールの『元牌譜削除禁止』とingestの元牌譜削除の矛盾を解消(ingest取得の一時生牌譜削除は正規動作、ユーザー唯一原本の独断削除は禁止)。\n\n検証: ingest end-to-end(/tmp合成候補5件→採用2(houou,ouza)/保留1/隔離2(整合エラー+gameⅠd保持禁止)・--raw削除確認・dry-runで削除なし・正本10件不変)。validate全10問PASS。yomi-stats動作(鳳凰卓1/王座1 in test out)。tsc0err。next build成功。secret scan OK。git status=意図した変更のみ(生牌譜/中間/隔離は未staged)。mahjong cb802fc..4993af4 push成功(local=origin/clean)。\n\n次: 実牌譜提供時にhouou-logs→候補生成→ingest --rawで採用+削除。mjlog→候補変換アダプタ実装。\n\nmonetizationImpact: low / theme: app-strategy, workflow"
+    },
+    {
+      "runId": "20260607-230016",
+      "startedAt": "2026-06-07T14:00:16.753Z",
+      "finishedAt": "2026-06-07T14:00:17.390Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "monetization_sync",
+      "trigger": "systemd",
+      "summary": "Vault走査 100 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=100 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    },
+    {
+      "runId": "20260607-230017",
+      "startedAt": "2026-06-07T14:00:16.748Z",
+      "finishedAt": "2026-06-07T14:00:17.433Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "Factory schedule (schedule/systemd)",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "schedule",
+      "trigger": "systemd",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "stopReason": "blocked",
+      "summary": "factoryRunState=Blocked のため起動しません（schedule/systemd）",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-schedule] skip=blocked source=schedule trigger=systemd state=Blocked"
+    },
+    {
+      "runId": "20260607-231654",
+      "startedAt": "2026-06-07T14:16:54.017Z",
+      "finishedAt": "2026-06-07T14:16:54.017Z",
+      "targetApp": "progress",
+      "epicId": "epic-birdlog-mvp-local-first-",
+      "targetTodoTitle": "おすすめ承認: 野鳥観察ノート BirdLog の MVP を作る（local-first / API不要） を Epic化",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "source": "recommended_epics",
+      "summary": "おすすめ rec-birdlog-560d-3 を承認し Epic epic-birdlog-mvp-local-first- を作成（factoryEligible=true）",
+      "changedFiles": [
+        {
+          "file": "data/real/epics.json",
+          "change": "Epic epic-birdlog-mvp-local-first- 追記"
+        },
+        {
+          "file": "data/real/recommended-epics.json",
+          "change": "rec-birdlog-560d-3 → epic_created"
+        }
+      ],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "おすすめ追加Epicを人間承認で Epic化。抽出元 monetization_candidate/mc-birdlog-001。decisionPolicy=autonomous riskFlags= factoryEligible=true（自動実行可）。",
+      "reviewMemo": "AI工場v2 Phase2検証: reviewed RunからKnowledgeとNext Epic候補を自動生成できることを確認する。",
+      "reviewedAt": "2026-06-10T16:20:38.060Z"
+    },
+    {
+      "runId": "20260607-234517",
+      "startedAt": "2026-06-07T14:45:17.261Z",
+      "finishedAt": "2026-06-07T14:45:17.261Z",
+      "targetApp": "mahjong",
+      "targetTodoTitle": "天鳳公開牌譜URLを少数取得し /yomi 取り込み試験",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "天鳳の公開鳳凰卓牌譜URLを3件特定し1件を一時取得→/yomi取り込みパイプライン試験。公開取得は tenhou.net/0/log/?{ref} が生mjlog XMLを返す(認証/Cookie不要)と実証(find.cgiは非会員ERROR=認証突破せず)。scripts/tenhou-to-yomi.mjs(mjlog→候補変換)を新規実装し、1牌譜から5ロン局抽出(turn>=10・4人河)→候補化(validate全件PASS)→ingest投入→採用0/保留5(自動生成=読み筋未検証=B、S/Aのみ採用ルールで不採用=設計通り)→生牌譜削除確認→正本10問不変。tsc0err/build成功。mahjong 7639773 push(変換器+docs、生牌譜/refは非コミット)。",
+      "changedFiles": [
+        {
+          "file": "apps/mahjong/scripts/tenhou-to-yomi.mjs",
+          "change": "天鳳mjlog→/yomi候補変換器(ロン局抽出・idハッシュ化で牌譜ポインタ非保持・qualityRank未設定でB保留)"
+        },
+        {
+          "file": "apps/mahjong/docs/tenhou-collection.md",
+          "change": "公開取得エンドポイント実証(0/log/?ref=生XML, find.cgi=非会員ERROR)と取り込み試験結果を追記"
+        }
+      ],
+      "checks": {
+        "build": "pass (next build 成功)",
+        "typescript": "pass (tsc 0err)",
+        "dataIntegrity": "pass (候補5件validate PASS・正本10問PASS)",
+        "ingest": "pass (採用0/保留5・生牌譜削除確認・正本不変)",
+        "secretScan": "pass (生牌譜/ref非コミット)",
+        "push": "pass (mahjong 4993af4..7639773 FF・local=origin・clean)"
+      },
+      "errors": [],
+      "warnings": [
+        "生牌譜本体DLのfind.cgiは非会員ERROR。認証突破はしない。公開取得は 0/log/?{ref} のみ使用",
+        "採用0は設計通り(自動生成はB保留・S/A昇格には読み筋検証が必要)",
+        "牌譜由来問題の公開可否は人間の法務判断(承認必須)"
+      ],
+      "progressUpdated": false,
+      "nextActions": [
+        "読み筋ヒューリスティック(無スジ/スジ/壁/現物/字牌)の自動付与でB→A昇格を試す",
+        "人手レビュー1局でS/A採用→yomi-questions.json反映の小規模実証",
+        "scc一覧からのref自動抽出(少数・マナー遵守)を補助スクリプト化"
+      ],
+      "rawReport": "目的: 公開天鳳牌譜URLを少数取得し/yomi問題生成パイプラインが動くか確認。ログイン/Cookie/認証突破/大量クロール/生牌譜GitHub保存は禁止。\n\n探したページ: tenhou.net/sc/raw/(公式公開ログ), list.cgi, scc{YYYYMMDDHH}.html.gz(鳳凰卓1時間別一覧), 参考:天鳳鳳凰卓DB nnkr.jp/tenhoulog。\n\n候補URL: scc2026060712.html.gz から四鳳南喰赤(4人鳳凰半荘)の ?log= を3件確認(例 ...gm-00a9-0000-xxxx)。三鳳(00b9)は除外。\n\n取得: find.cgi?log= は5バイト ERROR(非会員不可)→認証突破せず。代替の tenhou.net/0/log/?{ref} が生mjlog XML(13KB,<mjloggm ver=2.3>)を認証/Cookie無しで返すと実証。1件のみ一時取得。\n\nパイプライン: scripts/tenhou-to-yomi.mjs を新規実装(XML解析: INIT/seed/draws TUVW/discards DEFG→tedashi/tsumogiri判定/REACH/AGARI who-fromWho-machi、牌id 0-135デコード、放銃者=self相対席、当たり牌=ロン牌、distractor=和了者の現物、idはハッシュ化しgameId非保持、qualityRank未設定)。1牌譜→ロン局5件抽出(turn>=10・4人河)。validate-yomi 全候補PASS。ingest-yomi投入→採用0/保留(B)5(自動生成=読み筋未検証=B、S/Aのみ採用で不採用=設計通り)→--rawで生牌譜削除確認→正本yomi-questions.json 10問不変。\n\n検証: 候補validate PASS/正本validate PASS/tsc0err/next build成功/secret scan OK/git diffにref混入なし。mahjong 4993af4..7639773 push(変換器+docsのみ。生牌譜・候補・ref・中間データは非コミット/gitignore)。\n\n報告: 探したページ=sc/raw・list.cgi・scc・nnkr(参考)/候補URL数=3/取得成功=1/採用問題=0/不採用理由=自動生成のため読み筋未検証(B保留)/生牌譜削除=確認済/変更ファイル=2/検証=tsc・build・validate OK/commit=7639773 pushed。\n\n次: 読み筋ヒューリスティック自動付与でB→A、人手1局でS/A採用実証、ref自動抽出補助。\n\nmonetizationImpact: low / theme: market-research, app-strategy, workflow"
+    },
+    {
+      "runId": "20260608-004420",
+      "startedAt": "2026-06-07T15:44:20.576Z",
+      "finishedAt": "2026-06-07T15:44:20.576Z",
+      "targetApp": "mahjong",
+      "targetTodoTitle": "/yomi 候補品質の自動採点(B→A判定)を実装・試験",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "天鳳牌譜から生成した候補が全件B止まりだった問題に対し、読み要素のスコアリングでB→A判定を実装。scripts/lib/yomi-score.mjs(無スジ+2/スジ引っ掛け+3/字牌+2/対子落とし+2/リャンメン落とし+2/染め手+2/壁+1/ワンチャンス+1/現物+1/リーチ+1→コア要素なしC・score>=7S/>=5A/>=3B)、CLI yomi-quality-score.mjs(分布+A判定サンプル+不採用理由上位+なぜA出力)、tenhou-to-yomi.mjsへ採点適用を統合。実データ3戦12候補でS3/A5/B4/C0、A判定に内訳出力、graded validate全PASS。canonicalは未変更(自動S/Aは人手レビュー前提)。tsc0err/build成功。mahjong 5fc9fe5 push。生牌譜は処理後削除。",
+      "changedFiles": [
+        {
+          "file": "apps/mahjong/scripts/lib/yomi-score.mjs",
+          "change": "読み要素スコアリング+S/A/B/C判定+判定理由(新規)"
+        },
+        {
+          "file": "apps/mahjong/scripts/yomi-quality-score.mjs",
+          "change": "採点レポートCLI(分布/Aサンプル/不採用理由上位/--out)(新規)"
+        },
+        {
+          "file": "apps/mahjong/scripts/tenhou-to-yomi.mjs",
+          "change": "変換時にapplyScoreでqualityRank/dangerLevel/readingBasis/explanationを付与"
+        },
+        {
+          "file": "apps/mahjong/docs/yomi-ingestion.md",
+          "change": "品質採点(配点・閾値・注意)を追記"
+        }
+      ],
+      "checks": {
+        "build": "pass",
+        "typescript": "pass (tsc 0err)",
+        "scoreTrial": "pass (実データ3戦12候補 S3/A5/B4/C0・graded validate全PASS)",
+        "secretScan": "pass (ref非コミット)",
+        "push": "pass (mahjong 7639773..5fc9fe5 FF・local=origin・clean)"
+      },
+      "errors": [],
+      "warnings": [
+        "配点/閾値はv1で要調整。無スジと染め手気配が重複加点しうる",
+        "自動S/Aはcanonicalへ未反映。人手レビュー後に採用する方針",
+        "生牌譜本体は処理後削除・コミットしない"
+      ],
+      "progressUpdated": false,
+      "nextActions": [
+        "A判定サンプルを人手レビューしyomi-questions.jsonへ少数採用する実証",
+        "重複加点(無スジ×染め手)の補正と閾値チューニング",
+        "正解の待ち形(リャンメン/カンチャン等)推定で説明精度を上げる"
+      ],
+      "rawReport": "目的: 天鳳候補が全件B止まりの問題を解消し、読み要素のスコアリングでB→A判定を実装。\n\n実装: scripts/lib/yomi-score.mjs(scoreQuestion/applyScore)。和了者の河+盤面から検出: 無スジ+2/スジ引っ掛け+3/字牌処理+2/対子落とし+2/リャンメン落とし+2/染め手気配+2/壁+1/ワンチャンス+1/現物+1/リーチ宣言牌+1。判定=コア読み要素(現物/リーチ以外)無ければC、score>=7→S/>=5→A/>=3→B/else C。reasons配列で『なぜA』を返す。applyScoreでqualityRank/dangerLevel/readingBasis/explanationに反映。CLI yomi-quality-score.mjsで候補数/S/A/B/C・A判定サンプル3件・不採用理由上位を出力(--outで採点反映候補書出し)。tenhou-to-yomi.mjsは変換時にapplyScore適用。\n\n試験(実データ・公開取得0/log/?ref): 鳳凰卓4鳳半荘3戦の?logをscc一覧から取得→各mjlogを一時取得→変換+採点→12候補。\n結果: 候補12 / S3 / A5 / B4 / C0 / 採用相当(S/A)8 / 不採用(B/C)4。\nA判定サンプル: (1)ron=7筒 turn10 score6 なぜA=無スジ+2,ワンチャンス+1,現物+1,染め手気配+2 (2)ron=中 turn12 score5 なぜA=字牌処理+2,壁+1,ワンチャンス+1,現物+1 (3)ron=3筒 turn10 score6 なぜA=無スジ+2,ワンチャンス+1,現物+1,リャンメン落とし+2。\n不採用理由上位: 4件『コア要素はあるが加点不足(読み要素が単発)』。\n\n検証: graded候補 validate全PASS / 正本10問PASS / tsc0err / next build成功 / secret scan OK(refコミットなし)。生牌譜は処理後削除。canonicalは未変更(自動S/Aは人手レビュー前提)。mahjong 7639773..5fc9fe5 push。\n\n注意/次: 配点・閾値v1要調整(無スジ×染め手の重複加点補正)、A判定サンプルの人手レビュー→少数採用実証、待ち形推定で説明精度向上。\n\nmonetizationImpact: low / theme: app-strategy, workflow"
+    },
+    {
+      "runId": "20260608-092804",
+      "startedAt": "2026-06-08T00:28:04.510Z",
+      "finishedAt": "2026-06-08T00:28:04.923Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "monetization_sync",
+      "trigger": "startup",
+      "summary": "Vault走査 102 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[monetization-sync] source=boot trigger=startup scanned=102 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    },
+    {
+      "runId": "20260608-093320",
+      "startedAt": "2026-06-08T00:33:20.460Z",
+      "finishedAt": "2026-06-08T00:33:20.460Z",
+      "targetApp": "birdlog",
+      "epicId": "epic-birdlog-mvp-local-first-",
+      "targetTodoTitle": "Factory(auto): 野鳥観察ノート BirdLog の MVP を作る（local-first / API不要）",
+      "runStatus": "partial",
+      "reviewStatus": "not_reviewed",
+      "source": "boot",
+      "executorUsed": "claude",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "factoryDispatch": true,
+      "dispatchMode": "auto",
+      "dispatchPlanId": "dp-epic-birdlog-mvp-local-first--mq4h2hiy",
+      "executorCandidate": "claude",
+      "promptGenerated": true,
+      "resultReturned": true,
+      "runIndex": 1,
+      "nextActionCount": 0,
+      "summary": "（出力なし）",
+      "changedFiles": [
+        {
+          "file": "birdlog/",
+          "change": ""
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "lint": "OK"
       },
       "errors": [],
       "warnings": [],
       "progressUpdated": false,
       "nextActions": [],
-      "rawReport": "テスト完了"
+      "rawReport": "[factory-runner auto] executor=claude\n（出力なし）",
+      "doneCriteriaStatus": "continue",
+      "stopReason": "max_runs_reached",
+      "trigger": "startup"
     },
     {
-      "runId": "20260503-212045",
-      "startedAt": "2026-05-03T12:20:45.710Z",
-      "finishedAt": "2026-05-03T12:20:45.710Z",
-      "targetApp": "ny01/progress",
-      "targetTodoId": "task-company-mgmt-1777809227943-1,task-company-mgmt-1777809227943-0",
-      "targetTodoTitle": "ToDoを画面から削除できるようにする / JSON取り込み時の保存先案件とtargetApp不一致を修正する",
+      "runId": "20260608-093320",
+      "startedAt": "2026-06-08T00:28:04.500Z",
+      "finishedAt": "2026-06-08T00:33:20.850Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "Factory schedule (boot/startup)",
       "runStatus": "completed",
-      "reviewStatus": "reviewed",
-      "summary": "2件のhighタスク完了。①ToDo論理削除機能: types/progress.tsにdeleted追加、API validStatuses更新、TodoManager.tsxに削除ボタン（確認ダイアログ付き）追加、tasks/page.tsxでdeleted除外。②JSON import targetApp/projectId不一致警告: JsonImportManager.tsxにauto-select・mismatch警告バナー・保存ブロック・混在警告実装。npm run build成功・TypeScriptエラー0件。",
+      "reviewStatus": "not_reviewed",
+      "source": "boot",
+      "trigger": "startup",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "stopReason": "max_runs_reached",
+      "summary": "Factory 起動: 1 Run 実行 / 停止理由=max_runs_reached（boot/startup）",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-schedule] source=boot trigger=startup runs=1 stopped=max_runs_reached tagged=20260608-093320"
+    },
+    {
+      "runId": "20260608-105312",
+      "startedAt": "2026-06-08T01:53:12.107Z",
+      "finishedAt": "2026-06-08T01:53:12.107Z",
+      "targetApp": "mahjong",
+      "targetTodoTitle": "AI良問判定×人間評価すり合わせレビュー画面の追加",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "/yomi/review を新規追加。AIのS/A判定問題を人間がS/A/B/C採点し、AI vs 人間の一致率・過大/過小評価トップ5・重み修正案を集計表示。yomi-score.mjsの採点ロジックをlib/yomiScore.tsにTS移植(出力一致を検証済み)。",
       "changedFiles": [
         {
-          "file": "types/progress.ts",
-          "change": "modified"
+          "file": "apps/mahjong/lib/yomiScore.ts",
+          "change": "新規: yomi-score.mjsのTS移植(scoreQuestion/RANK_NUM等)。レビュー画面からAIスコア・判定理由を参照"
         },
         {
-          "file": "app/api/tasks/[taskId]/route.ts",
-          "change": "modified"
+          "file": "apps/mahjong/app/yomi/review/page.tsx",
+          "change": "新規: レビューUI。問題ID/盤面/河/当たり牌/AIスコア/AI判定理由を表示しS/A/B/C人間評価を付与。一致率・過大過小評価トップ5・修正案を集計しlocalStorage保存"
         },
         {
-          "file": "components/tasks/TodoManager.tsx",
-          "change": "modified"
-        },
-        {
-          "file": "app/tasks/page.tsx",
-          "change": "modified"
-        },
-        {
-          "file": "components/tasks/JsonImportManager.tsx",
-          "change": "modified"
+          "file": "apps/mahjong/app/yomi/page.tsx",
+          "change": "yomiトップにレビュー画面への導線ボタンを追加"
         }
       ],
       "checks": {
-        "build": "OK",
+        "typescript": "pass",
+        "build": "pass",
+        "lint": "pass",
+        "manual": "dev起動しHTTP200・全S/A問題10件描画を確認"
+      },
+      "errors": [],
+      "warnings": [
+        "ユーザーは検証対象を8問と想定していたが、現状の正本yomi-questions.jsonではS/A判定が10問(y001-y012)。レビュー画面はAIがS/A判定した問題を全件動的に表示する設計"
+      ],
+      "progressUpdated": true,
+      "nextActions": [
+        "人間評価を入力後、過大評価に頻出する読み要素(現物/壁/ワンチャンス等)の配点をyomi-score.mjsとlib/yomiScore.tsの両方で同時調整",
+        "AI:A以上×人間:Cが多い場合は補助要素のみでA到達するケースの閾値見直し"
+      ],
+      "rawReport": "目的: AIのS/A良問判定が人間感覚と一致するか検証する画面を作る。\n実施: (1)scripts/lib/yomi-score.mjsをlib/yomiScore.tsへ移植しnode/tsxで全10問の出力一致を確認 (2)app/yomi/review/page.tsxを新規作成。各問にYomiBoardView(revealed)で盤面・河・当たり牌、AIスコア・rank・判定理由内訳を表示。人間がS/A/B/C採点(localStorage保存)。集計=一致率/過大評価トップ5/過小評価トップ5/AI:A以上×人間:C件数/重み修正案/コピー用プレーンテキスト (3)yomiトップに導線追加。\n検証: tsc noEmit pass, next build pass(/yomi/review生成), eslint 0 error, dev起動HTTP200で全S/A問題描画確認。\n判断/仮説: 検証対象はユーザー記憶では8問だが正本では10問がS/A。ハードコードせずAIがS/A判定した問題を動的抽出する設計にした。\n修正案ロジック: 過大評価問題に頻出する読み要素ラベルを集計し配点引き下げ候補として提示。AI:A以上×人間:Cが多い場合は警告表示。\n次: 人間評価入力後にyomi-score.mjs+lib/yomiScore.tsの配点を同時調整。"
+    },
+    {
+      "runId": "20260608-110007",
+      "startedAt": "2026-06-08T02:00:07.778Z",
+      "finishedAt": "2026-06-08T02:00:08.428Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "monetization_sync",
+      "trigger": "systemd",
+      "summary": "Vault走査 103 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=103 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    },
+    {
+      "runId": "20260608-110520",
+      "startedAt": "2026-06-08T02:05:20.705Z",
+      "finishedAt": "2026-06-08T02:05:20.705Z",
+      "targetApp": "birdlog",
+      "epicId": "epic-birdlog-mvp-local-first-",
+      "targetTodoTitle": "Factory(auto): 野鳥観察ノート BirdLog の MVP を作る（local-first / API不要）",
+      "runStatus": "partial",
+      "reviewStatus": "not_reviewed",
+      "source": "schedule",
+      "executorUsed": "claude",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "factoryDispatch": true,
+      "dispatchMode": "auto",
+      "dispatchPlanId": "dp-epic-birdlog-mvp-local-first--mq4kcvgr",
+      "executorCandidate": "claude",
+      "promptGenerated": true,
+      "resultReturned": true,
+      "runIndex": 1,
+      "nextActionCount": 0,
+      "summary": "（出力なし）",
+      "changedFiles": [],
+      "checks": {
         "typescript": "OK",
         "lint": "OK"
       },
       "errors": [],
       "warnings": [],
       "progressUpdated": false,
-      "nextActions": [
-        "pm2 restart後の動作確認",
-        "ブラウザで削除ボタンUIの確認"
-      ],
-      "rawReport": "集中作業モード確認実行: 2件完了\n\n## Task1: ToDoを画面から削除できるようにする\n- types/progress.ts: TaskStatusにdeleted追加\n- app/api/tasks/[taskId]/route.ts: validStatusesにdeleted追加（2箇所）\n- components/tasks/TodoManager.tsx: deletingIds state・deleteTask関数・削除ボタン（🗑）追加\n- app/tasks/page.tsx: status!==deletedでフィルタ\n- 確認ダイアログ: window.confirm使用\n\n## Task2: JSON取り込み時の保存先案件とtargetApp不一致を修正する\n- JsonImportManager.tsx: findProjectIdForTargetApp関数追加\n- handlePreview: 全items同一targetApp時にprojectId自動選択\n- mismatchInfo useMemo: single mismatch / mixed の2パターン判定\n- 警告バナー追加（保存前に表示）\n- handleSave: mismatchInfo && !mismatchOverrideのとき保存ブロック\n\n## 検証\n- npm run build: 成功\n- TypeScript: エラー0件\n- pm2 restart progress: 成功"
+      "nextActions": [],
+      "rawReport": "[factory-runner auto] executor=claude\n（出力なし）",
+      "doneCriteriaStatus": "continue",
+      "stopReason": "max_runs_reached",
+      "trigger": "systemd"
     },
     {
-      "runId": "20260503-213528",
-      "startedAt": "2026-05-03T12:35:28.319Z",
-      "finishedAt": "2026-05-03T12:35:28.319Z",
-      "targetApp": "ny01/progress",
-      "targetTodoId": "autoOrder=12,autoOrder=13",
-      "targetTodoTitle": "ExecutionRun changedFiles/checks修正 + 削除・JSON不一致警告の確認",
+      "runId": "20260608-110521",
+      "startedAt": "2026-06-08T02:00:07.773Z",
+      "finishedAt": "2026-06-08T02:05:21.218Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "Factory schedule (schedule/systemd)",
       "runStatus": "completed",
-      "reviewStatus": "reviewed",
-      "summary": "①API parseChangedFile: path/actionフィールドも受け付けるよう修正。②normalizeChecks追加: buildPassed等のboolean→build:OK/NGに変換。③削除タスク除外の実装確認: OPEN_STATUSESにdeleted未含有で全箇所自動除外確認。④/morning grid-cols-4→grid-cols-2 sm:grid-cols-4 モバイル最適化完了。build成功。",
+      "reviewStatus": "not_reviewed",
+      "source": "schedule",
+      "trigger": "systemd",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "stopReason": "max_runs_reached",
+      "summary": "Factory 起動: 1 Run 実行 / 停止理由=max_runs_reached（schedule/systemd）",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260608-110520"
+    },
+    {
+      "runId": "20260608-133645",
+      "startedAt": "2026-06-08T04:36:45.711Z",
+      "finishedAt": "2026-06-08T04:36:45.711Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "EpicカードのFactory対象外誤判定を修正（riskFlags=deployで対象外化される設計バグ）",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "URL一覧Epic・動作確認TodoページEpicが画面上「Factory対象外」になる原因を特定。実データ(epics.jsonのfactoryEligible:true)は正しく、evaluateFactoryEligibilityがriskFlags(deploy)/approval_required/pendingを全てeligible=false=「対象外」に畳み込む表示ロジックが原因。判定を3区分(excluded/approval/auto)に再設計し、riskFlagsは「要承認」として扱いFactory管理対象に残す。eligible(実行ゲート)の厳格さは維持し自動実行の安全性は不変。",
       "changedFiles": [
         {
-          "file": "app/api/execution-runs/route.ts",
-          "change": "修正"
+          "file": "lib/types/operations.ts",
+          "change": "FactoryEligibilityにclassification/factoryManaged/approvalReasons/excludedReasonsを追加。FactoryClassification型新設。riskFlagsコメント修正"
         },
         {
-          "file": "app/morning/page.tsx",
-          "change": "修正"
+          "file": "lib/epic-contract.ts",
+          "change": "evaluateFactoryEligibilityを3区分判定に再設計(excluded=factoryEligible false/manual/構造不備, approval=riskFlags/approval_required/pending/blocked, auto=それ以外)。eligibleはauto時のみtrue(実行ゲート維持)。表示用describeFactoryヘルパー追加"
+        },
+        {
+          "file": "app/epic/page.tsx",
+          "change": "一覧カードを主バッジ(Factory対象/対象外)+副バッジ(要承認/自律実行可)の2段表示に変更"
+        },
+        {
+          "file": "app/epic/[epicId]/page.tsx",
+          "change": "詳細ページを同様の2バッジ表示に。対象外理由/要承認理由を分けて表示"
+        },
+        {
+          "file": "components/recommended/RecommendationList.tsx",
+          "change": "おすすめ一覧バッジを3状態(Factory自動可/要承認/対象外)に。preview後方互換fallback"
+        },
+        {
+          "file": "components/epic/EpicJsonImport.tsx",
+          "change": "インポートプレビューのFactory表示をdescribeFactoryで3状態化"
+        },
+        {
+          "file": "app/recommended-epics/[id]/page.tsx",
+          "change": "おすすめ詳細のFactory判定文言を3状態化"
+        },
+        {
+          "file": "lib/recommended-epics-store.ts",
+          "change": "factoryEligiblePreviewにclassification/factoryManagedを格納"
+        },
+        {
+          "file": "types/recommended-epic.ts",
+          "change": "FactoryEligiblePreviewにclassification/factoryManaged(任意)を追加"
         }
       ],
       "checks": {
-        "build": "OK",
-        "typescript": "OK"
+        "typescript": "pass",
+        "build": "pass",
+        "lint": "pass",
+        "manual": "dev(3019)起動しHTTP200。/epicで対象2件が⚙Factory対象+🛡要承認、構造不備Epicのみ🚫対象外。/epic/epic-progress-urlで主⚙Factory対象+副🛡要承認、対象外表示0、要承認理由行ありを確認"
       },
       "errors": [],
       "warnings": [
-        "autoOrder=13のブラウザ実操作確認は未実施（コード検証のみ）"
+        "ny01作業ツリーに本件無関係の大量未コミット変更(news-app/ai-trend-sns/anglerlog/birdlog/data/real実行時JSON/Factory機能WIP)があり、巻き込み回避のためgit commit/pushは保留。コード修正はソース反映+build検証済み",
+        "実データ補正は不要(epics.jsonは既にfactoryEligible:true)。データは一切変更していない",
+        "pm2の本番progress(3010)は旧ビルドのまま。画面反映にはrebuild+pm2 restartが必要(ユーザー判断)"
       ],
       "progressUpdated": false,
       "nextActions": [
-        "ブラウザでUI実操作確認を推奨"
+        "ユーザー判断: 私の編集9ファイルのみを選択的にcommit/push(無関係WIPとデータJSONは除外)",
+        "pm2 restart progress で本番(3010)に反映",
+        "factoryEligible:falseのEpicで実際に対象外表示になるかを実データでも確認(現状falseのEpicは無し)"
       ],
-      "rawReport": "集中作業モード 今日のキュー処理\n\n## autoOrder=11: stale確認\nPendingFilters.tsxに既に完全実装済み。done処理。\n\n## autoOrder=12: ExecutionRun changedFiles/checks修正\n- parseChangedFile: obj.file??obj.path、obj.change??obj.actionで両フォーマット対応\n- normalizeChecks追加: buildPassed→build:OK、typeCheckPassed→typescript:OK等のboolean→string変換\n- build成功・TypeScript0件\n\n## autoOrder=13: 削除機能・JSON不一致警告の確認\n- deleted除外: OPEN_STATUSES=[backlog,todo,in_progress,impl_done,local_done]にdeleted未含有\n  → tasks/page.tsx・pending/page.tsx・session-writer.ts・progress-transform.tsすべてで自動除外\n- JSON不一致警告: JsonImportManager.tsxのmismatchInfo useMemoが正しく実装されている\n- ブラウザ実操作は未実施（コードレベルの検証のみ）\n\n## /morning モバイル最適化\n- grid-cols-4 → grid-cols-2 sm:grid-cols-4"
+      "rawReport": "■原因: 表示ロジックの設計バグ。evaluateFactoryEligibility(lib/epic-contract.ts)がriskFlags(deploy等)/approval_required/pendingApproval/blocked/構造不備/factoryEligible=false を全てeligible=false=「Factory対象外」に畳み込んでいた。deployはFACTORY_BLOCKING_RISK_FLAGSに含まれハード除外。■切り分け: 実データ(data/real/epics.json)は該当2件ともfactoryEligible:true/decisionPolicy:autonomous/riskFlags:[deploy]で正しい。localStorage/デフォルトfalse化は無し(未指定はundefined)。正本はepics.json。よってUI判定のみ誤り。■修正: 判定を3区分化。excluded(factoryEligible=false/manual/構造不備)→Factory対象外、approval(riskFlags/approval_required/pending/blocked)→Factory対象+要承認、auto→Factory対象+自律実行可。eligibleはauto時のみtrueで実行ゲート(factory-dispatch/runner/auto-resume)の厳格さ不変=自動実行安全性は維持。describeFactoryで全カード文言統一。■検証: tsc0err/build成功/eslint0err。dev3019でHTTP200、対象2件が⚙Factory対象+🛡要承認、詳細ページ対象外表示0。tsx実データ検証で全7Epicのclassification確認。■データ補正: 不要(既にtrue)。データ未変更。■未対応: 作業ツリーに無関係WIP多数のためcommit/push保留(ユーザー判断)。pm2本番は要restart。"
     },
     {
-      "runId": "20260503-215500",
-      "startedAt": "2026-05-03T12:35:28.000Z",
-      "finishedAt": "2026-05-03T12:55:00.000Z",
-      "targetApp": "ny01/progress",
-      "targetTodoId": "autoOrder=12,autoOrder=13,autoOrder=14",
-      "targetTodoTitle": "ExecutionRun changedFiles/checks修正 + 削除・JSON不一致警告の確認 + 集中作業モード着手対象判定修正",
+      "runId": "20260608-140010",
+      "startedAt": "2026-06-08T05:00:10.424Z",
+      "finishedAt": "2026-06-08T05:00:11.058Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新2",
       "runStatus": "completed",
-      "reviewStatus": "reviewed",
-      "summary": "3件完了。①API parseChangedFile: {path,action}形式対応・normalizeChecks追加(boolean→string変換)・既存run20260503-212045データ修正。②削除機能・JSON不一致警告: コードレベル確認完了(OPEN_STATUSESにdeleted未含有・mismatchInfo useMemo実装確認)、ブラウザ実操作は未実施。③CLAUDE.local.mdに「今日の作業」work-queueスコープ制約セクション追加: queued/in_progressのみ着手・project-tasks.json自発着手禁止・キュー空で停止。lint成功・build成功。",
+      "reviewStatus": "not_reviewed",
+      "source": "monetization_sync",
+      "trigger": "systemd",
+      "summary": "Vault走査 104 ファイル / 新規追加 0 件 / 既存追記 2 件 / skip 10 件",
       "changedFiles": [
         {
-          "file": "app/api/execution-runs/route.ts",
-          "change": "修正"
-        },
-        {
-          "file": "app/morning/page.tsx",
-          "change": "修正"
-        },
-        {
-          "file": "data/real/execution-runs.json",
-          "change": "修正"
-        },
-        {
-          "file": "data/real/work-queue.json",
-          "change": "修正"
-        },
-        {
-          "file": "CLAUDE.local.md (ny01)",
-          "change": "追加"
+          "file": "data/real/monetization-candidates.json",
+          "change": "追加0/更新2"
         }
       ],
-      "checks": {
-        "build": "OK",
-        "typescript": "OK",
-        "lint": "OK"
-      },
+      "checks": {},
       "errors": [],
-      "warnings": [
-        "autoOrder=13のブラウザ実操作確認は未実施（コード検証のみ）"
-      ],
-      "progressUpdated": true,
-      "nextActions": [
-        "ブラウザでToDo削除・JSON不一致警告のUI実操作確認を推奨"
-      ],
-      "rawReport": "集中作業モード 今日のキュー処理（セッション続き）\n\n## autoOrder=12: ExecutionRun changedFiles/checks修正\n- parseChangedFile: obj.file??obj.path、obj.change??obj.actionで両フォーマット対応\n- normalizeChecks追加: buildPassed→build:OK、typeCheckPassed→typescript:OK等のboolean→string変換\n- 既存run 20260503-212045: changedFilesを実ファイル名に、checksをOK/NG形式に直接修正\n- build成功・TypeScript0件\n\n## autoOrder=13: 削除機能・JSON不一致警告の確認\n- deleted除外: OPEN_STATUSES=[backlog,todo,in_progress,impl_done,local_done]にdeleted未含有\n  → tasks/page.tsx・pending/page.tsx・session-writer.ts・progress-transform.tsすべてで自動除外\n- JSON不一致警告: JsonImportManager.tsxのmismatchInfo useMemoが正しく実装されている\n- ブラウザ実操作は未実施（コードレベルの検証のみ）\n\n## autoOrder=14: 集中作業モード着手対象判定修正\n- 原因: CLAUDE.local.mdの集中作業モード規定がwork-queueに言及しておらず、project-tasks.jsonから自由にタスク選択できる記述になっていた\n- 修正: 「今日の作業」work-queueスコープ制約セクションをCLAUDE.local.mdに追加\n  - work-queue.json status=queued/in_progressのみ着手対象\n  - autoOrder昇順で処理\n  - project-tasks.jsonからの自発着手・stale解消・バックログ処理禁止\n  - work-queue完了後停止\n  - 着手前3問フィルタ不要（work-queue登録時点で承認済み）\n- lint成功・build成功"
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=104 added=[] updated=[釣果ログ AnglerLog, 野鳥観察ノート BirdLog] skipped=10. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
     },
     {
-      "runId": "20260503-221500",
-      "startedAt": "2026-05-03T13:05:00.000Z",
-      "finishedAt": "2026-05-03T13:15:00.000Z",
-      "targetApp": "ny01/progress",
-      "targetTodoId": "task-company-mgmt-1777813006195-0,task-company-mgmt-1777813346002-0",
-      "targetTodoTitle": "JSON取り込み保存先案件をユーザー明示選択に変更 + ToDo管理・着手判定・今日の順番の役割整理",
-      "runStatus": "completed",
-      "reviewStatus": "reviewed",
-      "summary": "2件完了。①JsonImportManager: projectId初期値を未選択に変更・handlePreviewのauto-select削除・handleSaveのmismatchブロック削除・mismatchOverride state削除・警告バナーは参考表示のみ残す。②/pending fallback OPEN_STATUSESをpending_approvalのみに絞り着手判定責務を明確化。③CLAUDE.local.md work-queueスコープを常時適用に変更（トリガーワード不要）。lint成功・build成功。",
-      "changedFiles": [
-        {
-          "file": "components/tasks/JsonImportManager.tsx",
-          "change": "修正"
-        },
-        {
-          "file": "app/pending/page.tsx",
-          "change": "修正"
-        },
-        {
-          "file": "CLAUDE.local.md (ny01)",
-          "change": "修正"
-        }
-      ],
+      "runId": "20260608-140533",
+      "startedAt": "2026-06-08T05:05:33.906Z",
+      "finishedAt": "2026-06-08T05:05:33.906Z",
+      "targetApp": "birdlog",
+      "epicId": "epic-birdlog-mvp-local-first-",
+      "targetTodoTitle": "Factory(auto): 野鳥観察ノート BirdLog の MVP を作る（local-first / API不要）",
+      "runStatus": "partial",
+      "reviewStatus": "not_reviewed",
+      "source": "schedule",
+      "executorUsed": "claude",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "factoryDispatch": true,
+      "dispatchMode": "auto",
+      "dispatchPlanId": "dp-epic-birdlog-mvp-local-first--mq4qsf4s",
+      "executorCandidate": "claude",
+      "promptGenerated": true,
+      "resultReturned": true,
+      "runIndex": 1,
+      "nextActionCount": 0,
+      "summary": "（出力なし）",
+      "changedFiles": [],
       "checks": {
-        "build": "OK",
         "typescript": "OK",
         "lint": "OK"
       },
       "errors": [],
       "warnings": [],
-      "progressUpdated": true,
-      "nextActions": [
-        "ブラウザでJSON取り込み画面の保存先初期未選択を確認推奨"
-      ],
-      "rawReport": "## Task1: JSON取り込み保存先案件をユーザー明示選択に変更\n- projectId初期値: projects[0].id → \"\"（未選択）\n- handlePreview: auto-select block削除（targetApp一致でも自動選択しない）\n- handleSave: mismatchInfo && !mismatchOverrideのブロック削除\n- mismatchOverride state削除\n- 警告バナー: チェックボックス削除、参考表示のみ残す\n- 保存ブロック条件: 案件未選択・JSON不正・todos空・title不正のみ（mismatchはブロックしない）\n\n## Task2: 役割整理（画面の責務明確化）\n調査結果:\n- /tasks: 全ToDo表示・作成/編集/削除/import・「今日の作業に追加」ボタンあり\n- /pending: 着手判定（candidates）・fallbackでtodo/in_progress/backlogも表示（危険）\n- /queue: work-queue管理・順番・プロンプトコピー\n\n危険な重複: fallbackがin_progress/todoタスクに「着手する」ボタン表示 → queue二重登録の可能性\n修正: pending/page.tsx OPEN_STATUSES = new Set([\"pending_approval\"]) に絞る\n\n## CLAUDE.local.md更新\n- work-queueスコープ制約のトリガー条件を削除\n- 集中作業モードでは常にwork-queueスコープを適用するように変更\n- work-queue空の場合の停止報告を明記"
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-runner auto] executor=claude\n（出力なし）",
+      "doneCriteriaStatus": "continue",
+      "stopReason": "max_runs_reached",
+      "trigger": "systemd"
     },
     {
-      "runId": "20260504-autoorder15",
-      "startedAt": "2026-05-04T03:36:54.625Z",
-      "finishedAt": "2026-05-04T03:36:54.625Z",
-      "targetApp": "ny01/progress",
-      "targetTodoId": "task-company-mgmt-1777865282527-0",
-      "targetTodoTitle": "集中作業モードで1タスク1レビューを徹底する",
+      "runId": "20260608-140534",
+      "startedAt": "2026-06-08T05:00:10.413Z",
+      "finishedAt": "2026-06-08T05:05:34.881Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "Factory schedule (schedule/systemd)",
       "runStatus": "completed",
-      "reviewStatus": "copied",
-      "summary": "集中作業モードの運用ルールに、work-queue 1アイテムごとに個別レビューと個別ExecutionRunを作成する原則を明記した。",
+      "reviewStatus": "not_reviewed",
+      "source": "schedule",
+      "trigger": "systemd",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "stopReason": "max_runs_reached",
+      "summary": "Factory 起動: 1 Run 実行 / 停止理由=max_runs_reached（schedule/systemd）",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260608-140533"
+    },
+    {
+      "runId": "20260608-143957",
+      "startedAt": "2026-06-08T05:39:57.988Z",
+      "finishedAt": "2026-06-08T05:39:57.988Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "Factory承認過多を解消（deployを承認不要の注意扱いに・判定を4概念へ整理）",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "「承認待ち/要承認」が多すぎる原因を特定し、危険でないEpicを自動実行対象に寄せる判定へ修正。原因は前段修正でriskFlagsを一律「要承認」にしていたこと(deploy含む全フラグ)。riskFlagsをAPPROVAL_RISK_FLAGS(billing/production_db/auth_secret/migration/destructive/external_publish)とCAUTION_RISK_FLAGS(deploy)に2分割。deployのみは自動実行対象のまま(eligible=true)＋⚠デプロイ注意表示。判定をfactoryManaged/approvalRequired/riskLevel/displayBadgeの4概念に分離。autonomous+factoryEligible:trueは原則auto。",
       "changedFiles": [
         {
-          "path": "apps/ny01/CLAUDE.local.md",
-          "action": "modified"
+          "file": "lib/types/operations.ts",
+          "change": "FactoryEligibilityにapprovalRequired/riskLevel/cautionFlagsを追加。RiskLevel型(none/caution/approval)新設"
         },
         {
-          "path": ".claude/commands/focus.md",
-          "action": "modified"
+          "file": "lib/epic-contract.ts",
+          "change": "APPROVAL_RISK_FLAGS(deploy除外)とCAUTION_RISK_FLAGS(deploy)を定義。evaluateを4概念分離に再設計(deployは承認不要・auto維持)。describeFactoryにcautionLabel(⚠デプロイ注意)追加。FACTORY_BLOCKING_RISK_FLAGSは後方互換でAPPROVAL_RISK_FLAGSへ"
         },
         {
-          "path": "apps/ny01/progress/CODEX.md",
-          "action": "added"
+          "file": "app/epic/page.tsx",
+          "change": "一覧カードに⚠デプロイ注意チップを追加(主+副+注意の3チップ)"
+        },
+        {
+          "file": "app/epic/[epicId]/page.tsx",
+          "change": "詳細に注意チップ＋『自動実行対象のまま・承認不要』注意文を追加"
+        },
+        {
+          "file": "components/epic/EpicCreateForm.tsx",
+          "change": "riskFlags警告を分岐: 危険フラグ→要承認/ deploy→承認不要・デプロイ注意/ manual→対象外。一律Approval必須の文言を撤廃"
+        },
+        {
+          "file": "components/epic/EpicJsonImport.tsx",
+          "change": "インポートプレビューにデプロイ注意を併記"
         }
       ],
       "checks": {
-        "build": "未実施（運用ルール文書のみ変更）",
-        "typescript": "未実施（TS/実装コード変更なし）",
-        "lint": "未実施（運用ルール文書のみ変更）"
+        "typescript": "pass",
+        "build": "pass",
+        "lint": "pass",
+        "manual": "dev3019 HTTP200。/epicで要承認0・対象2件が⚙Factory対象+✅自律実行可+⚠デプロイ注意。詳細ページも同様で要承認0/対象外0。合成11ケースでbilling等6フラグ→要承認・deploy→auto・manual→対象外・approval_required→要承認を確認"
       },
       "errors": [],
       "warnings": [
-        "ユーザー許可により、taskPrompt内のprogress実データ変更禁止を今回のprogress反映で上書きした"
+        "Epic「AI工場オペレーションセンター」はdoneCriteria/priorityが未設定で構造的に不完全なため正しくFactory対象外。誤判定ではないためデータ捏造による補正はしない(ユーザーがdoneCriteria/priorityを補完すべき)",
+        "ny01作業ツリーに本件無関係の大量未コミット変更があり、巻き込み回避のためgit commit/pushは保留(前タスクと同様)。本タスク6ファイル+前タスク9ファイルをまとめて選択commit推奨",
+        "deployを自動実行対象に変更したため、deploy付きEpicはfactory-dispatch/runnerで自動dispatch候補になる(ユーザーの明示要望どおり。billing等の危険フラグは従来どおりブロック)",
+        "pm2本番progress(3010)は旧ビルドのまま。反映にはrebuild+pm2 restartが必要(ユーザー判断)"
       ],
-      "progressUpdated": true,
+      "progressUpdated": false,
       "nextActions": [
-        "着手判定とToDo管理を/tasksに統合し完了タスクをアーカイブ化する"
+        "ユーザー判断: 前タスク+本タスクの計15ファイルを選択commit/push(無関係WIP・データJSON除外)",
+        "pm2 restart progress で本番反映",
+        "AI工場オペレーションセンターEpicにdoneCriteria/priorityを補完してFactory対象化"
       ],
-      "rawReport": "1 task = 1 review = 1 execution-run を Claude Code向け CLAUDE.local.md、/focus コマンド、Codex向け CODEX.md に明記。複数work-queueアイテムのレビュー統合とExecutionRun統合を禁止し、autoOrderごとの個別完了・個別レビュー・個別POSTを必須化。API/UI実装コード、ポート設定、他アプリは未変更。"
+      "rawReport": "■原因: 前段修正(runId 20260608-133645)でriskFlagsを1つでも持てば一律approval(要承認)にしていた。deployもapproval扱いだったため、通常のアプリ改修・UI追加・URL一覧追加など(deploy付き)が軒並み要承認になり承認過多に。■切り分け: 実データは正しい(autonomous/factoryEligible:true)。判定ロジックの粒度が粗いことが原因。■修正: riskFlagsを2分割。APPROVAL_RISK_FLAGS=billing/production_db/auth_secret/migration/destructive/external_publish(要承認)、CAUTION_RISK_FLAGS=deploy(承認不要・注意のみ)。evaluateFactoryEligibilityを4概念に分離: factoryManaged(工場処理可)/approvalRequired(人間承認要)/riskLevel(none/caution/approval)/displayBadge(describeFactory)。deploy単独→eligible=true(auto)+riskLevel=caution+⚠デプロイ注意。危険6フラグ→approvalRequired=true(要承認)。manual→excluded。autonomous+factoryEligible:true+危険フラグなし→auto。eligible(実行ゲート)はautoのみtrue。■検証: tsc0err/build成功(41/41)/eslint0err。dev3019でHTTP200、/epic要承認0件・対象2件が⚙Factory対象+✅自律実行可+⚠デプロイ注意、詳細ページ対象外0/要承認0。合成11ケースで全分岐確認(billing/production_db/auth_secret/migration/destructive/external_publish→要承認、deploy→auto、deploy+billing→要承認+注意併記、空→auto、approval_required→要承認、manual→対象外)。■補正した既存Epic: なし(2件は元から正しいデータ・誤判定はロジック由来)。AI工場オペセンEpicはdoneCriteria/priority未設定で正しく対象外(データ捏造補正はしない)。■未対応: commit/push保留(無関係WIP)・pm2 restart要・AI工場Epicの契約補完。"
     },
     {
-      "runId": "run20260504-2034-json-import-add-to-today",
-      "startedAt": "2026-05-04T20:18:53+09:00",
-      "finishedAt": "2026-05-04T20:34:27+09:00",
-      "targetApp": "ny01/progress",
-      "targetTodoId": "task-company-mgmt-1777866048345",
-      "targetTodoTitle": "json取り込み時に、今日の作業対象にするか否かのチェックボックスを追加して。初期は追加するでチェック済みにする",
+      "runId": "20260608-173559",
+      "startedAt": "2026-06-08T08:35:59.395Z",
+      "finishedAt": "2026-06-08T08:35:59.395Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "実行プロンプトの禁止事項からdeployを除外（注意扱いへ）・riskFlags連動の安全ガード共通化",
       "runStatus": "completed",
-      "reviewStatus": "copied",
-      "beforeStatus": "todo",
-      "afterStatus": "done",
-      "promptUsed": "JSON取り込み時に、今日の作業対象にするか否かのチェックボックスを追加。初期は追加するでチェック済みにする。",
-      "summary": "JSON一括取り込みのプレビュー保存画面に、初期ONの『今日の作業対象にする』チェックボックスを追加。保存成功後、返却されたtaskIdsを既存の/api/queue/add-from-taskへPOSTし、選択ToDoを今日の作業キューへ追加するようにした。保存結果にはキュー追加件数とスキップ件数も表示する。",
+      "reviewStatus": "not_reviewed",
+      "summary": "Factory判定はdeployを自動実行対象にしたが、Claude/Codexへ渡す実行プロンプトの禁止事項にdeployがハードコードで残っていた（factory-dispatch.ts:178 と operations-store CODEX_SAFETY_GUARD）。riskFlags連動の共通ガード buildExecutionGuard を新設し、deployは禁止ではなく[6-1]注意事項『デプロイ注意（実装/build/lint/typecheck/必要なpushまで可・本番反映は事後報告）』に変更。課金/本番DB/認証/migration/destructive/外部公開は禁止のまま。",
       "changedFiles": [
         {
-          "file": "components/tasks/JsonImportManager.tsx",
-          "change": "addToToday state、保存後キュー追加処理、チェックボックスUI、保存結果表示を追加"
+          "file": "lib/epic-contract.ts",
+          "change": "buildExecutionGuard(riskFlags)を新設。forbidden（課金/本番DB/認証/migration/destructive/外部公開/.env等）とcautions（deploy=注意）を分離生成する単一ソース"
+        },
+        {
+          "file": "lib/factory-dispatch.ts",
+          "change": "generateClaudeFactoryPromptの[6]禁止事項をbuildExecutionGuard駆動に変更。deployを禁止リストから除去し[6-1]注意事項に移動"
+        },
+        {
+          "file": "lib/operations-store.ts",
+          "change": "CODEX_SAFETY_GUARD(静的)をcodexSafetyGuard(riskFlags)に変更。deployを『してはいけない』から除去しdeploy時は注意行を追加。generateCodexPromptがepic.riskFlags連動でガード生成"
         }
       ],
       "checks": {
-        "lint": "OK: npm run lint",
-        "build": "OK: npm run build",
-        "mainScreen": "OK: /tasks/import HTTP 200 after pm2 restart"
+        "typescript": "pass",
+        "build": "pass",
+        "lint": "pass",
+        "manual": "PROGRESS_DATA_PATH=data/real でテストEpic実測。deployのみEpic→candidates入り＆picked＆プロンプトにdeploy禁止文言なし([6-1]デプロイ注意のみ)。本物epic-progress-url/epic-progress-todoもcandidates入り・deploy禁止系なし。billingはsafetyStatus=blocked(要承認)維持。検証後データ完全復元(real diff一致/TEST=0/sample汚染除去)"
       },
       "errors": [],
       "warnings": [
-        "progress ディレクトリはny01 git上で未追跡扱いのためgit diffでは差分確認不可",
-        "shogi-kakoi-trainer build確認はキュー外作業で、Turbopackがサンドボックス内ポート制限により失敗。今回タスクには影響なし"
+        "ny01作業ツリーに本件無関係の大量未コミット変更があり、git commit/pushは前タスク同様に保留(累計18ファイル選択commit推奨)",
+        "pm2本番progress(3010)は旧ビルドのまま。反映にはrebuild+pm2 restartが必要",
+        "CODEX_DENY_SIGNALS(タイトルキーワードのdeploy/デプロイ)は意図的に変更せず。deployタイトルのタスクは引き続きCodex非委譲でClaude実行に回る(安全側維持)"
+      ],
+      "progressUpdated": false,
+      "nextActions": [
+        "ユーザー判断: 前々タスク9+前タスク6+本タスク3=計18ファイルを選択commit/push",
+        "pm2 restart progress で本番反映",
+        "AI工場オペセンEpicのdoneCriteria/priority補完"
+      ],
+      "rawReport": "■確認結果: deploy禁止文言が2箇所に残存。(1)factory-dispatch.ts:178 Claude Factoryプロンプト[6]禁止事項『課金/本番DB/認証情報/deploy/migration/destructive/secret・token・.env操作をしない』。(2)operations-store CODEX_SAFETY_GUARD『Codexで実行してはいけない作業:…deploy…』。どちらもdeployをハード禁止していた。■修正: lib/epic-contract.tsにbuildExecutionGuard(riskFlags)を新設(forbidden[]とcautions[]を分離。deployはcautionへ、課金/本番DB/認証/migration/destructive/外部公開/.envはforbiddenのまま)。factory-dispatchはこのヘルパーで[6]禁止事項を生成し、deploy時のみ[6-1]注意事項を追加。operations-storeはcodexSafetyGuard(riskFlags)化しdeployを禁止から除外・注意行追加。CODEX_DENY_SIGNALS(タイトル語)は不変で安全側維持。■検証(data/real実測): deployのみtest-deploy-only→candidates入り=true・picked・プロンプトにdeploy禁止系=出ない([6-1]デプロイ注意のみ)。本物epic-progress-url/epic-progress-todo→candidates入り=true・deploy禁止系=出ない。billing→safetyStatus=blocked(要承認)維持。tsc0err/build成功41-41/eslint0err。テストEpicは検証後削除しreal/sample完全復元。■URL一覧/動作確認Todoは実行可能=Factory candidates入り＆Claude実行プロンプト上もdeployで止まらない。"
+    },
+    {
+      "runId": "20260608-184752",
+      "startedAt": "2026-06-08T09:47:52.016Z",
+      "finishedAt": "2026-06-08T09:47:52.016Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "Factory判定修正を本番反映（commit/push + rebuild + pm2 restart）",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "進行中だったprogressアプリのFactory機能ソース一式(95ファイル)をcommit 9e6af71としてpushし、rebuild+pm2 restartで本番(3010)へ反映。本番でURL一覧Epic・動作確認TodoEpicがFactory candidatesに入り、dispatch ok・claude_factoryプロンプト生成・deploy禁止文言なし(デプロイ注意)を確認。孤立commitは依存破綻で不可能なため、他アプリ・data・ビルド成果物を除いたprogressソース一式をcoherentにコミット。",
+      "changedFiles": [
+        {
+          "file": "progress/lib/epic-contract.ts ほかFactory判定",
+          "change": "4概念分離・riskFlags2分割・buildExecutionGuard（本セッション修正）"
+        },
+        {
+          "file": "progress/ (95ファイル source一式)",
+          "change": "進行中のFactory/recommended/automation機能を含めcommit 9e6af71でpush。data/と他アプリは除外"
+        }
+      ],
+      "checks": {
+        "typescript": "pass",
+        "build": "pass (41/41)",
+        "lint": "pass",
+        "manual": "本番3010: GET /epic=200, factory-dispatch scan candidatesにepic-progress-url/epic-progress-todo, 個別plan safetyStatus=ok/executor=claude, dispatchプロンプトにdeploy禁止文言なし・デプロイ注意あり, factory-run dry_run=200"
+      },
+      "errors": [],
+      "warnings": [
+        "commit 9e6af71はprogressアプリのFactory機能WIP一式(95ファイル)を含む。孤立commitはapp/epic/page.tsx→未追跡FactoryGuideModal/FactoryStatusBar等の依存連鎖で不可能だったため、coherentな最小単位=progressソース一式とした。他アプリ(news-app/ai-trend-sns/anglerlog/birdlog)とdata/実行時JSONは除外",
+        "実auto実行(mode:auto+confirm)は未実施。autonomousなコード改変を伴うため候補確認・dispatchプロンプト生成・dry_runまでに留めた。実行はユーザー判断でFactory UI/factory-run autoから",
+        "AI工場オペセンEpic(epic-91)はdoneCriteria/priority未設定で正しくFactory対象外(候補外)。データ捏造補正はせず"
+      ],
+      "progressUpdated": false,
+      "nextActions": [
+        "必要なら mode:auto+confirm で URL一覧/動作確認Todo を実起動（autonomousコード改変が走る点に留意）",
+        "AI工場オペセンEpicのdoneCriteria/priority補完で候補化",
+        "data/real実行時JSONのgit追跡方針の整理（現状一部tracked/一部untracked）"
+      ],
+      "rawReport": "■目的: 3セッション分のFactory判定修正(deploy=注意化/承認過多解消/プロンプト整合)を本番反映し、URL一覧/動作確認TodoをFactory自動実行可能にする。■commit/push: 孤立commitは不可能(app/epic/page.tsxが未追跡FactoryGuideModal/FactoryStatusBarに依存し連鎖)。coherent最小単位としてprogressソース95ファイルをstage(他アプリ・data/・.next・tsbuildinfoは除外)→機密スキャンclean(.env/.key/secret無し、docs/factory-scheduleのsystemd/crontabはコメントアウト/dry_runのテンプレのみ)→commit 9e6af71→push origin main成功(d30959e..9e6af71)。■rebuild+restart: npm run build成功(41/41)→pm2 restart progress(restarts=1/online)→GET /epic=200。■本番検証(live 3010): /epicバッジ=⚙Factory対象12/✅自律実行可12/⚠デプロイ注意4/🛡要承認0/🚫対象外2。factory-dispatch scan: factoryEnabled=true, candidates=[epic-birdlog, epic-progress-url, epic-progress-todo], blocked=[epic-91:doneCriteria/priority未設定]。URL一覧・動作確認Todoとも個別plan safetyStatus=ok/executor=claude/promptType=claude_factory/blockedReason=なし。dispatchプロンプト生成: deploy禁止文言=出ない/デプロイ注意=あり。factory-run dry_run=200。■data非破壊: data/はコミット外、検証中のテストEpicは前セッションで削除済み・本セッションはdata未変更。■未実施: 実auto実行(autonomousコード改変のため候補確認・プロンプト生成・dry_runに留めた)。"
+    },
+    {
+      "runId": "20260608-123610",
+      "startedAt": "2026-06-08T12:36:10.667Z",
+      "finishedAt": "2026-06-08T12:36:10.667Z",
+      "targetApp": "progress",
+      "epicId": "epic-progress-url",
+      "targetTodoTitle": "progressアプリに全アプリURL一覧を追加する",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "codex",
+      "executorUsed": "codex",
+      "factoryRun": true,
+      "runnerMode": "manual",
+      "factoryDispatch": true,
+      "dispatchMode": "manual_copy",
+      "dispatchPlanId": "manual-codex-epic-progress-url-20260608",
+      "executorCandidate": "codex",
+      "promptGenerated": false,
+      "resultReturned": true,
+      "summary": "/app-urls を追加し、app-urls.json のURL台帳からアプリ名・用途・repo/path・Vercel URL・local/dev URL・状態・最終確認日を表示。未確認URLは推測せず未確認として登録し、Epic作成時の更新メモも台帳に保存。",
+      "changedFiles": [
+        {
+          "file": "progress/app/app-urls/page.tsx",
+          "change": "URL台帳一覧ページを追加"
+        },
+        {
+          "file": "progress/lib/app-urls.ts",
+          "change": "app-urls.json の型と読み込み関数を追加"
+        },
+        {
+          "file": "progress/data/real/app-urls.json",
+          "change": "既存アプリのURL台帳と運用メモを追加"
+        },
+        {
+          "file": "progress/data/sample/app-urls.json",
+          "change": "sample用フォールバック台帳を追加"
+        },
+        {
+          "file": "progress/components/navigation/TopNav.tsx",
+          "change": "URLページへの導線を追加"
+        },
+        {
+          "file": "progress/components/navigation/BottomNav.tsx",
+          "change": "モバイルURL導線を追加"
+        }
+      ],
+      "checks": {
+        "build": "pass (next build)",
+        "typescript": "next build typecheck pass",
+        "manual": "npx tsc --noEmit は既存 .next/types 欠損参照で失敗。next build 内の型検査は成功。",
+        "lint": "pass (next lint)",
+        "http": "pass (/app-urls 200 OK)"
+      },
+      "errors": [],
+      "warnings": [
+        "Vercel URL は未確認のため推測登録していない",
+        "同一 localhost:3000 のアプリは同時起動時にポート調整が必要"
       ],
       "progressUpdated": true,
       "nextActions": [
-        "次の今日の作業キューを確認する"
+        "未確認のVercel URLを人間確認後に app-urls.json へ追記",
+        "新規Epic作成時にtargetApps/relatedRepoをURL台帳へ反映"
       ],
-      "rawReport": "実施内容: components/tasks/JsonImportManager.tsx に初期ONの『今日の作業対象にする』チェックボックスを追加。handleSaveで/api/tasks保存成功後、data.taskIdsを/api/queue/add-from-taskへ送信し、今日の作業キューへ追加する処理を追加。キュー追加成功・スキップ件数を保存結果に表示。検証: npm run lint 成功、npm run build 成功、pm2 restart progress 実施、http://127.0.0.1:3010/tasks/import がHTTP 200を返すことを確認。進捗更新: 対象ToDoとwork-queue itemをdoneへ更新済み。"
+      "rawReport": "epic-progress-url を消化。/app-urls ページ、app-urls.json 台帳、ナビ導線を追加。npm run build 成功。"
+    },
+    {
+      "runId": "20260608-135049",
+      "startedAt": "2026-06-08T13:50:49.781Z",
+      "finishedAt": "2026-06-08T13:50:49.781Z",
+      "targetApp": "progress",
+      "epicId": "epic-progress-url",
+      "targetTodoTitle": "URL一覧のlocalhost:3000誤登録を緊急修正",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "codex",
+      "executorUsed": "codex",
+      "summary": "URL一覧をURL種別ごとの配列へ変更し、根拠なしlocalhost:3000を未確認へ戻した。NetScopeはPM2/curl/ss根拠付きでVPS 3000・8080・8888・APIを表示し、news-appはVercel/Localとも未確認に補正。",
+      "changedFiles": [
+        {
+          "file": "progress/app/app-urls/page.tsx",
+          "change": "URL種別・確認状態・根拠を表示するカードUIへ変更"
+        },
+        {
+          "file": "progress/lib/app-urls.ts",
+          "change": "AppUrlRecord / kind / confidence を追加"
+        },
+        {
+          "file": "progress/data/real/app-urls.json",
+          "change": "根拠なしlocalhost:3000を未確認に戻し、確認済みURLだけconfirmed化"
+        },
+        {
+          "file": "progress/data/sample/app-urls.json",
+          "change": "新スキーマの空サンプルへ更新"
+        }
+      ],
+      "checks": {
+        "lint": "pass (next lint)",
+        "typecheck": "pass (npx tsc --noEmit)",
+        "build": "pass (next build)",
+        "http": "pass (/app-urls 200 OK)",
+        "data": "pass: NetScope以外の根拠なし localhost:3000 は0件"
+      },
+      "errors": [],
+      "warnings": [
+        "Vercel MCP/API は team scope 403 Forbidden のため、news-app/shogi の deployment URLは未確認のまま",
+        "Scrape Lab 3030 は package/README資料ベースであり、現在稼働確認済みではない",
+        "専用ブラウザツールは露出していないため、スマホ実機スクリーンショット確認は未実施"
+      ],
+      "progressUpdated": true,
+      "nextActions": [
+        "Vercel再認証後に deployment URL を取得して台帳へ反映",
+        "必要なら各アプリを個別起動して Local Dev URL を confirmed に昇格",
+        "URL台帳を手入力ではなく pm2/ss/vercel/project metadata から生成する仕組みにする"
+      ],
+      "rawReport": "原因: 前回台帳作成時に create-next-app READMEや next dev のデフォルトを実URL扱いしたため localhost:3000 が多発。修正: URLを種別・confidence・evidence付きに正規化し、不明URLは未確認へ戻した。"
+    },
+    {
+      "runId": "20260608-230014",
+      "startedAt": "2026-06-08T14:00:14.601Z",
+      "finishedAt": "2026-06-08T14:00:15.115Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新2",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "monetization_sync",
+      "trigger": "systemd",
+      "summary": "Vault走査 107 ファイル / 新規追加 0 件 / 既存追記 2 件 / skip 10 件",
+      "changedFiles": [
+        {
+          "file": "data/real/monetization-candidates.json",
+          "change": "追加0/更新2"
+        }
+      ],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=107 added=[] updated=[釣果ログ AnglerLog, 野鳥観察ノート BirdLog] skipped=10. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    },
+    {
+      "runId": "20260608-230534",
+      "startedAt": "2026-06-08T14:05:34.389Z",
+      "finishedAt": "2026-06-08T14:05:34.389Z",
+      "targetApp": "birdlog",
+      "epicId": "epic-birdlog-mvp-local-first-",
+      "targetTodoTitle": "Factory(auto): 野鳥観察ノート BirdLog の MVP を作る（local-first / API不要）",
+      "runStatus": "partial",
+      "reviewStatus": "not_reviewed",
+      "source": "schedule",
+      "executorUsed": "claude",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "factoryDispatch": true,
+      "dispatchMode": "auto",
+      "dispatchPlanId": "dp-epic-birdlog-mvp-local-first--mq5a2xxr",
+      "executorCandidate": "claude",
+      "promptGenerated": true,
+      "resultReturned": true,
+      "runIndex": 1,
+      "nextActionCount": 0,
+      "summary": "（出力なし）",
+      "changedFiles": [],
+      "checks": {
+        "typescript": "OK",
+        "lint": "OK"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-runner auto] executor=claude\n（出力なし）",
+      "doneCriteriaStatus": "continue",
+      "stopReason": "max_runs_reached",
+      "trigger": "systemd"
+    },
+    {
+      "runId": "20260608-230535",
+      "startedAt": "2026-06-08T14:00:14.600Z",
+      "finishedAt": "2026-06-08T14:05:35.008Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "Factory schedule (schedule/systemd)",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "schedule",
+      "trigger": "systemd",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "stopReason": "max_runs_reached",
+      "summary": "Factory 起動: 1 Run 実行 / 停止理由=max_runs_reached（schedule/systemd）",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260608-230534"
+    },
+    {
+      "runId": "20260608-235115",
+      "startedAt": "2026-06-08T14:51:15.833Z",
+      "finishedAt": "2026-06-08T14:51:15.833Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "URL一覧をiPhone確認用に作り直し（localhost非表示・iPhone確認URL最優先・フィルタ追加）",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "アプリURL一覧をiPhoneから確認できるURL一覧に再設計。URL文字列とkindからiPhone到達性を機械分類し公開URLを最優先表示、localhost等は補助情報へ折りたたみ。",
+      "changedFiles": [
+        {
+          "file": "lib/app-urls.ts",
+          "change": "IphoneAccess型・classifyRecordAccess・enrichApp/enrichAppUrls追加"
+        },
+        {
+          "file": "components/app-urls/AppUrlsBoard.tsx",
+          "change": "新規クライアントコンポーネント。iPhone確認URL最優先表示・localhost折りたたみ・バッジ・フィルタ"
+        },
+        {
+          "file": "app/app-urls/page.tsx",
+          "change": "enrich+AppUrlsBoard描画の薄いサーバーコンポーネントに作り直し"
+        }
+      ],
+      "checks": {
+        "build": "pass",
+        "typescript": "pass",
+        "lint": "pass"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "公開URLが必要なアプリのVercel化または公開VPS URL確認",
+        "Vercel API 403で取得できなかったアプリのdeployment URL確認"
+      ],
+      "rawReport": "## 目的\niPhone Safari/アプリから動作確認するためのURL一覧なのに、多くのアプリがlocalhost:3000等を主要URLとして表示しており、iPhoneから開けず確認用一覧として機能していなかった。\n\n## 原因\nlib/app-urls.tsのスキーマはkind(vercel/vps/local_dev/...)とconfidenceは持つが、URLが実際にiPhoneから到達可能かという概念が無く、UI(app/app-urls/page.tsx)はlocalhostもVercelも同列のクリック可能URLとして並べていた。VPS内のpm2でlocalhostバインドしているNetScope(localhost:3000/8080/8888)やprogress(localhost:3010)も主要URL扱いになっていた。\n\n## 実施内容\n1. lib/app-urls.ts: IphoneAccess(ok/blocked/unknown)型とclassifyRecordAccess()追加。URLのhostがlocalhost/127.0.0.1/0.0.0.0/::1/プライベートIP(10./192.168./172.16-31.)ならblocked、kind=ssh_port_forwardもblocked、url未確認はunknown、それ以外(公開host)はok。\n2. enrichApp()/enrichAppUrls(): アプリ単位で公開URL(ok)を選好順(vercel>vps>api>...)で集約しiphonePrimaryを決定。公開URLが無くblockedがあればactionHint=要Vercel化/要公開URL確認、全unknownなら要公開URL確認。\n3. components/app-urls/AppUrlsBoard.tsx(新規・クライアント): iPhone確認URLを緑枠で最優先表示(iPhoneで開くボタン)、無ければiPhone直接確認不可表示+actionHintバッジ。localhost/内部ポート/未確認枠はdetailsで折りたたみ+iPhone直接不可バッジ。iPhone確認可否バッジ。すべて/iPhoneで見れる/直接不可/未確認のフィルタ+件数、ok→blocked→unknown順ソート。\n4. app/app-urls/page.tsx: enrichして件数内訳とiPhone確認用一覧である旨のヘッダー+AppUrlsBoardへ委譲する薄いサーバーコンポーネントに作り直し。\n\n## 検証\n- npx tsc --noEmit: pass(exit0)\n- npx next lint: No ESLint warnings or errors\n- npx next build: 成功(/app-urls 2.78kB ƒ dynamic)\n- 実データ分類確認: NetScope=blocked(primaryなし)/progress=blocked/news-app=unknown/全12件でlocalhostがprimaryに昇格しないことを確認\n\n## iPhone確認可否(現状)\n- iPhone確認OK(公開URL所持): 0件(推測でURLを作らない方針のため正直に0)\n- iPhone直接不可: progress, Scrape Lab, NetScope\n- 未確認: mahjong, ny-ai, 将棋囲いトレーナー, BirdLog, memo, ny-note, Dashboard, note, news-app\n\n## 次にやるべきこと\n- 公開URLが必要なアプリのVercel化/公開VPS URL確認\n- Vercel API 403で取れなかった shogi-kakoi-trainer/news-app/map のdeployment URL確認\n\n(monetizationImpact: low / theme: [workflow] / obsidianSummary: progressのURL一覧をiPhone到達性で分類しlocalhostを補助情報化、確認URLは公開URLのみ表示に再設計 / obsidianSaveTarget: 20_reviews/2026-06-08_app-urls-iphone-view.md)"
+    },
+    {
+      "runId": "20260609-013044",
+      "startedAt": "2026-06-08T16:30:44.461Z",
+      "finishedAt": "2026-06-08T16:30:44.461Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "Epic完了: URL一覧をiPhone確認用のVPS公開URL形式に修正（epic-url-iphone-vps-url）",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "VPS稼働アプリ(0.0.0.0でLISTEN)を公開IP http://160.251.143.146:<port>/<path> 形式で登録しiPhone確認URL化。localhostはvps_internal内部URLへ格下げ。progress/NetScopeがiPhone確認OKに昇格。Epic epic-url-iphone-vps-url を done/100に更新、pm2 progress再起動でライブ反映確認。",
+      "changedFiles": [
+        {
+          "file": "progress/lib/app-urls.ts",
+          "change": "AppUrlKindにvps_internal追加・優先度反映"
+        },
+        {
+          "file": "progress/components/app-urls/AppUrlsBoard.tsx",
+          "change": "VPS内部URLラベル追加・vps=VPS公開URLにリネーム"
+        },
+        {
+          "file": "data/real/app-urls.json",
+          "change": "progress/NetScopeに公開IP160.251.143.146:<port>/<path>のvps主URL追加、localhostをvps_internal内部URLへ格下げ、operationMemo更新（運用データ・コミット対象外）"
+        },
+        {
+          "file": "data/real/epics.json",
+          "change": "epic-url-iphone-vps-urlをdone/100に更新（運用データ・コミット対象外）"
+        }
+      ],
+      "checks": {
+        "build": "pass",
+        "typescript": "pass",
+        "lint": "pass"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": true,
+      "nextActions": [
+        "iPhone実機で公開IP URL(3010/app-urls・3000/packets・8080・8888)を開き外部FW/SG開放を確認",
+        "news-app等未起動アプリのVercel化または起動+公開URL整備"
+      ],
+      "rawReport": "## 背景\n直前のapp-urls作業(runId 20260608-235115)はlocalhostを一律blocked化しただけで、Epic epic-url-iphone-vps-url の完了条件『VPS稼働アプリを http://160.251.143.146:<port>/<path> 形式で登録』が未達だった。/vloopでこのEpicを完了まで消化。\n\n## 調査(実測)\n- 公開IP: 160.251.143.146\n- ss -ltnp: 0.0.0.0/* でLISTEN = 3000(next-server /root/map/web=NetScope), 3002(vite hack-lab=registry外), 3010(progress), 8080/8888(docker-proxy Werkzeug=NetScope分析/訓練). 3030(Scrape Lab)はLISTENなし=未起動\n- curl 公開IP: http://160.251.143.146:{3010/app-urls,3000/packets(/ は307→/packets),3000/api/stats,8080/,8888/} すべて200(VPS内から公開IPバインド応答確認)\n\n## 実装\n- lib/app-urls.ts: AppUrlKindに vps_internal 追加。PUBLIC_KIND_PRIORITYに反映。公開IP(160.x)は非プライベートのためclassifyRecordAccessでok判定(既存ロジックで対応)\n- components/app-urls/AppUrlsBoard.tsx: vps_internalラベル=VPS内部URL追加、vpsラベルをVPS公開URLに変更\n- data/real/app-urls.json: progress/NetScopeに公開IP vps URLを主URL(confirmed)で追加、localhostをvps_internal内部URL(iPhone直接不可)へ格下げ。NetScope web UIは/packets、Stats APIは/api/stats、8080/8888は公開IP化。Scrape Labは未起動明記。operationMemoを公開IP方針に更新\n- data/real/epics.json: epic-url-iphone-vps-url を status=done/progress=100に更新、remainingWork=iPhone実機での外部FW開放確認\n\n## 検証\n- tsc --noEmit: pass(exit0) / next lint: 0 warnings/errors / next build: Compiled successfully(/app-urls 2.8kB)\n- 分類再実測(12件): iPhone確認OK=2(progress/NetScope公開IP) / 直接不可=1(Scrape Lab localhost未起動) / 未確認=9\n- pm2 restart progress(online,restarts=4) → curl live /app-urls: 公開IP URL7件・iPhone確認URL15・iPhone直接不可16・VPS内部URL3 を確認\n\n## Epic完了条件 充足\n1.メインURLがlocalhostでなくiPhone確認URL=OK(progress/NetScopeは公開IP) 2.VPS稼働は160.251.143.146:<port>/<path>形式=OK 3.localhostはvps_internal補助格下げ=OK 4.localhostをVPS URLとして表示しない=OK(kind分離) 5.iPhone不可に内部URL/iPhone直接不可表示=OK 6.NetScope/news-app/progress実ポート実パス再調査=OK(news-appは未起動でunknown維持) 7.URL根拠pm2/ss/curl表示=OK 8.build/lint/typecheck=OK\n\n## 未対応/次の一手\n- iPhone実機での外部到達(FW/SG開放)確認は実機が必要なためremainingWorkに記録\n- news-app等未起動アプリのVercel化/起動+公開は別Epic\n\n(monetizationImpact: low / theme: [workflow] / obsidianSummary: VPS稼働アプリを公開IP160.251.143.146形式でiPhone確認URL化、localhostは内部URL格下げ、Epic epic-url-iphone-vps-url完了 / obsidianSaveTarget: 20_reviews/2026-06-09_app-urls-vps-public-url.md)"
+    },
+    {
+      "runId": "20260609-110008",
+      "startedAt": "2026-06-09T02:00:08.486Z",
+      "finishedAt": "2026-06-09T02:00:09.173Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "monetization_sync",
+      "trigger": "systemd",
+      "summary": "Vault走査 109 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=109 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    },
+    {
+      "runId": "20260609-110523",
+      "startedAt": "2026-06-09T02:05:23.187Z",
+      "finishedAt": "2026-06-09T02:05:23.187Z",
+      "targetApp": "news-app",
+      "epicId": "epic-vault",
+      "targetTodoTitle": "Factory(auto): ニュースアプリのVault日次更新反映不具合を調査・修正する",
+      "runStatus": "partial",
+      "reviewStatus": "copied",
+      "source": "schedule",
+      "executorUsed": "claude",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "factoryDispatch": true,
+      "dispatchMode": "auto",
+      "dispatchPlanId": "dp-epic-vault-mq5zsqq8",
+      "executorCandidate": "claude",
+      "promptGenerated": true,
+      "resultReturned": true,
+      "runIndex": 1,
+      "nextActionCount": 0,
+      "summary": "（出力なし）",
+      "changedFiles": [],
+      "checks": {
+        "typescript": "OK",
+        "lint": "OK"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-runner auto] executor=claude\n（出力なし）",
+      "doneCriteriaStatus": "continue",
+      "stopReason": "max_runs_reached",
+      "trigger": "systemd"
+    },
+    {
+      "runId": "20260609-110523",
+      "startedAt": "2026-06-09T02:00:08.485Z",
+      "finishedAt": "2026-06-09T02:05:23.900Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "Factory schedule (schedule/systemd)",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "schedule",
+      "trigger": "systemd",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "stopReason": "max_runs_reached",
+      "summary": "Factory 起動: 1 Run 実行 / 停止理由=max_runs_reached（schedule/systemd）",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260609-110523"
+    },
+    {
+      "runId": "20260609-140007",
+      "startedAt": "2026-06-09T05:00:07.280Z",
+      "finishedAt": "2026-06-09T05:00:08.443Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "monetization_sync",
+      "trigger": "systemd",
+      "summary": "Vault走査 109 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=109 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    },
+    {
+      "runId": "20260609-140523",
+      "startedAt": "2026-06-09T05:05:23.144Z",
+      "finishedAt": "2026-06-09T05:05:23.144Z",
+      "targetApp": "news-app",
+      "epicId": "epic-vault",
+      "targetTodoTitle": "Factory(auto): ニュースアプリのVault日次更新反映不具合を調査・修正する",
+      "runStatus": "partial",
+      "reviewStatus": "not_reviewed",
+      "source": "schedule",
+      "executorUsed": "claude",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "factoryDispatch": true,
+      "dispatchMode": "auto",
+      "dispatchPlanId": "dp-epic-vault-mq6687ij",
+      "executorCandidate": "claude",
+      "promptGenerated": true,
+      "resultReturned": true,
+      "runIndex": 1,
+      "nextActionCount": 0,
+      "summary": "（出力なし）",
+      "changedFiles": [],
+      "checks": {
+        "typescript": "OK",
+        "lint": "OK"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-runner auto] executor=claude\n（出力なし）",
+      "doneCriteriaStatus": "continue",
+      "stopReason": "max_runs_reached",
+      "trigger": "systemd"
+    },
+    {
+      "runId": "20260609-140524",
+      "startedAt": "2026-06-09T05:00:07.266Z",
+      "finishedAt": "2026-06-09T05:05:24.041Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "Factory schedule (schedule/systemd)",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "schedule",
+      "trigger": "systemd",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "stopReason": "max_runs_reached",
+      "summary": "Factory 起動: 1 Run 実行 / 停止理由=max_runs_reached（schedule/systemd）",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260609-140523"
+    },
+    {
+      "runId": "20260609-204723",
+      "startedAt": "2026-06-09T11:47:23.378Z",
+      "finishedAt": "2026-06-09T11:47:23.378Z",
+      "targetApp": "news-app",
+      "epicId": "epic-vault",
+      "targetTodoTitle": "市場調査ビューのVault更新停止を調査・修正",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "停止箇所=(1)研究ビュー機能一式が未コミットでVercel未反映 (2)同梱content/researchが2026-05-27で凍結。Vault(06_research)から同梱を06-09まで同期、sync:research/prebuild追加、未コミット機能含めcommit 7328f42 push。VPSライブはrootKind=Vault本体/最新日付06-09/status=最新を確認。",
+      "changedFiles": [
+        {
+          "file": "news-app/scripts/sync-research-content.mjs",
+          "change": "新規同期スクリプト"
+        },
+        {
+          "file": "news-app/package.json",
+          "change": "sync:research/prebuild追加"
+        },
+        {
+          "file": "news-app/content/research/**",
+          "change": "05-27→06-09へ55ファイル同期"
+        },
+        {
+          "file": "news-app/lib/research,app/research,components/research",
+          "change": "未コミット研究ビュー機能を反映"
+        }
+      ],
+      "checks": {
+        "build": "pass",
+        "typescript": "pass",
+        "lint": "skip"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "Vercel再デプロイ確認",
+        "同期をデプロイ前フック/朝定期に組込",
+        "ESLint設定"
+      ],
+      "rawReport": "目的: Vault→集計→生成JSON→ニュースアプリ表示のどこで止まっているか特定し修正。\n\nデータフロー:\n- 表示: app/research/* (force-dynamic)\n- 集計: lib/research/vault.ts summarizeCategories/getResearchScanMeta\n- 参照先解決 resolveResearchRoot(): env VAULT_RESEARCH_ROOT > VAULT_LIVE_ROOT(/root/company/obsidian-vault/06_research) > 同梱 content/research\n- Vault原本: obsidian-sync-vault/06_research(06-09) と mirror obsidian-vault/06_research(06-09)\n\n停止箇所(2点):\n1. 研究ビュー機能(force-dynamic, ステータスバー, RescanButton, vault.ts live-root, topic/tag/todo, structured parser, summary.ts)が前回セッションでローカル実装されたまま未コミット→Vercel未反映。\n2. 同梱 content/research が 2026-05-27 で凍結。Vault本体を持たないVercelはfallbackで古い日付しか出せない。\n\n確認結果:\n- Vault最新=2026-06-09(news/tools/market/method-review全て)\n- 同梱は05-26,05-27のみ\n- news-appはpm2非稼働=Vercel運用。VPS port3000は別アプリ(/root/map/web)\n- obsidian-vault mirror は本日06-09 commit済みで新鮮\n\n修正:\n- scripts/sync-research-content.mjs 追加(破壊削除なし/dry-run対応)\n- 実行し55ファイル同期(05-27→06-09)\n- package.json sync:research/prebuild 追加で再凍結防止\n- 未コミット機能含めスコープしてcommit 7328f42, push origin main 成功\n\n検証: tsc 0エラー / next build成功(/research=Dynamic) / next start実画面で rootKind=Vault本体・最新06-09・status=最新 を確認。lintはESLint未設定で対話プロンプト→build内型チェックpassで代替。\n\nPhase4可視化: 既存実装で 最終更新(scannedAt)/最新日付(latestDate)/参照Vaultパス(root)/読込件数(totalDocs)/partial件数/更新ステータス/手動更新(RescanButton) は全て充足済み。今回コミットで本番反映。\n\n次の一手: Vercel再デプロイ確認 / 同期をデプロイ前フック・朝定期に組込 / ESLint設定。\n\nmonetizationImpact: low\ntheme: workflow, obsidian, market-research\nobsidianSaveTarget: 20_reviews/2026-06-09_news-app-vault-sync-fix.md"
+    },
+    {
+      "runId": "20260609-212534",
+      "startedAt": "2026-06-09T12:25:34.625Z",
+      "finishedAt": "2026-06-09T12:25:34.625Z",
+      "targetApp": "news-app",
+      "epicId": "epic-vault",
+      "targetTodoTitle": "epic-vault-4suq: 研究ビューのVault同期を自動化",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "Vercelは Vault本体を持たず同梱content/researchを読むため、朝07:00 hermes-market-researchフロー末尾にnews-app同期フックを追加。差分時のみcommit/push→Vercel自動再デプロイ。no-diff正常終了とbuild成功を確認。commit cddebca push。",
+      "changedFiles": [
+        {
+          "file": "news-app/scripts/auto-sync-research.sh",
+          "change": "新規:同期→差分時commit/push+機密スキャン+ログ"
+        },
+        {
+          "file": "news-app/docs/research-sync.md",
+          "change": "新規:Vault同期運用メモ"
+        },
+        {
+          "file": "scripts/hermes/run-market-research.sh",
+          "change": "朝フロー末尾にnews-app同期フック追加(git管理外/ライブ)"
+        }
+      ],
+      "checks": {
+        "build": "pass",
+        "typescript": "pass",
+        "lint": "skip(ESLint未設定)"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "次回07:00自動同期のログ確認",
+        "Vercel再デプロイ反映確認"
+      ],
+      "rawReport": "epic-vault-4suq doneCriteria対応。\n実装:\n- news-app/scripts/auto-sync-research.sh 新規: sync-research-content.mjsで同梱コピー同期→content/researchに差分があればny01へcommit/push。機密スキャン(高信頼度パターン)/想定外パス検知/専用ログ(/root/company/logs/news-app-research-sync.log)。force pushしない。\n- /root/company/scripts/hermes/run-market-research.sh 末尾にフック追加(sync-to-git-vaultの後)。このスクリプトはVPS稼働(systemd hermes-market-research.timer 毎朝07:00)で git管理外=編集が即ライブ反映。\n- news-app/docs/research-sync.md 運用メモ: 参照先解決(Vercel=同梱コピー)/同期スクリプト/朝フロー連携図/トラブルシュート。\n検証: bash -n 構文OK / 手動実行でno-diff正常終了(commitなし=差分時のみpush設計を実証) / npm run build成功(prebuildでsync実行)。\ndoneCriteria: sync:research実行方法/依存確認✓ / 朝フロー後に実行する仕組み追加✓ / 差分ある場合のみpush設計✓ / content最新確認✓ / 失敗時ログ✓ / Vercel前提をメモ明記✓ / build成功✓。\n次: 次回07:00の自動push→Vercel再デプロイをログで確認。"
+    },
+    {
+      "runId": "20260609-212602",
+      "startedAt": "2026-06-09T12:26:02.984Z",
+      "finishedAt": "2026-06-09T12:26:02.984Z",
+      "targetApp": "news-app",
+      "epicId": "epic-vault",
+      "targetTodoTitle": "epic-vercel: 研究ビューのVercel本番反映を確認",
+      "runStatus": "completed",
+      "reviewStatus": "needs_human",
+      "summary": "Vercel最新デプロイがReady(35分前/前回pushによる)。直前デプロイは10日前=05-30で停止と一致。本番 news-app-delta-lake.vercel.app/research=200/rootKind=同梱コピー/status=最新/最新日付2026-06-09(Vault側と一致)を確認。",
+      "changedFiles": [],
+      "checks": {
+        "build": "n/a",
+        "typescript": "n/a",
+        "lint": "n/a"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "iPhone実機で/research目視確認"
+      ],
+      "rawReport": "epic-vercel doneCriteria対応。\n確認:\n- vercel ls(ny1/news-app): 最新デプロイ ● Ready Production 35分前(前回タスクのpush起因)。その前は10日前=2026-05-30。10日間デプロイ無し=05-27凍結の直接原因と一致。\n- 生成URL(news-je90bprbv-ny1.vercel.app)はDeployment Protectionで401。本番エイリアス news-app-delta-lake.vercel.app は200。\n- 本番/research: rootKind=同梱コピー(Vercelは Vault本体無し=正常) / status=最新 / 最新日付=2026-06-09(Vault側06-09と一致)。\n- iPhone表示: 同エイリアスURL 200、mobile-first(max-w-lg)レイアウト。\ndoneCriteria: 最新デプロイ確認✓/本番/research確認✓/最新日付一致✓/ステータス正常✓/iPhone表示✓/progress記録✓。\n未対応: iPhone実機での目視は未(URL到達と構造は確認)。",
+      "reviewMemo": "[AI一次レビュー 2026-06-10 17:16] 判定=needs_human 理由=公開・デプロイ関連の作業（危険キーワード検知）。人間の確認を推奨。（rule=risk_keyword）",
+      "aiReview": {
+        "verdict": "needs_human",
+        "reason": "公開・デプロイ関連の作業（危険キーワード検知）。人間の確認を推奨。",
+        "rule": "risk_keyword",
+        "reviewedAt": "2026-06-10T17:16:31.248Z"
+      }
+    },
+    {
+      "runId": "20260609-212603",
+      "startedAt": "2026-06-09T12:26:03.159Z",
+      "finishedAt": "2026-06-09T12:26:03.159Z",
+      "targetApp": "news-app",
+      "epicId": "epic-vault",
+      "targetTodoTitle": "epic-vault: Vault日次更新反映不具合の調査・修正(完了確認)",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "summary": "前回runId 20260609-204723で調査・修正済(原因=未コミット機能+同梱05-27凍結、Vault→同梱06-09同期+push)。本epicのdoneCriteria(原因報告/最新反映/ステータスバー/手動更新ボタン/定期実行状況確認/build)を満たすことを確認しdone化。",
+      "changedFiles": [],
+      "checks": {
+        "build": "pass",
+        "typescript": "pass",
+        "lint": "skip"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "epic-vault は前回runId 20260609-204723 で実体作業完了。本runは doneCriteria 充足確認とepic done化。\ndoneCriteria: 参照Vaultパス/カテゴリマッピング/partial/キャッシュ/定期実行の調査と原因報告✓ / 最新日次(06-09)が反映✓ / ステータスバー(最終スキャン日時/参照パス/件数/最新日付/partial件数/更新ステータス)表示✓(既存実装) / 手動更新ボタン(RescanButton)✓ / 定期実行=未実装と確認しepic-vault-4suqでToDo化→実装✓ / build成功✓ / 最終報告に原因/変更ファイル/Vaultパス/最新日付/partial/定期実行状況/検証/未対応/次の一手を記載✓。\n関連: epic-vercel(本番反映確認), epic-vault-4suq(同期自動化)。",
+      "reviewMemo": "[AI一次レビュー 2026-06-10 17:16] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-06-10T17:16:31.238Z"
+      },
+      "reviewedAt": "2026-06-10T17:16:31.238Z"
+    },
+    {
+      "runId": "20260609-230005",
+      "startedAt": "2026-06-09T14:00:05.188Z",
+      "finishedAt": "2026-06-09T14:00:06.660Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新2",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "source": "monetization_sync",
+      "trigger": "systemd",
+      "summary": "Vault走査 110 ファイル / 新規追加 0 件 / 既存追記 2 件 / skip 10 件",
+      "changedFiles": [
+        {
+          "file": "data/real/monetization-candidates.json",
+          "change": "追加0/更新2"
+        }
+      ],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=110 added=[] updated=[釣果ログ AnglerLog, 野鳥観察ノート BirdLog] skipped=10. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。",
+      "reviewMemo": "[AI一次レビュー 2026-06-10 17:16] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-06-10T17:16:31.218Z"
+      },
+      "reviewedAt": "2026-06-10T17:16:31.218Z"
+    },
+    {
+      "runId": "20260609-230523",
+      "startedAt": "2026-06-09T14:05:23.611Z",
+      "finishedAt": "2026-06-09T14:05:23.611Z",
+      "targetApp": "birdlog",
+      "epicId": "epic-birdlog-mvp-local-first-",
+      "targetTodoTitle": "Factory(auto): 野鳥観察ノート BirdLog の MVP を作る（local-first / API不要）",
+      "runStatus": "partial",
+      "reviewStatus": "needs_followup",
+      "source": "schedule",
+      "executorUsed": "claude",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "factoryDispatch": true,
+      "dispatchMode": "auto",
+      "dispatchPlanId": "dp-epic-birdlog-mvp-local-first--mq6pinba",
+      "executorCandidate": "claude",
+      "promptGenerated": true,
+      "resultReturned": true,
+      "runIndex": 1,
+      "nextActionCount": 0,
+      "summary": "（出力なし）",
+      "changedFiles": [],
+      "checks": {
+        "typescript": "OK",
+        "lint": "OK"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-runner auto] executor=claude\n（出力なし）",
+      "doneCriteriaStatus": "continue",
+      "stopReason": "max_runs_reached",
+      "trigger": "systemd",
+      "reviewMemo": "[AI一次レビュー 2026-06-10 17:16] 判定=partial 理由=runStatus=partial（未完了の検証・作業が残っている）。継続または修復候補。（rule=run_partial）",
+      "aiReview": {
+        "verdict": "partial",
+        "reason": "runStatus=partial（未完了の検証・作業が残っている）。継続または修復候補。",
+        "rule": "run_partial",
+        "reviewedAt": "2026-06-10T17:16:31.214Z"
+      }
+    },
+    {
+      "runId": "20260609-230524",
+      "startedAt": "2026-06-09T14:00:05.181Z",
+      "finishedAt": "2026-06-09T14:05:24.617Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "Factory schedule (schedule/systemd)",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "source": "schedule",
+      "trigger": "systemd",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "stopReason": "max_runs_reached",
+      "summary": "Factory 起動: 1 Run 実行 / 停止理由=max_runs_reached（schedule/systemd）",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260609-230523",
+      "reviewMemo": "[AI一次レビュー 2026-06-10 17:16] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-06-10T17:16:31.228Z"
+      },
+      "reviewedAt": "2026-06-10T17:16:31.228Z"
+    },
+    {
+      "runId": "20260610-110004",
+      "startedAt": "2026-06-10T02:00:04.017Z",
+      "finishedAt": "2026-06-10T02:00:05.581Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "source": "monetization_sync",
+      "trigger": "systemd",
+      "summary": "Vault走査 110 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=110 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。",
+      "reviewMemo": "[AI一次レビュー 2026-06-10 17:16] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-06-10T17:16:31.194Z"
+      },
+      "reviewedAt": "2026-06-10T17:16:31.194Z"
+    },
+    {
+      "runId": "20260610-110523",
+      "startedAt": "2026-06-10T02:05:23.924Z",
+      "finishedAt": "2026-06-10T02:05:23.924Z",
+      "targetApp": "birdlog",
+      "epicId": "epic-birdlog-mvp-local-first-",
+      "targetTodoTitle": "Factory(auto): 野鳥観察ノート BirdLog の MVP を作る（local-first / API不要）",
+      "runStatus": "partial",
+      "reviewStatus": "needs_followup",
+      "source": "schedule",
+      "executorUsed": "claude",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "factoryDispatch": true,
+      "dispatchMode": "auto",
+      "dispatchPlanId": "dp-epic-birdlog-mvp-local-first--mq7f8iqp",
+      "executorCandidate": "claude",
+      "promptGenerated": true,
+      "resultReturned": true,
+      "runIndex": 1,
+      "nextActionCount": 0,
+      "summary": "（出力なし）",
+      "changedFiles": [
+        {
+          "file": "progress/_explore.py",
+          "change": ""
+        },
+        {
+          "file": "progress/_scan.py",
+          "change": ""
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "lint": "OK"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-runner auto] executor=claude\n（出力なし）",
+      "doneCriteriaStatus": "continue",
+      "stopReason": "max_runs_reached",
+      "trigger": "systemd",
+      "reviewMemo": "[AI一次レビュー 2026-06-10 17:16] 判定=partial 理由=runStatus=partial（未完了の検証・作業が残っている）。継続または修復候補。（rule=run_partial）",
+      "aiReview": {
+        "verdict": "partial",
+        "reason": "runStatus=partial（未完了の検証・作業が残っている）。継続または修復候補。",
+        "rule": "run_partial",
+        "reviewedAt": "2026-06-10T17:16:31.190Z"
+      }
+    },
+    {
+      "runId": "20260610-110524",
+      "startedAt": "2026-06-10T02:00:04.016Z",
+      "finishedAt": "2026-06-10T02:05:24.668Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "Factory schedule (schedule/systemd)",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "source": "schedule",
+      "trigger": "systemd",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "stopReason": "max_runs_reached",
+      "summary": "Factory 起動: 1 Run 実行 / 停止理由=max_runs_reached（schedule/systemd）",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260610-110523",
+      "reviewMemo": "[AI一次レビュー 2026-06-10 17:16] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-06-10T17:16:31.204Z"
+      },
+      "reviewedAt": "2026-06-10T17:16:31.204Z"
+    },
+    {
+      "runId": "20260610-123141",
+      "startedAt": "2026-06-10T03:31:41.700Z",
+      "finishedAt": "2026-06-10T03:31:41.700Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "アプリURL一覧でURLをユーザー編集できるようにする",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "summary": "URL台帳が読み取り専用だったため、画面からURLを手入力・追加・削除・保存できる編集UIとPATCH APIを追加。tsc/lint/build pass、一時データ複製でE2E確認、pm2 restartで本番3010反映。commit 3a33325 push。",
+      "changedFiles": [
+        {
+          "file": "progress/lib/app-urls.ts",
+          "change": "writeAppUrls/normalizeUrlInput/applyAppUrlEdit追加"
+        },
+        {
+          "file": "progress/app/api/app-urls/[appId]/route.ts",
+          "change": "新規PATCH API"
+        },
+        {
+          "file": "progress/components/app-urls/AppUrlsBoard.tsx",
+          "change": "URL編集UI(行追加/削除/保存)追加"
+        }
+      ],
+      "checks": {
+        "build": "pass",
+        "typescript": "pass",
+        "lint": "pass"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "URL形式の厳格バリデーション検討",
+        "アプリ新規追加UI検討"
+      ],
+      "rawReport": "要望: URL一覧のURLをユーザーが入力できるように。\n\n変更:\n- lib/app-urls.ts: writeAppUrls / normalizeUrlInput / applyAppUrlEdit 追加。手入力URLは confidence=documented・evidence=ユーザー入力・evidenceDetail=画面から手入力・lastCheckedAt=今日 の既定で正規化。kind/confidenceは許可値のみ。既存レコード編集時は送信されたメタを保持。url/label空の行は破棄。\n- app/api/app-urls/[appId]/route.ts 新設: PATCH。body {urls?,name?,purpose?,status?,notes?}。urls配列を置換。404=app不在 / 400=不正body。成功時 {success:true, app}。\n- components/app-urls/AppUrlsBoard.tsx: AppCardに『✏️ URL編集』トグル。編集モードでURL行(kind select / label / url input)+行追加・削除+保存(PATCH→onClose→router.refresh())+キャンセル+エラー表示。保存後 iPhone到達性(公開/内部)を自動再判定(既存enrichロジック)。\n\n検証: tsc 0エラー / next lint 0 / next build 成功(/api/app-urls/[appId] と /app-urls 4.03kB)。一時データ複製(PROGRESS_DATA_PATH切替・port3099)でE2E: 編集ボタン表示 / PATCH success / news-app の既存URLはメタ保持(confidence=confirmed,evidence=vercel ls)・新規URLはユーザー入力既定(documented/ユーザー入力) / lastCheckedAt=2026-06-10更新 / total apps不変(12) / 不在appは404。実データは未変更。pm2 restart progressで本番3010反映(page200/編集ボタン表示/route稼働)。\n\n未対応: URL単体のバリデーション(http(s)形式チェック)はブラウザのtype=urlに依存。アプリ自体の新規追加(appレコード追加)は今回スコープ外(既存12アプリのURL編集のみ)。\n次: 必要ならapp新規追加UI / URL形式の厳格バリデーション。",
+      "reviewMemo": "[AI一次レビュー 2026-06-10 17:16] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-06-10T17:16:31.174Z"
+      },
+      "reviewedAt": "2026-06-10T17:16:31.174Z"
+    },
+    {
+      "runId": "20260610-140007",
+      "startedAt": "2026-06-10T05:00:07.662Z",
+      "finishedAt": "2026-06-10T05:00:09.413Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "source": "monetization_sync",
+      "trigger": "systemd",
+      "summary": "Vault走査 111 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=111 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。",
+      "reviewMemo": "[AI一次レビュー 2026-06-10 17:16] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-06-10T17:16:04.031Z"
+      },
+      "reviewedAt": "2026-06-10T17:16:04.031Z"
+    },
+    {
+      "runId": "20260610-140527",
+      "startedAt": "2026-06-10T05:05:27.282Z",
+      "finishedAt": "2026-06-10T05:05:27.282Z",
+      "targetApp": "birdlog",
+      "epicId": "epic-birdlog-mvp-local-first-",
+      "targetTodoTitle": "Factory(auto): 野鳥観察ノート BirdLog の MVP を作る（local-first / API不要）",
+      "runStatus": "partial",
+      "reviewStatus": "reviewed",
+      "source": "schedule",
+      "executorUsed": "claude",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "factoryDispatch": true,
+      "dispatchMode": "auto",
+      "dispatchPlanId": "dp-epic-birdlog-mvp-local-first--mq7lo2wz",
+      "executorCandidate": "claude",
+      "promptGenerated": true,
+      "resultReturned": true,
+      "runIndex": 1,
+      "nextActionCount": 0,
+      "summary": "（出力なし）",
+      "changedFiles": [],
+      "checks": {
+        "typescript": "OK",
+        "lint": "OK"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-runner auto] executor=claude\n（出力なし）",
+      "doneCriteriaStatus": "continue",
+      "stopReason": "max_runs_reached",
+      "trigger": "systemd",
+      "reviewMemo": "[AI一次レビュー 2026-06-10 17:16] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-06-10T17:16:31.160Z"
+      },
+      "reviewedAt": "2026-06-10T17:16:31.160Z"
+    },
+    {
+      "runId": "20260610-140527",
+      "startedAt": "2026-06-10T05:00:07.658Z",
+      "finishedAt": "2026-06-10T05:05:27.876Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "Factory schedule (schedule/systemd)",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "schedule",
+      "trigger": "systemd",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "stopReason": "max_runs_reached",
+      "summary": "Factory 起動: 1 Run 実行 / 停止理由=max_runs_reached（schedule/systemd）",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260610-140527"
+    },
+    {
+      "runId": "20260610-212135",
+      "startedAt": "2026-06-10T12:21:35.812Z",
+      "finishedAt": "2026-06-10T12:21:35.812Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "アプリURL一覧: 入力URLをcanonical URLとして正規化表示",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "summary": "前回中断していたURL正規化対応を仕上げ。手入力URLをcanonical href(スキーム補完)に正規化して保存・表示。url-normalize.ts新規・app-urls.ts/AppUrlsBoard.tsxで利用。tsc/lint/build pass、PATCH実機で 160.251.143.146:3010/app-urls→http補完を確認。commit 0d2d730 push。テスト中にprogressエントリのurls配列を上書きしたため観測事実から復元済み。",
+      "changedFiles": [
+        {
+          "file": "progress/lib/url-normalize.ts",
+          "change": "新規: normalizeUrlString(スキーム補完/protocol-relative補完/href化, client/server両用)"
+        },
+        {
+          "file": "progress/lib/app-urls.ts",
+          "change": "normalizeUrlInputがnormalizeUrlStringを使用"
+        },
+        {
+          "file": "progress/components/app-urls/AppUrlsBoard.tsx",
+          "change": "入力欄type=text化+onBlur正規化+placeholder自動補完明示"
+        }
+      ],
+      "checks": {
+        "build": "pass",
+        "typescript": "pass",
+        "lint": "pass"
+      },
+      "errors": [],
+      "warnings": [
+        "PATCH実機テストでprogressアプリのurls配列を上書き→観測事実(pm2/ss/curl)から3件復元。バックアップ機構が無いため次回は一時データ複製でE2Eすべき"
+      ],
+      "progressUpdated": false,
+      "nextActions": [
+        "他アプリ入力時の正規化UX確認",
+        "app-urls.jsonのバックアップ/履歴機構検討"
+      ],
+      "rawReport": "要望: 入力したurlを正規として表示。前回セッションが途中で落ちた(未コミット)状態を仕上げ。\n\n発見した中断状態:\n- lib/url-normalize.ts が未追跡(commit 3a33325のapp-urls.tsはこれをimportしているのに未コミット=build破綻リスク)\n- lib/app-urls.ts / AppUrlsBoard.tsx に未コミット差分\n\n仕上げ内容:\n- url-normalize.ts: スキーム無し→ドメインはhttps/IP・localhostはhttp、protocol-relative→https、URL解釈してhref化\n- app-urls.ts: normalizeUrlInputがnormalizeUrlStringで正規化\n- AppUrlsBoard.tsx: type=url→text、onBlurで正規化、placeholder=example.com/path(https://は自動補完)\n\n検証: tsc=0/lint=0/build=0。正規化ロジック単体テスト8ケースOK。PATCH実機テストで 160.251.143.146:3010/app-urls→http://160.251.143.146:3010/app-urls を確認。\n\n事故と復旧: PATCH実機テストがprogressアプリのurls配列全体を上書き(PATCHは置換セマンティクス)。バックアップ無しのため観測事実(vercel未確認/vps公開IP/vps_internal localhost)から3件復元しpm2 restart・page200確認。12アプリ整合。\n\ncommit 0d2d730 / pushed to ny01 main.",
+      "reviewMemo": "[AI一次レビュー 2026-06-10 17:16] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-06-10T17:16:04.008Z"
+      },
+      "reviewedAt": "2026-06-10T17:16:04.008Z"
+    },
+    {
+      "runId": "20260610-220105",
+      "startedAt": "2026-06-10T13:01:05.452Z",
+      "finishedAt": "2026-06-10T13:01:05.452Z",
+      "targetApp": "mahjong",
+      "targetTodoTitle": "/yomi 原本再現性の検証(sourceValidation)を追加",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "summary": "原本(牌譜JSON/原本画像書き起こし)とアプリ表示の差異を14項目で検出するsourceValidation層を追加。問題ごとに再現項目/欠落/不一致・一致率・status(exact/partial/failed)を持ち、取り込み時に原本があれば差分レポートを必ず生成、原本差分failedのS/A採用を機械的に隔離。比較エンジン+CLI+ingest統合+検証ゲート+レビューUI+docs。tsc/build/validate-yomi全pass。差分例(上家河12→8/下家鳴き欠落/自風不一致)を実テストで再現確認。commit 89dd84e push。",
+      "changedFiles": [
+        {
+          "file": "mahjong/types/yomi.ts",
+          "change": "SourceValidation型群 + question.sourceValidation?追加"
+        },
+        {
+          "file": "mahjong/scripts/lib/yomi-source-validate.mjs",
+          "change": "新規: compareToOriginal(14項目突き合わせ)/formatDiffReport/形式検証"
+        },
+        {
+          "file": "mahjong/scripts/lib/yomi-validate.mjs",
+          "change": "sourceValidation形式検証+原本差分failedのS/Aをエラー化"
+        },
+        {
+          "file": "mahjong/scripts/ingest-yomi.mjs",
+          "change": "--original対応・sourceValidation付与・failed S/A隔離・差分レポート生成"
+        },
+        {
+          "file": "mahjong/scripts/yomi-source-report.mjs",
+          "change": "新規: 原本差分レポート単体CLI"
+        },
+        {
+          "file": "mahjong/lib/yomi.ts",
+          "change": "status表示ヘルパー+getYomiValidationStats"
+        },
+        {
+          "file": "mahjong/app/yomi/review/page.tsx",
+          "change": "原本一致率バッジ+差分サマリーパネル"
+        },
+        {
+          "file": "mahjong/docs/yomi-ingestion.md",
+          "change": "原本再現性の検証 仕様追記"
+        },
+        {
+          "file": "mahjong/.gitignore",
+          "change": "data/source-validation/(差分レポート)をignore"
+        }
+      ],
+      "checks": {
+        "build": "pass",
+        "typescript": "pass",
+        "lint": "n/a"
+      },
+      "errors": [],
+      "warnings": [
+        "既存正本10問は手作成のためsourceValidation未付与(任意フィールド・UIは存在時のみ表示)"
+      ],
+      "progressUpdated": false,
+      "nextActions": [
+        "原本画像書き起こし→original JSON 化の運用テンプレ整備",
+        "tenhou-to-yomi変換時に解析直後stateをoriginalとして併走出力する案",
+        "handsを持つ原本での手牌枚数検証の実データ確認"
+      ],
+      "rawReport": "要望: /yomi は問題データを表示しているだけで原本再現性の保証がない。原本とアプリ表示の差異を検出できるようにする。\n\n実装:\n- 問題ごとに question.sourceValidation を追加(型: types/yomi.ts)。14確認項目=プレイヤー位置/自風/場風/河枚数/河順序/手牌枚数/鳴き内容/鳴き位置/ドラ/巡目/点数/リーチ有無/放銃者/和了者。\n- 比較エンジン scripts/lib/yomi-source-validate.mjs の compareToOriginal(rendered, original): 各項目を match/mismatch/missing/unknown 判定。unknownは一致率の分母から除外。matchRate=matched/checked。\n- validationStatus: exact(全一致) / partial(一部) / failed(致命項目=和了者・放銃者・巡目の不一致 or 一致率<0.5 or 検証不能)。\n- 取り込み時: 原本(画像/JSON)があれば差分レポートを必ず生成。ingest-yomi --original で各候補にsourceValidation付与→差分failedのS/Aは検証でエラー化し隔離→差分レポートをdata/source-validation/(gitignore)に保存。単体は yomi-source-report.mjs。\n- 差分例(上家河 12枚→8枚 / 下家鳴き欠落 / 自風不一致)を実テストで再現。formatDiffReportで人間可読化。\n- UI: /yomi/review に原本一致率バッジ+差分サマリーパネル。\n\n検証: tsc0 / next build成功 / validate-yomi(正本10問)PASS / yomi-stats OK。\nエンジン単体: exact=一致率1.0 / winner mismatch(critical)→failed(一致率0.909でもcritical優先) / partial=62%で上家河12→8等の差分文言を確認。\nゲート: ingest --dry-run --original で exact→採用 / failed(S)→隔離(理由付き)。validate-yomi が failed+S をエラーで弾くことも確認。\n\n完了条件達成: 原本から生成した場合に再現項目/欠落項目が14項目で判別でき、一致率とstatusが付き、原本差分failedはS/A採用されない。\n\ncommit 89dd84e / pushed to mahjong main.\n\nmonetizationImpact=low / theme=[mahjong, workflow] / obsidianSummary=/yomi に原本再現性検証(sourceValidation)を追加。14項目突き合わせ・一致率・exact/partial/failed・差分レポート・failed S/A隔離。/ obsidianSaveTarget=20_reviews/2026-06-10_yomi-source-validation.md",
+      "reviewMemo": "[AI一次レビュー 2026-06-10 17:16] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-06-10T17:16:03.987Z"
+      },
+      "reviewedAt": "2026-06-10T17:16:03.987Z"
+    },
+    {
+      "runId": "20260610-230007",
+      "startedAt": "2026-06-10T14:00:07.319Z",
+      "finishedAt": "2026-06-10T14:00:08.320Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "source": "monetization_sync",
+      "trigger": "systemd",
+      "summary": "Vault走査 113 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=113 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。",
+      "reviewMemo": "[AI一次レビュー 2026-06-10 17:16] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-06-10T17:16:03.955Z"
+      },
+      "reviewedAt": "2026-06-10T17:16:03.955Z"
+    },
+    {
+      "runId": "20260610-230524",
+      "startedAt": "2026-06-10T14:05:24.541Z",
+      "finishedAt": "2026-06-10T14:05:24.541Z",
+      "targetApp": "birdlog",
+      "epicId": "epic-birdlog-mvp-local-first-",
+      "targetTodoTitle": "Factory(auto): 野鳥観察ノート BirdLog の MVP を作る（local-first / API不要）",
+      "runStatus": "partial",
+      "reviewStatus": "needs_followup",
+      "source": "schedule",
+      "executorUsed": "claude",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "factoryDispatch": true,
+      "dispatchMode": "auto",
+      "dispatchPlanId": "dp-epic-birdlog-mvp-local-first--mq84yi1l",
+      "executorCandidate": "claude",
+      "promptGenerated": true,
+      "resultReturned": true,
+      "runIndex": 1,
+      "nextActionCount": 0,
+      "summary": "（出力なし）",
+      "changedFiles": [],
+      "checks": {
+        "typescript": "OK",
+        "lint": "OK"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-runner auto] executor=claude\n（出力なし）",
+      "doneCriteriaStatus": "continue",
+      "stopReason": "max_runs_reached",
+      "trigger": "systemd",
+      "reviewMemo": "[AI一次レビュー 2026-06-10 17:16] 判定=partial 理由=runStatus=partial（未完了の検証・作業が残っている）。継続または修復候補。（rule=run_partial）",
+      "aiReview": {
+        "verdict": "partial",
+        "reason": "runStatus=partial（未完了の検証・作業が残っている）。継続または修復候補。",
+        "rule": "run_partial",
+        "reviewedAt": "2026-06-10T17:16:03.948Z"
+      }
+    },
+    {
+      "runId": "20260610-230525",
+      "startedAt": "2026-06-10T14:00:07.318Z",
+      "finishedAt": "2026-06-10T14:05:25.461Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "Factory schedule (schedule/systemd)",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "source": "schedule",
+      "trigger": "systemd",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "stopReason": "max_runs_reached",
+      "summary": "Factory 起動: 1 Run 実行 / 停止理由=max_runs_reached（schedule/systemd）",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260610-230524",
+      "reviewMemo": "[AI一次レビュー 2026-06-10 17:16] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-06-10T17:16:03.972Z"
+      },
+      "reviewedAt": "2026-06-10T17:16:03.972Z"
+    },
+    {
+      "runId": "20260611-001032",
+      "startedAt": "2026-06-10T15:10:32.869Z",
+      "finishedAt": "2026-06-10T15:10:32.869Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "運用ポリシー検討 - AI工場OS v2 戦略レビュー(Goal/Epic/Progress/実行サイクル/再開性/自走化)",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "summary": "CTO/PMO/AI工場OS設計者としての運用モデルレビュー。実データ確認でgoals.json空(0件)・Epic.goalが自由文・候補3ストリーム未統合・factoryEnabled=falseを特定。構造的問題TOP10/Goal階層/Epicライフサイクル/Progress司令塔像/再開性/自走化/責任分界/ボトルネック/OS v2データモデル/Codex実装TOP10/最優先TOP3/30日計画を提案。コード実装は禁止指示のため未着手。Vaultに戦略doc作成。",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [
+        "goals.jsonが空(0 Goal/mainGoal null)=Goal層が実運用されていない",
+        "factoryEnabled=false=自走基盤は停止中",
+        "候補ストリーム3系統(recommended-epics20/app候補5/monetization候補)が未統合"
+      ],
+      "progressUpdated": false,
+      "nextActions": [
+        "人間: 北極星含む3〜5 Goalを定義(全体の原点)",
+        "AI別Epic: goals.json実運用化/Epic.goalId必須化/意思決定キュー/backlog統合/WIP制限"
+      ],
+      "rawReport": "AI工場OS v2 運用モデル戦略レビュー(実装なし・禁止指示)。\n\n何を議論したか: ユーザーが毎日5〜15分の意思決定(承認/却下/優先/Goal調整)だけ行い残りをAI工場が自走前進する運用モデルの設計。Goal管理/Epic管理/Progress管理/実行サイクル/再開性/自走化を重点。\n\n現状診断(実データ): goals.json={goals:[],mainGoalId:null}でGoal層が空。epics.json 11件(active3/done8)が横並び、Epic.goalは外部キーでなく自由文。recommended-epics20+app候補5+monetization候補の3ストリームが未統合。automation-config factoryEnabled=false(自走基盤は作られているが停止)。active3件(epic-91 op-center20%/BirdLog0%/動作確認Todo0%)が低進捗滞留。\n\n選択肢と判断:\n- Goal個数: 3〜5+北極星1(多=横並び再発/少=機会損失)。寿命90日。達成判定はmetric必須(曖昧目標禁止)。\n- Epicライフサイクル: proposed→approved→active→in_review→done(+merged/split/dropped)。goalId・doneCriteria・single executor必須。\n- Progress=作業画面でなく経営ダッシュボード+意思決定キュー。ホーム表示TOP10を定義。\n- 承認をインライン同期→毎日5〜15分の非同期バッチキューへ(人間を同期ブロッカーから外す)。\n- 完了→Knowledge→次Epic生成のループを閉じる。factoryは Goal+非同期承認 が揃ってから段階ON。\n- 人間=Goal/承認/却下/優先/収益化Go/不可逆operations(=承認必須6点)。AI=調査〜実装〜レビュー〜ナレッジ〜次Epic〜収益化準備。\n\nボトルネック: 第1=Goal層空で人間が毎セッション事実上のプライオリタイザ化(同期ブロッカー)。第2=承認インラインで人間待ち。第3=ループ未閉鎖で完了が次の燃料にならない。いずれも人間が同期介在しないと進まない構造。\n\n最優先TOP3: (1)Goal層を埋める (2)承認を非同期バッチ化 (3)候補をGoal-scored単一backlogへ統合+WIP制限。\n\n最終判断: 提案として確定。実装は別Epic化(コード禁止指示のため本runでは未実施)。次に反映: 人間がGoal3〜5本を定義→goals.json実運用化Epicを起票。\n\nobsidianSummary=AI工場OS v2: Goal層が空が根本原因。Goal確立+承認の非同期バッチ化+候補backlog統合/WIP制限+完了→Knowledge→次Epicループ閉鎖で毎日5〜15分運用を実現。/ obsidianSaveTarget=06_research/2026-06-11_ai-factory-os-v2.md",
+      "reviewMemo": "[AI一次レビュー 2026-06-10 17:16] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-06-10T17:16:03.929Z"
+      },
+      "reviewedAt": "2026-06-10T17:16:03.929Z"
+    },
+    {
+      "runId": "20260611-013300",
+      "startedAt": "2026-06-10T16:33:00.355Z",
+      "finishedAt": "2026-06-10T16:33:00.355Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "運用レビュー - AI工場OS v2 運用レビュー（ボトルネック/自走率95%/収益化/v3設計）+ progress API 404復旧",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "summary": "AI工場OS v2の運用レビューを実データに基づき実施。最大ボトルネックはReview工程（67run中65件未レビュー、Knowledge1件、Next Epic候補20件滞留）。また調査中にprogress本体のAPIが全404（6/11 01:17の不完全ビルドが原因）でFactoryループ停止状態だったことを発見し、再ビルド+pm2 restartで復旧済み。",
+      "changedFiles": [
+        {
+          "file": "apps/ny01/progress/.next",
+          "change": "再ビルド（不完全ビルドによるAPI全404の復旧）"
+        },
+        {
+          "file": "obsidian-sync-vault/20_reviews/2026-06-11_ai-factory-os-v2-ops-review.md",
+          "change": "新規作成（運用レビュー全文+ChatGPTレビュー依頼文）"
+        },
+        {
+          "file": "obsidian-sync-vault/20_reviews/_review_queue.md",
+          "change": "未レビュー先頭に1件追加"
+        }
+      ],
+      "checks": {
+        "build": "OK（npm run build 成功）",
+        "api": "GET /api/execution-runs 200 確認"
+      },
+      "errors": [],
+      "warnings": [
+        "progress APIが2026-06-11 01:17頃から本応答時点まで全404＝factory_schedule/POSTが失敗していた可能性。automation-logの欠落確認推奨"
+      ],
+      "progressUpdated": false,
+      "nextActions": [
+        "AI一次レビュー（reviewer agent）のEpic起票判断",
+        "未レビュー65件の一括処理方針を決める",
+        "BirdLog貫通テスト（MVP→ストア公開→収益1円）の最優先化判断",
+        "Goal metric自動計測（closed_loop_rate等）の実装判断",
+        "ビルド失敗時にAPI 404へ陥らないようビルド検証をデプロイ手順に追加"
+      ],
+      "rawReport": "AI工場OS v2 運用レビュー + progress API復旧。\n\n何を議論したか: ユーザー依頼の10項目（残ボトルネック/自走率80→95%/Goal運用/Next Epic候補生成/収益化不足/ホーム追加情報/人間介在箇所/factoryEnabled条件/90日後理想/v3設計案）。\n\n実データ所見: (1) 67 ExecutionRun中65件not_reviewed、Knowledge記録1件のみ→Review→Knowledge→Next Epicループが実質1回しか発火していない。(2) recommended-epics 21件中20件suggested滞留、生成はテンプレ三点セット（MVP/ストア/課金）中心。(3) operational-decisions.ndjson 0行＝人間判断がログに残っていない。(4) factoryEnabled=true稼働中（factory_scheduleがmax_runs_reachedまで毎日実行、MAX_RUNS=3）。(5) Goal 4件のmetricは定義のみで計測値なし。(6) orphan epic 1件残存。(7) 収益データ流入経路なし。(8) 調査中にAPI全404を発見（6/11 01:17の不完全ビルド）→再ビルド+restart で復旧。\n\n選択肢と最終判断: Reviewボトルネック解消はA案=人間レビュー時間増、B案=AI一次レビュー導入（人間はneeds_humanのみ）、C案=レビュー必須緩和を比較しB案推奨。Factory拡大は未レビュー滞留数によるWIP制限（バックプレッシャー）を条件とする方針。North Starを工場自走化から価値検証/収益側へ移す再考を提案。v3は機能追加でなく計測レイヤ（metric自動計測/アプリ別P/L/reviewer agent正式化/人間タスクレーン分離）。\n\n判断の理由: ループ構造は完成しているがスループットがReviewで詰まり、生産だけ先行するとレビュー不能在庫が増える。収益ゼロの直接原因はストア申請/AdMob等の人間専用作業がキュー分離されず滞留していること。\n\n次に反映すべきこと: AI一次レビューEpic起票、BirdLog収益貫通テスト最優先化、Goal metric自動計測、人間タスクレーン分離、ホームへ滞留/収益ウィジェット追加、ビルド検証のデプロイ手順化。\n\nmonetizationImpact: high\ntheme: [workflow, app-strategy, monetization, obsidian]\nobsidianSummary: AI工場OS v2運用レビュー。最大ボトルネックはReview工程（65件未レビュー・Knowledge1件）。AI一次レビュー+WIP制限+BirdLog収益貫通を推奨。progress API全404も発見し復旧。\nobsidianSaveTarget: 20_reviews/2026-06-11_ai-factory-os-v2-ops-review.md",
+      "reviewMemo": "[AI一次レビュー 2026-06-10 17:16] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-06-10T17:16:03.878Z"
+      },
+      "reviewedAt": "2026-06-10T17:16:03.878Z"
+    },
+    {
+      "runId": "20260611-022341",
+      "startedAt": "2026-06-10T17:23:41.479Z",
+      "finishedAt": "2026-06-10T17:23:41.479Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "Review滞留解消 — AI一次レビュー/一括処理/Factoryバックプレッシャー/Metrics/Decision Log/Queue分離",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "AI工場OS v2の最大ボトルネック(Review滞留65件)解消を実装。ルールベースAI一次レビュー(4分類+理由保存)、直近10件一括処理API+ホームUI、Factoryバックプレッシャー(>10減速/>20停止候補・factoryEnabled不変)、Metrics8項目+ホーム表示、Decision Log拡充(9操作)、Human/AI Queue分離。実データで2バッチ20件処理済み: closed_loop_rate 1.5%→23.5%、Knowledge 1→15件、needs_human 1件がHuman Queue表示確認。",
+      "changedFiles": [
+        {
+          "file": "progress/lib/ai-review.ts",
+          "change": "新規: ルールベース一次レビューエンジン(classifyRun/runAiReviewBatch/getAiReviewOverview)"
+        },
+        {
+          "file": "progress/lib/factory-metrics.ts",
+          "change": "新規: Metrics計算(closed_loop_rate等8項目+backpressure判定)"
+        },
+        {
+          "file": "progress/lib/queue-split.ts",
+          "change": "新規: Human Queue/AI Queue分離ビュー"
+        },
+        {
+          "file": "progress/lib/factory-runner.ts",
+          "change": "バックプレッシャー組込(not_reviewed>20でスキップ/>10でmaxRuns=1)"
+        },
+        {
+          "file": "progress/lib/operations-store.ts",
+          "change": "recordOperationalDecision追加+epic操作/approval/factory ON-OFFのログ"
+        },
+        {
+          "file": "progress/app/api/operations/ai-review/route.ts",
+          "change": "新規: GET状況/POST一括一次レビュー"
+        },
+        {
+          "file": "progress/app/api/operations/metrics/route.ts",
+          "change": "新規: GET metrics+queues"
+        },
+        {
+          "file": "progress/app/api/operations/approvals/route.ts",
+          "change": "needs_human承認決定をRun reviewStatusへ反映+Knowledge生成"
+        },
+        {
+          "file": "progress/app/api/execution-runs/[runId]/route.ts",
+          "change": "needs_human許可+markReviewed Decision Log"
+        },
+        {
+          "file": "progress/app/api/goals/route.ts",
+          "change": "Goal調整のDecision Log"
+        },
+        {
+          "file": "progress/app/api/recommended-epics/[id]/route.ts",
+          "change": "候補却下/状態変更のDecision Log"
+        },
+        {
+          "file": "progress/app/api/recommended-epics/[id]/approve/route.ts",
+          "change": "候補承認のDecision Log"
+        },
+        {
+          "file": "progress/components/dashboard/AiReviewPanel.tsx",
+          "change": "新規: 一括一次レビュー実行UI"
+        },
+        {
+          "file": "progress/app/page.tsx",
+          "change": "Factory Metrics/バックプレッシャー警告/Human・AI Queueセクション追加"
+        },
+        {
+          "file": "progress/types/execution-run.ts",
+          "change": "ReviewStatusにneeds_human追加+AiReviewResult型"
+        },
+        {
+          "file": "progress/lib/types/operations.ts",
+          "change": "AutomationLogEntryイベント拡張+OperationalDecision拡張"
+        }
+      ],
+      "checks": {
+        "typescript": "OK (tsc --noEmit 0 errors)",
+        "lint": "OK (No ESLint warnings or errors)",
+        "build": "OK (npm run build 成功)",
+        "api": "metrics/ai-review/approvals/factory-run 実機確認OK",
+        "data": "既存68run保持・削除なし確認済み"
+      },
+      "errors": [],
+      "warnings": [
+        "Knowledge生成ループがreviewed runごとにNext Epic候補を自動生成するため、suggested候補が20→34件に増加（candidate scoringによる絞り込みが次の課題）",
+        "execution-runs.jsonにrunId重複(20260610-140527)が既存データとして存在"
+      ],
+      "progressUpdated": true,
+      "nextActions": [
+        "残り48件のnot_reviewedを一括処理（10件ずつボタン実行）",
+        "needs_human 1件(Vercel本番反映)の人間判断",
+        "candidate scoring実装でsuggested 34件を絞り込み",
+        "ルーチンrun(Factory schedule等)のKnowledge生成抑制を検討"
+      ],
+      "rawReport": "AI工場OS v2 Review滞留解消の実装。\n\n実装6本柱: (1)ルールベースAI一次レビュー — run_failed/run_partial/stale_running/approval_required/errors_recorded/check_failed/risk_keyword(課金・公開・認証・本番DB・破壊的の5系統)/clean_completedの8ルールで4分類。判定理由をreviewMemoとrun.aiReviewに保存。(2)一括処理 — POST /api/operations/ai-review {limit:10}。reviewed→Knowledge生成ループ、needs_human→Approval(意思決定キュー)、partial/failed→needs_followup(修復候補)。(3)Factoryバックプレッシャー — auto実行前にnot_reviewed計測、>20でスキップ(backpressure_paused)、>10でmaxRuns=1。factoryEnabledは触らない。automation-logにfactory_backpressureイベント記録。(4)Metrics — closed_loop_rate/not_reviewed_count/oldest_not_reviewed_age/suggested_epic_count/stale_suggested_count/daily_decision_count/factory_last_result/factory_last_errorをGET /api/operations/metricsとホームに表示。(5)Decision Log — approve/reject/assignGoal/changePriority/markReviewed/pause/drop/factory_pause・resume/goal_adjust/候補承認・却下をoperational-decisions.ndjsonへ。(6)Human/AI Queue分離 — Human(公開/課金/認証/本番DB/Goal判断/上位候補承認3件/needs_human Run)とAI(run一次レビュー/candidate scoring/orphan修復/failed・partial分析/next epic draft)をホームに並列表示。\n\n実データ検証: 2バッチ20件処理 → reviewed 15(Knowledge 15件生成)/needs_human 1(公開キーワード検知・Approval作成・Human Queue表示確認)/partial 4。closed_loop_rate 1.5%→23.5%。Factory auto実行はbackpressure_pausedで正しくスキップ。Decision Log 1件追記確認。factoryEnabled=true不変。既存データ削除なし。\n\nmonetizationImpact: medium\ntheme: [workflow]\nobsidianSummary: Review滞留解消を実装。AI一次レビュー2バッチでKnowledge 1→15件、closed_loop_rate 23.5%へ。Factoryはnot_reviewed>20で自動減速。\nobsidianSaveTarget: 20_reviews/2026-06-11_review-backlog-pipeline.md"
+    },
+    {
+      "runId": "20260611-110003",
+      "startedAt": "2026-06-11T02:00:03.202Z",
+      "finishedAt": "2026-06-11T02:00:03.801Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新2",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "monetization_sync",
+      "trigger": "systemd",
+      "summary": "Vault走査 148 ファイル / 新規追加 0 件 / 既存追記 2 件 / skip 10 件",
+      "changedFiles": [
+        {
+          "file": "data/real/monetization-candidates.json",
+          "change": "追加0/更新2"
+        }
+      ],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=148 added=[] updated=[釣果ログ AnglerLog, 野鳥観察ノート BirdLog] skipped=10. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
     }
   ]
 }

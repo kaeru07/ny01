@@ -79,7 +79,7 @@ export default function EpicJsonImport() {
         value={text}
         onChange={(e) => { setText(e.target.value); setPreview(null) }}
         rows={8}
-        placeholder='{ "title": "...", "goal": "...", "doneCriteria": ["..."], "decisionPolicy": "autonomous", "priority": "P1", "riskFlags": [] }'
+        placeholder='{ "goalId": "goal-...", "title": "...", "goal": "...", "doneCriteria": ["..."], "decisionPolicy": "autonomous", "priority": "P1", "riskFlags": [] }'
         className="w-full rounded-xl border border-gray-200 px-3 py-2.5 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-blue-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
       />
       {parseError && <p className="text-sm text-red-600">{parseError}</p>}
@@ -95,6 +95,7 @@ export default function EpicJsonImport() {
               <p className="text-sm font-bold text-green-800 dark:text-green-300">検証OK（Draft）</p>
               <dl className="mt-2 space-y-1 text-xs text-gray-700 dark:text-gray-200">
                 <div><span className="text-gray-400">title:</span> {preview.normalized.title}</div>
+                <div><span className="text-gray-400">goalId:</span> {preview.normalized.goalId}</div>
                 <div><span className="text-gray-400">goal:</span> {preview.normalized.goal}</div>
                 <div><span className="text-gray-400">doneCriteria:</span> {preview.normalized.doneCriteria.length}件</div>
                 <div><span className="text-gray-400">decisionPolicy:</span> {preview.normalized.decisionPolicy} / <span className="text-gray-400">priority:</span> {preview.normalized.priority}</div>

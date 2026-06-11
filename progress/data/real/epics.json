@@ -1,1 +1,334 @@
-[{"epicId":"epic-91","githubIssue":91,"title":"AI工場オペレーションセンター","goal":"ProgressをAI工場の管制塔にし、AIが止まらずToDoを継続消化できる運用基盤を作る","progress":20,"remainingWork":["/operations ページ実装","ヘルスダッシュボード","選択式承認カード","Epic進行カード"],"latestRunId":null,"nextAction":"Step 2以降を実装する","decisionPolicy":"autonomous","status":"active","targetApps":["progress","ny01/progress"],"updatedAt":"2026-05-30"}]
+[
+  {
+    "epicId": "epic-91",
+    "githubIssue": 91,
+    "title": "AI工場オペレーションセンター",
+    "goal": "ProgressをAI工場の管制塔にし、AIが止まらずToDoを継続消化できる運用基盤を作る",
+    "progress": 20,
+    "remainingWork": [
+      "/operations ページ実装",
+      "ヘルスダッシュボード",
+      "選択式承認カード",
+      "Epic進行カード"
+    ],
+    "latestRunId": null,
+    "nextAction": "Step 2以降を実装する",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "targetApps": [
+      "progress",
+      "ny01/progress"
+    ],
+    "updatedAt": "2026-05-30",
+    "goalId": "goal-ai-factory-os"
+  },
+  {
+    "epicId": "epic-p2-factory-multiple-run-",
+    "title": "P2 Factory multiple Run loop verification",
+    "goal": "Factory Runnerで同一Epic内の複数RunとClaude上限時のCodex継続を検証する",
+    "progress": 100,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "done",
+    "updatedAt": "2026-05-31T13:01:43.680Z",
+    "doneCriteria": [
+      "ExecutionRunが記録されている",
+      "typecheck または lint が成功している",
+      "factory-p2-marker.txtを変更している"
+    ],
+    "priority": "P0",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "factoryEligible": true,
+    "targetApps": [
+      "progress"
+    ],
+    "goalId": "goal-execution-review-loop"
+  },
+  {
+    "epicId": "epic-a5r7n4",
+    "title": "アプリ開発工場の自動運用基盤を作る",
+    "goal": "AI工場でアプリ案の選定、要件整理、実装、検証、レビュー記録までを半自動で回せる開発フローを作り、収益化候補アプリを継続的に開発できる状態にする",
+    "progress": 100,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "done",
+    "updatedAt": "2026-06-02T00:18:37.943Z",
+    "doneCriteria": [
+      "アプリ開発工場用のEpic一覧または候補キューが作成されている",
+      "各アプリ案に対して目的、収益化仮説、優先度、次アクションが確認できる",
+      "Factoryが安全なEpicを選び、ClaudeまたはCodexで1Run以上実行できる",
+      "実行結果がExecutionRunまたはレビュー履歴に保存される",
+      "build、lint、typecheckのいずれかが実行され、結果が記録される"
+    ],
+    "priority": "P0",
+    "riskFlags": [],
+    "notes": "最優先は収益化につながるアプリ開発の継続運用。deploy、billing、production_db、migration、auth_secret、external_publish が必要になった場合は別Epicに分離し、承認必須にする。まずは安全な範囲で、アプリ案整理、モック、要件化、実装準備、ローカル検証までをFactory対象にする。",
+    "relatedRepo": "/root/company/apps/ny01/progress",
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "factoryEligible": true,
+    "targetApps": [
+      "progress"
+    ],
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "epicId": "epic-anglerlog-mvp-local-firs",
+    "title": "釣果ログ AnglerLog の MVP を作る（local-first / API不要）",
+    "goal": "釣行ごとの高継続・釣果写真のSNS拡散・サブスク導線が明確。local-firstでAI単独開発に最適。 local-first（外部API・サーバDB・課金実装・公開作業なし）で MVP を実装し、ローカル検証（build/lint/typecheck・オフライン動作）まで完了する。公開・課金・申請は別Epic（ユーザー作業）として分離する。 収益化導線: 広告 / サブスク をUIプレースホルダとして設計に含める。",
+    "progress": 100,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "done",
+    "updatedAt": "2026-06-03T23:24:20.575Z",
+    "doneCriteria": [
+      "魚種静的JSON選択＋釣果記録（サイズ/天候/仕掛け/写真） がローカルで動作し永続化される",
+      "場所の匿名化保存 がローカルで動作し永続化される",
+      "統計（魚種別・月別・自己記録） がローカルで動作し永続化される",
+      "釣行カレンダー がローカルで動作し永続化される",
+      "build / typecheck / lint のいずれかが実行され結果が記録される",
+      "オフライン（ネットワーク遮断）でMVP主要機能が動作することを確認した記録がある"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "Monetization Hub の候補 mc-anglerlog-001（総合スコア 86）から Epic化した MVP Epic。AI工場の作業範囲＝MVP設計/画面実装/ローカル保存/JSON/UI/build・lint・typecheck/公開前チェックリスト・ストア文言下書き・スクショ/アイコン/ASO案まで。Google Play/App Store 公開・課金実装・AdMob本番・支払い情報・審査申請はユーザー作業のため本Epicに含めず、別の manual/approval_required Epic（external_publish / billing）として分離する。カテゴリ: 記録 / 収集 / 趣味。",
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "factoryEligible": true,
+    "targetApps": [
+      "anglerlog"
+    ],
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "epicId": "epic-birdlog-mvp-local-first-",
+    "title": "野鳥観察ノート BirdLog の MVP を作る（local-first / API不要）",
+    "goal": "収益化候補(score 83, 記録 / 収集 / 趣味)。海外birding市場が厚く言語非依存で海外展開が効く。図鑑コレクション×観察記録×目撃マップで習慣化・継続率が高い。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-07T14:16:54.024Z",
+    "doneCriteria": [
+      "野鳥静的JSON（50種以上・和名/英名/科）からの種選択 がローカルで動作し永続化される",
+      "観察記録のCRUD（種/写真/日時/場所匿名化/メモ） がローカルで動作し永続化される",
+      "種別図鑑コレクション（達成率） がローカルで動作し永続化される",
+      "目撃マップ（オフラインタイル） がローカルで動作し永続化される",
+      "月別・種別統計 がローカルで動作し永続化される",
+      "build / typecheck / lint のいずれかが実行され結果が記録される",
+      "オフラインでMVP主要機能が動作することを確認した記録がある"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "おすすめ追加Epic rec-birdlog-560d-3（抽出元: monetization_candidate / mc-birdlog-001）を人間承認で Epic化。AI工場の作業範囲（MVP設計/実装/ローカル保存/JSON/UI/build・lint・typecheck/公開前チェックリスト・ストア文言下書き・スクショ/アイコン/ASO案）まで。公開・課金・申請は含めない（下の公開/課金候補を参照）。",
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "factoryEligible": true,
+    "targetApps": [
+      "birdlog"
+    ],
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "epicId": "epic-progress-url",
+    "title": "progressアプリに全アプリURL一覧を追加する",
+    "goal": "Epicで作成したアプリと既存アプリをprogressアプリ内で一覧管理できるようにし、Vercel連携URL・ローカルURL・不明URLを一元確認できる状態にする。",
+    "progress": 100,
+    "remainingWork": [],
+    "nextAction": "完了",
+    "decisionPolicy": "autonomous",
+    "status": "done",
+    "updatedAt": "2026-06-08T12:36:10.667Z",
+    "doneCriteria": [
+      "progressアプリにアプリURL一覧ページまたはセクションが追加されている",
+      "既存アプリが全件登録され、URLが判明しているものはURL、未判明のものは「未確認」と明記されている",
+      "Epic作成・登録時にtargetAppまたは関連アプリのURL一覧へ反映する運用メモが追加されている",
+      "URL一覧にアプリ名、用途、repo/path、Vercel URL、local/dev URL、状態、最終確認日が表示される",
+      "build/lint/typecheckのいずれか可能な検証を実施し、結果を報告している"
+    ],
+    "priority": "P1",
+    "riskFlags": [
+      "deploy"
+    ],
+    "notes": "Vercel連携URLが分かるものは登録。不明なものは推測せず「未確認」と記載する。既存候補: progress/司令塔、NetScope、訓練コンパネ、麻雀問題アプリ、Scrape Lab、ニュースアプリ、Goal Planner、ny-note、ny01、Dashboard、ny-ai、memo。localhostのみ判明しているものはdev URLとして登録する。",
+    "relatedRepo": "/root/company/apps または progressアプリの実リポジトリ",
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "factoryEligible": true,
+    "targetApps": [
+      "progress"
+    ],
+    "latestRunId": "20260608-123610",
+    "goalId": "goal-ai-factory-os"
+  },
+  {
+    "epicId": "epic-progress-todo",
+    "title": "progressアプリに動作確認Todoページを追加する",
+    "goal": "Claude Code/Codexの日々の作業やEpic完了後に、人間が確認すべき画面・URL・手順をprogressアプリ内で一元管理できるようにする。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-10T23:59:40.553Z",
+    "doneCriteria": [
+      "progressアプリに動作確認Todoページが追加されている",
+      "アプリ名・Epic名・確認URL・確認手順・期待結果・状態を登録できる",
+      "未確認・確認済・NG・保留で状態管理できる",
+      "アプリごと、Epicごと、状態ごとに絞り込みできる",
+      "Claude Code/Codexの作業完了時に、人間確認が必要な項目をこのページへ追加する運用メモが用意されている",
+      "確認URLを押して対象画面を開ける",
+      "build/lint/typecheckのいずれかを実行し、結果を報告している"
+    ],
+    "priority": "P1",
+    "riskFlags": [
+      "deploy"
+    ],
+    "notes": "URL一覧管理Epicと連携する。Epicや日々の作業で人間確認・スマホ確認・画面確認・意図通りかの確認が必要な場合は、動作確認Todoへ追加する。不要な確認項目が溜まらないように、アプリ名・Epic名・状態で絞り込み可能にする。",
+    "relatedRepo": "/root/company/apps/progress または progressアプリの実リポジトリ",
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "factoryEligible": true,
+    "targetApps": [
+      "progress"
+    ],
+    "goalId": "goal-ai-factory-os"
+  },
+  {
+    "epicId": "epic-url-iphone-vps-url",
+    "title": "URL一覧をiPhone確認用のVPS公開URL形式に修正する",
+    "goal": "progressアプリのURL一覧で、localhostではなくiPhoneから開けるVPS公開URL形式を主URLとして管理・表示できるようにする。",
+    "progress": 100,
+    "remainingWork": [
+      "iPhone実機で http://160.251.143.146:3010/app-urls・3000/packets・8080・8888 を開き、外部FW/SG開放を実機確認する（VPS内からは公開IPバインド応答済）"
+    ],
+    "nextAction": "完了（iPhone実機での外部到達確認はremainingWork。pm2本番3010の新UI反映はrestart要）",
+    "decisionPolicy": "autonomous",
+    "status": "done",
+    "updatedAt": "2026-06-09T00:35:00.000Z",
+    "doneCriteria": [
+      "URL一覧のメインURLが localhost ではなく iPhone確認URL として表示される",
+      "VPS上で稼働しているアプリは http://160.251.143.146:<port>/<path> または http://160.251.143.146:<port>/#/path 形式で登録される",
+      "localhost URL は VPS内部URL として補助表示に格下げされる",
+      "localhost を VPS URL として表示しない",
+      "iPhoneから直接開けないURLには「iPhone直接不可」または「内部URL」と表示される",
+      "NetScope、news-app、progressなど既存アプリのURLを実ポート・実パス前提で再調査して補正する",
+      "URL根拠として pm2、ss、curl、README、Vercel設定、手動指定のいずれかが表示される",
+      "build/lint/typecheckのいずれかを実行し、結果を報告している"
+    ],
+    "priority": "P1",
+    "riskFlags": [
+      "deploy"
+    ],
+    "notes": "重要前提: iPhone確認用URLは http://160.251.143.146:3000/#/dashboard のような形式。localhost はVPS内部から見たURLであり、iPhone確認URLではない。URL一覧の主目的はiPhoneからタップして確認すること。推測でURLを確定せず、未確認なら未確認と表示する。",
+    "relatedRepo": "/root/company/apps/ny01 または progressアプリの実リポジトリ",
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "factoryEligible": true,
+    "targetApps": [
+      "progress"
+    ],
+    "goalId": "goal-ai-factory-os"
+  },
+  {
+    "epicId": "epic-vault",
+    "title": "ニュースアプリのVault日次更新反映不具合を調査・修正する",
+    "goal": "Obsidian Vaultに生成された日次Markdownを、ニュースアプリの市場調査ビューへ朝の定期実行・アプリ起動時・手動更新で毎日反映できる状態にする。",
+    "progress": 100,
+    "remainingWork": "",
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "done",
+    "updatedAt": "2026-06-09T12:24:58.092093Z",
+    "doneCriteria": [
+      "ニュースアプリが参照しているVaultパス、カテゴリマッピング、partial判定、キャッシュ、定期実行処理の現状が調査され、原因が報告されている",
+      "2026-06-08などVault側の最新日次ファイルが存在する場合、市場調査ビューの最新日付として反映される",
+      "市場調査ビューに最終スキャン日時、参照中Vaultパス、読み込みMarkdown件数、最新ファイル日付、partial件数、更新ステータスが表示される",
+      "手動更新ボタンでVault Markdownの再スキャンと一覧再集計が実行できる",
+      "朝の定期実行または起動時更新の実装状況が確認され、未実装の場合は修正または明確なToDo化がされている",
+      "npm run lint または該当lint、npm run build が成功している",
+      "最終報告に原因、変更ファイル、確認したVaultパス、最新認識日付、partial理由、定期実行状況、検証結果、未対応点、次の一手が含まれている"
+    ],
+    "priority": "P0",
+    "riskFlags": [],
+    "notes": "現状、Vault側には2026-06-08まで日次ファイルが見える一方、ニュースアプリの市場調査ビューでは2026-05-27 partialで止まっている。生成先フォルダと閲覧側フォルダのズレ、Git pull/同期漏れ、キャッシュ、partial判定、日付パース、カテゴリ分類、cron/GitHub Actions/VPS定期実行停止、Vercel上のファイル更新前提の不整合を切り分ける。Vault原本Markdownは削除・上書き禁止。本番デプロイや外部公開は勝手にしない。\n2026-06-09 完了(runId 20260609-204723)。原因=研究ビュー機能が未コミット+同梱content/researchが05-27凍結。Vault(06_research)→同梱を06-09まで同期、未コミット機能含めpush(7328f42)。ステータスバー/手動更新ボタンは既存実装で充足。VPSライブ rootKind=Vault本体/最新06-09/status=最新を確認。",
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "factoryEligible": true,
+    "targetApps": [
+      "news-app"
+    ],
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "epicId": "epic-vercel",
+    "title": "ニュースアプリ研究ビューのVercel本番反映を確認し進捗記録する",
+    "goal": "news-appの研究ビュー修正がVercel本番へ反映され、/researchで最新日付が表示されることを確認し、原因・修正内容・未対応点をprogressへ記録する。",
+    "progress": 100,
+    "remainingWork": "",
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "done",
+    "updatedAt": "2026-06-09T12:24:58.092093Z",
+    "doneCriteria": [
+      "Vercelの最新デプロイ状況を確認している",
+      "本番URLの/researchを確認している",
+      "最新日付がVault側最新日付と一致している",
+      "更新ステータスが正常である",
+      "iPhone表示を確認している",
+      "原因、修正内容、未対応点をprogressへ記録している"
+    ],
+    "priority": "P0",
+    "riskFlags": [
+      "deploy"
+    ],
+    "notes": "前回作業ではbuild成功とpush完了まで確認済み。本番反映確認と進捗記録を完了させる。\n2026-06-09 完了。Vercel最新デプロイ Ready(35分前、直前は10日前=05-30で停止と一致)。本番 news-app-delta-lake.vercel.app/research = 200 / rootKind=同梱コピー / status=最新 / 最新日付=2026-06-09(Vault側と一致)。iPhone同URLで表示可。",
+    "relatedRepo": "ny01",
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "factoryEligible": true,
+    "targetApps": [
+      "news-app"
+    ],
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "epicId": "epic-vault-4suq",
+    "title": "ニュースアプリ研究ビューのVault同期を自動化する",
+    "goal": "Vaultの日次調査Markdown更新後、news-app/content/researchへ同期し、commit・push・Vercel反映までつながる運用を自動化して、研究ビューが毎日古くならない状態にする。",
+    "progress": 100,
+    "remainingWork": "",
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "done",
+    "updatedAt": "2026-06-09T12:24:58.092093Z",
+    "doneCriteria": [
+      "sync:researchの実行方法と依存関係を確認している",
+      "朝の定期実行または既存の日次調査フロー後にsync:researchが実行される仕組みを追加している",
+      "同期後に差分がある場合のみcommit/pushする設計になっている",
+      "content/researchがVault最新日付まで更新されることを確認している",
+      "自動同期失敗時にログまたはエラーメッセージが残る",
+      "VercelではVault本体ではなくcontent/researchを読む前提をREADMEまたは運用メモに明記している",
+      "npm run build が成功している"
+    ],
+    "priority": "P0",
+    "riskFlags": [
+      "deploy"
+    ],
+    "notes": "VercelはVPS上のVault本体を読めないため、news-app/content/researchへの同梱コピー同期が必須。cron、GitHub Actions、既存の日次調査スクリプト、デプロイ前フックのうち、既存運用に最も合う方法を選ぶ。破壊的操作、Vault原本削除、不要な全体フォーマット変更は禁止。\n2026-06-09 完了。scripts/auto-sync-research.sh追加(同期→差分時のみcommit/push、機密スキャン/専用ログ)、朝07:00 hermes-market-research フロー末尾にフック追加(run-market-research.sh、VPS稼働スクリプト=即ライブ)、docs/research-sync.md運用メモ(Vercel=同梱コピー明記)。no-diff正常終了/npm run build成功を確認。commit cddebca push。",
+    "relatedRepo": "ny01",
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "factoryEligible": true,
+    "targetApps": [
+      "news-app"
+    ],
+    "goalId": "goal-value-validation-pipeline"
+  }
+]

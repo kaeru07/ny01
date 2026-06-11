@@ -1,0 +1,1588 @@
+[
+  {
+    "id": "mc-birdlog-001",
+    "name": "野鳥観察ノート BirdLog",
+    "category": "記録 / 収集 / 趣味",
+    "status": "Candidate",
+    "score": 83,
+    "targetApp": "birdlog",
+    "scoreBreakdown": {
+      "marketSize": 80,
+      "monetization": 78,
+      "retention": 88,
+      "aso": 75,
+      "overseas": 90,
+      "devEase": 85
+    },
+    "marketSize": "海外birding大",
+    "estimatedUsers": "数十万〜（英語圏中心）",
+    "trendsRating": "安定・高（birdwatching）",
+    "playStoreDemand": "中〜高（識別/記録系に需要）",
+    "keywords": [
+      "birdwatching",
+      "野鳥",
+      "bird log",
+      "bird identification",
+      "探鳥"
+    ],
+    "demand": "high",
+    "seoDifficulty": "medium",
+    "competition": "medium",
+    "blueOcean": "yellow",
+    "blueOceanReason": {
+      "competitorCount": "中（eBird/Merlin等の大手 + 小規模多数）",
+      "competitorQuality": "大手は識別/投稿特化、ローカル個人図鑑は手薄",
+      "differentiation": "コミュニティ不要のローカル個人図鑑 + 地域制覇",
+      "barrier": "野鳥マスタJSONの整備（一度作れば堀になる）"
+    },
+    "competitors": [
+      {
+        "name": "eBird",
+        "rating": "4.5",
+        "downloads": "1M+",
+        "strengths": "観察データ投稿の標準",
+        "weaknesses": "個人図鑑/コレクション体験は弱い"
+      },
+      {
+        "name": "Merlin Bird ID",
+        "rating": "4.7",
+        "downloads": "5M+",
+        "strengths": "AI識別が強力",
+        "weaknesses": "記録/継続のゲーミフィケーション弱い"
+      }
+    ],
+    "expectedRevenue": "A",
+    "devDifficulty": "low",
+    "overseas": "high",
+    "whyNow": {
+      "summary": "海外birding市場が厚く言語非依存で海外展開が効く。図鑑コレクション×観察記録×目撃マップで習慣化・継続率が高い。",
+      "marketOpportunity": "大手は投稿/識別特化で、ローカル個人図鑑×収集体験が空白",
+      "timing": "2026-05-27 シグナル: 発見導線がPlay Shorts縦動画へ移行→珍鳥記録動画がASO主導線になる"
+    },
+    "problem": "野鳥観察の記録（種・写真・場所・日時）と図鑑コレクション化が散逸し、振り返れない。",
+    "target": "海外birding層（eBird/Merlin文化圏）＋日本のシニア趣味層",
+    "mvp": [
+      "野鳥静的JSON（50種以上・和名/英名/科）からの種選択",
+      "観察記録のCRUD（種/写真/日時/場所匿名化/メモ）",
+      "種別図鑑コレクション（達成率）",
+      "目撃マップ（オフラインタイル）",
+      "月別・種別統計"
+    ],
+    "monetization": {
+      "ads": true,
+      "subscription": true,
+      "oneTime": false,
+      "affiliate": false,
+      "note": "無料=広告 / サブスク=写真無制限・図鑑拡張・目撃マップ"
+    },
+    "notes": "local-first・API不要・静的JSONでAI単独開発しやすい。第2サイクル発掘1位。",
+    "nextAction": "競合ASO実査（eBird/Merlin/Audubon）→スコア確定→Epic化判断",
+    "researchLogs": [
+      {
+        "date": "2026-06-02",
+        "type": "発掘",
+        "note": "第2サイクル横断分析で local-first 案#16 を昇格（runId 20260602-204657）"
+      },
+      {
+        "date": "2026-06-04",
+        "type": "vault_sync",
+        "note": "定期取り込み: 野鳥観察ノート BirdLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 6 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260604-105045",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-06-04",
+        "type": "vault_sync",
+        "note": "定期取り込み: 野鳥観察ノート BirdLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 7 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260604-140002",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-06-08",
+        "type": "vault_sync",
+        "note": "定期取り込み: 野鳥観察ノート BirdLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 8 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260608-140010",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-06-08",
+        "type": "vault_sync",
+        "note": "定期取り込み: 野鳥観察ノート BirdLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 9 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260608-230014",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-06-09",
+        "type": "vault_sync",
+        "note": "定期取り込み: 野鳥観察ノート BirdLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 10 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260609-230005",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-06-11",
+        "type": "vault_sync",
+        "note": "定期取り込み: 野鳥観察ノート BirdLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 23 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260611-110003",
+        "impact": "no_change"
+      }
+    ],
+    "history": [
+      {
+        "at": "2026-06-02T20:46:00.000Z",
+        "action": "created",
+        "detail": "第2サイクル発掘で登録"
+      },
+      {
+        "at": "2026-06-04T01:50:45.621Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260604-105045",
+        "timestamp": "2026-06-04T01:50:45.621Z"
+      },
+      {
+        "at": "2026-06-04T05:00:02.084Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260604-140002",
+        "timestamp": "2026-06-04T05:00:02.084Z"
+      },
+      {
+        "at": "2026-06-08T05:00:10.424Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260608-140010",
+        "timestamp": "2026-06-08T05:00:10.424Z"
+      },
+      {
+        "at": "2026-06-08T14:00:14.601Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260608-230014",
+        "timestamp": "2026-06-08T14:00:14.601Z"
+      },
+      {
+        "at": "2026-06-09T14:00:05.188Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260609-230005",
+        "timestamp": "2026-06-09T14:00:05.188Z"
+      },
+      {
+        "at": "2026-06-11T02:00:03.202Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260611-110003",
+        "timestamp": "2026-06-11T02:00:03.202Z"
+      }
+    ],
+    "links": {
+      "vault": "05_monetization/収益化候補一覧.md（#14）",
+      "researchNote": "06_research/local-first-app-ideas-2026-05-14"
+    },
+    "discoveredAt": "2026-06-02T20:46:00.000Z",
+    "updatedAt": "2026-06-11T02:00:03.202Z",
+    "lastResearchedAt": "2026-06-11",
+    "sourceRefs": [
+      {
+        "id": "sr-birdlog-9em4-7",
+        "type": "vault",
+        "path": "05_monetization/収益化候補一覧.md",
+        "title": "野鳥観察ノート BirdLog",
+        "excerpt": "",
+        "section": "新規発掘候補（2026-06-02 第2サイクル / 定時発掘業務）",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "high"
+      },
+      {
+        "id": "sr-birdlog-9em4-1",
+        "type": "research",
+        "path": "06_research/local-first-app-ideas-2026-05-14.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-9em9-2",
+        "type": "review",
+        "path": "20_reviews/2026-06-02_market-discovery-cycle2.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-9em9-3",
+        "type": "review",
+        "path": "20_reviews/2026-06-03_monetization-hub.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-9em9-4",
+        "type": "review",
+        "path": "20_reviews/2026-06-03_recommended-epics.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-9em9-5",
+        "type": "review",
+        "path": "20_reviews/_review_queue.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-0th2-6",
+        "type": "review",
+        "path": "20_reviews/2026-06-04_monetization-vault-sync.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-140002",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-sep8-7",
+        "type": "review",
+        "path": "20_reviews/2026-06-08_progress-factory-eligibility-fix.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-08",
+        "addedByRunId": "20260608-140010",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-2xv3-8",
+        "type": "review",
+        "path": "20_reviews/2026-06-08_progress-factory-fix-deploy-to-prod.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-08",
+        "addedByRunId": "20260608-230014",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-ilwd-9",
+        "type": "review",
+        "path": "20_reviews/2026-06-09_news-app-vault-sync-fix.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-09",
+        "addedByRunId": "20260609-230005",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-obsh-10",
+        "type": "research",
+        "path": "06_research/2026-06-10_know-20260607-231654.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-110003",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-obsh-11",
+        "type": "research",
+        "path": "06_research/2026-06-10_know-20260609-230005.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-110003",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-obsh-12",
+        "type": "research",
+        "path": "06_research/2026-06-10_know-20260610-140527.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-110003",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-obsh-13",
+        "type": "research",
+        "path": "06_research/2026-06-10_know-20260611-001032.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-110003",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-obsh-14",
+        "type": "research",
+        "path": "06_research/2026-06-10_know-20260611-013300.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-110003",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-obsh-15",
+        "type": "research",
+        "path": "06_research/2026-06-11_ai-factory-os-v2.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-110003",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-obsk-16",
+        "type": "review",
+        "path": "20_reviews/2026-06-10_know-20260607-231654.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-110003",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-obsk-17",
+        "type": "review",
+        "path": "20_reviews/2026-06-10_know-20260609-230005.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-110003",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-obsk-18",
+        "type": "review",
+        "path": "20_reviews/2026-06-10_know-20260610-140527.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-110003",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-obsk-19",
+        "type": "review",
+        "path": "20_reviews/2026-06-10_know-20260611-001032.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-110003",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-obsk-20",
+        "type": "review",
+        "path": "20_reviews/2026-06-10_know-20260611-013300.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-110003",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-obsk-21",
+        "type": "review",
+        "path": "20_reviews/2026-06-11_ai-factory-goal-mapping-report.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-110003",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-obsk-22",
+        "type": "review",
+        "path": "20_reviews/2026-06-11_ai-factory-os-v2-ops-review.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-110003",
+        "confidence": "medium"
+      }
+    ],
+    "evidenceLinks": [
+      {
+        "label": "local-first-app-ideas-2026-05-14.md",
+        "path": "06_research/local-first-app-ideas-2026-05-14.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-02_market-discovery-cycle2.md",
+        "path": "20_reviews/2026-06-02_market-discovery-cycle2.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-03_monetization-hub.md",
+        "path": "20_reviews/2026-06-03_monetization-hub.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-03_recommended-epics.md",
+        "path": "20_reviews/2026-06-03_recommended-epics.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "_review_queue.md",
+        "path": "20_reviews/_review_queue.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-04_monetization-vault-sync.md",
+        "path": "20_reviews/2026-06-04_monetization-vault-sync.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-08_progress-factory-eligibility-fix.md",
+        "path": "20_reviews/2026-06-08_progress-factory-eligibility-fix.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-08_progress-factory-fix-deploy-to-prod.md",
+        "path": "20_reviews/2026-06-08_progress-factory-fix-deploy-to-prod.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-09_news-app-vault-sync-fix.md",
+        "path": "20_reviews/2026-06-09_news-app-vault-sync-fix.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-10_know-20260607-231654.md",
+        "path": "06_research/2026-06-10_know-20260607-231654.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-10_know-20260609-230005.md",
+        "path": "06_research/2026-06-10_know-20260609-230005.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-10_know-20260610-140527.md",
+        "path": "06_research/2026-06-10_know-20260610-140527.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-10_know-20260611-001032.md",
+        "path": "06_research/2026-06-10_know-20260611-001032.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-10_know-20260611-013300.md",
+        "path": "06_research/2026-06-10_know-20260611-013300.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_ai-factory-os-v2.md",
+        "path": "06_research/2026-06-11_ai-factory-os-v2.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-10_know-20260607-231654.md",
+        "path": "20_reviews/2026-06-10_know-20260607-231654.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-10_know-20260609-230005.md",
+        "path": "20_reviews/2026-06-10_know-20260609-230005.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-10_know-20260610-140527.md",
+        "path": "20_reviews/2026-06-10_know-20260610-140527.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-10_know-20260611-001032.md",
+        "path": "20_reviews/2026-06-10_know-20260611-001032.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-10_know-20260611-013300.md",
+        "path": "20_reviews/2026-06-10_know-20260611-013300.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_ai-factory-goal-mapping-report.md",
+        "path": "20_reviews/2026-06-11_ai-factory-goal-mapping-report.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_ai-factory-os-v2-ops-review.md",
+        "path": "20_reviews/2026-06-11_ai-factory-os-v2-ops-review.md",
+        "note": "名称が再登場"
+      }
+    ],
+    "lastSyncRunId": "20260611-110003"
+  },
+  {
+    "id": "mc-anglerlog-001",
+    "name": "釣果ログ AnglerLog",
+    "category": "記録 / 収集 / 趣味",
+    "status": "EpicCreated",
+    "score": 86,
+    "targetApp": "anglerlog",
+    "scoreBreakdown": {
+      "marketSize": 88,
+      "monetization": 84,
+      "retention": 86,
+      "aso": 78,
+      "overseas": 90,
+      "devEase": 82
+    },
+    "marketSize": "海外大（米/EU）",
+    "estimatedUsers": "数百万規模（釣り人口）",
+    "trendsRating": "安定（fishing log）",
+    "playStoreDemand": "高",
+    "keywords": [
+      "fishing log",
+      "釣果",
+      "angler",
+      "catch log",
+      "fishing diary"
+    ],
+    "demand": "high",
+    "seoDifficulty": "medium",
+    "competition": "medium",
+    "blueOcean": "yellow",
+    "blueOceanReason": {
+      "competitorCount": "中（Fishbrain等SNS型 + 小規模記録アプリ）",
+      "competitorQuality": "SNS型が主流、ローカル図鑑×自己記録更新は手薄",
+      "differentiation": "魚種図鑑コレクション＋自己記録更新＋季節パターン",
+      "barrier": "魚種静的データ整備"
+    },
+    "competitors": [
+      {
+        "name": "Fishbrain",
+        "rating": "4.3",
+        "downloads": "5M+",
+        "strengths": "SNS/ポイント共有",
+        "weaknesses": "個人記録/オフライン体験が弱い、課金圧"
+      }
+    ],
+    "expectedRevenue": "A",
+    "devDifficulty": "low",
+    "overseas": "high",
+    "whyNow": {
+      "summary": "釣行ごとの高継続・釣果写真のSNS拡散・サブスク導線が明確。local-firstでAI単独開発に最適。",
+      "marketOpportunity": "SNS型に対しローカル個人記録×図鑑が空白",
+      "timing": "Play Shorts縦動画（大物ヒット動画→アプリ送客）と好相性"
+    },
+    "problem": "釣行記録が紙やカメラロールに散逸し、自己ベストや季節パターンを振り返れない。",
+    "target": "日本・海外（米/EU）の趣味釣り人（30〜60代中心）",
+    "mvp": [
+      "魚種静的JSON選択＋釣果記録（サイズ/天候/仕掛け/写真）",
+      "場所の匿名化保存",
+      "統計（魚種別・月別・自己記録）",
+      "釣行カレンダー"
+    ],
+    "monetization": {
+      "ads": true,
+      "subscription": true,
+      "oneTime": false,
+      "affiliate": false,
+      "note": "無料=広告 / サブスク=写真無制限・高度統計・天候/潮汐連携"
+    },
+    "notes": "第1サイクル発掘1位。海外大・SNS拡散強。",
+    "nextAction": "競合ASO実査（Fishbrain）→スコア確定",
+    "researchLogs": [
+      {
+        "date": "2026-06-02",
+        "type": "発掘",
+        "note": "第1サイクル横断分析で local-first 案#20 を昇格（runId 20260602-202214）"
+      },
+      {
+        "date": "2026-06-04",
+        "type": "vault_sync",
+        "note": "定期取り込み: 釣果ログ AnglerLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 5 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260604-105045",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-06-08",
+        "type": "vault_sync",
+        "note": "定期取り込み: 釣果ログ AnglerLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 6 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260608-140010",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-06-08",
+        "type": "vault_sync",
+        "note": "定期取り込み: 釣果ログ AnglerLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 7 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260608-230014",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-06-09",
+        "type": "vault_sync",
+        "note": "定期取り込み: 釣果ログ AnglerLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 8 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260609-230005",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-06-11",
+        "type": "vault_sync",
+        "note": "定期取り込み: 釣果ログ AnglerLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 11 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260611-110003",
+        "impact": "no_change"
+      }
+    ],
+    "history": [
+      {
+        "at": "2026-06-02T20:22:00.000Z",
+        "action": "created",
+        "detail": "第1サイクル発掘で登録"
+      },
+      {
+        "at": "2026-06-03T23:24:20.580Z",
+        "action": "status:EpicCreated",
+        "detail": "Epic epic-anglerlog-mvp-local-firs を作成 / runId 20260604-082420"
+      },
+      {
+        "at": "2026-06-04T01:50:45.621Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260604-105045",
+        "timestamp": "2026-06-04T01:50:45.621Z"
+      },
+      {
+        "at": "2026-06-08T05:00:10.424Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260608-140010",
+        "timestamp": "2026-06-08T05:00:10.424Z"
+      },
+      {
+        "at": "2026-06-08T14:00:14.601Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260608-230014",
+        "timestamp": "2026-06-08T14:00:14.601Z"
+      },
+      {
+        "at": "2026-06-09T14:00:05.188Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260609-230005",
+        "timestamp": "2026-06-09T14:00:05.188Z"
+      },
+      {
+        "at": "2026-06-11T02:00:03.202Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260611-110003",
+        "timestamp": "2026-06-11T02:00:03.202Z"
+      }
+    ],
+    "links": {
+      "vault": "05_monetization/収益化候補一覧.md（#9）",
+      "epicId": "epic-anglerlog-mvp-local-firs",
+      "runId": "20260604-082420"
+    },
+    "discoveredAt": "2026-06-02T20:22:00.000Z",
+    "updatedAt": "2026-06-11T02:00:03.202Z",
+    "lastResearchedAt": "2026-06-11",
+    "sourceRefs": [
+      {
+        "id": "sr-anglerlog-9eln-2",
+        "type": "vault",
+        "path": "05_monetization/収益化候補一覧.md",
+        "title": "釣果ログ AnglerLog",
+        "excerpt": "",
+        "section": "新規発掘候補（2026-06-02 横断分析）",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "high"
+      },
+      {
+        "id": "sr-anglerlog-9elp-1",
+        "type": "review",
+        "path": "20_reviews/2026-06-02_new-app-epic-discovery.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-9elp-2",
+        "type": "review",
+        "path": "20_reviews/2026-06-03_monetization-hub.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-9elp-3",
+        "type": "review",
+        "path": "20_reviews/2026-06-04_factory-scope-rule.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-9elq-4",
+        "type": "review",
+        "path": "20_reviews/_review_queue.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-sena-5",
+        "type": "review",
+        "path": "20_reviews/2026-06-08_progress-factory-eligibility-fix.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-08",
+        "addedByRunId": "20260608-140010",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-2xuk-6",
+        "type": "review",
+        "path": "20_reviews/2026-06-08_progress-factory-fix-deploy-to-prod.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-08",
+        "addedByRunId": "20260608-230014",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-ilmp-7",
+        "type": "review",
+        "path": "20_reviews/2026-06-09_news-app-vault-sync-fix.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-09",
+        "addedByRunId": "20260609-230005",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-obpq-8",
+        "type": "research",
+        "path": "06_research/2026-06-10_know-20260609-230005.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-110003",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-obpv-9",
+        "type": "review",
+        "path": "20_reviews/2026-06-10_know-20260609-230005.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-110003",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-obpv-10",
+        "type": "review",
+        "path": "20_reviews/2026-06-11_ai-factory-goal-mapping-report.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-110003",
+        "confidence": "medium"
+      }
+    ],
+    "evidenceLinks": [
+      {
+        "label": "2026-06-02_new-app-epic-discovery.md",
+        "path": "20_reviews/2026-06-02_new-app-epic-discovery.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-03_monetization-hub.md",
+        "path": "20_reviews/2026-06-03_monetization-hub.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-04_factory-scope-rule.md",
+        "path": "20_reviews/2026-06-04_factory-scope-rule.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "_review_queue.md",
+        "path": "20_reviews/_review_queue.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-08_progress-factory-eligibility-fix.md",
+        "path": "20_reviews/2026-06-08_progress-factory-eligibility-fix.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-08_progress-factory-fix-deploy-to-prod.md",
+        "path": "20_reviews/2026-06-08_progress-factory-fix-deploy-to-prod.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-09_news-app-vault-sync-fix.md",
+        "path": "20_reviews/2026-06-09_news-app-vault-sync-fix.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-10_know-20260609-230005.md",
+        "path": "06_research/2026-06-10_know-20260609-230005.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-10_know-20260609-230005.md",
+        "path": "20_reviews/2026-06-10_know-20260609-230005.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_ai-factory-goal-mapping-report.md",
+        "path": "20_reviews/2026-06-11_ai-factory-goal-mapping-report.md",
+        "note": "名称が再登場"
+      }
+    ],
+    "lastSyncRunId": "20260611-110003"
+  },
+  {
+    "id": "mc-roastjournal-001",
+    "name": "自家焙煎ジャーナル Roast Journal",
+    "category": "記録 / 趣味",
+    "status": "Candidate",
+    "score": 76,
+    "targetApp": "roastjournal",
+    "scoreBreakdown": {
+      "marketSize": 70,
+      "monetization": 75,
+      "retention": 80,
+      "aso": 70,
+      "overseas": 85,
+      "devEase": 88
+    },
+    "marketSize": "海外coffee層厚い",
+    "trendsRating": "中（home roasting）",
+    "playStoreDemand": "中",
+    "keywords": [
+      "coffee roasting",
+      "home roast",
+      "焙煎",
+      "roast log"
+    ],
+    "demand": "medium",
+    "seoDifficulty": "medium",
+    "competition": "low",
+    "blueOcean": "green",
+    "blueOceanReason": {
+      "competitorCount": "少",
+      "differentiation": "焙煎カーブ比較という独自軸",
+      "barrier": "低"
+    },
+    "expectedRevenue": "B",
+    "devDifficulty": "low",
+    "overseas": "high",
+    "whyNow": {
+      "summary": "海外home roasting層が安定。温度カーブ比較でサブスク化しやすい。",
+      "timing": "API不要で維持コスト低"
+    },
+    "problem": "焙煎条件（豆/焙煎度/時間/温度カーブ/抽出/スコア）が記録できず再現できない。",
+    "target": "海外home roasting層＋日本のコーヒー愛好家",
+    "mvp": [
+      "焙煎ログ＋温度カーブ記録",
+      "抽出条件＋テイスティングスコア",
+      "比較表"
+    ],
+    "monetization": {
+      "ads": true,
+      "subscription": true,
+      "note": "サブスク=無制限ログ・カーブ比較"
+    },
+    "notes": "第2サイクル発掘2位。記録系・sub向き。",
+    "nextAction": "競合ASO実査",
+    "researchLogs": [
+      {
+        "date": "2026-06-02",
+        "type": "発掘",
+        "note": "第2サイクルで案#18を昇格"
+      },
+      {
+        "date": "2026-06-04",
+        "type": "vault_sync",
+        "note": "定期取り込み: 自家焙煎ジャーナル Roast Journal が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 1 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260604-105045",
+        "impact": "no_change"
+      }
+    ],
+    "history": [
+      {
+        "at": "2026-06-02T20:46:00.000Z",
+        "action": "created"
+      },
+      {
+        "at": "2026-06-04T01:50:45.621Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260604-105045",
+        "timestamp": "2026-06-04T01:50:45.621Z"
+      }
+    ],
+    "discoveredAt": "2026-06-02T20:46:00.000Z",
+    "updatedAt": "2026-06-04T01:50:45.621Z",
+    "lastResearchedAt": "2026-06-04",
+    "sourceRefs": [
+      {
+        "id": "sr-roastjournal-9em9-8",
+        "type": "vault",
+        "path": "05_monetization/収益化候補一覧.md",
+        "title": "自家焙煎ジャーナル Roast Journal",
+        "excerpt": "",
+        "section": "新規発掘候補（2026-06-02 第2サイクル / 定時発掘業務）",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "high"
+      }
+    ],
+    "lastSyncRunId": "20260604-105045"
+  },
+  {
+    "id": "mc-scentvault-001",
+    "name": "香水コレクション台帳 Scent Vault",
+    "category": "収集 / 趣味",
+    "status": "Draft",
+    "score": 76,
+    "targetApp": "scentvault",
+    "scoreBreakdown": {
+      "marketSize": 72,
+      "monetization": 76,
+      "retention": 78,
+      "aso": 72,
+      "overseas": 88,
+      "devEase": 86
+    },
+    "marketSize": "海外熱量高(Fragrantica層)",
+    "keywords": [
+      "fragrance collection",
+      "perfume",
+      "香水",
+      "scent log"
+    ],
+    "demand": "medium",
+    "competition": "medium",
+    "blueOcean": "yellow",
+    "expectedRevenue": "B",
+    "devDifficulty": "low",
+    "overseas": "high",
+    "problem": "所有香水・サンプルの管理、季節/シーン別の使い分け、ウィッシュリストが記録できない。",
+    "target": "海外フレグランス層（Fragrantica文化圏）＋日本の愛好家",
+    "mvp": [
+      "香水台帳（ノート/濃度/季節/評価）",
+      "所有・ウィッシュ管理",
+      "コレクション共有用画像出力"
+    ],
+    "monetization": {
+      "ads": true,
+      "subscription": true
+    },
+    "notes": "第1サイクル発掘3位。SNS映え・拡散性高。",
+    "history": [
+      {
+        "at": "2026-06-02T20:22:00.000Z",
+        "action": "created"
+      },
+      {
+        "at": "2026-06-04T01:50:45.621Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260604-105045",
+        "timestamp": "2026-06-04T01:50:45.621Z"
+      }
+    ],
+    "discoveredAt": "2026-06-02T20:22:00.000Z",
+    "updatedAt": "2026-06-04T01:50:45.621Z",
+    "researchLogs": [
+      {
+        "date": "2026-06-04",
+        "type": "vault_sync",
+        "note": "定期取り込み: 香水コレクション台帳 Scent Vault が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 1 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260604-105045",
+        "impact": "no_change"
+      }
+    ],
+    "lastResearchedAt": "2026-06-04",
+    "sourceRefs": [
+      {
+        "id": "sr-scentvault-9ely-4",
+        "type": "vault",
+        "path": "05_monetization/収益化候補一覧.md",
+        "title": "香水コレクション台帳 Scent Vault",
+        "excerpt": "",
+        "section": "新規発掘候補（2026-06-02 横断分析）",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "high"
+      }
+    ],
+    "lastSyncRunId": "20260604-105045"
+  },
+  {
+    "id": "mc-bgstats-001",
+    "name": "卓上ゲーム戦績手帳 BG Stats",
+    "category": "記録 / 集計 / 趣味",
+    "status": "Draft",
+    "score": 74,
+    "targetApp": "bgstats",
+    "scoreBreakdown": {
+      "marketSize": 72,
+      "monetization": 70,
+      "retention": 80,
+      "aso": 68,
+      "overseas": 86,
+      "devEase": 84
+    },
+    "marketSize": "海外BGG文化",
+    "keywords": [
+      "board game stats",
+      "戦績",
+      "score tracker"
+    ],
+    "demand": "medium",
+    "competition": "medium",
+    "blueOcean": "yellow",
+    "expectedRevenue": "B",
+    "devDifficulty": "low",
+    "overseas": "high",
+    "problem": "ボードゲームの家族/グループ戦績・勝率・対戦相手が残らない。",
+    "target": "海外BGG文化圏＋日本のボドゲ層",
+    "mvp": [
+      "戦績記録＋プレイヤー管理",
+      "勝率/ゲーム別統計",
+      "セッション履歴"
+    ],
+    "monetization": {
+      "ads": true,
+      "subscription": true
+    },
+    "notes": "第2サイクル発掘3位。コミュニティ不要でローカル成立。",
+    "history": [
+      {
+        "at": "2026-06-02T20:46:00.000Z",
+        "action": "created"
+      },
+      {
+        "at": "2026-06-04T01:50:45.621Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260604-105045",
+        "timestamp": "2026-06-04T01:50:45.621Z"
+      }
+    ],
+    "discoveredAt": "2026-06-02T20:46:00.000Z",
+    "updatedAt": "2026-06-04T01:50:45.621Z",
+    "researchLogs": [
+      {
+        "date": "2026-06-04",
+        "type": "vault_sync",
+        "note": "定期取り込み: 卓上ゲーム戦績手帳 BG Stats が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 2 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260604-105045",
+        "impact": "no_change"
+      }
+    ],
+    "lastResearchedAt": "2026-06-04",
+    "sourceRefs": [
+      {
+        "id": "sr-bgstats-9emc-9",
+        "type": "vault",
+        "path": "05_monetization/収益化候補一覧.md",
+        "title": "卓上ゲーム戦績手帳 BG Stats",
+        "excerpt": "",
+        "section": "新規発掘候補（2026-06-02 第2サイクル / 定時発掘業務）",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "high"
+      },
+      {
+        "id": "sr-bgstats-9emd-1",
+        "type": "research",
+        "path": "06_research/local-first-app-ideas-2026-05-14.md",
+        "title": "卓上ゲーム戦績手帳 BG Stats",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "medium"
+      }
+    ],
+    "evidenceLinks": [
+      {
+        "label": "local-first-app-ideas-2026-05-14.md",
+        "path": "06_research/local-first-app-ideas-2026-05-14.md",
+        "note": "名称が再登場"
+      }
+    ],
+    "lastSyncRunId": "20260604-105045"
+  },
+  {
+    "id": "mc-ailogicpuzzle-001",
+    "name": "AI日めくりロジックパズル",
+    "category": "学習 / 習慣",
+    "status": "Draft",
+    "score": 68,
+    "targetApp": "ailogicpuzzle",
+    "scoreBreakdown": {
+      "marketSize": 78,
+      "monetization": 62,
+      "retention": 88,
+      "aso": 60,
+      "overseas": 80,
+      "devEase": 92
+    },
+    "marketSize": "casual puzzle 大",
+    "keywords": [
+      "logic puzzle",
+      "一筆書き",
+      "sudoku",
+      "daily puzzle"
+    ],
+    "demand": "medium",
+    "competition": "high",
+    "blueOcean": "red",
+    "expectedRevenue": "B",
+    "devDifficulty": "low",
+    "overseas": "high",
+    "problem": "毎日続けられる手軽なロジックパズルと継続記録が分散している。",
+    "target": "日本・海外の casual puzzle 層（言語非依存）",
+    "mvp": [
+      "365問内蔵（AI自動生成）",
+      "日めくり1問＋連続日数streak",
+      "解答タイムランキング（ローカル）"
+    ],
+    "monetization": {
+      "ads": true,
+      "subscription": true,
+      "note": "広告除去・追加問題パック"
+    },
+    "notes": "第1サイクル発掘5位。継続率高・AI生成相性◎。競合多くレッドオーシャン。",
+    "history": [
+      {
+        "at": "2026-06-02T20:22:00.000Z",
+        "action": "created"
+      },
+      {
+        "at": "2026-06-04T01:50:45.621Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260604-105045",
+        "timestamp": "2026-06-04T01:50:45.621Z"
+      }
+    ],
+    "discoveredAt": "2026-06-02T20:22:00.000Z",
+    "updatedAt": "2026-06-04T01:50:45.621Z",
+    "researchLogs": [
+      {
+        "date": "2026-06-04",
+        "type": "vault_sync",
+        "note": "定期取り込み: AI日めくりロジックパズル が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 2 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260604-105045",
+        "impact": "no_change"
+      }
+    ],
+    "lastResearchedAt": "2026-06-04",
+    "sourceRefs": [
+      {
+        "id": "sr-ai-9em3-6",
+        "type": "vault",
+        "path": "05_monetization/収益化候補一覧.md",
+        "title": "AI日めくりロジックパズル",
+        "excerpt": "",
+        "section": "新規発掘候補（2026-06-02 横断分析）",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "high"
+      },
+      {
+        "id": "sr-ai-9em4-1",
+        "type": "review",
+        "path": "20_reviews/2026-06-02_new-app-epic-discovery.md",
+        "title": "AI日めくりロジックパズル",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "medium"
+      }
+    ],
+    "evidenceLinks": [
+      {
+        "label": "2026-06-02_new-app-epic-discovery.md",
+        "path": "20_reviews/2026-06-02_new-app-epic-discovery.md",
+        "note": "名称が再登場"
+      }
+    ],
+    "lastSyncRunId": "20260604-105045"
+  },
+  {
+    "id": "mc-cand-9elm-0",
+    "name": "ポーカー学習アプリ",
+    "category": "候補一覧",
+    "status": "Draft",
+    "score": 0,
+    "targetApp": "",
+    "sourceRefs": [
+      {
+        "id": "sr-x-9elm-0",
+        "type": "vault",
+        "path": "05_monetization/収益化候補一覧.md",
+        "title": "ポーカー学習アプリ",
+        "excerpt": "",
+        "section": "候補一覧",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "high"
+      }
+    ],
+    "researchLogs": [
+      {
+        "date": "2026-06-04",
+        "type": "vault_sync",
+        "note": "定期取り込みで新規候補化（出典: 05_monetization/収益化候補一覧.md / 候補一覧）",
+        "summary": "ポーカー学習アプリ",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260604-105045",
+        "impact": "new_candidate"
+      }
+    ],
+    "history": [
+      {
+        "at": "2026-06-04T01:50:45.621Z",
+        "action": "created_by_vault_sync",
+        "detail": "定期取り込み（schedule/systemd）",
+        "after": "Draft",
+        "reason": "Vault 調査結果に未反映の候補を検出",
+        "runId": "20260604-105045",
+        "timestamp": "2026-06-04T01:50:45.621Z"
+      }
+    ],
+    "links": {
+      "vault": "05_monetization/収益化候補一覧.md"
+    },
+    "discoveredAt": "2026-06-04T01:50:45.621Z",
+    "updatedAt": "2026-06-04T01:50:45.621Z",
+    "lastResearchedAt": "2026-06-04",
+    "ingestedAt": "2026-06-04T01:50:45.621Z",
+    "lastSyncRunId": "20260604-105045"
+  },
+  {
+    "id": "mc-ai-9eln-1",
+    "name": "AI ニュース系",
+    "category": "候補一覧",
+    "status": "Draft",
+    "score": 0,
+    "targetApp": "ai",
+    "sourceRefs": [
+      {
+        "id": "sr-ai-9elm-1",
+        "type": "vault",
+        "path": "05_monetization/収益化候補一覧.md",
+        "title": "AI ニュース系",
+        "excerpt": "",
+        "section": "候補一覧",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "high"
+      }
+    ],
+    "researchLogs": [
+      {
+        "date": "2026-06-04",
+        "type": "vault_sync",
+        "note": "定期取り込みで新規候補化（出典: 05_monetization/収益化候補一覧.md / 候補一覧）",
+        "summary": "AI ニュース系",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260604-105045",
+        "impact": "new_candidate"
+      }
+    ],
+    "history": [
+      {
+        "at": "2026-06-04T01:50:45.621Z",
+        "action": "created_by_vault_sync",
+        "detail": "定期取り込み（schedule/systemd）",
+        "after": "Draft",
+        "reason": "Vault 調査結果に未反映の候補を検出",
+        "runId": "20260604-105045",
+        "timestamp": "2026-06-04T01:50:45.621Z"
+      }
+    ],
+    "links": {
+      "vault": "05_monetization/収益化候補一覧.md"
+    },
+    "discoveredAt": "2026-06-04T01:50:45.621Z",
+    "updatedAt": "2026-06-04T01:50:45.621Z",
+    "lastResearchedAt": "2026-06-04",
+    "ingestedAt": "2026-06-04T01:50:45.621Z",
+    "lastSyncRunId": "20260604-105045"
+  },
+  {
+    "id": "mc-recovery-9ely-2",
+    "name": "部位レスト筋トレ Recovery",
+    "category": "新規発掘候補（2026-06-02 横断分析）",
+    "status": "Draft",
+    "score": 0,
+    "targetApp": "recovery",
+    "sourceRefs": [
+      {
+        "id": "sr-recovery-9elq-3",
+        "type": "vault",
+        "path": "05_monetization/収益化候補一覧.md",
+        "title": "部位レスト筋トレ Recovery",
+        "excerpt": "",
+        "section": "新規発掘候補（2026-06-02 横断分析）",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "high"
+      },
+      {
+        "id": "sr-recovery-9elv-1",
+        "type": "research",
+        "path": "06_research/local-first-app-ideas-2026-05-14.md",
+        "title": "部位レスト筋トレ Recovery",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "medium"
+      }
+    ],
+    "evidenceLinks": [
+      {
+        "label": "local-first-app-ideas-2026-05-14.md",
+        "path": "06_research/local-first-app-ideas-2026-05-14.md",
+        "note": "候補化の根拠"
+      }
+    ],
+    "researchLogs": [
+      {
+        "date": "2026-06-04",
+        "type": "vault_sync",
+        "note": "定期取り込みで新規候補化（出典: 05_monetization/収益化候補一覧.md / 新規発掘候補（2026-06-02 横断分析））",
+        "summary": "部位レスト筋トレ Recovery",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260604-105045",
+        "impact": "new_candidate"
+      }
+    ],
+    "history": [
+      {
+        "at": "2026-06-04T01:50:45.621Z",
+        "action": "created_by_vault_sync",
+        "detail": "定期取り込み（schedule/systemd）",
+        "after": "Draft",
+        "reason": "Vault 調査結果に未反映の候補を検出",
+        "runId": "20260604-105045",
+        "timestamp": "2026-06-04T01:50:45.621Z"
+      }
+    ],
+    "links": {
+      "vault": "05_monetization/収益化候補一覧.md"
+    },
+    "discoveredAt": "2026-06-04T01:50:45.621Z",
+    "updatedAt": "2026-06-04T01:50:45.621Z",
+    "lastResearchedAt": "2026-06-04",
+    "ingestedAt": "2026-06-04T01:50:45.621Z",
+    "lastSyncRunId": "20260604-105045"
+  },
+  {
+    "id": "mc-vinylvault-9em3-3",
+    "name": "アナログレコード台帳 Vinyl Vault",
+    "category": "新規発掘候補（2026-06-02 横断分析）",
+    "status": "Draft",
+    "score": 0,
+    "targetApp": "vinylvault",
+    "sourceRefs": [
+      {
+        "id": "sr-vinylvault-9em1-5",
+        "type": "vault",
+        "path": "05_monetization/収益化候補一覧.md",
+        "title": "アナログレコード台帳 Vinyl Vault",
+        "excerpt": "",
+        "section": "新規発掘候補（2026-06-02 横断分析）",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "high"
+      }
+    ],
+    "researchLogs": [
+      {
+        "date": "2026-06-04",
+        "type": "vault_sync",
+        "note": "定期取り込みで新規候補化（出典: 05_monetization/収益化候補一覧.md / 新規発掘候補（2026-06-02 横断分析））",
+        "summary": "アナログレコード台帳 Vinyl Vault",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260604-105045",
+        "impact": "new_candidate"
+      }
+    ],
+    "history": [
+      {
+        "at": "2026-06-04T01:50:45.621Z",
+        "action": "created_by_vault_sync",
+        "detail": "定期取り込み（schedule/systemd）",
+        "after": "Draft",
+        "reason": "Vault 調査結果に未反映の候補を検出",
+        "runId": "20260604-105045",
+        "timestamp": "2026-06-04T01:50:45.621Z"
+      }
+    ],
+    "links": {
+      "vault": "05_monetization/収益化候補一覧.md"
+    },
+    "discoveredAt": "2026-06-04T01:50:45.621Z",
+    "updatedAt": "2026-06-04T01:50:45.621Z",
+    "lastResearchedAt": "2026-06-04",
+    "ingestedAt": "2026-06-04T01:50:45.621Z",
+    "lastSyncRunId": "20260604-105045"
+  },
+  {
+    "id": "mc-fermentlog-9emh-4",
+    "name": "発酵食ジャーナル Ferment Log",
+    "category": "新規発掘候補（2026-06-02 第2サイクル / 定時発掘業務）",
+    "status": "Draft",
+    "score": 0,
+    "targetApp": "fermentlog",
+    "sourceRefs": [
+      {
+        "id": "sr-fermentlog-9emf-10",
+        "type": "vault",
+        "path": "05_monetization/収益化候補一覧.md",
+        "title": "発酵食ジャーナル Ferment Log",
+        "excerpt": "",
+        "section": "新規発掘候補（2026-06-02 第2サイクル / 定時発掘業務）",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "high"
+      }
+    ],
+    "researchLogs": [
+      {
+        "date": "2026-06-04",
+        "type": "vault_sync",
+        "note": "定期取り込みで新規候補化（出典: 05_monetization/収益化候補一覧.md / 新規発掘候補（2026-06-02 第2サイクル / 定時発掘業務））",
+        "summary": "発酵食ジャーナル Ferment Log",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260604-105045",
+        "impact": "new_candidate"
+      }
+    ],
+    "history": [
+      {
+        "at": "2026-06-04T01:50:45.621Z",
+        "action": "created_by_vault_sync",
+        "detail": "定期取り込み（schedule/systemd）",
+        "after": "Draft",
+        "reason": "Vault 調査結果に未反映の候補を検出",
+        "runId": "20260604-105045",
+        "timestamp": "2026-06-04T01:50:45.621Z"
+      }
+    ],
+    "links": {
+      "vault": "05_monetization/収益化候補一覧.md"
+    },
+    "discoveredAt": "2026-06-04T01:50:45.621Z",
+    "updatedAt": "2026-06-04T01:50:45.621Z",
+    "lastResearchedAt": "2026-06-04",
+    "ingestedAt": "2026-06-04T01:50:45.621Z",
+    "lastSyncRunId": "20260604-105045"
+  },
+  {
+    "id": "mc-bonsaicare-9emk-5",
+    "name": "盆栽育成カレンダー BonsaiCare",
+    "category": "新規発掘候補（2026-06-02 第2サイクル / 定時発掘業務）",
+    "status": "Draft",
+    "score": 0,
+    "targetApp": "bonsaicare",
+    "sourceRefs": [
+      {
+        "id": "sr-bonsaicare-9emi-11",
+        "type": "vault",
+        "path": "05_monetization/収益化候補一覧.md",
+        "title": "盆栽育成カレンダー BonsaiCare",
+        "excerpt": "",
+        "section": "新規発掘候補（2026-06-02 第2サイクル / 定時発掘業務）",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "high"
+      },
+      {
+        "id": "sr-bonsaicare-9emk-1",
+        "type": "review",
+        "path": "20_reviews/2026-06-02_market-discovery-cycle2.md",
+        "title": "盆栽育成カレンダー BonsaiCare",
+        "discoveredAt": "2026-06-04",
+        "addedByRunId": "20260604-105045",
+        "confidence": "medium"
+      }
+    ],
+    "evidenceLinks": [
+      {
+        "label": "2026-06-02_market-discovery-cycle2.md",
+        "path": "20_reviews/2026-06-02_market-discovery-cycle2.md",
+        "note": "候補化の根拠"
+      }
+    ],
+    "researchLogs": [
+      {
+        "date": "2026-06-04",
+        "type": "vault_sync",
+        "note": "定期取り込みで新規候補化（出典: 05_monetization/収益化候補一覧.md / 新規発掘候補（2026-06-02 第2サイクル / 定時発掘業務））",
+        "summary": "盆栽育成カレンダー BonsaiCare",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260604-105045",
+        "impact": "new_candidate"
+      }
+    ],
+    "history": [
+      {
+        "at": "2026-06-04T01:50:45.621Z",
+        "action": "created_by_vault_sync",
+        "detail": "定期取り込み（schedule/systemd）",
+        "after": "Draft",
+        "reason": "Vault 調査結果に未反映の候補を検出",
+        "runId": "20260604-105045",
+        "timestamp": "2026-06-04T01:50:45.621Z"
+      }
+    ],
+    "links": {
+      "vault": "05_monetization/収益化候補一覧.md"
+    },
+    "discoveredAt": "2026-06-04T01:50:45.621Z",
+    "updatedAt": "2026-06-04T01:50:45.621Z",
+    "lastResearchedAt": "2026-06-04",
+    "ingestedAt": "2026-06-04T01:50:45.621Z",
+    "lastSyncRunId": "20260604-105045"
+  }
+]

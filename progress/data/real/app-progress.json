@@ -4,13 +4,13 @@
       "id": "shogi-kakoi-trainer",
       "name": "shogi-kakoi-trainer",
       "status": "user_action_pending",
-      "phase": "v1 deployed",
-      "progress": 100,
-      "currentTask": "学習記録機能 push済み（ddae9a4）→ Vercel自動デプロイ完了",
-      "nextAction": "ユーザー操作待ち: 本番確認: /records ページ表示",
+      "phase": "App Store準備完了",
+      "progress": 85,
+      "currentTask": "App Store公開向け整備完了（静的出力・PWA・Capacitor iOS・アイコン生成）commit: f2d147f",
+      "nextAction": "ユーザー操作待ち: Mac で pod install → Xcode ビルド → Bundle ID変更 → App Store提出",
       "blockers": [],
       "url": "https://shogi-kakoi-trainer.vercel.app",
-      "updatedAt": "2026-04-28T10:05:00+09:00"
+      "updatedAt": "2026-05-07T12:37:08.131Z"
     },
     {
       "id": "mahjong",
@@ -66,11 +66,11 @@
       "status": "active",
       "phase": "maintenance",
       "progress": 100,
-      "currentTask": "完了: 集中作業モードで1タスク1レビューを徹底する",
+      "currentTask": "完了: ToDo JSON取り込み画面のテンプレートコピーボタンにexecCommandフォールバック実装",
       "nextAction": "次の今日の作業キューを確認",
       "blockers": [],
       "url": "",
-      "updatedAt": "2026-05-04T11:34:17.475Z"
+      "updatedAt": "2026-05-12T11:40:00.000Z"
     },
     {
       "id": "dashboard",

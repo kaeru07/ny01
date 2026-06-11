@@ -1,0 +1,5 @@
+{
+  "updatedAt": "2026-06-08T13:47:30.000Z",
+  "operationMemo": "URLは種別ごとに管理する。confirmed は pm2/ss/curl 等で現在確認できたURLのみ。documented は README/package.json 等に明記されるが現在稼働確認していないURL。unknown は推測せず「未確認」と表示する。next dev のデフォルトだけを理由に localhost:3000 を登録しない。",
+  "apps": []
+}

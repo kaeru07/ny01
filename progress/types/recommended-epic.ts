@@ -63,6 +63,14 @@ export interface RecommendedEpic {
   sourceKind: string
   /** 抽出元の参照（candidate id / epic id / runId）。重複生成防止のキーにも使う。 */
   sourceRef?: string
+  /** AI工場v2 Phase2: Review→Knowledge→Next Epic 由来候補のGoal。 */
+  goalId?: string
+  /** AI工場v2 Phase2: 元Epic。新規Epic候補でも親子関係を辿れるように保持する。 */
+  parentEpicId?: string
+  /** AI工場v2 Phase2: 候補生成元のExecutionRun。 */
+  sourceRunId?: string
+  /** AI工場v2 Phase2: 候補生成元のKnowledge record。 */
+  sourceKnowledgeId?: string
   duplicate?: DuplicateCheck
   factoryEligiblePreview?: FactoryEligiblePreview
   /** 承認して作成した Epic の id（epic_created 後）。 */

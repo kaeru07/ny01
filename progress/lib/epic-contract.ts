@@ -68,7 +68,7 @@ function isNonEmptyString(v: unknown): v is string {
 
 /**
  * Epic 契約のバリデーション。
- * 必須: title / goal / doneCriteria(1件以上) / decisionPolicy / priority / riskFlags(配列・未知値はエラー)。
+ * 必須: goalId / title / goal / doneCriteria(1件以上) / decisionPolicy / priority / riskFlags(配列・未知値はエラー)。
  * 任意: notes / targetApp / relatedRepo / preferredExecutor / fallbackExecutor / factoryEligible。
  */
 export function validateEpicContract(raw: unknown): EpicValidationResult {
@@ -82,6 +82,9 @@ export function validateEpicContract(raw: unknown): EpicValidationResult {
 
   // title
   if (!isNonEmptyString(o.title)) errors.push('title が空です')
+
+  // goalId
+  if (!isNonEmptyString(o.goalId)) errors.push('goalId が空です（Epic は必ず Goal に紐付けてください）')
 
   // goal
   if (!isNonEmptyString(o.goal)) errors.push('goal が空です')
@@ -130,6 +133,7 @@ export function validateEpicContract(raw: unknown): EpicValidationResult {
   }
 
   const normalized: EpicContractInput = {
+    goalId: (o.goalId as string).trim(),
     title: (o.title as string).trim(),
     goal: (o.goal as string).trim(),
     doneCriteria,
@@ -303,6 +307,7 @@ export function buildExecutionGuard(riskFlags?: EpicRiskFlag[]): { forbidden: st
 // ---- JSON テンプレ（ChatGPT / Claude / Codex に渡して埋めてもらう用） ----
 
 export const EPIC_TEMPLATE: EpicContractInput & { targetApp: string } = {
+  goalId: '',
   title: '',
   goal: '',
   doneCriteria: [''],
@@ -323,7 +328,7 @@ export const EPIC_TEMPLATE: EpicContractInput & { targetApp: string } = {
  */
 export function epicTemplateText(): string {
   return [
-    '次の Epic 契約 JSON の空欄を埋めてください。decisionPolicy は autonomous / approval_required / manual のいずれか、priority は P0 / P1 / P2、riskFlags は billing / production_db / auth_secret / deploy / migration / destructive / external_publish から該当するものだけ。doneCriteria は検証可能な完了条件を 1 件以上。',
+    '次の Epic 契約 JSON の空欄を埋めてください。goalId は既存GoalのIDを必ず入れてください。decisionPolicy は autonomous / approval_required / manual のいずれか、priority は P0 / P1 / P2、riskFlags は billing / production_db / auth_secret / deploy / migration / destructive / external_publish から該当するものだけ。doneCriteria は検証可能な完了条件を 1 件以上。',
     '',
     JSON.stringify(EPIC_TEMPLATE, null, 2),
   ].join('\n')

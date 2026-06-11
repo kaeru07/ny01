@@ -1,0 +1,67 @@
+{
+  "epicId": "epic-a5r7n4",
+  "description": "アプリ開発工場の候補キュー。収益化候補アプリを継続開発するため、各アプリ案に目的・収益化仮説・優先度・次アクションを持たせて一覧管理する。",
+  "candidates": [
+    {
+      "id": "cand-shogi-kakoi",
+      "title": "将棋 囲いトレーナー",
+      "sourceProjectId": "shogi-kakoi-trainer",
+      "purpose": "将棋初〜中級者が囲い（美濃・矢倉等）の手順を反復ドリルで習得できる学習アプリ。",
+      "monetizationHypothesis": "App Store 有料公開（買い切り）＋将来的に囲い追加課金。完成度85%で公開直前のため最短で収益検証できる。",
+      "priority": "high",
+      "status": "ready_to_ship",
+      "nextAction": "ユーザー操作待ち: Mac で pod install → Xcode ビルド → Bundle ID 変更 → App Store 提出",
+      "factorySafe": false,
+      "factoryNote": "公開・提出はユーザー操作（external_publish）。Factory は静的検証・UI 改善まで。"
+    },
+    {
+      "id": "cand-mahjong",
+      "title": "麻雀アプリ（mahjong）",
+      "sourceProjectId": "mahjong",
+      "purpose": "麻雀の対局/練習をブラウザで遊べるアプリ。deploy-ready（build 確認済み）。",
+      "monetizationHypothesis": "Web 公開後に広告（AdSense）＋上達ドリルの一部を有料化。トラフィック獲得で収益仮説を検証。",
+      "priority": "high",
+      "status": "deploy_ready",
+      "nextAction": "ユーザー操作待ち: GitHub push → Vercel デプロイ",
+      "factorySafe": false,
+      "factoryNote": "deploy はユーザー操作。Factory はローカル build/動作確認・改善まで。"
+    },
+    {
+      "id": "cand-ny-ai-quiz",
+      "title": "ny-ai（麻雀クイズ）",
+      "sourceProjectId": "ny-ai",
+      "purpose": "麻雀の何切る問題をクイズ形式で出題し、初心者の判断力を鍛える。",
+      "monetizationHypothesis": "広告＋問題パック販売。麻雀アプリ群と相互送客しユーザー基盤を作る。",
+      "priority": "medium",
+      "status": "confirmed",
+      "nextAction": "ユーザー操作待ち: Vercel デプロイ URL 確認",
+      "factorySafe": true,
+      "factoryNote": "ローカル build/クイズ動作確認・問題追加は Factory 安全範囲。"
+    },
+    {
+      "id": "cand-news-app",
+      "title": "news-app（AI 市場調査 Research DB）",
+      "sourceProjectId": "ny01-news-app",
+      "purpose": "AI ニュースを構造化 Research Topic として蓄積・検索・行動化できる調査ダッシュボード。",
+      "monetizationHypothesis": "調査ナレッジを有料ニュースレター/会員制 DB として提供。社内 Activity Mining の素材にもなる。",
+      "priority": "medium",
+      "status": "in_progress",
+      "nextAction": "build 確認・構造化 Research 表示（topic/tag/todo-candidates 導線）の検証",
+      "factorySafe": true,
+      "factoryNote": "別リポジトリ（news-app）。Factory 対象にする場合は targetApp を分離して扱う。"
+    },
+    {
+      "id": "cand-mahjong-analyzer",
+      "title": "ny01/mahjong-analyzer（手牌解析）",
+      "sourceProjectId": "ny01-mahjong-analyzer",
+      "purpose": "手牌を入力すると有効牌・受け入れ枚数を解析するツール。",
+      "monetizationHypothesis": "麻雀アプリ群のハブ機能として無料提供しトラフィックを集約、上位解析を有料化。",
+      "priority": "low",
+      "status": "active",
+      "nextAction": "build 確認・手牌解析動作確認",
+      "factorySafe": true,
+      "factoryNote": "ローカル build/動作確認は Factory 安全範囲。"
+    }
+  ],
+  "updatedAt": "2026-06-02T00:00:00.000Z"
+}

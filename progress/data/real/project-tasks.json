@@ -244,6 +244,16 @@
           "targetApp": "ny01/progress",
           "createdAt": "2026-05-03T11:32:55.157Z",
           "updatedAt": "2026-05-03T11:32:55.157Z"
+        },
+        {
+          "id": "task-shogi-kakoi-trainer-1777956531686",
+          "title": "駒を移動させる操作の実装",
+          "status": "todo",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "",
+          "createdAt": "2026-05-05T04:48:51.686Z",
+          "updatedAt": "2026-05-05T04:48:51.686Z"
         }
       ]
     },
@@ -1757,6 +1767,47 @@
           "memo": "",
           "createdAt": "2026-05-04T03:40:48.345Z",
           "updatedAt": "2026-05-04T11:34:17.464Z"
+        },
+        {
+          "id": "task-company-mgmt-1778558061704-0",
+          "title": "ToDo JSON取り込み画面のテンプレートコピーボタンエラー修正",
+          "status": "done",
+          "priority": "high",
+          "assignee": "claude",
+          "memo": "iPhoneアプリ・Safari・localhost・非HTTPS環境ではnavigator.clipboardが失敗しやすいため、フォールバック実装を優先する。",
+          "taskPrompt": "progressアプリのToDo追加・JSON取り込み画面で、テンプレートのコピーボタンを押すとエラーになる問題を調査して修正してください。対象はToDo JSON取り込みUI、テンプレート表示、コピー処理、clipboard APIまわりに限定します。まず該当コンポーネントとエラー原因を特定し、navigator.clipboardが使えない環境やiPhone/Safari/非HTTPS環境でも壊れないように、textarea + execCommandなどのフォールバックを実装してください。既存のJSON取り込み仕様、保存処理、キュー追加処理、データ構造は変更しないでください。修正後はTypeScriptチェック、build、該当画面でテンプレートコピーが成功すること、失敗時も画面が落ちずエラーメッセージ表示になることを確認してください。完了時は作業報告・変更内容・検証結果・未対応点・次の一手をまとめ、/api/execution-runs へPOSTできる形式で出力してください。",
+          "taskPromptUpdatedAt": "2026-05-12T03:54:21.704Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "テンプレートのコピーボタンを押しても画面エラーにならない",
+            "navigator.clipboardが使える環境では通常コピーできる",
+            "navigator.clipboardが使えない環境でもフォールバックでコピーできる",
+            "コピー失敗時は画面が落ちず、ユーザーに失敗表示が出る",
+            "TypeScriptエラーがない",
+            "buildが成功する",
+            "変更ファイルと検証結果が最終報告に記載されている",
+            "/api/execution-runs へPOSTできる形式の作業報告が出力されている"
+          ],
+          "allowed": [
+            "ToDo JSON取り込み画面のコンポーネント",
+            "テンプレート表示部分",
+            "コピー処理のユーティリティ化",
+            "コピー成功・失敗時のUI表示",
+            "必要最小限の型修正"
+          ],
+          "forbidden": [
+            "project-tasks.jsonのデータ構造変更",
+            "JSON取り込み保存APIの仕様変更",
+            "今日の作業対象にする処理の仕様変更",
+            "work-queueやexecution-runsの既存仕様変更",
+            "画面全体の大幅なデザイン変更",
+            "認証・環境変数・Vercel設定の変更"
+          ],
+          "risk": "medium",
+          "targetPath": "/root/company/apps/ny01/progress",
+          "targetApp": "ny01/progress",
+          "createdAt": "2026-05-12T03:54:21.704Z",
+          "updatedAt": "2026-05-12T11:40:00.000Z"
         }
       ]
     },
@@ -3073,6 +3124,92 @@
           "estimatedEffort": "small",
           "createdAt": "2026-04-29T09:00:00+09:00",
           "updatedAt": "2026-04-29T09:00:00+09:00"
+        }
+      ]
+    },
+    {
+      "projectId": "progress",
+      "tasks": [
+        {
+          "id": "task-progress-run-20260530-174639-1i5ed6d",
+          "title": "Decision Log読み戻しをexecutor起動プロンプトへ注入",
+          "status": "pending_approval",
+          "priority": "medium",
+          "assignee": "both",
+          "preferredExecutor": "claude",
+          "fallbackExecutor": "codex",
+          "autoFallback": true,
+          "canRunOnCodex": true,
+          "requiresClaude": false,
+          "memo": "ExecutionRun nextActions から自動生成。sourceRunId:20260530-174639",
+          "source": "execution-run-next-actions",
+          "sourceRunId": "20260530-174639",
+          "sourceType": "execution_review",
+          "taskPrompt": "ExecutionRun 20260530-174639 の nextActions 由来ToDoです。\nユーザー承認前に着手しないでください。\n対象: progress\n内容: Decision Log読み戻しをexecutor起動プロンプトへ注入",
+          "doneCriteria": [
+            "ユーザーが承認または保留判断をする",
+            "承認後に実行対象へ移す"
+          ],
+          "forbidden": [
+            "pending_approval のまま実行しない",
+            "未承認で queued にしない"
+          ],
+          "createdAt": "2026-05-30T09:16:58.547Z",
+          "updatedAt": "2026-05-30T09:16:58.547Z"
+        },
+        {
+          "id": "task-progress-run-20260530-174639-0",
+          "title": "ExecutionRun nextActionsからpending_approval ToDo下書きを生成",
+          "status": "pending_approval",
+          "priority": "medium",
+          "assignee": "both",
+          "preferredExecutor": "claude",
+          "fallbackExecutor": "codex",
+          "autoFallback": true,
+          "canRunOnCodex": true,
+          "requiresClaude": false,
+          "memo": "ExecutionRun nextActions から自動生成。sourceRunId:20260530-174639",
+          "source": "execution-run-next-actions",
+          "sourceRunId": "20260530-174639",
+          "sourceType": "execution_review",
+          "taskPrompt": "ExecutionRun 20260530-174639 の nextActions 由来ToDoです。\nユーザー承認前に着手しないでください。\n対象: progress\n内容: ExecutionRun nextActionsからpending_approval ToDo下書きを生成",
+          "doneCriteria": [
+            "ユーザーが承認または保留判断をする",
+            "承認後に実行対象へ移す"
+          ],
+          "forbidden": [
+            "pending_approval のまま実行しない",
+            "未承認で queued にしない"
+          ],
+          "createdAt": "2026-05-30T09:17:21.305Z",
+          "updatedAt": "2026-05-30T09:17:21.305Z"
+        },
+        {
+          "id": "task-progress-run-20260530-174639-1dh4d0p",
+          "title": "handoff必須セクションを自動生成する",
+          "status": "pending_approval",
+          "priority": "medium",
+          "assignee": "both",
+          "preferredExecutor": "claude",
+          "fallbackExecutor": "codex",
+          "autoFallback": true,
+          "canRunOnCodex": true,
+          "requiresClaude": false,
+          "memo": "ExecutionRun nextActions から自動生成。sourceRunId:20260530-174639",
+          "source": "execution-run-next-actions",
+          "sourceRunId": "20260530-174639",
+          "sourceType": "execution_review",
+          "taskPrompt": "ExecutionRun 20260530-174639 の nextActions 由来ToDoです。\nユーザー承認前に着手しないでください。\n対象: progress\n内容: handoff必須セクションを自動生成する",
+          "doneCriteria": [
+            "ユーザーが承認または保留判断をする",
+            "承認後に実行対象へ移す"
+          ],
+          "forbidden": [
+            "pending_approval のまま実行しない",
+            "未承認で queued にしない"
+          ],
+          "createdAt": "2026-05-30T09:17:21.305Z",
+          "updatedAt": "2026-05-30T09:17:21.305Z"
         }
       ]
     }

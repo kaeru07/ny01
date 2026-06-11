@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { DecisionPolicy, EpicPriority, EpicRiskFlag } from '@/lib/types/operations'
+import type { Goal } from '@/types/goal'
 import { DECISION_POLICIES, EPIC_PRIORITIES, RISK_FLAGS, APPROVAL_RISK_FLAGS, CAUTION_RISK_FLAGS, decisionPolicyLabel } from '@/lib/epic-contract'
 
 const RISK_LABEL: Record<EpicRiskFlag, string> = {
@@ -22,7 +23,9 @@ export default function EpicCreateForm() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
+  const [goals, setGoals] = useState<Goal[]>([])
 
+  const [goalId, setGoalId] = useState('')
   const [title, setTitle] = useState('')
   const [goal, setGoal] = useState('')
   const [doneCriteria, setDoneCriteria] = useState<string[]>([''])
@@ -31,6 +34,17 @@ export default function EpicCreateForm() {
   const [riskFlags, setRiskFlags] = useState<EpicRiskFlag[]>([])
   const [notes, setNotes] = useState('')
   const [targetApp, setTargetApp] = useState('')
+
+  useEffect(() => {
+    fetch('/api/goals')
+      .then((res) => res.json())
+      .then((data) => {
+        const loaded = Array.isArray(data.goals) ? data.goals : []
+        setGoals(loaded)
+        setGoalId((current) => current || data.mainGoalId || loaded[0]?.id || '')
+      })
+      .catch(() => setGoals([]))
+  }, [])
 
   function setCriterion(i: number, v: string) {
     setDoneCriteria((arr) => arr.map((c, idx) => (idx === i ? v : c)))
@@ -55,6 +69,7 @@ export default function EpicCreateForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title,
+          goalId,
           goal,
           doneCriteria: doneCriteria.map((c) => c.trim()).filter(Boolean),
           decisionPolicy,
@@ -86,6 +101,15 @@ export default function EpicCreateForm() {
 
   return (
     <form onSubmit={submit} className="space-y-4">
+      <div>
+        <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">goalId <span className="text-red-400">*</span></label>
+        <select value={goalId} onChange={(e) => setGoalId(e.target.value)} className={inputCls} required>
+          <option value="">Goalを選択</option>
+          {goals.map((g) => <option key={g.id} value={g.id}>{g.title}</option>)}
+        </select>
+        {goals.length === 0 && <p className="mt-1 text-[11px] text-amber-600">先にホームでGoalを作成してください。</p>}
+      </div>
+
       <div>
         <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">title <span className="text-red-400">*</span></label>
         <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Epic のタイトル" className={inputCls} />

@@ -1,9 +1,39 @@
 import fs from 'fs/promises'
 import path from 'path'
 import { getDataPath } from '@/lib/progress-reader'
-import type { Goal, GoalsData, GoalProgress, GoalRoleCounts } from '@/types/goal'
+import type { Goal, GoalsData, GoalProgress, GoalRoleCounts, GoalStatus } from '@/types/goal'
 
 const EMPTY: GoalsData = { goals: [], mainGoalId: undefined, updatedAt: '' }
+const VALID_STATUSES: GoalStatus[] = ['active', 'paused', 'done', 'dropped', 'archived']
+
+function normalizeNumber(value: unknown, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback
+}
+
+export function normalizeGoal(raw: Partial<Goal> & Record<string, unknown>): Goal {
+  const now = new Date().toISOString()
+  const title = typeof raw.title === 'string' && raw.title.trim() ? raw.title.trim() : 'Untitled Goal'
+  const summary = typeof raw.summary === 'string' ? raw.summary : typeof raw.description === 'string' ? raw.description : ''
+  const status = VALID_STATUSES.includes(raw.status as GoalStatus) ? (raw.status as GoalStatus) : 'active'
+  return {
+    id: typeof raw.id === 'string' && raw.id.trim() ? raw.id.trim() : `goal-${Date.now()}`,
+    projectId: typeof raw.projectId === 'string' ? raw.projectId : undefined,
+    title,
+    description: typeof raw.description === 'string' ? raw.description : summary,
+    metric: typeof raw.metric === 'string' ? raw.metric : 'progress',
+    target: normalizeNumber(raw.target, 100),
+    current: normalizeNumber(raw.current, typeof raw.target === 'number' ? 0 : 0),
+    isNorthStar: raw.isNorthStar === true,
+    summary,
+    status,
+    priority: raw.priority === 'high' || raw.priority === 'low' || raw.priority === 'medium' ? raw.priority : 'medium',
+    monetizationImpact: raw.monetizationImpact === 'high' || raw.monetizationImpact === 'medium' || raw.monetizationImpact === 'low' || raw.monetizationImpact === 'none' ? raw.monetizationImpact : 'none',
+    phases: Array.isArray(raw.phases) ? raw.phases : [],
+    todos: Array.isArray(raw.todos) ? raw.todos : [],
+    createdAt: typeof raw.createdAt === 'string' ? raw.createdAt : now,
+    updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : now,
+  }
+}
 
 export async function readGoals(): Promise<GoalsData> {
   try {
@@ -11,13 +41,25 @@ export async function readGoals(): Promise<GoalsData> {
     const content = await fs.readFile(filePath, 'utf-8')
     const parsed = JSON.parse(content) as Partial<GoalsData>
     return {
-      goals: Array.isArray(parsed.goals) ? parsed.goals : [],
+      goals: Array.isArray(parsed.goals) ? parsed.goals.map((g) => normalizeGoal(g as Partial<Goal> & Record<string, unknown>)) : [],
       mainGoalId: typeof parsed.mainGoalId === 'string' ? parsed.mainGoalId : undefined,
       updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : '',
     }
   } catch {
     return { ...EMPTY }
   }
+}
+
+export function findNorthStarGoal(data: GoalsData): Goal | undefined {
+  return data.goals.find((g) => g.isNorthStar && g.status === 'active')
+    ?? data.goals.find((g) => g.isNorthStar)
+}
+
+export function goalAchievement(goal: Goal): number {
+  if (typeof goal.target === 'number' && goal.target > 0) {
+    return Math.max(0, Math.min(100, Math.round(((goal.current ?? 0) / goal.target) * 100)))
+  }
+  return calcGoalProgress(goal).ratio
 }
 
 export function findMainGoal(data: GoalsData): Goal | undefined {

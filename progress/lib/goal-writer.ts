@@ -14,6 +14,7 @@ import type {
   GoalTodo,
   GoalsData,
   GoalStatus,
+  GoalUpsertInput,
   MonetizationImpact,
 } from '@/types/goal'
 import type { NewTaskInput, TaskAssignee, TaskPriority } from '@/types/progress'
@@ -21,7 +22,7 @@ import type { NewTaskInput, TaskAssignee, TaskPriority } from '@/types/progress'
 const VALID_ROLES: GoalRole[] = ['human', 'claude', 'codex']
 const VALID_PRIORITIES: TaskPriority[] = ['high', 'medium', 'low']
 const VALID_IMPACT: MonetizationImpact[] = ['high', 'medium', 'low', 'none']
-const VALID_GOAL_STATUS: GoalStatus[] = ['active', 'paused', 'done', 'archived']
+const VALID_GOAL_STATUS: GoalStatus[] = ['active', 'paused', 'done', 'dropped', 'archived']
 
 function nowIso(): string {
   return new Date().toISOString()
@@ -33,10 +34,23 @@ function genId(prefix: string): string {
   return `${prefix}-${t}-${r}`
 }
 
-async function writeGoals(data: GoalsData): Promise<void> {
+export async function writeGoals(data: GoalsData): Promise<void> {
   const filePath = path.join(getDataPath(), 'goals.json')
   data.updatedAt = nowIso()
   await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8')
+}
+
+function pickGoalStatus(value: unknown, fallback: GoalStatus = 'active'): GoalStatus {
+  return VALID_GOAL_STATUS.includes(value as GoalStatus) ? (value as GoalStatus) : fallback
+}
+
+function pickNumber(value: unknown, fallback: number): number {
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (typeof value === 'string' && value.trim()) {
+    const n = Number(value)
+    if (Number.isFinite(n)) return n
+  }
+  return fallback
 }
 
 function pickPriority(value: unknown, fallback: TaskPriority = 'medium'): TaskPriority {
@@ -322,6 +336,44 @@ export async function setMainGoal(goalId: string): Promise<GoalsData> {
   data.mainGoalId = goalId
   await writeGoals(data)
   return data
+}
+
+export async function upsertGoal(input: GoalUpsertInput): Promise<Goal> {
+  const title = pickString(input.title)
+  if (!title) throw new Error('title is required')
+  const data = await readGoals()
+  const now = nowIso()
+  const goalId = pickString(input.id) || genId('goal')
+  const idx = data.goals.findIndex((g) => g.id === goalId)
+  const previous = idx >= 0 ? data.goals[idx] : undefined
+  const target = pickNumber(input.target, previous?.target ?? 100)
+  const goal: Goal = {
+    id: goalId,
+    projectId: previous?.projectId,
+    title,
+    description: pickString(input.description, previous?.description ?? previous?.summary ?? ''),
+    metric: pickString(input.metric, previous?.metric ?? 'progress'),
+    target,
+    current: pickNumber(input.current, previous?.current ?? 0),
+    isNorthStar: input.isNorthStar === true,
+    summary: pickString(input.description, previous?.summary ?? ''),
+    status: pickGoalStatus(input.status, previous?.status ?? 'active'),
+    priority: pickPriority(input.priority, previous?.priority ?? 'medium'),
+    monetizationImpact: previous?.monetizationImpact ?? 'none',
+    phases: previous?.phases ?? [],
+    todos: previous?.todos ?? [],
+    createdAt: previous?.createdAt ?? now,
+    updatedAt: now,
+  }
+
+  if (goal.isNorthStar) {
+    data.goals = data.goals.map((g) => ({ ...g, isNorthStar: g.id === goalId }))
+  }
+  if (idx >= 0) data.goals[idx] = goal
+  else data.goals.push(goal)
+  if (input.setAsMain === true || !data.mainGoalId) data.mainGoalId = goalId
+  await writeGoals(data)
+  return goal
 }
 
 export async function syncGoalTodoStatuses(): Promise<{ synced: number }> {

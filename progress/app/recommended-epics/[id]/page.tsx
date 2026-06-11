@@ -105,6 +105,10 @@ export default async function RecommendationDetailPage({ params }: { params: { i
       {/* 関連 */}
       <Section title="関連リンク / 抽出元">
         <Row label="抽出元" value={`${r.sourceKind}${r.sourceRef ? ` / ${r.sourceRef}` : ''}`} />
+        <Row label="goalId" value={r.goalId} />
+        <Row label="parentEpicId" value={r.parentEpicId} />
+        <Row label="sourceRunId" value={r.sourceRunId} />
+        <Row label="sourceKnowledgeId" value={r.sourceKnowledgeId} />
         {r.relatedVault && r.relatedVault.length > 0 && (
           <div className="py-1 text-sm">
             <span className="text-gray-400">関連Vaultメモ</span>

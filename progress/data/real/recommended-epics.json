@@ -1,0 +1,1587 @@
+[
+  {
+    "id": "rec-anglerlog-560c-0",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "釣果ログ AnglerLog の MVP を作る（local-first / API不要）",
+    "reason": "収益化候補(score 86, 記録 / 収集 / 趣味)。釣行ごとの高継続・釣果写真のSNS拡散・サブスク導線が明確。local-firstでAI単独開発に最適。",
+    "monetizationImpact": "high",
+    "targetApp": "anglerlog",
+    "relatedVault": [
+      "05_monetization/収益化候補一覧.md（#9）"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "魚種静的JSON選択＋釣果記録（サイズ/天候/仕掛け/写真） がローカルで動作し永続化される",
+      "場所の匿名化保存 がローカルで動作し永続化される",
+      "統計（魚種別・月別・自己記録） がローカルで動作し永続化される",
+      "釣行カレンダー がローカルで動作し永続化される",
+      "build / typecheck / lint のいずれかが実行され結果が記録される",
+      "オフラインでMVP主要機能が動作することを確認した記録がある"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "monetization_candidate",
+    "sourceRef": "mc-anglerlog-001",
+    "notes": "AI工場の作業範囲（MVP設計/実装/ローカル保存/JSON/UI/build・lint・typecheck/公開前チェックリスト・ストア文言下書き・スクショ/アイコン/ASO案）まで。公開・課金・申請は含めない（下の公開/課金候補を参照）。",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": []
+    },
+    "history": [
+      {
+        "at": "2026-06-03T16:27:35.720Z",
+        "action": "suggested",
+        "detail": "抽出元: monetization_candidate"
+      }
+    ],
+    "createdAt": "2026-06-03T16:27:35.720Z",
+    "updatedAt": "2026-06-03T16:27:35.720Z",
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "id": "rec-anglerlog-publish-560c-1",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "釣果ログ AnglerLog を Google Play / App Store に公開申請する（ユーザー作業）",
+    "reason": "公開・審査申請はユーザー作業。Apple Developer / Google Play Console 登録・審査申請・ストア公開を行う。AI工場は公開前チェックリスト/ストア文言下書き/スクショ・アイコン案まで。",
+    "monetizationImpact": "high",
+    "targetApp": "anglerlog-publish",
+    "relatedVault": [
+      "05_monetization/収益化候補一覧.md（#9）"
+    ],
+    "priority": "P2",
+    "doneCriteria": [
+      "ストア掲載情報（文言/スクショ/アイコン）を確定する",
+      "ストアに公開申請し審査を通過する"
+    ],
+    "decisionPolicy": "manual",
+    "riskFlags": [
+      "external_publish"
+    ],
+    "sourceKind": "publish_task",
+    "sourceRef": "mc-anglerlog-001:publish",
+    "notes": "external_publish のため Factory 自動実行対象外（manual / ユーザー作業）。",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": false,
+      "reasons": [
+        "decisionPolicy=manual（自動実行対象外）",
+        "riskFlags: external_publish（Approval 必須のため自動対象外）"
+      ]
+    },
+    "history": [
+      {
+        "at": "2026-06-03T16:27:35.720Z",
+        "action": "suggested",
+        "detail": "抽出元: publish_task"
+      }
+    ],
+    "createdAt": "2026-06-03T16:27:35.720Z",
+    "updatedAt": "2026-06-03T16:27:35.720Z",
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "id": "rec-anglerlog-billing-560d-2",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "釣果ログ AnglerLog の課金/サブスク・AdMob本番設定（ユーザー作業）",
+    "reason": "課金設定・AdMob本番・支払い情報入力はユーザー作業。AI工場は収益化導線のUIプレースホルダ設計まで。",
+    "monetizationImpact": "high",
+    "targetApp": "anglerlog-billing",
+    "priority": "P2",
+    "doneCriteria": [
+      "課金/サブスク商品とAdMobを本番設定し、支払い情報を登録する"
+    ],
+    "decisionPolicy": "approval_required",
+    "riskFlags": [
+      "billing"
+    ],
+    "sourceKind": "billing_task",
+    "sourceRef": "mc-anglerlog-001:billing",
+    "notes": "billing のため Factory 自動実行対象外（approval_required / ユーザー作業）。",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": false,
+      "reasons": [
+        "riskFlags: billing（自動実行不可）"
+      ]
+    },
+    "history": [
+      {
+        "at": "2026-06-03T16:27:35.720Z",
+        "action": "suggested",
+        "detail": "抽出元: billing_task"
+      }
+    ],
+    "createdAt": "2026-06-03T16:27:35.720Z",
+    "updatedAt": "2026-06-03T16:27:35.720Z",
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "id": "rec-birdlog-560d-3",
+    "status": "epic_created",
+    "kind": "new_epic",
+    "title": "野鳥観察ノート BirdLog の MVP を作る（local-first / API不要）",
+    "reason": "収益化候補(score 83, 記録 / 収集 / 趣味)。海外birding市場が厚く言語非依存で海外展開が効く。図鑑コレクション×観察記録×目撃マップで習慣化・継続率が高い。",
+    "monetizationImpact": "high",
+    "targetApp": "birdlog",
+    "relatedVault": [
+      "05_monetization/収益化候補一覧.md（#14）"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "野鳥静的JSON（50種以上・和名/英名/科）からの種選択 がローカルで動作し永続化される",
+      "観察記録のCRUD（種/写真/日時/場所匿名化/メモ） がローカルで動作し永続化される",
+      "種別図鑑コレクション（達成率） がローカルで動作し永続化される",
+      "目撃マップ（オフラインタイル） がローカルで動作し永続化される",
+      "月別・種別統計 がローカルで動作し永続化される",
+      "build / typecheck / lint のいずれかが実行され結果が記録される",
+      "オフラインでMVP主要機能が動作することを確認した記録がある"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "monetization_candidate",
+    "sourceRef": "mc-birdlog-001",
+    "notes": "AI工場の作業範囲（MVP設計/実装/ローカル保存/JSON/UI/build・lint・typecheck/公開前チェックリスト・ストア文言下書き・スクショ/アイコン/ASO案）まで。公開・課金・申請は含めない（下の公開/課金候補を参照）。",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": []
+    },
+    "history": [
+      {
+        "at": "2026-06-03T16:27:35.720Z",
+        "action": "suggested",
+        "detail": "抽出元: monetization_candidate"
+      },
+      {
+        "at": "2026-06-07T14:16:54.017Z",
+        "action": "status:epic_created",
+        "detail": "Epic epic-birdlog-mvp-local-first- 作成 / runId 20260607-231654"
+      }
+    ],
+    "createdAt": "2026-06-03T16:27:35.720Z",
+    "updatedAt": "2026-06-07T14:16:54.035Z",
+    "createdEpicId": "epic-birdlog-mvp-local-first-",
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "id": "rec-birdlog-publish-560e-4",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "野鳥観察ノート BirdLog を Google Play / App Store に公開申請する（ユーザー作業）",
+    "reason": "公開・審査申請はユーザー作業。Apple Developer / Google Play Console 登録・審査申請・ストア公開を行う。AI工場は公開前チェックリスト/ストア文言下書き/スクショ・アイコン案まで。",
+    "monetizationImpact": "high",
+    "targetApp": "birdlog-publish",
+    "relatedVault": [
+      "05_monetization/収益化候補一覧.md（#14）"
+    ],
+    "priority": "P2",
+    "doneCriteria": [
+      "ストア掲載情報（文言/スクショ/アイコン）を確定する",
+      "ストアに公開申請し審査を通過する"
+    ],
+    "decisionPolicy": "manual",
+    "riskFlags": [
+      "external_publish"
+    ],
+    "sourceKind": "publish_task",
+    "sourceRef": "mc-birdlog-001:publish",
+    "notes": "external_publish のため Factory 自動実行対象外（manual / ユーザー作業）。",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": false,
+      "reasons": [
+        "decisionPolicy=manual（自動実行対象外）",
+        "riskFlags: external_publish（Approval 必須のため自動対象外）"
+      ]
+    },
+    "history": [
+      {
+        "at": "2026-06-03T16:27:35.720Z",
+        "action": "suggested",
+        "detail": "抽出元: publish_task"
+      }
+    ],
+    "createdAt": "2026-06-03T16:27:35.720Z",
+    "updatedAt": "2026-06-03T16:27:35.720Z",
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "id": "rec-birdlog-billing-560e-5",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "野鳥観察ノート BirdLog の課金/サブスク・AdMob本番設定（ユーザー作業）",
+    "reason": "課金設定・AdMob本番・支払い情報入力はユーザー作業。AI工場は収益化導線のUIプレースホルダ設計まで。",
+    "monetizationImpact": "high",
+    "targetApp": "birdlog-billing",
+    "priority": "P2",
+    "doneCriteria": [
+      "課金/サブスク商品とAdMobを本番設定し、支払い情報を登録する"
+    ],
+    "decisionPolicy": "approval_required",
+    "riskFlags": [
+      "billing"
+    ],
+    "sourceKind": "billing_task",
+    "sourceRef": "mc-birdlog-001:billing",
+    "notes": "billing のため Factory 自動実行対象外（approval_required / ユーザー作業）。",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": false,
+      "reasons": [
+        "riskFlags: billing（自動実行不可）"
+      ]
+    },
+    "history": [
+      {
+        "at": "2026-06-03T16:27:35.720Z",
+        "action": "suggested",
+        "detail": "抽出元: billing_task"
+      }
+    ],
+    "createdAt": "2026-06-03T16:27:35.720Z",
+    "updatedAt": "2026-06-03T16:27:35.720Z",
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "id": "rec-roastjournal-560f-6",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "自家焙煎ジャーナル Roast Journal の MVP を作る（local-first / API不要）",
+    "reason": "収益化候補(score 76, 記録 / 趣味)。海外home roasting層が安定。温度カーブ比較でサブスク化しやすい。",
+    "monetizationImpact": "medium",
+    "targetApp": "roastjournal",
+    "priority": "P1",
+    "doneCriteria": [
+      "焙煎ログ＋温度カーブ記録 がローカルで動作し永続化される",
+      "抽出条件＋テイスティングスコア がローカルで動作し永続化される",
+      "比較表 がローカルで動作し永続化される",
+      "build / typecheck / lint のいずれかが実行され結果が記録される",
+      "オフラインでMVP主要機能が動作することを確認した記録がある"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "monetization_candidate",
+    "sourceRef": "mc-roastjournal-001",
+    "notes": "AI工場の作業範囲（MVP設計/実装/ローカル保存/JSON/UI/build・lint・typecheck/公開前チェックリスト・ストア文言下書き・スクショ/アイコン/ASO案）まで。公開・課金・申請は含めない（下の公開/課金候補を参照）。",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": []
+    },
+    "history": [
+      {
+        "at": "2026-06-03T16:27:35.720Z",
+        "action": "suggested",
+        "detail": "抽出元: monetization_candidate"
+      }
+    ],
+    "createdAt": "2026-06-03T16:27:35.720Z",
+    "updatedAt": "2026-06-03T16:27:35.720Z",
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "id": "rec-roastjournal-publish-560f-7",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "自家焙煎ジャーナル Roast Journal を Google Play / App Store に公開申請する（ユーザー作業）",
+    "reason": "公開・審査申請はユーザー作業。Apple Developer / Google Play Console 登録・審査申請・ストア公開を行う。AI工場は公開前チェックリスト/ストア文言下書き/スクショ・アイコン案まで。",
+    "monetizationImpact": "medium",
+    "targetApp": "roastjournal-publish",
+    "priority": "P2",
+    "doneCriteria": [
+      "ストア掲載情報（文言/スクショ/アイコン）を確定する",
+      "ストアに公開申請し審査を通過する"
+    ],
+    "decisionPolicy": "manual",
+    "riskFlags": [
+      "external_publish"
+    ],
+    "sourceKind": "publish_task",
+    "sourceRef": "mc-roastjournal-001:publish",
+    "notes": "external_publish のため Factory 自動実行対象外（manual / ユーザー作業）。",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": false,
+      "reasons": [
+        "decisionPolicy=manual（自動実行対象外）",
+        "riskFlags: external_publish（Approval 必須のため自動対象外）"
+      ]
+    },
+    "history": [
+      {
+        "at": "2026-06-03T16:27:35.720Z",
+        "action": "suggested",
+        "detail": "抽出元: publish_task"
+      }
+    ],
+    "createdAt": "2026-06-03T16:27:35.720Z",
+    "updatedAt": "2026-06-03T16:27:35.720Z",
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "id": "rec-roastjournal-billing-560f-8",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "自家焙煎ジャーナル Roast Journal の課金/サブスク・AdMob本番設定（ユーザー作業）",
+    "reason": "課金設定・AdMob本番・支払い情報入力はユーザー作業。AI工場は収益化導線のUIプレースホルダ設計まで。",
+    "monetizationImpact": "medium",
+    "targetApp": "roastjournal-billing",
+    "priority": "P2",
+    "doneCriteria": [
+      "課金/サブスク商品とAdMobを本番設定し、支払い情報を登録する"
+    ],
+    "decisionPolicy": "approval_required",
+    "riskFlags": [
+      "billing"
+    ],
+    "sourceKind": "billing_task",
+    "sourceRef": "mc-roastjournal-001:billing",
+    "notes": "billing のため Factory 自動実行対象外（approval_required / ユーザー作業）。",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": false,
+      "reasons": [
+        "riskFlags: billing（自動実行不可）"
+      ]
+    },
+    "history": [
+      {
+        "at": "2026-06-03T16:27:35.720Z",
+        "action": "suggested",
+        "detail": "抽出元: billing_task"
+      }
+    ],
+    "createdAt": "2026-06-03T16:27:35.720Z",
+    "updatedAt": "2026-06-03T16:27:35.720Z",
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "id": "rec-scentvault-560g-9",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "香水コレクション台帳 Scent Vault の MVP を作る（local-first / API不要）",
+    "reason": "収益化候補(score 76, 収集 / 趣味)。第1サイクル発掘3位。SNS映え・拡散性高。",
+    "monetizationImpact": "medium",
+    "targetApp": "scentvault",
+    "priority": "P1",
+    "doneCriteria": [
+      "香水台帳（ノート/濃度/季節/評価） がローカルで動作し永続化される",
+      "所有・ウィッシュ管理 がローカルで動作し永続化される",
+      "コレクション共有用画像出力 がローカルで動作し永続化される",
+      "build / typecheck / lint のいずれかが実行され結果が記録される",
+      "オフラインでMVP主要機能が動作することを確認した記録がある"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "monetization_candidate",
+    "sourceRef": "mc-scentvault-001",
+    "notes": "AI工場の作業範囲（MVP設計/実装/ローカル保存/JSON/UI/build・lint・typecheck/公開前チェックリスト・ストア文言下書き・スクショ/アイコン/ASO案）まで。公開・課金・申請は含めない（下の公開/課金候補を参照）。",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": []
+    },
+    "history": [
+      {
+        "at": "2026-06-03T16:27:35.720Z",
+        "action": "suggested",
+        "detail": "抽出元: monetization_candidate"
+      }
+    ],
+    "createdAt": "2026-06-03T16:27:35.720Z",
+    "updatedAt": "2026-06-03T16:27:35.720Z",
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "id": "rec-scentvault-publish-560i-10",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "香水コレクション台帳 Scent Vault を Google Play / App Store に公開申請する（ユーザー作業）",
+    "reason": "公開・審査申請はユーザー作業。Apple Developer / Google Play Console 登録・審査申請・ストア公開を行う。AI工場は公開前チェックリスト/ストア文言下書き/スクショ・アイコン案まで。",
+    "monetizationImpact": "medium",
+    "targetApp": "scentvault-publish",
+    "priority": "P2",
+    "doneCriteria": [
+      "ストア掲載情報（文言/スクショ/アイコン）を確定する",
+      "ストアに公開申請し審査を通過する"
+    ],
+    "decisionPolicy": "manual",
+    "riskFlags": [
+      "external_publish"
+    ],
+    "sourceKind": "publish_task",
+    "sourceRef": "mc-scentvault-001:publish",
+    "notes": "external_publish のため Factory 自動実行対象外（manual / ユーザー作業）。",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": false,
+      "reasons": [
+        "decisionPolicy=manual（自動実行対象外）",
+        "riskFlags: external_publish（Approval 必須のため自動対象外）"
+      ]
+    },
+    "history": [
+      {
+        "at": "2026-06-03T16:27:35.720Z",
+        "action": "suggested",
+        "detail": "抽出元: publish_task"
+      }
+    ],
+    "createdAt": "2026-06-03T16:27:35.720Z",
+    "updatedAt": "2026-06-03T16:27:35.720Z",
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "id": "rec-scentvault-billing-560i-11",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "香水コレクション台帳 Scent Vault の課金/サブスク・AdMob本番設定（ユーザー作業）",
+    "reason": "課金設定・AdMob本番・支払い情報入力はユーザー作業。AI工場は収益化導線のUIプレースホルダ設計まで。",
+    "monetizationImpact": "medium",
+    "targetApp": "scentvault-billing",
+    "priority": "P2",
+    "doneCriteria": [
+      "課金/サブスク商品とAdMobを本番設定し、支払い情報を登録する"
+    ],
+    "decisionPolicy": "approval_required",
+    "riskFlags": [
+      "billing"
+    ],
+    "sourceKind": "billing_task",
+    "sourceRef": "mc-scentvault-001:billing",
+    "notes": "billing のため Factory 自動実行対象外（approval_required / ユーザー作業）。",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": false,
+      "reasons": [
+        "riskFlags: billing（自動実行不可）"
+      ]
+    },
+    "history": [
+      {
+        "at": "2026-06-03T16:27:35.720Z",
+        "action": "suggested",
+        "detail": "抽出元: billing_task"
+      }
+    ],
+    "createdAt": "2026-06-03T16:27:35.720Z",
+    "updatedAt": "2026-06-03T16:27:35.720Z",
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "id": "rec-bgstats-560j-12",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "卓上ゲーム戦績手帳 BG Stats の MVP を作る（local-first / API不要）",
+    "reason": "収益化候補(score 74, 記録 / 集計 / 趣味)。第2サイクル発掘3位。コミュニティ不要でローカル成立。",
+    "monetizationImpact": "medium",
+    "targetApp": "bgstats",
+    "priority": "P1",
+    "doneCriteria": [
+      "戦績記録＋プレイヤー管理 がローカルで動作し永続化される",
+      "勝率/ゲーム別統計 がローカルで動作し永続化される",
+      "セッション履歴 がローカルで動作し永続化される",
+      "build / typecheck / lint のいずれかが実行され結果が記録される",
+      "オフラインでMVP主要機能が動作することを確認した記録がある"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "monetization_candidate",
+    "sourceRef": "mc-bgstats-001",
+    "notes": "AI工場の作業範囲（MVP設計/実装/ローカル保存/JSON/UI/build・lint・typecheck/公開前チェックリスト・ストア文言下書き・スクショ/アイコン/ASO案）まで。公開・課金・申請は含めない（下の公開/課金候補を参照）。",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": []
+    },
+    "history": [
+      {
+        "at": "2026-06-03T16:27:35.720Z",
+        "action": "suggested",
+        "detail": "抽出元: monetization_candidate"
+      }
+    ],
+    "createdAt": "2026-06-03T16:27:35.720Z",
+    "updatedAt": "2026-06-03T16:27:35.720Z",
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "id": "rec-bgstats-publish-560j-13",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "卓上ゲーム戦績手帳 BG Stats を Google Play / App Store に公開申請する（ユーザー作業）",
+    "reason": "公開・審査申請はユーザー作業。Apple Developer / Google Play Console 登録・審査申請・ストア公開を行う。AI工場は公開前チェックリスト/ストア文言下書き/スクショ・アイコン案まで。",
+    "monetizationImpact": "medium",
+    "targetApp": "bgstats-publish",
+    "priority": "P2",
+    "doneCriteria": [
+      "ストア掲載情報（文言/スクショ/アイコン）を確定する",
+      "ストアに公開申請し審査を通過する"
+    ],
+    "decisionPolicy": "manual",
+    "riskFlags": [
+      "external_publish"
+    ],
+    "sourceKind": "publish_task",
+    "sourceRef": "mc-bgstats-001:publish",
+    "notes": "external_publish のため Factory 自動実行対象外（manual / ユーザー作業）。",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": false,
+      "reasons": [
+        "decisionPolicy=manual（自動実行対象外）",
+        "riskFlags: external_publish（Approval 必須のため自動対象外）"
+      ]
+    },
+    "history": [
+      {
+        "at": "2026-06-03T16:27:35.720Z",
+        "action": "suggested",
+        "detail": "抽出元: publish_task"
+      }
+    ],
+    "createdAt": "2026-06-03T16:27:35.720Z",
+    "updatedAt": "2026-06-03T16:27:35.720Z",
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "id": "rec-bgstats-billing-560j-14",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "卓上ゲーム戦績手帳 BG Stats の課金/サブスク・AdMob本番設定（ユーザー作業）",
+    "reason": "課金設定・AdMob本番・支払い情報入力はユーザー作業。AI工場は収益化導線のUIプレースホルダ設計まで。",
+    "monetizationImpact": "medium",
+    "targetApp": "bgstats-billing",
+    "priority": "P2",
+    "doneCriteria": [
+      "課金/サブスク商品とAdMobを本番設定し、支払い情報を登録する"
+    ],
+    "decisionPolicy": "approval_required",
+    "riskFlags": [
+      "billing"
+    ],
+    "sourceKind": "billing_task",
+    "sourceRef": "mc-bgstats-001:billing",
+    "notes": "billing のため Factory 自動実行対象外（approval_required / ユーザー作業）。",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": false,
+      "reasons": [
+        "riskFlags: billing（自動実行不可）"
+      ]
+    },
+    "history": [
+      {
+        "at": "2026-06-03T16:27:35.720Z",
+        "action": "suggested",
+        "detail": "抽出元: billing_task"
+      }
+    ],
+    "createdAt": "2026-06-03T16:27:35.720Z",
+    "updatedAt": "2026-06-03T16:27:35.720Z",
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "id": "rec-ailogicpuzzle-560k-15",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "AI日めくりロジックパズル の MVP を作る（local-first / API不要）",
+    "reason": "収益化候補(score 68, 学習 / 習慣)。第1サイクル発掘5位。継続率高・AI生成相性◎。競合多くレッドオーシャン。",
+    "monetizationImpact": "medium",
+    "targetApp": "ailogicpuzzle",
+    "priority": "P1",
+    "doneCriteria": [
+      "365問内蔵（AI自動生成） がローカルで動作し永続化される",
+      "日めくり1問＋連続日数streak がローカルで動作し永続化される",
+      "解答タイムランキング（ローカル） がローカルで動作し永続化される",
+      "build / typecheck / lint のいずれかが実行され結果が記録される",
+      "オフラインでMVP主要機能が動作することを確認した記録がある"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "monetization_candidate",
+    "sourceRef": "mc-ailogicpuzzle-001",
+    "notes": "AI工場の作業範囲（MVP設計/実装/ローカル保存/JSON/UI/build・lint・typecheck/公開前チェックリスト・ストア文言下書き・スクショ/アイコン/ASO案）まで。公開・課金・申請は含めない（下の公開/課金候補を参照）。",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": []
+    },
+    "history": [
+      {
+        "at": "2026-06-03T16:27:35.720Z",
+        "action": "suggested",
+        "detail": "抽出元: monetization_candidate"
+      }
+    ],
+    "createdAt": "2026-06-03T16:27:35.720Z",
+    "updatedAt": "2026-06-03T16:27:35.720Z",
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "id": "rec-ailogicpuzzle-publish-560k-16",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "AI日めくりロジックパズル を Google Play / App Store に公開申請する（ユーザー作業）",
+    "reason": "公開・審査申請はユーザー作業。Apple Developer / Google Play Console 登録・審査申請・ストア公開を行う。AI工場は公開前チェックリスト/ストア文言下書き/スクショ・アイコン案まで。",
+    "monetizationImpact": "medium",
+    "targetApp": "ailogicpuzzle-publish",
+    "priority": "P2",
+    "doneCriteria": [
+      "ストア掲載情報（文言/スクショ/アイコン）を確定する",
+      "ストアに公開申請し審査を通過する"
+    ],
+    "decisionPolicy": "manual",
+    "riskFlags": [
+      "external_publish"
+    ],
+    "sourceKind": "publish_task",
+    "sourceRef": "mc-ailogicpuzzle-001:publish",
+    "notes": "external_publish のため Factory 自動実行対象外（manual / ユーザー作業）。",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": false,
+      "reasons": [
+        "decisionPolicy=manual（自動実行対象外）",
+        "riskFlags: external_publish（Approval 必須のため自動対象外）"
+      ]
+    },
+    "history": [
+      {
+        "at": "2026-06-03T16:27:35.720Z",
+        "action": "suggested",
+        "detail": "抽出元: publish_task"
+      }
+    ],
+    "createdAt": "2026-06-03T16:27:35.720Z",
+    "updatedAt": "2026-06-03T16:27:35.720Z",
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "id": "rec-ailogicpuzzle-billing-560l-17",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "AI日めくりロジックパズル の課金/サブスク・AdMob本番設定（ユーザー作業）",
+    "reason": "課金設定・AdMob本番・支払い情報入力はユーザー作業。AI工場は収益化導線のUIプレースホルダ設計まで。",
+    "monetizationImpact": "medium",
+    "targetApp": "ailogicpuzzle-billing",
+    "priority": "P2",
+    "doneCriteria": [
+      "課金/サブスク商品とAdMobを本番設定し、支払い情報を登録する"
+    ],
+    "decisionPolicy": "approval_required",
+    "riskFlags": [
+      "billing"
+    ],
+    "sourceKind": "billing_task",
+    "sourceRef": "mc-ailogicpuzzle-001:billing",
+    "notes": "billing のため Factory 自動実行対象外（approval_required / ユーザー作業）。",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": false,
+      "reasons": [
+        "riskFlags: billing（自動実行不可）"
+      ]
+    },
+    "history": [
+      {
+        "at": "2026-06-03T16:27:35.720Z",
+        "action": "suggested",
+        "detail": "抽出元: billing_task"
+      }
+    ],
+    "createdAt": "2026-06-03T16:27:35.720Z",
+    "updatedAt": "2026-06-03T16:27:35.720Z",
+    "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "id": "rec-next-epic91-560m-18",
+    "status": "suggested",
+    "kind": "existing_epic_next_action",
+    "title": "（既存Epicの継続）AI工場オペレーションセンター の未完了分を進める",
+    "reason": "進行中Epic（progress 20）。新規Epicにせず既存EpicのNext Actionとして扱う。",
+    "monetizationImpact": "medium",
+    "relatedEpicId": "epic-91",
+    "priority": "P1",
+    "doneCriteria": [
+      "/operations ページ実装",
+      "ヘルスダッシュボード",
+      "選択式承認カード",
+      "Epic進行カード"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "sourceKind": "active_epic_pending",
+    "sourceRef": "epic-91",
+    "notes": "承認すると新規Epicを作らず、この既存Epicの remainingWork に追記する。",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": []
+    },
+    "history": [
+      {
+        "at": "2026-06-03T16:27:35.720Z",
+        "action": "suggested",
+        "detail": "抽出元: active_epic_pending"
+      }
+    ],
+    "createdAt": "2026-06-03T16:27:35.720Z",
+    "updatedAt": "2026-06-03T16:27:35.720Z",
+    "goalId": "goal-ai-factory-os"
+  },
+  {
+    "id": "rec-fix-epicp2factor-5618-19",
+    "status": "suggested",
+    "kind": "existing_epic_next_action",
+    "title": "（Factory失敗の解消）epic-p2-factory-multiple-run- の失敗 Run を調査・修正する",
+    "reason": "直近の Factory Run が failed（runId 20260531-220356）。既存Epicの継続として失敗原因の解消を行う。",
+    "monetizationImpact": "low",
+    "relatedEpicId": "epic-p2-factory-multiple-run-",
+    "relatedRunIds": [
+      "20260531-220356"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "失敗していた Run の原因を特定し、build/typecheck/lint が成功する状態にする"
+    ],
+    "decisionPolicy": "approval_required",
+    "riskFlags": [],
+    "sourceKind": "factory_failure",
+    "sourceRef": "fail:epic-p2-factory-multiple-run-",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": []
+    },
+    "history": [
+      {
+        "at": "2026-06-03T16:27:35.720Z",
+        "action": "suggested",
+        "detail": "抽出元: factory_failure"
+      }
+    ],
+    "createdAt": "2026-06-03T16:27:35.720Z",
+    "updatedAt": "2026-06-03T16:27:35.720Z",
+    "goalId": "goal-execution-review-loop"
+  },
+  {
+    "id": "rec-knowledge-20260607-231654",
+    "status": "suggested",
+    "kind": "existing_epic_next_action",
+    "title": "レビュー起点: おすすめ承認: 野鳥観察ノート BirdLog の MVP を作る（local-first / API不要） を Epic化 の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260607-231654 からKnowledge know-20260607-231654を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "medium",
+    "targetApp": "progress",
+    "relatedEpicId": "epic-birdlog-mvp-local-first-",
+    "relatedVault": [
+      "20_reviews/2026-06-10_know-20260607-231654.md",
+      "06_research/2026-06-10_know-20260607-231654.md"
+    ],
+    "relatedRunIds": [
+      "20260607-231654"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260607-231654",
+    "goalId": "goal-value-validation-pipeline",
+    "parentEpicId": "epic-birdlog-mvp-local-first-",
+    "sourceRunId": "20260607-231654",
+    "sourceKnowledgeId": "know-20260607-231654",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260607-231654 sourceKnowledgeId=know-20260607-231654",
+    "history": [
+      {
+        "at": "2026-06-10T16:21:21.607Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260607-231654 から自動生成"
+      }
+    ],
+    "createdAt": "2026-06-10T16:21:21.607Z",
+    "updatedAt": "2026-06-10T16:21:21.607Z"
+  },
+  {
+    "id": "rec-knowledge-20260611-013300",
+    "status": "suggested",
+    "kind": "existing_epic_next_action",
+    "title": "レビュー起点: 運用レビュー - AI工場OS v2 運用レビュー（ボトルネック/自走率95%/収益化/v3設計）+ progress API 404復旧 の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260611-013300 からKnowledge know-20260611-013300を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "none",
+    "targetApp": "progress",
+    "relatedEpicId": "epic-91",
+    "relatedVault": [
+      "20_reviews/2026-06-10_know-20260611-013300.md",
+      "06_research/2026-06-10_know-20260611-013300.md"
+    ],
+    "relatedRunIds": [
+      "20260611-013300"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "AI一次レビュー（reviewer agent）のEpic起票判断",
+      "未レビュー65件の一括処理方針を決める",
+      "BirdLog貫通テスト（MVP→ストア公開→収益1円）の最優先化判断",
+      "Goal metric自動計測（closed_loop_rate等）の実装判断",
+      "ビルド失敗時にAPI 404へ陥らないようビルド検証をデプロイ手順に追加"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260611-013300",
+    "goalId": "goal-ai-factory-os",
+    "parentEpicId": "epic-91",
+    "sourceRunId": "20260611-013300",
+    "sourceKnowledgeId": "know-20260611-013300",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260611-013300 sourceKnowledgeId=know-20260611-013300",
+    "history": [
+      {
+        "at": "2026-06-10T17:16:03.927Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260611-013300 から自動生成"
+      }
+    ],
+    "createdAt": "2026-06-10T17:16:03.927Z",
+    "updatedAt": "2026-06-10T17:16:03.927Z"
+  },
+  {
+    "id": "rec-knowledge-20260611-001032",
+    "status": "suggested",
+    "kind": "existing_epic_next_action",
+    "title": "レビュー起点: 運用ポリシー検討 - AI工場OS v2 戦略レビュー(Goal/Epic/Progress/実行サイクル/再開性/自走化) の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260611-001032 からKnowledge know-20260611-001032を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "none",
+    "targetApp": "progress",
+    "relatedEpicId": "epic-91",
+    "relatedVault": [
+      "20_reviews/2026-06-10_know-20260611-001032.md",
+      "06_research/2026-06-10_know-20260611-001032.md"
+    ],
+    "relatedRunIds": [
+      "20260611-001032"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "人間: 北極星含む3〜5 Goalを定義(全体の原点)",
+      "AI別Epic: goals.json実運用化/Epic.goalId必須化/意思決定キュー/backlog統合/WIP制限"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260611-001032",
+    "goalId": "goal-ai-factory-os",
+    "parentEpicId": "epic-91",
+    "sourceRunId": "20260611-001032",
+    "sourceKnowledgeId": "know-20260611-001032",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260611-001032 sourceKnowledgeId=know-20260611-001032",
+    "history": [
+      {
+        "at": "2026-06-10T17:16:03.946Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260611-001032 から自動生成"
+      }
+    ],
+    "createdAt": "2026-06-10T17:16:03.946Z",
+    "updatedAt": "2026-06-10T17:16:03.946Z"
+  },
+  {
+    "id": "rec-knowledge-20260610-230007",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "レビュー起点: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0 の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260610-230007 からKnowledge know-20260610-230007を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "medium",
+    "targetApp": "progress",
+    "relatedVault": [
+      "20_reviews/2026-06-10_know-20260610-230007.md",
+      "06_research/2026-06-10_know-20260610-230007.md"
+    ],
+    "relatedRunIds": [
+      "20260610-230007"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260610-230007",
+    "goalId": "goal-value-validation-pipeline",
+    "sourceRunId": "20260610-230007",
+    "sourceKnowledgeId": "know-20260610-230007",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260610-230007 sourceKnowledgeId=know-20260610-230007",
+    "history": [
+      {
+        "at": "2026-06-10T17:16:03.967Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260610-230007 から自動生成"
+      }
+    ],
+    "createdAt": "2026-06-10T17:16:03.967Z",
+    "updatedAt": "2026-06-10T17:16:03.967Z"
+  },
+  {
+    "id": "rec-knowledge-20260610-230525",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "レビュー起点: Factory schedule (schedule/systemd) の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260610-230525 からKnowledge know-20260610-230525を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "none",
+    "targetApp": "progress",
+    "relatedVault": [
+      "20_reviews/2026-06-10_know-20260610-230525.md",
+      "06_research/2026-06-10_know-20260610-230525.md"
+    ],
+    "relatedRunIds": [
+      "20260610-230525"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260610-230525",
+    "goalId": "goal-ai-factory-os",
+    "sourceRunId": "20260610-230525",
+    "sourceKnowledgeId": "know-20260610-230525",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260610-230525 sourceKnowledgeId=know-20260610-230525",
+    "history": [
+      {
+        "at": "2026-06-10T17:16:03.984Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260610-230525 から自動生成"
+      }
+    ],
+    "createdAt": "2026-06-10T17:16:03.984Z",
+    "updatedAt": "2026-06-10T17:16:03.984Z"
+  },
+  {
+    "id": "rec-knowledge-20260610-220105",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "レビュー起点: /yomi 原本再現性の検証(sourceValidation)を追加 の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260610-220105 からKnowledge know-20260610-220105を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "none",
+    "targetApp": "mahjong",
+    "relatedVault": [
+      "20_reviews/2026-06-10_know-20260610-220105.md",
+      "06_research/2026-06-10_know-20260610-220105.md"
+    ],
+    "relatedRunIds": [
+      "20260610-220105"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "原本画像書き起こし→original JSON 化の運用テンプレ整備",
+      "tenhou-to-yomi変換時に解析直後stateをoriginalとして併走出力する案",
+      "handsを持つ原本での手牌枚数検証の実データ確認"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260610-220105",
+    "goalId": "goal-execution-review-loop",
+    "sourceRunId": "20260610-220105",
+    "sourceKnowledgeId": "know-20260610-220105",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260610-220105 sourceKnowledgeId=know-20260610-220105",
+    "history": [
+      {
+        "at": "2026-06-10T17:16:04.006Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260610-220105 から自動生成"
+      }
+    ],
+    "createdAt": "2026-06-10T17:16:04.006Z",
+    "updatedAt": "2026-06-10T17:16:04.006Z"
+  },
+  {
+    "id": "rec-knowledge-20260610-212135",
+    "status": "suggested",
+    "kind": "existing_epic_next_action",
+    "title": "レビュー起点: アプリURL一覧: 入力URLをcanonical URLとして正規化表示 の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260610-212135 からKnowledge know-20260610-212135を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "none",
+    "targetApp": "progress",
+    "relatedEpicId": "epic-91",
+    "relatedVault": [
+      "20_reviews/2026-06-10_know-20260610-212135.md",
+      "06_research/2026-06-10_know-20260610-212135.md"
+    ],
+    "relatedRunIds": [
+      "20260610-212135"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "他アプリ入力時の正規化UX確認",
+      "app-urls.jsonのバックアップ/履歴機構検討"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260610-212135",
+    "goalId": "goal-ai-factory-os",
+    "parentEpicId": "epic-91",
+    "sourceRunId": "20260610-212135",
+    "sourceKnowledgeId": "know-20260610-212135",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260610-212135 sourceKnowledgeId=know-20260610-212135",
+    "history": [
+      {
+        "at": "2026-06-10T17:16:04.022Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260610-212135 から自動生成"
+      }
+    ],
+    "createdAt": "2026-06-10T17:16:04.022Z",
+    "updatedAt": "2026-06-10T17:16:04.022Z"
+  },
+  {
+    "id": "rec-knowledge-20260610-140007",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "レビュー起点: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0 の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260610-140007 からKnowledge know-20260610-140007を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "medium",
+    "targetApp": "progress",
+    "relatedVault": [
+      "20_reviews/2026-06-10_know-20260610-140007.md",
+      "06_research/2026-06-10_know-20260610-140007.md"
+    ],
+    "relatedRunIds": [
+      "20260610-140007"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260610-140007",
+    "goalId": "goal-value-validation-pipeline",
+    "sourceRunId": "20260610-140007",
+    "sourceKnowledgeId": "know-20260610-140007",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260610-140007 sourceKnowledgeId=know-20260610-140007",
+    "history": [
+      {
+        "at": "2026-06-10T17:16:04.045Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260610-140007 から自動生成"
+      }
+    ],
+    "createdAt": "2026-06-10T17:16:04.045Z",
+    "updatedAt": "2026-06-10T17:16:04.045Z"
+  },
+  {
+    "id": "rec-knowledge-20260610-140527",
+    "status": "suggested",
+    "kind": "existing_epic_next_action",
+    "title": "レビュー起点: Factory(auto): 野鳥観察ノート BirdLog の MVP を作る（local-first / API不要） の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260610-140527 からKnowledge know-20260610-140527を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "medium",
+    "targetApp": "birdlog",
+    "relatedEpicId": "epic-birdlog-mvp-local-first-",
+    "relatedVault": [
+      "20_reviews/2026-06-10_know-20260610-140527.md",
+      "06_research/2026-06-10_know-20260610-140527.md"
+    ],
+    "relatedRunIds": [
+      "20260610-140527"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260610-140527",
+    "goalId": "goal-value-validation-pipeline",
+    "parentEpicId": "epic-birdlog-mvp-local-first-",
+    "sourceRunId": "20260610-140527",
+    "sourceKnowledgeId": "know-20260610-140527",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260610-140527 sourceKnowledgeId=know-20260610-140527",
+    "history": [
+      {
+        "at": "2026-06-10T17:16:04.057Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260610-140527 から自動生成"
+      }
+    ],
+    "createdAt": "2026-06-10T17:16:04.057Z",
+    "updatedAt": "2026-06-10T17:16:04.057Z"
+  },
+  {
+    "id": "rec-knowledge-20260610-123141",
+    "status": "suggested",
+    "kind": "existing_epic_next_action",
+    "title": "レビュー起点: アプリURL一覧でURLをユーザー編集できるようにする の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260610-123141 からKnowledge know-20260610-123141を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "none",
+    "targetApp": "progress",
+    "relatedEpicId": "epic-91",
+    "relatedVault": [
+      "20_reviews/2026-06-10_know-20260610-123141.md",
+      "06_research/2026-06-10_know-20260610-123141.md"
+    ],
+    "relatedRunIds": [
+      "20260610-123141"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "URL形式の厳格バリデーション検討",
+      "アプリ新規追加UI検討"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260610-123141",
+    "goalId": "goal-ai-factory-os",
+    "parentEpicId": "epic-91",
+    "sourceRunId": "20260610-123141",
+    "sourceKnowledgeId": "know-20260610-123141",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260610-123141 sourceKnowledgeId=know-20260610-123141",
+    "history": [
+      {
+        "at": "2026-06-10T17:16:31.188Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260610-123141 から自動生成"
+      }
+    ],
+    "createdAt": "2026-06-10T17:16:31.188Z",
+    "updatedAt": "2026-06-10T17:16:31.188Z"
+  },
+  {
+    "id": "rec-knowledge-20260610-110004",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "レビュー起点: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0 の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260610-110004 からKnowledge know-20260610-110004を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "medium",
+    "targetApp": "progress",
+    "relatedVault": [
+      "20_reviews/2026-06-10_know-20260610-110004.md",
+      "06_research/2026-06-10_know-20260610-110004.md"
+    ],
+    "relatedRunIds": [
+      "20260610-110004"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260610-110004",
+    "goalId": "goal-value-validation-pipeline",
+    "sourceRunId": "20260610-110004",
+    "sourceKnowledgeId": "know-20260610-110004",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260610-110004 sourceKnowledgeId=know-20260610-110004",
+    "history": [
+      {
+        "at": "2026-06-10T17:16:31.202Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260610-110004 から自動生成"
+      }
+    ],
+    "createdAt": "2026-06-10T17:16:31.202Z",
+    "updatedAt": "2026-06-10T17:16:31.202Z"
+  },
+  {
+    "id": "rec-knowledge-20260610-110524",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "レビュー起点: Factory schedule (schedule/systemd) の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260610-110524 からKnowledge know-20260610-110524を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "none",
+    "targetApp": "progress",
+    "relatedVault": [
+      "20_reviews/2026-06-10_know-20260610-110524.md",
+      "06_research/2026-06-10_know-20260610-110524.md"
+    ],
+    "relatedRunIds": [
+      "20260610-110524"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260610-110524",
+    "goalId": "goal-ai-factory-os",
+    "sourceRunId": "20260610-110524",
+    "sourceKnowledgeId": "know-20260610-110524",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260610-110524 sourceKnowledgeId=know-20260610-110524",
+    "history": [
+      {
+        "at": "2026-06-10T17:16:31.213Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260610-110524 から自動生成"
+      }
+    ],
+    "createdAt": "2026-06-10T17:16:31.213Z",
+    "updatedAt": "2026-06-10T17:16:31.213Z"
+  },
+  {
+    "id": "rec-knowledge-20260609-230005",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "レビュー起点: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新2 の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260609-230005 からKnowledge know-20260609-230005を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "medium",
+    "targetApp": "progress",
+    "relatedVault": [
+      "20_reviews/2026-06-10_know-20260609-230005.md",
+      "06_research/2026-06-10_know-20260609-230005.md"
+    ],
+    "relatedRunIds": [
+      "20260609-230005"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260609-230005",
+    "goalId": "goal-value-validation-pipeline",
+    "sourceRunId": "20260609-230005",
+    "sourceKnowledgeId": "know-20260609-230005",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260609-230005 sourceKnowledgeId=know-20260609-230005",
+    "history": [
+      {
+        "at": "2026-06-10T17:16:31.227Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260609-230005 から自動生成"
+      }
+    ],
+    "createdAt": "2026-06-10T17:16:31.227Z",
+    "updatedAt": "2026-06-10T17:16:31.227Z"
+  },
+  {
+    "id": "rec-knowledge-20260609-230524",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "レビュー起点: Factory schedule (schedule/systemd) の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260609-230524 からKnowledge know-20260609-230524を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "none",
+    "targetApp": "progress",
+    "relatedVault": [
+      "20_reviews/2026-06-10_know-20260609-230524.md",
+      "06_research/2026-06-10_know-20260609-230524.md"
+    ],
+    "relatedRunIds": [
+      "20260609-230524"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260609-230524",
+    "goalId": "goal-ai-factory-os",
+    "sourceRunId": "20260609-230524",
+    "sourceKnowledgeId": "know-20260609-230524",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260609-230524 sourceKnowledgeId=know-20260609-230524",
+    "history": [
+      {
+        "at": "2026-06-10T17:16:31.237Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260609-230524 から自動生成"
+      }
+    ],
+    "createdAt": "2026-06-10T17:16:31.237Z",
+    "updatedAt": "2026-06-10T17:16:31.237Z"
+  },
+  {
+    "id": "rec-knowledge-20260609-212603",
+    "status": "suggested",
+    "kind": "existing_epic_next_action",
+    "title": "レビュー起点: epic-vault: Vault日次更新反映不具合の調査・修正(完了確認) の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260609-212603 からKnowledge know-20260609-212603を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "medium",
+    "targetApp": "news-app",
+    "relatedEpicId": "epic-vault",
+    "relatedVault": [
+      "20_reviews/2026-06-10_know-20260609-212603.md",
+      "06_research/2026-06-10_know-20260609-212603.md"
+    ],
+    "relatedRunIds": [
+      "20260609-212603"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260609-212603",
+    "goalId": "goal-value-validation-pipeline",
+    "parentEpicId": "epic-vault",
+    "sourceRunId": "20260609-212603",
+    "sourceKnowledgeId": "know-20260609-212603",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260609-212603 sourceKnowledgeId=know-20260609-212603",
+    "history": [
+      {
+        "at": "2026-06-10T17:16:31.247Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260609-212603 から自動生成"
+      }
+    ],
+    "createdAt": "2026-06-10T17:16:31.247Z",
+    "updatedAt": "2026-06-10T17:16:31.247Z"
+  }
+]

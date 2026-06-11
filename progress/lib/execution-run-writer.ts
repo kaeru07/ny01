@@ -20,13 +20,18 @@ async function writeAll(runs: ExecutionRun[]): Promise<void> {
   await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8')
 }
 
-export async function updateReviewStatus(runId: string, reviewStatus: ReviewStatus): Promise<boolean> {
+export async function updateReviewStatus(runId: string, reviewStatus: ReviewStatus, reviewMemo?: string): Promise<ExecutionRun | null> {
   const runs = await readAll()
   const idx = runs.findIndex((r) => r.runId === runId)
-  if (idx === -1) return false
-  runs[idx] = { ...runs[idx], reviewStatus }
+  if (idx === -1) return null
+  runs[idx] = {
+    ...runs[idx],
+    reviewStatus,
+    reviewMemo: reviewMemo !== undefined ? reviewMemo : runs[idx].reviewMemo,
+    reviewedAt: reviewStatus === 'reviewed' ? new Date().toISOString() : runs[idx].reviewedAt,
+  }
   await writeAll(runs)
-  return true
+  return runs[idx]
 }
 
 export async function addExecutionRun(run: ExecutionRun): Promise<void> {

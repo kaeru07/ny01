@@ -296,6 +296,7 @@ export async function generateRecommendations(): Promise<{ added: number; total:
 /** Epic Contract（新規Epic用）を生成する。 */
 function buildContract(rec: RecommendedEpic) {
   return {
+    goalId: rec.goalId,
     title: rec.title,
     goal: rec.reason || `${rec.title} を達成する`,
     doneCriteria: rec.doneCriteria.length > 0 ? rec.doneCriteria : ['build / typecheck / lint のいずれかが実行され結果が記録される'],

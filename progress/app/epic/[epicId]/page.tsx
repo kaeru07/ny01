@@ -11,6 +11,10 @@ import InlineApprovalPanel from '@/components/epic/InlineApprovalPanel'
 import DevModeGate from '@/components/DevModeGate'
 import { decisionPolicyLabel, describeFactory } from '@/lib/epic-contract'
 import { getDoneCriteriaForEpic } from '@/lib/done-criteria'
+import { readGoals } from '@/lib/goal-reader'
+import { readExecutionRuns } from '@/lib/execution-run-reader'
+import { buildResumePacket } from '@/lib/factory-dashboard'
+import { CopyPacketButton } from '@/components/dashboard/FactoryActions'
 
 const STATUS_LABEL: Record<string, { label: string; cls: string }> = {
   active: { label: '実行中', cls: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' },
@@ -57,10 +61,15 @@ function fmt(dt: string): string {
 export default async function EpicDetailPage({ params }: { params: { epicId: string } }) {
   const detail = await getEpicDetail(params.epicId)
   if (!detail) notFound()
-  const doneEval = await getDoneCriteriaForEpic(params.epicId)
+  const [doneEval, goalsData, allRuns] = await Promise.all([
+    getDoneCriteriaForEpic(params.epicId),
+    readGoals(),
+    readExecutionRuns(),
+  ])
 
   const { epic, latestRun, recentRuns, recentDecisions, nextActions, pendingApprovals, automation, runScope, factoryEligibility } = detail
   const factoryDisplay = describeFactory(factoryEligibility)
+  const resumePacket = buildResumePacket(epic, goalsData.goals, allRuns)
 
   return (
     <div className="space-y-4 px-4 pb-4 pt-6">
@@ -245,6 +254,14 @@ export default async function EpicDetailPage({ params }: { params: { epicId: str
             <CodexHandoffPanel epicId={epic.epicId} />
           </div>
         </DevModeGate>
+      </Section>
+
+      <Section title="Resume Packet">
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <p className="text-xs text-gray-400">Codex / Claude Code にそのまま渡せる再開用情報です。</p>
+          <CopyPacketButton text={resumePacket.text} />
+        </div>
+        <pre className="max-h-72 overflow-auto whitespace-pre-wrap rounded-lg bg-gray-950 p-3 text-xs leading-relaxed text-gray-100">{resumePacket.text}</pre>
       </Section>
 
       {/* 承認待ち（この Epic 分をその場で承認/却下。横断受信箱は /approvals） */}
