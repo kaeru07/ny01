@@ -572,23 +572,10 @@ export async function buildInbox(): Promise<InboxView> {
       ({ url: `/api/recommended-epics/${rec.id}`, method: 'PATCH', body: { status: 'rejected', detail: note } }) as const
 
     if (isHumanTaskTitle(rec.title)) {
-      // 人間作業: AIでは実行できない（ストア公開・課金・契約など）
-      const clean = humanizeTitle(rec.title)
-      cards.push({
-        id: `candidate-${rec.id}`,
-        kind: 'human_task',
-        headline: `「${shorten(subjectOf(clean))}」はあなたの作業が必要です`,
-        rows: [
-          { label: '内容', text: `${shorten(clean, 40)}。` },
-          { label: '注意', text: 'アカウント登録・契約・審査などを含むため、AIでは実行できません。' },
-        ],
-        detail,
-        actions: [
-          { label: '完了した', tone: 'primary', api: rejectApi('人間作業として完了済み（今日の判断で報告）') },
-          { label: 'あとで', tone: 'ghost', api: holdApi },
-          { label: '不要', tone: 'danger', api: rejectApi('今日の判断で「不要」を選択') },
-        ],
-      })
+      // 人間作業（アカウント登録・ストア公開申請・課金/サブスク・AdMob 等）は今日の判断に出さない。
+      // どのアプリでも未実施の手続きであり時期尚早のため、AI保留として預かる（2026-06-12 ユーザー指示）。
+      // 実際に必要になったタイミング（例: BirdLog MVP 完成後）は Revenue の収益化ロードマップで案内する。
+      heldCount += 1
     } else {
       // 実行許可: AIが作業したい。やって良いかだけ聞く
       const s = describeSituation(rec.title)
