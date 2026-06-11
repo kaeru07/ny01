@@ -38,7 +38,7 @@ const FAQ: Array<{ q: string; a: string }> = [
 ]
 
 export default async function OperationsGuidePage() {
-  const [items, metrics, milestones, config, meta] = await Promise.all([
+  const [inbox, metrics, milestones, config, meta] = await Promise.all([
     buildInbox(),
     computeFactoryMetrics(),
     buildRevenueMilestones(),
@@ -46,22 +46,22 @@ export default async function OperationsGuidePage() {
     readOperatingModelMeta(),
   ])
 
-  // セクション4: 今日やること（「今日の判断」のカード3分類で集計）
-  const countBy = (kind: string) => items.filter((i) => i.kind === kind).length
+  // セクション4: 今日やること（「今日の判断」の3分類で集計。goalは画面上「確認」扱い）
+  const countBy = (kinds: string[]) => inbox.today.filter((i) => kinds.includes(i.kind)).length
   const todayLines = [
-    { label: '作業結果の確認', count: countBy('confirm') },
-    { label: '次の作業を進めるか', count: countBy('proceed') },
-    { label: 'Goal紐付け', count: countBy('goal') },
+    { label: '🚨 問題（止まっている・修正が必要）', count: countBy(['problem']) },
+    { label: '📈 改善（良くなる・効率化できる）', count: countBy(['improve']) },
+    { label: '✅ 確認（結果・公開・目標のチェック）', count: countBy(['confirm', 'goal']) },
   ].filter((l) => l.count > 0)
-  const estimatedMinutes = Math.max(items.length, 1)
+  const estimatedMinutes = inbox.estimatedMinutes
 
   // セクション3: AI工場の流れ + ボトルネック表示
   const factoryStages = ['目標', '大きな作業', 'AI作業', 'レビュー', '学習', '次の作業']
   let bottleneck: { stage: string; text: string } | null = null
   if (metrics.notReviewedCount >= 10) {
     bottleneck = { stage: 'レビュー', text: `レビュー待ち ${metrics.notReviewedCount}件` }
-  } else if (items.length >= 5) {
-    bottleneck = { stage: '大きな作業', text: `あなたの判断待ち ${items.length}件` }
+  } else if (inbox.totalCount >= 5) {
+    bottleneck = { stage: '大きな作業', text: `あなたの判断待ち ${inbox.totalCount}件` }
   }
 
   // セクション6: 現在の工場状態
@@ -79,9 +79,9 @@ export default async function OperationsGuidePage() {
       desc: 'AIの作業結果のうち、まだ内容確認が済んでいない数です。たまるとAI工場が自動で減速します。',
     },
     {
-      label: '承認待ち',
-      value: `${items.length}件`,
-      desc: 'あなたの判断を待っている項目の数です。Inboxで処理すると減ります。',
+      label: '今日の判断',
+      value: `${inbox.today.length}件（AI保留 ${inbox.deferredCount}件）`,
+      desc: 'あなたの判断を待っている数です。今日見せるのは最大3件で、残りはAIが預かって順番に出します。',
     },
     {
       label: '収益化状況',

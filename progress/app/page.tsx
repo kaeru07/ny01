@@ -34,9 +34,30 @@ export default async function CommandCenterPage() {
       />
       <p className="-mt-3 text-sm text-gray-400 dark:text-gray-500">{todayLabel}</p>
 
-      {/* 今日やること */}
+      {/* 今日やること（今日の判断 最大3件 + その他のアクション） */}
       <section className="rounded-xl border-2 border-blue-200 bg-white p-4 dark:border-blue-900/50 dark:bg-gray-900">
         <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">今日やること</h2>
+        {view.todayDecisions.length > 0 && (
+          <div className="mt-3">
+            <ol className="space-y-1.5">
+              {view.todayDecisions.map((d, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm">
+                  <span className="shrink-0 font-bold text-blue-600 dark:text-blue-400">{['①', '②', '③'][i] ?? `${i + 1}.`}</span>
+                  <span className="min-w-0 font-medium text-gray-900 dark:text-gray-100">{d.headline}</span>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              約{view.estimatedMinutes}分{view.deferredCount > 0 && `（ほか${view.deferredCount}件はAIが預かり中）`}
+            </p>
+            <Link
+              href="/decide"
+              className="mt-2 block rounded-lg bg-blue-600 px-4 py-2.5 text-center text-sm font-bold text-white hover:bg-blue-700"
+            >
+              Inboxを開く
+            </Link>
+          </div>
+        )}
         <ul className="mt-3 space-y-2">
           {view.todayActions.map((action, i) => (
             <li key={i}>
@@ -93,23 +114,6 @@ export default async function CommandCenterPage() {
           次の一歩: <span className="font-semibold text-gray-900 dark:text-gray-100">{currentMilestone?.label ?? 'すべて完了'}</span>
           （ゴールまで残り{view.milestones.length - doneCount}ステップ）
         </p>
-      </section>
-
-      {/* 今日の判断（中身は見せない。件数と入口だけ） */}
-      <section className="rounded-xl border-2 border-rose-200 bg-white p-4 dark:border-rose-900/50 dark:bg-gray-900">
-        <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">今日の判断</h2>
-        <p className="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-100">
-          {view.decisionCount === 0 ? 'なし 🎉' : `残り${view.decisionCount}件`}
-        </p>
-        <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-          {view.decisionCount === 0 ? '判断が必要になるとここに出ます' : 'はい・いいえ・あとで を選ぶだけ。3〜5分で終わります'}
-        </p>
-        <Link
-          href="/decide"
-          className="mt-3 block rounded-lg bg-blue-600 px-4 py-2.5 text-center text-sm font-bold text-white hover:bg-blue-700"
-        >
-          Inboxを開く
-        </Link>
       </section>
 
       {/* 最近の成果 */}

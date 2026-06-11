@@ -22,6 +22,7 @@ export const TERMS: Record<string, { ja: string; help: string }> = {
   notReviewed: { ja: '未確認の作業履歴', help: 'AIの作業結果のうち、まだ内容確認が済んでいないもの' },
   needsHuman: { ja: 'あなたの判断待ち', help: 'AIだけでは決められず、人間の判断を待っている項目' },
   inbox: { ja: '今日の判断', help: 'あなたが「はい・いいえ・あとで」を選ぶだけの判断箱。処理すると消え、内部の管理はAIが行います' },
+  aiHold: { ja: 'AI保留', help: '今日見せる3件以外をAIが預かっている状態。優先度を見ながら、終わったものから順に出てきます' },
 }
 
 export interface TodayAction {
@@ -56,8 +57,12 @@ export interface RecentWin {
 
 export interface CommandCenterView {
   todayActions: TodayAction[]
-  /** 今日の判断（Inbox）の残り件数。中身はホームに出さない（社長向け: 件数と入口だけ） */
+  /** 今日の判断（最大3件）の見出しリスト。ホームの「今日やること」カードに出す */
+  todayDecisions: Array<{ kind: InboxCardKind; headline: string }>
   decisionCount: number
+  /** AI保留（今日の3件以外をAIが預かっている数） */
+  deferredCount: number
+  estimatedMinutes: number
   factory: FactoryStateView
   milestones: Milestone[]
   recentWins: RecentWin[]
@@ -151,16 +156,8 @@ export async function buildCommandCenter(): Promise<CommandCenterView> {
 
   const factory = buildFactoryState(metrics, config.factoryEnabled)
 
-  // 今日やること: ①判断（今日の判断） ②AIに任せる確認 ③あなたの番の作業
+  // 今日やること: ①判断（今日の判断はtodayDecisionsで個別表示） ②AIに任せる確認 ③あなたの番の作業
   const todayActions: TodayAction[] = []
-  if (inbox.length > 0) {
-    todayActions.push({
-      kind: 'judge',
-      title: `判断する（${inbox.length}件）`,
-      detail: 'はい・いいえ・あとで を選ぶだけです。3〜5分で終わります',
-      href: '/decide',
-    })
-  }
   if (metrics.notReviewedCount > 0) {
     todayActions.push({
       kind: 'ai',
@@ -180,7 +177,7 @@ export async function buildCommandCenter(): Promise<CommandCenterView> {
       href: '/portfolio',
     })
   }
-  if (todayActions.length === 0) {
+  if (todayActions.length === 0 && inbox.today.length === 0) {
     todayActions.push({ kind: 'judge', title: '今日は判断事項がありません', detail: 'AI工場が自動で進めています。Projectsで進み具合だけ確認できます', href: '/portfolio' })
   }
 
@@ -191,7 +188,10 @@ export async function buildCommandCenter(): Promise<CommandCenterView> {
 
   return {
     todayActions,
-    decisionCount: inbox.length,
+    todayDecisions: inbox.today.map((c) => ({ kind: c.kind, headline: c.headline })),
+    decisionCount: inbox.today.length,
+    deferredCount: inbox.deferredCount,
+    estimatedMinutes: inbox.estimatedMinutes,
     factory,
     milestones,
     recentWins,
@@ -217,7 +217,16 @@ const CATEGORY_LABEL: Record<string, string> = {
   executor_fallback: '進め方の判断',
 }
 
-export type InboxCardKind = 'confirm' | 'proceed' | 'goal'
+/** 画面上の3分類。goal は内部都合（紐付けUI用）で、画面上は「確認」として出す。 */
+export type InboxCardKind = 'problem' | 'improve' | 'confirm' | 'goal'
+
+/** 画面上のチップ表示（3分類のみ）。 */
+export const KIND_CHIP_LABEL: Record<InboxCardKind, string> = {
+  problem: '🚨 問題',
+  improve: '📈 改善',
+  confirm: '✅ 確認',
+  goal: '✅ 確認',
+}
 
 export interface InboxCardAction {
   label: string
@@ -228,11 +237,13 @@ export interface InboxCardAction {
 export interface InboxCard {
   id: string
   kind: InboxCardKind
-  /** 画面上の3分類: 作業結果の確認 / 次の作業 / Goal紐付け */
-  kindLabel: string
-  /** 人間語の質問1文。内部語禁止 */
-  question: string
-  /** 「詳細を見る」内にだけ出す説明（内部ID・内部ステータス可） */
+  /** 何が起きているか（状況文）。タスク名ではない。内部語禁止 */
+  headline: string
+  /** なぜ必要か / 放置するとどうなるか（必須1行）。内部語禁止 */
+  impact: string
+  /** 末尾の問いかけ（修正しますか？等）。confirm 系は impact が指示文なので省略可 */
+  question?: string
+  /** 「詳細を見る」内にだけ出す説明（内部ID・内部ステータス・元タスク名可） */
   detail: string[]
   actions: InboxCardAction[]
   /** kind === 'goal' のときの紐付け先候補 */
@@ -240,7 +251,15 @@ export interface InboxCard {
   epicId?: string
 }
 
-/** 内部の命名規則（Run一次レビュー: / epic-xxx: / 次Epic候補 等）をタイトルから除く。 */
+/** Inbox の画面ビュー。社長アプリとして今日見せるのは最大3件、残りはAI保留。 */
+export interface InboxView {
+  today: InboxCard[]
+  deferredCount: number
+  totalCount: number
+  estimatedMinutes: number
+}
+
+/** 内部の命名規則（Run一次レビュー: / epic-xxx / 次Epic候補 / Run / Factory 等）をタイトルから除く・人間語へ置換する。 */
 function humanizeTitle(title: string): string {
   let t = title
   const patterns: Array<[RegExp, string]> = [
@@ -250,9 +269,21 @@ function humanizeTitle(title: string): string {
     [/^Factory\(auto\):\s*/i, ''],
     [/の次Epic候補$/i, ''],
     [/\s*\((schedule|boot)\/[^)]*\)/gi, ''],
+    // 内部IDはどこにあっても除去
+    [/epic[-_][\w-]+[-_]?\s*/gi, ''],
+    // 内部語の翻訳
+    [/Factory\s*schedule/gi, 'AI工場の定期実行'],
+    [/Factory/gi, 'AI工場'],
+    [/失敗\s*Run/gi, '失敗した作業'],
+    [/\bRuns?\b/g, '作業'],
+    [/\bReview\b/gi, 'レビュー'],
   ]
   for (const [re, rep] of patterns) t = t.replace(re, rep)
-  t = t.trim().replace(/[、。\s]+$/, '')
+  t = t.replace(/（\s*）|\(\s*\)/g, '').replace(/\s{2,}/g, ' ')
+  t = t.trim().replace(/^[、。・:：\s]+/, '').replace(/[、。\s]+$/, '')
+  // 全体が括弧で包まれているだけなら外す
+  const wrapped = t.match(/^（(.+)）$/) ?? t.match(/^\((.+)\)$/)
+  if (wrapped) t = wrapped[1].trim()
   return t || title
 }
 
@@ -267,7 +298,101 @@ function humanizeOptionLabel(label: string): string {
   return label.replace(/（[^）]*）|\([^)]*\)/g, '').trim() || label
 }
 
-export async function buildInbox(): Promise<InboxCard[]> {
+/** タスク名から「何の話か」の主語を取り出す（末尾の補足括弧と作業動詞を落とす）。 */
+function subjectOf(clean: string): string {
+  let s = clean
+    .replace(/（[^）]*）$|\([^)]*\)$/, '')
+    .trim()
+  for (let i = 0; i < 2; i++) {
+    s = s
+      .replace(/(を|の)?(調査・修正|調査|修正|対応|改修|確認|改善|追加|実装|整備)(する)?$/, '')
+      .replace(/（[^）]*）$|\([^)]*\)$/, '')
+      .replace(/[、。・\s]+$/, '')
+      .trim()
+  }
+  return s || clean
+}
+
+/** ドメイン語から「放置するとどうなるか」を推定する。 */
+function impactOfProblem(text: string): string {
+  if (/市場調査/.test(text)) return '放置すると毎日の市場調査結果が更新されません。'
+  if (/ニュース/.test(text)) return '放置するとニュース要約が止まります。'
+  if (/(更新|同期)/.test(text)) return '放置するとデータが古いまま更新されません。'
+  if (/(公開|デプロイ|反映)/.test(text)) return '放置すると最新の内容が公開されないままになります。'
+  return '放置するとこの部分が止まったままになります。'
+}
+
+function impactOfImprove(text: string): string {
+  if (/(自動化|自動)/.test(text)) return '実施すると手作業が減ります。'
+  if (/(精度|品質)/.test(text)) return '実施すると結果の品質が上がります。'
+  if (/(調査|分析)/.test(text)) return '実施すると次の打ち手が明確になります。'
+  if (/(取り込み|収集|データ)/.test(text)) return '実施すると使えるデータが増えます。'
+  return '実施すると品質が上がり、手作業が減ります。'
+}
+
+interface Situation {
+  kind: 'problem' | 'improve' | 'confirm'
+  headline: string
+  impact: string
+  question?: string
+}
+
+/**
+ * タスク名（何をやるか）を状況文（何が起きているか）へ変換する。
+ * 例: 「市場調査ビューのVault更新停止を調査・修正」→「市場調査ビューの自動更新が止まっています」
+ */
+function describeSituation(title: string, base: 'confirm' | 'suggest'): Situation {
+  const clean = humanizeTitle(title)
+  const subject = subjectOf(clean)
+  const short = subject.length > 26 ? `${subject.slice(0, 26)}…` : subject
+
+  // 確認系（完了済み作業のチェック）は、タイトルに障害語があっても「完了の確認」が実態。最優先で判定する
+  if (base === 'confirm') {
+    const isPublish = /(公開|デプロイ|Vercel|反映)/i.test(clean)
+    const wasFix = /(不具合|失敗|エラー|停止|障害)/.test(clean)
+    return {
+      kind: 'confirm',
+      headline: isPublish ? '公開作業が完了しました' : wasFix ? `「${short}」の修正作業が完了しました` : `「${short}」の作業が完了しました`,
+      impact: isPublish ? '正常に公開されたか確認してください。' : '内容に問題がないか確認してください。問題なければAIが次に進みます。',
+    }
+  }
+
+  // 問題系: 止まっている / 失敗した / 修正が必要
+  if (/(停止|止ま|失敗|エラー|不具合|障害|落ち|ダウン)/.test(clean)) {
+    const isUpdate = /(更新|同期|反映)/.test(clean)
+    const isFactoryFail = /AI工場.*失敗|失敗.*AI工場/.test(clean)
+    // 「市場調査ビューのVault更新停止」→「市場調査ビュー」のように障害語の塊を主語から外す
+    const what = subject
+      .replace(/(の)?(Vault)?(日次)?(更新|同期|反映|連携)*(不具合|停止|エラー|失敗|障害)(の解消)?$/, '')
+      .replace(/(の)?失敗(した)?作業$/, '')
+      .replace(/[、。・の\s]+$/, '')
+      .trim()
+    const whatShort = what.length > 26 ? `${what.slice(0, 26)}…` : what
+    return {
+      kind: 'problem',
+      headline: isFactoryFail
+        ? 'AI工場の自動作業が失敗しています'
+        : isUpdate
+          ? `${whatShort || 'データ'}の自動更新が止まっています`
+          : `${whatShort || 'AIの作業'}で問題が起きています`,
+      impact: isFactoryFail ? '放置すると自動作業が進まないままになります。' : impactOfProblem(clean),
+      question: '修正しますか？',
+    }
+  }
+
+  // 改善系: 良くなる / 自動化できる / 効率化できる
+  return {
+    kind: 'improve',
+    headline: `${short}を改善できます`,
+    impact: impactOfImprove(clean),
+    question: '実施しますか？',
+  }
+}
+
+/** 今日見せる上限。社長アプリとして「3件・約3分」を超えない。 */
+const TODAY_LIMIT = 3
+
+export async function buildInbox(): Promise<InboxView> {
   const [approvals, epics, recommendations, runs, goalsData] = await Promise.all([
     getPendingApprovals(),
     getEpics(),
@@ -278,18 +403,19 @@ export async function buildInbox(): Promise<InboxCard[]> {
   const goals = goalsData.goals.map((g) => ({ id: g.id, title: g.title }))
   const cards: InboxCard[] = []
 
-  // ① 承認待ち → 「作業結果の確認」or「次の作業」
+  // ① 承認待ち → 状況文に変換（問題 / 改善 / 確認）
   for (const a of approvals) {
     const isReviewDecision = a.options.some((o) => /問題なし|フォローアップ/.test(o.label))
+    const s = describeSituation(a.title, isReviewDecision ? 'confirm' : 'suggest')
     const sorted = [...a.options].sort((x, y) => (x.key === a.recommended ? -1 : y.key === a.recommended ? 1 : 0))
     cards.push({
       id: `approval-${a.approvalId}`,
-      kind: isReviewDecision ? 'confirm' : 'proceed',
-      kindLabel: isReviewDecision ? '作業結果の確認' : '次の作業',
-      question: isReviewDecision
-        ? `「${humanizeTitle(a.title)}」の作業が終わりました。問題ありませんか？`
-        : `「${humanizeTitle(a.title)}」を進めますか？`,
+      kind: s.kind,
+      headline: s.headline,
+      impact: s.impact,
+      question: s.question,
       detail: [
+        `元のタスク名: ${a.title}`,
         `判断の種類: ${CATEGORY_LABEL[a.category] ?? a.category}`,
         `AIの説明: ${a.reason}`,
         ...(a.createdRunId ? [`元の作業履歴: ${a.createdRunId}`] : []),
@@ -303,15 +429,18 @@ export async function buildInbox(): Promise<InboxCard[]> {
     })
   }
 
-  // ② AIが判断を保留した作業結果 → 「作業結果の確認」
+  // ② AIが判断を保留した作業結果 → 確認
   const approvalRunIds = new Set(approvals.map((a) => a.createdRunId).filter(Boolean))
   for (const run of runs.filter((r) => r.reviewStatus === 'needs_human' && !approvalRunIds.has(r.runId))) {
+    const s = describeSituation(run.targetTodoTitle || run.summary || run.runId, 'confirm')
     cards.push({
       id: `run-${run.runId}`,
-      kind: 'confirm',
-      kindLabel: '作業結果の確認',
-      question: `「${humanizeTitle(run.targetTodoTitle || run.summary || run.runId)}」の作業が終わりました。問題ありませんか？`,
+      kind: s.kind,
+      headline: s.headline,
+      impact: s.impact,
+      question: s.question,
       detail: [
+        `元のタスク名: ${run.targetTodoTitle || run.summary || ''}`,
         `AIの見解: ${run.aiReview?.reason ?? 'AIだけでは判断できなかった作業結果です'}`,
         `元の作業履歴: ${run.runId}`,
       ],
@@ -322,52 +451,65 @@ export async function buildInbox(): Promise<InboxCard[]> {
     })
   }
 
-  // ③ 目標未紐付けの大きな作業 → 「Goal紐付け」
+  // ③ 目標未紐付けの大きな作業 → 確認（目標が未設定という「起きていること」）
   const openStatuses = new Set(['proposed', 'approved', 'active', 'in_review', 'paused', 'blocked'])
   for (const epic of epics.filter((e) => openStatuses.has(e.status) && !e.goalId)) {
     cards.push({
       id: `orphan-${epic.epicId}`,
       kind: 'goal',
-      kindLabel: 'Goal紐付け',
-      question: `「${humanizeTitle(epic.title)}」— この作業はどの目標に紐付けますか？`,
-      detail: [`内部ID: ${epic.epicId}`, '紐付けが不要な作業は「不要」で取り下げられます'],
+      headline: `「${humanizeTitle(epic.title)}」の目標が未設定です`,
+      impact: '紐付けないと、この作業がどの目標に貢献しているか追跡できません。',
+      question: 'どの目標に紐付けますか？',
+      detail: [`元のタスク名: ${epic.title}`, `内部ID: ${epic.epicId}`, '紐付けが不要な作業は「不要」で取り下げられます'],
       actions: [],
       goals,
       epicId: epic.epicId,
     })
   }
 
-  // ④ おすすめ次作業 → 「次の作業」
+  // ④ おすすめ次作業 → 問題（修正系）or 改善
   const priorityOrder: Record<string, number> = { P0: 0, P1: 1, P2: 2 }
-  const topSuggested = recommendations
+  const suggested = recommendations
     .filter((r) => r.status === 'suggested')
     .sort((a, b) => {
       const p = (priorityOrder[a.priority] ?? 9) - (priorityOrder[b.priority] ?? 9)
       if (p !== 0) return p
       return (b.updatedAt ?? '').localeCompare(a.updatedAt ?? '')
     })
-    .slice(0, 3)
-  for (const rec of topSuggested) {
+  for (const rec of suggested) {
+    const s = describeSituation(rec.title, 'suggest')
     cards.push({
       id: `candidate-${rec.id}`,
-      kind: 'proceed',
-      kindLabel: '次の作業',
-      question: `「${humanizeTitle(rec.title)}」を進めますか？`,
+      kind: s.kind,
+      headline: s.headline,
+      impact: s.impact,
+      question: s.question,
       detail: [
+        `元のタスク名: ${rec.title}`,
         `なぜ提案された？: ${rec.reason}`,
         ...(rec.sourceRunId ? [`元の作業履歴: ${rec.sourceRunId}`] : []),
         ...(rec.sourceRef ? [`提案の出どころ: ${rec.sourceRef}`] : []),
         `内部ID: ${rec.id}`,
       ],
       actions: [
-        { label: 'はい', tone: 'primary', api: { url: `/api/recommended-epics/${rec.id}/approve`, method: 'POST', body: {} } },
+        { label: s.kind === 'problem' ? '修正する' : '実施する', tone: 'primary', api: { url: `/api/recommended-epics/${rec.id}/approve`, method: 'POST', body: {} } },
         { label: 'あとで', tone: 'ghost', api: { url: `/api/recommended-epics/${rec.id}`, method: 'PATCH', body: { status: 'hold', detail: '今日の判断で「あとで」を選択' } } },
         { label: 'やめる', tone: 'danger', api: { url: `/api/recommended-epics/${rec.id}`, method: 'PATCH', body: { status: 'rejected', detail: '今日の判断で「やめる」を選択' } } },
       ],
     })
   }
 
-  return cards
+  // 今やるべき順: 問題 → 確認 → 目標未設定 → 改善。今日は最大3件、残りはAI保留。
+  const order: Record<InboxCardKind, number> = { problem: 0, confirm: 1, goal: 2, improve: 3 }
+  cards.sort((a, b) => order[a.kind] - order[b.kind])
+  const today = cards.slice(0, TODAY_LIMIT)
+
+  return {
+    today,
+    deferredCount: Math.max(cards.length - today.length, 0),
+    totalCount: cards.length,
+    estimatedMinutes: Math.max(today.length, 1),
+  }
 }
 
 // ---- Projects（ポートフォリオ）----
