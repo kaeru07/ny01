@@ -32,8 +32,8 @@ function FlowSteps({ steps }: { steps: string[] }) {
 const FAQ: Array<{ q: string; a: string }> = [
   { q: '毎日何をすればいい？', a: 'Inbox（今日の判断）だけ見れば大丈夫です。カードごとに「はい・いいえ・あとで」を選ぶだけで、3〜5分で終わります。空なら何もしなくてOKです。' },
   { q: 'Goalって何？', a: 'AI工場が向かう目標です。すべての大きな作業はどれかの目標に紐付き、目標のない作業はInboxで紐付けを求められます。' },
-  { q: 'レビュー待ちが増えても大丈夫？', a: '一定数までは問題ありません。10件を超えるとAI工場が自動で減速し、20件を超えると一時停止します。Inboxの「AIにまとめて確認させる」ボタンで解消できます。' },
-  { q: 'AI保留って何？', a: '人間が判断する必要のないもの（定期実行・重複・内容不足）と、今日の3件に入らなかったものをAIが預かっている状態です。必要になれば順番に「今日の判断」へ出てきます。' },
+  { q: 'レビュー待ちが増えても大丈夫？', a: '大丈夫です。レビューが100件たまっても工場は止まりません（2026-06-11の方針変更）。工場が止まるのは「危険判断待ち」「目標未設定」「人間作業待ち」だけです。レビューは時間があるときに「AIにまとめて確認させる」で片付けられます。' },
+  { q: 'AI保留って何？', a: '人間が判断する必要のないもの（AIレビュー・候補整理・定期実行・重複・内容不足）をAIが預かっている状態です。件数だけ表示され、あなたの判断は不要です。' },
   { q: 'Legacyタブは何？', a: '以前の画面がそのまま残っている場所です。普段は使いません。細かいデータを見たいときだけ開いてください。' },
   { q: 'AI工場を止めたいときは？', a: 'Legacy内の「自動化」画面からオフにできます。オフの間、AIは新しい作業を始めません。' },
 ]
@@ -47,24 +47,29 @@ export default async function OperationsGuidePage() {
     readOperatingModelMeta(),
   ])
 
-  // セクション4: 今日やること（「人間が何を判断するか」の分類で集計）
-  const countBy = (kinds: string[]) => inbox.today.filter((i) => kinds.includes(i.kind)).length
+  // セクション4: 今日やること（①今日の判断=工場停止要因のみ。②③は参考）
+  const countBy = (kinds: string[]) => inbox.decisions.filter((i) => kinds.includes(i.kind)).length
   const todayLines = [
     { label: '危険判断（影響が大きい操作の許可）', count: countBy(['danger']) },
-    { label: '検収（AIの作業結果を見るだけ）', count: countBy(['acceptance']) },
     { label: '方針選択（目標・優先順位を選ぶ）', count: countBy(['direction']) },
-    { label: '実行許可（AIに任せるか選ぶだけ）', count: countBy(['permission']) },
     { label: '人間作業（AIでは実行できない作業）', count: countBy(['human_task']) },
   ].filter((l) => l.count > 0)
   const estimatedMinutes = inbox.estimatedMinutes
 
   // セクション3: AI工場の流れ + ボトルネック表示
   const factoryStages = ['目標', '大きな作業', 'AI作業', 'レビュー', '学習', '次の作業']
+  // ボトルネック表示 = 工場停止要因のみ（レビュー件数では止めない・2026-06-11 運用方針変更）
   let bottleneck: { stage: string; text: string } | null = null
-  if (metrics.notReviewedCount >= 10) {
-    bottleneck = { stage: 'レビュー', text: `レビュー待ち ${metrics.notReviewedCount}件` }
-  } else if (inbox.totalCount >= 5) {
-    bottleneck = { stage: '大きな作業', text: `あなたの判断待ち ${inbox.totalCount}件` }
+  if (metrics.backpressure.level === 'pause') {
+    bottleneck = {
+      stage: metrics.blockers.dangerApprovalCount > 0 ? '大きな作業' : '目標',
+      text:
+        metrics.blockers.dangerApprovalCount > 0
+          ? `危険判断待ち ${metrics.blockers.dangerApprovalCount}件（工場停止中）`
+          : `目標未設定 ${metrics.blockers.goalUnsetEpicCount}件（工場停止中）`,
+    }
+  } else if (inbox.decisionTotal > 0) {
+    bottleneck = { stage: '大きな作業', text: `あなたの判断待ち ${inbox.decisionTotal}件` }
   }
 
   // セクション6: 現在の工場状態
@@ -79,12 +84,12 @@ export default async function OperationsGuidePage() {
     {
       label: 'レビュー待ち',
       value: `${metrics.notReviewedCount}件`,
-      desc: 'AIの作業結果のうち、まだ内容確認が済んでいない数です。たまるとAI工場が自動で減速します。',
+      desc: '参考情報です。たまってもAI工場は止まりません（レビュー100件でも稼働します）。',
     },
     {
       label: '今日の判断',
-      value: `${inbox.today.length}件（AI保留 ${inbox.deferredCount}件）`,
-      desc: 'あなたの判断を待っている数です。今日見せるのは最大3件で、残りはAIが預かって順番に出します。',
+      value: `${inbox.decisions.length}件（レビュー${inbox.reviewTotal}・候補${inbox.candidateTotal}・AI保留${inbox.aiHoldCount}）`,
+      desc: '工場が止まる原因（危険判断・方針選択・人間作業）だけを最大3件表示します。レビューと候補は放置しても工場は止まりません。',
     },
     {
       label: '収益化状況',

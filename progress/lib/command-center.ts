@@ -20,10 +20,10 @@ export const TERMS: Record<string, { ja: string; help: string }> = {
   factory: { ja: 'AI工場', help: '安全な作業をAIが自動で進める仕組み' },
   suggestedEpic: { ja: 'おすすめ次作業', help: 'AIが提案する次にやるとよい作業。承認すると開始されます' },
   closedLoopRate: { ja: '自動化率', help: 'AIが人間の介入なしで作業を完了し、学習結果まで残せた割合' },
-  notReviewed: { ja: '未確認の作業履歴', help: 'AIの作業結果のうち、まだ内容確認が済んでいないもの' },
+  notReviewed: { ja: '未確認の作業履歴', help: 'AIの作業結果のうち、まだ内容確認が済んでいないもの。たまっても工場は止まりません（参考情報）' },
   needsHuman: { ja: 'あなたの判断待ち', help: 'AIだけでは決められず、人間の判断を待っている項目' },
-  inbox: { ja: '今日の判断', help: 'あなたが「はい・いいえ・あとで」を選ぶだけの判断箱。処理すると消え、内部の管理はAIが行います' },
-  aiHold: { ja: 'AI保留', help: '人間が判断する必要のないもの（定期実行・重複・内容不足）と、今日の3件に入らなかったものをAIが預かっている状態' },
+  inbox: { ja: '今日の判断', help: '工場が止まる原因（危険判断・方針選択・人間作業）だけが入る判断箱。最大3件・約3分。処理すると工場が動き出します' },
+  aiHold: { ja: 'AI保留', help: '人間が判断する必要のないもの（AIレビュー・候補整理・定期実行・重複・内容不足）をAIが預かっている状態。件数だけ表示します' },
   acceptance: { ja: '検収', help: 'AIの作業が終わったので、結果だけ見て「問題なし/修正する」を選ぶ判断' },
   permission: { ja: '実行許可', help: 'AIがやりたい作業を「進める/やめる」で許可する判断' },
   direction: { ja: '方針選択', help: 'AIでは決められない方向性（目標・優先順位）を社長が選ぶ判断' },
@@ -63,11 +63,13 @@ export interface RecentWin {
 
 export interface CommandCenterView {
   todayActions: TodayAction[]
-  /** 今日の判断（最大3件）の見出しリスト。ホームの「今日やること」カードに出す */
+  /** 今日の判断（工場停止要因のみ・最大3件）の見出しリスト。ホームの「今日やること」カードに出す */
   todayDecisions: Array<{ kind: InboxCardKind; headline: string }>
   decisionCount: number
-  /** AI保留（今日の3件以外をAIが預かっている数） */
-  deferredCount: number
+  /** 参考情報（放置しても工場は止まらない）: レビュー / Epic候補 / AI保留 の件数 */
+  reviewTotal: number
+  candidateTotal: number
+  aiHoldCount: number
   estimatedMinutes: number
   factory: FactoryStateView
   milestones: Milestone[]
@@ -92,14 +94,14 @@ function buildFactoryState(metrics: FactoryMetrics, factoryEnabled: boolean): Fa
     statusTone = 'alert'
     description = 'AI工場はオフになっています。再開は旧画面の「自動化」から行えます。'
   } else if (level === 'pause') {
-    statusLabel = '一時停止中（確認待ちが多いため）'
+    statusLabel = '停止中（あなたの判断待ち）'
     statusTone = 'alert'
-    description = `未確認の作業履歴が${metrics.notReviewedCount}件たまっているため、新しい自動作業を止めています。下の「AIにまとめて確認させる」で解消できます。`
-  } else if (level === 'slow_down') {
-    statusLabel = '減速運転中'
-    statusTone = 'warn'
-    description = `未確認の作業履歴が${metrics.notReviewedCount}件あるため、自動作業のペースを落としています。`
+    description =
+      metrics.blockers.dangerApprovalCount > 0
+        ? `危険判断待ちが${metrics.blockers.dangerApprovalCount}件あるため、許可が出るまで自動作業を止めています。Inboxの「今日の判断」で許可・不許可を選んでください。`
+        : `対象の大きな作業がすべて目標未設定（${metrics.blockers.goalUnsetEpicCount}件）のため止まっています。Inboxで目標を紐付けてください。`
   }
+  // レビュー件数では止めない（2026-06-11 運用方針変更）。レビューはたまっていても稼働を続ける。
   return {
     statusLabel,
     statusTone,
@@ -183,7 +185,7 @@ export async function buildCommandCenter(): Promise<CommandCenterView> {
       href: '/portfolio',
     })
   }
-  if (todayActions.length === 0 && inbox.today.length === 0) {
+  if (todayActions.length === 0 && inbox.decisions.length === 0) {
     todayActions.push({ kind: 'judge', title: '今日は判断事項がありません', detail: 'AI工場が自動で進めています。Projectsで進み具合だけ確認できます', href: '/portfolio' })
   }
 
@@ -194,9 +196,11 @@ export async function buildCommandCenter(): Promise<CommandCenterView> {
 
   return {
     todayActions,
-    todayDecisions: inbox.today.map((c) => ({ kind: c.kind, headline: c.headline })),
-    decisionCount: inbox.today.length,
-    deferredCount: inbox.deferredCount,
+    todayDecisions: inbox.decisions.map((c) => ({ kind: c.kind, headline: c.headline })),
+    decisionCount: inbox.decisions.length,
+    reviewTotal: inbox.reviewTotal,
+    candidateTotal: inbox.candidateTotal,
+    aiHoldCount: inbox.aiHoldCount,
     estimatedMinutes: inbox.estimatedMinutes,
     factory,
     milestones,
@@ -259,24 +263,33 @@ export interface InboxCard {
   epicId?: string
 }
 
-/** Inbox の画面ビュー。今日見せるのは最大3件、残りはすべてAI保留。 */
+/**
+ * Inbox の画面ビュー（4セクション構成・2026-06-11 運用方針変更）。
+ * ① 今日の判断 = 工場停止要因のみ（危険判断 / 方針選択 / 人間作業）。最大3件
+ * ② レビュー = 検収。放置しても工場は止まらない
+ * ③ Epic候補 = 実行許可（改善案・次Epic・収益化候補）。放置可能
+ * ④ AI保留 = 件数のみ表示（カードは出さない）
+ */
 export interface InboxView {
-  today: InboxCard[]
-  deferredCount: number
-  totalCount: number
+  decisions: InboxCard[]
+  decisionTotal: number
+  reviews: InboxCard[]
+  reviewTotal: number
+  candidates: InboxCard[]
+  candidateTotal: number
+  aiHoldCount: number
   estimatedMinutes: number
 }
 
 /** 内部の命名規則（Run一次レビュー: / epic-xxx / 次Epic候補 / Run / Factory 等）をタイトルから除く・人間語へ置換する。 */
 function humanizeTitle(title: string): string {
   let t = title
+  // 「レビュー起点: おすすめ承認: レビュー起点: …」のような入れ子プレフィックスは安定するまで剥がす
+  const prefixes = /^(Run一次レビュー|レビュー起点|おすすめ承認|Epic完了|epic[-_][\w-]+|Factory\(auto\))\s*[:：]\s*/i
+  for (let i = 0; i < 6 && prefixes.test(t); i++) t = t.replace(prefixes, '')
   const patterns: Array<[RegExp, string]> = [
-    [/^Run一次レビュー:\s*/i, ''],
-    [/^レビュー起点:\s*/, ''],
-    [/^おすすめ承認:\s*/, ''],
-    [/^epic[-_][\w-]+:\s*/i, ''],
-    [/^Factory\(auto\):\s*/i, ''],
-    [/の次Epic候補$/i, ''],
+    // 「… の次Epic候補（既存Epicへ Next Action 追記） の次Epic候補 …」以降はすべてメタ情報
+    [/\s*の次Epic候補[\s\S]*$/i, ''],
     [/\s*\((schedule|boot)\/[^)]*\)/gi, ''],
     // 内部IDはどこにあっても除去
     [/epic[-_][\w-]+[-_]?\s*/gi, ''],
@@ -332,6 +345,9 @@ function impactOfImprove(text: string): string {
 /** AI保留（人間に見せない）対象かどうか。定期実行・ヘルスチェック・内容不足など。 */
 function isAiHoldTitle(rawTitle: string): boolean {
   if (/Factory\s*schedule|health\s*check|routine|定期取り込み|定期実行|metrics/i.test(rawTitle)) return true
+  // 「レビュー起点: おすすめ承認: レビュー起点: …」のような入れ子2回以上のメタ候補は
+  // 既存候補から再帰生成された重複であり、AIだけで判断可能 → 人間に見せない
+  if ((rawTitle.match(/レビュー起点[:：]/g) ?? []).length >= 2) return true
   const clean = humanizeTitle(rawTitle)
   if (subjectOf(clean).length < 4) return true // 内容不足（runIdだけ等）
   return false
@@ -596,16 +612,26 @@ export async function buildInbox(): Promise<InboxView> {
     }
   }
 
-  // 優先順: 危険判断 → 検収 → 方針選択 → 実行許可 → 人間作業。今日は最大3件、残りはAI保留。
-  const order: Record<InboxCardKind, number> = { danger: 0, acceptance: 1, direction: 2, permission: 3, human_task: 4 }
-  cards.sort((a, b) => order[a.kind] - order[b.kind])
-  const today = cards.slice(0, TODAY_LIMIT)
+  // 4セクションへ振り分け（2026-06-11 運用方針変更）:
+  // ① 今日の判断 = 工場停止要因のみ（危険判断 → 方針選択 → 人間作業 の優先順・最大3件）
+  // ② レビュー = 検収（放置しても工場は止まらない） ③ Epic候補 = 実行許可（放置可能） ④ AI保留 = 件数のみ
+  const stopOrder: Record<string, number> = { danger: 0, direction: 1, human_task: 2 }
+  const stopFactors = cards
+    .filter((c) => c.kind === 'danger' || c.kind === 'direction' || c.kind === 'human_task')
+    .sort((a, b) => (stopOrder[a.kind] ?? 9) - (stopOrder[b.kind] ?? 9))
+  const reviews = cards.filter((c) => c.kind === 'acceptance')
+  const candidates = cards.filter((c) => c.kind === 'permission')
+  const decisions = stopFactors.slice(0, TODAY_LIMIT)
 
   return {
-    today,
-    deferredCount: Math.max(cards.length - today.length, 0) + heldCount,
-    totalCount: cards.length + heldCount,
-    estimatedMinutes: Math.max(today.length, 1),
+    decisions,
+    decisionTotal: stopFactors.length,
+    reviews,
+    reviewTotal: reviews.length,
+    candidates,
+    candidateTotal: candidates.length,
+    aiHoldCount: heldCount,
+    estimatedMinutes: Math.max(decisions.length, 1),
   }
 }
 

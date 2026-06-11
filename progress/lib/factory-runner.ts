@@ -1,6 +1,8 @@
 import {
   getAutomationConfig,
   getEpicDetail,
+  getEpics,
+  getPendingApprovals,
   generateCodexPrompt,
   createApproval,
   appendAutomationLog,
@@ -9,7 +11,7 @@ import {
 import { scanFactoryDispatch, buildDispatchPlan, generateClaudeFactoryPrompt } from './factory-dispatch'
 import { addExecutionRun, updateExecutionRunFields } from './execution-run-writer'
 import { readExecutionRuns } from './execution-run-reader'
-import { BACKPRESSURE_PAUSE_THRESHOLD, BACKPRESSURE_SLOW_THRESHOLD } from './factory-metrics'
+import { DANGER_CATEGORIES, isReviewApprovalOptions } from './inbox-labels'
 import { getAdapter } from './executors'
 import { runChecks } from './checks-runner'
 import type { ChecksRunResult } from './checks-runner'
@@ -122,27 +124,28 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
     return finalize('factory_off')
   }
 
-  // Review バックプレッシャー: 未レビュー在庫が多いほど生産を絞る。
+  // 2026-06-11 運用方針変更: レビュー件数では止めない（レビュー100件でも稼働可能）。
+  // 停止条件は「人間しか判断できないもの」のみ:
+  //   ① 危険判断待ち（本番・課金・認証・公開系の承認が pending）→ 今回の自動実行をスキップ
+  //   ② Goal未設定のEpic → そのEpicだけ対象外（全対象EpicがGoal未設定なら実質停止）
   // factoryEnabled は変更しない（恒久OFFにしない）。auto の実起動のみ対象（dry_run / manual は影響なし）。
+  const goalUnsetEpicIds = new Set(
+    (await getEpics())
+      .filter((e) => ['approved', 'active'].includes(e.status) && !e.goalId)
+      .map((e) => e.epicId),
+  )
   if (mode === 'auto') {
-    const notReviewedCount = (await readExecutionRuns()).filter((r) => r.reviewStatus === 'not_reviewed').length
-    if (notReviewedCount > BACKPRESSURE_PAUSE_THRESHOLD) {
+    const approvals = await getPendingApprovals()
+    const dangerPending = approvals.filter(
+      (a) => DANGER_CATEGORIES.has(a.category) && !isReviewApprovalOptions(a.options.map((o) => o.label)),
+    )
+    if (dangerPending.length > 0) {
       await appendAutomationLog({
         event: 'factory_backpressure',
-        fallbackReason: `not_reviewed=${notReviewedCount} > ${BACKPRESSURE_PAUSE_THRESHOLD}: 今回のFactory自動実行をスキップ（レビュー滞留の解消が先。factoryEnabledは変更しない）`,
-        notReviewedCount,
+        fallbackReason: `危険判断待ち=${dangerPending.length}件: あなたの許可が出るまで今回のFactory自動実行をスキップ（レビュー件数は停止条件から除外済み。factoryEnabledは変更しない）`,
         backpressureAction: 'pause',
       })
-      return finalize('backpressure_paused')
-    }
-    if (notReviewedCount > BACKPRESSURE_SLOW_THRESHOLD) {
-      maxRuns = 1
-      await appendAutomationLog({
-        event: 'factory_backpressure',
-        fallbackReason: `not_reviewed=${notReviewedCount} > ${BACKPRESSURE_SLOW_THRESHOLD}: maxRuns=1 に減速して実行`,
-        notReviewedCount,
-        backpressureAction: 'slow_down',
-      })
+      return finalize('blocked_by_danger_decision')
     }
   }
 
@@ -150,12 +153,25 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
   if (!scan.picked) {
     return finalize(scan.blocked.length > 0 ? 'all_blocked' : 'no_candidate')
   }
+  // Goal未設定Epicは対象外（方針選択待ち）。対象外を除いた先頭を選び直す。
+  const firstRunnable = goalUnsetEpicIds.has(scan.picked.epicId)
+    ? scan.candidates.find((p) => !goalUnsetEpicIds.has(p.epicId))
+    : scan.picked
+  if (!firstRunnable) {
+    await appendAutomationLog({
+      event: 'factory_backpressure',
+      fallbackReason: `Goal未設定Epic=${goalUnsetEpicIds.size}件のみが候補: Goal紐付け（方針選択）が済むまで停止`,
+      backpressureAction: 'pause',
+    })
+    return finalize('blocked_by_goal_unset')
+  }
 
   const cwd = opts.cwd ?? process.cwd()
-  let currentEpicId = scan.picked.epicId
+  let currentEpicId = firstRunnable.epicId
   const doneEpics: string[] = []
   // P4: 複数 Epic ループの「処理済み/スキップ済み」を統合管理し、再選択で無限ループしないようにする。
-  const excludedEpics = new Set<string>()
+  // Goal未設定（方針選択待ち）のEpicは最初から対象外に入れる。
+  const excludedEpics = new Set<string>(goalUnsetEpicIds)
 
   // 次に進める eligible Epic を選ぶ（priority 順 / excluded は除外）。無ければ null。
   // scan.candidates は safetyStatus=ok のみ（blocked / approval / riskFlags / manual / factoryEligible=false

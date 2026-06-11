@@ -12,3 +12,11 @@ export const KIND_CHIP_LABEL: Record<InboxCardKind, string> = {
   permission: '実行許可',
   human_task: '人間作業',
 }
+
+/** 工場停止系の判断カテゴリ（本番・課金・認証・破壊的・公開）。 */
+export const DANGER_CATEGORIES = new Set(['billing', 'secret', 'production_risk', 'destructive', 'deploy', 'external_publish'])
+
+/** 「問題なし/要フォローアップ」型のオプションを持つ承認はレビュー（検収）であり、工場停止要因ではない。 */
+export function isReviewApprovalOptions(optionLabels: string[]): boolean {
+  return optionLabels.some((l) => /問題なし|フォローアップ/.test(l))
+}

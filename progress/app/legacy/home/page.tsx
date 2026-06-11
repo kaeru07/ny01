@@ -97,7 +97,7 @@ export default async function DashboardPage() {
           </div>
           <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
             <p className="text-[11px] text-gray-400">not_reviewed_count</p>
-            <p className={`mt-0.5 text-lg font-bold ${metrics.notReviewedCount > metrics.backpressure.slowThreshold ? 'text-rose-600' : 'text-gray-900 dark:text-gray-100'}`}>{metrics.notReviewedCount}</p>
+            <p className="mt-0.5 text-lg font-bold text-gray-900 dark:text-gray-100">{metrics.notReviewedCount}</p>
             <p className="text-[11px] text-gray-400">needs_human {metrics.needsHumanCount} · followup {metrics.needsFollowupCount}</p>
           </div>
           <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">

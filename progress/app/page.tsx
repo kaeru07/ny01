@@ -37,6 +37,19 @@ export default async function CommandCenterPage() {
       {/* 今日やること（今日の判断 最大3件 + その他のアクション） */}
       <section className="rounded-xl border-2 border-blue-200 bg-white p-4 dark:border-blue-900/50 dark:bg-gray-900">
         <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">今日やること</h2>
+        <p className="mt-1 text-xs font-semibold text-gray-700 dark:text-gray-200">
+          今日の判断 残り{view.decisionCount}件
+        </p>
+        {view.todayDecisions.length === 0 && (
+          <div className="mt-2">
+            <p className="rounded-lg bg-green-50 px-3 py-2 text-xs font-semibold text-green-700 dark:bg-green-900/15 dark:text-green-300">
+              🎉 工場を止める判断はありません。AI工場は稼働を続けます。
+            </p>
+            <p className="mt-1 text-[11px] text-gray-400">
+              参考: レビュー{view.reviewTotal}件・候補{view.candidateTotal}件・AI保留{view.aiHoldCount}件（放置しても工場は止まりません）
+            </p>
+          </div>
+        )}
         {view.todayDecisions.length > 0 && (
           <div className="mt-3">
             <ol className="space-y-1.5">
@@ -52,8 +65,9 @@ export default async function CommandCenterPage() {
                 </li>
               ))}
             </ol>
-            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-              約{view.estimatedMinutes}分{view.deferredCount > 0 && `（ほか${view.deferredCount}件はAIが預かり中）`}
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">約{view.estimatedMinutes}分。これを処理すれば工場は止まりません</p>
+            <p className="mt-1 text-[11px] text-gray-400">
+              参考: レビュー{view.reviewTotal}件・候補{view.candidateTotal}件・AI保留{view.aiHoldCount}件（放置しても工場は止まりません）
             </p>
             <Link
               href="/decide"
@@ -97,9 +111,9 @@ export default async function CommandCenterPage() {
             <p className="text-[11px] leading-relaxed text-gray-400">AIが人間の介入なしで作業を終え、学習まで残せた割合</p>
           </div>
           <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-            <p className="text-[11px] text-gray-400">未確認の作業履歴</p>
+            <p className="text-[11px] text-gray-400">レビュー待ち（参考）</p>
             <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{view.factory.notReviewedCount}件</p>
-            <p className="text-[11px] leading-relaxed text-gray-400">たまるとAI工場が自動で減速します</p>
+            <p className="text-[11px] leading-relaxed text-gray-400">たまっても工場は止まりません</p>
           </div>
         </div>
         <p className="mt-2 text-[11px] text-gray-400">{view.factory.lastResultText}</p>

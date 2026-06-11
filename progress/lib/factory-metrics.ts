@@ -1,17 +1,30 @@
 import { readJson } from '@/lib/store'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
-import { getAutomationLog, getOperationalDecisions, getPendingApprovals } from '@/lib/operations-store'
+import { getAutomationLog, getEpics, getOperationalDecisions, getPendingApprovals } from '@/lib/operations-store'
 import { getKnowledgeRecords } from '@/lib/knowledge-loop'
 import { listNotReviewed, oldestAgeDays } from '@/lib/ai-review'
+import { DANGER_CATEGORIES, isReviewApprovalOptions } from '@/lib/inbox-labels'
 import type { RecommendedEpic } from '@/types/recommended-epic'
 
 // Factory を安全に動かすための最低限の計測。新しい正本は作らない（既存 JSON / ndjson から都度算出）。
 
-export const BACKPRESSURE_SLOW_THRESHOLD = 10
-export const BACKPRESSURE_PAUSE_THRESHOLD = 20
+// 2026-06-11 運用方針変更: レビュー件数では工場を止めない（レビュー100件でも稼働可能）。
+// 停止要因は「人間しか判断できないもの」のみ:
+//   - 危険判断待ち（本番・課金・認証・公開系の承認）→ 全体停止
+//   - Goal未設定 → 該当Epicを対象外（全対象EpicがGoal未設定なら実質停止）
+//   - 人間作業 → AIはそもそも触らない（他のEpicは稼働継続）
 const STALE_SUGGESTED_DAYS = 7
 
-export type BackpressureLevel = 'ok' | 'slow_down' | 'pause'
+export type BackpressureLevel = 'ok' | 'pause'
+
+export interface FactoryBlockers {
+  /** 危険判断待ちの承認件数（工場全体を止める） */
+  dangerApprovalCount: number
+  /** Goal未設定のオープンEpic件数（該当Epicのみ対象外） */
+  goalUnsetEpicCount: number
+  /** Goal設定済みでFactoryが拾えるオープンEpic件数 */
+  runnableEpicCount: number
+}
 
 export interface FactoryMetrics {
   /** Knowledge化された run ÷ 全 run（running を除く）。 */
@@ -30,10 +43,10 @@ export interface FactoryMetrics {
   pendingApprovalCount: number
   factoryLastResult: string | null
   factoryLastError: string | null
+  /** 工場停止要因（人間しか判断できないもの）。レビュー件数は含まない */
+  blockers: FactoryBlockers
   backpressure: {
     level: BackpressureLevel
-    slowThreshold: number
-    pauseThreshold: number
     message: string
   }
   computedAt: string
@@ -44,30 +57,31 @@ function localYmd(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
 }
 
-export function backpressureLevel(notReviewedCount: number): BackpressureLevel {
-  if (notReviewedCount > BACKPRESSURE_PAUSE_THRESHOLD) return 'pause'
-  if (notReviewedCount > BACKPRESSURE_SLOW_THRESHOLD) return 'slow_down'
+export function backpressureLevel(blockers: FactoryBlockers): BackpressureLevel {
+  if (blockers.dangerApprovalCount > 0) return 'pause'
+  if (blockers.runnableEpicCount === 0 && blockers.goalUnsetEpicCount > 0) return 'pause'
   return 'ok'
 }
 
-export function backpressureMessage(level: BackpressureLevel, notReviewedCount: number): string {
+export function backpressureMessage(level: BackpressureLevel, blockers: FactoryBlockers): string {
   if (level === 'pause') {
-    return `not_reviewed=${notReviewedCount} > ${BACKPRESSURE_PAUSE_THRESHOLD}: Factory自動実行は停止候補（レビュー滞留の解消が先）`
+    if (blockers.dangerApprovalCount > 0) {
+      return `危険判断待ち=${blockers.dangerApprovalCount}件: あなたの許可が出るまでFactory自動実行を停止`
+    }
+    return `Goal未設定Epic=${blockers.goalUnsetEpicCount}件・実行可能Epic=0: Goalを紐付けるまでFactory自動実行を停止`
   }
-  if (level === 'slow_down') {
-    return `not_reviewed=${notReviewedCount} > ${BACKPRESSURE_SLOW_THRESHOLD}: Factoryは減速運転（maxRuns=1）`
-  }
-  return `not_reviewed=${notReviewedCount}: 正常（しきい値 ${BACKPRESSURE_SLOW_THRESHOLD} 以下）`
+  return `停止要因なし（危険判断待ち0・実行可能Epic ${blockers.runnableEpicCount}件）。レビュー件数では停止しません`
 }
 
 export async function computeFactoryMetrics(): Promise<FactoryMetrics> {
-  const [runs, knowledge, decisions, recommendations, automationLog, pendingApprovals] = await Promise.all([
+  const [runs, knowledge, decisions, recommendations, automationLog, pendingApprovals, epics] = await Promise.all([
     readExecutionRuns(),
     getKnowledgeRecords(),
     getOperationalDecisions(),
     readJson<RecommendedEpic[]>('recommended-epics.json', []),
     getAutomationLog(50),
     getPendingApprovals(),
+    getEpics(),
   ])
 
   const countableRuns = runs.filter((r) => r.runStatus !== 'running')
@@ -105,7 +119,19 @@ export async function computeFactoryMetrics(): Promise<FactoryMetrics> {
     ? `${lastFailedFactoryRun.runId}: ${lastFailedFactoryRun.runStatus}（${lastFailedFactoryRun.errors[0] ?? lastFailedFactoryRun.stopReason ?? '詳細未記録'}）`
     : null
 
-  const level = backpressureLevel(notReviewed.length)
+  // 工場停止要因（レビュー件数は無関係）
+  const dangerApprovals = pendingApprovals.filter(
+    (a) => DANGER_CATEGORIES.has(a.category) && !isReviewApprovalOptions(a.options.map((o) => o.label)),
+  )
+  const openEpicStatuses = new Set(['approved', 'active'])
+  const openEpics = epics.filter((e) => openEpicStatuses.has(e.status))
+  const goalUnsetEpics = openEpics.filter((e) => !e.goalId)
+  const blockers: FactoryBlockers = {
+    dangerApprovalCount: dangerApprovals.length,
+    goalUnsetEpicCount: goalUnsetEpics.length,
+    runnableEpicCount: openEpics.length - goalUnsetEpics.length,
+  }
+  const level = backpressureLevel(blockers)
 
   return {
     closedLoopRate: countableRuns.length > 0 ? closedLoopRuns / countableRuns.length : 0,
@@ -121,11 +147,10 @@ export async function computeFactoryMetrics(): Promise<FactoryMetrics> {
     pendingApprovalCount: pendingApprovals.length,
     factoryLastResult,
     factoryLastError,
+    blockers,
     backpressure: {
       level,
-      slowThreshold: BACKPRESSURE_SLOW_THRESHOLD,
-      pauseThreshold: BACKPRESSURE_PAUSE_THRESHOLD,
-      message: backpressureMessage(level, notReviewed.length),
+      message: backpressureMessage(level, blockers),
     },
     computedAt: new Date().toISOString(),
   }
