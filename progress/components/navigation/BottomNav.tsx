@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-// 新UXのボトムナビ（5タブのみ）。旧画面群へは Legacy タブから入る。
+// 新UXのボトムナビ（6タブ）。旧画面群へは Legacy タブから入る。
 // 旧ナビ項目（朝会/工場/収益化/推奨Epic/目標/ToDo/キュー/URL/レーダー/案件/ログ）は
 // /legacy ハブと TopNav（旧画面でのみ表示）から引き続き利用できる。
 
@@ -50,6 +50,16 @@ const navItems = [
     ),
   },
   {
+    href: '/guide',
+    label: '運用',
+    exact: false,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.5C10.5 5 8.5 4.5 5 4.5v13c3.5 0 5.5.5 7 2 1.5-1.5 3.5-2 7-2v-13c-3.5 0-5.5.5-7 2zM12 6.5v13" />
+      </svg>
+    ),
+  },
+  {
     href: '/legacy',
     label: 'Legacy',
     exact: false,
@@ -62,8 +72,8 @@ const navItems = [
   },
 ]
 
-// 新5タブのルート。これ以外（旧画面）にいる間は Legacy タブを点灯させる。
-const NEW_ROUTES = ['/', '/decide', '/portfolio', '/revenue']
+// 新タブのルート。これ以外（旧画面）にいる間は Legacy タブを点灯させる。
+const NEW_ROUTES = ['/', '/decide', '/portfolio', '/revenue', '/guide']
 
 interface Props {
   logBadge?: number
