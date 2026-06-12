@@ -31,7 +31,8 @@
 
 
 
-- 2026-06-12: AI短尺動画編集 / OpenAI が Codex 強化目的で Ona 買収を計画 / GitHub Copilot desktop app / 広告: 商品URL、LP、Amazon商品ページからShorts/TikTok広告案を自動生成するS… / エラーなし / partial(market,news,tools)
+
+- 2026-06-12: AIアプリ発見最適化 / Anthropic が「Claude Corps」を発表 / GitHub Agentic Workflows / Google Play向けに、Play Shorts前提の15-30秒デモ動画を作り、アプリストアC… / エラーなし / partial(market,news,tools)
 - 2026-06-11: AIショート動画制作 / OpenAI と Anthropic の IPO 観測が強まる / OpenAI Codex / AIショート動画台本・構成テンプレを月額販売し、CapCut / エラーなし / partial(market,news,tools)
 - 2026-06-10: AIアプリ発見・ASO支援 / Anthropic、Claude Fable 5 を公開したとの報道 / OpenAI Remote MCP / サブスク: AIチャット結果を職種別テンプレに整える「営業メール化」「採用評価化」「SNS投稿化」ツ… / エラーなし / partial(market,news,tools)
 - 2026-06-09: AIノート・議事録 / OpenAI、ChatGPTを「スーパーアプリ」化する計画が報道 / Codex plugins / サブスク: AI議事録、AIノート、AI動画広告生成など、継続利用が発生する業務・制作系は月額課金と… / エラーなし / partial(market,news,tools)
