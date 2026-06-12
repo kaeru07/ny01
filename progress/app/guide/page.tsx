@@ -36,6 +36,8 @@ const FAQ: Array<{ q: string; a: string }> = [
   { q: '古いEpic候補は消える？', a: '消えません。30日以上動かなかった候補は期限切れとしてAI保留に移ります。必要なら候補詳細からsuggestedへ戻せます。' },
   { q: 'Goal進捗の%は何を見ている？', a: 'GoalにTodoがあればTodo完了率、なければ紐付く大きな作業の平均、それもなければGoalの数値指標を使います。司令塔のGoalカードに根拠を1行表示します。' },
   { q: '古い作業履歴はどうなる？', a: '300件を超えたら、確認済みの古い作業履歴だけをバックアップ後に月別アーカイブへ移します。未確認・修正依頼・人間判断待ち・実行中は移しません。' },
+  { q: 'レビュー用コピーは何に使う？', a: '司令塔の「レビュー用コピー」から、現在の判断・進捗・最近の作業・保留事項をMarkdownでコピーし、ChatGPT/Fableへ貼って外部レビューを受けます。結果をProgressへ戻す機能はまだないため、必要な指摘は人間がInboxへ手動起票します。' },
+  { q: 'ログ画面のキュー外レビューコピーとの違いは？', a: '司令塔のレビュー用コピーはProgressに蓄積済みの現在状態を外へ出す出口です。ログ画面のキュー外レビューコピーは、Progressにまだ無い任意アウトプットを一時的にレビュー依頼文へ整える別用途です。' },
   { q: 'レビュー待ちが増えても大丈夫？', a: '大丈夫です。レビューが100件たまっても工場は止まりません（2026-06-11の方針変更）。工場が止まるのは「危険判断待ち」「目標未設定」「人間作業待ち」だけです。レビューは時間があるときに「AIにまとめて確認させる」で片付けられます。' },
   { q: 'AI保留って何？', a: '人間が判断する必要のないもの（AIレビュー・候補整理・定期実行・重複・内容不足）をAIが預かっている状態です。件数だけ表示され、あなたの判断は不要です。' },
   { q: 'Legacyタブは何？', a: '以前の画面がそのまま残っている場所です。普段は使いません。細かいデータを見たいときだけ開いてください。' },
@@ -121,7 +123,7 @@ export default async function OperationsGuidePage() {
           AI工場を動かすための<strong>司令塔</strong>です。あなたは毎日<strong>5〜15分だけ判断</strong>します。
           残りはAIが進めます。
         </p>
-        <FlowSteps steps={['AIが調査する', 'AIが実装する', 'AIがレビュー候補を作る', 'あなたが判断する（ここだけ）']} />
+        <FlowSteps steps={['AIが調査する', 'AIが実装する', 'AIがレビュー候補を作る', 'あなたが判断する（ここだけ）', '必要ならレビュー用コピーで外部レビュー']} />
       </section>
 
       {/* 2. 今日の流れ */}
@@ -131,11 +133,11 @@ export default async function OperationsGuidePage() {
         <div className="mt-3 grid grid-cols-2 gap-3">
           <div className="rounded-lg bg-amber-50 p-3 dark:bg-amber-900/15">
             <p className="text-xs font-bold text-amber-700 dark:text-amber-300">🌅 朝</p>
-            <FlowSteps steps={['司令塔を開く', 'Inboxを開く', '判断する', '終了']} />
+            <FlowSteps steps={['司令塔を開く', 'Inboxを開く', '判断する', '必要ならレビュー用コピー', '終了']} />
           </div>
           <div className="rounded-lg bg-indigo-50 p-3 dark:bg-indigo-900/15">
             <p className="text-xs font-bold text-indigo-700 dark:text-indigo-300">🌙 夜</p>
-            <FlowSteps steps={['司令塔を開く', 'Inboxを開く', 'おすすめ次作業を確認', '終了']} />
+            <FlowSteps steps={['司令塔を開く', 'Inboxを開く', 'おすすめ次作業を確認', '必要ならレビュー用コピー', '終了']} />
           </div>
         </div>
       </section>
@@ -200,6 +202,9 @@ export default async function OperationsGuidePage() {
             </p>
           </>
         )}
+        <p className="mt-3 text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
+          司令塔の「レビュー用コピー」は、Progress内の現在状態を読み取り専用でMarkdown化します。外部レビューの結果をProgressへ戻す経路はまだないため、採用する指摘は人間がInboxへ手動で起票します。
+        </p>
       </section>
 
       {/* 5. 用語辞典 */}

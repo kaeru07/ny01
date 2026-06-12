@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
 import PageGuide from '@/components/newux/PageGuide'
+import ReviewCopyButton from '@/components/review-copy/ReviewCopyButton'
 import { buildCommandCenter, KIND_CHIP_LABEL } from '@/lib/command-center'
 
 // 新UXのトップ = 司令塔。毎日最初に開く画面。
@@ -39,6 +40,9 @@ export default async function CommandCenterPage() {
         guide="このページを見るだけで今日やることが分かります。所要時間の目安は5〜15分です。"
       />
       <p className="-mt-3 text-sm text-gray-400 dark:text-gray-500">{todayLabel}</p>
+      <div className="-mt-3">
+        <ReviewCopyButton />
+      </div>
 
       {view.factoryStopAlert && (
         <section className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 dark:border-rose-900/50 dark:bg-rose-900/15">

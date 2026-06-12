@@ -55,6 +55,7 @@ export const TERMS: Record<string, { ja: string; help: string }> = {
   dataHealth: { ja: 'データ整合', help: '存在しない目標や作業への参照、古い修正依頼、残留した実行中表示を確認する点検です' },
   requestCache: { ja: '画面内キャッシュ', help: '同じ画面表示中だけ読み取り結果を使い回し、APIの更新処理には影響させない仕組みです' },
   runArchive: { ja: '作業履歴アーカイブ', help: '古い確認済みの作業履歴をバックアップ後に月別ファイルへ移す整理です' },
+  reviewCopy: { ja: 'レビュー用コピー', help: '司令塔の現在状態をMarkdownにまとめ、ChatGPTやFableへ貼って外部レビューを受けるための読み取り専用コピーです' },
 }
 
 export interface TodayAction {
