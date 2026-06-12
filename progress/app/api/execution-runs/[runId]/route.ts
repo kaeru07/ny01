@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { updateReviewStatus } from '@/lib/execution-run-writer'
-import { runKnowledgeLoopForReviewedRun } from '@/lib/knowledge-loop'
+import { generateFollowupRecommendationForRun, runKnowledgeLoopForReviewedRun } from '@/lib/knowledge-loop'
 import { recordOperationalDecision } from '@/lib/operations-store'
 import type { ReviewStatus } from '@/types/execution-run'
 
@@ -39,7 +39,10 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     const knowledgeLoop = reviewStatus === 'reviewed'
       ? await runKnowledgeLoopForReviewedRun(updated)
       : null
-    return NextResponse.json({ success: true, knowledgeLoop })
+    const followupLoop = reviewStatus === 'needs_followup'
+      ? await generateFollowupRecommendationForRun(updated)
+      : null
+    return NextResponse.json({ success: true, knowledgeLoop, followupLoop })
   } catch (err) {
     console.error('Failed to update review status:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

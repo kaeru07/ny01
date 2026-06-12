@@ -32,6 +32,10 @@ function FlowSteps({ steps }: { steps: string[] }) {
 const FAQ: Array<{ q: string; a: string }> = [
   { q: '毎日何をすればいい？', a: 'Inbox（今日の判断）だけ見れば大丈夫です。カードごとに「はい・いいえ・あとで」を選ぶだけで、3〜5分で終わります。空なら何もしなくてOKです。' },
   { q: 'Goalって何？', a: 'AI工場が向かう目標です。すべての大きな作業はどれかの目標に紐付き、目標のない作業はInboxで紐付けを求められます。' },
+  { q: '修正するを押した後は？', a: '修正依頼はAI工場の次作業候補へ自動で戻ります。同じ作業から重複候補は作らず、修正結果が戻ったらレビューで再確認できます。' },
+  { q: '古いEpic候補は消える？', a: '消えません。30日以上動かなかった候補は期限切れとしてAI保留に移ります。必要なら候補詳細からsuggestedへ戻せます。' },
+  { q: 'Goal進捗の%は何を見ている？', a: 'GoalにTodoがあればTodo完了率、なければ紐付く大きな作業の平均、それもなければGoalの数値指標を使います。司令塔のGoalカードに根拠を1行表示します。' },
+  { q: '古い作業履歴はどうなる？', a: '300件を超えたら、確認済みの古い作業履歴だけをバックアップ後に月別アーカイブへ移します。未確認・修正依頼・人間判断待ち・実行中は移しません。' },
   { q: 'レビュー待ちが増えても大丈夫？', a: '大丈夫です。レビューが100件たまっても工場は止まりません（2026-06-11の方針変更）。工場が止まるのは「危険判断待ち」「目標未設定」「人間作業待ち」だけです。レビューは時間があるときに「AIにまとめて確認させる」で片付けられます。' },
   { q: 'AI保留って何？', a: '人間が判断する必要のないもの（AIレビュー・候補整理・定期実行・重複・内容不足）をAIが預かっている状態です。件数だけ表示され、あなたの判断は不要です。' },
   { q: 'Legacyタブは何？', a: '以前の画面がそのまま残っている場所です。普段は使いません。細かいデータを見たいときだけ開いてください。' },
@@ -95,6 +99,11 @@ export default async function OperationsGuidePage() {
       label: '収益化状況',
       value: currentMilestone?.label ?? '準備中',
       desc: '収益化ロードマップ（下のセクション参照）の現在地です。最初のゴールは「はじめての収益 1円」です。',
+    },
+    {
+      label: 'データ整合',
+      value: '異常時のみ表示',
+      desc: '存在しない目標・大きな作業への参照、14日超の修正依頼、30分超の実行中表示を点検し、異常があるときだけ司令塔に警告します。',
     },
   ]
 
@@ -162,6 +171,12 @@ export default async function OperationsGuidePage() {
         {!bottleneck && (
           <p className="mt-2 text-[11px] font-semibold text-green-600 dark:text-green-400">✅ 現在、詰まりはありません</p>
         )}
+        <p className="mt-2 text-[11px] leading-relaxed text-gray-400">
+          レビューで「修正する」を選ぶと、修正依頼は次の作業候補へ戻ります。AI工場の「今」は実行中の作業があれば表示し、30分以上残った古い実行中表示は待機中として扱います。
+        </p>
+        <p className="mt-1 text-[11px] leading-relaxed text-gray-400">
+          画面表示では同じ読み取り結果を画面内だけで使い回します。更新APIは別経路なので、判断ボタンを押した直後の読み戻しは従来どおり最新データを読みます。
+        </p>
       </section>
 
       {/* 4. 今日やること */}
@@ -226,7 +241,7 @@ export default async function OperationsGuidePage() {
       {/* 7. 収益化ロードマップ */}
       <section className={card}>
         <h2 className={h2}>7. 収益化ロードマップ</h2>
-        <p className={`mt-1 ${body}`}>BirdLogを先頭に、この順番で「はじめての収益 1円」を目指します。</p>
+        <p className={`mt-1 ${body}`}>収益設定の対象アプリを先頭に、この順番で「はじめての収益 1円」を目指します。現在の初期対象はBirdLogです。</p>
         <div className="mt-3 flex flex-col items-stretch gap-1">
           {milestones.map((m, i) => (
             <div key={m.label} className="flex flex-col items-center gap-1">

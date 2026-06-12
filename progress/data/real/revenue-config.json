@@ -1,0 +1,35 @@
+{
+  "focusApp": "birdlog",
+  "currentRevenueJpy": 0,
+  "milestones": [
+    {
+      "id": "mvp",
+      "kind": "mvp",
+      "label": "BirdLog アプリを完成させる"
+    },
+    {
+      "id": "publish",
+      "kind": "publish",
+      "label": "ストアに公開申請する（あなたの作業）"
+    },
+    {
+      "id": "monetization_setup",
+      "kind": "monetization_setup",
+      "label": "広告・課金を設定する（あなたの作業）"
+    },
+    {
+      "id": "download_100",
+      "kind": "static",
+      "label": "ダウンロード100件",
+      "state": "todo",
+      "note": "ストア公開後に計測を開始"
+    },
+    {
+      "id": "first_revenue_yen",
+      "kind": "static",
+      "label": "はじめての収益 1円",
+      "state": "todo",
+      "note": "ここがゴール。以降は拡大フェーズ"
+    }
+  ]
+}

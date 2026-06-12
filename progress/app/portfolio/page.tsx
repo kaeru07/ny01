@@ -33,7 +33,17 @@ export default async function PortfolioPage() {
               <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{p.name}</p>
               <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${toneClass[p.statusTone]}`}>{p.statusLabel}</span>
             </div>
+            <div className="mt-3 flex items-center gap-3">
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+                <div className="h-full rounded-full bg-blue-600" style={{ width: `${p.progressPct}%` }} />
+              </div>
+              <span className="w-12 text-right text-sm font-bold text-gray-900 dark:text-gray-100">{p.progressPct}%</span>
+            </div>
             <dl className="mt-2 space-y-1 text-xs">
+              <div className="flex gap-2">
+                <dt className="w-20 shrink-0 text-gray-400">残作業</dt>
+                <dd className="text-gray-700 dark:text-gray-200">{p.remainingWorkCount}作業</dd>
+              </div>
               <div className="flex gap-2">
                 <dt className="w-20 shrink-0 text-gray-400">次の作業</dt>
                 <dd className="line-clamp-2 text-gray-700 dark:text-gray-200">{p.nextWork}</dd>

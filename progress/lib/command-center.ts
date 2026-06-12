@@ -1,12 +1,32 @@
-import { readJson } from '@/lib/store'
-import { readExecutionRuns } from '@/lib/execution-run-reader'
-import { readAppProgress, readProjectTasks } from '@/lib/progress-reader'
-import { getAutomationConfig, getEpics, getPendingApprovals } from '@/lib/operations-store'
+import { readProjectTasks } from '@/lib/progress-reader'
+import { getAutomationConfig } from '@/lib/operations-store'
 import { computeFactoryMetrics, type FactoryMetrics } from '@/lib/factory-metrics'
-import { readGoals } from '@/lib/goal-reader'
+import { calcGoalProgress, goalAchievement } from '@/lib/goal-reader'
 import type { InboxCardKind } from '@/lib/inbox-labels'
-import type { RecommendedEpic } from '@/types/recommended-epic'
+import { humanizeTitle, subjectOf, shorten } from '@/lib/humanize'
+import { formatRevenueJpy } from '@/lib/revenue-config'
+import { checkDataHealth, type DataHealthSummary } from '@/lib/data-health'
+import {
+  readPageAppProgress,
+  readPageEpics,
+  readPageExecutionRuns,
+  readPageGoals,
+  readPageMonetizationCandidates,
+  readPagePendingApprovals,
+  readPageProjectTasks,
+  readPageRecommendations,
+  readPageRevenueConfig,
+} from '@/lib/page-data-cache'
+import {
+  buildFactoryOutlook,
+  buildFixRequests,
+  type FactoryOutlook,
+  type FixRequestView,
+} from '@/lib/factory-outlook'
 import type { ExecutionRun } from '@/types/execution-run'
+import type { Goal } from '@/types/goal'
+import type { Project, Task } from '@/types/progress'
+import type { Epic } from '@/lib/types/operations'
 
 // 新UX（人間用司令塔）のビューモデル。内部の専門用語をここで人間語に翻訳し、
 // 画面側には翻訳済みの文言だけを渡す。新しい正本は作らない（既存データからの都度算出）。
@@ -29,6 +49,12 @@ export const TERMS: Record<string, { ja: string; help: string }> = {
   direction: { ja: '方針選択', help: 'AIでは決められない方向性（目標・優先順位）を社長が選ぶ判断' },
   humanTask: { ja: '人間作業', help: 'ストア登録・課金設定・契約など、AIでは実行できない作業' },
   dangerJudge: { ja: '危険判断', help: '本番データ・課金・認証など、影響が大きい操作の許可。社長判断必須' },
+  fixRequest: { ja: '修正依頼', help: 'AIの作業結果に直してほしい点がある状態。AI工場の次作業候補へ自動で戻します' },
+  expiredCandidate: { ja: '期限切れ候補', help: '30日以上動かなかったおすすめ次作業。削除せずAI保留に移し、必要なら再表示できます' },
+  revenueConfig: { ja: '収益設定', help: '収益化の対象アプリ・現在収益・マイルストーンを決める設定です' },
+  dataHealth: { ja: 'データ整合', help: '存在しない目標や作業への参照、古い修正依頼、残留した実行中表示を確認する点検です' },
+  requestCache: { ja: '画面内キャッシュ', help: '同じ画面表示中だけ読み取り結果を使い回し、APIの更新処理には影響させない仕組みです' },
+  runArchive: { ja: '作業履歴アーカイブ', help: '古い確認済みの作業履歴をバックアップ後に月別ファイルへ移す整理です' },
 }
 
 export interface TodayAction {
@@ -61,6 +87,11 @@ export interface RecentWin {
   title: string
 }
 
+export interface FactoryStopAlert {
+  days: number
+  reason: string
+}
+
 export interface CommandCenterView {
   todayActions: TodayAction[]
   /** 今日の判断（工場停止要因のみ・最大3件）の見出しリスト。ホームの「今日やること」カードに出す */
@@ -72,7 +103,15 @@ export interface CommandCenterView {
   aiHoldCount: number
   estimatedMinutes: number
   factory: FactoryStateView
+  factoryStopAlert: FactoryStopAlert | null
+  dataHealth: DataHealthSummary
+  factoryOutlook: FactoryOutlook
+  fixRequests: FixRequestView
   milestones: Milestone[]
+  currentRevenueText: string
+  aiHoldBreakdown: Array<{ label: string; count: number }>
+  projectProgress: ProjectProgressCard[]
+  goalProgress: GoalProgressCard[]
   recentWins: RecentWin[]
   metrics: FactoryMetrics
 }
@@ -113,56 +152,100 @@ function buildFactoryState(metrics: FactoryMetrics, factoryEnabled: boolean): Fa
   }
 }
 
+async function buildFactoryStopAlert(metrics: FactoryMetrics, factoryEnabled: boolean): Promise<FactoryStopAlert | null> {
+  if (!factoryEnabled || metrics.backpressure.level !== 'pause') return null
+  const nowMs = Date.now()
+  if (metrics.blockers.dangerApprovalCount > 0) {
+    const approvals = await readPagePendingApprovals()
+    const danger = approvals
+      .filter((a) => DANGER_CATEGORIES.has(a.category))
+      .sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))[0]
+    const started = Date.parse(danger?.createdAt ?? new Date().toISOString())
+    return {
+      days: Math.max(0, Math.floor((nowMs - started) / 86_400_000)),
+      reason: '危険判断待ちがあります',
+    }
+  }
+  if (metrics.blockers.goalUnsetEpicCount > 0) {
+    const epics = await readPageEpics()
+    const unset = epics
+      .filter((e) => ['approved', 'active'].includes(e.status) && !e.goalId)
+      .sort((a, b) => Date.parse(a.updatedAt) - Date.parse(b.updatedAt))[0]
+    const started = Date.parse(unset?.updatedAt ?? new Date().toISOString())
+    return {
+      days: Math.max(0, Math.floor((nowMs - started) / 86_400_000)),
+      reason: 'すべての対象作業で目標が未設定です',
+    }
+  }
+  return null
+}
+
 /** 収益化マイルストーン（現状データからの目安判定）。 */
 export async function buildRevenueMilestones(): Promise<Milestone[]> {
-  const [epics, recommendations] = await Promise.all([
-    getEpics(),
-    readJson<RecommendedEpic[]>('recommended-epics.json', []),
+  const [epics, recommendations, revenueConfig] = await Promise.all([
+    readPageEpics(),
+    readPageRecommendations(),
+    readPageRevenueConfig(),
   ])
-  const birdlogMvp = epics.find((e) => /birdlog/i.test(`${e.epicId} ${e.title}`) && /MVP/i.test(e.title))
-  const publishRec = recommendations.find((r) => /birdlog/i.test(`${r.id} ${r.title}`) && /公開申請/.test(r.title))
-  const adsRec = recommendations.find((r) => /birdlog/i.test(`${r.id} ${r.title}`) && /(課金|AdMob)/i.test(r.title))
+  const focus = revenueConfig.focusApp.toLowerCase()
+  const matchesFocus = (value: string) => value.toLowerCase().includes(focus)
+  const mvpEpic = epics.find((e) => matchesFocus(`${e.epicId} ${e.title} ${(e.targetApps ?? []).join(' ')}`) && /MVP/i.test(e.title))
+  const publishRec = recommendations.find((r) => matchesFocus(`${r.id} ${r.title} ${r.targetApp ?? ''}`) && /公開申請/.test(r.title))
+  const adsRec = recommendations.find((r) => matchesFocus(`${r.id} ${r.title} ${r.targetApp ?? ''}`) && /(課金|AdMob)/i.test(r.title))
 
-  const mvpDone = birdlogMvp?.status === 'done'
+  const mvpDone = mvpEpic?.status === 'done'
   const publishStarted = publishRec?.status === 'epic_created'
 
-  const steps: Milestone[] = [
-    {
-      label: 'BirdLog アプリを完成させる',
-      state: mvpDone ? 'done' : 'current',
-      note: birdlogMvp
-        ? mvpDone ? '完成済み' : 'AIが製作中（自動作業の対象）'
-        : '対象の作業が見つかりません',
-    },
-    {
-      label: 'ストアに公開申請する（あなたの作業）',
-      state: mvpDone ? 'current' : 'todo',
-      note: publishStarted ? '進行中' : 'Google Play / App Store の申請。アカウント準備が必要',
-    },
-    {
-      label: '広告・課金を設定する（あなたの作業）',
-      state: 'todo',
-      note: adsRec ? 'AdMob などの設定。公開後に実施' : '公開後に実施',
-    },
-    { label: 'ダウンロード100件', state: 'todo', note: 'ストア公開後に計測を開始' },
-    { label: 'はじめての収益 1円', state: 'todo', note: 'ここがゴール。以降は拡大フェーズ' },
-  ]
-  return steps
+  return revenueConfig.milestones.map((milestone) => {
+    if (milestone.kind === 'mvp') {
+      return {
+        label: milestone.label,
+        state: mvpDone ? 'done' : 'current',
+        note: milestone.note ?? (mvpEpic ? mvpDone ? '完成済み' : 'AIが製作中（自動作業の対象）' : '対象の作業が見つかりません'),
+      }
+    }
+    if (milestone.kind === 'publish') {
+      return {
+        label: milestone.label,
+        state: mvpDone ? 'current' : 'todo',
+        note: milestone.note ?? (publishStarted ? '進行中' : 'Google Play / App Store の申請。アカウント準備が必要'),
+      }
+    }
+    if (milestone.kind === 'monetization_setup') {
+      return {
+        label: milestone.label,
+        state: 'todo',
+        note: milestone.note ?? (adsRec ? 'AdMob などの設定。公開後に実施' : '公開後に実施'),
+      }
+    }
+    return {
+      label: milestone.label,
+      state: milestone.state ?? 'todo',
+      note: milestone.note ?? '',
+    }
+  })
 }
 
 const HIDDEN_WIN_PATTERN = /Factory schedule|定期取り込み/
 
 export async function buildCommandCenter(): Promise<CommandCenterView> {
-  const [metrics, inbox, config, runs, milestones, tasksData] = await Promise.all([
+  const [metrics, inbox, config, runs, milestones, revenueConfig, tasksData, factoryOutlook, fixRequests, projectProgress, goalProgress, dataHealth] = await Promise.all([
     computeFactoryMetrics(),
     buildInbox(),
     getAutomationConfig(),
-    readExecutionRuns(),
+    readPageExecutionRuns(),
     buildRevenueMilestones(),
-    readProjectTasks(),
+    readPageRevenueConfig(),
+    readPageProjectTasks(),
+    buildFactoryOutlook(),
+    buildFixRequests(),
+    buildProjectProgressCards(),
+    buildGoalProgressCards(),
+    checkDataHealth(),
   ])
 
   const factory = buildFactoryState(metrics, config.factoryEnabled)
+  const factoryStopAlert = await buildFactoryStopAlert(metrics, config.factoryEnabled)
 
   // 今日やること: ①判断（今日の判断はtodayDecisionsで個別表示） ②AIに任せる確認 ③あなたの番の作業
   const todayActions: TodayAction[] = []
@@ -203,7 +286,15 @@ export async function buildCommandCenter(): Promise<CommandCenterView> {
     aiHoldCount: inbox.aiHoldCount,
     estimatedMinutes: inbox.estimatedMinutes,
     factory,
+    factoryStopAlert,
+    dataHealth,
+    factoryOutlook,
+    fixRequests,
     milestones,
+    currentRevenueText: formatRevenueJpy(revenueConfig.currentRevenueJpy),
+    aiHoldBreakdown: inbox.aiHoldBreakdown,
+    projectProgress,
+    goalProgress,
     recentWins,
     metrics,
   }
@@ -258,7 +349,7 @@ export interface InboxCard {
   /** 「詳細を見る」内にだけ出す説明（元タイトル・内部ID・AI判断理由・変換理由可） */
   detail: string[]
   actions: InboxCardAction[]
-  /** kind === 'direction'（Goal紐付け）のときの選択肢 */
+  /** kind === 'direction'（Goal紐付け）/ permission（承認時Goal指定）のときの選択肢 */
   goals?: Array<{ id: string; title: string }>
   epicId?: string
 }
@@ -278,51 +369,9 @@ export interface InboxView {
   candidates: InboxCard[]
   candidateTotal: number
   aiHoldCount: number
+  /** AI保留の理由別内訳（件数のみ・降順）。例: 重複・同テーマ候補 12 / 定期処理 4 */
+  aiHoldBreakdown: Array<{ label: string; count: number }>
   estimatedMinutes: number
-}
-
-/** 内部の命名規則（Run一次レビュー: / epic-xxx / 次Epic候補 / Run / Factory 等）をタイトルから除く・人間語へ置換する。 */
-function humanizeTitle(title: string): string {
-  let t = title
-  // 「レビュー起点: おすすめ承認: レビュー起点: …」のような入れ子プレフィックスは安定するまで剥がす
-  const prefixes = /^(Run一次レビュー|レビュー起点|おすすめ承認|Epic完了|epic[-_][\w-]+|Factory\(auto\))\s*[:：]\s*/i
-  for (let i = 0; i < 6 && prefixes.test(t); i++) t = t.replace(prefixes, '')
-  const patterns: Array<[RegExp, string]> = [
-    // 「… の次Epic候補（既存Epicへ Next Action 追記） の次Epic候補 …」以降はすべてメタ情報
-    [/\s*の次Epic候補[\s\S]*$/i, ''],
-    [/\s*\((schedule|boot)\/[^)]*\)/gi, ''],
-    // 内部IDはどこにあっても除去
-    [/epic[-_][\w-]+[-_]?\s*/gi, ''],
-    // 内部語の翻訳
-    [/Factory\s*schedule/gi, 'AI工場の定期実行'],
-    [/Factory/gi, 'AI工場'],
-    [/失敗\s*Run/gi, '失敗した作業'],
-    [/\bRuns?\b/g, '作業'],
-    [/\bReview\b/gi, 'レビュー'],
-  ]
-  for (const [re, rep] of patterns) t = t.replace(re, rep)
-  t = t.replace(/（\s*）|\(\s*\)/g, '').replace(/\s{2,}/g, ' ')
-  t = t.trim().replace(/^[、。・:：\s]+/, '').replace(/[、。\s]+$/, '')
-  const wrapped = t.match(/^（(.+)）$/) ?? t.match(/^\((.+)\)$/)
-  if (wrapped) t = wrapped[1].trim()
-  return t || title
-}
-
-/** タスク名から「何の話か」の主語を取り出す（補足括弧と末尾の作業動詞を落とす）。 */
-function subjectOf(clean: string): string {
-  let s = clean.replace(/（[^）]*）|\([^)]*\)/g, '').trim()
-  for (let i = 0; i < 2; i++) {
-    s = s
-      .replace(/(を|の)?(調査・修正|調査|修正|対応|改修|確認|改善|追加|実装|整備|を作る|作成)(する)?$/, '')
-      .replace(/（[^）]*）$|\([^)]*\)$/, '')
-      .replace(/[、。・\s]+$/, '')
-      .trim()
-  }
-  return s || clean
-}
-
-function shorten(s: string, n = 26): string {
-  return s.length > n ? `${s.slice(0, n)}…` : s
 }
 
 /** ドメイン語から「放置するとどうなるか」を推定する。 */
@@ -342,15 +391,15 @@ function impactOfImprove(text: string): string {
   return '品質が上がり、手作業が減ります。'
 }
 
-/** AI保留（人間に見せない）対象かどうか。定期実行・ヘルスチェック・内容不足など。 */
-function isAiHoldTitle(rawTitle: string): boolean {
-  if (/Factory\s*schedule|health\s*check|routine|定期取り込み|定期実行|metrics/i.test(rawTitle)) return true
+/** AI保留（人間に見せない）の理由。null なら保留対象外。理由ラベルは内訳表示にそのまま使う。 */
+function aiHoldReason(rawTitle: string): string | null {
+  if (/Factory\s*schedule|health\s*check|routine|定期取り込み|定期実行|metrics/i.test(rawTitle)) return '定期処理'
   // 「レビュー起点: おすすめ承認: レビュー起点: …」のような入れ子2回以上のメタ候補は
   // 既存候補から再帰生成された重複であり、AIだけで判断可能 → 人間に見せない
-  if ((rawTitle.match(/レビュー起点[:：]/g) ?? []).length >= 2) return true
+  if ((rawTitle.match(/レビュー起点[:：]/g) ?? []).length >= 2) return '重複・同テーマ候補'
   const clean = humanizeTitle(rawTitle)
-  if (subjectOf(clean).length < 4) return true // 内容不足（runIdだけ等）
-  return false
+  if (subjectOf(clean).length < 4) return '内容不足' // runIdだけ等
+  return null
 }
 
 /** 人間作業（AIでは実行できない）かどうか。ストア公開・課金・契約・認証系。 */
@@ -414,15 +463,23 @@ function themeKeyOf(rawTitle: string): string | null {
 
 export async function buildInbox(): Promise<InboxView> {
   const [approvals, epics, recommendations, runs, goalsData] = await Promise.all([
-    getPendingApprovals(),
-    getEpics(),
-    readJson<RecommendedEpic[]>('recommended-epics.json', []),
-    readExecutionRuns(),
-    readGoals(),
+    readPagePendingApprovals(),
+    readPageEpics(),
+    readPageRecommendations(),
+    readPageExecutionRuns(),
+    readPageGoals(),
   ])
   const goals = goalsData.goals.map((g) => ({ id: g.id, title: g.title }))
   const cards: InboxCard[] = []
   let heldCount = 0
+  const heldBy: Record<string, number> = {}
+  const hold = (reason: string) => {
+    heldCount += 1
+    heldBy[reason] = (heldBy[reason] ?? 0) + 1
+  }
+  for (const rec of recommendations.filter((r) => r.status === 'expired')) {
+    hold('期限切れ')
+  }
 
   // ① 承認待ち → 危険判断 / 検収 / 方針選択
   for (const a of approvals) {
@@ -497,8 +554,9 @@ export async function buildInbox(): Promise<InboxView> {
   const approvalRunIds = new Set(approvals.map((a) => a.createdRunId).filter(Boolean))
   for (const run of runs.filter((r) => r.reviewStatus === 'needs_human' && !approvalRunIds.has(r.runId))) {
     const raw = run.targetTodoTitle || run.summary || ''
-    if (!raw || isAiHoldTitle(raw)) {
-      heldCount += 1
+    const runHold = !raw ? '内容不足' : aiHoldReason(raw)
+    if (runHold) {
+      hold(runHold === '定期処理' ? '定期処理' : 'レビュー整理')
       continue
     }
     const clean = humanizeTitle(raw)
@@ -554,8 +612,10 @@ export async function buildInbox(): Promise<InboxView> {
   for (const rec of suggested) {
     // AI保留: 定期実行・内容不足・重複・同テーマの大量候補
     const theme = themeKeyOf(rec.title)
-    if (isAiHoldTitle(rec.title) || rec.duplicate?.duplicate || (theme && seenThemes.has(theme))) {
-      heldCount += 1
+    const recHold =
+      aiHoldReason(rec.title) ?? (rec.duplicate?.duplicate || (theme && seenThemes.has(theme)) ? '重複・同テーマ候補' : null)
+    if (recHold) {
+      hold(recHold)
       continue
     }
     if (theme) seenThemes.add(theme)
@@ -575,7 +635,7 @@ export async function buildInbox(): Promise<InboxView> {
       // 人間作業（アカウント登録・ストア公開申請・課金/サブスク・AdMob 等）は今日の判断に出さない。
       // どのアプリでも未実施の手続きであり時期尚早のため、AI保留として預かる（2026-06-12 ユーザー指示）。
       // 実際に必要になったタイミング（例: BirdLog MVP 完成後）は Revenue の収益化ロードマップで案内する。
-      heldCount += 1
+      hold('時期尚早の人間作業')
     } else {
       // 実行許可: AIが作業したい。やって良いかだけ聞く
       const s = describeSituation(rec.title)
@@ -595,6 +655,7 @@ export async function buildInbox(): Promise<InboxView> {
           { label: 'あとで', tone: 'ghost', api: holdApi },
           { label: 'やめる', tone: 'danger', api: rejectApi('今日の判断で「やめる」を選択') },
         ],
+        goals,
       })
     }
   }
@@ -618,6 +679,9 @@ export async function buildInbox(): Promise<InboxView> {
     candidates,
     candidateTotal: candidates.length,
     aiHoldCount: heldCount,
+    aiHoldBreakdown: Object.entries(heldBy)
+      .map(([label, count]) => ({ label, count }))
+      .sort((a, b) => b.count - a.count),
     estimatedMinutes: Math.max(decisions.length, 1),
   }
 }
@@ -629,9 +693,12 @@ export interface ProjectCard {
   name: string
   statusLabel: string
   statusTone: 'ok' | 'warn' | 'wait' | 'done'
+  progressPct: number
+  remainingWorkCount: number
   nextWork: string
   updatedAt: string
   monetizationLabel: string
+  monetizationStepsRemaining: number
 }
 
 const PROJECT_STATUS_LABEL: Record<string, { label: string; tone: ProjectCard['statusTone'] }> = {
@@ -656,6 +723,7 @@ interface MonetizationCandidateLite {
   name?: string
   targetApp?: string
   status?: string
+  score?: number
 }
 
 const MONETIZATION_LABEL: Record<string, string> = {
@@ -664,20 +732,193 @@ const MONETIZATION_LABEL: Record<string, string> = {
   EpicCreated: '収益化作業中',
 }
 
-export async function buildProjectPortfolio(): Promise<ProjectCard[]> {
-  const [progressData, epics, runs, candidates] = await Promise.all([
-    readAppProgress(),
-    getEpics(),
-    readExecutionRuns(),
-    readJson<MonetizationCandidateLite[]>('monetization-candidates.json', []),
-  ])
+const DONE_TASK_STATUSES = new Set(['done', 'skipped', 'deleted'])
+const OPEN_PROJECT_STATUSES = new Set(['in_progress', 'active', 'user_action_pending', 'deploy_ready', 'blocked'])
 
-  function monetizationFor(key: string): string {
+function clampPct(value: number): number {
+  if (!Number.isFinite(value)) return 0
+  return Math.max(0, Math.min(100, Math.round(value)))
+}
+
+function sameApp(projectKey: string, value?: string): boolean {
+  if (!projectKey || !value) return false
+  const a = projectKey.toLowerCase()
+  const b = value.toLowerCase()
+  return a === b || a.includes(b) || b.includes(a)
+}
+
+function openTasks(tasks: Task[]): Task[] {
+  return tasks.filter((t) => !DONE_TASK_STATUSES.has(t.status))
+}
+
+function progressFromProject(project: Project, tasks: Task[], epics: Epic[]): number {
+  const linked = epics.filter((e) => (e.targetApps ?? []).some((app) => sameApp(project.id, app)) || sameApp(project.id, e.targetApp))
+  if (linked.length > 0) {
+    const avg = linked.reduce((sum, e) => sum + (typeof e.progress === 'number' ? e.progress : 0), 0) / linked.length
+    return clampPct(Math.max(project.progress ?? 0, avg))
+  }
+  if (tasks.length > 0) {
+    const done = tasks.filter((t) => DONE_TASK_STATUSES.has(t.status)).length
+    return clampPct((done / tasks.length) * 100)
+  }
+  return clampPct(project.progress ?? 0)
+}
+
+function monetizationStepsRemaining(key: string, progressPct: number, candidates: MonetizationCandidateLite[], epics: Epic[]): number {
+  const hasCandidate = candidates.some((c) => sameApp(key, c.targetApp) || sameApp(key, c.name) || sameApp(key, c.id))
+  const hasMvpEpic = epics.some((e) => (e.targetApps ?? []).some((app) => sameApp(key, app)) && /MVP|local-first/i.test(e.title))
+  const hasPublish = epics.some((e) => (e.targetApps ?? []).some((app) => sameApp(key, app)) && /公開|申請|store|Google Play|App Store/i.test(e.title))
+  let done = 0
+  if (hasCandidate) done += 1
+  if (hasMvpEpic || progressPct >= 25) done += 1
+  if (progressPct >= 70) done += 1
+  if (hasPublish || progressPct >= 85) done += 1
+  if (progressPct >= 90) done += 1
+  if (progressPct >= 95) done += 1
+  if (progressPct >= 100) done += 1
+  return Math.max(0, 7 - done)
+}
+
+export interface ProjectProgressCard {
+  id: string
+  name: string
+  progressPct: number
+  remainingWorkCount: number
+  nextWork: string
+  updatedAt: string
+  monetizationStepsRemaining: number
+}
+
+export interface GoalProgressCard {
+  id: string
+  title: string
+  currentPlace: string
+  nextMilestone: string
+  achievementPct: number
+  basis: string
+}
+
+function projectNameFromEpic(epic: Epic): string {
+  const app = epic.targetApps?.[0] ?? epic.targetApp
+  if (app) return app === 'progress' ? 'Progress（このアプリ）' : app
+  return humanizeTitle(epic.title)
+}
+
+function taskMapByProject(tasksData: Awaited<ReturnType<typeof readProjectTasks>>): Map<string, Task[]> {
+  return new Map(tasksData.projects.map((p) => [p.projectId, p.tasks]))
+}
+
+export async function buildProjectProgressCards(): Promise<ProjectProgressCard[]> {
+  const [progressData, tasksData, epics, candidates] = await Promise.all([
+    readPageAppProgress(),
+    readPageProjectTasks(),
+    readPageEpics(),
+    readPageMonetizationCandidates(),
+  ])
+  const tasksByProject = taskMapByProject(tasksData)
+  const cards = new Map<string, ProjectProgressCard>()
+
+  for (const p of progressData.projects.filter((project) => !project.excluded && OPEN_PROJECT_STATUSES.has(project.status))) {
+    const tasks = tasksByProject.get(p.id) ?? []
+    const remaining = openTasks(tasks).length
+    const progressPct = progressFromProject(p, tasks, epics)
+    cards.set(p.id, {
+      id: p.id,
+      name: p.name,
+      progressPct,
+      remainingWorkCount: remaining,
+      nextWork: p.nextAction || p.currentTask || '次作業未設定',
+      updatedAt: p.updatedAt,
+      monetizationStepsRemaining: monetizationStepsRemaining(p.id, progressPct, candidates, epics),
+    })
+  }
+
+  for (const epic of epics.filter((e) => ['active', 'approved', 'blocked', 'paused'].includes(e.status))) {
+    const id = epic.targetApps?.[0] ?? epic.targetApp ?? epic.epicId
+    const existing = cards.get(id)
+    const remaining = (epic.remainingWork ?? []).filter(Boolean).length || (epic.doneCriteria ?? []).length
+    const progressPct = clampPct(epic.progress ?? existing?.progressPct ?? 0)
+    cards.set(id, {
+      id,
+      name: existing?.name ?? projectNameFromEpic(epic),
+      progressPct: Math.max(existing?.progressPct ?? 0, progressPct),
+      remainingWorkCount: existing?.remainingWorkCount ?? remaining,
+      nextWork: epic.nextAction || existing?.nextWork || epic.title,
+      updatedAt: [existing?.updatedAt, epic.updatedAt].filter(Boolean).sort().reverse()[0] ?? epic.updatedAt,
+      monetizationStepsRemaining: monetizationStepsRemaining(id, Math.max(existing?.progressPct ?? 0, progressPct), candidates, epics),
+    })
+  }
+
+  return Array.from(cards.values()).sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''))
+}
+
+function goalCurrentPlace(goal: Goal, epics: Epic[]): string {
+  const linked = epics.filter((e) => e.goalId === goal.id)
+  const active = linked.find((e) => ['active', 'approved', 'paused', 'blocked'].includes(e.status))
+  if (active) return humanizeTitle(active.title)
+  const done = linked.find((e) => e.status === 'done')
+  if (done) return humanizeTitle(done.title)
+  const phase = goal.phases.find((p) => p.status === 'in_progress') ?? goal.phases.find((p) => p.status === 'todo')
+  return phase?.title ?? '現在地未設定'
+}
+
+function goalNextMilestone(goal: Goal, epics: Epic[]): string {
+  const todo = goal.todos.find((t) => t.status !== 'done' && t.status !== 'skipped')
+  if (todo) return todo.title
+  const linked = epics.filter((e) => e.goalId === goal.id)
+  const open = linked.find((e) => ['active', 'approved', 'paused', 'blocked'].includes(e.status))
+  if (open?.nextAction) return open.nextAction
+  if (open?.doneCriteria?.[0]) return open.doneCriteria[0]
+  return '次マイルストーン未設定'
+}
+
+export async function buildGoalProgressCards(): Promise<GoalProgressCard[]> {
+  const [goalsData, epics] = await Promise.all([readPageGoals(), readPageEpics()])
+  return goalsData.goals
+    .filter((g) => g.status === 'active' || g.status === 'paused')
+    .map((goal) => {
+      const linked = epics.filter((e) => e.goalId === goal.id)
+      const linkedProgress =
+        linked.length > 0
+          ? linked.reduce((sum, epic) => sum + clampPct(epic.progress ?? 0), 0) / linked.length
+          : 0
+      const todoProgress = calcGoalProgress(goal).ratio
+      const metricProgress = goalAchievement(goal)
+      const achievementPct = goal.todos.length > 0 ? todoProgress : linked.length > 0 ? clampPct(linkedProgress) : metricProgress
+      const basis =
+        goal.todos.length > 0
+          ? `紐付くTodo ${goal.todos.length}件の完了率`
+          : linked.length > 0
+            ? `紐付く作業 ${linked.length}件の平均`
+            : `${goal.metric || 'metric'} ${goal.current ?? 0}/${goal.target ?? 100}`
+      return {
+        id: goal.id,
+        title: goal.title,
+        currentPlace: goalCurrentPlace(goal, epics),
+        nextMilestone: goalNextMilestone(goal, epics),
+        achievementPct,
+        basis,
+      }
+    })
+}
+
+export async function buildProjectPortfolio(): Promise<ProjectCard[]> {
+  const [progressData, tasksData, epics, runs, candidates] = await Promise.all([
+    readPageAppProgress(),
+    readPageProjectTasks(),
+    readPageEpics(),
+    readPageExecutionRuns(),
+    readPageMonetizationCandidates(),
+  ])
+  const tasksByProject = taskMapByProject(tasksData)
+
+  function monetizationFor(key: string, stepsRemaining: number): string {
     const hit = candidates.find((c) => {
       const t = `${c.id ?? ''} ${c.name ?? ''} ${c.targetApp ?? ''}`.toLowerCase()
       return key && t.includes(key.toLowerCase())
     })
-    return hit?.status ? (MONETIZATION_LABEL[hit.status] ?? hit.status) : '—'
+    const base = hit?.status ? (MONETIZATION_LABEL[hit.status] ?? hit.status) : '候補未登録'
+    return `${base} / 残り${stepsRemaining}ステップ`
   }
 
   function latestRunFor(app: string): ExecutionRun | undefined {
@@ -694,31 +935,43 @@ export async function buildProjectPortfolio(): Promise<ProjectCard[]> {
     seen.add(app)
     const st = EPIC_STATUS_LABEL[epic.status] ?? { label: epic.status, tone: 'wait' as const }
     const run = latestRunFor(app)
+    const progressPct = clampPct(epic.progress ?? 0)
+    const stepsRemaining = monetizationStepsRemaining(app, progressPct, candidates, epics)
     cards.push({
       id: app,
       name: app === 'progress' ? 'Progress（このアプリ）' : app,
       statusLabel: st.label,
       statusTone: st.tone,
+      progressPct,
+      remainingWorkCount: (epic.remainingWork ?? []).filter(Boolean).length || (epic.doneCriteria ?? []).length,
       nextWork: epic.nextAction || epic.title,
       updatedAt: run?.finishedAt || epic.updatedAt,
-      monetizationLabel: monetizationFor(app),
+      monetizationLabel: monetizationFor(app, stepsRemaining),
+      monetizationStepsRemaining: stepsRemaining,
     })
   }
 
   // 2) 既存案件（app-progress.json）のうち動きがあるもの
   for (const p of progressData.projects) {
     if (seen.has(p.id)) continue
-    if (!['in_progress', 'user_action_pending', 'deploy_ready'].includes(p.status)) continue
+    if (p.excluded) continue
+    if (!OPEN_PROJECT_STATUSES.has(p.status)) continue
     seen.add(p.id)
     const st = PROJECT_STATUS_LABEL[p.status] ?? { label: p.status, tone: 'wait' as const }
+    const tasks = tasksByProject.get(p.id) ?? []
+    const progressPct = progressFromProject(p, tasks, epics)
+    const stepsRemaining = monetizationStepsRemaining(p.id, progressPct, candidates, epics)
     cards.push({
       id: p.id,
       name: p.name,
       statusLabel: st.label,
       statusTone: st.tone,
+      progressPct,
+      remainingWorkCount: openTasks(tasks).length,
       nextWork: p.nextAction || p.currentTask || '次の作業未設定',
       updatedAt: p.updatedAt,
-      monetizationLabel: monetizationFor(p.id) !== '—' ? monetizationFor(p.id) : monetizationFor(p.name),
+      monetizationLabel: monetizationFor(p.id, stepsRemaining),
+      monetizationStepsRemaining: stepsRemaining,
     })
   }
 

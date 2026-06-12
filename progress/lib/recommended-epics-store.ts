@@ -20,6 +20,7 @@ import type {
 // 既存 Factory の安全ゲートは緩めない（riskFlags は素通しせず eligibility に反映するだけ）。
 
 const FILE = 'recommended-epics.json'
+const EXPIRE_AFTER_DAYS = 30
 
 const EXISTING_APP_SLUGS = [
   'progress', 'goalplanner', 'goal-planner', 'netscope', 'mahjong', 'nanikiru',
@@ -96,6 +97,25 @@ export async function changeStatus(
   if (!r) return null
   const history: RecHistoryEntry[] = [...(r.history ?? []), { at: now(), action: `status:${status}`, detail }]
   return updateRecommendation(id, { status, history })
+}
+
+export async function expireStaleRecommendations(): Promise<{ expired: number; total: number }> {
+  const list = await readJson<RecommendedEpic[]>(FILE, [])
+  const cutoff = Date.now() - EXPIRE_AFTER_DAYS * 24 * 60 * 60 * 1000
+  const ts = now()
+  let expired = 0
+  for (const rec of list) {
+    if (rec.status !== 'suggested') continue
+    if (rec.priority === 'P0') continue
+    const updated = Date.parse(rec.updatedAt || rec.createdAt)
+    if (!Number.isFinite(updated) || updated > cutoff) continue
+    rec.status = 'expired'
+    rec.updatedAt = ts
+    rec.history = [...(rec.history ?? []), { at: ts, action: 'status:expired', detail: 'suggestedのまま30日超過したため自動整理' }]
+    expired += 1
+  }
+  if (expired > 0) await writeJson(FILE, list)
+  return { expired, total: list.length }
 }
 
 /** 既存 Epic / 実装済みアプリ / 既存おすすめ(epic_created) との重複チェック。 */
@@ -316,7 +336,7 @@ function buildContract(rec: RecommendedEpic) {
  * - new_epic: epics.json に新規Epicを追記。
  * - existing_epic_next_action: 既存Epicの remainingWork に追記（新規Epicは作らない）。
  */
-export async function approveRecommendation(id: string): Promise<ApproveRecommendationResult> {
+export async function approveRecommendation(id: string, opts: { goalId?: string } = {}): Promise<ApproveRecommendationResult> {
   const rec = await getRecommendation(id)
   if (!rec) return { ok: false, reason: 'おすすめが見つかりません' }
   if (rec.status === 'epic_created') return { ok: false, reason: '既に Epic化済みです（二重登録防止）' }
@@ -324,6 +344,7 @@ export async function approveRecommendation(id: string): Promise<ApproveRecommen
 
   const ts = now()
   const runId = genRunId()
+  const goalId = opts.goalId || rec.goalId
 
   // 既存Epicへの Next Action 追記
   if (rec.kind === 'existing_epic_next_action') {
@@ -332,11 +353,19 @@ export async function approveRecommendation(id: string): Promise<ApproveRecommen
     const target = epics.find((e) => e.epicId === rec.relatedEpicId)
     if (!target) return { ok: false, reason: `追記先 Epic が存在しません: ${rec.relatedEpicId}` }
     const add = rec.doneCriteria.filter((d) => !(target.remainingWork ?? []).includes(d))
-    await updateEpic(rec.relatedEpicId, { remainingWork: [...(target.remainingWork ?? []), ...add] })
+    const followupNote = rec.followupOfRunId ? ` followupOfRunId=${rec.followupOfRunId}` : ''
+    await updateEpic(rec.relatedEpicId, {
+      remainingWork: [...(target.remainingWork ?? []), ...add],
+      goalId: target.goalId || goalId,
+      notes: followupNote && !(target.notes ?? '').includes(followupNote.trim())
+        ? `${target.notes ?? ''}${target.notes ? '\n' : ''}${followupNote.trim()}`
+        : target.notes,
+    })
     const run: ExecutionRun = {
       runId, startedAt: ts, finishedAt: ts, targetApp: 'progress', epicId: rec.relatedEpicId,
       targetTodoTitle: `おすすめ承認: ${rec.title}（既存Epicへ Next Action 追記）`,
       runStatus: 'completed', reviewStatus: 'not_reviewed', source: 'recommended_epics',
+      followupOfRunId: rec.followupOfRunId,
       summary: `おすすめ ${rec.id} を承認し既存Epic ${rec.relatedEpicId} の remainingWork に ${add.length} 件追記`,
       changedFiles: [{ file: 'data/real/epics.json', change: `${rec.relatedEpicId} remainingWork 追記` }],
       checks: {}, errors: [], warnings: [], progressUpdated: false, nextActions: add, rawReport: `おすすめ追加Epic（既存Epic継続）を人間承認。${rec.reason}`,
@@ -344,6 +373,7 @@ export async function approveRecommendation(id: string): Promise<ApproveRecommen
     await addExecutionRun(run)
     await updateRecommendation(id, {
       status: 'epic_created',
+      goalId,
       createdEpicId: rec.relatedEpicId,
       history: [...(rec.history ?? []), { at: ts, action: 'status:epic_created', detail: `既存Epic ${rec.relatedEpicId} へ追記 / runId ${runId}` }],
     })
@@ -354,7 +384,7 @@ export async function approveRecommendation(id: string): Promise<ApproveRecommen
   const dup = await checkDuplicateBySlug(rec.targetApp ?? slugify(rec.title))
   if (dup.duplicate) return { ok: false, reason: dup.reason }
 
-  const contract = buildContract(rec)
+  const contract = buildContract({ ...rec, goalId })
   const result = validateEpicContract(contract)
   if (!result.ok || !result.normalized) {
     return { ok: false, reason: `Epic Contract 検証に失敗: ${result.errors.join(' / ')}` }
@@ -368,6 +398,7 @@ export async function approveRecommendation(id: string): Promise<ApproveRecommen
     runId, startedAt: ts, finishedAt: ts, targetApp: 'progress', epicId: epic.epicId,
     targetTodoTitle: `おすすめ承認: ${rec.title} を Epic化`,
     runStatus: 'completed', reviewStatus: 'not_reviewed', source: 'recommended_epics',
+    followupOfRunId: rec.followupOfRunId,
     summary: `おすすめ ${rec.id} を承認し Epic ${epic.epicId} を作成（factoryEligible=${eligibility.eligible}）`,
     changedFiles: [
       { file: 'data/real/epics.json', change: `Epic ${epic.epicId} 追記` },
@@ -381,6 +412,7 @@ export async function approveRecommendation(id: string): Promise<ApproveRecommen
   await addExecutionRun(run)
   await updateRecommendation(id, {
     status: 'epic_created',
+    goalId,
     createdEpicId: epic.epicId,
     factoryEligiblePreview: {
       eligible: eligibility.eligible,

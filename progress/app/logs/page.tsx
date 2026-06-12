@@ -8,6 +8,7 @@ import ExecutionRunTemplateButton from '@/components/logs/ExecutionRunTemplateBu
 import ProjectFilterSelect from '@/components/logs/ProjectFilterSelect'
 import AdhocReviewCopyPanel from '@/components/logs/AdhocReviewCopyPanel'
 import SnsTrendReviewPanel from '@/components/logs/SnsTrendReviewPanel'
+import { readExecutionRunArchiveSummaries } from '@/lib/execution-run-archive'
 
 type LogMode = 'event' | 'history' | 'review' | 'daily'
 
@@ -35,10 +36,11 @@ export default async function LogsPage({ searchParams }: Props) {
     : searchParams.mode === 'daily' ? 'daily'
     : 'event'
 
-  const [logs, progressData, allRuns] = await Promise.all([
+  const [logs, progressData, allRuns, archives] = await Promise.all([
     readWorkLog(),
     readAppProgress(),
     readExecutionRuns(),
+    readExecutionRunArchiveSummaries(),
   ])
 
   const { project: projectFilter, type: typeFilter } = searchParams
@@ -189,6 +191,20 @@ export default async function LogsPage({ searchParams }: Props) {
               🏭 定期実行のみ {factoryRunCount}
             </a>
           </div>
+          {archives.length > 0 && (
+            <section className="mb-3 rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
+              <p className="text-xs font-bold text-gray-900 dark:text-gray-100">アーカイブ済み作業履歴</p>
+              <p className="mt-1 text-[11px] text-gray-400">通常表示は最新のアクティブ履歴だけです。過去分は月別ファイルに退避されています。</p>
+              <dl className="mt-2 space-y-1">
+                {archives.map((archive) => (
+                  <div key={archive.file} className="flex items-center justify-between text-xs">
+                    <dt className="font-mono text-gray-500 dark:text-gray-400">{archive.file}</dt>
+                    <dd className="font-semibold text-gray-700 dark:text-gray-200">{archive.count}件</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          )}
           <ExecutionRunTemplateButton />
           <ExecutionRunList initialRuns={historyRuns} reviewOnly={false} />
         </>

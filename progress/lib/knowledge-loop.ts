@@ -199,6 +199,89 @@ function buildRecommendation(run: ExecutionRun, knowledge: KnowledgeRecord): Rec
   }
 }
 
+function followupReason(run: ExecutionRun): string {
+  const target = run.targetTodoTitle || run.summary || run.runId
+  const memo = run.reviewMemo ? ` レビュー指摘: ${run.reviewMemo}` : ''
+  const error = run.errors?.[0] ? ` エラー: ${run.errors[0]}` : ''
+  return `修正依頼（元作業: ${target} / runId ${run.runId}）をAI工場の作業候補へ戻す。${memo}${error}`.trim()
+}
+
+function followupDoneCriteria(run: ExecutionRun): string[] {
+  const criteria = [
+    ...(run.nextActions ?? []).filter((a) => typeof a === 'string' && a.trim()),
+    ...(run.errors ?? []).slice(0, 2).map((e) => `元Runのエラーを解消する: ${e}`),
+    ...(run.reviewMemo ? [`レビュー指摘を反映する: ${run.reviewMemo}`] : []),
+  ]
+  const unique = Array.from(new Set(criteria.map((c) => c.trim()).filter(Boolean)))
+  return unique.length > 0
+    ? unique.slice(0, 6)
+    : [
+        '修正依頼された箇所を再確認し、必要な修正を実施する',
+        'build / typecheck / lint のいずれかが実行され結果が記録されている',
+        '修正結果をExecutionRunに記録し、人間が再確認できる状態にする',
+      ]
+}
+
+function buildFollowupRecommendation(run: ExecutionRun, epicGoalId?: string): RecommendedEpic {
+  const ts = nowIso()
+  const id = `rec-followup-${safeSlug(run.runId)}`
+  const sourceEpicId = run.epicId
+  return {
+    id,
+    status: 'suggested',
+    kind: sourceEpicId ? 'existing_epic_next_action' : 'new_epic',
+    title: `修正依頼: ${run.targetTodoTitle || run.summary || run.runId}`,
+    reason: followupReason(run),
+    monetizationImpact: 'none',
+    targetApp: run.targetApp,
+    relatedEpicId: sourceEpicId,
+    relatedRunIds: [run.runId],
+    priority: 'P1',
+    doneCriteria: followupDoneCriteria(run),
+    decisionPolicy: 'autonomous',
+    riskFlags: [],
+    preferredExecutor: run.preferredExecutor ?? 'claude',
+    fallbackExecutor: run.fallbackExecutor ?? 'codex',
+    sourceKind: 'review_followup',
+    sourceRef: `followup:${run.runId}`,
+    goalId: inferGoalId(run, epicGoalId),
+    parentEpicId: sourceEpicId,
+    sourceRunId: run.runId,
+    followupOfRunId: run.runId,
+    duplicate: { duplicate: false },
+    factoryEligiblePreview: { eligible: true, reasons: [], classification: 'auto', factoryManaged: true },
+    notes: `修正依頼の閉ループで自動生成。followupOfRunId=${run.runId}`,
+    history: [{ at: ts, action: 'suggested', detail: `needs_followup run ${run.runId} から自動生成` }],
+    createdAt: ts,
+    updatedAt: ts,
+  }
+}
+
+export async function generateFollowupRecommendationForRun(run: ExecutionRun): Promise<{ id: string; created: boolean } | null> {
+  if (run.reviewStatus !== 'needs_followup') return null
+  const list = await readJson<RecommendedEpic[]>(RECOMMENDATIONS_FILE, [])
+  const existing = list.find((r) => r.followupOfRunId === run.runId || (r.sourceKind === 'review_followup' && r.sourceRunId === run.runId))
+  if (existing) return { id: existing.id, created: false }
+  const epic = run.epicId ? await getEpic(run.epicId) : null
+  const rec = buildFollowupRecommendation(run, epic?.goalId)
+  list.push(rec)
+  await writeJson(RECOMMENDATIONS_FILE, list)
+  return { id: rec.id, created: true }
+}
+
+export async function backfillFollowupRecommendations(): Promise<{ processed: number; createdRecommendations: number }> {
+  const runs = await readExecutionRuns()
+  let processed = 0
+  let createdRecommendations = 0
+  for (const run of runs.filter((r) => r.reviewStatus === 'needs_followup')) {
+    const result = await generateFollowupRecommendationForRun(run)
+    if (!result) continue
+    processed += 1
+    if (result.created) createdRecommendations += 1
+  }
+  return { processed, createdRecommendations }
+}
+
 async function upsertRecommendation(run: ExecutionRun, knowledge: KnowledgeRecord): Promise<{ id: string; created: boolean }> {
   const list = await readJson<RecommendedEpic[]>(RECOMMENDATIONS_FILE, [])
   const existing = list.find((r) => r.sourceKind === 'review_knowledge' && r.sourceRunId === run.runId)

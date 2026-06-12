@@ -20,6 +20,12 @@ const actionIcon: Record<string, string> = {
   user_work: '🛠',
 }
 
+const fixStageClass: Record<string, string> = {
+  AI修正中: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  再確認待ち: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+  検収: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+}
+
 export default async function CommandCenterPage() {
   const view = await buildCommandCenter()
   const todayLabel = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' })
@@ -33,6 +39,25 @@ export default async function CommandCenterPage() {
         guide="このページを見るだけで今日やることが分かります。所要時間の目安は5〜15分です。"
       />
       <p className="-mt-3 text-sm text-gray-400 dark:text-gray-500">{todayLabel}</p>
+
+      {view.factoryStopAlert && (
+        <section className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 dark:border-rose-900/50 dark:bg-rose-900/15">
+          <p className="text-sm font-bold text-rose-700 dark:text-rose-300">
+            ⚠ AI工場は{view.factoryStopAlert.days}日前から停止しています
+          </p>
+          <p className="mt-1 text-xs text-rose-700/80 dark:text-rose-200/80">
+            理由: {view.factoryStopAlert.reason}。<Link href="/decide" className="font-bold underline">Inboxで判断する</Link>
+          </p>
+        </section>
+      )}
+
+      {view.dataHealth.warningText && (
+        <section className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 dark:border-amber-900/50 dark:bg-amber-900/15">
+          <p className="text-xs font-semibold text-amber-700 dark:text-amber-300">
+            {view.dataHealth.warningText}
+          </p>
+        </section>
+      )}
 
       {/* 今日やること（今日の判断 最大3件 + その他のアクション） */}
       <section className="rounded-xl border-2 border-blue-200 bg-white p-4 dark:border-blue-900/50 dark:bg-gray-900">
@@ -95,6 +120,41 @@ export default async function CommandCenterPage() {
         </ul>
       </section>
 
+      {/* AI工場計器盤 */}
+      <section className="rounded-xl border-2 border-gray-900 bg-white p-4 dark:border-gray-100 dark:bg-gray-900">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">AI工場計器盤</h2>
+          <Link href="/automation" className="text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">自動化</Link>
+        </div>
+        <dl className="mt-3 grid gap-2 text-sm">
+          <div className="grid grid-cols-[4.5rem_1fr] gap-2 rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800/60">
+            <dt className="text-xs font-semibold text-gray-400">今</dt>
+            <dd className="font-semibold text-gray-900 dark:text-gray-100">{view.factoryOutlook.nowText}</dd>
+          </div>
+          <div className="grid grid-cols-[4.5rem_1fr] gap-2 rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800/60">
+            <dt className="text-xs font-semibold text-gray-400">次</dt>
+            <dd className="font-semibold text-gray-900 dark:text-gray-100">{view.factoryOutlook.nextText ?? '選定中'}</dd>
+          </div>
+          <div className="grid grid-cols-[4.5rem_1fr] gap-2 rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800/60">
+            <dt className="text-xs font-semibold text-gray-400">その次</dt>
+            <dd className="text-gray-700 dark:text-gray-200">{view.factoryOutlook.laterText ?? '候補整理中'}</dd>
+          </div>
+          <div className="grid grid-cols-[4.5rem_1fr] gap-2 rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800/60">
+            <dt className="text-xs font-semibold text-gray-400">待機</dt>
+            <dd className="text-gray-700 dark:text-gray-200">{view.factoryOutlook.waitingCount}件</dd>
+          </div>
+          <div className="grid grid-cols-[4.5rem_1fr] gap-2 rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800/60">
+            <dt className="text-xs font-semibold text-gray-400">前回</dt>
+            <dd className="text-gray-700 dark:text-gray-200">{view.factoryOutlook.previousText}</dd>
+          </div>
+          <div className="grid grid-cols-[4.5rem_1fr] gap-2 rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800/60">
+            <dt className="text-xs font-semibold text-gray-400">次回</dt>
+            <dd className="font-semibold text-gray-900 dark:text-gray-100">{view.factoryOutlook.nextRunText}</dd>
+          </div>
+        </dl>
+        <p className="mt-2 text-[11px] text-gray-400">{view.factoryOutlook.note}</p>
+      </section>
+
       {/* AI工場の状態 */}
       <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
         <div className="flex items-center justify-between gap-3">
@@ -122,13 +182,125 @@ export default async function CommandCenterPage() {
         )}
       </section>
 
+      {/* Project進捗 */}
+      <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Project進捗</h2>
+          <Link href="/portfolio" className="text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">全て見る</Link>
+        </div>
+        <ul className="mt-3 space-y-3">
+          {view.projectProgress.slice(0, 3).map((p) => (
+            <li key={p.id} className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+              <div className="flex items-start justify-between gap-3">
+                <p className="min-w-0 text-sm font-bold text-gray-900 dark:text-gray-100">{p.name}</p>
+                <p className="shrink-0 text-lg font-bold text-gray-900 dark:text-gray-100">{p.progressPct}%</p>
+              </div>
+              <div className="mt-2 h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                <div className="h-full rounded-full bg-blue-600" style={{ width: `${p.progressPct}%` }} />
+              </div>
+              <dl className="mt-2 space-y-1 text-xs">
+                <div className="flex gap-2">
+                  <dt className="w-20 shrink-0 text-gray-400">残作業</dt>
+                  <dd className="text-gray-700 dark:text-gray-200">{p.remainingWorkCount}作業</dd>
+                </div>
+                <div className="flex gap-2">
+                  <dt className="w-20 shrink-0 text-gray-400">次</dt>
+                  <dd className="line-clamp-2 text-gray-700 dark:text-gray-200">{p.nextWork}</dd>
+                </div>
+                <div className="flex gap-2">
+                  <dt className="w-20 shrink-0 text-gray-400">収益化</dt>
+                  <dd className="text-gray-700 dark:text-gray-200">残り{p.monetizationStepsRemaining}ステップ</dd>
+                </div>
+              </dl>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* Goal進捗 */}
+      <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Goal進捗</h2>
+          <Link href="/goal-planner" className="text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">Goal管理</Link>
+        </div>
+        <ul className="mt-3 space-y-3">
+          {view.goalProgress.slice(0, 3).map((g) => (
+            <li key={g.id} className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+              <div className="flex items-start justify-between gap-3">
+                <p className="min-w-0 text-sm font-bold text-gray-900 dark:text-gray-100">{g.title}</p>
+                <p className="shrink-0 text-lg font-bold text-gray-900 dark:text-gray-100">{g.achievementPct}%</p>
+              </div>
+              <dl className="mt-2 space-y-1 text-xs">
+                <div className="flex gap-2">
+                  <dt className="w-20 shrink-0 text-gray-400">現在地</dt>
+                  <dd className="line-clamp-2 text-gray-700 dark:text-gray-200">{g.currentPlace}</dd>
+                </div>
+                <div className="flex gap-2">
+                  <dt className="w-20 shrink-0 text-gray-400">次</dt>
+                  <dd className="line-clamp-2 text-gray-700 dark:text-gray-200">{g.nextMilestone}</dd>
+                </div>
+                <div className="flex gap-2">
+                  <dt className="w-20 shrink-0 text-gray-400">根拠</dt>
+                  <dd className="line-clamp-2 text-gray-500 dark:text-gray-400">{g.basis}</dd>
+                </div>
+              </dl>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* 修正依頼の閉ループ */}
+      <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">修正依頼</h2>
+          <span className="text-xs font-semibold text-gray-400">{view.fixRequests.count}件</span>
+        </div>
+        {view.fixRequests.items.length === 0 ? (
+          <p className="mt-2 rounded-lg bg-green-50 px-3 py-2 text-xs font-semibold text-green-700 dark:bg-green-900/15 dark:text-green-300">
+            修正依頼中の作業はありません。
+          </p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {view.fixRequests.items.map((item, i) => (
+              <li key={`${item.title}-${i}`} className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="min-w-0 text-sm font-semibold text-gray-900 dark:text-gray-100">{item.title}</p>
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold ${fixStageClass[item.stage]}`}>{item.stage}</span>
+                </div>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{item.detail}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* AI保留の内訳 */}
+      <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">AI保留の内訳</h2>
+          <Link href="/decide" className="text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">Inbox</Link>
+        </div>
+        {view.aiHoldBreakdown.length === 0 ? (
+          <p className="mt-2 text-xs text-gray-400">AI保留はありません。</p>
+        ) : (
+          <dl className="mt-3 space-y-2">
+            {view.aiHoldBreakdown.slice(0, 5).map((h) => (
+              <div key={h.label} className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800/50">
+                <dt className="text-xs font-semibold text-gray-700 dark:text-gray-200">{h.label}</dt>
+                <dd className="text-sm font-bold text-gray-900 dark:text-gray-100">{h.count}件</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+      </section>
+
       {/* 収益化までの残距離 */}
       <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">収益化までの残距離</h2>
           <Link href="/revenue" className="text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">詳しく見る</Link>
         </div>
-        <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">現在 ¥0</p>
+        <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-100">現在 {view.currentRevenueText}</p>
         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
           次の一歩: <span className="font-semibold text-gray-900 dark:text-gray-100">{currentMilestone?.label ?? 'すべて完了'}</span>
           （ゴールまで残り{view.milestones.length - doneCount}ステップ）

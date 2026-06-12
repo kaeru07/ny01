@@ -4,7 +4,8 @@ import BottomNav from '@/components/navigation/BottomNav'
 import TopNav from '@/components/navigation/TopNav'
 import { ThemeProvider, ThemeToggle } from '@/components/ThemeProvider'
 import HelpModal from '@/components/HelpModal'
-import { readExecutionRuns, countUnreviewed } from '@/lib/execution-run-reader'
+import { countUnreviewed } from '@/lib/execution-run-reader'
+import { readPageExecutionRuns } from '@/lib/page-data-cache'
 
 export const metadata: Metadata = {
   title: 'Progress Dashboard',
@@ -18,7 +19,7 @@ export const viewport: Viewport = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const runs = await readExecutionRuns()
+  const runs = await readPageExecutionRuns()
   const logBadge = countUnreviewed(runs)
 
   return (

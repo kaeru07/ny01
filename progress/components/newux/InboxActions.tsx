@@ -43,6 +43,7 @@ export default function InboxCardItem({ card }: { card: InboxCard }) {
   const [error, setError] = useState('')
   const [showDetail, setShowDetail] = useState(false)
   const [closedForToday, setClosedForToday] = useState(false)
+  const [selectedGoalId, setSelectedGoalId] = useState('')
 
   async function run(api: InboxCardAction['api']) {
     if (!api) {
@@ -53,7 +54,14 @@ export default function InboxCardItem({ card }: { card: InboxCard }) {
     setBusy(true)
     setError('')
     try {
-      await callApi(api)
+      const body =
+        card.kind === 'permission' &&
+        selectedGoalId &&
+        api.method === 'POST' &&
+        api.url.includes('/approve')
+          ? { ...api.body, goalId: selectedGoalId }
+          : api.body
+      await callApi({ ...api, body })
       router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : '処理に失敗しました')
@@ -108,11 +116,34 @@ export default function InboxCardItem({ card }: { card: InboxCard }) {
             </button>
           </>
         ) : (
-          card.actions.map((action) => (
-            <button key={action.label} disabled={busy} className={toneClass[action.tone]} onClick={() => run(action.api)}>
-              {action.label}
-            </button>
-          ))
+          <>
+            {card.kind === 'permission' && card.goals && card.goals.length > 0 && (
+              <div className="w-full">
+                <p className="mb-1 text-[11px] font-semibold text-gray-500 dark:text-gray-400">目標も選ぶ（任意）</p>
+                <div className="flex flex-wrap gap-2">
+                  {card.goals.map((g) => (
+                    <button
+                      key={g.id}
+                      disabled={busy}
+                      className={`${btn} border ${
+                        selectedGoalId === g.id
+                          ? 'border-blue-600 bg-blue-50 text-blue-700 dark:border-blue-400 dark:bg-blue-900/20 dark:text-blue-200'
+                          : 'border-gray-200 text-gray-700 dark:border-gray-700 dark:text-gray-200'
+                      }`}
+                      onClick={() => setSelectedGoalId((current) => current === g.id ? '' : g.id)}
+                    >
+                      {g.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {card.actions.map((action) => (
+              <button key={action.label} disabled={busy} className={toneClass[action.tone]} onClick={() => run(action.api)}>
+                {action.label}
+              </button>
+            ))}
+          </>
         )}
       </div>
 

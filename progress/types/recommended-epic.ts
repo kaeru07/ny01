@@ -4,7 +4,7 @@ import type { DecisionPolicy, EpicRiskFlag, EpicPriority, ExecutorType } from '@
 // 「追加すべき Epic 候補」。ユーザーが承認した候補だけを epics.json へ追加する。
 // 自動Epic追加は禁止（承認は人間のみ）。
 
-export type RecommendationStatus = 'suggested' | 'approved' | 'rejected' | 'hold' | 'epic_created'
+export type RecommendationStatus = 'suggested' | 'approved' | 'rejected' | 'hold' | 'epic_created' | 'expired'
 
 export const RECOMMENDATION_STATUSES: RecommendationStatus[] = [
   'suggested',
@@ -12,6 +12,7 @@ export const RECOMMENDATION_STATUSES: RecommendationStatus[] = [
   'rejected',
   'hold',
   'epic_created',
+  'expired',
 ]
 
 export type MonetizationImpact = 'high' | 'medium' | 'low' | 'none'
@@ -69,6 +70,8 @@ export interface RecommendedEpic {
   parentEpicId?: string
   /** AI工場v2 Phase2: 候補生成元のExecutionRun。 */
   sourceRunId?: string
+  /** 修正依頼から生成された候補の場合、修正元のExecutionRun。 */
+  followupOfRunId?: string
   /** AI工場v2 Phase2: 候補生成元のKnowledge record。 */
   sourceKnowledgeId?: string
   duplicate?: DuplicateCheck

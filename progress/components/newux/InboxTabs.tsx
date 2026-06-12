@@ -124,11 +124,23 @@ export default function InboxTabs({ inbox, notReviewedCount }: Props) {
 
       {/* ④ AI保留（件数のみ） */}
       {tab === 'aiHold' && (
-        <section className="mt-4 rounded-xl border border-gray-200 bg-white p-6 text-center dark:border-gray-800 dark:bg-gray-900">
-          <p className="text-3xl font-bold text-gray-400 dark:text-gray-500">{inbox.aiHoldCount}件</p>
-          <p className="mt-1 text-xs text-gray-400">AIが整理中です（あなたの判断は不要）</p>
-          <p className="mt-2 text-[11px] leading-relaxed text-gray-400">
-            定期実行・重複・内容不足・同じテーマの大量候補をAIが預かっています。必要になれば順番に出てきます。
+        <section className="mt-4 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+          <div className="text-center">
+            <p className="text-3xl font-bold text-gray-400 dark:text-gray-500">{inbox.aiHoldCount}件</p>
+            <p className="mt-1 text-xs text-gray-400">AIが整理中です（あなたの判断は不要）</p>
+          </div>
+          {inbox.aiHoldBreakdown.length > 0 && (
+            <dl className="mt-4 space-y-2">
+              {inbox.aiHoldBreakdown.map((item) => (
+                <div key={item.label} className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800/50">
+                  <dt className="text-xs font-semibold text-gray-700 dark:text-gray-200">{item.label}</dt>
+                  <dd className="text-sm font-bold text-gray-900 dark:text-gray-100">{item.count}件</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+          <p className="mt-3 text-[11px] leading-relaxed text-gray-400">
+            重複候補・定期実行・次作業候補・自動レビュー待ちなどをAIが分類して預かっています。必要になれば順番に今日の判断へ出ます。
           </p>
         </section>
       )}

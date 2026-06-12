@@ -50,6 +50,8 @@ export interface ExecutionRun {
   /** 任意。Run の発生源。例: 'codex_mobile'（Codexモバイルで実行しProgressへ手動で戻したRun）/
    *  'factory_runner'（Factory が生成）/ 'schedule'（定時実行）/ 'boot'（VPS 起動時）。 */
   source?: string
+  /** 修正依頼を受けて実行された Run の場合、修正元のExecutionRun。 */
+  followupOfRunId?: string
   /** 任意。スケジュール起動のトリガ手段。'systemd' / 'cron' / 'startup'。 */
   trigger?: string
   executorUsed?: ExecutorType

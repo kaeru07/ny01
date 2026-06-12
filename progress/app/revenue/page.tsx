@@ -2,7 +2,8 @@ export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
 import PageGuide from '@/components/newux/PageGuide'
-import { buildRevenueMilestones } from '@/lib/command-center'
+import { buildProjectProgressCards, buildRevenueMilestones } from '@/lib/command-center'
+import { formatRevenueJpy, readRevenueConfig } from '@/lib/revenue-config'
 import { readJson } from '@/lib/store'
 
 // Revenue = 収益化専用ページ。経営指標だけを表示する。
@@ -20,8 +21,12 @@ const stateStyle: Record<string, { icon: string; cls: string }> = {
 }
 
 export default async function RevenuePage() {
-  const milestones = await buildRevenueMilestones()
-  const candidates = await readJson<MonetizationCandidateLite[]>('monetization-candidates.json', [])
+  const [milestones, projects, candidates, revenueConfig] = await Promise.all([
+    buildRevenueMilestones(),
+    buildProjectProgressCards(),
+    readJson<MonetizationCandidateLite[]>('monetization-candidates.json', []),
+    readRevenueConfig(),
+  ])
   const candidateCount = candidates.length
 
   return (
@@ -30,7 +35,7 @@ export default async function RevenuePage() {
 
       <section className="rounded-xl border-2 border-emerald-200 bg-white p-5 text-center dark:border-emerald-900/50 dark:bg-gray-900">
         <p className="text-xs text-gray-400">現在の収益</p>
-        <p className="mt-1 text-4xl font-bold text-gray-900 dark:text-gray-100">¥0</p>
+        <p className="mt-1 text-4xl font-bold text-gray-900 dark:text-gray-100">{formatRevenueJpy(revenueConfig.currentRevenueJpy)}</p>
         <p className="mt-2 text-[11px] text-gray-400">
           ストア・広告の収益データはまだ接続されていません。最初の収益が出たらここに反映します
         </p>
@@ -52,6 +57,21 @@ export default async function RevenuePage() {
             )
           })}
         </ol>
+      </section>
+
+      <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Project別の収益化距離</h2>
+        <ul className="mt-3 space-y-2">
+          {projects.slice(0, 8).map((p) => (
+            <li key={p.id} className="rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800/50">
+              <div className="flex items-center justify-between gap-3">
+                <p className="min-w-0 text-sm font-semibold text-gray-900 dark:text-gray-100">{p.name}</p>
+                <p className="shrink-0 text-sm font-bold text-gray-900 dark:text-gray-100">残り{p.monetizationStepsRemaining}ステップ</p>
+              </div>
+              <p className="mt-1 line-clamp-1 text-[11px] text-gray-400">次: {p.nextWork}</p>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">

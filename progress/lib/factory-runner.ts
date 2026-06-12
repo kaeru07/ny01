@@ -46,7 +46,21 @@ interface RunnerOptions {
 function generateRunId(): string {
   const now = new Date()
   const pad = (n: number) => String(n).padStart(2, '0')
-  return `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`
+  return `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}-${String(now.getMilliseconds()).padStart(3, '0')}`
+}
+
+async function generateUniqueRunId(): Promise<string> {
+  const existing = new Set((await readExecutionRuns()).map((r) => r.runId))
+  const base = generateRunId()
+  if (!existing.has(base)) return base
+  let i = 1
+  while (existing.has(`${base}-${i}`)) i += 1
+  return `${base}-${i}`
+}
+
+function extractFollowupOfRunId(notes?: string): string | undefined {
+  const match = notes?.match(/followupOfRunId=([A-Za-z0-9._:-]+)/)
+  return match?.[1]
 }
 
 async function recordRun(args: {
@@ -59,12 +73,13 @@ async function recordRun(args: {
   result: ExecutorResult
   checks?: ChecksRunResult
   runIndex?: number
+  followupOfRunId?: string
   /** fallback で Codex に切替えた Run には claude_rate_limited を残す。 */
   fallbackReason?: string
   /** この Run で即停止した場合の理由。 */
   stopReason?: string
 }): Promise<string> {
-  const runId = generateRunId()
+  const runId = await generateUniqueRunId()
   const now = new Date().toISOString()
   const runStatusMap: Record<ExecutorResult['status'], ExecutionRun['runStatus']> = {
     completed: 'completed',
@@ -82,6 +97,7 @@ async function recordRun(args: {
     runStatus: runStatusMap[args.result.status],
     reviewStatus: 'not_reviewed',
     source: 'factory_runner',
+    followupOfRunId: args.followupOfRunId,
     executorUsed: args.executor,
     factoryRun: true,
     runnerMode: args.mode,
@@ -106,6 +122,87 @@ async function recordRun(args: {
   }
   await addExecutionRun(run)
   return runId
+}
+
+async function startRunningRun(args: {
+  epicId: string
+  targetApp: string
+  title: string
+  executor: ExecutorChoice
+  mode: FactoryRunMode
+  dispatchPlanId: string
+  runIndex?: number
+  followupOfRunId?: string
+}): Promise<string> {
+  const runId = await generateUniqueRunId()
+  const now = new Date().toISOString()
+  const run: ExecutionRun = {
+    runId,
+    startedAt: now,
+    finishedAt: now,
+    targetApp: args.targetApp,
+    epicId: args.epicId,
+    targetTodoTitle: args.title,
+    runStatus: 'running',
+    reviewStatus: 'not_reviewed',
+    source: 'factory_runner',
+    followupOfRunId: args.followupOfRunId,
+    executorUsed: args.executor,
+    factoryRun: true,
+    runnerMode: args.mode,
+    factoryDispatch: true,
+    dispatchMode: 'auto',
+    dispatchPlanId: args.dispatchPlanId,
+    executorCandidate: args.executor,
+    promptGenerated: true,
+    resultReturned: false,
+    runIndex: args.runIndex,
+    summary: 'AI工場が作業中です',
+    changedFiles: [],
+    checks: {},
+    errors: [],
+    warnings: [],
+    progressUpdated: false,
+    nextActions: [],
+    rawReport: `[factory-runner ${args.mode}] started executor=${args.executor}`,
+  }
+  await addExecutionRun(run)
+  return runId
+}
+
+async function finishRunningRun(args: {
+  runId: string
+  executor: ExecutorChoice
+  mode: FactoryRunMode
+  result: ExecutorResult
+  checks?: ChecksRunResult
+  fallbackReason?: string
+  stopReason?: string
+}): Promise<void> {
+  const runStatusMap: Record<ExecutorResult['status'], ExecutionRun['runStatus']> = {
+    completed: 'completed',
+    partial: 'partial',
+    failed: 'failed',
+    needs_manual: 'partial',
+  }
+  await updateExecutionRunFields(args.runId, {
+    finishedAt: new Date().toISOString(),
+    runStatus: runStatusMap[args.result.status],
+    executorUsed: args.executor,
+    executorCandidate: args.executor,
+    resultReturned: args.mode === 'auto',
+    fallbackReason: args.fallbackReason ?? (args.result.rateLimited ? 'claude_rate_limited' : undefined),
+    stopReason: args.stopReason,
+    nextActionCount: args.result.nextActions.length,
+    summary: args.result.resultSummary,
+    changedFiles: args.result.changedFiles.map((f) => ({ file: f, change: '' })),
+    checks: args.checks ?? {},
+    errors: args.result.stderr ? [args.result.stderr.slice(0, 500)] : [],
+    warnings: [],
+    progressUpdated: false,
+    nextActions: args.result.nextActions,
+    rawReport: `[factory-runner ${args.mode}] executor=${args.executor}\n${args.result.stdout || args.result.resultSummary}`,
+  })
 }
 
 export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunReport> {
@@ -242,12 +339,23 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
     let executor: ExecutorChoice = 'claude'
     const detail = await getEpicDetail(currentEpicId)
     const targetApp = detail?.epic.targetApps?.[0] ?? 'progress'
+    const followupOfRunId = extractFollowupOfRunId(detail?.epic.notes)
     // 安全判定の意図テキストは Epic 固有（goal + doneCriteria）のみ。
     // dispatch.nextActions は他 Epic 由来の候補が混じり禁止語を誤検知するため使わない。
     const intent = `${plan.goal} ${(detail?.epic.doneCriteria ?? []).join(' ')}`
     const claudePrompt = (await generateClaudeFactoryPrompt(currentEpicId))?.promptText ?? plan.goal
 
     const runIndex = runs + 1
+    const runningRunId = await startRunningRun({
+      epicId: currentEpicId,
+      targetApp,
+      title: `Factory(auto): ${plan.epicTitle}`,
+      executor,
+      mode,
+      dispatchPlanId: plan.dispatchPlanId,
+      runIndex,
+      followupOfRunId,
+    })
 
     // 基本 Claude（simulateRateLimit のときは擬似的に上限化）。
     let result: ExecutorResult
@@ -272,7 +380,8 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
           : await getAdapter('codex').run({ epicId: currentEpicId, prompt: codexPrompt, cwd, dryRun: false, safetyText: intent })
         executor = 'codex'
       } else {
-        const recordedRunId = await recordRun({ epicId: currentEpicId, targetApp, title: `Factory(auto): ${plan.epicTitle}`, executor: 'claude', mode, dispatchPlanId: plan.dispatchPlanId, result, runIndex, stopReason: 'claude_rate_limited / Codex不可' })
+        await finishRunningRun({ runId: runningRunId, executor: 'claude', mode, result, stopReason: 'claude_rate_limited / Codex不可' })
+        const recordedRunId = runningRunId
         steps.push({ epicId: currentEpicId, epicTitle: plan.epicTitle, dispatchPlanId: plan.dispatchPlanId, executor: 'claude', result, recordedRunId, stopped: true, stopReason: 'claude_rate_limited / Codex不可' })
         stoppedReason = 'rate_limited_no_codex'
         break
@@ -281,7 +390,8 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
 
     // Level1（機械判定）: typecheck / lint を実行して checks へ構造化保存する。
     const checks = await runChecks(cwd, { typecheck: true, lint: true })
-    const recordedRunId = await recordRun({ epicId: currentEpicId, targetApp, title: `Factory(auto): ${plan.epicTitle}`, executor, mode, dispatchPlanId: plan.dispatchPlanId, result, checks, runIndex })
+    await finishRunningRun({ runId: runningRunId, executor, mode, result, checks })
+    const recordedRunId = runningRunId
     lastRecordedRunId = recordedRunId
     runs++; perEpic++
 

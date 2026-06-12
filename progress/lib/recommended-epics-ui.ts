@@ -8,6 +8,7 @@ export const REC_STATUS_META: Record<RecommendationStatus, { label: string; cls:
   rejected: { label: 'rejected', cls: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300' },
   hold: { label: 'hold', cls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' },
   epic_created: { label: 'epic_created', cls: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300' },
+  expired: { label: 'expired', cls: 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400' },
 }
 
 export function recStatusMeta(s: RecommendationStatus) {

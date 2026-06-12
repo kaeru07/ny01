@@ -6,6 +6,9 @@ import { computeFactoryStatus } from './factory-status'
 import { runFactory } from './factory-runner'
 import { addExecutionRun, updateExecutionRunFields } from './execution-run-writer'
 import { syncCandidatesFromVault } from './monetization-vault-sync'
+import { backfillFollowupRecommendations } from './knowledge-loop'
+import { expireStaleRecommendations } from './recommended-epics-store'
+import { rotateExecutionRunsArchive } from './execution-run-archive'
 import type { ExecutionRun } from '@/types/execution-run'
 import type { FactoryRunReport } from './executors/types'
 
@@ -164,6 +167,37 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
     }
   } catch {
     // 取り込み失敗は無視して Factory 本体へ進む
+  }
+
+  // 0.5) AI候補の棚卸し。修正依頼は候補へ戻し、古い suggested は期限切れにする。
+  try {
+    const [followup, expired] = await Promise.all([
+      backfillFollowupRecommendations(),
+      expireStaleRecommendations(),
+    ])
+    if (followup.createdRecommendations > 0 || expired.expired > 0) {
+      await appendAutomationLog({
+        event: 'factory_schedule',
+        fallbackReason: `followupCreated=${followup.createdRecommendations} expiredRecommendations=${expired.expired}`,
+        detectionStatus: input.source,
+      } as never)
+    }
+  } catch {
+    // 候補整理に失敗しても本体起動判定は続ける
+  }
+
+  // 0.6) 作業履歴の自動整理。300件未満では何もしない。
+  try {
+    const archive = await rotateExecutionRunsArchive()
+    if (archive.shouldRotate) {
+      await appendAutomationLog({
+        event: 'factory_schedule',
+        fallbackReason: `executionRunsArchived=${archive.archiveCount} active=${archive.activeCountAfter} archive=${archive.archiveFilename}`,
+        detectionStatus: input.source,
+      } as never)
+    }
+  } catch {
+    // アーカイブ整理に失敗してもFactory本体は止めない
   }
 
   // 1) Factory ON/OFF（OFF なら何も起動しない）
