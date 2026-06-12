@@ -32,6 +32,8 @@
 
 
 
+
+- 2026-06-13: AI日常アシスタント / AI大手CEOが合成DNA/RNA注文の義務的スクリーニングを支持 / GitHub MCP Registry / 月額課金: 「画像修正だけ」「字幕だけ」「学習問題化だけ」など、汎用AIの一部を確実に実行する小型S… / エラーなし / partial(market,news,tools)
 - 2026-06-12: AIアプリ発見最適化 / Anthropic が「Claude Corps」を発表 / GitHub Agentic Workflows / Google Play向けに、Play Shorts前提の15-30秒デモ動画を作り、アプリストアC… / エラーなし / partial(market,news,tools)
 - 2026-06-11: AIショート動画制作 / OpenAI と Anthropic の IPO 観測が強まる / OpenAI Codex / AIショート動画台本・構成テンプレを月額販売し、CapCut / エラーなし / partial(market,news,tools)
 - 2026-06-10: AIアプリ発見・ASO支援 / Anthropic、Claude Fable 5 を公開したとの報道 / OpenAI Remote MCP / サブスク: AIチャット結果を職種別テンプレに整える「営業メール化」「採用評価化」「SNS投稿化」ツ… / エラーなし / partial(market,news,tools)
