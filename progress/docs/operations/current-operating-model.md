@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-13
-updateNote: 候補外の作業に「👉こうすれば動きます」解消手順＋ボタン（Inboxでレビュー/承認・保留解除・対象に戻す等）を追加。pin済み候補外の次アクションを明確化
+updateNote: Inboxレビュー「修正する」で修正指示プロンプト(textarea)を入力→ExecutionRunにfixPrompt保存→次回自動実行の作業指示(followup候補のreason/doneCriteria/notes)へ反映。空欄保存は警告
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -23,7 +23,7 @@ Progress は **AI工場の管理画面ではなく、人間用の司令塔**。
 |---|---|---|
 | 司令塔 | `/` | 毎日最初に開く画面。今日やること・AI工場の状態・収益マイルストーン・直近の成果 |
 | Inbox | `/decide` | 4タブ構成（タブ切り替え）。「今日の判断」=工場停止要因のみ（危険判断/方針選択/人間作業・最大3件・約3分）/「レビュー」=検収（放置しても工場は止まらない・**隠さず全件表示**）/「Epic候補」=実行許可（放置可能）/「AI保留」=件数のみ。社長は「今日の判断」タブだけ処理すれば工場は止まらない。内部分類・内部IDは「詳細を見る」内のみ |
-| Inbox レビュータブ | `/decide` | **レビュー待ちは未消込リストとして全件表示**（「ほか◯件」「処理すると次が出ます」の隠れ表示は廃止）。上部に件数サマリー（未確認/要修正/あとで/レビュー済み）。各カードに「完了: YYYY/MM/DD HH:mm」を表示し、**completedAt（finishedAt→startedAt）降順**で最新が上。50件ずつの明示ページング（全◯件中◯〜◯件）。状態遷移=問題なし→`reviewed`（一覧から消し込み・「レビュー済み」タブに残置＝物理削除しない）/あとで→`snoozed`（後回しで残置）/修正する→`needs_followup`（要修正で残置＋修正依頼を次作業候補へ）。「未確認レビューをAIで一括整理」は未確認**全件**対象（サーバ安全上限200件）で、危険・要判断は必ず残し最終判断は人間 |
+| Inbox レビュータブ | `/decide` | **レビュー待ちは未消込リストとして全件表示**（「ほか◯件」「処理すると次が出ます」の隠れ表示は廃止）。上部に件数サマリー（未確認/要修正/あとで/レビュー済み）。各カードに「完了: YYYY/MM/DD HH:mm」を表示し、**completedAt（finishedAt→startedAt）降順**で最新が上。50件ずつの明示ページング（全◯件中◯〜◯件）。状態遷移=問題なし→`reviewed`（一覧から消し込み・「レビュー済み」タブに残置＝物理削除しない）/あとで→`snoozed`（後回しで残置）/修正する→**修正指示プロンプト(textarea)を入力して保存**→`needs_followup`（要修正で残置・`fixPrompt`/`fixRequestedAt`/`fixRequestedBy='human'` を ExecutionRun に保存）。修正指示は要修正カードに表示され、`followupOfRunId` 付きおすすめ次作業の reason/doneCriteria/notes に反映されて次回自動実行の作業指示になる。空欄保存は警告して送信しない。「未確認レビューをAIで一括整理」は未確認**全件**対象（サーバ安全上限200件）で、危険・要判断は必ず残し最終判断は人間 |
 | 自動実行キュー | `/queue` | **AI工場が次に何をやるか**の単一ビュー（派生・新正本を作らない）。`buildAutoQueue()` が Epic / Goal / ExecutionRun / Approval / Inbox から都度生成。`factoryEligible=true && status=executable` のみ自動実行候補。各itemに「なぜこの順位か」の理由を機械生成。スマホで最優先(pin)/保留(hold)/対象外(exclude)/上下移動(manualOrder)。旧 work-queue 並べ替え画面は `/legacy/queue` に退避 |
 | Projects | `/portfolio` | 進行中プロジェクトの一覧と次の作業 |
 | Revenue | `/revenue` | 収益化マイルストーンの現在地 |
@@ -188,6 +188,19 @@ MVP完成 → ストア公開 → 広告導入 → DL100 → はじめての収�
 
 アーカイブ対象外: `not_reviewed` / `needs_followup` / `needs_human` / `running`。通常readerはアクティブファイルだけを読む。Legacyログ画面には、アーカイブファイルが存在する場合のみ月別件数の導線を表示する。
 
+## 動作確認Todo（/verify-todos）
+
+Claude Code / Codex の作業完了時・Epic 完了後に「人間が確認すべき画面・URL・手順」を一元管理するページ（上部メニュー「動作確認」）。app-urls（URL台帳）とは別物で、こちらは確認手順と期待結果を持つチェックリスト。
+
+- 登録項目: アプリ名 / Epic名 / 確認URL / 確認手順 / 期待結果 / 状態 / メモ
+- 状態: `unconfirmed`（未確認）/ `confirmed`（確認済）/ `ng`（NG）/ `pending`（保留）
+- 絞り込み: アプリ・Epic・状態で個別フィルタ
+- 確認URL（iPhoneから押せる公開URL推奨）はカードのボタンで対象画面を直接開ける
+- 正本データ: `data/real/verify-todos.json`（`{ updatedAt, operationMemo, todos[] }`）
+- ストア: `lib/verify-todos.ts` / API: `GET,POST /api/verify-todos` ・ `PATCH,DELETE /api/verify-todos/[id]`
+
+**運用メモ（AI側の必須動作）**: Claude Code / Codex は作業完了時に、人間が確認すべき項目があれば 1 件ずつこのページへ追加する（アプリ名・Epic名・確認URL・確認手順・期待結果を埋める）。人間は確認URLを開き、手順どおり操作して、期待結果と一致すれば確認済、ずれていればNG、後回しは保留に更新する。
+
 ## 更新ルール（必須・セット更新）
 
 今後、以下のいずれかを行った場合:
@@ -204,6 +217,10 @@ MVP完成 → ストア公開 → 広告導入 → DL100 → はじめての収�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-13: Inboxレビューの「修正する」を**修正依頼ボックス化**。押下時にカード内 textarea を展開し、人間が修正指示を入力→「修正依頼として保存」で `reviewStatus=needs_followup` ＋ ExecutionRun に `fixPrompt`/`fixRequestedAt`/`fixRequestedBy='human'` を保存（空欄は警告して保存不可・物理削除なし・問題なし/あとで/レビュー済みは不変）。修正指示は要修正カードに表示し、`followupOfRunId` 付きおすすめ次作業の reason 冒頭「人間の修正指示: …」・doneCriteria 先頭「人間の修正指示を満たす: …」・notes に反映 → 承認後の Epic/Factory 実行時に人間の指示が作業指示として渡る。
+
+- 2026-06-13: 動作確認Todo（`/verify-todos`）を新設。Claude Code / Codex の作業完了時・Epic完了後に「人間が確認すべき画面・URL・手順・期待結果」を一元管理する。アプリ名/Epic名/確認URL/確認手順/期待結果/状態/メモを登録でき、`unconfirmed`/`confirmed`/`ng`/`pending` で状態管理、アプリ・Epic・状態で絞り込み、確認URLボタンで対象画面を直接起動。正本=`data/real/verify-todos.json`、ストア=`lib/verify-todos.ts`、API=`/api/verify-todos`(GET/POST)・`/api/verify-todos/[id]`(PATCH/DELETE)。TopNav(Legacy)に「動作確認」リンク、guideに「9. 動作確認Todo」、TERMSに`verifyTodo`を追加。app-urls（URL台帳）とは責務分離（こちらは確認手順＋期待結果を持つチェックリスト）。
 
 - 2026-06-13: 収益化候補の定期取り込み（`syncCandidatesFromVault`）の走査対象を拡張。従来の `06_research` 直下 + `20_reviews` + 候補テーブルに加え、`06_research/daily-market-research` / `daily-ai-news` / `daily-ai-tools`（日次調査サブフォルダ）も走査するようにし、これらを `daily` 種別の調査元として分類（スキャン上限 300→400）。既存のデータ構造（sourceRefs / researchLogs / evidenceLinks / history）・重複判定・候補詳細/一覧の調査元表示・ExecutionRun記録は既存実装を流用（新規追加なし）。手動同期2回でadded/updatedの冪等性（再投入で二重追加なし）を確認。
 

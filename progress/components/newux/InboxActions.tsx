@@ -26,6 +26,14 @@ const KIND_CHIP_CLASS: Record<string, string> = {
   human_task: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
 }
 
+const FIX_PROMPT_PLACEHOLDER = [
+  '例:',
+  '- レビュー済みにした後も一覧に残っているので消し込みを修正',
+  '- iPhone幅でボタンが折り返して見づらいので調整',
+  '- completedAt が無い場合 startedAt にフォールバック',
+  '- build / lint / tsc まで確認',
+].join('\n')
+
 // レビューカードの状態バッジ（未確認 / あとで / 要修正 / レビュー済み）。
 const REVIEW_BADGE: Record<string, { label: string; cls: string }> = {
   not_reviewed: { label: '未確認', cls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' },
@@ -55,6 +63,8 @@ export default function InboxCardItem({ card }: { card: InboxCard }) {
   const [showDetail, setShowDetail] = useState(false)
   const [closedForToday, setClosedForToday] = useState(false)
   const [selectedGoalId, setSelectedGoalId] = useState('')
+  const [fixAction, setFixAction] = useState<InboxCardAction | null>(null)
+  const [fixPrompt, setFixPrompt] = useState(card.fixPrompt ?? '')
 
   async function run(api: InboxCardAction['api']) {
     if (!api) {
@@ -79,6 +89,21 @@ export default function InboxCardItem({ card }: { card: InboxCard }) {
     } finally {
       setBusy(false)
     }
+  }
+
+  function isFixAction(action: InboxCardAction): boolean {
+    return action.api?.body?.reviewStatus === 'needs_followup'
+  }
+
+  async function saveFixPrompt() {
+    if (!fixAction?.api) return
+    const prompt = fixPrompt.trim()
+    if (!prompt) {
+      setError('修正指示を入力してください')
+      return
+    }
+    await run({ ...fixAction.api, body: { ...fixAction.api.body, fixPrompt: prompt } })
+    setFixAction(null)
   }
 
   if (closedForToday) return null
@@ -163,13 +188,58 @@ export default function InboxCardItem({ card }: { card: InboxCard }) {
               </div>
             )}
             {card.actions.map((action) => (
-              <button key={action.label} disabled={busy} className={toneClass[action.tone]} onClick={() => run(action.api)}>
+              <button
+                key={action.label}
+                disabled={busy}
+                className={toneClass[action.tone]}
+                onClick={() => {
+                  if (isFixAction(action)) {
+                    setError('')
+                    setFixAction(action)
+                    setFixPrompt(card.fixPrompt ?? '')
+                    return
+                  }
+                  run(action.api)
+                }}
+              >
                 {action.label}
               </button>
             ))}
           </>
         )}
       </div>
+
+      {fixAction && (
+        <div className="mt-3 rounded-lg border border-rose-200 bg-rose-50 p-3 dark:border-rose-900/50 dark:bg-rose-900/15">
+          <label className="block text-xs font-bold text-rose-700 dark:text-rose-300" htmlFor={`fix-prompt-${card.id}`}>
+            修正指示を入力
+          </label>
+          <textarea
+            id={`fix-prompt-${card.id}`}
+            value={fixPrompt}
+            onChange={(e) => setFixPrompt(e.target.value)}
+            rows={6}
+            className="mt-2 w-full rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-rose-500 dark:border-rose-900/60 dark:bg-gray-950 dark:text-gray-100"
+            placeholder={FIX_PROMPT_PLACEHOLDER}
+          />
+          <div className="mt-2 flex flex-wrap gap-2">
+            <button disabled={busy} className={toneClass.danger} onClick={saveFixPrompt}>
+              修正依頼として保存
+            </button>
+            <button
+              disabled={busy}
+              className={toneClass.ghost}
+              onClick={() => {
+                setFixAction(null)
+                setError('')
+                setFixPrompt(card.fixPrompt ?? '')
+              }}
+            >
+              キャンセル
+            </button>
+          </div>
+        </div>
+      )}
 
       <button
         className="mt-2 text-[11px] font-medium text-gray-400 underline-offset-2 hover:underline dark:text-gray-500"

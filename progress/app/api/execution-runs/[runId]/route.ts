@@ -16,6 +16,9 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     const body = await request.json()
     const { reviewStatus } = body
     const reviewMemo = typeof body?.reviewMemo === 'string' ? body.reviewMemo : undefined
+    const fixPrompt = reviewStatus === 'needs_followup' && typeof body?.fixPrompt === 'string'
+      ? body.fixPrompt.trim()
+      : undefined
 
     if (!runId) {
       return NextResponse.json({ error: 'runId is required' }, { status: 400 })
@@ -24,7 +27,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       return NextResponse.json({ error: 'Invalid reviewStatus' }, { status: 400 })
     }
 
-    const updated = await updateReviewStatus(runId, reviewStatus as ReviewStatus, reviewMemo)
+    const updated = await updateReviewStatus(runId, reviewStatus as ReviewStatus, { reviewMemo, fixPrompt })
     if (!updated) {
       return NextResponse.json({ error: 'Run not found' }, { status: 404 })
     }
@@ -32,7 +35,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     await recordOperationalDecision({
       action: reviewStatus === 'reviewed' ? 'markReviewed' : 'changeReviewStatus',
       topic: `Runレビュー: ${updated.targetTodoTitle || runId}`,
-      decision: `reviewStatus=${reviewStatus}${reviewMemo ? '（memo更新あり）' : ''}`,
+      decision: `reviewStatus=${reviewStatus}${reviewMemo || fixPrompt ? '（memo更新あり）' : ''}`,
       runId,
       epicId: updated.epicId,
     })

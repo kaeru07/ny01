@@ -201,13 +201,15 @@ function buildRecommendation(run: ExecutionRun, knowledge: KnowledgeRecord): Rec
 
 function followupReason(run: ExecutionRun): string {
   const target = run.targetTodoTitle || run.summary || run.runId
+  const fix = run.fixPrompt ? `人間の修正指示: ${run.fixPrompt.slice(0, 500)} ` : ''
   const memo = run.reviewMemo ? ` レビュー指摘: ${run.reviewMemo}` : ''
   const error = run.errors?.[0] ? ` エラー: ${run.errors[0]}` : ''
-  return `修正依頼（元作業: ${target} / runId ${run.runId}）をAI工場の作業候補へ戻す。${memo}${error}`.trim()
+  return `${fix}修正依頼（元作業: ${target} / runId ${run.runId}）をAI工場の作業候補へ戻す。${memo}${error}`.trim()
 }
 
 function followupDoneCriteria(run: ExecutionRun): string[] {
   const criteria = [
+    ...(run.fixPrompt ? [`人間の修正指示を満たす: ${run.fixPrompt.slice(0, 300)}`] : []),
     ...(run.nextActions ?? []).filter((a) => typeof a === 'string' && a.trim()),
     ...(run.errors ?? []).slice(0, 2).map((e) => `元Runのエラーを解消する: ${e}`),
     ...(run.reviewMemo ? [`レビュー指摘を反映する: ${run.reviewMemo}`] : []),
@@ -219,7 +221,13 @@ function followupDoneCriteria(run: ExecutionRun): string[] {
         '修正依頼された箇所を再確認し、必要な修正を実施する',
         'build / typecheck / lint のいずれかが実行され結果が記録されている',
         '修正結果をExecutionRunに記録し、人間が再確認できる状態にする',
-      ]
+  ]
+}
+
+function followupNotes(run: ExecutionRun): string {
+  const base = `修正依頼の閉ループで自動生成。followupOfRunId=${run.runId}`
+  if (!run.fixPrompt) return base
+  return `${base}\n\n人間の修正指示:\n${run.fixPrompt.slice(0, 2000)}`
 }
 
 function buildFollowupRecommendation(run: ExecutionRun, epicGoalId?: string): RecommendedEpic {
@@ -250,7 +258,7 @@ function buildFollowupRecommendation(run: ExecutionRun, epicGoalId?: string): Re
     followupOfRunId: run.runId,
     duplicate: { duplicate: false },
     factoryEligiblePreview: { eligible: true, reasons: [], classification: 'auto', factoryManaged: true },
-    notes: `修正依頼の閉ループで自動生成。followupOfRunId=${run.runId}`,
+    notes: followupNotes(run),
     history: [{ at: ts, action: 'suggested', detail: `needs_followup run ${run.runId} から自動生成` }],
     createdAt: ts,
     updatedAt: ts,
@@ -260,9 +268,26 @@ function buildFollowupRecommendation(run: ExecutionRun, epicGoalId?: string): Re
 export async function generateFollowupRecommendationForRun(run: ExecutionRun): Promise<{ id: string; created: boolean } | null> {
   if (run.reviewStatus !== 'needs_followup') return null
   const list = await readJson<RecommendedEpic[]>(RECOMMENDATIONS_FILE, [])
-  const existing = list.find((r) => r.followupOfRunId === run.runId || (r.sourceKind === 'review_followup' && r.sourceRunId === run.runId))
-  if (existing) return { id: existing.id, created: false }
   const epic = run.epicId ? await getEpic(run.epicId) : null
+  const existingIndex = list.findIndex((r) => r.followupOfRunId === run.runId || (r.sourceKind === 'review_followup' && r.sourceRunId === run.runId))
+  if (existingIndex >= 0) {
+    const existing = list[existingIndex]
+    const nextDoneCriteria = followupDoneCriteria(run)
+    list[existingIndex] = {
+      ...existing,
+      reason: followupReason(run),
+      doneCriteria: nextDoneCriteria,
+      notes: followupNotes(run),
+      goalId: existing.goalId ?? inferGoalId(run, epic?.goalId),
+      updatedAt: nowIso(),
+      history: [
+        ...(existing.history ?? []),
+        { at: nowIso(), action: 'fix_prompt_updated', detail: run.fixPrompt ? '人間の修正指示を反映' : '修正依頼候補を再同期' },
+      ],
+    }
+    await writeJson(RECOMMENDATIONS_FILE, list)
+    return { id: existing.id, created: false }
+  }
   const rec = buildFollowupRecommendation(run, epic?.goalId)
   list.push(rec)
   await writeJson(RECOMMENDATIONS_FILE, list)

@@ -56,6 +56,7 @@ export const TERMS: Record<string, { ja: string; help: string }> = {
   requestCache: { ja: '画面内キャッシュ', help: '同じ画面表示中だけ読み取り結果を使い回し、APIの更新処理には影響させない仕組みです' },
   runArchive: { ja: '作業履歴アーカイブ', help: '古い確認済みの作業履歴をバックアップ後に月別ファイルへ移す整理です' },
   reviewCopy: { ja: 'レビュー用コピー', help: '司令塔の現在状態をMarkdownにまとめ、ChatGPTやFableへ貼って外部レビューを受けるための読み取り専用コピーです' },
+  verifyTodo: { ja: '動作確認Todo', help: 'AIの作業やEpic完了後に、人間が確認すべき画面・URL・手順を一覧で管理する場所。未確認/確認済/NG/保留で状態を管理し、アプリ・Epic・状態で絞り込めます' },
 }
 
 export interface TodayAction {
@@ -364,6 +365,8 @@ export interface InboxCard {
   completedAtText?: string
   /** レビュー状態。バッジ表示（未確認/あとで/要修正/レビュー済み）と一覧フィルタに使う。 */
   reviewStatus?: ReviewStatus
+  /** 人間が「修正する」で入力した修正指示。次回作業候補へ渡す。 */
+  fixPrompt?: string
   /** 何が起きているか（状況文）。内部語禁止 */
   headline: string
   /** 本文の説明行。内部語禁止 */
@@ -603,6 +606,7 @@ export async function buildInbox(): Promise<InboxView> {
     const clean = humanizeTitle(raw)
     const isPublish = /(公開|デプロイ|Vercel|反映)/i.test(clean)
     const completedAt = runCompletedAt(run)
+    const fixPromptPreview = run.fixPrompt ? shorten(run.fixPrompt, 120) : ''
     return {
       id: `run-${run.runId}`,
       kind: 'acceptance',
@@ -614,6 +618,7 @@ export async function buildInbox(): Promise<InboxView> {
       rows: [
         { label: 'AIがやったこと', text: `${shorten(run.summary || clean, 48)}。` },
         { label: '人間がやること', text: isPublish ? '正常に表示されているか見るだけ。' : 'レビュー用コピーで内容を確認する。' },
+        ...(fixPromptPreview ? [{ label: '修正指示', text: fixPromptPreview }] : []),
       ],
       question: isPublish ? '正常に表示されていますか？' : '確認してください。問題ありませんか？',
       detail: [
@@ -622,8 +627,10 @@ export async function buildInbox(): Promise<InboxView> {
         ...(run.aiReview?.reason ? [`AI判断理由: ${run.aiReview.reason}`] : []),
         `完了日時: ${fmtDateTime(completedAt) || '不明'}`,
         `元の作業履歴: ${run.runId}`,
+        ...(run.fixPrompt ? [`修正指示: ${run.fixPrompt}`] : []),
       ],
       actions: reviewActionsFor(run),
+      fixPrompt: run.fixPrompt,
     }
   }
 

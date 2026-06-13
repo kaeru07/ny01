@@ -20,14 +20,36 @@ async function writeAll(runs: ExecutionRun[]): Promise<void> {
   await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8')
 }
 
-export async function updateReviewStatus(runId: string, reviewStatus: ReviewStatus, reviewMemo?: string): Promise<ExecutionRun | null> {
+export interface ReviewStatusUpdateOptions {
+  reviewMemo?: string
+  fixPrompt?: string
+}
+
+export async function updateReviewStatus(
+  runId: string,
+  reviewStatus: ReviewStatus,
+  reviewMemoOrOptions?: string | ReviewStatusUpdateOptions,
+): Promise<ExecutionRun | null> {
   const runs = await readAll()
   const idx = runs.findIndex((r) => r.runId === runId)
   if (idx === -1) return null
+  const options = typeof reviewMemoOrOptions === 'string' ? { reviewMemo: reviewMemoOrOptions } : reviewMemoOrOptions
+  const fixPrompt = reviewStatus === 'needs_followup' ? options?.fixPrompt?.trim() : undefined
+  const fixMemo = fixPrompt ? `修正指示: ${fixPrompt}` : undefined
+  const reviewMemo = options?.reviewMemo !== undefined
+    ? options.reviewMemo
+    : fixMemo
+      ? [runs[idx].reviewMemo, fixMemo].filter(Boolean).join('\n')
+      : runs[idx].reviewMemo
   runs[idx] = {
     ...runs[idx],
     reviewStatus,
-    reviewMemo: reviewMemo !== undefined ? reviewMemo : runs[idx].reviewMemo,
+    reviewMemo,
+    ...(fixPrompt ? {
+      fixPrompt,
+      fixRequestedAt: new Date().toISOString(),
+      fixRequestedBy: 'human' as const,
+    } : {}),
     reviewedAt: reviewStatus === 'reviewed' ? new Date().toISOString() : runs[idx].reviewedAt,
   }
   await writeAll(runs)

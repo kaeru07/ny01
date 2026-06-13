@@ -46,6 +46,9 @@ export interface ExecutionRun {
   reviewStatus: ReviewStatus
   reviewMemo?: string
   reviewedAt?: string
+  fixPrompt?: string
+  fixRequestedAt?: string
+  fixRequestedBy?: 'human'
   /** AI一次レビューの判定結果（実施済みの場合のみ）。 */
   aiReview?: AiReviewResult
   /** 任意。Run の発生源。例: 'codex_mobile'（Codexモバイルで実行しProgressへ手動で戻したRun）/
