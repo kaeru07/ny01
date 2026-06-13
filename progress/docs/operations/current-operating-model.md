@@ -205,6 +205,8 @@ MVP完成 → ストア公開 → 広告導入 → DL100 → はじめての収�
 
 ## 変更履歴
 
+- 2026-06-13: 収益化候補の定期取り込み（`syncCandidatesFromVault`）の走査対象を拡張。従来の `06_research` 直下 + `20_reviews` + 候補テーブルに加え、`06_research/daily-market-research` / `daily-ai-news` / `daily-ai-tools`（日次調査サブフォルダ）も走査するようにし、これらを `daily` 種別の調査元として分類（スキャン上限 300→400）。既存のデータ構造（sourceRefs / researchLogs / evidenceLinks / history）・重複判定・候補詳細/一覧の調査元表示・ExecutionRun記録は既存実装を流用（新規追加なし）。手動同期2回でadded/updatedの冪等性（再投入で二重追加なし）を確認。
+
 - 2026-06-13: 自動実行キューの候補外アイテムに **「👉 こうすれば動きます」解消手順＋ボタン**（`AutoQueueItem.resolution`）を追加。status別に次アクションを案内（`review_waiting`/`waiting_user`→Inboxでレビュー/承認(/decide)、`blocked`→Epic詳細、`ai_hold`→保留解除、`manual`(対象外)→対象に戻す）。control API に `include`（対象に戻す）アクションを追加。司令塔トップ「最優先指定中だが候補外」枠と `/queue` カードの両方に表示。「最優先にしたのに動かない・どうすれば解消するか分からない」を解消。
 
 - 2026-06-13: 自動実行キューのpin説明を修正。`POST /api/auto-queue/control` 後に `/` と `/queue` を revalidate。司令塔トップと `/queue` は同じ `getAutoQueueView()` を使用。pin済みでも `waiting_user` / `review_waiting` / `blocked` / `manual` / `ai_hold` は安全gatingにより候補外のままとし、司令塔トップに「最優先指定中だが候補外」枠、`/queue`カードに候補外理由・候補入り可否・queueScoreを表示。保留操作は明示的に `ai_hold` を優先導出。

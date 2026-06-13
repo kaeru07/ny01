@@ -128,8 +128,9 @@ function findExisting(name: string, list: MonetizationCandidate[]): Monetization
 
 function sourceType(relPath: string): SourceRefType {
   if (relPath.startsWith('20_reviews/')) return 'review'
-  if (relPath.startsWith('06_research/')) return 'research'
+  // 日次調査（daily-market-research / daily-ai-news / daily-ai-tools）は 06_research 配下だが daily 種別に分類する。
   if (relPath.includes('daily')) return 'daily'
+  if (relPath.startsWith('06_research/')) return 'research'
   if (relPath.startsWith('05_monetization/')) return 'vault'
   return 'vault'
 }
@@ -158,10 +159,18 @@ export async function syncCandidatesFromVault(input?: {
   const tableMd = (await readFileSafe(path.join(VAULT_PATH, CANDIDATE_TABLE))) ?? ''
   const extracted = extractCandidateNames(tableMd)
 
-  // 2) 根拠スキャン用に research / reviews の md を読み込む
-  const evidencePaths = [...(await listMarkdown('06_research')), ...(await listMarkdown('20_reviews'))]
+  // 2) 根拠スキャン用に research / 日次調査 / reviews の md を読み込む。
+  //    daily-market-research / daily-ai-news / daily-ai-tools は 06_research のサブフォルダ
+  //    （listMarkdown は非再帰のため明示的に追加する）。
+  const evidencePaths = [
+    ...(await listMarkdown('06_research')),
+    ...(await listMarkdown('06_research/daily-market-research')),
+    ...(await listMarkdown('06_research/daily-ai-news')),
+    ...(await listMarkdown('06_research/daily-ai-tools')),
+    ...(await listMarkdown('20_reviews')),
+  ]
   const evidenceFiles: { path: string; content: string }[] = []
-  for (const rel of evidencePaths.slice(0, 300)) {
+  for (const rel of evidencePaths.slice(0, 400)) {
     const content = await readFileSafe(path.join(VAULT_PATH, rel))
     if (content) evidenceFiles.push({ path: rel, content })
   }
