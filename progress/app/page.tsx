@@ -4,6 +4,7 @@ import Link from 'next/link'
 import PageGuide from '@/components/newux/PageGuide'
 import ReviewCopyButton from '@/components/review-copy/ReviewCopyButton'
 import { buildCommandCenter, KIND_CHIP_LABEL } from '@/lib/command-center'
+import { buildAutoQueue } from '@/lib/auto-queue'
 
 // 新UXのトップ = 司令塔。毎日最初に開く画面。
 // 「今日の5〜15分をどう使うか」だけが分かることを最優先にする。専門用語は出さない。
@@ -28,7 +29,7 @@ const fixStageClass: Record<string, string> = {
 }
 
 export default async function CommandCenterPage() {
-  const view = await buildCommandCenter()
+  const [view, autoQueue] = await Promise.all([buildCommandCenter(), buildAutoQueue()])
   const todayLabel = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' })
   const currentMilestone = view.milestones.find((m) => m.state === 'current')
   const doneCount = view.milestones.filter((m) => m.state === 'done').length
@@ -43,6 +44,86 @@ export default async function CommandCenterPage() {
       <div className="-mt-3">
         <ReviewCopyButton />
       </div>
+
+      <section className="rounded-xl border-2 border-gray-900 bg-white p-4 dark:border-gray-100 dark:bg-gray-900">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">次回自動実行予定</h2>
+          <Link href="/queue" className="text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">キュー調整</Link>
+        </div>
+        {autoQueue.next ? (
+          <div className="mt-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded bg-gray-900 px-2 py-0.5 text-xs font-bold text-white dark:bg-gray-100 dark:text-gray-900">
+                {autoQueue.next.preferredExecutor ?? 'executor未設定'}
+              </span>
+              <span className="rounded bg-green-100 px-2 py-0.5 text-xs font-bold text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                実行可能
+              </span>
+              <span className="rounded bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                {autoQueue.next.priority}
+              </span>
+            </div>
+            <p className="mt-2 text-lg font-bold leading-snug text-gray-900 dark:text-gray-100">{autoQueue.next.title}</p>
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              Goal: {autoQueue.next.goalTitle ?? '未設定'} · doneCriteria {autoQueue.next.doneCriteriaDone}/{autoQueue.next.doneCriteriaTotal}
+            </p>
+            <p className="mt-2 rounded-lg bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700 dark:bg-gray-800/60 dark:text-gray-200">
+              なぜ次か: {autoQueue.next.reason}
+            </p>
+          </div>
+        ) : (
+          <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700 dark:bg-amber-900/20 dark:text-amber-300">
+            実行可能なEpicがありません。判断待ちまたは対象外の状態を確認してください。
+          </p>
+        )}
+
+        {autoQueue.candidates.length > 0 && (
+          <div className="mt-4">
+            <p className="text-xs font-bold text-gray-400">次回候補</p>
+            <ol className="mt-2 space-y-1.5">
+              {autoQueue.candidates.map((item) => (
+                <li key={item.workItemId} className="flex items-start gap-2 text-sm">
+                  <span className="shrink-0 text-xs font-bold text-gray-400">#{item.queueOrder}</span>
+                  <span className="min-w-0 font-medium text-gray-800 dark:text-gray-100">{item.title}</span>
+                  <span className="shrink-0 rounded bg-gray-100 px-1.5 py-0.5 text-[11px] font-bold text-gray-500 dark:bg-gray-800 dark:text-gray-400">{item.priority}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+
+        <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-5">
+          {[
+            ['判断待ち', autoQueue.counts.waiting_user, 'waiting_user'],
+            ['AI保留', autoQueue.counts.ai_hold, 'ai_hold'],
+            ['レビュー', autoQueue.counts.review_waiting, 'review_waiting'],
+            ['実行可', autoQueue.counts.executable, 'executable'],
+            ['Block', autoQueue.counts.blocked, 'blocked'],
+          ].map(([label, count, key]) => (
+            <Link key={key} href={`/queue?filter=${key}`} className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/60">
+              <p className="text-[11px] font-semibold text-gray-400">{label}</p>
+              <p className="mt-1 text-xl font-bold text-gray-900 dark:text-gray-100">{count}</p>
+            </Link>
+          ))}
+        </div>
+
+        {autoQueue.goalProgress.length > 0 && (
+          <div className="mt-4 space-y-2">
+            <p className="text-xs font-bold text-gray-400">Goal別進捗</p>
+            {autoQueue.goalProgress.slice(0, 3).map((goal) => (
+              <div key={goal.goalId} className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/60">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="min-w-0 text-sm font-bold text-gray-900 dark:text-gray-100">{goal.title}</p>
+                  <p className="shrink-0 text-xs font-bold text-gray-500 dark:text-gray-400">{goal.done}/{goal.total}</p>
+                </div>
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                  <div className="h-full rounded-full bg-green-600" style={{ width: `${goal.ratio}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       {view.factoryStopAlert && (
         <section className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 dark:border-rose-900/50 dark:bg-rose-900/15">

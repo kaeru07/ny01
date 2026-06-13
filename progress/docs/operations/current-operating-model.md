@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-13
-updateNote: Inboxレビューを未消込リスト化（全件表示・完了日時・最新順・未確認/要修正/あとで/レビュー済みフィルタ・AI一括整理は全件対象）
+updateNote: 自動実行キュー（/queue）を追加。司令塔トップの次回自動実行予定をEpicベースのbuildAutoQueueに差し替え（野鳥問題=二重正本を解消）。旧work-queueは/legacy/queueへ退避
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -24,6 +24,7 @@ Progress は **AI工場の管理画面ではなく、人間用の司令塔**。
 | 司令塔 | `/` | 毎日最初に開く画面。今日やること・AI工場の状態・収益マイルストーン・直近の成果 |
 | Inbox | `/decide` | 4タブ構成（タブ切り替え）。「今日の判断」=工場停止要因のみ（危険判断/方針選択/人間作業・最大3件・約3分）/「レビュー」=検収（放置しても工場は止まらない・**隠さず全件表示**）/「Epic候補」=実行許可（放置可能）/「AI保留」=件数のみ。社長は「今日の判断」タブだけ処理すれば工場は止まらない。内部分類・内部IDは「詳細を見る」内のみ |
 | Inbox レビュータブ | `/decide` | **レビュー待ちは未消込リストとして全件表示**（「ほか◯件」「処理すると次が出ます」の隠れ表示は廃止）。上部に件数サマリー（未確認/要修正/あとで/レビュー済み）。各カードに「完了: YYYY/MM/DD HH:mm」を表示し、**completedAt（finishedAt→startedAt）降順**で最新が上。50件ずつの明示ページング（全◯件中◯〜◯件）。状態遷移=問題なし→`reviewed`（一覧から消し込み・「レビュー済み」タブに残置＝物理削除しない）/あとで→`snoozed`（後回しで残置）/修正する→`needs_followup`（要修正で残置＋修正依頼を次作業候補へ）。「未確認レビューをAIで一括整理」は未確認**全件**対象（サーバ安全上限200件）で、危険・要判断は必ず残し最終判断は人間 |
+| 自動実行キュー | `/queue` | **AI工場が次に何をやるか**の単一ビュー（派生・新正本を作らない）。`buildAutoQueue()` が Epic / Goal / ExecutionRun / Approval / Inbox から都度生成。`factoryEligible=true && status=executable` のみ自動実行候補。各itemに「なぜこの順位か」の理由を機械生成。スマホで最優先(pin)/保留(hold)/対象外(exclude)/上下移動(manualOrder)。旧 work-queue 並べ替え画面は `/legacy/queue` に退避 |
 | Projects | `/portfolio` | 進行中プロジェクトの一覧と次の作業 |
 | Revenue | `/revenue` | 収益化マイルストーンの現在地 |
 | 📖 運用 | `/guide` | このアプリの使い方を自分で説明するページ（本ドキュメントと連動） |
@@ -168,6 +169,8 @@ MVP完成 → ストア公開 → 広告導入 → DL100 → はじめての収�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-13: 自動実行キュー（`/queue`）を新設。Epicを実行正本・Goalを優先度の親・キューを派生ビューとし、`buildAutoQueue()`（Epic/Goal/ExecutionRun/Approval/Inbox入力・新正本なし）を唯一の進行順とした。司令塔トップの「次回自動実行予定」表示元を旧`work-queue.json`から`buildAutoQueue`へ差し替え（司令塔が未整理/低関連案件＝野鳥観察系を先頭に出す二重正本問題を解消）。`factoryEligible=true && status=executable`のみ候補化し、`waiting_user`/`ai_hold`/`review_waiting`/`blocked`/`manual`はitem単位で候補外（全体は止めない）。スコア=pin>Goal pin>P0/P1/P2+Goal boost>freshness、各itemにreason機械生成。スマホで最優先(pin)/保留/対象外/上下移動を`Epic.queueControl`・`Goal.priorityBoost/pinnedTop`へ書き戻し（手動操作は自動再計算で上書きしない）。旧work-queue並べ替えUIは`/legacy/queue`へ無削除退避。設計書: `docs/auto-execution-queue-design.md`。
 
 - 2026-06-13: Inboxレビュータブを「未消込リスト」運用へ刷新。レビュー待ちを隠さず全件表示（「ほか◯件」「処理すると次が出ます」廃止）、各カードに完了日時（YYYY/MM/DD HH:mm）を表示しcompletedAt降順（finishedAt→startedAtフォールバック）で並べ、未確認/要修正/あとで/レビュー済みの件数サマリー＋フィルタ＋50件ページングを追加。状態遷移を整理（問題なし→reviewed消込＋レビュー済みタブに残置／あとで→新ReviewStatus `snoozed`で後回し残置／修正する→needs_followupで要修正残置）。レビュー済みは物理削除しない。「AIにまとめて確認させる（10件固定）」を「未確認レビューをAIで一括整理（未確認全件・サーバ安全上限200件）」へ変更。
 

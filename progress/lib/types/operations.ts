@@ -1,3 +1,5 @@
+import type { QueueControl } from '@/types/auto-queue'
+
 // Epic Contract の標準 3 値（autonomous / approval_required / manual）に加え、
 // 旧データ互換のため budget_sensitive / destructive_sensitive も型として残す（読み取り時のみ）。
 export type DecisionPolicy =
@@ -69,6 +71,8 @@ export interface Epic {
   fallbackExecutor?: ExecutorType
   /** ユーザーの opt-in ヒント。true でも安全条件を満たさなければ自動対象にしない（安全が優先）。 */
   factoryEligible?: boolean
+  /** 自動実行キュー上のユーザー手動操作。キュー自体は派生ビューであり永続化しない。 */
+  queueControl?: QueueControl
   updatedAt: string
 }
 

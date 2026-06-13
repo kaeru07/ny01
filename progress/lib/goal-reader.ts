@@ -27,6 +27,8 @@ export function normalizeGoal(raw: Partial<Goal> & Record<string, unknown>): Goa
     summary,
     status,
     priority: raw.priority === 'high' || raw.priority === 'low' || raw.priority === 'medium' ? raw.priority : 'medium',
+    priorityBoost: raw.priorityBoost === 0 || raw.priorityBoost === 1 || raw.priorityBoost === 2 ? raw.priorityBoost : undefined,
+    pinnedTop: raw.pinnedTop === true,
     monetizationImpact: raw.monetizationImpact === 'high' || raw.monetizationImpact === 'medium' || raw.monetizationImpact === 'low' || raw.monetizationImpact === 'none' ? raw.monetizationImpact : 'none',
     phases: Array.isArray(raw.phases) ? raw.phases : [],
     todos: Array.isArray(raw.todos) ? raw.todos : [],

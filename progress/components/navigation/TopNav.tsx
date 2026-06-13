@@ -8,6 +8,7 @@ import { usePathname } from 'next/navigation'
 
 const newNavItems = [
   { href: '/', label: '司令塔', exact: true },
+  { href: '/queue', label: 'キュー', exact: false },
   { href: '/decide', label: 'Inbox', exact: false },
   { href: '/portfolio', label: 'Projects', exact: false },
   { href: '/revenue', label: 'Revenue', exact: false },
@@ -26,7 +27,7 @@ const legacyNavItems = [
   { href: '/ai-drive', label: 'AI自走', exact: false },
   { href: '/goal-planner', label: '目標', exact: false },
   { href: '/tasks', label: 'ToDo', exact: false },
-  { href: '/queue', label: 'キュー', exact: false },
+  { href: '/legacy/queue', label: '旧キュー', exact: false },
   { href: '/app-urls', label: 'URL', exact: false },
   { href: '/radar', label: 'レーダー', exact: false },
   { href: '/projects', label: '案件', exact: true },
@@ -36,7 +37,7 @@ const legacyNavItems = [
   { href: '/daily', label: '日別', exact: false },
 ]
 
-const NEW_ROUTES = ['/', '/decide', '/portfolio', '/revenue', '/legacy']
+const NEW_ROUTES = ['/', '/queue', '/decide', '/portfolio', '/revenue', '/legacy']
 
 interface Props {
   logBadge?: number

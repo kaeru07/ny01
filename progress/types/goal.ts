@@ -49,6 +49,8 @@ export interface Goal {
   summary: string
   status: GoalStatus
   priority: TaskPriority
+  priorityBoost?: 0 | 1 | 2
+  pinnedTop?: boolean
   monetizationImpact: MonetizationImpact
   phases: GoalPhase[]
   todos: GoalTodo[]

@@ -359,6 +359,8 @@ export async function upsertGoal(input: GoalUpsertInput): Promise<Goal> {
     summary: pickString(input.description, previous?.summary ?? ''),
     status: pickGoalStatus(input.status, previous?.status ?? 'active'),
     priority: pickPriority(input.priority, previous?.priority ?? 'medium'),
+    priorityBoost: previous?.priorityBoost,
+    pinnedTop: previous?.pinnedTop,
     monetizationImpact: previous?.monetizationImpact ?? 'none',
     phases: previous?.phases ?? [],
     todos: previous?.todos ?? [],
