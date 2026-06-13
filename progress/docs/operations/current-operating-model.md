@@ -170,6 +170,8 @@ MVP完成 → ストア公開 → 広告導入 → DL100 → はじめての収�
 
 ## 変更履歴
 
+- 2026-06-13: Factory 定時自動実行に **16:00 JST** を追加（従来 11:00 / 14:00 / 23:00 → 11:00 / 14:00 / 16:00 / 23:00）。`/etc/systemd/system/factory-schedule.timer` の OnCalendar に 1 行追加し `daemon-reload` + timer 再起動。repo 側 `docs/factory-schedule/factory-schedule.timer`（UI の「定時」表示が読む正本）も同期。各定時で `runScheduledFactory` が安全ゲート（factoryEnabled / Blocked / 二重起動lock）を通った場合のみ起動。
+
 - 2026-06-13: 自動実行キュー（`/queue`）を新設。Epicを実行正本・Goalを優先度の親・キューを派生ビューとし、`buildAutoQueue()`（Epic/Goal/ExecutionRun/Approval/Inbox入力・新正本なし）を唯一の進行順とした。司令塔トップの「次回自動実行予定」表示元を旧`work-queue.json`から`buildAutoQueue`へ差し替え（司令塔が未整理/低関連案件＝野鳥観察系を先頭に出す二重正本問題を解消）。`factoryEligible=true && status=executable`のみ候補化し、`waiting_user`/`ai_hold`/`review_waiting`/`blocked`/`manual`はitem単位で候補外（全体は止めない）。スコア=pin>Goal pin>P0/P1/P2+Goal boost>freshness、各itemにreason機械生成。スマホで最優先(pin)/保留/対象外/上下移動を`Epic.queueControl`・`Goal.priorityBoost/pinnedTop`へ書き戻し（手動操作は自動再計算で上書きしない）。旧work-queue並べ替えUIは`/legacy/queue`へ無削除退避。設計書: `docs/auto-execution-queue-design.md`。
 
 - 2026-06-13: Inboxレビュータブを「未消込リスト」運用へ刷新。レビュー待ちを隠さず全件表示（「ほか◯件」「処理すると次が出ます」廃止）、各カードに完了日時（YYYY/MM/DD HH:mm）を表示しcompletedAt降順（finishedAt→startedAtフォールバック）で並べ、未確認/要修正/あとで/レビュー済みの件数サマリー＋フィルタ＋50件ページングを追加。状態遷移を整理（問題なし→reviewed消込＋レビュー済みタブに残置／あとで→新ReviewStatus `snoozed`で後回し残置／修正する→needs_followupで要修正残置）。レビュー済みは物理削除しない。「AIにまとめて確認させる（10件固定）」を「未確認レビューをAIで一括整理（未確認全件・サーバ安全上限200件）」へ変更。

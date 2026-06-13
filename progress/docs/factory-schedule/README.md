@@ -77,7 +77,7 @@ cron 版（`crontab.example`）も同等機能を用意し、systemd 不可環�
 
 | 項目 | 値 | 備考 |
 |---|---|---|
-| 定時 | 毎日 **11:00 JST** | `factory-schedule.timer` OnCalendar。TZ=Asia/Tokyo 確認済み |
+| 定時 | 毎日 **11:00 / 14:00 / 16:00 / 23:00 JST** | `factory-schedule.timer` OnCalendar（複数行＝いずれか一致で発火）。TZ=Asia/Tokyo 確認済み |
 | 取りこぼし | `Persistent=true` | 停止中に跨いだら起動後 1 回補填 |
 | 初回 maxRuns | **1** | 両 service に `Environment=FACTORY_MAX_RUNS=1`。安定後に引き上げ or 削除 |
 | WorkingDirectory | `/root/company/apps/ny01/progress` | 両 service |

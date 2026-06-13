@@ -1,11 +1,13 @@
 [Unit]
-Description=Factory scheduled run timer (毎日定時 / 11:00 + 23:00 JST)
+Description=Factory scheduled run timer (毎日定時 / 11:00 + 14:00 + 16:00 + 23:00 JST)
 
 [Timer]
-# 毎日 11:00 と 23:00 (Asia/Tokyo) に factory-schedule.service を起動する。
+# 毎日 11:00 / 14:00 / 16:00 / 23:00 (Asia/Tokyo) に factory-schedule.service を起動する。
 # OnCalendar を複数行書くと「いずれかに一致したら発火」になる。時刻はここを編集して調整する。
 # 本 VPS の timedatectl は Asia/Tokyo なので OnCalendar はそのまま JST 解釈。
 OnCalendar=*-*-* 11:00:00
+OnCalendar=*-*-* 14:00:00
+OnCalendar=*-*-* 16:00:00
 OnCalendar=*-*-* 23:00:00
 # VPS 停止中に時刻を跨いだ場合、起動後に取りこぼし分を 1 回だけ実行する。
 Persistent=true
