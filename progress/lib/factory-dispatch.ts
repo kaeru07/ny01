@@ -7,6 +7,21 @@ import {
   getAutomationConfig,
 } from './operations-store'
 import { buildExecutionGuard } from './epic-contract'
+import { readExecutionRuns } from '@/lib/execution-run-reader'
+import type { Epic } from '@/lib/types/operations'
+import type { ExecutionRun } from '@/types/execution-run'
+
+/** この Epic に紐づく「人間の修正指示」を集める。
+ *  (1) needs_followup の Run に保存された fixPrompt（新しい順）, (2) 承認済みで remainingWork に入った修正指示。
+ *  これを dispatch プロンプトに最優先項目として載せ、次回自動実行で人間の修正依頼が実際に反映されるようにする。 */
+function collectHumanFixInstructions(epic: Pick<Epic, 'epicId' | 'remainingWork'>, runs: ExecutionRun[]): string[] {
+  const fromRuns = runs
+    .filter((r) => r.epicId === epic.epicId && r.reviewStatus === 'needs_followup' && !!r.fixPrompt && r.fixPrompt.trim().length > 0)
+    .sort((a, b) => Date.parse(b.fixRequestedAt || b.finishedAt || b.startedAt) - Date.parse(a.fixRequestedAt || a.finishedAt || a.startedAt))
+    .map((r) => r.fixPrompt!.trim())
+  const fromRemaining = (epic.remainingWork ?? []).filter((w) => /修正指示|人間の修正/.test(w)).map((w) => w.trim())
+  return Array.from(new Set([...fromRuns, ...fromRemaining]))
+}
 import type {
   ExecutorType,
   ExecutorChoice,
@@ -39,6 +54,8 @@ export async function buildDispatchPlan(epicId: string): Promise<FactoryDispatch
   if (!detail) return null
   const { epic, nextActions, pendingApprovals, factoryEligibility } = detail
 
+  const allRuns = await readExecutionRuns()
+  const humanFixInstructions = collectHumanFixInstructions(epic, allRuns)
   const nextTitles = nextActions.map((a) => a.title)
   const text = `${epic.goal} ${nextTitles.join(' ')}`
   const codexEligible = classifyCodexEligibility(text).eligible
@@ -103,6 +120,7 @@ export async function buildDispatchPlan(epicId: string): Promise<FactoryDispatch
     decisionStatus,
     riskFlags,
     nextActions: nextTitles,
+    humanFixInstructions,
     promptType,
     safetyStatus,
     blockedReason,
@@ -161,6 +179,12 @@ export async function generateClaudeFactoryPrompt(epicId: string): Promise<Codex
   lines.push('[3] DoneCriteria（すべて満たすこと）')
   lines.push(plan.doneCriteria.length > 0 ? plan.doneCriteria.map((c) => `- ${c}`).join('\n') : '- （未設定）')
   lines.push('')
+  if (plan.humanFixInstructions.length > 0) {
+    lines.push('[3-1] 人間の修正指示（最優先で対応すること）')
+    lines.push('人間がレビューで「修正する」と判断し登録した指示です。元作業を確認し、以下を最優先で反映してください。')
+    for (const fix of plan.humanFixInstructions) lines.push(`- ${fix}`)
+    lines.push('')
+  }
   lines.push('[4] 現在地（前回作業）')
   lines.push(latestRun ? `${latestRun.summary}（runId ${latestRun.runId}）` : 'なし')
   lines.push('')

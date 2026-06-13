@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-14
-updateNote: 次回自動実行予定→Inboxレビューの導線を /decide?tab=review&goalId&focusRunId へ修正。InboxをGoal単位で絞り込み、該当レビューをハイライト
+updateNote: レビュー「修正する」のfixPromptをFactory Dispatchプロンプトに[3-1]人間の修正指示（最優先）として反映。次回自動実行でその内容で再修正されるよう接続（テストで反映前後を検証）
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -41,6 +41,8 @@ Progress は **AI工場の管理画面ではなく、人間用の司令塔**。
 目標 → 大きな作業 → AI作業 → レビュー → 学習 → 次の作業
 
 レビューで「修正する」を選んだ `needs_followup` の作業履歴は、`followupOfRunId` 付きのおすすめ次作業へ自動変換する。同じ作業履歴から候補を重複生成しない。スケジュール起動時にも未処理の修正依頼をbackfillする。
+
+**人間の修正指示（fixPrompt）の dispatch 反映**: 「修正する」で保存した `fixPrompt` は、その Epic の Factory Dispatch プロンプトに `[3-1] 人間の修正指示（最優先で対応すること）`（Codex 引き継ぎは `[4-1]`）として最優先で載る（`buildDispatchPlan().humanFixInstructions`＝当該 Epic の needs_followup Run の fixPrompt ＋ 承認済みで remainingWork に入った修正指示）。これで次回自動実行時に executor が人間の修正指示そのものを受け取り、その内容で再修正できる。※Epic に有効な doneCriteria / priority が無いと dispatch 自体が blocked になる点は従来どおり（修正指示は dispatch 可能になった時点で必ずプロンプトに乗る）。
 
 AI工場の「今」は、Factory runner が開始時に `running` の作業履歴を記録し、完了時に同じ作業履歴を完了/一部完了/失敗へ更新して表示する。異常終了で `running` が残った場合は、開始から30分超で待機中扱いにする。
 
@@ -230,6 +232,8 @@ Claude Code / Codex の作業完了時・Epic 完了後に「人間が確認す�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-14: レビュー「修正する」で保存した `fixPrompt` を **Factory Dispatch プロンプトへ反映**。`buildDispatchPlan` に `humanFixInstructions`（当該 Epic の needs_followup Run の fixPrompt ＋ 承認済みで remainingWork に入った修正指示）を追加し、Claude プロンプト `[3-1]`・Codex 引き継ぎ `[4-1]` に「人間の修正指示（最優先で対応）」として出力。**テストで反映前=プロンプトに無し→反映後=有り**を検証（epic-91 の実 fixPrompt「inboxページでフィルターがゴール進捗とproject単位…」で確認、テスト後 epic は原状復帰）。これで次回自動実行が人間の修正指示そのもので再修正する。
 
 - 2026-06-14: 司令塔トップの候補外解消ボタン（「Inboxでレビューする」）を `/decide?tab=review&goalId=...&focusRunId=...` に修正。従来の `/decide` 直リンクで「今日の判断」0件タブへ飛び、レビューがあるのに何も出ない詰まりを解消。InboxTabs は URL クエリ（tab / reviewFilter / filter=needs_followup / goalId / focusRunId）に対応し、focusRunId のカードをハイライト、状態に応じて未確認/要修正/あとで/レビュー済みフィルタへ自動切替。Inboxカードは変換レイヤーで goalId/goalTitle を付与し、未紐づけは `unassigned` として表示・絞り込み可能。Goal付き0件タブでは同Goalの他タブ件数があれば案内ボタンを表示。司令塔トップの「最優先指定中だが候補外」枠にGoal名、該当レビュー、Goalレビュー一覧、キュー調整導線を追加。
 

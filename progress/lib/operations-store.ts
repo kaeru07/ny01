@@ -814,6 +814,20 @@ export async function generateCodexPrompt(epicId?: string): Promise<CodexPrompt>
   lines.push('[4] 承認待ち（これには触らない。未承認の作業はしない）')
   lines.push(approvals.length > 0 ? approvals.map((a) => `- ${a.title}（${a.priority}）`).join('\n') : '- なし')
   lines.push('')
+  // 人間がレビューで「修正する」と判断し登録した修正指示（needs_followup Run の fixPrompt / 承認済み修正依頼）を最優先で渡す。
+  const humanFixInstructions = Array.from(new Set([
+    ...scopedRuns
+      .filter((r) => r.reviewStatus === 'needs_followup' && !!r.fixPrompt && r.fixPrompt.trim().length > 0)
+      .sort((a, b) => Date.parse(b.fixRequestedAt || b.finishedAt || b.startedAt) - Date.parse(a.fixRequestedAt || a.finishedAt || a.startedAt))
+      .map((r) => r.fixPrompt!.trim()),
+    ...((epic?.remainingWork ?? []).filter((w) => /修正指示|人間の修正/.test(w)).map((w) => w.trim())),
+  ]))
+  if (humanFixInstructions.length > 0) {
+    lines.push('[4-1] 人間の修正指示（最優先で対応すること）')
+    lines.push('人間がレビューで「修正する」と判断し登録した指示です。元作業を確認し、以下を最優先で反映してください。')
+    lines.push(humanFixInstructions.map((f) => `- ${f}`).join('\n'))
+    lines.push('')
+  }
   lines.push('[5] 次にやること（安全判定OKのものだけ）')
   lines.push(nextActions.length > 0 ? nextActions.map((a) => `- ${a.title}`).join('\n') : '- なし')
   lines.push('')

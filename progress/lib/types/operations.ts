@@ -174,6 +174,8 @@ export interface FactoryDispatchPlan {
   decisionStatus: 'ok' | 'waiting'
   riskFlags: EpicRiskFlag[]
   nextActions: string[]
+  /** この Epic に紐づく人間の修正指示（needs_followup Run の fixPrompt / 承認済み修正依頼）。dispatch プロンプトに最優先で載せる。 */
+  humanFixInstructions: string[]
   promptType: DispatchPromptType
   safetyStatus: DispatchSafetyStatus
   blockedReason?: string
