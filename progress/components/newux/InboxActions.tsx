@@ -56,7 +56,7 @@ async function callApi(api: NonNullable<InboxCardAction['api']>): Promise<void> 
   }
 }
 
-export default function InboxCardItem({ card }: { card: InboxCard }) {
+export default function InboxCardItem({ card, highlight = false, focusNotice = false }: { card: InboxCard; highlight?: boolean; focusNotice?: boolean }) {
   const router = useRouter()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -109,7 +109,19 @@ export default function InboxCardItem({ card }: { card: InboxCard }) {
   if (closedForToday) return null
 
   return (
-    <li className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+    <li
+      id={card.sourceRunId ? `review-${card.sourceRunId}` : undefined}
+      className={`rounded-xl border bg-white p-4 dark:bg-gray-900 ${
+        highlight
+          ? 'border-blue-400 ring-2 ring-blue-400/60 dark:border-blue-500 dark:ring-blue-500/50'
+          : 'border-gray-200 dark:border-gray-800'
+      }`}
+    >
+      {focusNotice && (
+        <p className="mb-2 rounded-lg bg-blue-50 px-3 py-2 text-xs font-bold text-blue-700 dark:bg-blue-900/20 dark:text-blue-200">
+          次回実行予定から移動しました
+        </p>
+      )}
       <div className="flex flex-wrap items-center gap-2">
         <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${KIND_CHIP_CLASS[card.kind]}`}>
           {KIND_CHIP_LABEL[card.kind]}

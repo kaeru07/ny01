@@ -111,21 +111,38 @@ export default async function CommandCenterPage() {
                   <Link href="/queue" className="font-bold text-gray-900 underline decoration-amber-400 underline-offset-2 dark:text-gray-100">
                     {item.title}
                   </Link>
+                  <p className="mt-0.5 text-[11px] font-semibold text-amber-700 dark:text-amber-300">
+                    Goal: {item.goalTitle ?? '未紐づけ'}
+                  </p>
                   <p className="mt-0.5 text-xs text-amber-800 dark:text-amber-200">
                     {autoQueueStatusLabel[item.status] ?? item.candidateBlockedReason ?? item.status}のため、次回自動実行候補には入りません。
                   </p>
                   {item.resolution && (
                     <div className="mt-1.5 rounded-md bg-white px-2.5 py-2 dark:bg-gray-900">
-                      <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">👉 こうすれば動きます</p>
+                      <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">こうすれば動きます</p>
                       <p className="mt-0.5 text-xs text-gray-600 dark:text-gray-300">{item.resolution.how}</p>
-                      {item.resolution.actionLabel && item.resolution.actionHref && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {item.resolution.actionLabel && item.resolution.actionHref && (
+                          <Link
+                            href={item.resolution.actionHref}
+                            className="rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-700"
+                          >
+                            {item.resolution.actionLabel}
+                          </Link>
+                        )}
                         <Link
-                          href={item.resolution.actionHref}
-                          className="mt-1.5 inline-block rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-700"
+                          href={`/decide?tab=review&goalId=${encodeURIComponent(item.goalId ?? 'unassigned')}`}
+                          className="rounded-lg border border-amber-200 bg-white px-3 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-50 dark:border-amber-900/60 dark:bg-gray-900 dark:text-amber-200"
                         >
-                          {item.resolution.actionLabel} →
+                          このゴールのレビュー一覧
                         </Link>
-                      )}
+                        <Link
+                          href="/queue"
+                          className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200"
+                        >
+                          キュー調整
+                        </Link>
+                      </div>
                     </div>
                   )}
                 </li>

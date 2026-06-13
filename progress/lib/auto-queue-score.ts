@@ -63,6 +63,7 @@ export function deriveWorkItemStatus(epic: Epic, context: StatusContext): WorkIt
   if (pendingApproval || dangerous || epic.decisionPolicy === 'approval_required') return 'waiting_user'
 
   const latestRun = latestRunForEpic(epic, context.runs)
+  if (latestRun?.reviewStatus === 'needs_followup') return 'waiting_user'
   if (latestRun?.reviewStatus === 'needs_human') return 'waiting_user'
   if ((latestRun?.reviewStatus === 'not_reviewed' || latestRun?.reviewStatus === 'copied') && latestRun.runStatus !== 'failed') {
     const priority = normalizePriority(epic.priority)
@@ -122,11 +123,19 @@ export function computeQueueScore(input: QueueScoreInput, goal?: Goal): QueueSco
 
 /** 候補外アイテムの「どうすれば自動実行候補に入るか」を返す。executable/done は解消不要で undefined。 */
 export function deriveResolution(
-  epic: Pick<Epic, 'epicId' | 'blockers' | 'factoryEligible' | 'decisionPolicy' | 'riskFlags' | 'queueControl'>,
+  epic: Pick<Epic, 'epicId' | 'goalId' | 'blockers' | 'factoryEligible' | 'decisionPolicy' | 'riskFlags' | 'queueControl'>,
   status: WorkItemStatus,
   latestRun: ExecutionRun | undefined,
   hasPendingApproval: boolean,
 ): QueueResolution | undefined {
+  const goalId = epic.goalId ?? 'unassigned'
+  const decideHref = (tab: 'today' | 'review' | 'candidates' | 'aiHold', extras: Record<string, string | undefined> = {}) => {
+    const params = new URLSearchParams({ tab, goalId })
+    for (const [key, value] of Object.entries(extras)) {
+      if (value) params.set(key, value)
+    }
+    return `/decide?${params.toString()}`
+  }
   switch (status) {
     case 'executable':
     case 'done':
@@ -135,27 +144,34 @@ export function deriveResolution(
       return {
         how: 'Inboxのレビュータブで、この作業の最新の結果を「問題なし」にすると、次回の自動実行候補に入ります。',
         actionLabel: 'Inboxでレビューする',
-        actionHref: '/decide',
+        actionHref: decideHref('review', { focusRunId: latestRun?.runId }),
       }
     case 'waiting_user': {
       if (hasPendingApproval || hasDangerRisk(epic.riskFlags) || epic.decisionPolicy === 'approval_required') {
         return {
           how: '危険を伴う作業のため承認が必要です。Inboxの「今日の判断」で承認すると、AIが自動実行できます。',
           actionLabel: 'Inboxで承認する',
-          actionHref: '/decide',
+          actionHref: decideHref('today'),
+        }
+      }
+      if (latestRun?.reviewStatus === 'needs_followup') {
+        return {
+          how: '修正依頼が残っています。Inboxのレビュータブで要修正の内容を確認し、修正候補を進めると次に進めます。',
+          actionLabel: 'Inboxで要修正を見る',
+          actionHref: decideHref('review', { filter: 'needs_followup', focusRunId: latestRun.runId }),
         }
       }
       if (latestRun?.reviewStatus === 'needs_human') {
         return {
-          how: 'AIだけでは判断できなかった作業です。Inboxの「今日の判断」であなたの判断を入力すると、次に進めます。',
-          actionLabel: 'Inboxで判断する',
-          actionHref: '/decide',
+          how: 'AIだけでは判断できなかった作業です。Inboxのレビュータブで該当レビューを確認すると、次に進めます。',
+          actionLabel: 'Inboxでレビューする',
+          actionHref: decideHref('review', { focusRunId: latestRun.runId }),
         }
       }
       return {
         how: '重要度が高い作業です。Inboxのレビュータブで最新の結果を「問題なし」にすると、次回の自動実行候補に入ります。',
         actionLabel: 'Inboxでレビューする',
-        actionHref: '/decide',
+        actionHref: decideHref('review', { focusRunId: latestRun?.runId }),
       }
     }
     case 'blocked': {
@@ -178,6 +194,8 @@ export function deriveResolution(
       }
       return {
         how: 'AIが一時保留にしています（依存作業の完了待ちなど）。条件が解ければ自動で候補に戻ります。',
+        actionLabel: 'AI保留を見る',
+        actionHref: decideHref('aiHold'),
       }
     case 'manual':
       if (epic.factoryEligible === false) {

@@ -1,6 +1,6 @@
 ---
-updated: 2026-06-13
-updateNote: Inboxレビュー「修正する」で修正指示プロンプト(textarea)を入力→ExecutionRunにfixPrompt保存→次回自動実行の作業指示(followup候補のreason/doneCriteria/notes)へ反映。空欄保存は警告
+updated: 2026-06-14
+updateNote: 次回自動実行予定→Inboxレビューの導線を /decide?tab=review&goalId&focusRunId へ修正。InboxをGoal単位で絞り込み、該当レビューをハイライト
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -22,7 +22,7 @@ Progress は **AI工場の管理画面ではなく、人間用の司令塔**。
 | タブ | ルート | 役割 |
 |---|---|---|
 | 司令塔 | `/` | 毎日最初に開く画面。今日やること・AI工場の状態・収益マイルストーン・直近の成果 |
-| Inbox | `/decide` | 4タブ構成（タブ切り替え）。「今日の判断」=工場停止要因のみ（危険判断/方針選択/人間作業・最大3件・約3分）/「レビュー」=検収（放置しても工場は止まらない・**隠さず全件表示**）/「Epic候補」=実行許可（放置可能）/「AI保留」=件数のみ。社長は「今日の判断」タブだけ処理すれば工場は止まらない。内部分類・内部IDは「詳細を見る」内のみ |
+| Inbox | `/decide` | 4タブ構成（タブ切り替え）。「今日の判断」=工場停止要因のみ（危険判断/方針選択/人間作業・最大3件・約3分）/「レビュー」=検収（放置しても工場は止まらない・**隠さず全件表示**）/「Epic候補」=実行許可（放置可能）/「AI保留」=件数のみ。社長は「今日の判断」タブだけ処理すれば工場は止まらない。`?tab=today|review|candidates|aiHold`、`?reviewFilter=unconfirmed|followup|snoozed|reviewed`、`?focusRunId=<runId>`、`?goalId=<id|unassigned>`で直接表示できる。内部分類・内部IDは「詳細を見る」内のみ |
 | Inbox レビュータブ | `/decide` | **レビュー待ちは未消込リストとして全件表示**（「ほか◯件」「処理すると次が出ます」の隠れ表示は廃止）。上部に件数サマリー（未確認/要修正/あとで/レビュー済み）。各カードに「完了: YYYY/MM/DD HH:mm」を表示し、**completedAt（finishedAt→startedAt）降順**で最新が上。50件ずつの明示ページング（全◯件中◯〜◯件）。状態遷移=問題なし→`reviewed`（一覧から消し込み・「レビュー済み」タブに残置＝物理削除しない）/あとで→`snoozed`（後回しで残置）/修正する→**修正指示プロンプト(textarea)を入力して保存**→`needs_followup`（要修正で残置・`fixPrompt`/`fixRequestedAt`/`fixRequestedBy='human'` を ExecutionRun に保存）。修正指示は要修正カードに表示され、`followupOfRunId` 付きおすすめ次作業の reason/doneCriteria/notes に反映されて次回自動実行の作業指示になる。空欄保存は警告して送信しない。「未確認レビューをAIで一括整理」は未確認**全件**対象（サーバ安全上限200件）で、危険・要判断は必ず残し最終判断は人間 |
 | 自動実行キュー | `/queue` | **AI工場が次に何をやるか**の単一ビュー（派生・新正本を作らない）。`buildAutoQueue()` が Epic / Goal / ExecutionRun / Approval / Inbox から都度生成。`factoryEligible=true && status=executable` のみ自動実行候補。各itemに「なぜこの順位か」の理由を機械生成。スマホで最優先(pin)/保留(hold)/対象外(exclude)/上下移動(manualOrder)。旧 work-queue 並べ替え画面は `/legacy/queue` に退避 |
 | Projects | `/portfolio` | 進行中プロジェクトの一覧と次の作業 |
@@ -66,6 +66,19 @@ AI工場の「今」は、Factory runner が開始時に `running` の作業履�
 - レビュー解消手段（任意・任意のタイミングで）: Inbox の「AIにまとめて確認させる」（AI一次レビュー一括実行）
 - AI が判断できないものだけ needs_human として Inbox のレビューセクションに上がる
 
+## InboxのGoal紐づけと直接遷移
+
+Inboxカード（今日の判断 / レビュー / Epic候補 / AI保留集計）は、表示用の変換レイヤーで `goalId` / `goalTitle` を付与する。正本データは増やさない。推定順は `item.goalId` → `ExecutionRun.epicId` 経由の `Epic.goalId` → `targetApp` と `Goal.projectId` の一致 → 不明なら `unassigned`。`unassigned` は削除せず「未紐づけ」として表示・絞り込み可能。
+
+`/decide` は URL クエリを初期状態に使う:
+
+- `?tab=today|review|candidates|aiHold`: 初期タブ。未指定は従来どおり今日の判断。
+- `?reviewFilter=unconfirmed|followup|snoozed|reviewed`: レビュー内フィルタ。互換で `?filter=needs_followup` は `followup` に読み替える。
+- `?focusRunId=<runId>`: 対象レビューカードへスクロールし、ハイライトして「次回実行予定から移動しました」を表示。カードの状態が現フィルタと違う場合は、`needs_followup`→要修正、`snoozed`→あとで、`reviewed`→レビュー済み、それ以外→未確認へ自動切替。
+- `?goalId=<goalId|unassigned>`: すべてのタブをそのGoalの項目だけに絞る。0件のタブを開いても同Goalの他タブに件数があれば案内ボタンを出す。
+
+司令塔トップの「Inboxでレビューする」は `/decide?tab=review&goalId=...&focusRunId=...` を使う。レビュー件数があるのに `/decide` の今日の判断0件へ飛んで詰まる導線は禁止。
+
 ## 自動実行キューの使い方
 
 自動実行キューは **Epic / Goal / ExecutionRun / Approval / Inbox から都度生成する派生ビュー**。新しいキュー正本は作らない。司令塔トップの「次回自動実行予定」と `/queue` は同じ `buildAutoQueue()`（別名 `getAutoQueueView()`）の結果を見る。旧 `work-queue.json` は後方互換表示として `/legacy/queue` に残すが、自動実行判断の正本にはしない。
@@ -97,7 +110,7 @@ AI工場の「今」は、Factory runner が開始時に `running` の作業履�
 
 - 最優先指定は安全gatingを上書きしない。`waiting_user` / `review_waiting` / `blocked` / `manual` の作業は、pinしても自動実行されない。
 - pin済みだが候補外の作業は、司令塔トップと `/queue` に「最優先指定中だが候補外」と理由を表示する。
-- **候補外の作業には「👉 こうすれば動きます」の解消手順とボタンを表示する**（`AutoQueueItem.resolution`）。`review_waiting`/`waiting_user`→Inboxでレビュー/承認（/decide）、`blocked`→Epic詳細でブロック解消、`ai_hold`→「保留解除」、`manual`(対象外)→「対象に戻す」。これで「最優先にしたのに動かない」ときに次に何をすればよいかが分かる。
+- **候補外の作業には「こうすれば動きます」の解消手順とボタンを表示する**（`AutoQueueItem.resolution`）。`review_waiting`/`waiting_user`→Inboxでレビュー/承認（`/decide?tab=review|today&goalId=...`、可能なら `focusRunId` 付き）、`needs_followup`→要修正フィルタ、`ai_hold`→AI保留タブ、`blocked`→Epic詳細でブロック解消、`manual`(対象外)→「対象に戻す」。これで「最優先にしたのに動かない」ときに次に何をすればよいかが分かる。
 - 低優先レビューで工場全体は止めない。実行可能な別Epicがあれば、それが次回予定になる。
 - 次回予定は最新Run、承認、保留、対象外、Goal boost、pinの状態で変わる。操作後はトップと `/queue` を同じ派生結果で再表示する。
 
@@ -217,6 +230,8 @@ Claude Code / Codex の作業完了時・Epic 完了後に「人間が確認す�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-14: 司令塔トップの候補外解消ボタン（「Inboxでレビューする」）を `/decide?tab=review&goalId=...&focusRunId=...` に修正。従来の `/decide` 直リンクで「今日の判断」0件タブへ飛び、レビューがあるのに何も出ない詰まりを解消。InboxTabs は URL クエリ（tab / reviewFilter / filter=needs_followup / goalId / focusRunId）に対応し、focusRunId のカードをハイライト、状態に応じて未確認/要修正/あとで/レビュー済みフィルタへ自動切替。Inboxカードは変換レイヤーで goalId/goalTitle を付与し、未紐づけは `unassigned` として表示・絞り込み可能。Goal付き0件タブでは同Goalの他タブ件数があれば案内ボタンを表示。司令塔トップの「最優先指定中だが候補外」枠にGoal名、該当レビュー、Goalレビュー一覧、キュー調整導線を追加。
 
 - 2026-06-13: Inboxレビューの「修正する」を**修正依頼ボックス化**。押下時にカード内 textarea を展開し、人間が修正指示を入力→「修正依頼として保存」で `reviewStatus=needs_followup` ＋ ExecutionRun に `fixPrompt`/`fixRequestedAt`/`fixRequestedBy='human'` を保存（空欄は警告して保存不可・物理削除なし・問題なし/あとで/レビュー済みは不変）。修正指示は要修正カードに表示し、`followupOfRunId` 付きおすすめ次作業の reason 冒頭「人間の修正指示: …」・doneCriteria 先頭「人間の修正指示を満たす: …」・notes に反映 → 承認後の Epic/Factory 実行時に人間の指示が作業指示として渡る。
 

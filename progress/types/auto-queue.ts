@@ -37,6 +37,7 @@ export interface AutoQueueItem {
   doneCriteriaTotal: number
   doneCriteriaDone: number
   blockers: string[]
+  latestRunId?: string
   lastRunAt?: string
   updatedAt?: string
   queueScore: number

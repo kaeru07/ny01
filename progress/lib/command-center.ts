@@ -357,6 +357,9 @@ export interface InboxCardRow {
 export interface InboxCard {
   id: string
   kind: InboxCardKind
+  /** 画面フィルタ用のGoal。変換レイヤーで付与し、正本データは変更しない。 */
+  goalId?: string
+  goalTitle?: string
   /** レビュー用コピーの元になる ExecutionRun。レビュータブの正本リンク。 */
   sourceRunId?: string
   /** 完了日時の ISO（finishedAt → startedAt）。レビューカードで「完了: YYYY/MM/DD HH:mm」表示・並び替えに使う。 */
@@ -379,6 +382,18 @@ export interface InboxCard {
   /** kind === 'direction'（Goal紐付け）/ permission（承認時Goal指定）のときの選択肢 */
   goals?: Array<{ id: string; title: string }>
   epicId?: string
+}
+
+export interface InboxGoalSummary {
+  goalId: string
+  goalTitle: string
+  today: number
+  reviews: number
+  followup: number
+  snoozed: number
+  reviewed: number
+  aiHold: number
+  candidates: number
 }
 
 /**
@@ -405,6 +420,8 @@ export interface InboxView {
   aiHoldCount: number
   /** AI保留の理由別内訳（件数のみ・降順）。例: 重複・同テーマ候補 12 / 定期処理 4 */
   aiHoldBreakdown: Array<{ label: string; count: number }>
+  /** Goal単位のInbox件数。cardsとAI保留カウントから同じbuildInbox内で生成する派生集計。 */
+  goalSummaries: InboxGoalSummary[]
   estimatedMinutes: number
 }
 
@@ -504,15 +521,50 @@ export async function buildInbox(): Promise<InboxView> {
     readPageGoals(),
   ])
   const goals = goalsData.goals.map((g) => ({ id: g.id, title: g.title }))
+  const goalTitleById = new Map(goalsData.goals.map((g) => [g.id, g.title]))
+  const epicById = new Map(epics.map((epic) => [epic.epicId, epic]))
+  const runById = new Map(runs.map((run) => [run.runId, run]))
+  const unassignedGoal = { goalId: 'unassigned', goalTitle: '未紐づけ' }
+  const goalMeta = (goalId?: string | null) => {
+    if (!goalId) return unassignedGoal
+    return { goalId, goalTitle: goalTitleById.get(goalId) ?? (goalId === 'unassigned' ? '未紐づけ' : goalId) }
+  }
+  const goalFromTargetApp = (targetApp?: string) => {
+    const goal = targetApp ? goalsData.goals.find((g) => sameApp(g.projectId ?? '', targetApp)) : undefined
+    return goalMeta(goal?.id)
+  }
+  const goalForRun = (run?: ExecutionRun) => {
+    if (!run) return unassignedGoal
+    const epic = run.epicId ? epicById.get(run.epicId) : undefined
+    if (epic?.goalId) return goalMeta(epic.goalId)
+    return goalFromTargetApp(run.targetApp)
+  }
+  const goalForApproval = (approval: (typeof approvals)[number]) => {
+    const epic = approval.epicId ? epicById.get(approval.epicId) : undefined
+    if (epic?.goalId) return goalMeta(epic.goalId)
+    if (approval.createdRunId) return goalForRun(runById.get(approval.createdRunId))
+    return unassignedGoal
+  }
+  const goalForRecommendation = (rec: (typeof recommendations)[number]) => {
+    if (rec.goalId) return goalMeta(rec.goalId)
+    const epicId = rec.parentEpicId ?? rec.relatedEpicId
+    const epic = epicId ? epicById.get(epicId) : undefined
+    if (epic?.goalId) return goalMeta(epic.goalId)
+    if (rec.sourceRunId) return goalForRun(runById.get(rec.sourceRunId))
+    if (rec.followupOfRunId) return goalForRun(runById.get(rec.followupOfRunId))
+    return goalFromTargetApp(rec.targetApp)
+  }
   const cards: InboxCard[] = []
   let heldCount = 0
   const heldBy: Record<string, number> = {}
-  const hold = (reason: string) => {
+  const heldByGoal: Record<string, number> = {}
+  const hold = (reason: string, goalId = 'unassigned') => {
     heldCount += 1
     heldBy[reason] = (heldBy[reason] ?? 0) + 1
+    heldByGoal[goalId] = (heldByGoal[goalId] ?? 0) + 1
   }
   for (const rec of recommendations.filter((r) => r.status === 'expired')) {
-    hold('期限切れ')
+    hold('期限切れ', goalForRecommendation(rec).goalId)
   }
 
   // ① 承認待ち → 危険判断 / 検収 / 方針選択
@@ -538,6 +590,7 @@ export async function buildInbox(): Promise<InboxView> {
       cards.push({
         id: `approval-${a.approvalId}`,
         kind: 'acceptance',
+        ...goalForApproval(a),
         sourceRunId: a.createdRunId,
         headline: `「${shorten(subjectOf(clean))}」の作業が完了しました`,
         rows: [
@@ -559,6 +612,7 @@ export async function buildInbox(): Promise<InboxView> {
       cards.push({
         id: `approval-${a.approvalId}`,
         kind: 'danger',
+        ...goalForApproval(a),
         headline: `「${shorten(subjectOf(clean))}」を実行しようとしています`,
         rows: [{ label: '影響', text: `${CATEGORY_LABEL[a.category] ?? '影響の大きい操作'}です。実行すると元に戻せない可能性があります。` }],
         question: '許可しますか？',
@@ -573,6 +627,7 @@ export async function buildInbox(): Promise<InboxView> {
       cards.push({
         id: `approval-${a.approvalId}`,
         kind: 'direction',
+        ...goalForApproval(a),
         headline: `「${shorten(subjectOf(clean))}」について判断してください`,
         rows: [{ label: '選ばないと', text: 'AIはこの作業を進められず、止まったままになります。' }],
         detail,
@@ -610,6 +665,7 @@ export async function buildInbox(): Promise<InboxView> {
     return {
       id: `run-${run.runId}`,
       kind: 'acceptance',
+      ...goalForRun(run),
       sourceRunId: run.runId,
       completedAt,
       completedAtText: fmtDateTime(completedAt),
@@ -640,7 +696,7 @@ export async function buildInbox(): Promise<InboxView> {
     const raw = run.targetTodoTitle || run.summary || ''
     const runHold = !raw ? '内容不足' : aiHoldReason(raw)
     if (runHold) {
-      hold(runHold === '定期処理' ? '定期処理' : 'レビュー整理')
+      hold(runHold === '定期処理' ? '定期処理' : 'レビュー整理', goalForRun(run).goalId)
       continue
     }
     cards.push(buildReviewCard(run))
@@ -671,6 +727,7 @@ export async function buildInbox(): Promise<InboxView> {
     cards.push({
       id: `orphan-${epic.epicId}`,
       kind: 'direction',
+      ...unassignedGoal,
       headline: `「${shorten(humanizeTitle(epic.title))}」の目的が決まっていません`,
       rows: [{ label: '選ばないと', text: 'この作業がどの目標に貢献しているか追跡できません。' }],
       question: 'この作業はどの目標に近いですか？',
@@ -697,7 +754,7 @@ export async function buildInbox(): Promise<InboxView> {
     const recHold =
       aiHoldReason(rec.title) ?? (rec.duplicate?.duplicate || (theme && seenThemes.has(theme)) ? '重複・同テーマ候補' : null)
     if (recHold) {
-      hold(recHold)
+      hold(recHold, goalForRecommendation(rec).goalId)
       continue
     }
     if (theme) seenThemes.add(theme)
@@ -717,13 +774,14 @@ export async function buildInbox(): Promise<InboxView> {
       // 人間作業（アカウント登録・ストア公開申請・課金/サブスク・AdMob 等）は今日の判断に出さない。
       // どのアプリでも未実施の手続きであり時期尚早のため、AI保留として預かる（2026-06-12 ユーザー指示）。
       // 実際に必要になったタイミング（例: BirdLog MVP 完成後）は Revenue の収益化ロードマップで案内する。
-      hold('時期尚早の人間作業')
+      hold('時期尚早の人間作業', goalForRecommendation(rec).goalId)
     } else {
       // 実行許可: AIが作業したい。やって良いかだけ聞く
       const s = describeSituation(rec.title)
       cards.push({
         id: `candidate-${rec.id}`,
         kind: 'permission',
+        ...goalForRecommendation(rec),
         headline: s.headline,
         rows: [
           { label: '放置すると', text: s.noLeaveAlone },
@@ -760,6 +818,30 @@ export async function buildInbox(): Promise<InboxView> {
   }
   const candidates = cards.filter((c) => c.kind === 'permission')
   const decisions = stopFactors.slice(0, TODAY_LIMIT)
+  const goalIds = new Set<string>([
+    ...cards.map((card) => card.goalId ?? 'unassigned'),
+    ...reviewedHistory.map((card) => card.goalId ?? 'unassigned'),
+    ...Object.keys(heldByGoal),
+  ])
+  const countByGoal = (list: InboxCard[], goalId: string) => list.filter((card) => (card.goalId ?? 'unassigned') === goalId).length
+  const goalSummaries: InboxGoalSummary[] = Array.from(goalIds)
+    .map((goalId) => {
+      const meta = goalMeta(goalId)
+      const goalReviews = reviews.filter((card) => (card.goalId ?? 'unassigned') === goalId)
+      return {
+        goalId,
+        goalTitle: meta.goalTitle,
+        today: countByGoal(stopFactors, goalId),
+        reviews: goalReviews.length + countByGoal(reviewedHistory, goalId),
+        followup: goalReviews.filter((card) => card.reviewStatus === 'needs_followup').length,
+        snoozed: goalReviews.filter((card) => card.reviewStatus === 'snoozed').length,
+        reviewed: countByGoal(reviewedHistory, goalId),
+        aiHold: heldByGoal[goalId] ?? 0,
+        candidates: countByGoal(candidates, goalId),
+      }
+    })
+    .filter((summary) => summary.today + summary.reviews + summary.aiHold + summary.candidates > 0)
+    .sort((a, b) => (b.today - a.today) || (b.reviews - a.reviews) || a.goalTitle.localeCompare(b.goalTitle))
 
   return {
     decisions,
@@ -775,6 +857,7 @@ export async function buildInbox(): Promise<InboxView> {
     aiHoldBreakdown: Object.entries(heldBy)
       .map(([label, count]) => ({ label, count }))
       .sort((a, b) => b.count - a.count),
+    goalSummaries,
     estimatedMinutes: Math.max(decisions.length, 1),
   }
 }

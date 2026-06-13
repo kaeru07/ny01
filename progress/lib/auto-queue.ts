@@ -80,6 +80,7 @@ function toEpicItem(epic: Epic, goal: Goal | undefined, runs: ExecutionRun[], st
     doneCriteriaTotal: total,
     doneCriteriaDone: doneCriteriaDone(epic, total),
     blockers: epic.blockers ?? [],
+    latestRunId: latestRun?.runId,
     lastRunAt,
     updatedAt: epic.updatedAt,
     queueScore: score.queueScore,

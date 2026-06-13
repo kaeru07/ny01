@@ -1,13 +1,16 @@
 'use client'
 
-import { useState } from 'react'
-import type { InboxView } from '@/lib/command-center'
+import Link from 'next/link'
+import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import type { InboxCard, InboxView } from '@/lib/command-center'
+import type { AutoQueueView } from '@/types/auto-queue'
 import InboxCardItem from './InboxActions'
 import AiCheckButton from './AiCheckButton'
 import InboxReviewCopyButton from './InboxReviewCopyButton'
 
 // Inbox の4区分（今日の判断 / レビュー / Epic候補 / AI保留）をタブで切り替える。
-// 縦積みだとスクロールが長くなるため、社長は「今日の判断」タブだけ見れば終わる構成にする。
+// URLクエリを初期状態へ反映し、トップの「Inboxでレビューする」から該当レビューへ直接移動できるようにする。
 
 const SECTION_DISPLAY_LIMIT = 5
 // レビューが大量でも「隠れている」印象を出さないため、全件を明示ページングで見せる。
@@ -19,27 +22,111 @@ type ReviewFilter = 'unconfirmed' | 'followup' | 'snoozed' | 'reviewed'
 interface Props {
   inbox: InboxView
   notReviewedCount: number
+  autoQueue: AutoQueueView
 }
 
-export default function InboxTabs({ inbox, notReviewedCount }: Props) {
-  const [tab, setTab] = useState<TabKey>('decisions')
-  const [reviewFilter, setReviewFilter] = useState<ReviewFilter>('unconfirmed')
+function tabFromQuery(value: string | null): TabKey {
+  if (value === 'review') return 'reviews'
+  if (value === 'candidates') return 'candidates'
+  if (value === 'aiHold') return 'aiHold'
+  return 'decisions'
+}
+
+function reviewFilterFromQuery(reviewFilter: string | null, filter: string | null): ReviewFilter {
+  const value = reviewFilter ?? filter
+  if (value === 'followup' || value === 'needs_followup') return 'followup'
+  if (value === 'snoozed') return 'snoozed'
+  if (value === 'reviewed') return 'reviewed'
+  return 'unconfirmed'
+}
+
+function filterForStatus(status?: string): ReviewFilter {
+  if (status === 'needs_followup') return 'followup'
+  if (status === 'snoozed') return 'snoozed'
+  if (status === 'reviewed') return 'reviewed'
+  return 'unconfirmed'
+}
+
+function isUnconfirmed(card: InboxCard): boolean {
+  return card.reviewStatus === 'not_reviewed' || card.reviewStatus === 'copied' || card.reviewStatus === 'needs_human'
+}
+
+function goalFiltered(cards: InboxCard[], goalId: string | null): InboxCard[] {
+  if (!goalId) return cards
+  return cards.filter((card) => (card.goalId ?? 'unassigned') === goalId)
+}
+
+export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props) {
+  const searchParams = useSearchParams()
+  const selectedGoalId = searchParams.get('goalId')
+  const focusRunId = searchParams.get('focusRunId')
+
+  const [tab, setTab] = useState<TabKey>(() => tabFromQuery(searchParams.get('tab')))
+  const [reviewFilter, setReviewFilter] = useState<ReviewFilter>(() => reviewFilterFromQuery(searchParams.get('reviewFilter'), searchParams.get('filter')))
   const [reviewPage, setReviewPage] = useState(0)
 
-  // レビュー一覧をフィルタ別に分割（隠さず全件・completedAt降順は server で確定済み）。
-  const unconfirmedReviews = inbox.reviews.filter(
-    (c) => c.reviewStatus === 'not_reviewed' || c.reviewStatus === 'copied' || c.reviewStatus === 'needs_human',
-  )
-  const followupReviews = inbox.reviews.filter((c) => c.reviewStatus === 'needs_followup')
-  const snoozedReviews = inbox.reviews.filter((c) => c.reviewStatus === 'snoozed')
-  const reviewFilters: Array<{ key: ReviewFilter; label: string; count: number; list: typeof inbox.reviews }> = [
-    { key: 'unconfirmed', label: '未確認', count: inbox.reviewCounts.unconfirmed, list: unconfirmedReviews },
-    { key: 'followup', label: '要修正', count: inbox.reviewCounts.followup, list: followupReviews },
-    { key: 'snoozed', label: 'あとで', count: inbox.reviewCounts.snoozed, list: snoozedReviews },
-    { key: 'reviewed', label: 'レビュー済み', count: inbox.reviewedTotal, list: inbox.reviewedHistory },
+  const allReviewCards = useMemo(() => [...inbox.reviews, ...inbox.reviewedHistory], [inbox.reviews, inbox.reviewedHistory])
+  const focusCard = focusRunId ? allReviewCards.find((card) => card.sourceRunId === focusRunId) : undefined
+
+  useEffect(() => {
+    setTab(tabFromQuery(searchParams.get('tab')))
+    setReviewFilter(reviewFilterFromQuery(searchParams.get('reviewFilter'), searchParams.get('filter')))
+    setReviewPage(0)
+  }, [searchParams])
+
+  useEffect(() => {
+    if (!focusRunId || !focusCard) return
+    const nextFilter = filterForStatus(focusCard.reviewStatus)
+    setTab('reviews')
+    setReviewFilter(nextFilter)
+    const sourceList =
+      nextFilter === 'reviewed'
+        ? goalFiltered(inbox.reviewedHistory, selectedGoalId)
+        : goalFiltered(inbox.reviews, selectedGoalId).filter((card) => filterForStatus(card.reviewStatus) === nextFilter)
+    const index = sourceList.findIndex((card) => card.sourceRunId === focusRunId)
+    setReviewPage(index >= 0 ? Math.floor(index / REVIEW_PAGE_SIZE) : 0)
+  }, [focusRunId, focusCard, inbox.reviewedHistory, inbox.reviews, selectedGoalId])
+
+  useEffect(() => {
+    if (!focusRunId) return
+    const timer = window.setTimeout(() => {
+      document.getElementById(`review-${focusRunId}`)?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    }, 100)
+    return () => window.clearTimeout(timer)
+  }, [focusRunId, reviewFilter, reviewPage])
+
+  const filteredDecisions = goalFiltered(inbox.decisions, selectedGoalId)
+  const filteredReviews = goalFiltered(inbox.reviews, selectedGoalId)
+  const filteredReviewedHistory = goalFiltered(inbox.reviewedHistory, selectedGoalId)
+  const filteredCandidates = goalFiltered(inbox.candidates, selectedGoalId)
+  const selectedGoalSummary = selectedGoalId ? inbox.goalSummaries.find((summary) => summary.goalId === selectedGoalId) : undefined
+  const selectedAutoItems = selectedGoalId
+    ? [
+        ...autoQueue.executable,
+        ...autoQueue.waitingUser,
+        ...autoQueue.aiHold,
+        ...autoQueue.reviewWaiting,
+        ...autoQueue.blocked,
+        ...autoQueue.manual,
+      ].filter((item) => (item.goalId ?? 'unassigned') === selectedGoalId)
+    : []
+  const selectedGoalTitle = selectedGoalId
+    ? selectedGoalSummary?.goalTitle
+      ?? selectedAutoItems[0]?.goalTitle
+      ?? (selectedGoalId === 'unassigned' ? '未紐づけ' : selectedGoalId)
+    : ''
+
+  const unconfirmedReviews = filteredReviews.filter(isUnconfirmed)
+  const followupReviews = filteredReviews.filter((c) => c.reviewStatus === 'needs_followup')
+  const snoozedReviews = filteredReviews.filter((c) => c.reviewStatus === 'snoozed')
+  const reviewFilters: Array<{ key: ReviewFilter; label: string; count: number; list: InboxCard[] }> = [
+    { key: 'unconfirmed', label: '未確認', count: unconfirmedReviews.length, list: unconfirmedReviews },
+    { key: 'followup', label: '要修正', count: followupReviews.length, list: followupReviews },
+    { key: 'snoozed', label: 'あとで', count: snoozedReviews.length, list: snoozedReviews },
+    { key: 'reviewed', label: 'レビュー済み', count: filteredReviewedHistory.length, list: filteredReviewedHistory },
   ]
   const activeFilter = reviewFilters.find((f) => f.key === reviewFilter) ?? reviewFilters[0]
-  const totalForFilter = activeFilter.key === 'reviewed' ? inbox.reviewedTotal : activeFilter.list.length
+  const totalForFilter = activeFilter.list.length
   const pageStart = reviewPage * REVIEW_PAGE_SIZE
   const pageItems = activeFilter.list.slice(pageStart, pageStart + REVIEW_PAGE_SIZE)
   const pageEnd = pageStart + pageItems.length
@@ -49,15 +136,72 @@ export default function InboxTabs({ inbox, notReviewedCount }: Props) {
     setReviewPage(0)
   }
 
+  const reviewTotal = filteredReviews.length + filteredReviewedHistory.length
+  const aiHoldCount = selectedGoalId ? (selectedGoalSummary?.aiHold ?? 0) : inbox.aiHoldCount
   const tabs: Array<{ key: TabKey; label: string; count: number; alert: boolean }> = [
-    { key: 'decisions', label: '今日の判断', count: inbox.decisions.length, alert: inbox.decisions.length > 0 },
-    { key: 'reviews', label: 'レビュー', count: inbox.reviewTotal, alert: false },
-    { key: 'candidates', label: 'Epic候補', count: inbox.candidateTotal, alert: false },
-    { key: 'aiHold', label: 'AI保留', count: inbox.aiHoldCount, alert: false },
+    { key: 'decisions', label: '今日の判断', count: filteredDecisions.length, alert: filteredDecisions.length > 0 },
+    { key: 'reviews', label: 'レビュー', count: reviewTotal, alert: false },
+    { key: 'candidates', label: 'Epic候補', count: filteredCandidates.length, alert: false },
+    { key: 'aiHold', label: 'AI保留', count: aiHoldCount, alert: false },
   ]
+
+  const tabCounts = {
+    decisions: filteredDecisions.length,
+    reviews: reviewTotal,
+    candidates: filteredCandidates.length,
+    aiHold: aiHoldCount,
+  }
+  const executableCount = selectedGoalId ? selectedAutoItems.filter((item) => item.status === 'executable').length : autoQueue.counts.executable
+  const blockedCount = selectedGoalId ? selectedAutoItems.filter((item) => item.status === 'blocked').length : autoQueue.counts.blocked
+
+  const EmptyGuidance = ({ currentLabel }: { currentLabel: string }) => {
+    if (!selectedGoalId) return null
+    const alternatives = tabs.filter((item) => item.key !== tab && item.count > 0)
+    if (alternatives.length === 0) return null
+    return (
+      <div className="mt-2 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-xs text-blue-800 dark:border-blue-900/50 dark:bg-blue-900/15 dark:text-blue-200">
+        <p className="font-semibold">{currentLabel}はありません。ただしこのゴールには別の項目があります。</p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {alternatives.map((item) => (
+            <button
+              key={item.key}
+              onClick={() => setTab(item.key)}
+              className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-700"
+            >
+              {item.label}を開く（{item.count}件）
+            </button>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div>
+      {selectedGoalId && (
+        <div className="mb-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 dark:border-blue-900/50 dark:bg-blue-900/15">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-xs font-bold text-blue-700 dark:text-blue-300">Goalで絞り込み中</p>
+              <p className="mt-0.5 text-sm font-bold text-gray-900 dark:text-gray-100">{selectedGoalTitle}</p>
+            </div>
+            <Link href="/decide" className="rounded-lg border border-blue-200 bg-white px-3 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-50 dark:border-blue-900/60 dark:bg-gray-900 dark:text-blue-200">
+              全体に戻る
+            </Link>
+          </div>
+          <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] font-semibold text-blue-800 dark:text-blue-200">
+            <span>今日の判断 {tabCounts.decisions}</span>
+            <span>レビュー {tabCounts.reviews}</span>
+            <span>要修正 {selectedGoalSummary?.followup ?? followupReviews.length}</span>
+            <span>あとで {selectedGoalSummary?.snoozed ?? snoozedReviews.length}</span>
+            <span>AI保留 {tabCounts.aiHold}</span>
+            <span>Epic候補 {tabCounts.candidates}</span>
+            <span>実行可能 {executableCount}</span>
+            <span>ブロック {blockedCount}</span>
+          </div>
+        </div>
+      )}
+
       {/* タブバー */}
       <div className="flex gap-1 rounded-xl bg-gray-100 p-1 dark:bg-gray-800/60">
         {tabs.map((t) => (
@@ -85,18 +229,21 @@ export default function InboxTabs({ inbox, notReviewedCount }: Props) {
             <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">工場が止まる原因だけが入ります</h2>
             <span className="text-xs text-gray-500 dark:text-gray-400">約{inbox.estimatedMinutes}分</span>
           </div>
-          {inbox.decisions.length === 0 ? (
-            <p className="rounded-xl border border-green-200 bg-green-50 px-4 py-4 text-center text-sm font-semibold text-green-700 dark:border-green-900/40 dark:bg-green-900/15 dark:text-green-300">
-              🎉 工場を止める判断はありません。AI工場は稼働を続けます。
-            </p>
+          {filteredDecisions.length === 0 ? (
+            <>
+              <p className="rounded-xl border border-green-200 bg-green-50 px-4 py-4 text-center text-sm font-semibold text-green-700 dark:border-green-900/40 dark:bg-green-900/15 dark:text-green-300">
+                工場を止める判断はありません。AI工場は稼働を続けます。
+              </p>
+              <EmptyGuidance currentLabel="今日の判断" />
+            </>
           ) : (
             <ul className="space-y-3">
-              {inbox.decisions.map((card) => (
+              {filteredDecisions.map((card) => (
                 <InboxCardItem key={card.id} card={card} />
               ))}
             </ul>
           )}
-          {inbox.decisionTotal > inbox.decisions.length && (
+          {!selectedGoalId && inbox.decisionTotal > inbox.decisions.length && (
             <p className="mt-2 text-[11px] text-gray-400">ほか{inbox.decisionTotal - inbox.decisions.length}件は明日以降に順番に出ます</p>
           )}
         </section>
@@ -107,15 +254,15 @@ export default function InboxTabs({ inbox, notReviewedCount }: Props) {
         <section className="mt-4">
           <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
             <p className="text-[11px] text-gray-400">放置しても工場は止まりません。レビュー運用の正本です。最新の完了が上です。</p>
-            {inbox.reviewTotal > 0 && <InboxReviewCopyButton all />}
+            {reviewTotal > 0 && <InboxReviewCopyButton all />}
           </div>
 
           {/* 件数サマリー */}
           <div className="mb-2 flex flex-wrap gap-1.5 text-[11px] font-semibold">
-            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">未確認 {inbox.reviewCounts.unconfirmed}件</span>
-            <span className="rounded-full bg-rose-100 px-2 py-0.5 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">要修正 {inbox.reviewCounts.followup}件</span>
-            <span className="rounded-full bg-gray-200 px-2 py-0.5 text-gray-600 dark:bg-gray-700 dark:text-gray-300">あとで {inbox.reviewCounts.snoozed}件</span>
-            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">レビュー済み {inbox.reviewedTotal}件</span>
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">未確認 {unconfirmedReviews.length}件</span>
+            <span className="rounded-full bg-rose-100 px-2 py-0.5 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">要修正 {followupReviews.length}件</span>
+            <span className="rounded-full bg-gray-200 px-2 py-0.5 text-gray-600 dark:bg-gray-700 dark:text-gray-300">あとで {snoozedReviews.length}件</span>
+            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">レビュー済み {filteredReviewedHistory.length}件</span>
           </div>
 
           {/* フィルタタブ（未確認 / 要修正 / あとで / レビュー済み） */}
@@ -137,20 +284,41 @@ export default function InboxTabs({ inbox, notReviewedCount }: Props) {
           </div>
 
           {totalForFilter === 0 ? (
-            <p className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-center text-xs text-gray-400 dark:border-gray-800 dark:bg-gray-900">
-              {activeFilter.label}はありません。
-            </p>
+            <>
+              <p className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-center text-xs text-gray-400 dark:border-gray-800 dark:bg-gray-900">
+                {activeFilter.label}はありません。
+              </p>
+              <EmptyGuidance currentLabel={activeFilter.label} />
+              {reviewFilters.some((f) => f.key !== reviewFilter && f.count > 0) && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {reviewFilters.filter((f) => f.key !== reviewFilter && f.count > 0).map((f) => (
+                    <button
+                      key={f.key}
+                      onClick={() => changeReviewFilter(f.key)}
+                      className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-700 dark:text-gray-200"
+                    >
+                      {f.label}を開く（{f.count}件）
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
           ) : (
             <>
               <p className="mb-2 text-[11px] text-gray-400">
                 全{totalForFilter}件中 {pageStart + 1}〜{pageEnd}件を表示
-                {activeFilter.key === 'reviewed' && inbox.reviewedTotal > inbox.reviewedHistory.length && (
+                {activeFilter.key === 'reviewed' && !selectedGoalId && inbox.reviewedTotal > inbox.reviewedHistory.length && (
                   <span>（直近{inbox.reviewedHistory.length}件まで表示）</span>
                 )}
               </p>
               <ul className="space-y-3">
                 {pageItems.map((card) => (
-                  <InboxCardItem key={card.id} card={card} />
+                  <InboxCardItem
+                    key={card.id}
+                    card={card}
+                    highlight={Boolean(focusRunId && card.sourceRunId === focusRunId)}
+                    focusNotice={Boolean(focusRunId && card.sourceRunId === focusRunId)}
+                  />
                 ))}
               </ul>
               {activeFilter.list.length > REVIEW_PAGE_SIZE && (
@@ -160,7 +328,7 @@ export default function InboxTabs({ inbox, notReviewedCount }: Props) {
                     disabled={reviewPage === 0}
                     className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 disabled:opacity-40 dark:border-gray-700 dark:text-gray-200"
                   >
-                    ← 前の{REVIEW_PAGE_SIZE}件
+                    前の{REVIEW_PAGE_SIZE}件
                   </button>
                   <span className="text-[11px] text-gray-400">
                     {reviewPage + 1} / {Math.ceil(activeFilter.list.length / REVIEW_PAGE_SIZE)}
@@ -170,7 +338,7 @@ export default function InboxTabs({ inbox, notReviewedCount }: Props) {
                     disabled={pageStart + REVIEW_PAGE_SIZE >= activeFilter.list.length}
                     className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 disabled:opacity-40 dark:border-gray-700 dark:text-gray-200"
                   >
-                    次の{REVIEW_PAGE_SIZE}件 →
+                    次の{REVIEW_PAGE_SIZE}件
                   </button>
                 </div>
               )}
@@ -186,19 +354,22 @@ export default function InboxTabs({ inbox, notReviewedCount }: Props) {
       {tab === 'candidates' && (
         <section className="mt-4">
           <p className="mb-2 text-[11px] text-gray-400">放置可能です。気が向いたときに「進める/やめる」を選んでください。</p>
-          {inbox.candidateTotal === 0 ? (
-            <p className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-center text-xs text-gray-400 dark:border-gray-800 dark:bg-gray-900">
-              いま提案できる候補はありません。
-            </p>
+          {filteredCandidates.length === 0 ? (
+            <>
+              <p className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-center text-xs text-gray-400 dark:border-gray-800 dark:bg-gray-900">
+                いま提案できる候補はありません。
+              </p>
+              <EmptyGuidance currentLabel="Epic候補" />
+            </>
           ) : (
             <>
               <ul className="space-y-3">
-                {inbox.candidates.slice(0, SECTION_DISPLAY_LIMIT).map((card) => (
+                {filteredCandidates.slice(0, SECTION_DISPLAY_LIMIT).map((card) => (
                   <InboxCardItem key={card.id} card={card} />
                 ))}
               </ul>
-              {inbox.candidateTotal > SECTION_DISPLAY_LIMIT && (
-                <p className="mt-2 text-[11px] text-gray-400">ほか{inbox.candidateTotal - SECTION_DISPLAY_LIMIT}件。処理すると次が出ます</p>
+              {filteredCandidates.length > SECTION_DISPLAY_LIMIT && (
+                <p className="mt-2 text-[11px] text-gray-400">ほか{filteredCandidates.length - SECTION_DISPLAY_LIMIT}件。処理すると次が出ます</p>
               )}
             </>
           )}
@@ -209,10 +380,10 @@ export default function InboxTabs({ inbox, notReviewedCount }: Props) {
       {tab === 'aiHold' && (
         <section className="mt-4 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
           <div className="text-center">
-            <p className="text-3xl font-bold text-gray-400 dark:text-gray-500">{inbox.aiHoldCount}件</p>
+            <p className="text-3xl font-bold text-gray-400 dark:text-gray-500">{aiHoldCount}件</p>
             <p className="mt-1 text-xs text-gray-400">AIが整理中です（あなたの判断は不要）</p>
           </div>
-          {inbox.aiHoldBreakdown.length > 0 && (
+          {!selectedGoalId && inbox.aiHoldBreakdown.length > 0 && (
             <dl className="mt-4 space-y-2">
               {inbox.aiHoldBreakdown.map((item) => (
                 <div key={item.label} className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800/50">
@@ -222,6 +393,7 @@ export default function InboxTabs({ inbox, notReviewedCount }: Props) {
               ))}
             </dl>
           )}
+          {aiHoldCount === 0 && <EmptyGuidance currentLabel="AI保留" />}
           <p className="mt-3 text-[11px] leading-relaxed text-gray-400">
             重複候補・定期実行・次作業候補・自動レビュー待ちなどをAIが分類して預かっています。必要になれば順番に今日の判断へ出ます。
           </p>
