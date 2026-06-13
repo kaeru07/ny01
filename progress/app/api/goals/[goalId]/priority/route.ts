@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server'
-import { buildAutoQueue } from '@/lib/auto-queue'
+import { revalidatePath } from 'next/cache'
+import { getAutoQueueView } from '@/lib/auto-queue'
 import { readGoals } from '@/lib/goal-reader'
 import { writeGoals } from '@/lib/goal-writer'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export async function POST(req: Request, { params }: { params: { goalId: string } }) {
   try {
@@ -23,7 +25,13 @@ export async function POST(req: Request, { params }: { params: { goalId: string 
       updatedAt: new Date().toISOString(),
     }
     await writeGoals(data)
-    return NextResponse.json({ success: true, queue: await buildAutoQueue() })
+    try {
+      revalidatePath('/')
+      revalidatePath('/queue')
+    } catch (err) {
+      console.warn('Failed to revalidate auto queue pages:', err)
+    }
+    return NextResponse.json({ success: true, queue: await getAutoQueueView() })
   } catch (err) {
     console.error('Failed to update goal priority:', err)
     return NextResponse.json({ error: 'failed to update goal priority' }, { status: 500 })

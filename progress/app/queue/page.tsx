@@ -1,7 +1,8 @@
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 import Link from 'next/link'
-import { buildAutoQueue } from '@/lib/auto-queue'
+import { getAutoQueueView } from '@/lib/auto-queue'
 import QueueActionButton from './QueueActionButton'
 import type { AutoQueueItem, WorkItemStatus } from '@/types/auto-queue'
 
@@ -42,7 +43,7 @@ function formatDate(iso?: string): string {
   return d.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })
 }
 
-function allItems(queue: Awaited<ReturnType<typeof buildAutoQueue>>): AutoQueueItem[] {
+function allItems(queue: Awaited<ReturnType<typeof getAutoQueueView>>): AutoQueueItem[] {
   return [
     ...queue.executable,
     ...queue.waitingUser,
@@ -58,7 +59,7 @@ function itemHref(item: AutoQueueItem): string {
 }
 
 export default async function QueuePage({ searchParams }: { searchParams?: { filter?: string } }) {
-  const queue = await buildAutoQueue()
+  const queue = await getAutoQueueView()
   const filter = (searchParams?.filter ?? 'all') as 'all' | WorkItemStatus
   const items = allItems(queue).filter((item) => filter === 'all' || item.status === filter)
 
@@ -122,8 +123,16 @@ export default async function QueuePage({ searchParams }: { searchParams?: { fil
             const canMove = item.type === 'epic' && item.status === 'executable'
             const isPinned = item.queueControl?.pinnedTop === true
             const isHeld = item.queueControl?.hold === true
+            const pinnedButExcluded = isPinned && !item.candidateEligible
             return (
-              <article key={item.workItemId} className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+              <article
+                key={item.workItemId}
+                className={`rounded-lg border bg-white p-4 dark:bg-gray-900 ${
+                  pinnedButExcluded
+                    ? 'border-amber-300 ring-2 ring-amber-100 dark:border-amber-800 dark:ring-amber-900/40'
+                    : 'border-gray-200 dark:border-gray-800'
+                }`}
+              >
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs font-bold text-gray-400">#{item.queueOrder || '-'}</span>
                   <span className="rounded bg-gray-900 px-1.5 py-0.5 text-[11px] font-bold text-white dark:bg-gray-100 dark:text-gray-900">{item.priority}</span>
@@ -134,12 +143,24 @@ export default async function QueuePage({ searchParams }: { searchParams?: { fil
                     {STATUS_LABEL[item.status]}
                   </span>
                   {isPinned && <span className="rounded bg-yellow-100 px-1.5 py-0.5 text-[11px] font-bold text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">pin</span>}
+                  <span className={`rounded px-1.5 py-0.5 text-[11px] font-bold ${
+                    item.candidateEligible
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                      : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
+                  }`}>
+                    {item.candidateEligible ? '候補入り' : '候補外'}
+                  </span>
                 </div>
 
                 <h2 className="mt-2 text-base font-bold leading-snug text-gray-900 dark:text-gray-100">{item.title}</h2>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Goal {item.goalTitle ?? '未設定'} · Project {item.projectName ?? item.projectId ?? '未設定'}
                 </p>
+                {pinnedButExcluded && (
+                  <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm font-bold text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
+                    pin済みだが候補外: {item.candidateBlockedReason ?? STATUS_LABEL[item.status]}のため、自動実行の次回候補には入りません。
+                  </p>
+                )}
                 <p className="mt-2 text-sm font-medium text-gray-700 dark:text-gray-200">次の理由: {item.reason}</p>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {item.reasonFactors.map((factor) => (
@@ -149,14 +170,19 @@ export default async function QueuePage({ searchParams }: { searchParams?: { fil
                   ))}
                 </div>
                 <p className="mt-2 text-xs text-gray-400">
-                  doneCriteria {item.doneCriteriaDone}/{item.doneCriteriaTotal} · 最終 {formatDate(item.lastRunAt)}
+                  候補順位 {item.queueOrder || '-'} · score {item.queueScore} · doneCriteria {item.doneCriteriaDone}/{item.doneCriteriaTotal} · 最終 {formatDate(item.lastRunAt)}
+                  {!item.candidateEligible ? ` · 候補外理由: ${item.candidateBlockedReason ?? STATUS_LABEL[item.status]}` : ''}
                   {item.blockers.length > 0 ? ` · blocker: ${item.blockers.join(' / ')}` : ''}
                 </p>
 
                 <div className="mt-3 flex flex-wrap gap-2">
                   {item.type === 'epic' && (
-                    <QueueActionButton workItemId={item.workItemId} action={isPinned ? 'unpin' : 'pin'}>
-                      {isPinned ? 'pin解除' : '最優先'}
+                    <QueueActionButton
+                      workItemId={item.workItemId}
+                      action={isPinned ? 'unpin' : 'pin'}
+                      title={item.status === 'executable' ? '自動実行候補の最上位に固定します' : '条件が解けて実行可能になった時に最上位へ上げます。安全gatingは上書きしません'}
+                    >
+                      {isPinned ? 'pin解除' : item.status === 'executable' ? '自動実行を最優先' : '復帰時に最優先'}
                     </QueueActionButton>
                   )}
                   <QueueActionButton workItemId={item.workItemId} action="moveUp" disabled={!canMove}>↑</QueueActionButton>

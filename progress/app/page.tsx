@@ -1,10 +1,11 @@
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 import Link from 'next/link'
 import PageGuide from '@/components/newux/PageGuide'
 import ReviewCopyButton from '@/components/review-copy/ReviewCopyButton'
 import { buildCommandCenter, KIND_CHIP_LABEL } from '@/lib/command-center'
-import { buildAutoQueue } from '@/lib/auto-queue'
+import { getAutoQueueView } from '@/lib/auto-queue'
 
 // 新UXのトップ = 司令塔。毎日最初に開く画面。
 // 「今日の5〜15分をどう使うか」だけが分かることを最優先にする。専門用語は出さない。
@@ -28,8 +29,17 @@ const fixStageClass: Record<string, string> = {
   検収: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
 }
 
+const autoQueueStatusLabel: Record<string, string> = {
+  waiting_user: '人間判断待ち',
+  ai_hold: 'AI保留中',
+  review_waiting: 'レビュー待ち',
+  blocked: 'ブロック中',
+  manual: '手動または対象外',
+  done: '完了済み',
+}
+
 export default async function CommandCenterPage() {
-  const [view, autoQueue] = await Promise.all([buildCommandCenter(), buildAutoQueue()])
+  const [view, autoQueue] = await Promise.all([buildCommandCenter(), getAutoQueueView()])
   const todayLabel = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' })
   const currentMilestone = view.milestones.find((m) => m.state === 'current')
   const doneCount = view.milestones.filter((m) => m.state === 'done').length
@@ -79,7 +89,7 @@ export default async function CommandCenterPage() {
 
         {autoQueue.candidates.length > 0 && (
           <div className="mt-4">
-            <p className="text-xs font-bold text-gray-400">次回候補</p>
+            <p className="text-xs font-bold text-gray-400">次候補 / その次候補</p>
             <ol className="mt-2 space-y-1.5">
               {autoQueue.candidates.map((item) => (
                 <li key={item.workItemId} className="flex items-start gap-2 text-sm">
@@ -89,6 +99,24 @@ export default async function CommandCenterPage() {
                 </li>
               ))}
             </ol>
+          </div>
+        )}
+
+        {autoQueue.pinnedExcluded.length > 0 && (
+          <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-900/50 dark:bg-amber-900/15">
+            <p className="text-xs font-bold text-amber-700 dark:text-amber-300">最優先指定中だが候補外</p>
+            <ul className="mt-2 space-y-2">
+              {autoQueue.pinnedExcluded.map((item) => (
+                <li key={item.workItemId} className="text-sm">
+                  <Link href="/queue" className="font-bold text-gray-900 underline decoration-amber-400 underline-offset-2 dark:text-gray-100">
+                    {item.title}
+                  </Link>
+                  <p className="mt-0.5 text-xs text-amber-800 dark:text-amber-200">
+                    {autoQueueStatusLabel[item.status] ?? item.candidateBlockedReason ?? item.status}のため、次回自動実行候補には入りません。
+                  </p>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 
@@ -218,11 +246,11 @@ export default async function CommandCenterPage() {
           </div>
           <div className="grid grid-cols-[4.5rem_1fr] gap-2 rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800/60">
             <dt className="text-xs font-semibold text-gray-400">次</dt>
-            <dd className="font-semibold text-gray-900 dark:text-gray-100">{view.factoryOutlook.nextText ?? '選定中'}</dd>
+            <dd className="font-semibold text-gray-900 dark:text-gray-100">{autoQueue.next?.title ?? '実行可能なEpicなし'}</dd>
           </div>
           <div className="grid grid-cols-[4.5rem_1fr] gap-2 rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800/60">
             <dt className="text-xs font-semibold text-gray-400">その次</dt>
-            <dd className="text-gray-700 dark:text-gray-200">{view.factoryOutlook.laterText ?? '候補整理中'}</dd>
+            <dd className="text-gray-700 dark:text-gray-200">{autoQueue.candidates[0]?.title ?? '候補整理中'}</dd>
           </div>
           <div className="grid grid-cols-[4.5rem_1fr] gap-2 rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800/60">
             <dt className="text-xs font-semibold text-gray-400">待機</dt>

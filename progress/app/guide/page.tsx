@@ -274,9 +274,44 @@ export default async function OperationsGuidePage() {
         </div>
       </section>
 
-      {/* 8. よくある質問 */}
+      {/* 8. 自動実行キュー */}
       <section className={card}>
-        <h2 className={h2}>8. よくある質問</h2>
+        <h2 className={h2}>8. 自動実行キュー</h2>
+        <p className={`mt-1 ${body}`}>
+          司令塔トップの「次回自動実行予定」と /queue は、同じ派生ロジックを見ています。新しいキュー正本は作らず、既存の大きな作業・目標・作業履歴・承認から毎回計算します。
+        </p>
+        <div className="mt-3 space-y-3">
+          <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+            <p className="text-xs font-bold text-gray-900 dark:text-gray-100">ステータス</p>
+            <ul className="mt-2 space-y-1 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
+              <li>・実行可能: AIが自動実行できる候補です。</li>
+              <li>・判断待ち: 人間の承認や方針判断が必要です。</li>
+              <li>・レビュー待ち: 結果確認待ちです。低優先レビューでは工場全体を止めません。</li>
+              <li>・AI保留: 保留中です。解除後、条件を満たせば候補に戻ります。</li>
+              <li>・Block: blockerや失敗で詰まっています。</li>
+              <li>・手動/対象外: 自動実行しません。</li>
+            </ul>
+          </div>
+          <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+            <p className="text-xs font-bold text-gray-900 dark:text-gray-100">操作</p>
+            <ul className="mt-2 space-y-1 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
+              <li>・自動実行を最優先: 実行可能なら次回候補の最上位へ固定します。</li>
+              <li>・復帰時に最優先: いま候補外の作業を、条件が解けた時に上位へ戻します。</li>
+              <li>・↑ / ↓: 実行可能キュー内の相対順を保存します。</li>
+              <li>・保留 / 保留解除: AI保留へ移す、または戻します。</li>
+              <li>・対象外: 自動実行対象から外します。</li>
+              <li>・詳細: 大きな作業の詳細へ移動します。</li>
+            </ul>
+          </div>
+          <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs font-semibold leading-relaxed text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
+            重要: 最優先指定は安全条件を上書きしません。人間判断待ち・レビュー待ち・ブロック中・手動/対象外の作業は自動実行されず、司令塔と /queue に「最優先指定中だが候補外」と理由を表示します。
+          </p>
+        </div>
+      </section>
+
+      {/* 9. よくある質問 */}
+      <section className={card}>
+        <h2 className={h2}>9. よくある質問</h2>
         <dl className="mt-3 space-y-3">
           {FAQ.map((f) => (
             <div key={f.q}>

@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server'
-import { buildAutoQueue } from '@/lib/auto-queue'
+import { revalidatePath } from 'next/cache'
+import { getAutoQueueView } from '@/lib/auto-queue'
 import { getEpics, updateEpic } from '@/lib/operations-store'
 import { writeJson } from '@/lib/store'
 import type { Epic } from '@/lib/types/operations'
 import type { AutoQueueControlAction, QueueControl } from '@/types/auto-queue'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 const ACTIONS: AutoQueueControlAction[] = ['pin', 'unpin', 'hold', 'unhold', 'exclude', 'moveUp', 'moveDown', 'setManualOrder']
 
@@ -20,7 +22,7 @@ function userControl(previous: QueueControl | undefined, patch: QueueControl): Q
 }
 
 async function writeManualOrder(workItemId: string, direction: 'up' | 'down'): Promise<boolean> {
-  const queue = await buildAutoQueue()
+  const queue = await getAutoQueueView()
   const executable = queue.executable
   const idx = executable.findIndex((item) => item.workItemId === workItemId)
   if (idx === -1) return false
@@ -53,6 +55,15 @@ async function writeManualOrder(workItemId: string, direction: 'up' | 'down'): P
   return true
 }
 
+function revalidateAutoQueuePages() {
+  try {
+    revalidatePath('/')
+    revalidatePath('/queue')
+  } catch (err) {
+    console.warn('Failed to revalidate auto queue pages:', err)
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({})) as { workItemId?: unknown; action?: unknown; value?: unknown }
@@ -65,7 +76,8 @@ export async function POST(req: Request) {
     if (action === 'moveUp' || action === 'moveDown') {
       const ok = await writeManualOrder(`epic:${epicId}`, action === 'moveUp' ? 'up' : 'down')
       if (!ok) return NextResponse.json({ error: 'item is not in executable queue' }, { status: 422 })
-      return NextResponse.json({ success: true, queue: await buildAutoQueue() })
+      revalidateAutoQueuePages()
+      return NextResponse.json({ success: true, queue: await getAutoQueueView() })
     }
 
     const epics = await getEpics()
@@ -90,7 +102,8 @@ export async function POST(req: Request) {
     }
 
     await updateEpic(epicId, patch)
-    return NextResponse.json({ success: true, queue: await buildAutoQueue() })
+    revalidateAutoQueuePages()
+    return NextResponse.json({ success: true, queue: await getAutoQueueView() })
   } catch (err) {
     console.error('Failed to control auto queue:', err)
     return NextResponse.json({ error: 'failed to control auto queue' }, { status: 500 })

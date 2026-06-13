@@ -23,18 +23,24 @@ function doneCriteriaDone(epic: Epic, total: number): number {
   return Math.max(0, Math.min(total, Math.max(byProgress, byRemaining)))
 }
 
-function reasonFromFactors(status: WorkItemStatus, factors: string[], goalTitle?: string): string {
+export function statusBlockedReason(status: WorkItemStatus): string {
+  const statusLabel: Record<WorkItemStatus, string> = {
+    executable: '実行可能',
+    waiting_user: '人間判断待ち',
+    ai_hold: 'AI保留中',
+    review_waiting: 'レビュー待ち',
+    blocked: 'ブロック中',
+    manual: '手動または対象外',
+    done: '完了済み',
+  }
+  return statusLabel[status]
+}
+
+function reasonFromFactors(status: WorkItemStatus, factors: string[], goalTitle: string | undefined, pinnedTop: boolean): string {
   if (status !== 'executable') {
-    const statusLabel: Record<WorkItemStatus, string> = {
-      executable: '実行可能',
-      waiting_user: '人間判断が必要なため候補外',
-      ai_hold: 'AI保留中のため候補外',
-      review_waiting: 'レビュー待ちのため候補外',
-      blocked: 'ブロック中のため候補外',
-      manual: '手動または対象外のため候補外',
-      done: '完了済み',
-    }
-    return statusLabel[status]
+    const blockedReason = statusBlockedReason(status)
+    if (pinnedTop) return `最優先指定中。ただし${blockedReason}のため、次回自動実行候補には入りません`
+    return `${blockedReason}のため、次回自動実行候補には入りません`
   }
   const core = factors.filter((f) => f !== 'factoryEligible')
   if (core.length === 0) return '実行可能条件を満たしているため候補入り'
@@ -54,6 +60,7 @@ function toEpicItem(epic: Epic, goal: Goal | undefined, runs: ExecutionRun[], st
     factoryEligible: epic.factoryEligible,
   }, goal)
   const total = epic.doneCriteria?.length ?? 0
+  const candidateEligible = epic.factoryEligible === true && status === 'executable'
   return {
     workItemId: `epic:${epic.epicId}`,
     type: 'epic',
@@ -76,7 +83,9 @@ function toEpicItem(epic: Epic, goal: Goal | undefined, runs: ExecutionRun[], st
     updatedAt: epic.updatedAt,
     queueScore: score.queueScore,
     queueOrder: 0,
-    reason: reasonFromFactors(status, score.reasonFactors, goal?.title),
+    candidateEligible,
+    candidateBlockedReason: candidateEligible ? undefined : statusBlockedReason(status),
+    reason: reasonFromFactors(status, score.reasonFactors, goal?.title, epic.queueControl?.pinnedTop === true),
     reasonFactors: score.reasonFactors.length > 0 ? score.reasonFactors : [status],
     queueControl: epic.queueControl,
   }
@@ -101,6 +110,7 @@ function toGoalTodoItem(todo: GoalTodo, goal: Goal): AutoQueueItem {
     updatedAt: todo.updatedAt,
     factoryEligible: status === 'executable',
   }, goal)
+  const candidateEligible = status === 'executable'
   return {
     workItemId: `todo:${todo.id}`,
     type: 'goal_todo',
@@ -121,7 +131,9 @@ function toGoalTodoItem(todo: GoalTodo, goal: Goal): AutoQueueItem {
     updatedAt: todo.updatedAt,
     queueScore: score.queueScore,
     queueOrder: 0,
-    reason: reasonFromFactors(status, score.reasonFactors, goal.title),
+    candidateEligible,
+    candidateBlockedReason: candidateEligible ? undefined : statusBlockedReason(status),
+    reason: reasonFromFactors(status, score.reasonFactors, goal.title, false),
     reasonFactors: score.reasonFactors.length > 0 ? score.reasonFactors : [status],
   }
 }
@@ -232,6 +244,9 @@ export async function buildAutoQueue(): Promise<AutoQueueView> {
 
   const withExecutableOrder = new Map(executable.map((item) => [item.workItemId, item]))
   const merged = items.map((item) => withExecutableOrder.get(item.workItemId) ?? item)
+  const pinnedExcluded = merged
+    .filter((item) => item.queueControl?.pinnedTop === true && item.status !== 'executable')
+    .sort(compareItems)
 
   return {
     next: executable[0] ?? null,
@@ -242,8 +257,11 @@ export async function buildAutoQueue(): Promise<AutoQueueView> {
     reviewWaiting: merged.filter((item) => item.status === 'review_waiting').sort(compareItems),
     blocked: merged.filter((item) => item.status === 'blocked').sort(compareItems),
     manual: merged.filter((item) => item.status === 'manual').sort(compareItems),
+    pinnedExcluded,
     counts: countsOf(merged, inbox.filter((item) => !item.imported).length),
     goalProgress: buildGoalProgress(goals, merged),
     generatedAt: new Date().toISOString(),
   }
 }
+
+export const getAutoQueueView = buildAutoQueue

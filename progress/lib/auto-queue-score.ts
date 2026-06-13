@@ -56,6 +56,7 @@ export function deriveWorkItemStatus(epic: Epic, context: StatusContext): WorkIt
   if (epic.status === 'done' || epic.status === 'merged') return 'done'
   if (epic.decisionPolicy === 'manual' || epic.factoryEligible === false) return 'manual'
   if ((epic.blockers ?? []).length > 0 || epic.status === 'blocked') return 'blocked'
+  if (epic.queueControl?.hold === true || epic.status === 'paused') return 'ai_hold'
 
   const pendingApproval = context.approvals.some((approval) => approval.epicId === epic.epicId && approval.status === 'pending')
   const dangerous = hasDangerRisk(epic.riskFlags)
@@ -70,7 +71,6 @@ export function deriveWorkItemStatus(epic: Epic, context: StatusContext): WorkIt
   }
   if (latestRun?.runStatus === 'failed') return 'blocked'
 
-  if (epic.queueControl?.hold === true || epic.status === 'paused') return 'ai_hold'
   if (epic.factoryEligible === true) return 'executable'
   return 'manual'
 }

@@ -41,6 +41,8 @@ export interface AutoQueueItem {
   updatedAt?: string
   queueScore: number
   queueOrder: number
+  candidateEligible: boolean
+  candidateBlockedReason?: string
   reason: string
   reasonFactors: string[]
   queueControl?: QueueControl
@@ -76,6 +78,7 @@ export interface AutoQueueView {
   reviewWaiting: AutoQueueItem[]
   blocked: AutoQueueItem[]
   manual: AutoQueueItem[]
+  pinnedExcluded: AutoQueueItem[]
   counts: AutoQueueCounts
   goalProgress: GoalProgressRow[]
   generatedAt: string

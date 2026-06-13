@@ -10,9 +10,10 @@ interface Props {
   children: React.ReactNode
   disabled?: boolean
   danger?: boolean
+  title?: string
 }
 
-export default function QueueActionButton({ workItemId, action, children, disabled = false, danger = false }: Props) {
+export default function QueueActionButton({ workItemId, action, children, disabled = false, danger = false, title }: Props) {
   const router = useRouter()
   const [pending, setPending] = useState(false)
 
@@ -41,6 +42,7 @@ export default function QueueActionButton({ workItemId, action, children, disabl
       type="button"
       onClick={run}
       disabled={disabled || pending}
+      title={title}
       className={`rounded-lg border px-2.5 py-1.5 text-xs font-bold disabled:opacity-40 ${
         danger
           ? 'border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:border-rose-900/60 dark:bg-rose-900/20 dark:text-rose-300'

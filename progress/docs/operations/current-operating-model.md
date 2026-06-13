@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-13
-updateNote: 自動実行キュー（/queue）を追加。司令塔トップの次回自動実行予定をEpicベースのbuildAutoQueueに差し替え（野鳥問題=二重正本を解消）。旧work-queueは/legacy/queueへ退避
+updateNote: 自動実行キューのpin説明を更新。最優先指定は安全gatingを上書きせず、候補外なら司令塔と/queueに理由を表示
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -65,6 +65,39 @@ AI工場の「今」は、Factory runner が開始時に `running` の作業履�
 
 - レビュー解消手段（任意・任意のタイミングで）: Inbox の「AIにまとめて確認させる」（AI一次レビュー一括実行）
 - AI が判断できないものだけ needs_human として Inbox のレビューセクションに上がる
+
+## 自動実行キューの使い方
+
+自動実行キューは **Epic / Goal / ExecutionRun / Approval / Inbox から都度生成する派生ビュー**。新しいキュー正本は作らない。司令塔トップの「次回自動実行予定」と `/queue` は同じ `buildAutoQueue()`（別名 `getAutoQueueView()`）の結果を見る。旧 `work-queue.json` は後方互換表示として `/legacy/queue` に残すが、自動実行判断の正本にはしない。
+
+**ステータスの意味**:
+
+| status | 意味 | 自動実行候補 |
+|---|---|---|
+| `executable` | AIが自動実行できる。`factoryEligible=true` かつ安全条件OK | 入る |
+| `waiting_user` | 人間判断・承認・危険flag・重要レビュー待ち | 入らない |
+| `review_waiting` | レビュー待ち。低優先レビューは工場全体を止めない | 入らない |
+| `ai_hold` | AI保留。ユーザーの保留操作や一時停止 | 入らない |
+| `blocked` | blocker / failed などで詰まり | 入らない |
+| `manual` | 手動対応または対象外 | 入らない |
+| `done` | 完了済み | 入らない |
+
+**操作ボタンの意味**:
+
+| 操作 | 書き戻し先 | 意味 |
+|---|---|---|
+| 自動実行を最優先 / 復帰時に最優先 | `Epic.queueControl.pinnedTop` | 実行可能なら次回候補の最上位。候補外なら条件が解けた時に上がる |
+| ↑ / ↓ | `Epic.queueControl.manualOrder` | 現在の実行可能キュー内の相対順を保存 |
+| 保留 / 保留解除 | `Epic.queueControl.hold` | 保留中は `ai_hold` として候補外。解除後、安全条件を満たせば候補復帰 |
+| 対象外 | `Epic.factoryEligible=false` + `queueControl.excludedByUser` | 自動実行対象から外す |
+| 詳細 | なし | Epic詳細へ移動 |
+
+**重要注意**:
+
+- 最優先指定は安全gatingを上書きしない。`waiting_user` / `review_waiting` / `blocked` / `manual` の作業は、pinしても自動実行されない。
+- pin済みだが候補外の作業は、司令塔トップと `/queue` に「最優先指定中だが候補外」と理由を表示する。
+- 低優先レビューで工場全体は止めない。実行可能な別Epicがあれば、それが次回予定になる。
+- 次回予定は最新Run、承認、保留、対象外、Goal boost、pinの状態で変わる。操作後はトップと `/queue` を同じ派生結果で再表示する。
 
 ## 用語の対応表（内部語 → 人間語）
 
@@ -169,6 +202,8 @@ MVP完成 → ストア公開 → 広告導入 → DL100 → はじめての収�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-13: 自動実行キューのpin説明を修正。`POST /api/auto-queue/control` 後に `/` と `/queue` を revalidate。司令塔トップと `/queue` は同じ `getAutoQueueView()` を使用。pin済みでも `waiting_user` / `review_waiting` / `blocked` / `manual` / `ai_hold` は安全gatingにより候補外のままとし、司令塔トップに「最優先指定中だが候補外」枠、`/queue`カードに候補外理由・候補入り可否・queueScoreを表示。保留操作は明示的に `ai_hold` を優先導出。
 
 - 2026-06-13: Factory 定時自動実行に **16:00 JST** を追加（従来 11:00 / 14:00 / 23:00 → 11:00 / 14:00 / 16:00 / 23:00）。`/etc/systemd/system/factory-schedule.timer` の OnCalendar に 1 行追加し `daemon-reload` + timer 再起動。repo 側 `docs/factory-schedule/factory-schedule.timer`（UI の「定時」表示が読む正本）も同期。各定時で `runScheduledFactory` が安全ゲート（factoryEnabled / Blocked / 二重起動lock）を通った場合のみ起動。
 
