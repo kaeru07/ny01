@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-stone-50 text-stone-800 antialiased;
+}
+
+/* モバイル下部ナビ分の余白 */
+.app-shell {
+  @apply mx-auto max-w-3xl px-4 pb-24 pt-4;
+}
