@@ -4,13 +4,17 @@ import { useState } from 'react'
 import type { InboxView } from '@/lib/command-center'
 import InboxCardItem from './InboxActions'
 import AiCheckButton from './AiCheckButton'
+import InboxReviewCopyButton from './InboxReviewCopyButton'
 
 // Inbox の4区分（今日の判断 / レビュー / Epic候補 / AI保留）をタブで切り替える。
 // 縦積みだとスクロールが長くなるため、社長は「今日の判断」タブだけ見れば終わる構成にする。
 
 const SECTION_DISPLAY_LIMIT = 5
+// レビューが大量でも「隠れている」印象を出さないため、全件を明示ページングで見せる。
+const REVIEW_PAGE_SIZE = 50
 
 type TabKey = 'decisions' | 'reviews' | 'candidates' | 'aiHold'
+type ReviewFilter = 'unconfirmed' | 'followup' | 'snoozed' | 'reviewed'
 
 interface Props {
   inbox: InboxView
@@ -19,6 +23,31 @@ interface Props {
 
 export default function InboxTabs({ inbox, notReviewedCount }: Props) {
   const [tab, setTab] = useState<TabKey>('decisions')
+  const [reviewFilter, setReviewFilter] = useState<ReviewFilter>('unconfirmed')
+  const [reviewPage, setReviewPage] = useState(0)
+
+  // レビュー一覧をフィルタ別に分割（隠さず全件・completedAt降順は server で確定済み）。
+  const unconfirmedReviews = inbox.reviews.filter(
+    (c) => c.reviewStatus === 'not_reviewed' || c.reviewStatus === 'copied' || c.reviewStatus === 'needs_human',
+  )
+  const followupReviews = inbox.reviews.filter((c) => c.reviewStatus === 'needs_followup')
+  const snoozedReviews = inbox.reviews.filter((c) => c.reviewStatus === 'snoozed')
+  const reviewFilters: Array<{ key: ReviewFilter; label: string; count: number; list: typeof inbox.reviews }> = [
+    { key: 'unconfirmed', label: '未確認', count: inbox.reviewCounts.unconfirmed, list: unconfirmedReviews },
+    { key: 'followup', label: '要修正', count: inbox.reviewCounts.followup, list: followupReviews },
+    { key: 'snoozed', label: 'あとで', count: inbox.reviewCounts.snoozed, list: snoozedReviews },
+    { key: 'reviewed', label: 'レビュー済み', count: inbox.reviewedTotal, list: inbox.reviewedHistory },
+  ]
+  const activeFilter = reviewFilters.find((f) => f.key === reviewFilter) ?? reviewFilters[0]
+  const totalForFilter = activeFilter.key === 'reviewed' ? inbox.reviewedTotal : activeFilter.list.length
+  const pageStart = reviewPage * REVIEW_PAGE_SIZE
+  const pageItems = activeFilter.list.slice(pageStart, pageStart + REVIEW_PAGE_SIZE)
+  const pageEnd = pageStart + pageItems.length
+
+  function changeReviewFilter(key: ReviewFilter) {
+    setReviewFilter(key)
+    setReviewPage(0)
+  }
 
   const tabs: Array<{ key: TabKey; label: string; count: number; alert: boolean }> = [
     { key: 'decisions', label: '今日の判断', count: inbox.decisions.length, alert: inbox.decisions.length > 0 },
@@ -73,23 +102,77 @@ export default function InboxTabs({ inbox, notReviewedCount }: Props) {
         </section>
       )}
 
-      {/* ② レビュー（放置しても工場は止まらない） */}
+      {/* ② レビュー（放置しても工場は止まらない・隠さず全件） */}
       {tab === 'reviews' && (
         <section className="mt-4">
-          <p className="mb-2 text-[11px] text-gray-400">放置しても工場は止まりません。時間があるときで大丈夫です。</p>
-          {inbox.reviewTotal === 0 ? (
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-[11px] text-gray-400">放置しても工場は止まりません。レビュー運用の正本です。最新の完了が上です。</p>
+            {inbox.reviewTotal > 0 && <InboxReviewCopyButton all />}
+          </div>
+
+          {/* 件数サマリー */}
+          <div className="mb-2 flex flex-wrap gap-1.5 text-[11px] font-semibold">
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">未確認 {inbox.reviewCounts.unconfirmed}件</span>
+            <span className="rounded-full bg-rose-100 px-2 py-0.5 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">要修正 {inbox.reviewCounts.followup}件</span>
+            <span className="rounded-full bg-gray-200 px-2 py-0.5 text-gray-600 dark:bg-gray-700 dark:text-gray-300">あとで {inbox.reviewCounts.snoozed}件</span>
+            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">レビュー済み {inbox.reviewedTotal}件</span>
+          </div>
+
+          {/* フィルタタブ（未確認 / 要修正 / あとで / レビュー済み） */}
+          <div className="mb-3 flex gap-1 rounded-lg bg-gray-100 p-1 dark:bg-gray-800/60">
+            {reviewFilters.map((f) => (
+              <button
+                key={f.key}
+                onClick={() => changeReviewFilter(f.key)}
+                className={`flex-1 rounded-md px-1 py-1.5 text-center text-[11px] font-semibold leading-tight transition-colors ${
+                  reviewFilter === f.key
+                    ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-900 dark:text-gray-100'
+                    : 'text-gray-500 dark:text-gray-400'
+                }`}
+              >
+                {f.label}
+                <span className="ml-0.5 text-gray-400">{f.count}</span>
+              </button>
+            ))}
+          </div>
+
+          {totalForFilter === 0 ? (
             <p className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-center text-xs text-gray-400 dark:border-gray-800 dark:bg-gray-900">
-              レビュー待ちはありません。
+              {activeFilter.label}はありません。
             </p>
           ) : (
             <>
+              <p className="mb-2 text-[11px] text-gray-400">
+                全{totalForFilter}件中 {pageStart + 1}〜{pageEnd}件を表示
+                {activeFilter.key === 'reviewed' && inbox.reviewedTotal > inbox.reviewedHistory.length && (
+                  <span>（直近{inbox.reviewedHistory.length}件まで表示）</span>
+                )}
+              </p>
               <ul className="space-y-3">
-                {inbox.reviews.slice(0, SECTION_DISPLAY_LIMIT).map((card) => (
+                {pageItems.map((card) => (
                   <InboxCardItem key={card.id} card={card} />
                 ))}
               </ul>
-              {inbox.reviewTotal > SECTION_DISPLAY_LIMIT && (
-                <p className="mt-2 text-[11px] text-gray-400">ほか{inbox.reviewTotal - SECTION_DISPLAY_LIMIT}件。処理すると次が出ます</p>
+              {activeFilter.list.length > REVIEW_PAGE_SIZE && (
+                <div className="mt-3 flex items-center justify-between gap-2">
+                  <button
+                    onClick={() => setReviewPage((p) => Math.max(0, p - 1))}
+                    disabled={reviewPage === 0}
+                    className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 disabled:opacity-40 dark:border-gray-700 dark:text-gray-200"
+                  >
+                    ← 前の{REVIEW_PAGE_SIZE}件
+                  </button>
+                  <span className="text-[11px] text-gray-400">
+                    {reviewPage + 1} / {Math.ceil(activeFilter.list.length / REVIEW_PAGE_SIZE)}
+                  </span>
+                  <button
+                    onClick={() => setReviewPage((p) => (pageStart + REVIEW_PAGE_SIZE < activeFilter.list.length ? p + 1 : p))}
+                    disabled={pageStart + REVIEW_PAGE_SIZE >= activeFilter.list.length}
+                    className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 disabled:opacity-40 dark:border-gray-700 dark:text-gray-200"
+                  >
+                    次の{REVIEW_PAGE_SIZE}件 →
+                  </button>
+                </div>
               )}
             </>
           )}

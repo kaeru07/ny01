@@ -23,7 +23,7 @@ import {
   type FactoryOutlook,
   type FixRequestView,
 } from '@/lib/factory-outlook'
-import type { ExecutionRun } from '@/types/execution-run'
+import type { ExecutionRun, ReviewStatus } from '@/types/execution-run'
 import type { Goal } from '@/types/goal'
 import type { Project, Task } from '@/types/progress'
 import type { Epic } from '@/lib/types/operations'
@@ -122,6 +122,21 @@ function fmtDate(iso?: string): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return iso
   return d.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })
+}
+
+/** 「2026/06/13 13:02」形式の完了日時。レビューカードの完了表示に使う。 */
+function fmtDateTime(iso?: string): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return iso
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}/${p(d.getMonth() + 1)}/${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`
+}
+
+/** ExecutionRun の「完了日時」として最も妥当な ISO を選ぶ（finishedAt → startedAt の順）。
+ *  reviewedAt はレビュー操作日時であり作業完了日時ではないため完了表示には使わない。 */
+function runCompletedAt(run: ExecutionRun): string {
+  return run.finishedAt || run.startedAt || ''
 }
 
 function buildFactoryState(metrics: FactoryMetrics, factoryEnabled: boolean): FactoryStateView {
@@ -341,6 +356,14 @@ export interface InboxCardRow {
 export interface InboxCard {
   id: string
   kind: InboxCardKind
+  /** レビュー用コピーの元になる ExecutionRun。レビュータブの正本リンク。 */
+  sourceRunId?: string
+  /** 完了日時の ISO（finishedAt → startedAt）。レビューカードで「完了: YYYY/MM/DD HH:mm」表示・並び替えに使う。 */
+  completedAt?: string
+  /** 完了日時の表示用文字列（「2026/06/13 13:02」）。 */
+  completedAtText?: string
+  /** レビュー状態。バッジ表示（未確認/あとで/要修正/レビュー済み）と一覧フィルタに使う。 */
+  reviewStatus?: ReviewStatus
   /** 何が起きているか（状況文）。内部語禁止 */
   headline: string
   /** 本文の説明行。内部語禁止 */
@@ -365,8 +388,15 @@ export interface InboxCard {
 export interface InboxView {
   decisions: InboxCard[]
   decisionTotal: number
+  /** レビュー待ち（未確認/あとで/要修正）の全件。completedAt 降順。隠さず全件返す。 */
   reviews: InboxCard[]
   reviewTotal: number
+  /** レビュー状態別の件数サマリー（一覧上部に表示）。 */
+  reviewCounts: { unconfirmed: number; followup: number; snoozed: number }
+  /** レビュー済み履歴（reviewed）。物理削除せず後から参照する。completedAt 降順・直近分。 */
+  reviewedHistory: InboxCard[]
+  /** レビュー済みの総件数（reviewedHistory が上限で切られていても総数は保持）。 */
+  reviewedTotal: number
   candidates: InboxCard[]
   candidateTotal: number
   aiHoldCount: number
@@ -505,6 +535,7 @@ export async function buildInbox(): Promise<InboxView> {
       cards.push({
         id: `approval-${a.approvalId}`,
         kind: 'acceptance',
+        sourceRunId: a.createdRunId,
         headline: `「${shorten(subjectOf(clean))}」の作業が完了しました`,
         rows: [
           { label: 'AIがやったこと', text: `${shorten(clean, 40)}。` },
@@ -551,38 +582,81 @@ export async function buildInbox(): Promise<InboxView> {
     }
   }
 
-  // ② AIが判断を保留した作業結果 → 検収
+  // ② レビュー（検収）: AIの作業結果を人間が確認する正本リスト。隠さず全件出す。
+  //   状態遷移: 未確認 →[問題なし]reviewed（消込・履歴へ）/[修正する]needs_followup（要修正で残置）/[あとで]snoozed（後回しで残置）。
   const approvalRunIds = new Set(approvals.map((a) => a.createdRunId).filter(Boolean))
-  for (const run of runs.filter((r) => r.reviewStatus === 'needs_human' && !approvalRunIds.has(r.runId))) {
+
+  // レビュー状態に応じた操作ボタン（操作後の状態遷移を整理）。
+  function reviewActionsFor(run: ExecutionRun): InboxCardAction[] {
+    const url = `/api/execution-runs/${run.runId}`
+    const ok: InboxCardAction = { label: '問題なし', tone: 'primary', api: { url, method: 'PATCH', body: { reviewStatus: 'reviewed' } } }
+    const fix: InboxCardAction = { label: '修正する', tone: 'danger', api: { url, method: 'PATCH', body: { reviewStatus: 'needs_followup' } } }
+    const later: InboxCardAction = { label: 'あとで', tone: 'ghost', api: { url, method: 'PATCH', body: { reviewStatus: 'snoozed' } } }
+    const back: InboxCardAction = { label: '未確認に戻す', tone: 'ghost', api: { url, method: 'PATCH', body: { reviewStatus: 'not_reviewed' } } }
+    if (run.reviewStatus === 'needs_followup') return [ok, back] // 要修正 →[問題なし]対応済み /[未確認に戻す]
+    if (run.reviewStatus === 'snoozed') return [ok, fix, back] // あとで →[問題なし]/[修正する]/[未確認に戻す]
+    return [ok, fix, later] // 未確認（needs_human / not_reviewed / copied）
+  }
+
+  function buildReviewCard(run: ExecutionRun): InboxCard {
+    const raw = run.targetTodoTitle || run.summary || ''
+    const clean = humanizeTitle(raw)
+    const isPublish = /(公開|デプロイ|Vercel|反映)/i.test(clean)
+    const completedAt = runCompletedAt(run)
+    return {
+      id: `run-${run.runId}`,
+      kind: 'acceptance',
+      sourceRunId: run.runId,
+      completedAt,
+      completedAtText: fmtDateTime(completedAt),
+      reviewStatus: run.reviewStatus,
+      headline: isPublish ? '公開作業が完了しました' : `「${shorten(subjectOf(clean))}」の作業が完了しました`,
+      rows: [
+        { label: 'AIがやったこと', text: `${shorten(run.summary || clean, 48)}。` },
+        { label: '人間がやること', text: isPublish ? '正常に表示されているか見るだけ。' : 'レビュー用コピーで内容を確認する。' },
+      ],
+      question: isPublish ? '正常に表示されていますか？' : '確認してください。問題ありませんか？',
+      detail: [
+        `元タイトル: ${raw}`,
+        `状態: ${run.runStatus} / ${run.reviewStatus}`,
+        ...(run.aiReview?.reason ? [`AI判断理由: ${run.aiReview.reason}`] : []),
+        `完了日時: ${fmtDateTime(completedAt) || '不明'}`,
+        `元の作業履歴: ${run.runId}`,
+      ],
+      actions: reviewActionsFor(run),
+    }
+  }
+
+  // 自動状態（needs_human / not_reviewed / copied）は内容不足・定期処理なら AI保留へ振り分ける（既存挙動）。
+  const AUTO_REVIEW_STATES = new Set<ReviewStatus>(['needs_human', 'not_reviewed', 'copied'])
+  for (const run of runs.filter((r) => AUTO_REVIEW_STATES.has(r.reviewStatus) && !approvalRunIds.has(r.runId))) {
     const raw = run.targetTodoTitle || run.summary || ''
     const runHold = !raw ? '内容不足' : aiHoldReason(raw)
     if (runHold) {
       hold(runHold === '定期処理' ? '定期処理' : 'レビュー整理')
       continue
     }
-    const clean = humanizeTitle(raw)
-    const isPublish = /(公開|デプロイ|Vercel|反映)/i.test(clean)
-    cards.push({
-      id: `run-${run.runId}`,
-      kind: 'acceptance',
-      headline: isPublish ? '公開作業が完了しました' : `「${shorten(subjectOf(clean))}」の作業が完了しました`,
-      rows: [
-        { label: 'AIがやったこと', text: `${shorten(clean, 40)}。` },
-        { label: '人間がやること', text: isPublish ? '正常に表示されているか見るだけ。' : '結果を見るだけ。' },
-      ],
-      question: isPublish ? '正常に表示されていますか？' : '確認してください。問題ありませんか？',
-      detail: [
-        `元タイトル: ${raw}`,
-        `AI判断理由: ${run.aiReview?.reason ?? 'AIだけでは判断できなかった作業結果です'}`,
-        `元の作業履歴: ${run.runId}`,
-      ],
-      actions: [
-        { label: '問題なし', tone: 'primary', api: { url: `/api/execution-runs/${run.runId}`, method: 'PATCH', body: { reviewStatus: 'reviewed' } } },
-        { label: '修正する', tone: 'danger', api: { url: `/api/execution-runs/${run.runId}`, method: 'PATCH', body: { reviewStatus: 'needs_followup' } } },
-        { label: 'あとで', tone: 'ghost', api: null },
-      ],
-    })
+    cards.push(buildReviewCard(run))
   }
+  // 人間が状態を決めたもの（あとで / 要修正）は AI保留へ流さず、常にレビュー一覧に残す。
+  const HUMAN_REVIEW_STATES = new Set<ReviewStatus>(['snoozed', 'needs_followup'])
+  for (const run of runs.filter((r) => HUMAN_REVIEW_STATES.has(r.reviewStatus) && !approvalRunIds.has(r.runId))) {
+    cards.push(buildReviewCard(run))
+  }
+
+  // レビュー済み履歴（reviewed）。物理削除しないので後から参照できる。直近200件・completedAt降順。
+  const REVIEWED_HISTORY_LIMIT = 200
+  const reviewedRuns = runs.filter((r) => r.reviewStatus === 'reviewed' && !approvalRunIds.has(r.runId))
+  const reviewedHistory: InboxCard[] = reviewedRuns
+    .slice()
+    .sort((a, b) => runCompletedAt(b).localeCompare(runCompletedAt(a)))
+    .slice(0, REVIEWED_HISTORY_LIMIT)
+    .map((run) => {
+      const card = buildReviewCard(run)
+      // 履歴カードは消し込みの取り消し（未確認に戻す）だけ。
+      card.actions = [{ label: '未確認に戻す', tone: 'ghost', api: { url: `/api/execution-runs/${run.runId}`, method: 'PATCH', body: { reviewStatus: 'not_reviewed' } } }]
+      return card
+    })
 
   // ③ 目標未紐付けの大きな作業 → 方針選択（Goalをボタンで選ぶ）
   const openStatuses = new Set(['proposed', 'approved', 'active', 'in_review', 'paused', 'blocked'])
@@ -668,7 +742,15 @@ export async function buildInbox(): Promise<InboxView> {
   const stopFactors = cards
     .filter((c) => c.kind === 'danger' || c.kind === 'direction' || c.kind === 'human_task')
     .sort((a, b) => (stopOrder[a.kind] ?? 9) - (stopOrder[b.kind] ?? 9))
-  const reviews = cards.filter((c) => c.kind === 'acceptance')
+  // レビューは完了日時（completedAt）の新しい順。完了日時が無いものは末尾。
+  const reviews = cards
+    .filter((c) => c.kind === 'acceptance')
+    .sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? ''))
+  const reviewCounts = {
+    unconfirmed: reviews.filter((c) => c.reviewStatus === 'not_reviewed' || c.reviewStatus === 'copied' || c.reviewStatus === 'needs_human').length,
+    followup: reviews.filter((c) => c.reviewStatus === 'needs_followup').length,
+    snoozed: reviews.filter((c) => c.reviewStatus === 'snoozed').length,
+  }
   const candidates = cards.filter((c) => c.kind === 'permission')
   const decisions = stopFactors.slice(0, TODAY_LIMIT)
 
@@ -677,6 +759,9 @@ export async function buildInbox(): Promise<InboxView> {
     decisionTotal: stopFactors.length,
     reviews,
     reviewTotal: reviews.length,
+    reviewCounts,
+    reviewedHistory,
+    reviewedTotal: reviewedRuns.length,
     candidates,
     candidateTotal: candidates.length,
     aiHoldCount: heldCount,

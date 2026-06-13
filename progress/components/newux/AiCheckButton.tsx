@@ -29,7 +29,8 @@ export default function AiCheckButton({ notReviewedCount }: { notReviewedCount: 
       const res = await fetch('/api/operations/ai-review', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ limit: 10 }),
+        // 10件固定をやめ、未確認の全件を対象にする（サーバ側で安全上限200件）。
+        body: JSON.stringify({ limit: Math.max(1, notReviewedCount) }),
       })
       const data: BatchResponse = await res.json()
       if (!res.ok || !data.success) throw new Error(data.error ?? '確認に失敗しました')
@@ -46,11 +47,11 @@ export default function AiCheckButton({ notReviewedCount }: { notReviewedCount: 
     <div id="ai-check" className="rounded-xl border border-blue-100 bg-blue-50/60 p-4 dark:border-blue-900/40 dark:bg-blue-900/10">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-bold text-gray-900 dark:text-gray-100">AIにまとめて確認させる</p>
+          <p className="text-sm font-bold text-gray-900 dark:text-gray-100">未確認レビューをAIで一括整理</p>
           <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
             未確認の作業履歴（AIの作業結果でまだ中身を見ていないもの）が
             <span className="font-bold"> {notReviewedCount}件 </span>
-            あります。AIが問題ないものを自動で片付け、判断が必要なものだけここに残します。
+            あります。AIが問題ないものを自動で片付け、判断が必要なもの・危険なものは必ず一覧に残します。最終判断（問題なし / 修正する / あとで）は人間が行えます。
           </p>
         </div>
         <button
@@ -58,7 +59,7 @@ export default function AiCheckButton({ notReviewedCount }: { notReviewedCount: 
           disabled={busy || notReviewedCount === 0}
           className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
         >
-          {busy ? '確認中…' : '10件まとめて確認する'}
+          {busy ? '確認中…' : `未確認${notReviewedCount}件をAIで整理`}
         </button>
       </div>
       {error && <p className="mt-2 text-xs font-semibold text-rose-600">{error}</p>}

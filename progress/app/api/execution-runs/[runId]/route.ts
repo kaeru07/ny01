@@ -8,7 +8,7 @@ interface Params {
   params: { runId: string }
 }
 
-const VALID_REVIEW_STATUSES: ReviewStatus[] = ['not_reviewed', 'copied', 'reviewed', 'needs_followup', 'needs_human']
+const VALID_REVIEW_STATUSES: ReviewStatus[] = ['not_reviewed', 'copied', 'reviewed', 'needs_followup', 'needs_human', 'snoozed']
 
 export async function PATCH(request: NextRequest, { params }: Params) {
   try {

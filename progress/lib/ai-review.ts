@@ -124,10 +124,11 @@ export function oldestAgeDays(runs: ExecutionRun[]): number | null {
   return Math.max(0, Math.floor((Date.now() - oldest) / 86_400_000))
 }
 
-/** not_reviewed Run を新しい順に最大 limit 件、一次レビューして保存する。 */
+/** not_reviewed Run を新しい順に最大 limit 件、一次レビューして保存する。
+ *  「未確認をAIで一括整理」で全件処理できるよう上限は 200 件（過大な一括書き込みの安全弁）。 */
 export async function runAiReviewBatch(limit = 10): Promise<AiReviewBatchResult> {
   const runs = await readExecutionRuns() // startedAt 降順
-  const targets = listNotReviewed(runs).slice(0, Math.max(1, Math.min(limit, 20)))
+  const targets = listNotReviewed(runs).slice(0, Math.max(1, Math.min(limit, 200)))
   const pendingApprovals = await getPendingApprovals()
   const counts = { reviewed: 0, needs_human: 0, partial: 0, failed: 0 }
   const results: AiReviewRunResult[] = []

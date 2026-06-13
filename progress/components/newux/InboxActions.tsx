@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { InboxCard, InboxCardAction } from '@/lib/command-center'
 import { KIND_CHIP_LABEL } from '@/lib/inbox-labels'
+import InboxReviewCopyButton from './InboxReviewCopyButton'
 
 // 「今日の判断」カード本体（6分類: 検収/実行許可/方針選択/人間作業/危険判断 + AI保留は非表示）。
 // 社長向け: 状況見出し + ラベル付き説明行 + ボタン1つで終わり。
@@ -23,6 +24,16 @@ const KIND_CHIP_CLASS: Record<string, string> = {
   direction: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300',
   permission: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
   human_task: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+}
+
+// レビューカードの状態バッジ（未確認 / あとで / 要修正 / レビュー済み）。
+const REVIEW_BADGE: Record<string, { label: string; cls: string }> = {
+  not_reviewed: { label: '未確認', cls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' },
+  copied: { label: '未確認', cls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' },
+  needs_human: { label: '未確認', cls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' },
+  snoozed: { label: 'あとで', cls: 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300' },
+  needs_followup: { label: '要修正', cls: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300' },
+  reviewed: { label: 'レビュー済み', cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' },
 }
 
 async function callApi(api: NonNullable<InboxCardAction['api']>): Promise<void> {
@@ -74,9 +85,19 @@ export default function InboxCardItem({ card }: { card: InboxCard }) {
 
   return (
     <li className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-      <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${KIND_CHIP_CLASS[card.kind]}`}>
-        {KIND_CHIP_LABEL[card.kind]}
-      </span>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${KIND_CHIP_CLASS[card.kind]}`}>
+          {KIND_CHIP_LABEL[card.kind]}
+        </span>
+        {card.reviewStatus && REVIEW_BADGE[card.reviewStatus] && (
+          <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${REVIEW_BADGE[card.reviewStatus].cls}`}>
+            {REVIEW_BADGE[card.reviewStatus].label}
+          </span>
+        )}
+        {card.completedAtText && (
+          <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">完了: {card.completedAtText}</span>
+        )}
+      </div>
       <p className="mt-2 text-base font-bold leading-relaxed text-gray-900 dark:text-gray-100">{card.headline}</p>
 
       {card.rows.length > 0 && (
@@ -95,6 +116,9 @@ export default function InboxCardItem({ card }: { card: InboxCard }) {
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
+        {card.kind === 'acceptance' && card.sourceRunId && (
+          <InboxReviewCopyButton runId={card.sourceRunId} />
+        )}
         {card.kind === 'direction' && card.epicId && card.goals ? (
           <>
             {card.goals.map((g) => (

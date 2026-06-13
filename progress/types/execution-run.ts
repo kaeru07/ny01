@@ -1,6 +1,7 @@
 export type RunStatus = 'running' | 'completed' | 'failed' | 'partial'
-/** needs_human: AI一次レビューが「人間判断が必要」と振り分けた状態（意思決定キュー行き）。 */
-export type ReviewStatus = 'not_reviewed' | 'copied' | 'reviewed' | 'needs_followup' | 'needs_human'
+/** needs_human: AI一次レビューが「人間判断が必要」と振り分けた状態（意思決定キュー行き）。
+ *  snoozed: 人間が「あとで」を選んだ後回し状態。レビュー待ち一覧には残すが「あとで」として区別表示する。 */
+export type ReviewStatus = 'not_reviewed' | 'copied' | 'reviewed' | 'needs_followup' | 'needs_human' | 'snoozed'
 export type ExecutorType = 'claude' | 'codex' | 'manual' | 'other'
 
 /** AI一次レビュー（ルールベース・LLM不使用）の判定結果。reviewStatus とは独立に判定根拠を保持する。 */
