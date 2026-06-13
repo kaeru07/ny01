@@ -2,8 +2,8 @@ import { getEpics, getPendingApprovals } from '@/lib/operations-store'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { readGoals } from '@/lib/goal-reader'
 import { listInboxItems } from '@/lib/inbox-reader'
-import { computeQueueScore, deriveWorkItemStatus, latestRunForEpic, normalizePriority } from '@/lib/auto-queue-score'
-import type { Epic } from '@/lib/types/operations'
+import { computeQueueScore, deriveResolution, deriveWorkItemStatus, latestRunForEpic, normalizePriority } from '@/lib/auto-queue-score'
+import type { Approval, Epic } from '@/lib/types/operations'
 import type { AutoQueueCounts, AutoQueueItem, AutoQueueView, GoalProgressRow, WorkItemStatus } from '@/types/auto-queue'
 import type { ExecutionRun } from '@/types/execution-run'
 import type { Goal, GoalTodo } from '@/types/goal'
@@ -48,9 +48,10 @@ function reasonFromFactors(status: WorkItemStatus, factors: string[], goalTitle:
   return `${core.slice(0, 4).join('＋')} のため上位候補${suffix}`
 }
 
-function toEpicItem(epic: Epic, goal: Goal | undefined, runs: ExecutionRun[], status: WorkItemStatus): AutoQueueItem {
+function toEpicItem(epic: Epic, goal: Goal | undefined, runs: ExecutionRun[], status: WorkItemStatus, approvals: Approval[]): AutoQueueItem {
   const latestRun = latestRunForEpic(epic, runs)
   const lastRunAt = runAt(latestRun)
+  const hasPendingApproval = approvals.some((a) => a.epicId === epic.epicId && a.status === 'pending')
   const score = computeQueueScore({
     priority: epic.priority,
     queueControl: epic.queueControl,
@@ -85,6 +86,7 @@ function toEpicItem(epic: Epic, goal: Goal | undefined, runs: ExecutionRun[], st
     queueOrder: 0,
     candidateEligible,
     candidateBlockedReason: candidateEligible ? undefined : statusBlockedReason(status),
+    resolution: candidateEligible ? undefined : deriveResolution(epic, status, latestRun, hasPendingApproval),
     reason: reasonFromFactors(status, score.reasonFactors, goal?.title, epic.queueControl?.pinnedTop === true),
     reasonFactors: score.reasonFactors.length > 0 ? score.reasonFactors : [status],
     queueControl: epic.queueControl,
@@ -133,6 +135,9 @@ function toGoalTodoItem(todo: GoalTodo, goal: Goal): AutoQueueItem {
     queueOrder: 0,
     candidateEligible,
     candidateBlockedReason: candidateEligible ? undefined : statusBlockedReason(status),
+    resolution: candidateEligible
+      ? undefined
+      : { how: '依存する作業の完了待ちです。先行する作業が終わると自動で候補に戻ります。' },
     reason: reasonFromFactors(status, score.reasonFactors, goal.title, false),
     reasonFactors: score.reasonFactors.length > 0 ? score.reasonFactors : [status],
   }
@@ -224,7 +229,7 @@ export async function buildAutoQueue(): Promise<AutoQueueView> {
   for (const epic of epics) {
     if (CLOSED_EPIC_STATUSES.has(epic.status)) continue
     const status = deriveWorkItemStatus(epic, { runs, approvals })
-    items.push(toEpicItem(epic, epic.goalId ? goalById.get(epic.goalId) : undefined, runs, status))
+    items.push(toEpicItem(epic, epic.goalId ? goalById.get(epic.goalId) : undefined, runs, status, approvals))
   }
 
   for (const goal of goals) {

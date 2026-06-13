@@ -114,6 +114,20 @@ export default async function CommandCenterPage() {
                   <p className="mt-0.5 text-xs text-amber-800 dark:text-amber-200">
                     {autoQueueStatusLabel[item.status] ?? item.candidateBlockedReason ?? item.status}のため、次回自動実行候補には入りません。
                   </p>
+                  {item.resolution && (
+                    <div className="mt-1.5 rounded-md bg-white px-2.5 py-2 dark:bg-gray-900">
+                      <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">👉 こうすれば動きます</p>
+                      <p className="mt-0.5 text-xs text-gray-600 dark:text-gray-300">{item.resolution.how}</p>
+                      {item.resolution.actionLabel && item.resolution.actionHref && (
+                        <Link
+                          href={item.resolution.actionHref}
+                          className="mt-1.5 inline-block rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-700"
+                        >
+                          {item.resolution.actionLabel} →
+                        </Link>
+                      )}
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>

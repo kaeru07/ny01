@@ -156,10 +156,26 @@ export default async function QueuePage({ searchParams }: { searchParams?: { fil
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Goal {item.goalTitle ?? '未設定'} · Project {item.projectName ?? item.projectId ?? '未設定'}
                 </p>
-                {pinnedButExcluded && (
-                  <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm font-bold text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
-                    pin済みだが候補外: {item.candidateBlockedReason ?? STATUS_LABEL[item.status]}のため、自動実行の次回候補には入りません。
-                  </p>
+                {!item.candidateEligible && (
+                  <div className={`mt-3 rounded-lg px-3 py-2 ${pinnedButExcluded ? 'bg-amber-50 dark:bg-amber-900/20' : 'bg-gray-50 dark:bg-gray-800/50'}`}>
+                    <p className={`text-sm font-bold ${pinnedButExcluded ? 'text-amber-800 dark:text-amber-200' : 'text-gray-700 dark:text-gray-200'}`}>
+                      {pinnedButExcluded ? 'pin済みだが候補外' : '候補外'}: {item.candidateBlockedReason ?? STATUS_LABEL[item.status]}のため、自動実行の次回候補には入りません。
+                    </p>
+                    {item.resolution && (
+                      <div className="mt-1.5">
+                        <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">👉 こうすれば動きます</p>
+                        <p className="mt-0.5 text-xs text-gray-600 dark:text-gray-300">{item.resolution.how}</p>
+                        {item.resolution.actionLabel && item.resolution.actionHref && !item.resolution.actionHref.startsWith('/queue') && (
+                          <Link
+                            href={item.resolution.actionHref}
+                            className="mt-1.5 inline-block rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-700"
+                          >
+                            {item.resolution.actionLabel} →
+                          </Link>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 )}
                 <p className="mt-2 text-sm font-medium text-gray-700 dark:text-gray-200">次の理由: {item.reason}</p>
                 <div className="mt-2 flex flex-wrap gap-1.5">
@@ -194,6 +210,9 @@ export default async function QueuePage({ searchParams }: { searchParams?: { fil
                   )}
                   {item.type === 'epic' && item.factoryEligible && (
                     <QueueActionButton workItemId={item.workItemId} action="exclude" danger>対象外</QueueActionButton>
+                  )}
+                  {item.type === 'epic' && !item.factoryEligible && (
+                    <QueueActionButton workItemId={item.workItemId} action="include">対象に戻す</QueueActionButton>
                   )}
                   <Link href={itemHref(item)} className="rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
                     詳細

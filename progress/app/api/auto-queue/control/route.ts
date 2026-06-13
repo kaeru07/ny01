@@ -9,7 +9,7 @@ import type { AutoQueueControlAction, QueueControl } from '@/types/auto-queue'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-const ACTIONS: AutoQueueControlAction[] = ['pin', 'unpin', 'hold', 'unhold', 'exclude', 'moveUp', 'moveDown', 'setManualOrder']
+const ACTIONS: AutoQueueControlAction[] = ['pin', 'unpin', 'hold', 'unhold', 'exclude', 'include', 'moveUp', 'moveDown', 'setManualOrder']
 
 function parseEpicId(workItemId: unknown): string | null {
   if (typeof workItemId !== 'string') return null
@@ -95,6 +95,8 @@ export async function POST(req: Request) {
       patch = { queueControl: userControl(epic.queueControl, { hold: false }) }
     } else if (action === 'exclude') {
       patch = { factoryEligible: false, queueControl: userControl(epic.queueControl, { excludedByUser: true }) }
+    } else if (action === 'include') {
+      patch = { factoryEligible: true, queueControl: userControl(epic.queueControl, { excludedByUser: false }) }
     } else if (action === 'setManualOrder') {
       const value = typeof body.value === 'number' && Number.isFinite(body.value) ? body.value : undefined
       if (!value) return NextResponse.json({ error: 'numeric value is required' }, { status: 400 })

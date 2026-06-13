@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-13
-updateNote: 自動実行キューのpin説明を更新。最優先指定は安全gatingを上書きせず、候補外なら司令塔と/queueに理由を表示
+updateNote: 候補外の作業に「👉こうすれば動きます」解消手順＋ボタン（Inboxでレビュー/承認・保留解除・対象に戻す等）を追加。pin済み候補外の次アクションを明確化
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -90,12 +90,14 @@ AI工場の「今」は、Factory runner が開始時に `running` の作業履�
 | ↑ / ↓ | `Epic.queueControl.manualOrder` | 現在の実行可能キュー内の相対順を保存 |
 | 保留 / 保留解除 | `Epic.queueControl.hold` | 保留中は `ai_hold` として候補外。解除後、安全条件を満たせば候補復帰 |
 | 対象外 | `Epic.factoryEligible=false` + `queueControl.excludedByUser` | 自動実行対象から外す |
+| 対象に戻す | `Epic.factoryEligible=true` + `queueControl.excludedByUser=false` | 対象外にした作業を自動実行候補に戻す |
 | 詳細 | なし | Epic詳細へ移動 |
 
 **重要注意**:
 
 - 最優先指定は安全gatingを上書きしない。`waiting_user` / `review_waiting` / `blocked` / `manual` の作業は、pinしても自動実行されない。
 - pin済みだが候補外の作業は、司令塔トップと `/queue` に「最優先指定中だが候補外」と理由を表示する。
+- **候補外の作業には「👉 こうすれば動きます」の解消手順とボタンを表示する**（`AutoQueueItem.resolution`）。`review_waiting`/`waiting_user`→Inboxでレビュー/承認（/decide）、`blocked`→Epic詳細でブロック解消、`ai_hold`→「保留解除」、`manual`(対象外)→「対象に戻す」。これで「最優先にしたのに動かない」ときに次に何をすればよいかが分かる。
 - 低優先レビューで工場全体は止めない。実行可能な別Epicがあれば、それが次回予定になる。
 - 次回予定は最新Run、承認、保留、対象外、Goal boost、pinの状態で変わる。操作後はトップと `/queue` を同じ派生結果で再表示する。
 
@@ -202,6 +204,8 @@ MVP完成 → ストア公開 → 広告導入 → DL100 → はじめての収�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-13: 自動実行キューの候補外アイテムに **「👉 こうすれば動きます」解消手順＋ボタン**（`AutoQueueItem.resolution`）を追加。status別に次アクションを案内（`review_waiting`/`waiting_user`→Inboxでレビュー/承認(/decide)、`blocked`→Epic詳細、`ai_hold`→保留解除、`manual`(対象外)→対象に戻す）。control API に `include`（対象に戻す）アクションを追加。司令塔トップ「最優先指定中だが候補外」枠と `/queue` カードの両方に表示。「最優先にしたのに動かない・どうすれば解消するか分からない」を解消。
 
 - 2026-06-13: 自動実行キューのpin説明を修正。`POST /api/auto-queue/control` 後に `/` と `/queue` を revalidate。司令塔トップと `/queue` は同じ `getAutoQueueView()` を使用。pin済みでも `waiting_user` / `review_waiting` / `blocked` / `manual` / `ai_hold` は安全gatingにより候補外のままとし、司令塔トップに「最優先指定中だが候補外」枠、`/queue`カードに候補外理由・候補入り可否・queueScoreを表示。保留操作は明示的に `ai_hold` を優先導出。
 
