@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-14
-updateNote: レビュー「修正する」のfixPromptをFactory Dispatchプロンプトに[3-1]人間の修正指示（最優先）として反映。次回自動実行でその内容で再修正されるよう接続（テストで反映前後を検証）
+updateNote: Prompt Queue（作業プロンプト貯蔵庫 /prompt-queue）を新設。入力はタスク名/プロンプト/Project/Goal進捗の4項目のみ（実行対象AI・優先度はUIに出さない）。未完了は「次回やる候補」に出る
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -232,6 +232,8 @@ Claude Code / Codex の作業完了時・Epic 完了後に「人間が確認す�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-14: **Prompt Queue（作業プロンプト貯蔵庫 `/prompt-queue`）** を新設（正本 `data/real/prompt-queue.json`・物理削除せず DELETE は `archived`）。フォーム入力は **タスク名 / プロンプト / Project / Goal進捗** の4項目のみ（任意: メモ / 関連URL / 関連レビューID / 関連Inbox ID）。**実行対象AI（codex/claude/fable_review/auto）と優先度（P0/P1/P2）は UI に出さない**（内部既定 auto / 未指定のみ）。Goal と Goal進捗は分けず単一 `goalProgress`（既存 Goal を参照）。JSON一括取り込みは `{promptQueue:[...]}` と旧互換 `{todos:[...]}` に対応し、`goal`→`goalProgress` 正規化・status未指定→`queued`・`priority`/`assignee`/`preferredExecutor` は無視（警告）・title/prompt 無しはエラー・project 不一致は未紐付け警告。未完了（queued/reserved/not_started/failed/needs_retry/needs_user_prompt_fix）は「**次回やる候補**」に Project/Goal進捗 の状態順で並び「なぜ候補か」付きで表示、completed/canceled/archived/snoozed は除外。ナビは Legacy 内「作業予約」。自動実行スケジューラ本体へはまだ未接続（貯蔵庫＋候補表示まで）。
 
 - 2026-06-14: レビュー「修正する」で保存した `fixPrompt` を **Factory Dispatch プロンプトへ反映**。`buildDispatchPlan` に `humanFixInstructions`（当該 Epic の needs_followup Run の fixPrompt ＋ 承認済みで remainingWork に入った修正指示）を追加し、Claude プロンプト `[3-1]`・Codex 引き継ぎ `[4-1]` に「人間の修正指示（最優先で対応）」として出力。**テストで反映前=プロンプトに無し→反映後=有り**を検証（epic-91 の実 fixPrompt「inboxページでフィルターがゴール進捗とproject単位…」で確認、テスト後 epic は原状復帰）。これで次回自動実行が人間の修正指示そのもので再修正する。
 
