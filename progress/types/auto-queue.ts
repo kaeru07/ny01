@@ -70,11 +70,15 @@ export interface GoalProgressRow {
   done: number
   ratio: number
   executable: number
+  nextCandidateCount: number
   waitingUser: number
   aiHold: number
   reviewWaiting: number
   blocked: number
+  manual: number
   lastRunAt?: string
+  latestWorkTitle?: string
+  nextActionTitle?: string
   priorityBoost?: 0 | 1 | 2
   pinnedTop?: boolean
 }

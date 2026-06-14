@@ -3,14 +3,17 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { readAppProgress } from '@/lib/progress-reader'
 import { readGoals, findMainGoal, calcGoalProgress, calcPhaseProgress } from '@/lib/goal-reader'
+import { getAutoQueueView } from '@/lib/auto-queue'
 import GoalPlannerForm from '@/components/goals/GoalPlannerForm'
 import GoalListItem from '@/components/goals/GoalListItem'
+import type { GoalProgressRow } from '@/types/auto-queue'
 import type { Goal } from '@/types/goal'
 
 export default async function GoalPlannerPage() {
-  const [progress, goalsData] = await Promise.all([
+  const [progress, goalsData, autoQueue] = await Promise.all([
     readAppProgress(),
     readGoals(),
+    getAutoQueueView(),
   ])
 
   const projects = progress.projects
@@ -18,13 +21,14 @@ export default async function GoalPlannerPage() {
     .map((p) => ({ id: p.id, name: p.name }))
 
   const mainGoal = findMainGoal(goalsData)
+  const queueProgressByGoal = new Map(autoQueue.goalProgress.map((row) => [row.goalId, row]))
 
   return (
     <div className="px-4 pt-6 pb-4 space-y-6">
       <header className="space-y-1">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Goal Planner</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          目標を入力 → Claude / Codex に分解させる → JSONを貼り付けて一括登録
+          Goalと自動実行キューを同じ進捗で見る。登録はJSON一括取り込みで追加できます。
         </p>
       </header>
 
@@ -36,7 +40,7 @@ export default async function GoalPlannerPage() {
           </div>
           <p className="text-base font-bold text-gray-900 dark:text-gray-100">{mainGoal.title}</p>
           {mainGoal.summary && <p className="text-xs text-gray-600 dark:text-gray-300">{mainGoal.summary}</p>}
-          <GoalMiniStats goal={mainGoal} />
+          <GoalMiniStats goal={mainGoal} queueProgress={queueProgressByGoal.get(mainGoal.id)} />
         </section>
       )}
 
@@ -57,6 +61,7 @@ export default async function GoalPlannerPage() {
                   phaseCount={g.phases.length}
                   todoCount={g.todos.length}
                   ratio={progress.ratio}
+                  queueProgress={queueProgressByGoal.get(g.id)}
                 />
               )
             })}
@@ -67,19 +72,37 @@ export default async function GoalPlannerPage() {
   )
 }
 
-function GoalMiniStats({ goal }: { goal: Goal }) {
+function GoalMiniStats({ goal, queueProgress }: { goal: Goal; queueProgress?: GoalProgressRow }) {
   const progress = calcGoalProgress(goal)
   const phases = calcPhaseProgress(goal)
+  const ratio = queueProgress?.ratio ?? progress.ratio
+  const done = queueProgress?.done ?? progress.doneTodos
+  const total = queueProgress?.total ?? progress.totalTodos
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
         <span>全体進捗</span>
-        <span className="font-semibold text-blue-700 dark:text-blue-300">{progress.ratio}%</span>
-        <span className="text-gray-400 dark:text-gray-500">({progress.doneTodos} / {progress.totalTodos})</span>
+        <span className="font-semibold text-blue-700 dark:text-blue-300">{ratio}%</span>
+        <span className="text-gray-400 dark:text-gray-500">({done} / {total})</span>
       </div>
       <div className="h-2 rounded-full bg-blue-100 dark:bg-blue-900/40 overflow-hidden">
-        <div className="h-full bg-blue-600 dark:bg-blue-500 transition-all" style={{ width: `${progress.ratio}%` }} />
+        <div className="h-full bg-blue-600 dark:bg-blue-500 transition-all" style={{ width: `${ratio}%` }} />
+      </div>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+        <MiniStat label="次回候補" value={queueProgress?.nextCandidateCount ?? 0} />
+        <MiniStat label="実行可能" value={queueProgress?.executable ?? 0} />
+        <MiniStat label="判断待ち" value={queueProgress?.waitingUser ?? 0} />
+        <MiniStat label="レビュー待ち" value={queueProgress?.reviewWaiting ?? 0} />
+        <MiniStat label="候補外" value={queueProgress?.manual ?? 0} />
+      </div>
+      <div className="rounded-xl bg-white/70 dark:bg-gray-900/30 border border-blue-100 dark:border-blue-900/40 px-3 py-2 space-y-1">
+        <p className="text-xs text-gray-600 dark:text-gray-300">
+          <span className="font-semibold text-gray-800 dark:text-gray-100">次にやるべきこと:</span> {queueProgress?.nextActionTitle ?? '実行可能候補なし'}
+        </p>
+        <p className="text-xs text-gray-600 dark:text-gray-300">
+          <span className="font-semibold text-gray-800 dark:text-gray-100">最新作業:</span> {queueProgress?.latestWorkTitle ?? 'まだ作業履歴なし'}
+        </p>
       </div>
       {phases.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 pt-1">
@@ -91,6 +114,15 @@ function GoalMiniStats({ goal }: { goal: Goal }) {
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+function MiniStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-lg bg-white/70 dark:bg-gray-900/30 border border-blue-100 dark:border-blue-900/40 px-2 py-1.5 text-center">
+      <p className="text-base font-bold text-gray-900 dark:text-gray-100">{value}</p>
+      <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400">{label}</p>
     </div>
   )
 }

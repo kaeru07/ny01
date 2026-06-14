@@ -58,10 +58,25 @@ function itemHref(item: AutoQueueItem): string {
   return item.type === 'epic' ? `/epic/${item.sourceId}` : `/goal-planner`
 }
 
-export default async function QueuePage({ searchParams }: { searchParams?: { filter?: string } }) {
+function queueHref(filter: 'all' | WorkItemStatus, goalId?: string): string {
+  const params = new URLSearchParams()
+  if (filter !== 'all') params.set('filter', filter)
+  if (goalId) params.set('goalId', goalId)
+  const query = params.toString()
+  return query ? `/queue?${query}` : '/queue'
+}
+
+function statusCount(items: AutoQueueItem[], status: WorkItemStatus): number {
+  return items.filter((item) => item.status === status).length
+}
+
+export default async function QueuePage({ searchParams }: { searchParams?: { filter?: string; goalId?: string } }) {
   const queue = await getAutoQueueView()
   const filter = (searchParams?.filter ?? 'all') as 'all' | WorkItemStatus
-  const items = allItems(queue).filter((item) => filter === 'all' || item.status === filter)
+  const goalId = searchParams?.goalId
+  const goalProgress = goalId ? queue.goalProgress.find((row) => row.goalId === goalId) : undefined
+  const baseItems = allItems(queue).filter((item) => !goalId || item.goalId === goalId)
+  const items = baseItems.filter((item) => filter === 'all' || item.status === filter)
 
   return (
     <div className="space-y-5 px-4 pb-6 pt-6">
@@ -70,10 +85,20 @@ export default async function QueuePage({ searchParams }: { searchParams?: { fil
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">自動実行キュー</h1>
             <p className="mt-0.5 text-sm text-gray-400 dark:text-gray-500">
-              Epicを正本にした派生ビュー · 実行可能 {queue.counts.executable}件
+              Epicを正本にした派生ビュー · 実行可能 {statusCount(baseItems, 'executable')}件
             </p>
           </div>
+          {goalId && (
+            <Link href="/queue" className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
+              全体に戻る
+            </Link>
+          )}
         </div>
+        {goalId && (
+          <div className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-sm text-blue-800 dark:border-blue-900/50 dark:bg-blue-900/20 dark:text-blue-200">
+            Goal: <span className="font-bold">{goalProgress?.title ?? goalId}</span> のキューだけを表示中
+          </div>
+        )}
         {/* 自動実行ハブの関連導線 */}
         <div className="flex flex-wrap gap-2">
           <Link href="/prompt-queue" className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
@@ -94,7 +119,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: { fil
           return (
             <Link
               key={f.key}
-              href={f.key === 'all' ? '/queue' : `/queue?filter=${f.key}`}
+              href={queueHref(f.key, goalId)}
               className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold ${
                 active
                   ? 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900'
@@ -109,13 +134,13 @@ export default async function QueuePage({ searchParams }: { searchParams?: { fil
 
       <section className="grid grid-cols-1 gap-2 sm:grid-cols-5">
         {[
-          ['判断待ち', queue.counts.waiting_user, 'waiting_user'],
-          ['AI保留', queue.counts.ai_hold, 'ai_hold'],
-          ['レビュー', queue.counts.review_waiting, 'review_waiting'],
-          ['実行可', queue.counts.executable, 'executable'],
-          ['Block', queue.counts.blocked, 'blocked'],
+          ['判断待ち', statusCount(baseItems, 'waiting_user'), 'waiting_user'],
+          ['AI保留', statusCount(baseItems, 'ai_hold'), 'ai_hold'],
+          ['レビュー', statusCount(baseItems, 'review_waiting'), 'review_waiting'],
+          ['実行可', statusCount(baseItems, 'executable'), 'executable'],
+          ['Block', statusCount(baseItems, 'blocked'), 'blocked'],
         ].map(([label, count, key]) => (
-          <Link key={key} href={`/queue?filter=${key}`} className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/60">
+          <Link key={key} href={queueHref(key as WorkItemStatus, goalId)} className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/60">
             <p className="text-[11px] font-semibold text-gray-400">{label}</p>
             <p className="mt-1 text-xl font-bold text-gray-900 dark:text-gray-100">{count}</p>
           </Link>

@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import type { GoalRole, MonetizationImpact } from '@/types/goal'
 
 interface ProjectOption {
   id: string
@@ -21,7 +20,6 @@ interface PreviewSummary {
   projectId: string
   phaseCount: number
   todoCount: number
-  perRole: Record<GoalRole, number>
   warnings: string[]
   errors: string[]
 }
@@ -35,18 +33,7 @@ interface ImportResult {
   warnings: string[]
 }
 
-const ROLE_OPTIONS: { value: GoalRole; label: string; color: string }[] = [
-  { value: 'human', label: '人間', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' },
-  { value: 'claude', label: 'Claude', color: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300' },
-  { value: 'codex', label: 'Codex', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' },
-]
-
-const IMPACT_OPTIONS: { value: MonetizationImpact; label: string }[] = [
-  { value: 'high', label: '収益直結:高' },
-  { value: 'medium', label: '収益直結:中' },
-  { value: 'low', label: '収益直結:低' },
-  { value: 'none', label: '収益化なし' },
-]
+const DEFAULT_QUEUE_ROLES = ['claude']
 
 export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
   const router = useRouter()
@@ -62,7 +49,6 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
   const [importError, setImportError] = useState('')
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
   const [setAsMain, setSetAsMain] = useState(!hasMainGoal)
-  const [queueRoles, setQueueRoles] = useState<Record<GoalRole, boolean>>({ human: false, claude: true, codex: false })
   const [fallbackText, setFallbackText] = useState<string | null>(null)
 
   const selectedProject = useMemo(() => projects.find((p) => p.id === projectId), [projects, projectId])
@@ -102,10 +88,10 @@ ${goalText.trim()}
 # 対象案件
 ${projectLine}
 
-# 役割の使い分け
-- human: ユーザー本人にしかできない作業（Play Console / 銀行口座 / 写真撮影 / 法的判断 / アプリ署名キー作成 等）
-- claude: Claude Code(このリポジトリ内のCLI)で実装可能な作業（コード追加・修正・テスト・ビルド・ドキュメント生成）
-- codex: Codex / 別 AI セッションで実施するのが向いている作業（仕様検討・案文作成・調査・命名・コピーライティング 等）
+# 実行区分
+- Goal Plannerでは実行担当AIや優先度をユーザー入力にしない
+- todos の role は互換用に "claude" を既定にする
+- ユーザー本人の判断が必要な作業は nextAction / memo に「人間判断が必要」と明記する
 
 # 出力ルール
 - JSON のみで返す。前後に説明文・Markdownコードフェンスを付けない
@@ -113,10 +99,10 @@ ${projectLine}
 ${monetizationLine}
 - phases は 3〜6 件、達成順に order を昇順で振る
 - todos は 6〜20 件、それぞれを1個の具体作業に分割（大きすぎる作業は分割する）
-- todos の role は human / claude / codex のいずれか
+- todos の role は "claude" にする
 - すべての todos に doneCriteria を 1 件以上含める（検証可能な形）
 - 依存関係がある場合は dependsOn に他 todo の id を入れる
-- claude / codex の todos には taskPrompt を 200〜600 字程度で具体的に書く${hintLine}
+- taskPrompt を 200〜600 字程度で具体的に書く${hintLine}
 
 # JSON スキーマ
 {
@@ -139,7 +125,7 @@ ${monetizationLine}
       "id": "todo-1",
       "phaseId": "phase-1",
       "title": "(具体作業)",
-      "role": "human | claude | codex",
+      "role": "claude",
       "order": 0,
       "priority": "high | medium | low",
       "nextAction": "(今すぐ次にやる1行)",
@@ -198,7 +184,6 @@ JSON のみで返答してください。`
         projectId: typeof obj.projectId === 'string' ? obj.projectId : '',
         phaseCount: data.phaseCount ?? 0,
         todoCount: data.todoCount ?? 0,
-        perRole: data.perRole ?? { human: 0, claude: 0, codex: 0 },
         warnings: Array.isArray(data.warnings) ? data.warnings : [],
         errors: Array.isArray(data.errors) ? data.errors : [],
       })
@@ -219,14 +204,12 @@ JSON のみで返答してください。`
       setImportError(`JSON パースエラー: ${(e as Error).message}`)
       return
     }
-    const queueRolesList = (Object.keys(queueRoles) as GoalRole[]).filter((r) => queueRoles[r])
-
     setImporting(true)
     try {
       const body = {
         ...(parsed as Record<string, unknown>),
         setAsMain,
-        addToQueueRoles: queueRolesList,
+        addToQueueRoles: DEFAULT_QUEUE_ROLES,
       }
       const res = await fetch('/api/goals', {
         method: 'POST',
@@ -255,10 +238,6 @@ JSON のみで返答してください。`
     } finally {
       setImporting(false)
     }
-  }
-
-  function toggleQueueRole(role: GoalRole) {
-    setQueueRoles((prev) => ({ ...prev, [role]: !prev[role] }))
   }
 
   return (
@@ -402,22 +381,6 @@ JSON のみで返答してください。`
             />
             登録後にこの目標をメイン目標にする
           </label>
-          <div className="space-y-1">
-            <p className="text-xs text-gray-500 dark:text-gray-400">今日の作業キューへ追加する role:</p>
-            <div className="flex flex-wrap gap-2">
-              {ROLE_OPTIONS.map((r) => (
-                <label key={r.value} className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs cursor-pointer select-none ${queueRoles[r.value] ? r.color : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'}`}>
-                  <input
-                    type="checkbox"
-                    checked={queueRoles[r.value]}
-                    onChange={() => toggleQueueRole(r.value)}
-                    className="w-3 h-3 rounded accent-blue-600"
-                  />
-                  {r.label}
-                </label>
-              ))}
-            </div>
-          </div>
         </div>
 
         {importError && (
@@ -435,11 +398,6 @@ JSON のみで返答してください。`
             <Stat label="フェーズ" value={preview.phaseCount} color="text-blue-600 dark:text-blue-400" />
             <Stat label="ToDo" value={preview.todoCount} color="text-emerald-600 dark:text-emerald-400" />
             <Stat label="projectId" value={preview.projectId || '-'} small color="text-gray-600 dark:text-gray-300" />
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            {ROLE_OPTIONS.map((r) => (
-              <Stat key={r.value} label={r.label} value={preview.perRole[r.value] ?? 0} color="text-gray-700 dark:text-gray-200" />
-            ))}
           </div>
           {preview.errors.length > 0 && (
             <ul className="space-y-0.5">

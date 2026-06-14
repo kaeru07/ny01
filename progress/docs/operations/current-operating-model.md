@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-14
-updateNote: レビュー「修正する」のfixPromptを定時自動実行の最優先で実行する運用に（承認不要・安全ゲート通過分のみ・runReviewFixDispatchをスケジューラ先頭で実行）
+updateNote: Goal Planner(目標タブ)と自動実行キューを同一データ源(buildAutoQueue.goalProgress)に統合。目標カードに次回候補/実行可能/判断待ち/レビュー待ち/候補外/最新作業/次アクション＋/queue?goalId導線。role選択UI撤去
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -239,6 +239,8 @@ Claude Code / Codex の作業完了時・Epic 完了後に「人間が確認す�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-14: **Goal Planner（目標タブ）と自動実行キューをデータ統合**。両者を同一の集計源 `buildAutoQueue().goalProgress` に揃え、Goal Planner＝same-source の要約ビュー / `/queue?goalId=`＝詳細ビューに役割分担。`GoalProgressRow` に `nextCandidateCount`/`manual`/`latestWorkTitle`/`nextActionTitle` を追加し、各 Goal カードに 次回候補/実行可能/判断待ち/レビュー待ち/候補外/最新作業/次にやること を表示＋「自動実行キューを見る(/queue?goalId)」「ToDoを見る(/decide?goalId)」「作業予約」導線を追加。Goal Planner の件数と /queue?goalId の件数は同一ソースで整合。`/queue` は goalId 指定時にカウンタ/フィルタ/一覧を当該 Goal に絞る（「全体に戻る」付き）。`GoalPlannerForm` の role選択UI を撤去（保存は内部既定 `addToQueueRoles:['claude']` で後方互換）。GoalとGoal進捗は分けない方針を維持。旧 phases/todos 表示は互換のため残置。
 
 - 2026-06-14: **レビュー「修正する」の fixPrompt を定時自動実行の最優先で実行する運用に**（承認不要・ユーザー指示）。新規 `lib/review-fix-runner.ts` の `runReviewFixDispatch` を `runScheduledFactory` の**先頭**（Epic factory・Prompt Queue より前）に接続。対象=`needs_followup`＋`fixPrompt` 非空（未消化）。安全ゲート通過分のみ auto+confirm で実起動、危険シグナル（課金/deploy/本番/secret/migration/**削除**/destructive/force 等）該当は実行せず needs_followup のまま reviewMemo に理由。`source='review_fix'`・`followupOfRunId` で記録、成功時のみ元 run を `reviewed` に消化。cap=1〜2、dry_run は記録のみ。※「削除」等の語を含む修正指示は安全側で自動実行されない（人手対応）。
 

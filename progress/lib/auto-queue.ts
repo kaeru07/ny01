@@ -180,16 +180,18 @@ function countsOf(items: AutoQueueItem[], inbox: number): AutoQueueCounts {
 function buildGoalProgress(goals: Goal[], items: AutoQueueItem[]): GoalProgressRow[] {
   return goals.map((goal) => {
     const goalItems = items.filter((item) => item.goalId === goal.id)
+    const executableItems = goalItems.filter((item) => item.status === 'executable').sort(compareItems)
     const todoTotal = goal.todos.length
     const todoDone = goal.todos.filter((todo) => todo.status === 'done' || todo.status === 'skipped').length
     const itemTotal = goalItems.length
     const itemDone = goalItems.filter((item) => item.status === 'done').length
     const total = Math.max(todoTotal, itemTotal)
     const done = Math.max(todoDone, itemDone)
-    const latest = goalItems
-      .map((item) => item.lastRunAt ?? item.updatedAt)
-      .filter((v): v is string => Boolean(v))
-      .sort((a, b) => Date.parse(b) - Date.parse(a))[0]
+    const latestItem = goalItems
+      .map((item) => ({ item, at: item.lastRunAt ?? item.updatedAt }))
+      .filter((entry): entry is { item: AutoQueueItem; at: string } => Boolean(entry.at))
+      .sort((a, b) => Date.parse(b.at) - Date.parse(a.at))[0]?.item
+    const executable = executableItems.length
     return {
       goalId: goal.id,
       title: goal.title,
@@ -197,21 +199,27 @@ function buildGoalProgress(goals: Goal[], items: AutoQueueItem[]): GoalProgressR
       total,
       done,
       ratio: total === 0 ? 0 : Math.round((done / total) * 100),
-      executable: goalItems.filter((item) => item.status === 'executable').length,
+      executable,
+      nextCandidateCount: executable,
       waitingUser: goalItems.filter((item) => item.status === 'waiting_user').length,
       aiHold: goalItems.filter((item) => item.status === 'ai_hold').length,
       reviewWaiting: goalItems.filter((item) => item.status === 'review_waiting').length,
       blocked: goalItems.filter((item) => item.status === 'blocked').length,
-      lastRunAt: latest,
+      manual: goalItems.filter((item) => item.status === 'manual').length,
+      lastRunAt: latestItem?.lastRunAt ?? latestItem?.updatedAt,
+      latestWorkTitle: latestItem?.title,
+      nextActionTitle: executableItems[0]?.title,
       priorityBoost: goal.priorityBoost,
       pinnedTop: goal.pinnedTop,
     }
-  }).filter((row) => row.total > 0 || row.executable > 0 || row.waitingUser > 0)
-    .sort((a, b) => {
-      if (a.pinnedTop !== b.pinnedTop) return a.pinnedTop ? -1 : 1
-      if ((a.priorityBoost ?? 0) !== (b.priorityBoost ?? 0)) return (b.priorityBoost ?? 0) - (a.priorityBoost ?? 0)
-      return b.executable - a.executable
-    })
+  }).sort((a, b) => {
+    if (a.pinnedTop !== b.pinnedTop) return a.pinnedTop ? -1 : 1
+    if ((a.priorityBoost ?? 0) !== (b.priorityBoost ?? 0)) return (b.priorityBoost ?? 0) - (a.priorityBoost ?? 0)
+    const activityA = a.total + a.executable + a.waitingUser + a.reviewWaiting + a.aiHold + a.blocked + a.manual
+    const activityB = b.total + b.executable + b.waitingUser + b.reviewWaiting + b.aiHold + b.blocked + b.manual
+    if (activityA !== activityB) return activityB - activityA
+    return b.executable - a.executable
+  })
 }
 
 export async function buildAutoQueue(): Promise<AutoQueueView> {
