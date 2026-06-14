@@ -4,6 +4,7 @@ import { getDataPath } from '@/lib/progress-reader'
 import { getAutomationConfig, appendAutomationLog } from './operations-store'
 import { computeFactoryStatus } from './factory-status'
 import { runFactory } from './factory-runner'
+import { runReviewFixDispatch } from './review-fix-runner'
 import { runPromptQueueDispatch } from './prompt-queue-runner'
 import { addExecutionRun, updateExecutionRunFields } from './execution-run-writer'
 import { syncCandidatesFromVault } from './monetization-vault-sync'
@@ -50,8 +51,13 @@ export interface ScheduleRunResult {
   promptQueueReserved?: number
   promptQueueSkipped?: number
   promptQueueBlocked?: number
+  reviewFixExecuted?: number
+  reviewFixReserved?: number
+  reviewFixSkipped?: number
+  reviewFixBlocked?: number
   taggedRunIds: string[]
   promptQueueRunIds?: string[]
+  reviewFixRunIds?: string[]
   envelopeRunId: string
   startedAt: string
   finishedAt: string
@@ -275,6 +281,11 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
 
   // 4) 起動（auto / confirm）。Epic ループ・安全ゲートは runFactory に委譲（P3 では何も変えない）。
   try {
+    const reviewFix = await runReviewFixDispatch({
+      mode: 'auto',
+      confirm: true,
+      maxItems: 1,
+    })
     const report: FactoryRunReport = await runFactory({
       mode: 'auto',
       confirm: true,
@@ -297,20 +308,25 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
       }
     }
     const promptQueueRunIds = promptQueue.steps.map((step) => step.runId).filter((runId): runId is string => Boolean(runId))
+    const reviewFixRunIds = reviewFix.steps.map((step) => step.followupRunId).filter((runId): runId is string => Boolean(runId))
 
-    const runStatus: ExecutionRun['runStatus'] = report.runsExecuted > 0 || promptQueue.executed > 0 || promptQueue.reserved > 0 ? 'completed' : 'partial'
+    const runStatus: ExecutionRun['runStatus'] =
+      report.runsExecuted > 0 || promptQueue.executed > 0 || promptQueue.reserved > 0 || reviewFix.executed > 0 || reviewFix.reserved > 0
+        ? 'completed'
+        : 'partial'
     const envelopeRunId = await recordEnvelope({
       source: input.source,
       trigger: input.trigger,
       runStatus,
-      summary: `Factory 起動: Epic ${report.runsExecuted} Run / Prompt Queue 実行${promptQueue.executed}・予約${promptQueue.reserved}・skip${promptQueue.skipped}・block${promptQueue.blocked} / 停止理由=${report.stoppedReason}（${input.source}/${input.trigger}）`,
+      summary: `Factory 起動: Review Fix 実行${reviewFix.executed}・予約${reviewFix.reserved}・skip${reviewFix.skipped}・block${reviewFix.blocked} / Epic ${report.runsExecuted} Run / Prompt Queue 実行${promptQueue.executed}・予約${promptQueue.reserved}・skip${promptQueue.skipped}・block${promptQueue.blocked} / 停止理由=${report.stoppedReason}（${input.source}/${input.trigger}）`,
       rawReport: [
+        `[review-fix] considered=${reviewFix.considered} executed=${reviewFix.executed} reserved=${reviewFix.reserved} skipped=${reviewFix.skipped} blocked=${reviewFix.blocked} stopped=${reviewFix.stoppedReason} runIds=${reviewFixRunIds.join(',') || 'none'}`,
         `[factory-schedule] source=${input.source} trigger=${input.trigger} runs=${report.runsExecuted} stopped=${report.stoppedReason} tagged=${taggedRunIds.join(',') || 'none'}`,
         `[prompt-queue] considered=${promptQueue.considered} executed=${promptQueue.executed} reserved=${promptQueue.reserved} skipped=${promptQueue.skipped} blocked=${promptQueue.blocked} stopped=${promptQueue.stoppedReason} runIds=${promptQueueRunIds.join(',') || 'none'}`,
       ].join('\n'),
       startedAt,
       stoppedReason: report.stoppedReason,
-      runsExecuted: report.runsExecuted + promptQueue.executed + promptQueue.reserved,
+      runsExecuted: report.runsExecuted + promptQueue.executed + promptQueue.reserved + reviewFix.executed + reviewFix.reserved,
     })
 
     await appendAutomationLog({ event: 'factory_schedule', fallbackReason: report.stoppedReason, detectionStatus: input.source } as never)
@@ -323,13 +339,18 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
       factoryEnabled: true,
       factoryRunState: status.factoryRunState,
       stoppedReason: report.stoppedReason,
-      runsExecuted: report.runsExecuted + promptQueue.executed + promptQueue.reserved,
+      runsExecuted: report.runsExecuted + promptQueue.executed + promptQueue.reserved + reviewFix.executed + reviewFix.reserved,
       promptQueueExecuted: promptQueue.executed,
       promptQueueReserved: promptQueue.reserved,
       promptQueueSkipped: promptQueue.skipped,
       promptQueueBlocked: promptQueue.blocked,
+      reviewFixExecuted: reviewFix.executed,
+      reviewFixReserved: reviewFix.reserved,
+      reviewFixSkipped: reviewFix.skipped,
+      reviewFixBlocked: reviewFix.blocked,
       taggedRunIds,
       promptQueueRunIds,
+      reviewFixRunIds,
       envelopeRunId,
       startedAt,
       finishedAt: new Date().toISOString(),

@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-14
-updateNote: モバイル下タブを横スクロールの全画面タブ化。先頭5つ(ホーム/ToDo/Project/目標/自動実行)＋リンクで飛べる主要画面を全て下タブに直接掲載。「下タブにない主要画面」を撤廃
+updateNote: レビュー「修正する」のfixPromptを定時自動実行の最優先で実行する運用に（承認不要・安全ゲート通過分のみ・runReviewFixDispatchをスケジューラ先頭で実行）
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -46,6 +46,8 @@ Progress は **AI工場の管理画面ではなく、人間用の司令塔**。
 目標 → 大きな作業 → AI作業 → レビュー → 学習 → 次の作業
 
 レビューで「修正する」を選んだ `needs_followup` の作業履歴は、`followupOfRunId` 付きのおすすめ次作業へ自動変換する。同じ作業履歴から候補を重複生成しない。スケジュール起動時にも未処理の修正依頼をbackfillする。
+
+**修正依頼の最優先自動実行（2026-06-14・承認不要）**: 「修正する」で `fixPrompt` を付けた `needs_followup` 作業履歴は、定時起動 `runScheduledFactory` の **最初**（Epic factory・Prompt Queue より前）に `runReviewFixDispatch` が処理する＝**次回自動実行で最優先**。安全ゲート（`classifyCodexEligibility` ＋ hard-deny: 課金/billing/deploy/本番/production/secret/.env/認証/migration/削除/destructive/force）を通過した分のみ auto+confirm で実 executor 起動。危険シグナル該当は実行せず `needs_followup` のまま reviewMemo に理由を残す（人手対応）。実行は `source='review_fix'`・`followupOfRunId=<元runId>` の ExecutionRun として記録し、成功時のみ元 run を `reviewed` に更新して消化（再ディスパッチ防止）。1起動 cap=1〜2。dry_run は記録のみ（実起動・消化なし）。
 
 **人間の修正指示（fixPrompt）の dispatch 反映**: 「修正する」で保存した `fixPrompt` は、その Epic の Factory Dispatch プロンプトに `[3-1] 人間の修正指示（最優先で対応すること）`（Codex 引き継ぎは `[4-1]`）として最優先で載る（`buildDispatchPlan().humanFixInstructions`＝当該 Epic の needs_followup Run の fixPrompt ＋ 承認済みで remainingWork に入った修正指示）。これで次回自動実行時に executor が人間の修正指示そのものを受け取り、その内容で再修正できる。※Epic に有効な doneCriteria / priority が無いと dispatch 自体が blocked になる点は従来どおり（修正指示は dispatch 可能になった時点で必ずプロンプトに乗る）。
 
@@ -237,6 +239,8 @@ Claude Code / Codex の作業完了時・Epic 完了後に「人間が確認す�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-14: **レビュー「修正する」の fixPrompt を定時自動実行の最優先で実行する運用に**（承認不要・ユーザー指示）。新規 `lib/review-fix-runner.ts` の `runReviewFixDispatch` を `runScheduledFactory` の**先頭**（Epic factory・Prompt Queue より前）に接続。対象=`needs_followup`＋`fixPrompt` 非空（未消化）。安全ゲート通過分のみ auto+confirm で実起動、危険シグナル（課金/deploy/本番/secret/migration/**削除**/destructive/force 等）該当は実行せず needs_followup のまま reviewMemo に理由。`source='review_fix'`・`followupOfRunId` で記録、成功時のみ元 run を `reviewed` に消化。cap=1〜2、dry_run は記録のみ。※「削除」等の語を含む修正指示は安全側で自動実行されない（人手対応）。
 
 - 2026-06-14: **モバイル下タブを横スクロールの全画面タブ化**（ユーザー指示「下タブにない主要画面はなくして／リンクで飛べるものは全て下タブに」）。先頭5つ＝アイコン付き主要タブ（ホーム/ToDo/Project/目標/自動実行）＋ `moreItems` で残りの主要画面（作業予約/Revenue/運用/実行履歴/ToDo管理/JSON取込/動作確認/おすすめEpic/収益化/承認/自動化/工場Epic/Codex/朝会/日別/AI自走/レーダー/案件/旧Inbox/決定事項/工場候補/URL/旧キュー/旧ダッシュ/画面一覧）を全てテキストタブで列挙。`/legacy` は「画面一覧」タブ（カテゴリ別ディレクトリ）として残し「下タブにない主要画面」グループ表記を撤廃。これで iPhone から全主要画面へ下タブ直接到達。
 
