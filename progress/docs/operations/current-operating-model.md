@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-14
-updateNote: モバイル下タブを再編（ホーム/ToDo/Project/目標/自動実行/その他）。自動実行キュー(/queue)を主要タブに昇格しiPhoneから必ず辿れるように。Revenue/運用/作業予約は「その他」(/legacyハブ)から
+updateNote: モバイル下タブを横スクロールの全画面タブ化。先頭5つ(ホーム/ToDo/Project/目標/自動実行)＋リンクで飛べる主要画面を全て下タブに直接掲載。「下タブにない主要画面」を撤廃
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -17,11 +17,11 @@ Progress は **AI工場の管理画面ではなく、人間用の司令塔**。
 - AI が「調査 → 実装 → レビュー候補生成」まで進める
 - 内部構造の複雑さはユーザーに見せない（用語は人間語へ翻訳する）
 
-## 画面構成（モバイル下タブ 6・2026-06-14 再編）
+## 画面構成（モバイル下タブ＝横スクロール全画面・2026-06-14）
 
-**モバイル BottomNav（`components/navigation/BottomNav.tsx`）**: ホーム(`/`) / ToDo(`/decide`) / Project(`/portfolio`) / 目標(`/goal-planner`) / **自動実行(`/queue`)** / その他(`/legacy`)。「自動実行」を主要タブに昇格し iPhone から必ず辿れるようにした。Revenue(`/revenue`) / 運用(`/guide`) / 作業予約(`/prompt-queue`) / 動作確認(`/verify-todos`) / 旧画面群は **「その他」=`/legacy` ハブ**から。自動実行タブ(`/queue`)は 作業予約(`/prompt-queue`)・実行履歴(`/logs`) へのハブ導線を持つ。
+**モバイル BottomNav（`components/navigation/BottomNav.tsx`）は横スクロール**。先頭5つがアイコン付き主要タブ ホーム(`/`) / ToDo(`/decide`) / Project(`/portfolio`) / 目標(`/goal-planner`) / **自動実行(`/queue`)**。続けて `moreItems` として **リンクで飛べる主要画面を全て**テキストタブで列挙（作業予約 `/prompt-queue` / Revenue `/revenue` / 運用 `/guide` / 実行履歴 `/logs` / ToDo管理 `/tasks` / JSON取込 `/tasks/import` / 動作確認 `/verify-todos` / おすすめEpic / 収益化 / 承認 / 自動化 / 工場Epic / Codex / 朝会 / 日別 / AI自走 / レーダー / 案件 / 旧Inbox / 決定事項 / 工場候補 / URL / 旧キュー / 旧ダッシュ / 画面一覧(`/legacy`)）。**「下タブにない主要画面」は無い**（ユーザー指示 2026-06-14）。`/legacy` は全画面のカテゴリ別一覧として残す。
 
-下表は各画面の役割（タブ所属に関わらず全画面を列挙）:
+下表は各画面の役割:
 
 
 | タブ | ルート | 役割 |
@@ -238,7 +238,9 @@ Claude Code / Codex の作業完了時・Epic 完了後に「人間が確認す�
 
 ## 変更履歴
 
-- 2026-06-14: **モバイル下タブ再編**。`components/navigation/BottomNav.tsx` を ホーム/ToDo/Project/目標/**自動実行**/その他 の6タブへ変更。**自動実行キュー(`/queue`)を主要タブに昇格**（従来はモバイル下タブに無く iPhone から辿れなかった＝ルート棚卸しレビュー runId 20260614-101321 の最重要指摘の解消）。Revenue/運用(`/guide`)/作業予約(`/prompt-queue`)/動作確認 は「その他」=`/legacy` ハブへ集約（`/legacy` ページに「よく使う（下タブにない主要画面）」グループを新設し orphan を回避）。`/queue` ページに 作業予約・実行履歴(`/logs`) へのハブ導線を追加。`/legacy/queue`(旧WorkQueue) は「旧キュー・非正本（正本は /queue）」と明記。
+- 2026-06-14: **モバイル下タブを横スクロールの全画面タブ化**（ユーザー指示「下タブにない主要画面はなくして／リンクで飛べるものは全て下タブに」）。先頭5つ＝アイコン付き主要タブ（ホーム/ToDo/Project/目標/自動実行）＋ `moreItems` で残りの主要画面（作業予約/Revenue/運用/実行履歴/ToDo管理/JSON取込/動作確認/おすすめEpic/収益化/承認/自動化/工場Epic/Codex/朝会/日別/AI自走/レーダー/案件/旧Inbox/決定事項/工場候補/URL/旧キュー/旧ダッシュ/画面一覧）を全てテキストタブで列挙。`/legacy` は「画面一覧」タブ（カテゴリ別ディレクトリ）として残し「下タブにない主要画面」グループ表記を撤廃。これで iPhone から全主要画面へ下タブ直接到達。
+
+- 2026-06-14: （前段）モバイル下タブ再編。`components/navigation/BottomNav.tsx` を ホーム/ToDo/Project/目標/**自動実行**/その他 の6タブへ変更。**自動実行キュー(`/queue`)を主要タブに昇格**（従来はモバイル下タブに無く iPhone から辿れなかった＝ルート棚卸しレビュー runId 20260614-101321 の最重要指摘の解消）。Revenue/運用(`/guide`)/作業予約(`/prompt-queue`)/動作確認 は「その他」=`/legacy` ハブへ集約（`/legacy` ページに「よく使う（下タブにない主要画面）」グループを新設し orphan を回避）。`/queue` ページに 作業予約・実行履歴(`/logs`) へのハブ導線を追加。`/legacy/queue`(旧WorkQueue) は「旧キュー・非正本（正本は /queue）」と明記。
 
 
 - 2026-06-14: **Prompt Queue を実 Factory 自動実行に接続**。`runPromptQueueDispatch()`（`lib/prompt-queue-runner.ts`）を新設し、定時起動 `runScheduledFactory`（11/14/16/23 JST）の lock 内で Epic Factory 実行**後**に別ステップとして呼ぶ（`maxItems:1`・Epic dispatch ロジックは不変更）。対象は「次回やる候補」。**安全ゲート（必須）**: 各 item の `title+prompt` を `classifyCodexEligibility` ＋ hard-deny 正規表現（課金/billing/deploy/本番/production/secret/.env/認証/migration/削除/destructive/force）に通し、**危険シグナル該当は実行せず `needs_user_prompt_fix` へ隔離**（errorMessage に理由）。安全分は status を `running`→（**dry_run=既定は実起動せず `reserved`**／**`auto`+`confirm`=定時起動のみ既存 executor adapter で実起動**）。結果で `completed`/`failed`/`needs_retry`。ExecutionRun は `source='prompt_queue'`・`factoryRun=true`・`dispatchMode`・`promptUsed` で記録し `item.executionRunId` に戻す。`factoryEnabled=false`/`Blocked` では何もしない。dry_run テストで 安全→reserved＋runId・危険「本番DBを削除 force」→needs_user_prompt_fix（未実行）を検証。

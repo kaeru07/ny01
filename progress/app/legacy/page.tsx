@@ -6,9 +6,9 @@ import PageGuide from '@/components/newux/PageGuide'
 
 const groups: Array<{ title: string; links: Array<{ href: string; label: string; note: string }> }> = [
   {
-    title: 'よく使う（下タブにない主要画面）',
+    title: '主要（下タブにもあります）',
     links: [
-      { href: '/revenue', label: 'Revenue（収益マイルストーン）', note: '収益化の現在地（旧・下タブ。2026-06-14のナビ再編でここへ移動）' },
+      { href: '/revenue', label: 'Revenue（収益マイルストーン）', note: '収益化の現在地' },
       { href: '/guide', label: '運用ガイド', note: 'このアプリの使い方・最終更新' },
       { href: '/prompt-queue', label: '作業予約（Prompt Queue）', note: 'やってほしい作業を貯めておく。次回やる候補は定時に自動実行' },
       { href: '/verify-todos', label: '動作確認Todo', note: '人間が確認すべき画面・URL・手順のチェックリスト' },
@@ -81,7 +81,7 @@ export default function LegacyPage() {
     <div className="space-y-5 px-4 pb-6 pt-6">
       <PageGuide
         title="Legacy（旧画面）"
-        guide="下タブにない画面（Revenue / 運用ガイド / 作業予約 など）と旧画面はここから開けます。機能もデータも削除されていません。普段の運用は下タブ（ホーム / ToDo / Project / 目標 / 自動実行）で足ります。"
+        guide="全画面の一覧（カテゴリ別）です。各画面は下タブ（横スクロール）からも直接開けます。機能もデータも削除されていません。普段の運用は下タブ先頭の ホーム / ToDo / Project / 目標 / 自動実行 で足ります。"
       />
 
       {groups.map((group) => (
