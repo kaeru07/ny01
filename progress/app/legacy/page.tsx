@@ -6,6 +6,15 @@ import PageGuide from '@/components/newux/PageGuide'
 
 const groups: Array<{ title: string; links: Array<{ href: string; label: string; note: string }> }> = [
   {
+    title: 'よく使う（下タブにない主要画面）',
+    links: [
+      { href: '/revenue', label: 'Revenue（収益マイルストーン）', note: '収益化の現在地（旧・下タブ。2026-06-14のナビ再編でここへ移動）' },
+      { href: '/guide', label: '運用ガイド', note: 'このアプリの使い方・最終更新' },
+      { href: '/prompt-queue', label: '作業予約（Prompt Queue）', note: 'やってほしい作業を貯めておく。次回やる候補は定時に自動実行' },
+      { href: '/verify-todos', label: '動作確認Todo', note: '人間が確認すべき画面・URL・手順のチェックリスト' },
+    ],
+  },
+  {
     title: '全体管理',
     links: [
       { href: '/legacy/home', label: '旧ダッシュボード', note: '以前のトップ画面（Goal/Epic/Metrics/Queue分離の全部入り）' },
@@ -40,7 +49,8 @@ const groups: Array<{ title: string; links: Array<{ href: string; label: string;
       { href: '/recommended-epics', label: 'おすすめ次作業（推薦Epic）', note: 'AI提案の作業候補の全件管理' },
       { href: '/monetization', label: '収益化候補管理', note: 'アプリ候補のスコア・詳細管理' },
       { href: '/tasks', label: 'ToDo', note: '細かいタスク管理' },
-      { href: '/queue', label: '今日の作業順番', note: '作業キューの並び替え' },
+      { href: '/tasks/import', label: 'ToDo JSON一括取り込み', note: 'ChatGPT/ClaudeのJSON出力をToDoへまとめて取り込む' },
+      { href: '/legacy/queue', label: '旧キュー（WorkQueue）', note: '旧 work-queue.json の並べ替え画面（非正本・互換のみ。正本は下タブ「自動実行」/queue）' },
     ],
   },
   {
@@ -71,7 +81,7 @@ export default function LegacyPage() {
     <div className="space-y-5 px-4 pb-6 pt-6">
       <PageGuide
         title="Legacy（旧画面）"
-        guide="以前のProgressの全画面はここから開けます。機能もデータも削除されていません。普段の運用は司令塔・Inbox・Projectsだけで足ります。"
+        guide="下タブにない画面（Revenue / 運用ガイド / 作業予約 など）と旧画面はここから開けます。機能もデータも削除されていません。普段の運用は下タブ（ホーム / ToDo / Project / 目標 / 自動実行）で足ります。"
       />
 
       {groups.map((group) => (

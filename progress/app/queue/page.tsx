@@ -73,7 +73,16 @@ export default async function QueuePage({ searchParams }: { searchParams?: { fil
               Epicを正本にした派生ビュー · 実行可能 {queue.counts.executable}件
             </p>
           </div>
-          <Link href="/legacy/queue" className="rounded-lg border border-gray-200 px-3 py-2 text-xs font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
+        </div>
+        {/* 自動実行ハブの関連導線 */}
+        <div className="flex flex-wrap gap-2">
+          <Link href="/prompt-queue" className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
+            作業予約（Prompt Queue）
+          </Link>
+          <Link href="/logs" className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
+            実行履歴
+          </Link>
+          <Link href="/legacy/queue" className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800">
             旧キュー
           </Link>
         </div>

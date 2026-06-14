@@ -3,14 +3,14 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-// 新UXのボトムナビ（6タブ）。旧画面群へは Legacy タブから入る。
-// 旧ナビ項目（朝会/工場/収益化/推奨Epic/目標/ToDo/キュー/URL/レーダー/案件/ログ）は
-// /legacy ハブと TopNav（旧画面でのみ表示）から引き続き利用できる。
+// 新UXのボトムナビ（6タブ）。AI工場の主要導線（ホーム / ToDo / Project / 目標 / 自動実行）＋ その他(旧画面ハブ)。
+// 「自動実行」(/queue) を主要タブに昇格し iPhone から必ず辿れるようにした（2026-06-14 ナビ再編）。
+// Revenue / 運用(/guide) / Prompt Queue / 旧画面群へは「その他」(/legacy ハブ) から入る。
 
 const navItems = [
   {
     href: '/',
-    label: '司令塔',
+    label: 'ホーム',
     exact: true,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
@@ -20,7 +20,7 @@ const navItems = [
   },
   {
     href: '/decide',
-    label: 'Inbox',
+    label: 'ToDo',
     exact: false,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
@@ -30,7 +30,7 @@ const navItems = [
   },
   {
     href: '/portfolio',
-    label: 'Projects',
+    label: 'Project',
     exact: false,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
@@ -39,41 +39,43 @@ const navItems = [
     ),
   },
   {
-    href: '/revenue',
-    label: 'Revenue',
+    href: '/goal-planner',
+    label: '目標',
     exact: false,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
         <circle cx="12" cy="12" r="9" strokeLinecap="round" strokeLinejoin="round" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v10M9.5 9.5h3.2a1.8 1.8 0 010 3.6H10m-.5 0h3.5" />
+        <circle cx="12" cy="12" r="4.5" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="12" cy="12" r="0.6" fill="currentColor" stroke="none" />
       </svg>
     ),
   },
   {
-    href: '/guide',
-    label: '運用',
+    href: '/queue',
+    label: '自動実行',
     exact: false,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.5C10.5 5 8.5 4.5 5 4.5v13c3.5 0 5.5.5 7 2 1.5-1.5 3.5-2 7-2v-13c-3.5 0-5.5.5-7 2zM12 6.5v13" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 3L4 14h7l-1 7 9-11h-7l1-7z" />
       </svg>
     ),
   },
   {
     href: '/legacy',
-    label: 'Legacy',
+    label: 'その他',
     exact: false,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
-        <circle cx="12" cy="12" r="9" strokeLinecap="round" strokeLinejoin="round" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v5l3 3" />
+        <circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none" />
+        <circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none" />
+        <circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none" />
       </svg>
     ),
   },
 ]
 
-// 新タブのルート。これ以外（旧画面）にいる間は Legacy タブを点灯させる。
-const NEW_ROUTES = ['/', '/decide', '/portfolio', '/revenue', '/guide']
+// 新タブのルート。これ以外（旧画面・Revenue・運用など）にいる間は「その他」タブを点灯させる。
+const NEW_ROUTES = ['/', '/decide', '/portfolio', '/goal-planner', '/queue']
 
 interface Props {
   logBadge?: number
