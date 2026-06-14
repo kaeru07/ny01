@@ -1,7 +1,11 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { copyTextToClipboard } from '@/lib/clipboard'
+
+// 「レビュー用コピー」でコピーしたら「レビュー中」を表示する。
+// ChatGPT/Fableへ貼って戻ってくる間も状態が消えないよう localStorage に保持する。
+const REVIEWING_KEY = 'reviewCopy:reviewing'
 
 interface ReviewCopyResponse {
   markdown: string
@@ -31,7 +35,35 @@ export default function ReviewCopyButton() {
   const [copyState, setCopyState] = useState<CopyState>('idle')
   const [payload, setPayload] = useState<ReviewCopyResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [reviewing, setReviewing] = useState(false)
   const textRef = useRef<HTMLTextAreaElement>(null)
+
+  // マウント時に保存済みの「レビュー中」状態を復元する。
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(REVIEWING_KEY) === '1') setReviewing(true)
+    } catch {
+      /* localStorage 不可環境は無視 */
+    }
+  }, [])
+
+  function startReviewing() {
+    setReviewing(true)
+    try {
+      localStorage.setItem(REVIEWING_KEY, '1')
+    } catch {
+      /* noop */
+    }
+  }
+
+  function endReviewing() {
+    setReviewing(false)
+    try {
+      localStorage.removeItem(REVIEWING_KEY)
+    } catch {
+      /* noop */
+    }
+  }
 
   async function openModal() {
     setOpen(true)
@@ -55,6 +87,7 @@ export default function ReviewCopyButton() {
     if (!payload?.markdown) return
     const ok = await copyTextToClipboard(payload.markdown)
     setCopyState(ok ? 'copied' : 'error')
+    if (ok) startReviewing()
     if (!ok) {
       setTimeout(() => {
         textRef.current?.focus()
@@ -75,9 +108,13 @@ export default function ReviewCopyButton() {
       <button
         type="button"
         onClick={openModal}
-        className="inline-flex items-center justify-center rounded-xl bg-gray-900 px-3 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white"
+        className={`inline-flex items-center justify-center rounded-xl px-3 py-2 text-xs font-bold shadow-sm transition-colors ${
+          reviewing
+            ? 'bg-amber-500 text-white hover:bg-amber-600'
+            : 'bg-gray-900 text-white hover:bg-gray-700 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white'
+        }`}
       >
-        📋 レビュー用コピー
+        {reviewing ? '🔍 レビュー中' : '📋 レビュー用コピー'}
       </button>
 
       {open && (
@@ -133,6 +170,19 @@ export default function ReviewCopyButton() {
                   >
                     {copyState === 'copied' ? 'コピー済み ✓' : copyState === 'error' ? 'コピー失敗' : '全体をコピー'}
                   </button>
+
+                  {reviewing && (
+                    <div className="flex items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-900/50 dark:bg-amber-900/15">
+                      <p className="text-xs font-semibold text-amber-800 dark:text-amber-200">🔍 レビュー中（ChatGPT/Fableで確認中）</p>
+                      <button
+                        type="button"
+                        onClick={endReviewing}
+                        className="shrink-0 rounded-lg border border-amber-300 px-2.5 py-1 text-xs font-bold text-amber-700 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-300"
+                      >
+                        レビューを終了
+                      </button>
+                    </div>
+                  )}
 
                   {copyState === 'error' && (
                     <div className="rounded-xl border border-red-200 bg-red-50 p-3 dark:border-red-900/50 dark:bg-red-900/15">

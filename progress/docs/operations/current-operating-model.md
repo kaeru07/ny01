@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-14
-updateNote: Goal Planner(目標タブ)と自動実行キューを同一データ源(buildAutoQueue.goalProgress)に統合。目標カードに次回候補/実行可能/判断待ち/レビュー待ち/候補外/最新作業/次アクション＋/queue?goalId導線。role選択UI撤去
+updateNote: レビュー用コピーで「全体をコピー」するとボタンが「🔍レビュー中」表示になる（localStorage保持・モーダルの「レビューを終了」で解除）
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -187,6 +187,8 @@ MVP完成 → ストア公開 → 広告導入 → DL100 → はじめての収�
 
 レビュー結果をProgressへ戻す経路は今回作らない。採用する指摘は人間がInboxへ手動起票する。
 
+「全体をコピー」が成功すると、ボタンは **「🔍 レビュー中」**（amber）に変わり、ChatGPT/Fableで確認中であることを示す。状態は `localStorage('reviewCopy:reviewing')` に保持され画面遷移・再読み込みでも消えない。モーダル内の「レビューを終了」で解除する。
+
 ## Goal進捗
 
 司令塔のGoalカードは、進捗率の根拠を1行表示する。
@@ -239,6 +241,8 @@ Claude Code / Codex の作業完了時・Epic 完了後に「人間が確認す�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-15: レビュー用コピーで「全体をコピー」成功時、ボタンを **「🔍 レビュー中」**（amber）表示に切替（ChatGPT/Fable確認中の可視化）。状態は `localStorage('reviewCopy:reviewing')` 保持で画面遷移・再読込でも維持、モーダル内「レビューを終了」で解除。`components/review-copy/ReviewCopyButton.tsx`。
 
 - 2026-06-14: **Goal Planner（目標タブ）と自動実行キューをデータ統合**。両者を同一の集計源 `buildAutoQueue().goalProgress` に揃え、Goal Planner＝same-source の要約ビュー / `/queue?goalId=`＝詳細ビューに役割分担。`GoalProgressRow` に `nextCandidateCount`/`manual`/`latestWorkTitle`/`nextActionTitle` を追加し、各 Goal カードに 次回候補/実行可能/判断待ち/レビュー待ち/候補外/最新作業/次にやること を表示＋「自動実行キューを見る(/queue?goalId)」「ToDoを見る(/decide?goalId)」「作業予約」導線を追加。Goal Planner の件数と /queue?goalId の件数は同一ソースで整合。`/queue` は goalId 指定時にカウンタ/フィルタ/一覧を当該 Goal に絞る（「全体に戻る」付き）。`GoalPlannerForm` の role選択UI を撤去（保存は内部既定 `addToQueueRoles:['claude']` で後方互換）。GoalとGoal進捗は分けない方針を維持。旧 phases/todos 表示は互換のため残置。
 
