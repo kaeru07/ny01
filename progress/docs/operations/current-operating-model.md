@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-14
-updateNote: Prompt Queue（作業プロンプト貯蔵庫 /prompt-queue）を新設。入力はタスク名/プロンプト/Project/Goal進捗の4項目のみ（実行対象AI・優先度はUIに出さない）。未完了は「次回やる候補」に出る
+updateNote: Prompt Queueを実Factory自動実行に接続。定時起動(11/14/16/23)でEpic実行後に「次回やる候補」を1件、安全ゲート通過分のみ実行（危険プロンプトはneeds_user_prompt_fixへ隔離）。dry_runは予約のみ
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -232,6 +232,9 @@ Claude Code / Codex の作業完了時・Epic 完了後に「人間が確認す�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-14: **Prompt Queue を実 Factory 自動実行に接続**。`runPromptQueueDispatch()`（`lib/prompt-queue-runner.ts`）を新設し、定時起動 `runScheduledFactory`（11/14/16/23 JST）の lock 内で Epic Factory 実行**後**に別ステップとして呼ぶ（`maxItems:1`・Epic dispatch ロジックは不変更）。対象は「次回やる候補」。**安全ゲート（必須）**: 各 item の `title+prompt` を `classifyCodexEligibility` ＋ hard-deny 正規表現（課金/billing/deploy/本番/production/secret/.env/認証/migration/削除/destructive/force）に通し、**危険シグナル該当は実行せず `needs_user_prompt_fix` へ隔離**（errorMessage に理由）。安全分は status を `running`→（**dry_run=既定は実起動せず `reserved`**／**`auto`+`confirm`=定時起動のみ既存 executor adapter で実起動**）。結果で `completed`/`failed`/`needs_retry`。ExecutionRun は `source='prompt_queue'`・`factoryRun=true`・`dispatchMode`・`promptUsed` で記録し `item.executionRunId` に戻す。`factoryEnabled=false`/`Blocked` では何もしない。dry_run テストで 安全→reserved＋runId・危険「本番DBを削除 force」→needs_user_prompt_fix（未実行）を検証。
+
 
 - 2026-06-14: **Prompt Queue（作業プロンプト貯蔵庫 `/prompt-queue`）** を新設（正本 `data/real/prompt-queue.json`・物理削除せず DELETE は `archived`）。フォーム入力は **タスク名 / プロンプト / Project / Goal進捗** の4項目のみ（任意: メモ / 関連URL / 関連レビューID / 関連Inbox ID）。**実行対象AI（codex/claude/fable_review/auto）と優先度（P0/P1/P2）は UI に出さない**（内部既定 auto / 未指定のみ）。Goal と Goal進捗は分けず単一 `goalProgress`（既存 Goal を参照）。JSON一括取り込みは `{promptQueue:[...]}` と旧互換 `{todos:[...]}` に対応し、`goal`→`goalProgress` 正規化・status未指定→`queued`・`priority`/`assignee`/`preferredExecutor` は無視（警告）・title/prompt 無しはエラー・project 不一致は未紐付け警告。未完了（queued/reserved/not_started/failed/needs_retry/needs_user_prompt_fix）は「**次回やる候補**」に Project/Goal進捗 の状態順で並び「なぜ候補か」付きで表示、completed/canceled/archived/snoozed は除外。ナビは Legacy 内「作業予約」。自動実行スケジューラ本体へはまだ未接続（貯蔵庫＋候補表示まで）。
 

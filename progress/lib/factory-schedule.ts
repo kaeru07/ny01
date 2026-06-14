@@ -4,6 +4,7 @@ import { getDataPath } from '@/lib/progress-reader'
 import { getAutomationConfig, appendAutomationLog } from './operations-store'
 import { computeFactoryStatus } from './factory-status'
 import { runFactory } from './factory-runner'
+import { runPromptQueueDispatch } from './prompt-queue-runner'
 import { addExecutionRun, updateExecutionRunFields } from './execution-run-writer'
 import { syncCandidatesFromVault } from './monetization-vault-sync'
 import { backfillFollowupRecommendations } from './knowledge-loop'
@@ -45,7 +46,12 @@ export interface ScheduleRunResult {
   factoryRunState?: string
   stoppedReason?: string
   runsExecuted: number
+  promptQueueExecuted?: number
+  promptQueueReserved?: number
+  promptQueueSkipped?: number
+  promptQueueBlocked?: number
   taggedRunIds: string[]
+  promptQueueRunIds?: string[]
   envelopeRunId: string
   startedAt: string
   finishedAt: string
@@ -276,6 +282,11 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
       maxPerEpic: input.maxPerEpic,
       ...(input.passthrough ?? {}),
     })
+    const promptQueue = await runPromptQueueDispatch({
+      mode: 'auto',
+      confirm: true,
+      maxItems: 1,
+    })
 
     // runFactory が記録した各 Run に source / trigger を後付け（誰がスケジュール起動したかを残す）。
     const taggedRunIds: string[] = []
@@ -285,17 +296,21 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
         taggedRunIds.push(step.recordedRunId)
       }
     }
+    const promptQueueRunIds = promptQueue.steps.map((step) => step.runId).filter((runId): runId is string => Boolean(runId))
 
-    const runStatus: ExecutionRun['runStatus'] = report.runsExecuted > 0 ? 'completed' : 'partial'
+    const runStatus: ExecutionRun['runStatus'] = report.runsExecuted > 0 || promptQueue.executed > 0 || promptQueue.reserved > 0 ? 'completed' : 'partial'
     const envelopeRunId = await recordEnvelope({
       source: input.source,
       trigger: input.trigger,
       runStatus,
-      summary: `Factory 起動: ${report.runsExecuted} Run 実行 / 停止理由=${report.stoppedReason}（${input.source}/${input.trigger}）`,
-      rawReport: `[factory-schedule] source=${input.source} trigger=${input.trigger} runs=${report.runsExecuted} stopped=${report.stoppedReason} tagged=${taggedRunIds.join(',') || 'none'}`,
+      summary: `Factory 起動: Epic ${report.runsExecuted} Run / Prompt Queue 実行${promptQueue.executed}・予約${promptQueue.reserved}・skip${promptQueue.skipped}・block${promptQueue.blocked} / 停止理由=${report.stoppedReason}（${input.source}/${input.trigger}）`,
+      rawReport: [
+        `[factory-schedule] source=${input.source} trigger=${input.trigger} runs=${report.runsExecuted} stopped=${report.stoppedReason} tagged=${taggedRunIds.join(',') || 'none'}`,
+        `[prompt-queue] considered=${promptQueue.considered} executed=${promptQueue.executed} reserved=${promptQueue.reserved} skipped=${promptQueue.skipped} blocked=${promptQueue.blocked} stopped=${promptQueue.stoppedReason} runIds=${promptQueueRunIds.join(',') || 'none'}`,
+      ].join('\n'),
       startedAt,
       stoppedReason: report.stoppedReason,
-      runsExecuted: report.runsExecuted,
+      runsExecuted: report.runsExecuted + promptQueue.executed + promptQueue.reserved,
     })
 
     await appendAutomationLog({ event: 'factory_schedule', fallbackReason: report.stoppedReason, detectionStatus: input.source } as never)
@@ -308,8 +323,13 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
       factoryEnabled: true,
       factoryRunState: status.factoryRunState,
       stoppedReason: report.stoppedReason,
-      runsExecuted: report.runsExecuted,
+      runsExecuted: report.runsExecuted + promptQueue.executed + promptQueue.reserved,
+      promptQueueExecuted: promptQueue.executed,
+      promptQueueReserved: promptQueue.reserved,
+      promptQueueSkipped: promptQueue.skipped,
+      promptQueueBlocked: promptQueue.blocked,
       taggedRunIds,
+      promptQueueRunIds,
       envelopeRunId,
       startedAt,
       finishedAt: new Date().toISOString(),
