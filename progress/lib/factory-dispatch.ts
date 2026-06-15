@@ -8,8 +8,10 @@ import {
 } from './operations-store'
 import { buildExecutionGuard } from './epic-contract'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
+import { readGoals } from '@/lib/goal-reader'
 import type { Epic } from '@/lib/types/operations'
 import type { ExecutionRun } from '@/types/execution-run'
+import { AUTONOMY_ANCHOR_SCORE_BOOST, REVIEW_FIX_SCORE_BOOST, autonomyAnchorReason, isAutonomyAnchorEpic } from '@/lib/autonomy-anchor'
 
 /** この Epic に紐づく「人間の修正指示」を集める。
  *  (1) needs_followup の Run に保存された fixPrompt（新しい順）, (2) 承認済みで remainingWork に入った修正指示。
@@ -39,6 +41,7 @@ import type {
 // （Dispatch Plan は既存正本から都度生成するビュー。結果は ExecutionRun に記録）。
 
 const PRIORITY_RANK: Record<EpicPriority, number> = { P0: 0, P1: 1, P2: 2 }
+const PRIORITY_SCORE: Record<EpicPriority, number> = { P0: 900, P1: 600, P2: 300 }
 
 function newPlanId(epicId: string): string {
   return `dp-${epicId}-${Date.now().toString(36)}`
@@ -54,8 +57,10 @@ export async function buildDispatchPlan(epicId: string): Promise<FactoryDispatch
   if (!detail) return null
   const { epic, nextActions, pendingApprovals, factoryEligibility } = detail
 
-  const allRuns = await readExecutionRuns()
+  const [allRuns, goalsData] = await Promise.all([readExecutionRuns(), readGoals()])
+  const goalTitle = goalsData.goals.find((goal) => goal.id === epic.goalId)?.title
   const humanFixInstructions = collectHumanFixInstructions(epic, allRuns)
+  const autonomyAnchor = isAutonomyAnchorEpic(epic)
   const nextTitles = nextActions.map((a) => a.title)
   const text = `${epic.goal} ${nextTitles.join(' ')}`
   const codexEligible = classifyCodexEligibility(text).eligible
@@ -100,16 +105,24 @@ export async function buildDispatchPlan(epicId: string): Promise<FactoryDispatch
 
   const selectedReason =
     safetyStatus === 'ok'
-      ? `${epic.priority ?? 'P?'} / 契約OK / 安全に dispatch 可能（${executorCandidate}）`
+      ? [
+        autonomyAnchor ? autonomyAnchorReason() : null,
+        humanFixInstructions.length > 0 ? '人間の修正指示あり' : null,
+        `${epic.priority ?? 'P?'} / 契約OK / 安全に dispatch 可能（${executorCandidate}）`,
+      ].filter(Boolean).join(' / ')
       : `dispatch 不可: ${blockedReason}`
 
   return {
     dispatchPlanId: newPlanId(epicId),
     epicId,
     epicTitle: epic.title,
+    goalId: epic.goalId,
+    selectedGoalKey: epic.goalId,
+    selectedGoalTitle: goalTitle ?? epic.goal,
     goal: epic.goal,
     doneCriteria: epic.doneCriteria ?? [],
     selectedReason,
+    selectedReasonDetail: selectedReason,
     executorCandidate,
     preferredExecutor: epic.preferredExecutor,
     fallbackExecutor: epic.fallbackExecutor,
@@ -119,8 +132,12 @@ export async function buildDispatchPlan(epicId: string): Promise<FactoryDispatch
     approvalStatus,
     decisionStatus,
     riskFlags,
+    priority: epic.priority,
+    decisionPolicy: epic.decisionPolicy,
     nextActions: nextTitles,
     humanFixInstructions,
+    autonomyAnchor,
+    hasFixPrompt: humanFixInstructions.length > 0,
     promptType,
     safetyStatus,
     blockedReason,
@@ -139,18 +156,31 @@ export async function scanFactoryDispatch(): Promise<FactoryDispatchScan> {
   }
   const epics = await getEpics()
   const priorityOf = new Map(epics.map((e) => [e.epicId, e.priority]))
+  const epicById = new Map(epics.map((e) => [e.epicId, e]))
   const active = epics.filter((e) => e.status === 'active' || e.status === 'paused')
   const plans = (await Promise.all(active.map((e) => buildDispatchPlan(e.epicId)))).filter(
     (p): p is FactoryDispatchPlan => p !== null,
   )
 
-  const rank = (epicId: string) => {
-    const p = priorityOf.get(epicId)
-    return p ? PRIORITY_RANK[p] : 9
+  const score = (plan: FactoryDispatchPlan) => {
+    const epic = epicById.get(plan.epicId)
+    const p = priorityOf.get(plan.epicId) ?? 'P2'
+    let value = PRIORITY_SCORE[p]
+    if (epic?.queueControl?.pinnedTop) value += 100_000
+    if (plan.hasFixPrompt) value += REVIEW_FIX_SCORE_BOOST
+    if (plan.autonomyAnchor) value += AUTONOMY_ANCHOR_SCORE_BOOST
+    return value
   }
   const candidates = plans
     .filter((p) => p.safetyStatus === 'ok')
-    .sort((a, b) => rank(a.epicId) - rank(b.epicId))
+    .sort((a, b) => {
+      const diff = score(b) - score(a)
+      if (diff !== 0) return diff
+      const ar = PRIORITY_RANK[priorityOf.get(a.epicId) ?? 'P2']
+      const br = PRIORITY_RANK[priorityOf.get(b.epicId) ?? 'P2']
+      if (ar !== br) return ar - br
+      return a.epicId.localeCompare(b.epicId)
+    })
   const blocked = plans.filter((p) => p.safetyStatus === 'blocked')
 
   return { factoryEnabled: true, picked: candidates[0] ?? null, candidates, blocked }

@@ -11,6 +11,8 @@ import {
 import { scanFactoryDispatch, buildDispatchPlan, generateClaudeFactoryPrompt } from './factory-dispatch'
 import { addExecutionRun, updateExecutionRunFields } from './execution-run-writer'
 import { readExecutionRuns } from './execution-run-reader'
+import { readGoals } from './goal-reader'
+import { writeGoals } from './goal-writer'
 import { DANGER_CATEGORIES, isReviewApprovalOptions } from './inbox-labels'
 import { getAdapter } from './executors'
 import { runChecks } from './checks-runner'
@@ -18,7 +20,7 @@ import type { ChecksRunResult } from './checks-runner'
 import { getDoneCriteriaForEpic } from './done-criteria'
 import type { FactoryRunMode, FactoryRunReport, FactoryRunStep, ExecutorResult } from './executors/types'
 import type { ExecutionRun } from '@/types/execution-run'
-import type { ExecutorChoice } from './types/operations'
+import type { ExecutorChoice, FactoryDispatchPlan } from './types/operations'
 
 // factory-runner: scan→pick→Dispatch→（adapter で）Run→ExecutionRun 記録→次へ。
 // 安全第一: 既定は dry_run（実起動なし）。caps（maxRuns / maxPerEpic）で無限ループを防ぐ。
@@ -63,6 +65,35 @@ function extractFollowupOfRunId(notes?: string): string | undefined {
   return match?.[1]
 }
 
+function selectionFromPlan(plan: FactoryDispatchPlan): ExecutionRun['selection'] {
+  const selectedAt = new Date().toISOString()
+  return {
+    selectedGoalKey: plan.selectedGoalKey ?? plan.goalId ?? 'unassigned',
+    selectedGoalTitle: plan.selectedGoalTitle ?? plan.goal,
+    selectedWorkItemId: `epic:${plan.epicId}`,
+    selectedReason: plan.selectedReasonDetail ?? plan.selectedReason,
+    priority: plan.priority,
+    decisionPolicy: plan.decisionPolicy,
+    riskFlags: plan.riskFlags,
+    hasFixPrompt: plan.hasFixPrompt === true,
+    selectedAt,
+  }
+}
+
+async function updateGoalSelectionPointer(selection: ExecutionRun['selection'] | undefined, runId: string): Promise<void> {
+  if (!selection?.selectedGoalKey || selection.selectedGoalKey === 'unassigned') return
+  const data = await readGoals()
+  const idx = data.goals.findIndex((goal) => goal.id === selection.selectedGoalKey)
+  if (idx === -1) return
+  data.goals[idx] = {
+    ...data.goals[idx],
+    lastSelectedRunId: runId,
+    lastSelectedAt: selection.selectedAt,
+    updatedAt: new Date().toISOString(),
+  }
+  await writeGoals(data)
+}
+
 async function recordRun(args: {
   epicId: string
   targetApp: string
@@ -78,6 +109,7 @@ async function recordRun(args: {
   fallbackReason?: string
   /** この Run で即停止した場合の理由。 */
   stopReason?: string
+  selection?: ExecutionRun['selection']
 }): Promise<string> {
   const runId = await generateUniqueRunId()
   const now = new Date().toISOString()
@@ -110,6 +142,7 @@ async function recordRun(args: {
     fallbackReason: args.fallbackReason ?? (args.result.rateLimited ? 'claude_rate_limited' : undefined),
     runIndex: args.runIndex,
     stopReason: args.stopReason,
+    selection: args.selection,
     nextActionCount: args.result.nextActions.length,
     summary: args.result.resultSummary,
     changedFiles: args.result.changedFiles.map((f) => ({ file: f, change: '' })),
@@ -121,6 +154,7 @@ async function recordRun(args: {
     rawReport: `[factory-runner ${args.mode}] executor=${args.executor}\n${args.result.stdout || args.result.resultSummary}`,
   }
   await addExecutionRun(run)
+  await updateGoalSelectionPointer(args.selection, runId)
   return runId
 }
 
@@ -133,6 +167,7 @@ async function startRunningRun(args: {
   dispatchPlanId: string
   runIndex?: number
   followupOfRunId?: string
+  selection?: ExecutionRun['selection']
 }): Promise<string> {
   const runId = await generateUniqueRunId()
   const now = new Date().toISOString()
@@ -157,6 +192,7 @@ async function startRunningRun(args: {
     promptGenerated: true,
     resultReturned: false,
     runIndex: args.runIndex,
+    selection: args.selection,
     summary: 'AI工場が作業中です',
     changedFiles: [],
     checks: {},
@@ -167,6 +203,7 @@ async function startRunningRun(args: {
     rawReport: `[factory-runner ${args.mode}] started executor=${args.executor}`,
   }
   await addExecutionRun(run)
+  await updateGoalSelectionPointer(args.selection, runId)
   return runId
 }
 
@@ -291,7 +328,7 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
       }
       const detail = await getEpicDetail(currentEpicId)
       const result = await getAdapter('manual').run({ epicId: currentEpicId, prompt, dryRun: false })
-      const recordedRunId = await recordRun({ epicId: currentEpicId, targetApp: detail?.epic.targetApps?.[0] ?? 'progress', title: `Factory(manual): ${plan.epicTitle}`, executor: 'manual', mode, dispatchPlanId: plan.dispatchPlanId, result })
+      const recordedRunId = await recordRun({ epicId: currentEpicId, targetApp: detail?.epic.targetApps?.[0] ?? 'progress', title: `Factory(manual): ${plan.epicTitle}`, executor: 'manual', mode, dispatchPlanId: plan.dispatchPlanId, result, selection: selectionFromPlan(plan) })
       steps.push({ epicId: currentEpicId, epicTitle: plan.epicTitle, dispatchPlanId: plan.dispatchPlanId, executor: 'manual', result, recordedRunId, stopped: true, stopReason: 'manual_execution_pending' })
       return finalize('manual_execution_pending')
     }
@@ -355,6 +392,7 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
       dispatchPlanId: plan.dispatchPlanId,
       runIndex,
       followupOfRunId,
+      selection: selectionFromPlan(plan),
     })
 
     // 基本 Claude（simulateRateLimit のときは擬似的に上限化）。

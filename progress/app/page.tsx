@@ -77,6 +77,11 @@ export default async function CommandCenterPage() {
                   要修正優先
                 </span>
               )}
+              {autoQueue.next.autonomyAnchor && (
+                <span className="rounded bg-indigo-100 px-2 py-0.5 text-xs font-bold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                  自走化・最優先
+                </span>
+              )}
               {autoQueue.next.reviewPending && (
                 <span className="rounded bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                   レビュー未確認・継続

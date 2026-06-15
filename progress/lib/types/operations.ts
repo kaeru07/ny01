@@ -179,6 +179,14 @@ export interface FactoryDispatchPlan {
   promptType: DispatchPromptType
   safetyStatus: DispatchSafetyStatus
   blockedReason?: string
+  goalId?: string
+  selectedGoalKey?: string
+  selectedGoalTitle?: string
+  selectedReasonDetail?: string
+  priority?: EpicPriority
+  decisionPolicy?: DecisionPolicy
+  autonomyAnchor?: boolean
+  hasFixPrompt?: boolean
   generatedAt: string
 }
 

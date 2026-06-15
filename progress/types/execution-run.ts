@@ -33,6 +33,18 @@ export interface CheckResult {
   [key: string]: string | undefined
 }
 
+export interface ExecutionRunSelection {
+  selectedGoalKey: string
+  selectedGoalTitle?: string
+  selectedWorkItemId: string
+  selectedReason: string
+  priority?: string
+  decisionPolicy?: string
+  riskFlags?: string[]
+  hasFixPrompt?: boolean
+  selectedAt: string
+}
+
 export interface ExecutionRun {
   runId: string
   startedAt: string
@@ -86,6 +98,7 @@ export interface ExecutionRun {
   beforeStatus?: string
   afterStatus?: string
   promptUsed?: string
+  selection?: ExecutionRunSelection
   summary: string
   changedFiles: ChangedFile[]
   checks: CheckResult

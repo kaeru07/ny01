@@ -178,6 +178,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: { fil
                   </span>
                   {isPinned && <span className="rounded bg-yellow-100 px-1.5 py-0.5 text-[11px] font-bold text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">pin</span>}
                   {item.fixRequested && <span className="rounded bg-rose-100 px-1.5 py-0.5 text-[11px] font-bold text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">要修正優先</span>}
+                  {item.autonomyAnchor && <span className="rounded bg-indigo-100 px-1.5 py-0.5 text-[11px] font-bold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">自走化・最優先</span>}
                   {item.reviewPending && <span className="rounded bg-blue-100 px-1.5 py-0.5 text-[11px] font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">レビュー未確認・継続</span>}
                   <span className={`rounded px-1.5 py-0.5 text-[11px] font-bold ${
                     item.candidateEligible

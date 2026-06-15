@@ -51,6 +51,13 @@ export interface Goal {
   priority: TaskPriority
   priorityBoost?: 0 | 1 | 2
   pinnedTop?: boolean
+  lastSelectedRunId?: string
+  lastSelectedAt?: string
+  /** 実メール送信が成功した時刻（不可逆・二重送信防止）。no-op(モック)では立てない。 */
+  autonomyNotifiedAt?: string
+  /** no-op(モック)通知をログした時刻（実送信フラグを消費せず、毎定時のログ重複を防ぐ）。 */
+  autonomyNotifyNoopAt?: string
+  autonomyNotifyAttempts?: number
   monetizationImpact: MonetizationImpact
   phases: GoalPhase[]
   todos: GoalTodo[]

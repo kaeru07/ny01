@@ -2,6 +2,7 @@ import type { Approval, Epic, EpicPriority, EpicRiskFlag } from '@/lib/types/ope
 import type { ExecutionRun } from '@/types/execution-run'
 import type { Goal } from '@/types/goal'
 import type { QueueControl, QueueResolution, WorkItemStatus } from '@/types/auto-queue'
+import { AUTONOMY_ANCHOR_SCORE_BOOST, REVIEW_FIX_SCORE_BOOST } from '@/lib/autonomy-anchor'
 
 const DANGER_RISK_FLAGS = new Set<EpicRiskFlag>([
   'billing',
@@ -28,6 +29,7 @@ export interface QueueScoreInput {
   updatedAt?: string
   factoryEligible?: boolean
   fixRequested?: boolean
+  autonomyAnchor?: boolean
 }
 
 export interface QueueScoreResult {
@@ -125,8 +127,12 @@ export function computeQueueScore(input: QueueScoreInput, goal?: Goal): QueueSco
   }
 
   if (input.fixRequested) {
-    score += 700
+    score += REVIEW_FIX_SCORE_BOOST
     factors.push('要修正あり')
+  }
+  if (input.autonomyAnchor) {
+    score += AUTONOMY_ANCHOR_SCORE_BOOST
+    factors.push('自走化・最優先アンカー')
   }
 
   score += PRIORITY_SCORE[priority]

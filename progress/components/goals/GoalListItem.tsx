@@ -38,6 +38,9 @@ export default function GoalListItem({ goalId, title, isMain, phaseCount, todoCo
     <div className={`rounded-xl border p-3 space-y-3 ${isMain ? 'border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/10' : 'border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/30'}`}>
       <div className="flex items-center gap-2">
         <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 flex-1 truncate">{title}</p>
+        {goalId === 'goal-ai-factory-os' && (
+          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">自走化・最優先</span>
+        )}
         {isMain ? (
           <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-600 text-white">MAIN</span>
         ) : (

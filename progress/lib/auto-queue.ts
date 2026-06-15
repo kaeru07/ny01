@@ -3,6 +3,7 @@ import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { readGoals } from '@/lib/goal-reader'
 import { listInboxItems } from '@/lib/inbox-reader'
 import { computeQueueScore, dangerRiskFlags, deriveResolution, deriveWorkItemStatus, hasFixRequestedForEpic, hasReviewPendingForEpic, latestRunForEpic, normalizePriority } from '@/lib/auto-queue-score'
+import { isAutonomyAnchorEpic } from '@/lib/autonomy-anchor'
 import type { Approval, Epic } from '@/lib/types/operations'
 import type { AutoQueueCounts, AutoQueueItem, AutoQueueView, GoalProgressRow, WorkItemStatus } from '@/types/auto-queue'
 import type { ExecutionRun } from '@/types/execution-run'
@@ -43,6 +44,7 @@ function reasonFromFactors(status: WorkItemStatus, factors: string[], goalTitle:
     return `${blockedReason}のため、次回自動実行候補には入りません`
   }
   if (factors.includes('要修正あり')) return '要修正あり・次回自動実行で優先修正（fixPrompt反映）'
+  if (factors.includes('自走化・最優先アンカー')) return '自走化・最優先アンカーのため次回自動実行で優先'
   if (factors.includes('レビュー未確認あり')) return 'レビュー未確認あり（自動実行は継続）'
   const core = factors.filter((f) => f !== 'factoryEligible')
   if (core.length === 0) return '実行可能条件を満たしているため候補入り'
@@ -65,6 +67,7 @@ function toEpicItem(epic: Epic, goal: Goal | undefined, runs: ExecutionRun[], st
   const hasPendingApproval = approvals.some((a) => a.epicId === epic.epicId && a.status === 'pending')
   const fixRequested = status === 'executable' && hasFixRequestedForEpic(epic, runs)
   const reviewPending = status === 'executable' && hasReviewPendingForEpic(epic, runs)
+  const autonomyAnchor = status === 'executable' && isAutonomyAnchorEpic(epic)
   const score = computeQueueScore({
     priority: epic.priority,
     queueControl: epic.queueControl,
@@ -73,6 +76,7 @@ function toEpicItem(epic: Epic, goal: Goal | undefined, runs: ExecutionRun[], st
     updatedAt: epic.updatedAt,
     factoryEligible: epic.factoryEligible,
     fixRequested,
+    autonomyAnchor,
   }, goal)
   const reasonFactors = [
     ...score.reasonFactors,
@@ -114,6 +118,7 @@ function toEpicItem(epic: Epic, goal: Goal | undefined, runs: ExecutionRun[], st
     candidateBlockedReason,
     reviewPending,
     fixRequested,
+    autonomyAnchor,
     resolution: candidateEligible ? undefined : deriveResolution(epic, status, latestRun, hasPendingApproval),
     reason: reasonFromFactors(status, reasonFactors, goal?.title, epic.queueControl?.pinnedTop === true),
     reasonFactors: reasonFactors.length > 0 ? reasonFactors : [status],

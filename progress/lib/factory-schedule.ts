@@ -11,6 +11,7 @@ import { syncCandidatesFromVault } from './monetization-vault-sync'
 import { backfillFollowupRecommendations } from './knowledge-loop'
 import { expireStaleRecommendations } from './recommended-epics-store'
 import { rotateExecutionRunsArchive } from './execution-run-archive'
+import { checkAutonomyCompletionAndNotify } from './autonomy-notification'
 import type { ExecutionRun } from '@/types/execution-run'
 import type { FactoryRunReport } from './executors/types'
 
@@ -330,6 +331,11 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
     })
 
     await appendAutomationLog({ event: 'factory_schedule', fallbackReason: report.stoppedReason, detectionStatus: input.source } as never)
+    try {
+      await checkAutonomyCompletionAndNotify()
+    } catch {
+      await appendAutomationLog({ event: 'factory_schedule', fallbackReason: 'autonomy_notify_failed', detectionStatus: input.source } as never)
+    }
 
     return {
       triggered: true,

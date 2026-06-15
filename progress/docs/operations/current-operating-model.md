@@ -1,6 +1,6 @@
 ---
-updated: 2026-06-14
-updateNote: 自動実行キューの判定見直し。ただのレビュー待ち(not_reviewed)では止めない(executable継続・reviewPending表示)。止めるのは危険(blocked)/ユーザー判断要(waiting_user)のみ。修正依頼(needs_followup/fixPrompt)はexecutable＋優先boost
+updated: 2026-06-16
+updateNote: 自走化Goal(goal-ai-factory-os)を正本アンカー化。epic-91をP0/doneCriteria付き実行Epicにし、buildAutoQueueとscanFactoryDispatch両方で最優先(候補外を解消)。ExecutionRun.selection記録・dry-runテスト・completed時メール通知土台(現状noopログのみ・実送信は別Phase)
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -242,7 +242,10 @@ Claude Code / Codex の作業完了時・Epic 完了後に「人間が確認す�
 
 ## 変更履歴
 
-- 2026-06-15: **自動実行キューの「レビュー待ちで止まる」判定を見直し**。`deriveWorkItemStatus`（lib/auto-queue-score.ts）を変更し、**ただのレビュー待ち（最新Run `not_reviewed`/`copied`）では自動実行を止めない**（`executable` 継続・`AutoQueueItem.reviewPending=true`「レビュー未確認あり（自動実行は継続）」表示）。停止するのは **危険（riskFlags: billing/production_db/auth_secret/external_publish/destructive/migration ＝ `blocked`）/ failed / blocker** と **ユーザー判断要（pendingApproval / approval_required / needs_human ＝ `waiting_user`）** のみ。**修正依頼（needs_followup / fixPrompt あり）は `executable`＋`fixRequested=true`＋queueScore `+700` boost** で優先。従来の「P0/P1の未レビューは waiting_user」エスカレーション・「レビュー待ちのため次回候補に入りません」表記は廃止。`review_waiting` ステータスは not_reviewed からは生成しない（enum は互換残置）。判定順は 危険/判断要 が先で、その後に factoryEligible で executable 判定（対象外Epicは `manual` のまま・status と候補可否の不整合を解消）。
+- 2026-06-16: **（Fable実装後レビュー修正）** 自走化Goal完了メールの二重送信防止を是正。no-op(モック)通知は実送信フラグ `autonomyNotifiedAt` を**消費しない**よう変更し、ログ1回の記録は `autonomyNotifyNoopAt` に分離（goal-reader/types/goal も対応）。これにより後で実メールプロバイダ（`AUTONOMY_EMAIL_PROVIDER`）を構成したとき、`autonomyNotifiedAt` が未設定なので実送信が1回だけ走る（no-opが送信済み化して実メールが永久に飛ばない footgun を回避）。実送信モジュールは未実装＝provider設定時も「未送信」として attempts のみ加算し `autonomyNotifiedAt` は立てない。Phase2レビュー結論=close_ok。
+
+- 2026-06-15: **AI工場OS自走化を既存Goal正本で最優先アンカー化**。新規 `factory-autonomy` Goal は作らず、既存 `goal-ai-factory-os`（AI工場OS自走化 / North Star）を正本に統一。Goal単体は実行されないため、配下の `epic-91`（AI工場オペレーションセンター）へ P0 / `factoryEligible=true` / `riskFlags=[]` / 有限の `doneCriteria` 7件を付与して実行Epic化。表示系 `buildAutoQueue()` と実行系 `scanFactoryDispatch()` は共通の自走化アンカー判定を使い、優先順を **pin > review-fix > autonomy anchor > 通常P0** に揃える。ExecutionRun には `selection.selectedGoalKey` 等の選定メタを記録し、Goal側は `lastSelectedRunId/lastSelectedAt` の最小ポインタだけ保持。`/api/operations/goal-ai-factory-os-next-run-selection-test` は実選定関数をread-onlyで呼ぶdry-run確認API。自走化Goal完了時のメール通知は実送信サービスを導入せず、`NOTIFY_EMAIL_TO` 宛のno-op/log senderで二重送信防止（`autonomyNotifiedAt`）を検証する。
+- 2026-06-15: **自動実行キューの「レビュー待ちで止まる」判定を見直し**。`deriveWorkItemStatus`（lib/auto-queue-score.ts）を変更し、**ただのレビュー待ち（最新Run `not_reviewed`/`copied`）では自動実行を止めない**（`executable` 継続・`AutoQueueItem.reviewPending=true`「レビュー未確認あり（自動実行は継続）」表示）。停止するのは **危険（riskFlags: billing/production_db/auth_secret/external_publish/destructive/migration ＝ `blocked`）/ failed / blocker** と **ユーザー判断要（pendingApproval / approval_required / needs_human ＝ `waiting_user`）** のみ。**修正依頼（needs_followup / fixPrompt あり）は `executable`＋`fixRequested=true`＋明確なboost** で優先。従来の「P0/P1の未レビューは waiting_user」エスカレーション・「レビュー待ちのため次回候補に入りません」表記は廃止。`review_waiting` ステータスは not_reviewed からは生成しない（enum は互換残置）。判定順は 危険/判断要 が先で、その後に factoryEligible で executable 判定（対象外Epicは `manual` のまま・status と候補可否の不整合を解消）。
 
 - 2026-06-15: レビュー用コピーで「全体をコピー」成功時、ボタンを **「🔍 レビュー中」**（amber）表示に切替（ChatGPT/Fable確認中の可視化）。状態は `localStorage('reviewCopy:reviewing')` 保持で画面遷移・再読込でも維持、モーダル内「レビューを終了」で解除。`components/review-copy/ReviewCopyButton.tsx`。
 
