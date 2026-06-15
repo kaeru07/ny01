@@ -32,7 +32,7 @@ const fixStageClass: Record<string, string> = {
 const autoQueueStatusLabel: Record<string, string> = {
   waiting_user: '人間判断待ち',
   ai_hold: 'AI保留中',
-  review_waiting: 'レビュー待ち',
+  review_waiting: 'レビュー互換',
   blocked: 'ブロック中',
   manual: '手動または対象外',
   done: '完了済み',
@@ -72,6 +72,16 @@ export default async function CommandCenterPage() {
               <span className="rounded bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
                 {autoQueue.next.priority}
               </span>
+              {autoQueue.next.fixRequested && (
+                <span className="rounded bg-rose-100 px-2 py-0.5 text-xs font-bold text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">
+                  要修正優先
+                </span>
+              )}
+              {autoQueue.next.reviewPending && (
+                <span className="rounded bg-blue-100 px-2 py-0.5 text-xs font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                  レビュー未確認・継続
+                </span>
+              )}
             </div>
             <p className="mt-2 text-lg font-bold leading-snug text-gray-900 dark:text-gray-100">{autoQueue.next.title}</p>
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -155,7 +165,7 @@ export default async function CommandCenterPage() {
           {[
             ['判断待ち', autoQueue.counts.waiting_user, 'waiting_user'],
             ['AI保留', autoQueue.counts.ai_hold, 'ai_hold'],
-            ['レビュー', autoQueue.counts.review_waiting, 'review_waiting'],
+            ['レビュー互換', autoQueue.counts.review_waiting, 'review_waiting'],
             ['実行可', autoQueue.counts.executable, 'executable'],
             ['Block', autoQueue.counts.blocked, 'blocked'],
           ].map(([label, count, key]) => (

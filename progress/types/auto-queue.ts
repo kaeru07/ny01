@@ -44,6 +44,8 @@ export interface AutoQueueItem {
   queueOrder: number
   candidateEligible: boolean
   candidateBlockedReason?: string
+  reviewPending?: boolean
+  fixRequested?: boolean
   /** 候補外のとき、ユーザーが「どうすれば自動実行候補に入るか」の具体的な解消手順とボタン。 */
   resolution?: QueueResolution
   reason: string

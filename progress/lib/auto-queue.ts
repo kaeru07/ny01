@@ -2,7 +2,7 @@ import { getEpics, getPendingApprovals } from '@/lib/operations-store'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { readGoals } from '@/lib/goal-reader'
 import { listInboxItems } from '@/lib/inbox-reader'
-import { computeQueueScore, deriveResolution, deriveWorkItemStatus, latestRunForEpic, normalizePriority } from '@/lib/auto-queue-score'
+import { computeQueueScore, dangerRiskFlags, deriveResolution, deriveWorkItemStatus, hasFixRequestedForEpic, hasReviewPendingForEpic, latestRunForEpic, normalizePriority } from '@/lib/auto-queue-score'
 import type { Approval, Epic } from '@/lib/types/operations'
 import type { AutoQueueCounts, AutoQueueItem, AutoQueueView, GoalProgressRow, WorkItemStatus } from '@/types/auto-queue'
 import type { ExecutionRun } from '@/types/execution-run'
@@ -28,7 +28,7 @@ export function statusBlockedReason(status: WorkItemStatus): string {
     executable: '実行可能',
     waiting_user: '人間判断待ち',
     ai_hold: 'AI保留中',
-    review_waiting: 'レビュー待ち',
+    review_waiting: 'レビュー確認状態',
     blocked: 'ブロック中',
     manual: '手動または対象外',
     done: '完了済み',
@@ -38,20 +38,33 @@ export function statusBlockedReason(status: WorkItemStatus): string {
 
 function reasonFromFactors(status: WorkItemStatus, factors: string[], goalTitle: string | undefined, pinnedTop: boolean): string {
   if (status !== 'executable') {
-    const blockedReason = statusBlockedReason(status)
+    const blockedReason = status === 'waiting_user' ? 'ユーザー判断が必要' : statusBlockedReason(status)
     if (pinnedTop) return `最優先指定中。ただし${blockedReason}のため、次回自動実行候補には入りません`
     return `${blockedReason}のため、次回自動実行候補には入りません`
   }
+  if (factors.includes('要修正あり')) return '要修正あり・次回自動実行で優先修正（fixPrompt反映）'
+  if (factors.includes('レビュー未確認あり')) return 'レビュー未確認あり（自動実行は継続）'
   const core = factors.filter((f) => f !== 'factoryEligible')
   if (core.length === 0) return '実行可能条件を満たしているため候補入り'
   const suffix = goalTitle ? ` / Goal「${goalTitle}」配下` : ''
   return `${core.slice(0, 4).join('＋')} のため上位候補${suffix}`
 }
 
+function blockedReasonForEpic(epic: Epic, latestRun: ExecutionRun | undefined): string | undefined {
+  const risks = dangerRiskFlags(epic.riskFlags)
+  if (risks.length > 0) return `危険操作を含むためBlock（理由: ${risks.join(' / ')}）`
+  if (latestRun?.runStatus === 'failed') return '前回実行がfailedのためBlock'
+  if ((epic.blockers ?? []).length > 0) return `ブロック要因あり（${(epic.blockers ?? []).join(' / ')}）`
+  if (epic.status === 'blocked') return 'Epicがblocked状態'
+  return undefined
+}
+
 function toEpicItem(epic: Epic, goal: Goal | undefined, runs: ExecutionRun[], status: WorkItemStatus, approvals: Approval[]): AutoQueueItem {
   const latestRun = latestRunForEpic(epic, runs)
   const lastRunAt = runAt(latestRun)
   const hasPendingApproval = approvals.some((a) => a.epicId === epic.epicId && a.status === 'pending')
+  const fixRequested = status === 'executable' && hasFixRequestedForEpic(epic, runs)
+  const reviewPending = status === 'executable' && hasReviewPendingForEpic(epic, runs)
   const score = computeQueueScore({
     priority: epic.priority,
     queueControl: epic.queueControl,
@@ -59,9 +72,21 @@ function toEpicItem(epic: Epic, goal: Goal | undefined, runs: ExecutionRun[], st
     nextAction: epic.nextAction,
     updatedAt: epic.updatedAt,
     factoryEligible: epic.factoryEligible,
+    fixRequested,
   }, goal)
+  const reasonFactors = [
+    ...score.reasonFactors,
+    ...(reviewPending ? ['レビュー未確認あり'] : []),
+  ]
   const total = epic.doneCriteria?.length ?? 0
   const candidateEligible = epic.factoryEligible === true && status === 'executable'
+  const candidateBlockedReason = candidateEligible
+    ? undefined
+    : status === 'blocked'
+      ? blockedReasonForEpic(epic, latestRun) ?? statusBlockedReason(status)
+      : status === 'waiting_user'
+        ? 'ユーザー判断が必要'
+        : statusBlockedReason(status)
   return {
     workItemId: `epic:${epic.epicId}`,
     type: 'epic',
@@ -86,10 +111,12 @@ function toEpicItem(epic: Epic, goal: Goal | undefined, runs: ExecutionRun[], st
     queueScore: score.queueScore,
     queueOrder: 0,
     candidateEligible,
-    candidateBlockedReason: candidateEligible ? undefined : statusBlockedReason(status),
+    candidateBlockedReason,
+    reviewPending,
+    fixRequested,
     resolution: candidateEligible ? undefined : deriveResolution(epic, status, latestRun, hasPendingApproval),
-    reason: reasonFromFactors(status, score.reasonFactors, goal?.title, epic.queueControl?.pinnedTop === true),
-    reasonFactors: score.reasonFactors.length > 0 ? score.reasonFactors : [status],
+    reason: reasonFromFactors(status, reasonFactors, goal?.title, epic.queueControl?.pinnedTop === true),
+    reasonFactors: reasonFactors.length > 0 ? reasonFactors : [status],
     queueControl: epic.queueControl,
   }
 }

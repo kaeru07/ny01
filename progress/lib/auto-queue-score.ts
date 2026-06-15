@@ -27,6 +27,7 @@ export interface QueueScoreInput {
   nextAction?: string
   updatedAt?: string
   factoryEligible?: boolean
+  fixRequested?: boolean
 }
 
 export interface QueueScoreResult {
@@ -42,6 +43,10 @@ export function hasDangerRisk(riskFlags?: EpicRiskFlag[]): boolean {
   return (riskFlags ?? []).some((flag) => DANGER_RISK_FLAGS.has(flag))
 }
 
+export function dangerRiskFlags(riskFlags?: EpicRiskFlag[]): EpicRiskFlag[] {
+  return (riskFlags ?? []).filter((flag) => DANGER_RISK_FLAGS.has(flag))
+}
+
 export function latestRunForEpic(epic: Pick<Epic, 'epicId' | 'latestRunId' | 'targetApp' | 'targetApps'>, runs: ExecutionRun[]): ExecutionRun | undefined {
   const targetApps = new Set([epic.targetApp, ...(epic.targetApps ?? [])].filter(Boolean).map((v) => String(v).toLowerCase()))
   const matches = runs.filter((run) => {
@@ -52,26 +57,39 @@ export function latestRunForEpic(epic: Pick<Epic, 'epicId' | 'latestRunId' | 'ta
   return matches.sort((a, b) => Date.parse(b.finishedAt || b.startedAt) - Date.parse(a.finishedAt || a.startedAt))[0]
 }
 
+export function hasFixRequestedForEpic(epic: Pick<Epic, 'epicId' | 'latestRunId' | 'targetApp' | 'targetApps'>, runs: ExecutionRun[]): boolean {
+  const latestRun = latestRunForEpic(epic, runs)
+  if (latestRun?.reviewStatus === 'needs_followup') return true
+  return runs.some((run) => (
+    run.epicId === epic.epicId &&
+    run.reviewStatus === 'needs_followup' &&
+    typeof run.fixPrompt === 'string' &&
+    run.fixPrompt.trim().length > 0
+  ))
+}
+
+export function hasReviewPendingForEpic(epic: Pick<Epic, 'epicId' | 'latestRunId' | 'targetApp' | 'targetApps'>, runs: ExecutionRun[]): boolean {
+  const latestRun = latestRunForEpic(epic, runs)
+  return latestRun?.runStatus !== 'failed' && (latestRun?.reviewStatus === 'not_reviewed' || latestRun?.reviewStatus === 'copied')
+}
+
 export function deriveWorkItemStatus(epic: Epic, context: StatusContext): WorkItemStatus {
   if (epic.status === 'done' || epic.status === 'merged') return 'done'
   if (epic.decisionPolicy === 'manual' || epic.factoryEligible === false) return 'manual'
-  if ((epic.blockers ?? []).length > 0 || epic.status === 'blocked') return 'blocked'
-  if (epic.queueControl?.hold === true || epic.status === 'paused') return 'ai_hold'
+  const dangerous = hasDangerRisk(epic.riskFlags)
+  const latestRun = latestRunForEpic(epic, context.runs)
+  if (dangerous || latestRun?.runStatus === 'failed' || (epic.blockers ?? []).length > 0 || epic.status === 'blocked') return 'blocked'
 
   const pendingApproval = context.approvals.some((approval) => approval.epicId === epic.epicId && approval.status === 'pending')
-  const dangerous = hasDangerRisk(epic.riskFlags)
-  if (pendingApproval || dangerous || epic.decisionPolicy === 'approval_required') return 'waiting_user'
-
-  const latestRun = latestRunForEpic(epic, context.runs)
-  if (latestRun?.reviewStatus === 'needs_followup') return 'waiting_user'
+  if (pendingApproval || epic.decisionPolicy === 'approval_required') return 'waiting_user'
   if (latestRun?.reviewStatus === 'needs_human') return 'waiting_user'
-  if ((latestRun?.reviewStatus === 'not_reviewed' || latestRun?.reviewStatus === 'copied') && latestRun.runStatus !== 'failed') {
-    const priority = normalizePriority(epic.priority)
-    if (priority === 'P0' || priority === 'P1' || dangerous) return 'waiting_user'
-    return 'review_waiting'
-  }
-  if (latestRun?.runStatus === 'failed') return 'blocked'
 
+  if (epic.queueControl?.hold === true || epic.status === 'paused') return 'ai_hold'
+  // ただのレビュー待ち(not_reviewed)/修正依頼(needs_followup)は止めない。危険・判断要のゲートを通過していれば
+  // factoryEligible に従って executable とする。fixRequested/reviewPending は toEpicItem 側で
+  // status==='executable' のときフラグ付与＆boostする。
+  // ※ ここで factoryEligible を無視して executable を返すと、対象外Epic(factoryEligible未設定)が
+  //    status=executable になりつつ候補(factoryEligible===true)から漏れ、全リストから消える不整合になる。
   if (epic.factoryEligible === true) return 'executable'
   return 'manual'
 }
@@ -104,6 +122,11 @@ export function computeQueueScore(input: QueueScoreInput, goal?: Goal): QueueSco
   if (goal?.pinnedTop) {
     score += 400
     factors.push(`Goal「${goal.title}」最優先`)
+  }
+
+  if (input.fixRequested) {
+    score += 700
+    factors.push('要修正あり')
   }
 
   score += PRIORITY_SCORE[priority]
@@ -142,14 +165,14 @@ export function deriveResolution(
       return undefined
     case 'review_waiting':
       return {
-        how: 'Inboxのレビュータブで、この作業の最新の結果を「問題なし」にすると、次回の自動実行候補に入ります。',
+        how: '互換ステータスです。通常の未レビューだけなら自動実行は止めません。レビュー以外の停止理由がないか確認してください。',
         actionLabel: 'Inboxでレビューする',
         actionHref: decideHref('review', { focusRunId: latestRun?.runId }),
       }
     case 'waiting_user': {
-      if (hasPendingApproval || hasDangerRisk(epic.riskFlags) || epic.decisionPolicy === 'approval_required') {
+      if (hasPendingApproval || epic.decisionPolicy === 'approval_required') {
         return {
-          how: '危険を伴う作業のため承認が必要です。Inboxの「今日の判断」で承認すると、AIが自動実行できます。',
+          how: 'ユーザー判断が必要なため自動実行を停止中です。Inboxの「今日の判断」で方針を決めると、AIが自動実行できます。',
           actionLabel: 'Inboxで承認する',
           actionHref: decideHref('today'),
         }
@@ -169,15 +192,18 @@ export function deriveResolution(
         }
       }
       return {
-        how: '重要度が高い作業です。Inboxのレビュータブで最新の結果を「問題なし」にすると、次回の自動実行候補に入ります。',
-        actionLabel: 'Inboxでレビューする',
-        actionHref: decideHref('review', { focusRunId: latestRun?.runId }),
+        how: 'ユーザー判断が必要なため自動実行を停止中です。Inboxの「今日の判断」で方針を決めると、AIが自動実行できます。',
+        actionLabel: 'Inboxで判断する',
+        actionHref: decideHref('today'),
       }
     }
     case 'blocked': {
       const blocker = (epic.blockers ?? [])[0]
+      const risks = dangerRiskFlags(epic.riskFlags)
       return {
-        how: blocker
+        how: risks.length > 0
+          ? `危険操作を含むためBlockしています（理由: ${risks.join(' / ')}）。人手で内容を確認し、安全に分割してください。`
+          : blocker
           ? `ブロック要因（${blocker}）を解消すると、次回の自動実行候補に入ります。`
           : '前回の作業が失敗しています。原因を直すと、次回の自動実行候補に入ります。',
         actionLabel: '詳細を見る',

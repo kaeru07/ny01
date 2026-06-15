@@ -11,7 +11,7 @@ const FILTERS: Array<{ key: 'all' | WorkItemStatus; label: string }> = [
   { key: 'executable', label: '実行可能' },
   { key: 'waiting_user', label: '判断待ち' },
   { key: 'ai_hold', label: 'AI保留' },
-  { key: 'review_waiting', label: 'レビュー待ち' },
+  { key: 'review_waiting', label: 'レビュー互換' },
   { key: 'blocked', label: 'Block' },
   { key: 'manual', label: '対象外/手動' },
 ]
@@ -20,7 +20,7 @@ const STATUS_LABEL: Record<WorkItemStatus, string> = {
   executable: '実行可能',
   waiting_user: '判断待ち',
   ai_hold: 'AI保留',
-  review_waiting: 'レビュー待ち',
+  review_waiting: 'レビュー互換',
   blocked: 'Block',
   manual: '手動/対象外',
   done: '完了',
@@ -177,6 +177,8 @@ export default async function QueuePage({ searchParams }: { searchParams?: { fil
                     {STATUS_LABEL[item.status]}
                   </span>
                   {isPinned && <span className="rounded bg-yellow-100 px-1.5 py-0.5 text-[11px] font-bold text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">pin</span>}
+                  {item.fixRequested && <span className="rounded bg-rose-100 px-1.5 py-0.5 text-[11px] font-bold text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">要修正優先</span>}
+                  {item.reviewPending && <span className="rounded bg-blue-100 px-1.5 py-0.5 text-[11px] font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">レビュー未確認・継続</span>}
                   <span className={`rounded px-1.5 py-0.5 text-[11px] font-bold ${
                     item.candidateEligible
                       ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'

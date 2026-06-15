@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-14
-updateNote: レビュー用コピーで「全体をコピー」するとボタンが「🔍レビュー中」表示になる（localStorage保持・モーダルの「レビューを終了」で解除）
+updateNote: 自動実行キューの判定見直し。ただのレビュー待ち(not_reviewed)では止めない(executable継続・reviewPending表示)。止めるのは危険(blocked)/ユーザー判断要(waiting_user)のみ。修正依頼(needs_followup/fixPrompt)はexecutable＋優先boost
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -98,7 +98,7 @@ Inboxカード（今日の判断 / レビュー / Epic候補 / AI保留集計）
 |---|---|---|
 | `executable` | AIが自動実行できる。`factoryEligible=true` かつ安全条件OK | 入る |
 | `waiting_user` | 人間判断・承認・危険flag・重要レビュー待ち | 入らない |
-| `review_waiting` | レビュー待ち。低優先レビューは工場全体を止めない | 入らない |
+| `review_waiting` | （旧）レビュー待ち。**not_reviewed では使わない**（2026-06-15〜・ただのレビュー待ちは止めない）。互換のため enum 残置 | 入らない |
 | `ai_hold` | AI保留。ユーザーの保留操作や一時停止 | 入らない |
 | `blocked` | blocker / failed などで詰まり | 入らない |
 | `manual` | 手動対応または対象外 | 入らない |
@@ -241,6 +241,8 @@ Claude Code / Codex の作業完了時・Epic 完了後に「人間が確認す�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-15: **自動実行キューの「レビュー待ちで止まる」判定を見直し**。`deriveWorkItemStatus`（lib/auto-queue-score.ts）を変更し、**ただのレビュー待ち（最新Run `not_reviewed`/`copied`）では自動実行を止めない**（`executable` 継続・`AutoQueueItem.reviewPending=true`「レビュー未確認あり（自動実行は継続）」表示）。停止するのは **危険（riskFlags: billing/production_db/auth_secret/external_publish/destructive/migration ＝ `blocked`）/ failed / blocker** と **ユーザー判断要（pendingApproval / approval_required / needs_human ＝ `waiting_user`）** のみ。**修正依頼（needs_followup / fixPrompt あり）は `executable`＋`fixRequested=true`＋queueScore `+700` boost** で優先。従来の「P0/P1の未レビューは waiting_user」エスカレーション・「レビュー待ちのため次回候補に入りません」表記は廃止。`review_waiting` ステータスは not_reviewed からは生成しない（enum は互換残置）。判定順は 危険/判断要 が先で、その後に factoryEligible で executable 判定（対象外Epicは `manual` のまま・status と候補可否の不整合を解消）。
 
 - 2026-06-15: レビュー用コピーで「全体をコピー」成功時、ボタンを **「🔍 レビュー中」**（amber）表示に切替（ChatGPT/Fable確認中の可視化）。状態は `localStorage('reviewCopy:reviewing')` 保持で画面遷移・再読込でも維持、モーダル内「レビューを終了」で解除。`components/review-copy/ReviewCopyButton.tsx`。
 
