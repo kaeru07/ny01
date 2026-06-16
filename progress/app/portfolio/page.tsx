@@ -1,7 +1,10 @@
 export const dynamic = 'force-dynamic'
 
 import PageGuide from '@/components/newux/PageGuide'
+import FilterBar from '@/components/newux/FilterBar'
+import FilterChips from '@/components/newux/FilterChips'
 import { buildProjectPortfolio } from '@/lib/command-center'
+import { buildProgressFilterUrl, parseProgressFilters, updateFilterParam } from '@/lib/progress-filters'
 
 // Projects = いま動いているプロジェクトの一覧。状態 / 次の作業 / 最終更新 / 収益化状況。
 
@@ -19,12 +22,49 @@ function fmt(dt?: string): string {
   return d.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })
 }
 
-export default async function PortfolioPage() {
-  const projects = await buildProjectPortfolio()
+function matchesProject(project: Awaited<ReturnType<typeof buildProjectPortfolio>>[number], q?: string): boolean {
+  if (!q) return true
+  const haystack = [project.name, project.statusLabel, project.nextWork, project.monetizationLabel].filter(Boolean).join(' ').toLowerCase()
+  return haystack.includes(q.toLowerCase())
+}
+
+export default async function PortfolioPage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
+  const allProjects = await buildProjectPortfolio()
+  const filters = parseProgressFilters(searchParams)
+  const projects = allProjects.filter((project) => {
+    if (filters.status && project.statusTone !== filters.status && project.statusLabel !== filters.status) return false
+    if (!matchesProject(project, filters.q)) return false
+    return true
+  })
+  const statusOptions = Array.from(new Map(allProjects.map((project) => [project.statusTone, project.statusLabel])).entries())
+    .map(([value, label]) => ({ value, label }))
 
   return (
     <div className="space-y-5 px-4 pb-6 pt-6">
       <PageGuide title="Projects" guide="進行中プロジェクトの状況を確認します。「あなたの作業待ち」のものから手を付けるのがおすすめです。" />
+
+      <section className="space-y-2">
+        <p className="text-xs text-gray-500 dark:text-gray-400">全{allProjects.length}件中 {projects.length}件表示</p>
+        <FilterBar
+          basePath="/portfolio"
+          filters={filters}
+          quickFilters={[
+            { key: 'all', label: 'すべて', patch: { status: undefined, q: undefined }, active: !filters.status && !filters.q },
+            ...statusOptions.map((option) => ({ key: option.value, label: option.label, patch: { status: option.value }, active: filters.status === option.value })),
+          ]}
+          selectFilters={[
+            { key: 'status', label: 'status', placeholder: 'すべての状態', options: statusOptions },
+          ]}
+          showSearch
+        />
+        <FilterChips
+          clearHref="/portfolio"
+          chips={[
+            { key: 'status', label: `状態: ${statusOptions.find((option) => option.value === filters.status)?.label ?? filters.status}`, active: Boolean(filters.status), href: buildProgressFilterUrl('/portfolio', updateFilterParam(filters, { status: undefined })) },
+            { key: 'q', label: `検索: ${filters.q}`, active: Boolean(filters.q), href: buildProgressFilterUrl('/portfolio', updateFilterParam(filters, { q: undefined })) },
+          ]}
+        />
+      </section>
 
       <ul className="space-y-3">
         {projects.map((p) => (

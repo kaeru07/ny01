@@ -3,18 +3,11 @@ export const revalidate = 0
 
 import Link from 'next/link'
 import { getAutoQueueView } from '@/lib/auto-queue'
+import FilterBar from '@/components/newux/FilterBar'
+import FilterChips from '@/components/newux/FilterChips'
 import QueueActionButton from './QueueActionButton'
+import { buildProgressFilterUrl, parseProgressFilters, updateFilterParam, type ProgressFilterState } from '@/lib/progress-filters'
 import type { AutoQueueItem, WorkItemStatus } from '@/types/auto-queue'
-
-const FILTERS: Array<{ key: 'all' | WorkItemStatus; label: string }> = [
-  { key: 'all', label: 'すべて' },
-  { key: 'executable', label: '実行可能' },
-  { key: 'waiting_user', label: '判断待ち' },
-  { key: 'ai_hold', label: 'AI保留' },
-  { key: 'review_waiting', label: 'レビュー互換' },
-  { key: 'blocked', label: 'Block' },
-  { key: 'manual', label: '対象外/手動' },
-]
 
 const STATUS_LABEL: Record<WorkItemStatus, string> = {
   executable: '実行可能',
@@ -58,25 +51,77 @@ function itemHref(item: AutoQueueItem): string {
   return item.type === 'epic' ? `/epic/${item.sourceId}` : `/goal-planner`
 }
 
-function queueHref(filter: 'all' | WorkItemStatus, goalId?: string): string {
-  const params = new URLSearchParams()
-  if (filter !== 'all') params.set('filter', filter)
-  if (goalId) params.set('goalId', goalId)
-  const query = params.toString()
-  return query ? `/queue?${query}` : '/queue'
+function queueHref(filters: ProgressFilterState, patch: Partial<ProgressFilterState>): string {
+  return buildProgressFilterUrl('/queue', updateFilterParam(filters, patch))
 }
 
 function statusCount(items: AutoQueueItem[], status: WorkItemStatus): number {
   return items.filter((item) => item.status === status).length
 }
 
-export default async function QueuePage({ searchParams }: { searchParams?: { filter?: string; goalId?: string } }) {
+function matchesQuery(item: AutoQueueItem, q?: string): boolean {
+  if (!q) return true
+  const haystack = [
+    item.title,
+    item.goalTitle,
+    item.projectName,
+    item.projectId,
+    item.sourceId,
+    item.reason,
+    item.candidateBlockedReason,
+    ...item.reasonFactors,
+  ].filter(Boolean).join(' ').toLowerCase()
+  return haystack.includes(q.toLowerCase())
+}
+
+function filterItems(items: AutoQueueItem[], filters: ProgressFilterState): AutoQueueItem[] {
+  return items.filter((item) => {
+    if (filters.goalId && (item.goalId ?? 'unassigned') !== filters.goalId) return false
+    if (filters.projectId && item.projectId !== filters.projectId) return false
+    if (filters.app) {
+      const app = filters.app.toLowerCase()
+      const value = `${item.projectName ?? ''} ${item.projectId ?? ''} ${item.sourceId}`.toLowerCase()
+      if (!value.includes(app)) return false
+    }
+    if (filters.status && item.status !== filters.status) return false
+    if (filters.priority && item.priority !== filters.priority) return false
+    if (filters.pinned && item.queueControl?.pinnedTop !== true) return false
+    if (filters.excluded && item.candidateEligible) return false
+    if (filters.manualOnly && item.status !== 'manual') return false
+    if (filters.executor === 'unset' && item.preferredExecutor) return false
+    if (filters.executor === 'set' && !item.preferredExecutor) return false
+    if (filters.runnable && item.status !== 'executable') return false
+    if (filters.blocked && item.status !== 'blocked') return false
+    if (filters.aiHold && item.status !== 'ai_hold') return false
+    if (!matchesQuery(item, filters.q)) return false
+    return true
+  })
+}
+
+export default async function QueuePage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
   const queue = await getAutoQueueView()
-  const filter = (searchParams?.filter ?? 'all') as 'all' | WorkItemStatus
-  const goalId = searchParams?.goalId
+  const filters = parseProgressFilters(searchParams)
+  const goalId = filters.goalId
   const goalProgress = goalId ? queue.goalProgress.find((row) => row.goalId === goalId) : undefined
-  const baseItems = allItems(queue).filter((item) => !goalId || item.goalId === goalId)
-  const items = baseItems.filter((item) => filter === 'all' || item.status === filter)
+  const allQueueItems = allItems(queue)
+  const goalScopedItems = allQueueItems.filter((item) => !goalId || (item.goalId ?? 'unassigned') === goalId)
+  const items = filterItems(allQueueItems, filters)
+  const projectOptions = Array.from(new Map(allQueueItems.filter((item) => item.projectId || item.projectName).map((item) => [item.projectId ?? item.projectName ?? '', item.projectName ?? item.projectId ?? '未設定'])).entries())
+    .filter(([id]) => id)
+    .map(([value, label]) => ({ value, label }))
+  const goalOptions = queue.goalProgress.map((row) => ({ value: row.goalId, label: row.title }))
+  const activeChips = [
+    { key: 'goalId', label: `Goal: ${goalProgress?.title ?? filters.goalId}`, active: Boolean(filters.goalId), href: queueHref(filters, { goalId: undefined }) },
+    { key: 'projectId', label: `Project: ${filters.projectId}`, active: Boolean(filters.projectId), href: queueHref(filters, { projectId: undefined }) },
+    { key: 'app', label: `app: ${filters.app}`, active: Boolean(filters.app), href: queueHref(filters, { app: undefined }) },
+    { key: 'status', label: `状態: ${filters.status}`, active: Boolean(filters.status), href: queueHref(filters, { status: undefined }) },
+    { key: 'priority', label: `優先度: ${filters.priority}`, active: Boolean(filters.priority), href: queueHref(filters, { priority: undefined }) },
+    { key: 'pinned', label: 'pin済み', active: filters.pinned === true, href: queueHref(filters, { pinned: undefined }) },
+    { key: 'excluded', label: '候補外', active: filters.excluded === true, href: queueHref(filters, { excluded: undefined }) },
+    { key: 'manualOnly', label: '手動/対象外', active: filters.manualOnly === true, href: queueHref(filters, { manualOnly: undefined }) },
+    { key: 'executor', label: `executor ${filters.executor}`, active: Boolean(filters.executor), href: queueHref(filters, { executor: undefined }) },
+    { key: 'q', label: `検索: ${filters.q}`, active: Boolean(filters.q), href: queueHref(filters, { q: undefined }) },
+  ]
 
   return (
     <div className="space-y-5 px-4 pb-6 pt-6">
@@ -85,7 +130,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: { fil
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">自動実行キュー</h1>
             <p className="mt-0.5 text-sm text-gray-400 dark:text-gray-500">
-              Epicを正本にした派生ビュー · 実行可能 {statusCount(baseItems, 'executable')}件
+              Epicを正本にした派生ビュー · 全{allQueueItems.length}件中 {items.length}件表示 · 実行可能 {statusCount(goalScopedItems, 'executable')}件
             </p>
           </div>
           {goalId && (
@@ -113,34 +158,38 @@ export default async function QueuePage({ searchParams }: { searchParams?: { fil
         </div>
       </header>
 
-      <nav className="flex gap-2 overflow-x-auto pb-1">
-        {FILTERS.map((f) => {
-          const active = filter === f.key
-          return (
-            <Link
-              key={f.key}
-              href={queueHref(f.key, goalId)}
-              className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold ${
-                active
-                  ? 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900'
-                  : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
-              }`}
-            >
-              {f.label}
-            </Link>
-          )
-        })}
-      </nav>
+      <FilterBar
+        basePath="/queue"
+        filters={filters}
+        quickFilters={[
+          { key: 'all', label: 'すべて', patch: { status: undefined, excluded: undefined, pinned: undefined, manualOnly: undefined, executor: undefined, blocked: undefined, aiHold: undefined }, active: !filters.status && !filters.excluded && !filters.pinned && !filters.manualOnly && !filters.executor && !filters.blocked && !filters.aiHold },
+          { key: 'executable', label: '実行可', patch: { status: 'executable', excluded: undefined }, active: filters.status === 'executable' },
+          { key: 'excluded', label: '候補外', patch: { excluded: true, status: undefined }, active: filters.excluded === true },
+          { key: 'pinned', label: 'pin済み', patch: { pinned: true }, active: filters.pinned === true },
+          { key: 'manual', label: '手動/対象外', patch: { manualOnly: true, status: undefined }, active: filters.manualOnly === true || filters.status === 'manual' },
+          { key: 'executorUnset', label: 'executor未設定', patch: { executor: 'unset' }, active: filters.executor === 'unset' },
+          { key: 'blocked', label: 'Block', patch: { status: 'blocked' }, active: filters.status === 'blocked' || filters.blocked === true },
+          { key: 'aiHold', label: 'AI保留', patch: { status: 'ai_hold' }, active: filters.status === 'ai_hold' || filters.aiHold === true },
+        ]}
+        selectFilters={[
+          { key: 'goalId', label: 'Goal', placeholder: 'すべてのGoal', options: goalOptions },
+          { key: 'projectId', label: 'Project', placeholder: 'すべてのProject', options: projectOptions },
+          { key: 'priority', label: 'Priority', placeholder: 'すべての優先度', options: ['P0', 'P1', 'P2'].map((value) => ({ value, label: value })) },
+          { key: 'app', label: 'app', placeholder: 'すべてのapp', options: projectOptions },
+        ]}
+        showSearch
+      />
+      <FilterChips chips={activeChips} clearHref="/queue" />
 
       <section className="grid grid-cols-1 gap-2 sm:grid-cols-5">
         {[
-          ['判断待ち', statusCount(baseItems, 'waiting_user'), 'waiting_user'],
-          ['AI保留', statusCount(baseItems, 'ai_hold'), 'ai_hold'],
-          ['レビュー', statusCount(baseItems, 'review_waiting'), 'review_waiting'],
-          ['実行可', statusCount(baseItems, 'executable'), 'executable'],
-          ['Block', statusCount(baseItems, 'blocked'), 'blocked'],
+          ['判断待ち', statusCount(goalScopedItems, 'waiting_user'), 'waiting_user'],
+          ['AI保留', statusCount(goalScopedItems, 'ai_hold'), 'ai_hold'],
+          ['レビュー', statusCount(goalScopedItems, 'review_waiting'), 'review_waiting'],
+          ['実行可', statusCount(goalScopedItems, 'executable'), 'executable'],
+          ['Block', statusCount(goalScopedItems, 'blocked'), 'blocked'],
         ].map(([label, count, key]) => (
-          <Link key={key} href={queueHref(key as WorkItemStatus, goalId)} className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/60">
+          <Link key={key} href={queueHref(filters, { status: key as WorkItemStatus })} className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/60">
             <p className="text-[11px] font-semibold text-gray-400">{label}</p>
             <p className="mt-1 text-xl font-bold text-gray-900 dark:text-gray-100">{count}</p>
           </Link>
@@ -148,8 +197,15 @@ export default async function QueuePage({ searchParams }: { searchParams?: { fil
       </section>
 
       {items.length === 0 ? (
-        <section className="rounded-lg border border-dashed border-gray-200 py-10 text-center text-sm text-gray-400 dark:border-gray-700">
-          このフィルタの項目はありません。
+        <section className="rounded-lg border border-dashed border-gray-200 px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-700">
+          <p className="font-semibold text-gray-700 dark:text-gray-200">条件に一致する項目はありません。</p>
+          <p className="mt-1 text-xs text-gray-400">現在の条件を解除するか、候補外・pin済みの観点で確認できます。</p>
+          <div className="mt-3 flex flex-wrap justify-center gap-2">
+            <Link href="/queue" className="rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-bold text-white dark:bg-gray-100 dark:text-gray-900">クリア</Link>
+            <Link href={queueHref(filters, { excluded: true, status: undefined })} className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 dark:border-gray-700 dark:text-gray-200">候補外を見る</Link>
+            <Link href={queueHref(filters, { pinned: true })} className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 dark:border-gray-700 dark:text-gray-200">pin済みを見る</Link>
+            {filters.goalId && <Link href={queueHref(filters, { goalId: undefined })} className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 dark:border-gray-700 dark:text-gray-200">Goal解除</Link>}
+          </div>
         </section>
       ) : (
         <section className="space-y-3">

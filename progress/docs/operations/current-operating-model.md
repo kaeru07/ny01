@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-16
-updateNote: 自走化Goal(goal-ai-factory-os)を正本アンカー化。epic-91をP0/doneCriteria付き実行Epicにし、buildAutoQueueとscanFactoryDispatch両方で最優先(候補外を解消)。ExecutionRun.selection記録・dry-runテスト・completed時メール通知土台(現状noopログのみ・実送信は別Phase)
+updateNote: 自動実行キュー・Inbox・Goal/Project/ToDo一覧に表示専用のURL同期フィルターを追加。判定/スコア/Factory実行順は変更しない。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -27,9 +27,9 @@ Progress は **AI工場の管理画面ではなく、人間用の司令塔**。
 | タブ | ルート | 役割 |
 |---|---|---|
 | 司令塔 | `/` | 毎日最初に開く画面。今日やること・AI工場の状態・収益マイルストーン・直近の成果 |
-| Inbox | `/decide` | 4タブ構成（タブ切り替え）。「今日の判断」=工場停止要因のみ（危険判断/方針選択/人間作業・最大3件・約3分）/「レビュー」=検収（放置しても工場は止まらない・**隠さず全件表示**）/「Epic候補」=実行許可（放置可能）/「AI保留」=件数のみ。社長は「今日の判断」タブだけ処理すれば工場は止まらない。`?tab=today|review|candidates|aiHold`、`?reviewFilter=unconfirmed|followup|snoozed|reviewed`、`?focusRunId=<runId>`、`?goalId=<id|unassigned>`で直接表示できる。内部分類・内部IDは「詳細を見る」内のみ |
+| Inbox | `/decide` | 4タブ構成（タブ切り替え）。「今日の判断」=工場停止要因のみ（危険判断/方針選択/人間作業・最大3件・約3分）/「レビュー」=検収（放置しても工場は止まらない・**隠さず全件表示**）/「Epic候補」=実行許可（放置可能）/「AI保留」=件数のみ。社長は「今日の判断」タブだけ処理すれば工場は止まらない。`?tab=today|review|candidates|aiHold`、`?reviewFilter=unconfirmed|followup|snoozed|reviewed`、`?reviewStatus=needs_followup`、互換 `?filter=needs_followup`、`?focusRunId=<runId>`、`?goalId=<id|unassigned>`、`?q=...`、`?fixPrompt=1`で直接表示できる。内部分類・内部IDは「詳細を見る」内のみ |
 | Inbox レビュータブ | `/decide` | **レビュー待ちは未消込リストとして全件表示**（「ほか◯件」「処理すると次が出ます」の隠れ表示は廃止）。上部に件数サマリー（未確認/要修正/あとで/レビュー済み）。各カードに「完了: YYYY/MM/DD HH:mm」を表示し、**completedAt（finishedAt→startedAt）降順**で最新が上。50件ずつの明示ページング（全◯件中◯〜◯件）。状態遷移=問題なし→`reviewed`（一覧から消し込み・「レビュー済み」タブに残置＝物理削除しない）/あとで→`snoozed`（後回しで残置）/修正する→**修正指示プロンプト(textarea)を入力して保存**→`needs_followup`（要修正で残置・`fixPrompt`/`fixRequestedAt`/`fixRequestedBy='human'` を ExecutionRun に保存）。修正指示は要修正カードに表示され、`followupOfRunId` 付きおすすめ次作業の reason/doneCriteria/notes に反映されて次回自動実行の作業指示になる。空欄保存は警告して送信しない。「未確認レビューをAIで一括整理」は未確認**全件**対象（サーバ安全上限200件）で、危険・要判断は必ず残し最終判断は人間 |
-| 自動実行キュー | `/queue` | **AI工場が次に何をやるか**の単一ビュー（派生・新正本を作らない）。`buildAutoQueue()` が Epic / Goal / ExecutionRun / Approval / Inbox から都度生成。`factoryEligible=true && status=executable` のみ自動実行候補。各itemに「なぜこの順位か」の理由を機械生成。スマホで最優先(pin)/保留(hold)/対象外(exclude)/上下移動(manualOrder)。旧 work-queue 並べ替え画面は `/legacy/queue` に退避 |
+| 自動実行キュー | `/queue` | **AI工場が次に何をやるか**の単一ビュー（派生・新正本を作らない）。`buildAutoQueue()` が Epic / Goal / ExecutionRun / Approval / Inbox から都度生成。`factoryEligible=true && status=executable` のみ自動実行候補。各itemに「なぜこの順位か」の理由を機械生成。スマホで最優先(pin)/保留(hold)/対象外(exclude)/上下移動(manualOrder)。表示専用フィルターとして `?filter=<status>` / `?goalId=` / `?projectId=` / `?app=` / `?priority=P0|P1|P2` / `?pinned=1` / `?excluded=1` / `?manualOnly=1` / `?executor=unset|set` / `?q=` を使える。旧 work-queue 並べ替え画面は `/legacy/queue` に退避 |
 | Projects | `/portfolio` | 進行中プロジェクトの一覧と次の作業 |
 | Revenue | `/revenue` | 収益化マイルストーンの現在地 |
 | 📖 運用 | `/guide` | このアプリの使い方を自分で説明するページ（本ドキュメントと連動） |
@@ -85,8 +85,19 @@ Inboxカード（今日の判断 / レビュー / Epic候補 / AI保留集計）
 - `?reviewFilter=unconfirmed|followup|snoozed|reviewed`: レビュー内フィルタ。互換で `?filter=needs_followup` は `followup` に読み替える。
 - `?focusRunId=<runId>`: 対象レビューカードへスクロールし、ハイライトして「次回実行予定から移動しました」を表示。カードの状態が現フィルタと違う場合は、`needs_followup`→要修正、`snoozed`→あとで、`reviewed`→レビュー済み、それ以外→未確認へ自動切替。
 - `?goalId=<goalId|unassigned>`: すべてのタブをそのGoalの項目だけに絞る。0件のタブを開いても同Goalの他タブに件数があれば案内ボタンを出す。
+- `?reviewStatus=needs_followup|snoozed|reviewed|unconfirmed`: レビュー内フィルタ。`reviewFilter` と `filter=needs_followup` は後方互換で維持。
+- `?q=<text>` / `?fixPrompt=1`: 表示専用の検索・修正指示ありフィルター。URLに同期し、変更時は通常 `focusRunId` を外す。
 
 司令塔トップの「Inboxでレビューする」は `/decide?tab=review&goalId=...&focusRunId=...` を使う。レビュー件数があるのに `/decide` の今日の判断0件へ飛んで詰まる導線は禁止。
+
+## 表示フィルターとURL同期
+
+フィルターは **表示専用**。`deriveWorkItemStatus` / queueScore / `scanFactoryDispatch` / review-fix / scheduler の判定や実行順は変えない。画面上の絞り込み・検索・タブ切替だけを URL クエリへ同期し、再読み込み・共有リンクで復元する。
+
+- `/queue`: チップ（すべて/実行可/候補外/pin済み/手動・対象外/executor未設定/Block/AI保留）と詳細（Goal/Project/app/priority/q）。候補外は `!candidateEligible`、pin済みは `queueControl.pinnedTop`、executor未設定は `preferredExecutor` 未設定を表示層で見るだけ。
+- `/decide`: tab / reviewStatus / goalId / q / fixPrompt を操作で URL 同期。既存 deep link `/decide?tab=review&goalId=...&focusRunId=...` は維持し、`filter=needs_followup` も読み続ける。
+- `/tasks` / `/goal-planner` / `/portfolio`: 最小フィルターとして Project/Goal/status/q を表示層で絞る。
+- 通常のクリアは `focusRunId` を消す。次回予定からの deep link はそのURLを開いた時点では維持され、該当レビューをハイライトする。
 
 ## 自動実行キューの使い方
 

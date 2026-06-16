@@ -2,7 +2,10 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import FilterBar from '@/components/newux/FilterBar'
+import FilterChips from '@/components/newux/FilterChips'
+import { buildProgressFilterUrl, parseProgressFilters, updateFilterParam, type ProgressFilterState } from '@/lib/progress-filters'
 import type { InboxCard, InboxView } from '@/lib/command-center'
 import type { AutoQueueView } from '@/types/auto-queue'
 import InboxCardItem from './InboxActions'
@@ -32,8 +35,8 @@ function tabFromQuery(value: string | null): TabKey {
   return 'decisions'
 }
 
-function reviewFilterFromQuery(reviewFilter: string | null, filter: string | null): ReviewFilter {
-  const value = reviewFilter ?? filter
+function reviewFilterFromQuery(reviewFilter: string | null, filter: string | null, reviewStatus: string | null): ReviewFilter {
+  const value = reviewStatus ?? reviewFilter ?? filter
   if (value === 'followup' || value === 'needs_followup') return 'followup'
   if (value === 'snoozed') return 'snoozed'
   if (value === 'reviewed') return 'reviewed'
@@ -56,13 +59,37 @@ function goalFiltered(cards: InboxCard[], goalId: string | null): InboxCard[] {
   return cards.filter((card) => (card.goalId ?? 'unassigned') === goalId)
 }
 
+function matchesQuery(card: InboxCard, q?: string): boolean {
+  if (!q) return true
+  const haystack = [
+    card.headline,
+    card.question,
+    card.detail,
+    card.goalTitle,
+    card.sourceRunId,
+    card.fixPrompt,
+    ...(card.rows ?? []).map((row) => `${row.label} ${row.text}`),
+  ].filter(Boolean).join(' ').toLowerCase()
+  return haystack.includes(q.toLowerCase())
+}
+
+function filterCards(cards: InboxCard[], filters: ProgressFilterState, options: { reviewOnly?: boolean } = {}): InboxCard[] {
+  return cards.filter((card) => {
+    if (!matchesQuery(card, filters.q)) return false
+    if (options.reviewOnly && filters.fixPrompt && !card.fixPrompt) return false
+    return true
+  })
+}
+
 export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props) {
   const searchParams = useSearchParams()
+  const router = useRouter()
+  const progressFilters = parseProgressFilters(searchParams)
   const selectedGoalId = searchParams.get('goalId')
   const focusRunId = searchParams.get('focusRunId')
 
   const [tab, setTab] = useState<TabKey>(() => tabFromQuery(searchParams.get('tab')))
-  const [reviewFilter, setReviewFilter] = useState<ReviewFilter>(() => reviewFilterFromQuery(searchParams.get('reviewFilter'), searchParams.get('filter')))
+  const [reviewFilter, setReviewFilter] = useState<ReviewFilter>(() => reviewFilterFromQuery(searchParams.get('reviewFilter'), searchParams.get('filter'), searchParams.get('reviewStatus')))
   const [reviewPage, setReviewPage] = useState(0)
 
   const allReviewCards = useMemo(() => [...inbox.reviews, ...inbox.reviewedHistory], [inbox.reviews, inbox.reviewedHistory])
@@ -70,7 +97,7 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
 
   useEffect(() => {
     setTab(tabFromQuery(searchParams.get('tab')))
-    setReviewFilter(reviewFilterFromQuery(searchParams.get('reviewFilter'), searchParams.get('filter')))
+    setReviewFilter(reviewFilterFromQuery(searchParams.get('reviewFilter'), searchParams.get('filter'), searchParams.get('reviewStatus')))
     setReviewPage(0)
   }, [searchParams])
 
@@ -95,10 +122,19 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
     return () => window.clearTimeout(timer)
   }, [focusRunId, reviewFilter, reviewPage])
 
-  const filteredDecisions = goalFiltered(inbox.decisions, selectedGoalId)
-  const filteredReviews = goalFiltered(inbox.reviews, selectedGoalId)
-  const filteredReviewedHistory = goalFiltered(inbox.reviewedHistory, selectedGoalId)
-  const filteredCandidates = goalFiltered(inbox.candidates, selectedGoalId)
+  function navigateFilters(patch: Partial<ProgressFilterState>) {
+    router.replace(buildProgressFilterUrl('/decide', updateFilterParam(parseProgressFilters(searchParams), patch)), { scroll: false })
+  }
+
+  function changeTab(key: TabKey) {
+    setTab(key)
+    navigateFilters({ tab: key })
+  }
+
+  const filteredDecisions = filterCards(goalFiltered(inbox.decisions, selectedGoalId), progressFilters)
+  const filteredReviews = filterCards(goalFiltered(inbox.reviews, selectedGoalId), progressFilters, { reviewOnly: true })
+  const filteredReviewedHistory = filterCards(goalFiltered(inbox.reviewedHistory, selectedGoalId), progressFilters, { reviewOnly: true })
+  const filteredCandidates = filterCards(goalFiltered(inbox.candidates, selectedGoalId), progressFilters)
   const selectedGoalSummary = selectedGoalId ? inbox.goalSummaries.find((summary) => summary.goalId === selectedGoalId) : undefined
   const selectedAutoItems = selectedGoalId
     ? [
@@ -134,6 +170,7 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
   function changeReviewFilter(key: ReviewFilter) {
     setReviewFilter(key)
     setReviewPage(0)
+    navigateFilters({ tab: 'reviews', reviewStatus: key === 'followup' ? 'needs_followup' : key })
   }
 
   const reviewTotal = filteredReviews.length + filteredReviewedHistory.length
@@ -165,7 +202,7 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
           {alternatives.map((item) => (
             <button
               key={item.key}
-              onClick={() => setTab(item.key)}
+              onClick={() => changeTab(item.key)}
               className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-700"
             >
               {item.label}を開く（{item.count}件）
@@ -202,12 +239,39 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
         </div>
       )}
 
+      <div className="mb-3 space-y-2">
+        <FilterBar
+          basePath="/decide"
+          filters={progressFilters}
+          quickFilters={[
+            { key: 'today', label: '今日の判断', patch: { tab: 'decisions' }, active: (progressFilters.tab ?? 'decisions') === 'decisions' },
+            { key: 'review', label: 'レビュー', patch: { tab: 'reviews' }, active: progressFilters.tab === 'reviews' },
+            { key: 'followup', label: '要修正', patch: { tab: 'reviews', reviewStatus: 'needs_followup' }, active: progressFilters.tab === 'reviews' && progressFilters.reviewStatus === 'needs_followup' },
+            { key: 'fixPrompt', label: 'fixPromptあり', patch: { tab: 'reviews', fixPrompt: true }, active: progressFilters.fixPrompt === true },
+            { key: 'candidates', label: 'Epic候補', patch: { tab: 'candidates' }, active: progressFilters.tab === 'candidates' },
+            { key: 'aiHold', label: 'AI保留', patch: { tab: 'aiHold' }, active: progressFilters.tab === 'aiHold' },
+          ]}
+          selectFilters={[
+            { key: 'goalId', label: 'Goal', placeholder: 'すべてのGoal', options: inbox.goalSummaries.map((summary) => ({ value: summary.goalId, label: summary.goalTitle })) },
+          ]}
+          showSearch
+        />
+        <FilterChips
+          clearHref="/decide"
+          chips={[
+            { key: 'goalId', label: `Goal: ${selectedGoalTitle || selectedGoalId}`, active: Boolean(selectedGoalId), href: buildProgressFilterUrl('/decide', updateFilterParam(progressFilters, { goalId: undefined })) },
+            { key: 'q', label: `検索: ${progressFilters.q}`, active: Boolean(progressFilters.q), href: buildProgressFilterUrl('/decide', updateFilterParam(progressFilters, { q: undefined })) },
+            { key: 'fixPrompt', label: 'fixPromptあり', active: progressFilters.fixPrompt === true, href: buildProgressFilterUrl('/decide', updateFilterParam(progressFilters, { fixPrompt: undefined })) },
+          ]}
+        />
+      </div>
+
       {/* タブバー */}
       <div className="flex gap-1 rounded-xl bg-gray-100 p-1 dark:bg-gray-800/60">
         {tabs.map((t) => (
           <button
             key={t.key}
-            onClick={() => setTab(t.key)}
+            onClick={() => changeTab(t.key)}
             className={`flex-1 rounded-lg px-1 py-2 text-center text-[11px] font-semibold leading-tight transition-colors ${
               tab === t.key
                 ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-900 dark:text-gray-100'
@@ -232,9 +296,14 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
           {filteredDecisions.length === 0 ? (
             <>
               <p className="rounded-xl border border-green-200 bg-green-50 px-4 py-4 text-center text-sm font-semibold text-green-700 dark:border-green-900/40 dark:bg-green-900/15 dark:text-green-300">
-                工場を止める判断はありません。AI工場は稼働を続けます。
+                {progressFilters.q ? '条件に一致する今日の判断はありません。' : '工場を止める判断はありません。AI工場は稼働を続けます。'}
               </p>
               <EmptyGuidance currentLabel="今日の判断" />
+              {(progressFilters.q || progressFilters.goalId) && (
+                <div className="mt-2 text-center">
+                  <Link href="/decide" className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 dark:border-gray-700 dark:text-gray-200">条件をクリア</Link>
+                </div>
+              )}
             </>
           ) : (
             <ul className="space-y-3">
@@ -289,6 +358,18 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
                 {activeFilter.label}はありません。
               </p>
               <EmptyGuidance currentLabel={activeFilter.label} />
+              {(progressFilters.q || progressFilters.goalId || progressFilters.fixPrompt) && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <Link href="/decide?tab=review" className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-700 dark:text-gray-200">
+                    レビュー条件をクリア
+                  </Link>
+                  {selectedGoalId && (
+                    <Link href={buildProgressFilterUrl('/decide', updateFilterParam(progressFilters, { goalId: undefined }))} className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:border-gray-700 dark:text-gray-200">
+                      Goal解除
+                    </Link>
+                  )}
+                </div>
+              )}
               {reviewFilters.some((f) => f.key !== reviewFilter && f.count > 0) && (
                 <div className="mt-2 flex flex-wrap gap-2">
                   {reviewFilters.filter((f) => f.key !== reviewFilter && f.count > 0).map((f) => (

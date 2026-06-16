@@ -4,17 +4,27 @@ import Link from 'next/link'
 import { readAppProgress } from '@/lib/progress-reader'
 import { readGoals, findMainGoal, calcGoalProgress, calcPhaseProgress } from '@/lib/goal-reader'
 import { getAutoQueueView } from '@/lib/auto-queue'
+import FilterBar from '@/components/newux/FilterBar'
+import FilterChips from '@/components/newux/FilterChips'
 import GoalPlannerForm from '@/components/goals/GoalPlannerForm'
 import GoalListItem from '@/components/goals/GoalListItem'
+import { buildProgressFilterUrl, parseProgressFilters, updateFilterParam } from '@/lib/progress-filters'
 import type { GoalProgressRow } from '@/types/auto-queue'
 import type { Goal } from '@/types/goal'
 
-export default async function GoalPlannerPage() {
+function matchesGoal(goal: Goal, q?: string): boolean {
+  if (!q) return true
+  const haystack = [goal.title, goal.summary, goal.description, goal.projectId, goal.status, ...goal.todos.map((todo) => todo.title)].filter(Boolean).join(' ').toLowerCase()
+  return haystack.includes(q.toLowerCase())
+}
+
+export default async function GoalPlannerPage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
   const [progress, goalsData, autoQueue] = await Promise.all([
     readAppProgress(),
     readGoals(),
     getAutoQueueView(),
   ])
+  const filters = parseProgressFilters(searchParams)
 
   const projects = progress.projects
     .filter((p) => !p.excluded)
@@ -22,6 +32,12 @@ export default async function GoalPlannerPage() {
 
   const mainGoal = findMainGoal(goalsData)
   const queueProgressByGoal = new Map(autoQueue.goalProgress.map((row) => [row.goalId, row]))
+  const filteredGoals = goalsData.goals.filter((goal) => {
+    if (filters.projectId && goal.projectId !== filters.projectId) return false
+    if (filters.status && goal.status !== filters.status) return false
+    if (!matchesGoal(goal, filters.q)) return false
+    return true
+  })
 
   return (
     <div className="px-4 pt-6 pb-4 space-y-6">
@@ -46,11 +62,37 @@ export default async function GoalPlannerPage() {
 
       <GoalPlannerForm projects={projects} hasMainGoal={!!mainGoal} />
 
-      {goalsData.goals.length > 0 && (
+      <section className="space-y-2">
+        <FilterBar
+          basePath="/goal-planner"
+          filters={filters}
+          quickFilters={[
+            { key: 'all', label: 'すべて', patch: { status: undefined, projectId: undefined, q: undefined }, active: !filters.status && !filters.projectId && !filters.q },
+            { key: 'active', label: 'active', patch: { status: 'active' }, active: filters.status === 'active' },
+            { key: 'paused', label: 'paused', patch: { status: 'paused' }, active: filters.status === 'paused' },
+            { key: 'done', label: 'done', patch: { status: 'done' }, active: filters.status === 'done' },
+          ]}
+          selectFilters={[
+            { key: 'projectId', label: 'Project', placeholder: 'すべてのProject', options: projects.map((project) => ({ value: project.id, label: project.name })) },
+            { key: 'status', label: 'status', placeholder: 'すべての状態', options: ['active', 'paused', 'done', 'dropped', 'archived'].map((value) => ({ value, label: value })) },
+          ]}
+          showSearch
+        />
+        <FilterChips
+          clearHref="/goal-planner"
+          chips={[
+            { key: 'projectId', label: `Project: ${projects.find((project) => project.id === filters.projectId)?.name ?? filters.projectId}`, active: Boolean(filters.projectId), href: buildProgressFilterUrl('/goal-planner', updateFilterParam(filters, { projectId: undefined })) },
+            { key: 'status', label: `状態: ${filters.status}`, active: Boolean(filters.status), href: buildProgressFilterUrl('/goal-planner', updateFilterParam(filters, { status: undefined })) },
+            { key: 'q', label: `検索: ${filters.q}`, active: Boolean(filters.q), href: buildProgressFilterUrl('/goal-planner', updateFilterParam(filters, { q: undefined })) },
+          ]}
+        />
+      </section>
+
+      {filteredGoals.length > 0 ? (
         <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-4 space-y-3">
-          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">登録済みの目標 ({goalsData.goals.length}件)</h2>
+          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">登録済みの目標 ({filteredGoals.length}/{goalsData.goals.length}件)</h2>
           <div className="space-y-2">
-            {goalsData.goals.map((g) => {
+            {filteredGoals.map((g) => {
               const progress = calcGoalProgress(g)
               return (
                 <GoalListItem
@@ -66,6 +108,10 @@ export default async function GoalPlannerPage() {
               )
             })}
           </div>
+        </section>
+      ) : (
+        <section className="rounded-2xl border border-dashed border-gray-200 px-4 py-8 text-center text-sm text-gray-500 dark:border-gray-700">
+          条件に一致するGoalはありません。<Link href="/goal-planner" className="ml-2 font-bold text-blue-600 dark:text-blue-300">クリア</Link>
         </section>
       )}
     </div>
