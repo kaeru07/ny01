@@ -12,17 +12,23 @@ import type {
   GoalPhase,
   GoalRole,
   GoalTodo,
+  GoalTodoStatus,
   GoalsData,
   GoalStatus,
   GoalUpsertInput,
   MonetizationImpact,
 } from '@/types/goal'
 import type { NewTaskInput, TaskAssignee, TaskPriority } from '@/types/progress'
+import type { DecisionPolicy, EpicRiskFlag } from '@/lib/types/operations'
+import type { QueueControl } from '@/types/auto-queue'
 
 const VALID_ROLES: GoalRole[] = ['human', 'claude', 'codex']
 const VALID_PRIORITIES: TaskPriority[] = ['high', 'medium', 'low']
 const VALID_IMPACT: MonetizationImpact[] = ['high', 'medium', 'low', 'none']
 const VALID_GOAL_STATUS: GoalStatus[] = ['active', 'paused', 'done', 'dropped', 'archived']
+const VALID_TODO_STATUS: GoalTodoStatus[] = ['pending', 'active', 'done', 'skipped']
+const VALID_DECISION_POLICIES: DecisionPolicy[] = ['autonomous', 'approval_required', 'manual', 'budget_sensitive', 'destructive_sensitive']
+const VALID_RISK_FLAGS: EpicRiskFlag[] = ['billing', 'production_db', 'auth_secret', 'deploy', 'migration', 'destructive', 'external_publish']
 
 function nowIso(): string {
   return new Date().toISOString()
@@ -70,6 +76,19 @@ function pickStringArray(value: unknown): string[] {
   return value
     .filter((v): v is string => typeof v === 'string' && v.trim().length > 0)
     .map((v) => v.trim())
+}
+
+function pickRiskFlags(value: unknown): EpicRiskFlag[] {
+  if (!Array.isArray(value)) return []
+  return value.filter((v): v is EpicRiskFlag => VALID_RISK_FLAGS.includes(v as EpicRiskFlag))
+}
+
+function pickDecisionPolicy(value: unknown, fallback: DecisionPolicy = 'autonomous'): DecisionPolicy {
+  return VALID_DECISION_POLICIES.includes(value as DecisionPolicy) ? (value as DecisionPolicy) : fallback
+}
+
+function pickTodoStatus(value: unknown, fallback: GoalTodoStatus = 'pending'): GoalTodoStatus {
+  return VALID_TODO_STATUS.includes(value as GoalTodoStatus) ? (value as GoalTodoStatus) : fallback
 }
 
 function pickString(value: unknown, fallback = ''): string {
@@ -245,7 +264,11 @@ export async function importGoal(rawInput: unknown, opts: { projects: { id: stri
       doneCriteria: pickStringArray(rawTodo.doneCriteria),
       taskPrompt: pickString(rawTodo.taskPrompt),
       memo: pickString(rawTodo.memo),
-      status: 'pending',
+      dueHint: pickString(rawTodo.dueHint) || undefined,
+      decisionPolicy: rawTodo.decisionPolicy ? pickDecisionPolicy(rawTodo.decisionPolicy) : undefined,
+      riskFlags: pickRiskFlags(rawTodo.riskFlags),
+      source: rawTodo.source === 'manual_todo' || rawTodo.source === 'goal_resume' || rawTodo.source === 'review_fix' || rawTodo.source === 'ai_generated' ? rawTodo.source : 'ai_generated',
+      status: pickTodoStatus(rawTodo.status, 'pending'),
       dependsOn: pickStringArray(rawTodo.dependsOn),
       createdAt: now,
       updatedAt: now,
@@ -266,6 +289,8 @@ export async function importGoal(rawInput: unknown, opts: { projects: { id: stri
     ].filter(Boolean).join(' ')
     return {
       projectId: input.projectId,
+      goalId,
+      phaseId: todo.phaseId,
       title: todo.title,
       status: 'pending_approval',
       priority: todo.priority,
@@ -361,6 +386,9 @@ export async function upsertGoal(input: GoalUpsertInput): Promise<Goal> {
     priority: pickPriority(input.priority, previous?.priority ?? 'medium'),
     priorityBoost: previous?.priorityBoost,
     pinnedTop: previous?.pinnedTop,
+    decisionPolicyDefault: previous?.decisionPolicyDefault,
+    riskFlagsDefault: previous?.riskFlagsDefault,
+    notes: previous?.notes,
     monetizationImpact: previous?.monetizationImpact ?? 'none',
     phases: previous?.phases ?? [],
     todos: previous?.todos ?? [],
@@ -376,6 +404,175 @@ export async function upsertGoal(input: GoalUpsertInput): Promise<Goal> {
   if (input.setAsMain === true || !data.mainGoalId) data.mainGoalId = goalId
   await writeGoals(data)
   return goal
+}
+
+export interface SingleGoalInput {
+  title: string
+  projectId?: string
+  prompt?: string
+  priority?: TaskPriority | 'P0' | 'P1' | 'P2'
+  status?: GoalStatus | 'backlog'
+  decisionPolicy?: DecisionPolicy
+  riskFlags?: EpicRiskFlag[]
+  notes?: string
+  setAsMain?: boolean
+}
+
+function mapPriority(value: unknown, fallback: TaskPriority = 'medium'): TaskPriority {
+  if (value === 'P0') return 'high'
+  if (value === 'P1') return 'medium'
+  if (value === 'P2') return 'low'
+  return pickPriority(value, fallback)
+}
+
+function mapGoalStatus(value: unknown): GoalStatus {
+  if (value === 'backlog') return 'paused'
+  return pickGoalStatus(value, 'active')
+}
+
+export async function upsertSingleGoal(input: SingleGoalInput): Promise<Goal> {
+  const title = pickString(input.title)
+  if (!title) throw new Error('title is required')
+  const now = nowIso()
+  const data = await readGoals()
+  const goalId = genId('goal')
+  const phaseId = genId('phase')
+  const priority = mapPriority(input.priority)
+  const riskFlags = pickRiskFlags(input.riskFlags)
+  const decisionPolicy = pickDecisionPolicy(input.decisionPolicy)
+  const todoId = genId('gtodo')
+  const prompt = pickString(input.prompt)
+  const notes = pickString(input.notes)
+
+  const goal: Goal = {
+    id: goalId,
+    projectId: pickString(input.projectId) || undefined,
+    title,
+    summary: prompt || notes || '',
+    description: prompt || notes || '',
+    status: mapGoalStatus(input.status),
+    priority,
+    decisionPolicyDefault: decisionPolicy,
+    riskFlagsDefault: riskFlags,
+    notes: notes || undefined,
+    monetizationImpact: 'none',
+    phases: [{
+      id: phaseId,
+      title: '初期フェーズ',
+      summary: prompt || title,
+      order: 0,
+      status: 'todo',
+    }],
+    todos: [{
+      id: todoId,
+      goalId,
+      phaseId,
+      title,
+      role: 'claude',
+      order: 0,
+      priority,
+      nextAction: prompt || title,
+      doneCriteria: [],
+      taskPrompt: prompt,
+      memo: notes,
+      decisionPolicy,
+      riskFlags,
+      source: 'manual_todo',
+      status: 'pending',
+      dependsOn: [],
+      createdAt: now,
+      updatedAt: now,
+    }],
+    createdAt: now,
+    updatedAt: now,
+  }
+
+  data.goals.push(goal)
+  if (input.setAsMain === true || !data.mainGoalId) data.mainGoalId = goalId
+  await writeGoals(data)
+  return goal
+}
+
+export interface AppendGoalTodoInput {
+  id?: string
+  phaseId?: string
+  title: string
+  role?: GoalRole
+  order?: number
+  priority?: TaskPriority | 'P0' | 'P1' | 'P2'
+  nextAction?: string
+  doneCriteria?: string[]
+  taskPrompt?: string
+  memo?: string
+  status?: GoalTodoStatus
+  dependsOn?: string[]
+  dueHint?: string
+  decisionPolicy?: DecisionPolicy
+  riskFlags?: EpicRiskFlag[]
+  source?: GoalTodo['source']
+}
+
+export async function appendGoalTodos(goalId: string, rawTodos: AppendGoalTodoInput[]): Promise<{ goal: Goal; todos: GoalTodo[] }> {
+  const data = await readGoals()
+  const goal = data.goals.find((g) => g.id === goalId)
+  if (!goal) throw new Error(`Goal not found: ${goalId}`)
+  if (rawTodos.length === 0) throw new Error('todos are required')
+
+  const now = nowIso()
+  const phaseIds = new Set(goal.phases.map((phase) => phase.id))
+  const defaultPhaseId = goal.phases[0]?.id || genId('phase')
+  if (goal.phases.length === 0) {
+    goal.phases.push({ id: defaultPhaseId, title: '未分類フェーズ', summary: '', order: 0, status: 'todo' })
+  }
+  const startOrder = goal.todos.length
+  const todos: GoalTodo[] = rawTodos.map((todo, index) => {
+    const phaseId = pickString(todo.phaseId)
+    const source = todo.source === 'goal_resume' || todo.source === 'review_fix' || todo.source === 'ai_generated' ? todo.source : 'manual_todo'
+    return {
+      id: pickString(todo.id) || genId('gtodo'),
+      goalId,
+      phaseId: phaseId && phaseIds.has(phaseId) ? phaseId : defaultPhaseId,
+      title: pickString(todo.title),
+      role: pickRole(todo.role),
+      order: typeof todo.order === 'number' ? todo.order : startOrder + index,
+      priority: mapPriority(todo.priority),
+      nextAction: pickString(todo.nextAction),
+      doneCriteria: pickStringArray(todo.doneCriteria),
+      taskPrompt: pickString(todo.taskPrompt),
+      memo: pickString(todo.memo),
+      status: pickTodoStatus(todo.status),
+      dependsOn: pickStringArray(todo.dependsOn),
+      dueHint: pickString(todo.dueHint) || undefined,
+      decisionPolicy: todo.decisionPolicy ? pickDecisionPolicy(todo.decisionPolicy) : goal.decisionPolicyDefault,
+      riskFlags: pickRiskFlags(todo.riskFlags).length > 0 ? pickRiskFlags(todo.riskFlags) : goal.riskFlagsDefault,
+      source,
+      createdAt: now,
+      updatedAt: now,
+    }
+  })
+
+  const invalid = todos.find((todo) => !todo.title)
+  if (invalid) throw new Error('todo.title is required')
+  goal.todos.push(...todos)
+  goal.updatedAt = now
+  await writeGoals(data)
+  return { goal, todos }
+}
+
+export async function updateGoalTodo(goalId: string, todoId: string, updates: { status?: GoalTodoStatus; priority?: TaskPriority; queueControl?: QueueControl }): Promise<GoalTodo> {
+  const data = await readGoals()
+  const goal = data.goals.find((g) => g.id === goalId)
+  if (!goal) throw new Error(`Goal not found: ${goalId}`)
+  const todo = goal.todos.find((t) => t.id === todoId)
+  if (!todo) throw new Error(`GoalTodo not found: ${todoId}`)
+  const now = nowIso()
+  if (updates.status !== undefined) todo.status = pickTodoStatus(updates.status, todo.status)
+  if (updates.priority !== undefined) todo.priority = pickPriority(updates.priority, todo.priority)
+  if (updates.queueControl !== undefined) todo.queueControl = { ...todo.queueControl, ...updates.queueControl, updatedBy: 'user', updatedAt: now }
+  todo.updatedAt = now
+  goal.updatedAt = now
+  await writeGoals(data)
+  return todo
 }
 
 export async function syncGoalTodoStatuses(): Promise<{ synced: number }> {

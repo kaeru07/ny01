@@ -99,9 +99,11 @@ export async function POST(request: Request) {
       ? body.runId.trim()
       : generateRunId()
 
-    const reviewStatus: ReviewStatus = VALID_REVIEW_STATUSES.includes(body.reviewStatus)
+    const requestedReviewStatus: ReviewStatus = VALID_REVIEW_STATUSES.includes(body.reviewStatus)
       ? body.reviewStatus
       : 'not_reviewed'
+    // 新規Run作成は必ずInboxレビューに残す。reviewed化はPATCH/AI一次レビュー/人間レビュー操作だけで行う。
+    const reviewStatus: ReviewStatus = requestedReviewStatus === 'reviewed' ? 'not_reviewed' : requestedReviewStatus
 
     const changedFiles: ChangedFile[] = Array.isArray(body.changedFiles)
       ? body.changedFiles.map(parseChangedFile)

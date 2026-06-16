@@ -59,6 +59,16 @@ function goalFiltered(cards: InboxCard[], goalId: string | null): InboxCard[] {
   return cards.filter((card) => (card.goalId ?? 'unassigned') === goalId)
 }
 
+function projectFiltered(cards: InboxCard[], projectId: string | null): InboxCard[] {
+  if (!projectId) return cards
+  return cards.filter((card) => (card.projectId ?? 'unassigned') === projectId)
+}
+
+// ゴール（進捗単位）とプロジェクト（targetApp単位）の両方で絞り込む。両方未指定なら素通し。
+function scopeFiltered(cards: InboxCard[], goalId: string | null, projectId: string | null): InboxCard[] {
+  return projectFiltered(goalFiltered(cards, goalId), projectId)
+}
+
 function matchesQuery(card: InboxCard, q?: string): boolean {
   if (!q) return true
   const haystack = [
@@ -86,6 +96,7 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
   const router = useRouter()
   const progressFilters = parseProgressFilters(searchParams)
   const selectedGoalId = searchParams.get('goalId')
+  const selectedProjectId = searchParams.get('projectId')
   const focusRunId = searchParams.get('focusRunId')
 
   const [tab, setTab] = useState<TabKey>(() => tabFromQuery(searchParams.get('tab')))
@@ -108,11 +119,11 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
     setReviewFilter(nextFilter)
     const sourceList =
       nextFilter === 'reviewed'
-        ? goalFiltered(inbox.reviewedHistory, selectedGoalId)
-        : goalFiltered(inbox.reviews, selectedGoalId).filter((card) => filterForStatus(card.reviewStatus) === nextFilter)
+        ? scopeFiltered(inbox.reviewedHistory, selectedGoalId, selectedProjectId)
+        : scopeFiltered(inbox.reviews, selectedGoalId, selectedProjectId).filter((card) => filterForStatus(card.reviewStatus) === nextFilter)
     const index = sourceList.findIndex((card) => card.sourceRunId === focusRunId)
     setReviewPage(index >= 0 ? Math.floor(index / REVIEW_PAGE_SIZE) : 0)
-  }, [focusRunId, focusCard, inbox.reviewedHistory, inbox.reviews, selectedGoalId])
+  }, [focusRunId, focusCard, inbox.reviewedHistory, inbox.reviews, selectedGoalId, selectedProjectId])
 
   useEffect(() => {
     if (!focusRunId) return
@@ -131,11 +142,15 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
     navigateFilters({ tab: key })
   }
 
-  const filteredDecisions = filterCards(goalFiltered(inbox.decisions, selectedGoalId), progressFilters)
-  const filteredReviews = filterCards(goalFiltered(inbox.reviews, selectedGoalId), progressFilters, { reviewOnly: true })
-  const filteredReviewedHistory = filterCards(goalFiltered(inbox.reviewedHistory, selectedGoalId), progressFilters, { reviewOnly: true })
-  const filteredCandidates = filterCards(goalFiltered(inbox.candidates, selectedGoalId), progressFilters)
+  const filteredDecisions = filterCards(scopeFiltered(inbox.decisions, selectedGoalId, selectedProjectId), progressFilters)
+  const filteredReviews = filterCards(scopeFiltered(inbox.reviews, selectedGoalId, selectedProjectId), progressFilters, { reviewOnly: true })
+  const filteredReviewedHistory = filterCards(scopeFiltered(inbox.reviewedHistory, selectedGoalId, selectedProjectId), progressFilters, { reviewOnly: true })
+  const filteredCandidates = filterCards(scopeFiltered(inbox.candidates, selectedGoalId, selectedProjectId), progressFilters)
   const selectedGoalSummary = selectedGoalId ? inbox.goalSummaries.find((summary) => summary.goalId === selectedGoalId) : undefined
+  const selectedProjectSummary = selectedProjectId ? inbox.projectSummaries.find((summary) => summary.projectId === selectedProjectId) : undefined
+  const selectedProjectTitle = selectedProjectId
+    ? selectedProjectSummary?.projectTitle ?? (selectedProjectId === 'unassigned' ? '未分類' : selectedProjectId)
+    : ''
   const selectedAutoItems = selectedGoalId
     ? [
         ...autoQueue.executable,

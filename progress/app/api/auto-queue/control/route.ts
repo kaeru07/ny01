@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { getAutoQueueView } from '@/lib/auto-queue'
+import { updateGoalTodo } from '@/lib/goal-writer'
 import { getEpics, updateEpic } from '@/lib/operations-store'
 import { writeJson } from '@/lib/store'
 import type { Epic } from '@/lib/types/operations'
@@ -9,11 +10,16 @@ import type { AutoQueueControlAction, QueueControl } from '@/types/auto-queue'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-const ACTIONS: AutoQueueControlAction[] = ['pin', 'unpin', 'hold', 'unhold', 'exclude', 'include', 'moveUp', 'moveDown', 'setManualOrder']
+const ACTIONS: AutoQueueControlAction[] = ['pin', 'unpin', 'hold', 'unhold', 'exclude', 'include', 'prioritize', 'complete', 'moveUp', 'moveDown', 'setManualOrder']
 
 function parseEpicId(workItemId: unknown): string | null {
   if (typeof workItemId !== 'string') return null
   return workItemId.startsWith('epic:') ? workItemId.slice('epic:'.length) : null
+}
+
+function parseTodoId(workItemId: unknown): string | null {
+  if (typeof workItemId !== 'string') return null
+  return workItemId.startsWith('todo:') ? workItemId.slice('todo:'.length) : null
 }
 
 function userControl(previous: QueueControl | undefined, patch: QueueControl): QueueControl {
@@ -68,9 +74,47 @@ export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({})) as { workItemId?: unknown; action?: unknown; value?: unknown }
     const epicId = parseEpicId(body.workItemId)
+    const todoId = parseTodoId(body.workItemId)
     const action = body.action
-    if (!epicId || typeof action !== 'string' || !ACTIONS.includes(action as AutoQueueControlAction)) {
-      return NextResponse.json({ error: 'workItemId(epic:*) and valid action are required' }, { status: 400 })
+    if ((!epicId && !todoId) || typeof action !== 'string' || !ACTIONS.includes(action as AutoQueueControlAction)) {
+      return NextResponse.json({ error: 'workItemId(epic:* or todo:*) and valid action are required' }, { status: 400 })
+    }
+
+    if (todoId) {
+      const queue = await getAutoQueueView()
+      const item = [
+        ...queue.executable,
+        ...queue.waitingUser,
+        ...queue.aiHold,
+        ...queue.reviewWaiting,
+        ...queue.blocked,
+        ...queue.manual,
+      ].find((entry) => entry.workItemId === `todo:${todoId}`)
+      if (!item?.goalId) return NextResponse.json({ error: 'goal todo not found' }, { status: 404 })
+
+      const now = new Date().toISOString()
+      if (action === 'pin') {
+        await updateGoalTodo(item.goalId, todoId, { queueControl: { pinnedTop: true, pinnedAt: now } })
+      } else if (action === 'unpin') {
+        await updateGoalTodo(item.goalId, todoId, { queueControl: { pinnedTop: false, pinnedAt: undefined } })
+      } else if (action === 'hold') {
+        await updateGoalTodo(item.goalId, todoId, { queueControl: { hold: true } })
+      } else if (action === 'unhold') {
+        await updateGoalTodo(item.goalId, todoId, { queueControl: { hold: false } })
+      } else if (action === 'include') {
+        await updateGoalTodo(item.goalId, todoId, { status: 'pending', queueControl: { hold: false, excludedByUser: false } })
+      } else if (action === 'prioritize') {
+        await updateGoalTodo(item.goalId, todoId, { priority: 'high', queueControl: { pinnedTop: true, pinnedAt: now, hold: false, excludedByUser: false } })
+      } else if (action === 'complete') {
+        await updateGoalTodo(item.goalId, todoId, { status: 'done' })
+      } else if (action === 'exclude') {
+        await updateGoalTodo(item.goalId, todoId, { queueControl: { excludedByUser: true, hold: true } })
+      } else {
+        return NextResponse.json({ error: 'action is not supported for goal todo' }, { status: 422 })
+      }
+      revalidateAutoQueuePages()
+      revalidatePath('/goal-planner')
+      return NextResponse.json({ success: true, queue: await getAutoQueueView() })
     }
 
     if (action === 'moveUp' || action === 'moveDown') {
@@ -80,6 +124,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, queue: await getAutoQueueView() })
     }
 
+    if (!epicId) return NextResponse.json({ error: 'epic not found' }, { status: 404 })
     const epics = await getEpics()
     const epic = epics.find((e) => e.epicId === epicId)
     if (!epic) return NextResponse.json({ error: 'epic not found' }, { status: 404 })

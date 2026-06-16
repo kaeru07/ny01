@@ -23,6 +23,8 @@ function normalizeTask(body: Record<string, unknown>, fallbackProjectId?: string
 
   return {
     projectId,
+    goalId: typeof body.goalId === 'string' && body.goalId.trim() ? body.goalId.trim() : undefined,
+    phaseId: typeof body.phaseId === 'string' && body.phaseId.trim() ? body.phaseId.trim() : undefined,
     title,
     status: validStatuses.includes(body.status as TaskStatus) ? body.status as TaskStatus : 'todo',
     priority: validPriorities.includes(body.priority as TaskPriority) ? body.priority as TaskPriority : 'medium',

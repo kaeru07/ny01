@@ -16,7 +16,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       projectId, status, nextAction, assignee, taskPrompt, title, priority, memo, fullUpdate,
       doneCriteria, allowed, forbidden, risk, blockedReason, unblockAction, nextQuestion, targetPath, targetApp,
       preferredExecutor, fallbackExecutor, autoFallback, canRunOnCodex, requiresClaude,
-      source, sourceRunId, sourceType,
+      source, sourceRunId, sourceType, goalId, phaseId,
     } = body
 
     if (!projectId || typeof projectId !== 'string') {
@@ -33,6 +33,8 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       const validPriorities: TaskPriority[] = ['high', 'medium', 'low']
       const validExecutors: ExecutorType[] = ['claude', 'codex', 'manual', 'other']
       const updates: Parameters<typeof updateTask>[2] = {}
+      if (typeof goalId === 'string') updates.goalId = goalId.trim()
+      if (typeof phaseId === 'string') updates.phaseId = phaseId.trim()
       if (typeof title === 'string' && title.trim()) updates.title = title.trim()
       if (typeof status === 'string' && validStatuses.includes(status as TaskStatus)) updates.status = status as TaskStatus
       if (typeof priority === 'string' && validPriorities.includes(priority as TaskPriority)) updates.priority = priority as TaskPriority

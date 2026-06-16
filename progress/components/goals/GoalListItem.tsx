@@ -11,14 +11,24 @@ interface Props {
   isMain: boolean
   phaseCount: number
   todoCount: number
+  incompleteTodoCount: number
+  updatedAt?: string
   ratio: number
   queueProgress?: GoalProgressRow
 }
 
-export default function GoalListItem({ goalId, title, isMain, phaseCount, todoCount, ratio, queueProgress }: Props) {
+export default function GoalListItem({ goalId, title, isMain, phaseCount, todoCount, incompleteTodoCount, updatedAt, ratio, queueProgress }: Props) {
   const router = useRouter()
   const [busy, setBusy] = useState(false)
   const displayRatio = queueProgress?.ratio ?? ratio
+  const reviewFixCount = queueProgress?.reviewFixRequested ?? 0
+
+  function formatDate(iso?: string): string {
+    if (!iso) return 'なし'
+    const d = new Date(iso)
+    if (Number.isNaN(d.getTime())) return iso
+    return d.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })
+  }
 
   async function makeMain() {
     setBusy(true)
@@ -65,26 +75,28 @@ export default function GoalListItem({ goalId, title, isMain, phaseCount, todoCo
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+        <QueueStat label="Todo数" value={todoCount} />
+        <QueueStat label="未完Todo" value={incompleteTodoCount} />
         <QueueStat label="次回候補" value={queueProgress?.nextCandidateCount ?? 0} />
-        <QueueStat label="実行可能" value={queueProgress?.executable ?? 0} />
-        <QueueStat label="判断待ち" value={queueProgress?.waitingUser ?? 0} />
-        <QueueStat label="レビュー待ち" value={queueProgress?.reviewWaiting ?? 0} />
-        <QueueStat label="候補外" value={queueProgress?.manual ?? 0} />
+        <QueueStat label="修正依頼" value={reviewFixCount} />
+        <QueueStat label="候補外" value={(queueProgress?.manual ?? 0) + (queueProgress?.blocked ?? 0) + (queueProgress?.waitingUser ?? 0)} />
       </div>
       <div className="rounded-lg border border-gray-100 bg-white px-3 py-2 text-xs text-gray-600 dark:border-gray-700 dark:bg-gray-900/40 dark:text-gray-300">
         <p><span className="font-semibold text-gray-800 dark:text-gray-100">次にやるべきこと:</span> {queueProgress?.nextActionTitle ?? '実行可能候補なし'}</p>
+        <p className="mt-1"><span className="font-semibold text-gray-800 dark:text-gray-100">次回やる見込み:</span> {queueProgress?.nextActionTitle ? '自動実行候補あり' : incompleteTodoCount > 0 ? 'Todoはあるが候補外' : '未完Todoなし'}</p>
         <p className="mt-1"><span className="font-semibold text-gray-800 dark:text-gray-100">最新作業:</span> {queueProgress?.latestWorkTitle ?? 'まだ作業履歴なし'}</p>
+        <p className="mt-1"><span className="font-semibold text-gray-800 dark:text-gray-100">最終更新:</span> {formatDate(updatedAt)}</p>
       </div>
       <p className="text-xs text-gray-500 dark:text-gray-400">旧Todo/Phase: phases {phaseCount} / todos {todoCount} / Todo進捗 {ratio}%</p>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-        <Link href={`/queue?goalId=${encodeURIComponent(goalId)}`} className="rounded-lg bg-gray-900 px-3 py-2 text-center text-xs font-bold text-white hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white">
+        <Link href={`/goal-planner?goalId=${encodeURIComponent(goalId)}`} className="rounded-lg bg-gray-900 px-3 py-2 text-center text-xs font-bold text-white hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-white">
+          Goal詳細
+        </Link>
+        <Link href={`/queue?goalId=${encodeURIComponent(goalId)}`} className="rounded-lg border border-gray-200 px-3 py-2 text-center text-xs font-bold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
           自動実行キューを見る
         </Link>
         <Link href={`/decide?goalId=${encodeURIComponent(goalId)}`} className="rounded-lg border border-gray-200 px-3 py-2 text-center text-xs font-bold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
           ToDoを見る
-        </Link>
-        <Link href="/prompt-queue" className="rounded-lg border border-gray-200 px-3 py-2 text-center text-xs font-bold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
-          作業予約
         </Link>
       </div>
     </div>

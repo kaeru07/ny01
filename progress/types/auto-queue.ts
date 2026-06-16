@@ -23,6 +23,8 @@ export interface AutoQueueItem {
   workItemId: string
   type: 'epic' | 'goal_todo'
   sourceId: string
+  todoId?: string
+  source?: 'manual_todo' | 'goal_resume' | 'review_fix' | 'ai_generated'
   title: string
   goalId?: string
   goalTitle?: string
@@ -77,6 +79,7 @@ export interface GoalProgressRow {
   waitingUser: number
   aiHold: number
   reviewWaiting: number
+  reviewFixRequested?: number
   blocked: number
   manual: number
   lastRunAt?: string
@@ -108,6 +111,8 @@ export type AutoQueueControlAction =
   | 'unhold'
   | 'exclude'
   | 'include'
+  | 'prioritize'
+  | 'complete'
   | 'moveUp'
   | 'moveDown'
   | 'setManualOrder'

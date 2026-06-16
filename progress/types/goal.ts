@@ -1,4 +1,6 @@
 import type { TaskPriority } from '@/types/progress'
+import type { DecisionPolicy, EpicRiskFlag } from '@/lib/types/operations'
+import type { QueueControl } from '@/types/auto-queue'
 
 export type GoalRole = 'human' | 'claude' | 'codex'
 
@@ -31,6 +33,11 @@ export interface GoalTodo {
   doneCriteria: string[]
   taskPrompt: string
   memo: string
+  dueHint?: string
+  decisionPolicy?: DecisionPolicy
+  riskFlags?: EpicRiskFlag[]
+  source?: 'manual_todo' | 'goal_resume' | 'review_fix' | 'ai_generated'
+  queueControl?: QueueControl
   status: GoalTodoStatus
   dependsOn: string[]
   createdAt: string
@@ -47,6 +54,9 @@ export interface Goal {
   current?: number
   isNorthStar?: boolean
   summary: string
+  decisionPolicyDefault?: DecisionPolicy
+  riskFlagsDefault?: EpicRiskFlag[]
+  notes?: string
   status: GoalStatus
   priority: TaskPriority
   priorityBoost?: 0 | 1 | 2
@@ -104,7 +114,12 @@ export interface GoalImportInputTodo {
   doneCriteria?: string[]
   taskPrompt?: string
   memo?: string
+  dueHint?: string
+  decisionPolicy?: DecisionPolicy
+  riskFlags?: EpicRiskFlag[]
+  source?: 'manual_todo' | 'goal_resume' | 'review_fix' | 'ai_generated'
   dependsOn?: string[]
+  status?: GoalTodoStatus
 }
 
 export interface GoalImportInput {

@@ -51,6 +51,8 @@ export interface AppProgress {
 
 export interface Task {
   id: string
+  goalId?: string
+  phaseId?: string
   title: string
   status: TaskStatus
   priority: TaskPriority
@@ -101,6 +103,8 @@ export interface WorkLogEntry {
 
 export interface NewTaskInput {
   projectId: string
+  goalId?: string
+  phaseId?: string
   title: string
   status: TaskStatus
   priority: TaskPriority

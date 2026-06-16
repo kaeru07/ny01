@@ -1,8 +1,10 @@
 export const dynamic = 'force-dynamic'
 
 import { readProjectTasks, readAppProgress } from '@/lib/progress-reader'
+import { readGoals } from '@/lib/goal-reader'
 import { readWorkQueue } from '@/lib/session-reader'
 import TodoManager from '@/components/tasks/TodoManager'
+import GoalTodoAddForm from '@/components/goals/GoalTodoAddForm'
 import FilterBar from '@/components/newux/FilterBar'
 import FilterChips from '@/components/newux/FilterChips'
 import { buildProgressFilterUrl, parseProgressFilters, updateFilterParam } from '@/lib/progress-filters'
@@ -17,10 +19,11 @@ function matchesTask(task: TodoTask, q?: string): boolean {
 }
 
 export default async function TasksPage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
-  const [tasksData, progressData, queueData] = await Promise.all([
+  const [tasksData, progressData, queueData, goalsData] = await Promise.all([
     readProjectTasks(),
     readAppProgress(),
     readWorkQueue(),
+    readGoals(),
   ])
   const filters = parseProgressFilters(searchParams)
 
@@ -73,6 +76,9 @@ export default async function TasksPage({ searchParams }: { searchParams?: Recor
   })
 
   const projects = progressData.projects.map((p) => ({ id: p.id, name: p.name }))
+  const goalOptions = goalsData.goals
+    .filter((goal) => goal.status === 'active' || goal.status === 'paused')
+    .map((goal) => ({ id: goal.id, title: goal.title, phases: goal.phases.map((phase) => ({ id: phase.id, title: phase.title })) }))
   const statusOptions = Array.from(new Set(tasksData.projects.flatMap((pt) => pt.tasks.map((task) => task.status))))
     .sort()
     .map((status) => ({ value: status, label: status }))
@@ -125,6 +131,8 @@ export default async function TasksPage({ searchParams }: { searchParams?: Recor
           { key: 'q', label: `検索: ${filters.q}`, active: Boolean(filters.q), href: buildProgressFilterUrl('/tasks', updateFilterParam(filters, { q: undefined })) },
         ]}
       />
+
+      <GoalTodoAddForm goals={goalOptions} />
 
       {allTasks.length === 0 ? (
         <section className="rounded-xl border border-dashed border-gray-200 px-4 py-8 text-center text-sm text-gray-500 dark:border-gray-700">

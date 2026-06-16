@@ -48,7 +48,7 @@ function allItems(queue: Awaited<ReturnType<typeof getAutoQueueView>>): AutoQueu
 }
 
 function itemHref(item: AutoQueueItem): string {
-  return item.type === 'epic' ? `/epic/${item.sourceId}` : `/goal-planner`
+  return item.type === 'epic' ? `/epic/${item.sourceId}` : `/goal-planner?goalId=${encodeURIComponent(item.goalId ?? '')}`
 }
 
 function queueHref(filters: ProgressFilterState, patch: Partial<ProgressFilterState>): string {
@@ -236,6 +236,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
                   {item.fixRequested && <span className="rounded bg-rose-100 px-1.5 py-0.5 text-[11px] font-bold text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">要修正優先</span>}
                   {item.autonomyAnchor && <span className="rounded bg-indigo-100 px-1.5 py-0.5 text-[11px] font-bold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">自走化・最優先</span>}
                   {item.reviewPending && <span className="rounded bg-blue-100 px-1.5 py-0.5 text-[11px] font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">レビュー未確認・継続</span>}
+                  {item.source && <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[11px] font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300">source:{item.source}</span>}
                   <span className={`rounded px-1.5 py-0.5 text-[11px] font-bold ${
                     item.candidateEligible
                       ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
@@ -285,7 +286,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
                 </p>
 
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {item.type === 'epic' && (
+                  {(item.type === 'epic' || item.type === 'goal_todo') && (
                     <QueueActionButton
                       workItemId={item.workItemId}
                       action={isPinned ? 'unpin' : 'pin'}
@@ -296,9 +297,9 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
                   )}
                   <QueueActionButton workItemId={item.workItemId} action="moveUp" disabled={!canMove}>↑</QueueActionButton>
                   <QueueActionButton workItemId={item.workItemId} action="moveDown" disabled={!canMove}>↓</QueueActionButton>
-                  {item.type === 'epic' && (
+                  {(item.type === 'epic' || item.type === 'goal_todo') && (
                     <QueueActionButton workItemId={item.workItemId} action={isHeld ? 'unhold' : 'hold'}>
-                      {isHeld ? '保留解除' : '保留'}
+                      {isHeld ? '保留解除' : 'あとで'}
                     </QueueActionButton>
                   )}
                   {item.type === 'epic' && item.factoryEligible && (
@@ -306,6 +307,13 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
                   )}
                   {item.type === 'epic' && !item.factoryEligible && (
                     <QueueActionButton workItemId={item.workItemId} action="include">対象に戻す</QueueActionButton>
+                  )}
+                  {item.type === 'goal_todo' && (
+                    <>
+                      <QueueActionButton workItemId={item.workItemId} action="include">次回候補に戻す</QueueActionButton>
+                      <QueueActionButton workItemId={item.workItemId} action="prioritize">P0で次回優先</QueueActionButton>
+                      <QueueActionButton workItemId={item.workItemId} action="complete">完了</QueueActionButton>
+                    </>
                   )}
                   <Link href={itemHref(item)} className="rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
                     詳細

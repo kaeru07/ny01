@@ -4,10 +4,12 @@ import Link from 'next/link'
 import { readAppProgress } from '@/lib/progress-reader'
 import { readGoals, findMainGoal, calcGoalProgress, calcPhaseProgress } from '@/lib/goal-reader'
 import { getAutoQueueView } from '@/lib/auto-queue'
+import { listInboxItems } from '@/lib/inbox-reader'
 import FilterBar from '@/components/newux/FilterBar'
 import FilterChips from '@/components/newux/FilterChips'
 import GoalPlannerForm from '@/components/goals/GoalPlannerForm'
 import GoalListItem from '@/components/goals/GoalListItem'
+import GoalTodoAddForm from '@/components/goals/GoalTodoAddForm'
 import { buildProgressFilterUrl, parseProgressFilters, updateFilterParam } from '@/lib/progress-filters'
 import type { GoalProgressRow } from '@/types/auto-queue'
 import type { Goal } from '@/types/goal'
@@ -19,10 +21,11 @@ function matchesGoal(goal: Goal, q?: string): boolean {
 }
 
 export default async function GoalPlannerPage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
-  const [progress, goalsData, autoQueue] = await Promise.all([
+  const [progress, goalsData, autoQueue, inboxItems] = await Promise.all([
     readAppProgress(),
     readGoals(),
     getAutoQueueView(),
+    listInboxItems().catch(() => []),
   ])
   const filters = parseProgressFilters(searchParams)
 
@@ -31,7 +34,22 @@ export default async function GoalPlannerPage({ searchParams }: { searchParams?:
     .map((p) => ({ id: p.id, name: p.name }))
 
   const mainGoal = findMainGoal(goalsData)
+  const selectedGoalId = typeof searchParams?.goalId === 'string' ? searchParams.goalId : undefined
+  const selectedGoal = selectedGoalId ? goalsData.goals.find((goal) => goal.id === selectedGoalId) : undefined
   const queueProgressByGoal = new Map(autoQueue.goalProgress.map((row) => [row.goalId, row]))
+  const goalOptions = goalsData.goals.map((goal) => ({ id: goal.id, title: goal.title, phases: goal.phases.map((phase) => ({ id: phase.id, title: phase.title })) }))
+  const queueItemsForSelectedGoal = selectedGoal ? [
+    ...autoQueue.executable,
+    ...autoQueue.waitingUser,
+    ...autoQueue.aiHold,
+    ...autoQueue.reviewWaiting,
+    ...autoQueue.blocked,
+    ...autoQueue.manual,
+  ].filter((item) => item.goalId === selectedGoal.id) : []
+  const inboxForSelectedGoal = selectedGoal ? inboxItems.filter((item) => {
+    const text = `${item.title} ${item.body}`.toLowerCase()
+    return text.includes(selectedGoal.id.toLowerCase()) || text.includes(selectedGoal.title.toLowerCase())
+  }) : []
   const filteredGoals = goalsData.goals.filter((goal) => {
     if (filters.projectId && goal.projectId !== filters.projectId) return false
     if (filters.status && goal.status !== filters.status) return false
@@ -61,6 +79,57 @@ export default async function GoalPlannerPage({ searchParams }: { searchParams?:
       )}
 
       <GoalPlannerForm projects={projects} hasMainGoal={!!mainGoal} />
+
+      {selectedGoal && (
+        <section className="space-y-3 rounded-2xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-900/50 dark:bg-blue-900/20">
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">Goal詳細</p>
+              <h2 className="mt-1 text-lg font-bold text-gray-900 dark:text-gray-100">{selectedGoal.title}</h2>
+              {selectedGoal.summary && <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">{selectedGoal.summary}</p>}
+            </div>
+            <Link href="/goal-planner" className="rounded-lg border border-blue-200 bg-white px-3 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:bg-gray-900 dark:text-blue-300">詳細を閉じる</Link>
+          </div>
+          <GoalMiniStats goal={selectedGoal} queueProgress={queueProgressByGoal.get(selectedGoal.id)} />
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+            <div className="rounded-xl bg-white p-3 dark:bg-gray-900/50">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">紐づくTodo一覧</h3>
+              <div className="mt-2 space-y-2">
+                {selectedGoal.todos.map((todo) => (
+                  <div key={todo.id} className="rounded-lg border border-gray-100 px-3 py-2 text-xs dark:border-gray-700">
+                    <p className="font-semibold text-gray-800 dark:text-gray-100">{todo.title}</p>
+                    <p className="mt-1 text-gray-500 dark:text-gray-400">{todo.status} · {todo.priority} · phase:{todo.phaseId} · source:{todo.source ?? 'goal_resume'}</p>
+                  </div>
+                ))}
+                {selectedGoal.todos.length === 0 && <p className="text-xs text-gray-500 dark:text-gray-400">Todoはまだありません。</p>}
+              </div>
+            </div>
+            <div className="rounded-xl bg-white p-3 dark:bg-gray-900/50">
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">紐づくQueue item</h3>
+              <div className="mt-2 space-y-2">
+                {queueItemsForSelectedGoal.map((item) => (
+                  <Link key={item.workItemId} href={`/queue?goalId=${encodeURIComponent(selectedGoal.id)}`} className="block rounded-lg border border-gray-100 px-3 py-2 text-xs hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800">
+                    <p className="font-semibold text-gray-800 dark:text-gray-100">{item.title}</p>
+                    <p className="mt-1 text-gray-500 dark:text-gray-400">{item.status} · {item.priority} · {item.source ?? item.type}</p>
+                  </Link>
+                ))}
+                {queueItemsForSelectedGoal.length === 0 && <p className="text-xs text-gray-500 dark:text-gray-400">Queue itemはありません。</p>}
+              </div>
+            </div>
+          </div>
+          <div className="rounded-xl bg-white p-3 dark:bg-gray-900/50">
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">紐づくInboxレビュー・修正依頼</h3>
+            <div className="mt-2 space-y-1">
+              {inboxForSelectedGoal.slice(0, 5).map((item) => <p key={item.hash} className="text-xs text-gray-600 dark:text-gray-300">{item.title}</p>)}
+              {inboxForSelectedGoal.length === 0 && <p className="text-xs text-gray-500 dark:text-gray-400">関連Inboxは見つかりません。</p>}
+            </div>
+          </div>
+          <GoalTodoAddForm goals={goalOptions} defaultGoalId={selectedGoal.id} compact />
+          <Link href={`/queue?goalId=${encodeURIComponent(selectedGoal.id)}&status=executable`} className="block rounded-xl bg-gray-900 px-3 py-2.5 text-center text-sm font-bold text-white hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900">
+            Queue投入候補を見る
+          </Link>
+        </section>
+      )}
 
       <section className="space-y-2">
         <FilterBar
@@ -102,6 +171,8 @@ export default async function GoalPlannerPage({ searchParams }: { searchParams?:
                   isMain={goalsData.mainGoalId === g.id}
                   phaseCount={g.phases.length}
                   todoCount={g.todos.length}
+                  incompleteTodoCount={g.todos.filter((todo) => todo.status !== 'done' && todo.status !== 'skipped').length}
+                  updatedAt={g.updatedAt}
                   ratio={progress.ratio}
                   queueProgress={queueProgressByGoal.get(g.id)}
                 />

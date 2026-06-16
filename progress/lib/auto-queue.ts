@@ -134,22 +134,35 @@ function todoPriority(todo: GoalTodo): 'P0' | 'P1' | 'P2' {
 
 function toGoalTodoItem(todo: GoalTodo, goal: Goal): AutoQueueItem {
   const priority = todoPriority(todo)
+  const dangerous = dangerRiskFlags(todo.riskFlags).length > 0
   const status: WorkItemStatus = todo.status === 'done' || todo.status === 'skipped'
     ? 'done'
+    : dangerous
+      ? 'blocked'
+    : todo.decisionPolicy === 'approval_required'
+      ? 'waiting_user'
+    : todo.decisionPolicy === 'manual'
+      ? 'manual'
+    : todo.queueControl?.hold === true
+      ? 'ai_hold'
     : todo.dependsOn.length > 0
       ? 'ai_hold'
       : 'executable'
   const score = computeQueueScore({
     priority,
+    queueControl: todo.queueControl,
     nextAction: todo.nextAction,
     updatedAt: todo.updatedAt,
     factoryEligible: status === 'executable',
   }, goal)
   const candidateEligible = status === 'executable'
+  const source = todo.source ?? 'goal_resume'
   return {
     workItemId: `todo:${todo.id}`,
     type: 'goal_todo',
     sourceId: todo.id,
+    todoId: todo.id,
+    source,
     title: todo.title,
     goalId: goal.id,
     goalTitle: goal.title,
@@ -167,12 +180,19 @@ function toGoalTodoItem(todo: GoalTodo, goal: Goal): AutoQueueItem {
     queueScore: score.queueScore,
     queueOrder: 0,
     candidateEligible,
-    candidateBlockedReason: candidateEligible ? undefined : statusBlockedReason(status),
+    candidateBlockedReason: candidateEligible
+      ? undefined
+      : dangerous
+        ? `危険操作を含むためBlock（理由: ${dangerRiskFlags(todo.riskFlags).join(' / ')}）`
+        : statusBlockedReason(status),
     resolution: candidateEligible
       ? undefined
-      : { how: '依存する作業の完了待ちです。先行する作業が終わると自動で候補に戻ります。' },
-    reason: reasonFromFactors(status, score.reasonFactors, goal.title, false),
+      : dangerous
+        ? { how: 'riskFlags が危険操作を含むため、承認またはリスク除去が必要です。' }
+        : { how: status === 'waiting_user' ? '承認が必要です。Goal詳細で内容を確認してください。' : '依存する作業の完了待ちです。先行する作業が終わると自動で候補に戻ります。' },
+    reason: reasonFromFactors(status, score.reasonFactors, goal.title, todo.queueControl?.pinnedTop === true),
     reasonFactors: score.reasonFactors.length > 0 ? score.reasonFactors : [status],
+    queueControl: todo.queueControl,
   }
 }
 
@@ -236,6 +256,7 @@ function buildGoalProgress(goals: Goal[], items: AutoQueueItem[]): GoalProgressR
       waitingUser: goalItems.filter((item) => item.status === 'waiting_user').length,
       aiHold: goalItems.filter((item) => item.status === 'ai_hold').length,
       reviewWaiting: goalItems.filter((item) => item.status === 'review_waiting').length,
+      reviewFixRequested: goalItems.filter((item) => item.fixRequested).length,
       blocked: goalItems.filter((item) => item.status === 'blocked').length,
       manual: goalItems.filter((item) => item.status === 'manual').length,
       lastRunAt: latestItem?.lastRunAt ?? latestItem?.updatedAt,

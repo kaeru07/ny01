@@ -67,6 +67,8 @@ export async function addTask(input: NewTaskInput): Promise<string> {
 
 function buildNewTask(input: NewTaskInput, taskId: string, now: string): Task {
   const {
+    goalId,
+    phaseId,
     title,
     status,
     priority,
@@ -94,6 +96,8 @@ function buildNewTask(input: NewTaskInput, taskId: string, now: string): Task {
 
   return {
     id: taskId,
+    ...(goalId ? { goalId } : {}),
+    ...(phaseId ? { phaseId } : {}),
     title,
     status,
     priority,
@@ -210,6 +214,8 @@ export async function updateTask(
   taskId: string,
   updates: {
     title?: string
+    goalId?: string
+    phaseId?: string
     status?: TaskStatus
     priority?: TaskPriority
     assignee?: TaskAssignee
@@ -246,6 +252,8 @@ export async function updateTask(
 
   const now = new Date().toISOString()
   const changes: string[] = []
+  if (updates.goalId !== undefined) task.goalId = updates.goalId
+  if (updates.phaseId !== undefined) task.phaseId = updates.phaseId
   if (updates.title !== undefined && updates.title !== task.title) { changes.push(`title`); task.title = updates.title }
   if (updates.status !== undefined && updates.status !== task.status) { changes.push(`status: ${task.status} → ${updates.status}`); task.status = updates.status }
   if (updates.priority !== undefined && updates.priority !== task.priority) { changes.push(`priority: ${task.priority} → ${updates.priority}`); task.priority = updates.priority }

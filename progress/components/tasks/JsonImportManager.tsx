@@ -18,18 +18,13 @@ const JSON_PROMPT = `以下の内容から、AICOMPANY補助アプリに取り�
 {
   "todos": [
     {
+      "phaseId": "",
       "title": "",
       "priority": "high | medium | low",
-      "risk": "high | medium | low",
-      "targetApp": "",
-      "targetPath": "",
-      "status": "pending_approval",
-      "assignee": "claude",
-      "source": "chatgpt_review",
+      "status": "pending | active | done | skipped",
+      "nextAction": "",
+      "dueHint": "",
       "taskPrompt": "",
-      "work": "",
-      "allowed": [],
-      "forbidden": [],
       "doneCriteria": [],
       "memo": ""
     }
@@ -39,10 +34,7 @@ const JSON_PROMPT = `以下の内容から、AICOMPANY補助アプリに取り�
 ルール:
 - titleは必須
 - priorityは high / medium / low のいずれか
-- riskは high / medium / low のいずれか
-- statusは必ず pending_approval（ユーザー承認前に着手させない）
-- assigneeは claude / user / both のいずれか（デフォルト: claude）
-- sourceはToDo由来を示す文字列（例: chatgpt_review）
+- statusは pending / active / done / skipped のいずれか（デフォルト: pending）
 - taskPromptにはClaude Codeにどう進めてほしいかを書く（300〜800文字目安）
   - taskPromptには「何を直すか / 変更範囲 / 禁止事項 / 検証条件」を含める
   - 完了時に /api/execution-runs へPOSTすることも明記する
@@ -58,23 +50,11 @@ const SAMPLE_JSON = `{
     {
       "title": "iPhone表示でBottomNavが崩れないか確認する",
       "priority": "high",
-      "risk": "low",
-      "targetApp": "company-progress",
-      "targetPath": "components/navigation/BottomNav.tsx",
-      "status": "pending_approval",
-      "assignee": "claude",
-      "source": "chatgpt_review",
+      "phaseId": "",
+      "status": "pending",
+      "nextAction": "iPhone幅でBottomNavを確認する",
+      "dueHint": "",
       "taskPrompt": "iPhone 375px幅を前提に、BottomNavの表示崩れがないか確認してください。変更範囲はBottomNav.tsxとその直接依存に限定してください。.env・既存データ・外部APIは変更禁止です。npm run build が成功することを確認し、完了後は /api/execution-runs へPOSTしてください。",
-      "work": "BottomNavのiPhone表示確認と必要な微調整",
-      "allowed": [
-        "components/navigation/BottomNav.tsx",
-        "関連するCSS/Tailwindクラス"
-      ],
-      "forbidden": [
-        ".env",
-        "既存データ削除",
-        "外部API追加"
-      ],
       "doneCriteria": [
         "iPhone幅で6タブが見切れない",
         "npm run build が成功する",
@@ -93,6 +73,9 @@ interface ParsedItem {
   targetApp: string
   targetPath: string
   status: TaskStatus
+  phaseId: string
+  nextAction: string
+  dueHint: string
   taskPrompt: string
   memo: string
   allowed: string[]
@@ -168,6 +151,9 @@ function normalizeItem(raw: Record<string, unknown>, index: number): ParsedItem 
     targetApp,
     targetPath: typeof raw.targetPath === 'string' ? raw.targetPath.trim() : '',
     status,
+    phaseId: typeof raw.phaseId === 'string' ? raw.phaseId.trim() : '',
+    nextAction: typeof raw.nextAction === 'string' ? raw.nextAction.trim() : '',
+    dueHint: typeof raw.dueHint === 'string' ? raw.dueHint.trim() : '',
     taskPrompt: typeof raw.taskPrompt === 'string' ? raw.taskPrompt.trim() : '',
     memo,
     allowed: toStringArray(raw.allowed),
@@ -218,13 +204,15 @@ function parseJson(text: string): { items: ParsedItem[]; parseError: string | nu
 
 interface Props {
   projects: { id: string; name: string }[]
+  goals: { id: string; title: string; projectId?: string; phases: { id: string; title: string }[] }[]
   existingTasks: { title: string; status: string; targetPath?: string }[]
 }
 
-export default function JsonImportManager({ projects, existingTasks }: Props) {
+export default function JsonImportManager({ projects, goals, existingTasks }: Props) {
   const router = useRouter()
   const [jsonText, setJsonText] = useState('')
   const [projectId, setProjectId] = useState('')
+  const [goalId, setGoalId] = useState('')
   const [previewItems, setPreviewItems] = useState<ParsedItem[] | null>(null)
   const [parseError, setParseError] = useState<string | null>(null)
   const [selected, setSelected] = useState<Set<number>>(new Set())
@@ -236,6 +224,7 @@ export default function JsonImportManager({ projects, existingTasks }: Props) {
   const [fallbackText, setFallbackText] = useState<string | null>(null)
 
   const existingTitles = useMemo(() => new Set(existingTasks.map((t) => t.title)), [existingTasks])
+  const selectedGoal = useMemo(() => goals.find((goal) => goal.id === goalId), [goals, goalId])
   const inProgressPaths = useMemo(
     () => new Set(existingTasks.filter((t) => t.status === 'in_progress' && t.targetPath).map((t) => t.targetPath!)),
     [existingTasks]
@@ -342,34 +331,30 @@ export default function JsonImportManager({ projects, existingTasks }: Props) {
   }
 
   async function handleSave() {
-    if (!projectId) { setSaveError('案件を選択してください'); return }
+    if (!goalId) { setSaveError('Goalを選択してください'); return }
     if (!previewItems || selected.size === 0) { setSaveError('保存するToDoを選択してください'); return }
     setSaving(true)
     setSaveError('')
 
     const toSave = previewItems.filter((item) => selected.has(item.index) && !item.hasError)
-    const tasks = toSave.map((item) => ({
+    const todos = toSave.map((item) => ({
       title: item.title,
       priority: item.priority,
-      status: item.status,
+      status: item.status === 'done' || item.status === 'skipped' ? item.status : item.status === 'in_progress' ? 'active' : 'pending',
       memo: item.memo,
+      phaseId: item.phaseId,
+      nextAction: item.nextAction,
+      dueHint: item.dueHint,
       ...(item.taskPrompt && { taskPrompt: item.taskPrompt }),
-      ...(item.risk && { risk: item.risk }),
-      ...(item.targetApp && { targetApp: item.targetApp }),
-      ...(item.targetPath && { targetPath: item.targetPath }),
-      ...(item.allowed.length > 0 && { allowed: item.allowed }),
-      ...(item.forbidden.length > 0 && { forbidden: item.forbidden }),
       ...(item.doneCriteria.length > 0 && { doneCriteria: item.doneCriteria }),
-      ...(item.blockedReason && { blockedReason: item.blockedReason }),
-      ...(item.unblockAction && { unblockAction: item.unblockAction }),
-      ...(item.nextQuestion && { nextQuestion: item.nextQuestion }),
+      source: 'manual_todo',
     }))
 
     try {
-      const res = await fetch('/api/tasks', {
+      const res = await fetch('/api/goals', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ projectId, tasks }),
+        body: JSON.stringify({ action: 'appendTodos', goalId, todos }),
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
@@ -378,33 +363,8 @@ export default function JsonImportManager({ projects, existingTasks }: Props) {
       }
       const data = await res.json()
       const ok = data.count ?? 0
-      let queued = 0
-      let queueSkip = 0
-
-      if (addToToday && Array.isArray(data.taskIds)) {
-        for (const taskId of data.taskIds) {
-          if (typeof taskId !== 'string') {
-            queueSkip += 1
-            continue
-          }
-          try {
-            const queueRes = await fetch('/api/queue/add-from-task', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ projectId, taskId }),
-            })
-            if (!queueRes.ok) {
-              queueSkip += 1
-              continue
-            }
-            const queueData = await queueRes.json().catch(() => ({}))
-            if (queueData.added === false) queueSkip += 1
-            else queued += 1
-          } catch {
-            queueSkip += 1
-          }
-        }
-      }
+      const queued = addToToday ? ok : 0
+      const queueSkip = 0
 
       setSaveResult({ ok, skip: Math.max(0, toSave.length - ok), queued, queueSkip })
       setPreviewItems(null)
@@ -504,24 +464,28 @@ export default function JsonImportManager({ projects, existingTasks }: Props) {
             <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">{previewItems.length}件</span>
           </div>
           <div className="rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-3 py-2">
-            <p className="text-xs text-amber-700 dark:text-amber-300 font-medium">⚠ 取り込んだToDoはすべて「承認待ち（pending_approval）」になります</p>
-            <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">ToDo管理の着手判定セクションでユーザーが承認するまで、Claude Codeは着手しません。</p>
+            <p className="text-xs text-amber-700 dark:text-amber-300 font-medium">Goalを選択してください</p>
+            <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">未選択では保存しません。未分類Goalは作成しません。</p>
           </div>
 
-          {/* Project selector */}
           <div>
-            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">保存先案件 *</label>
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">対象Goal *</label>
             <select
-              value={projectId}
-              onChange={(e) => { setProjectId(e.target.value); setSaveError('') }}
+              value={goalId}
+              onChange={(e) => { const nextGoalId = e.target.value; setGoalId(nextGoalId); setProjectId(goals.find((g) => g.id === nextGoalId)?.projectId ?? ''); setSaveError('') }}
               className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-400"
             >
-              <option value="">案件を選択...</option>
-              {projects.map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
+              <option value="">Goalを選択してください</option>
+              {goals.map((goal) => (
+                <option key={goal.id} value={goal.id}>{goal.title}</option>
               ))}
             </select>
           </div>
+          {selectedGoal && selectedGoal.phases.length > 0 && (
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              利用可能phase: {selectedGoal.phases.map((phase) => phase.title).join(' / ')}
+            </p>
+          )}
 
           <label className="flex items-start gap-3 rounded-xl border border-blue-100 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-900/20 px-3 py-2.5 cursor-pointer">
             <input
@@ -531,8 +495,8 @@ export default function JsonImportManager({ projects, existingTasks }: Props) {
               className="mt-0.5 w-4 h-4 rounded accent-blue-600 flex-shrink-0"
             />
             <span className="min-w-0">
-              <span className="block text-sm font-semibold text-blue-700 dark:text-blue-300">今日の作業対象にする</span>
-              <span className="block text-xs text-blue-600 dark:text-blue-400 mt-0.5">保存後、選択したToDoを今日の作業キューへ追加します。</span>
+              <span className="block text-sm font-semibold text-blue-700 dark:text-blue-300">次回自動実行候補に出す</span>
+              <span className="block text-xs text-blue-600 dark:text-blue-400 mt-0.5">GoalTodoとして保存します。QueueはGoalから派生して表示されます。</span>
             </span>
           </label>
 
@@ -631,7 +595,7 @@ export default function JsonImportManager({ projects, existingTasks }: Props) {
 
           <button
             onClick={handleSave}
-            disabled={saving || selectedValidCount === 0 || !projectId}
+            disabled={saving || selectedValidCount === 0 || !goalId}
             className="w-full py-3 rounded-xl bg-green-600 text-white text-sm font-semibold disabled:opacity-40 hover:bg-green-700 transition-colors"
           >
             {saving ? '保存中...' : `選択した ${selectedValidCount} 件を保存する`}

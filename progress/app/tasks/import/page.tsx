@@ -2,15 +2,20 @@ export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
 import { readAppProgress, readProjectTasks } from '@/lib/progress-reader'
+import { readGoals } from '@/lib/goal-reader'
 import JsonImportManager from '@/components/tasks/JsonImportManager'
 
 export default async function TasksImportPage() {
-  const [progressData, tasksData] = await Promise.all([
+  const [progressData, tasksData, goalsData] = await Promise.all([
     readAppProgress(),
     readProjectTasks(),
+    readGoals(),
   ])
 
   const projects = progressData.projects.map((p) => ({ id: p.id, name: p.name }))
+  const goals = goalsData.goals
+    .filter((goal) => goal.status === 'active' || goal.status === 'paused')
+    .map((goal) => ({ id: goal.id, title: goal.title, projectId: goal.projectId, phases: goal.phases.map((phase) => ({ id: phase.id, title: phase.title })) }))
 
   const existingTasks = tasksData.projects.flatMap((pt) =>
     pt.tasks.map((t) => ({
@@ -37,7 +42,7 @@ export default async function TasksImportPage() {
         </Link>
       </header>
 
-      <JsonImportManager projects={projects} existingTasks={existingTasks} />
+      <JsonImportManager projects={projects} goals={goals} existingTasks={existingTasks} />
     </div>
   )
 }

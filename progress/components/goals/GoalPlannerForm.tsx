@@ -50,6 +50,18 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
   const [setAsMain, setSetAsMain] = useState(!hasMainGoal)
   const [fallbackText, setFallbackText] = useState<string | null>(null)
+  const [singleGoal, setSingleGoal] = useState({
+    title: '',
+    projectId: projects[0]?.id ?? '',
+    prompt: '',
+    priority: 'P1',
+    status: 'active',
+    decisionPolicy: 'autonomous',
+    riskFlags: '',
+    notes: '',
+  })
+  const [singleSaving, setSingleSaving] = useState(false)
+  const [singleMessage, setSingleMessage] = useState('')
 
   const selectedProject = useMemo(() => projects.find((p) => p.id === projectId), [projects, projectId])
 
@@ -240,6 +252,41 @@ JSON のみで返答してください。`
     }
   }
 
+  async function handleSingleGoalSubmit() {
+    setSingleMessage('')
+    if (!singleGoal.title.trim()) {
+      setSingleMessage('title を入力してください')
+      return
+    }
+    setSingleSaving(true)
+    try {
+      const res = await fetch('/api/goals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'upsertSingle',
+          goal: {
+            ...singleGoal,
+            riskFlags: singleGoal.riskFlags.split(',').map((v) => v.trim()).filter(Boolean),
+            setAsMain: !hasMainGoal,
+          },
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data.success) {
+        setSingleMessage(data.error ?? 'Goal登録に失敗しました')
+        return
+      }
+      setSingleMessage('Goalを登録しました')
+      setSingleGoal((prev) => ({ ...prev, title: '', prompt: '', riskFlags: '', notes: '' }))
+      router.refresh()
+    } catch {
+      setSingleMessage('通信エラーが発生しました')
+    } finally {
+      setSingleSaving(false)
+    }
+  }
+
   return (
     <div className="space-y-5">
       {fallbackText && (
@@ -255,6 +302,75 @@ JSON のみで返答してください。`
           <button onClick={() => setFallbackText(null)} className="text-xs text-amber-600 dark:text-amber-400 hover:underline">閉じる</button>
         </div>
       )}
+
+      <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-xs font-bold">A</span>
+          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">単体Goalを項目入力で追加</h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="sm:col-span-2">
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">title *</label>
+            <input
+              value={singleGoal.title}
+              onChange={(e) => setSingleGoal((prev) => ({ ...prev, title: e.target.value }))}
+              className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">projectId</label>
+            <select
+              value={singleGoal.projectId}
+              onChange={(e) => setSingleGoal((prev) => ({ ...prev, projectId: e.target.value }))}
+              className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+            >
+              <option value="">未設定</option>
+              {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">priority</label>
+              <select value={singleGoal.priority} onChange={(e) => setSingleGoal((prev) => ({ ...prev, priority: e.target.value }))} className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-400">
+                <option value="P0">P0</option>
+                <option value="P1">P1</option>
+                <option value="P2">P2</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">status</label>
+              <select value={singleGoal.status} onChange={(e) => setSingleGoal((prev) => ({ ...prev, status: e.target.value }))} className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-400">
+                <option value="active">active</option>
+                <option value="backlog">backlog</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">decisionPolicy</label>
+            <select value={singleGoal.decisionPolicy} onChange={(e) => setSingleGoal((prev) => ({ ...prev, decisionPolicy: e.target.value }))} className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-400">
+              <option value="autonomous">autonomous</option>
+              <option value="approval_required">approval_required</option>
+              <option value="manual">manual</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">riskFlags (カンマ区切り)</label>
+            <input value={singleGoal.riskFlags} onChange={(e) => setSingleGoal((prev) => ({ ...prev, riskFlags: e.target.value }))} placeholder="deploy,migration" className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-400" />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">prompt</label>
+            <textarea value={singleGoal.prompt} onChange={(e) => setSingleGoal((prev) => ({ ...prev, prompt: e.target.value }))} rows={3} className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-400 resize-y" />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">notes</label>
+            <textarea value={singleGoal.notes} onChange={(e) => setSingleGoal((prev) => ({ ...prev, notes: e.target.value }))} rows={2} className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-400 resize-y" />
+          </div>
+        </div>
+        {singleMessage && <p className={`text-xs ${singleMessage.includes('登録しました') ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>{singleMessage}</p>}
+        <button onClick={handleSingleGoalSubmit} disabled={singleSaving || !singleGoal.title.trim()} className="w-full py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold disabled:opacity-40 hover:bg-emerald-700 transition-colors">
+          {singleSaving ? '登録中...' : '単体Goalを追加'}
+        </button>
+      </section>
 
       {/* Step 1: 目標入力 */}
       <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-4 space-y-3">

@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { StatusBadge, PriorityBadge } from '@/components/tasks/TaskBadge'
 import { getAssigneeColor, getAssigneeLabel, getStatusColor, getPriorityColor } from '@/lib/progress-transform'
 import TaskPromptEditor from '@/components/tasks/TaskPromptEditor'
-import TaskAddForm from '@/components/tasks/TaskAddForm'
 import type { TaskStatus, TaskPriority, TaskAssignee } from '@/types/progress'
 
 const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
@@ -169,7 +168,6 @@ export default function TodoManager({ tasks, projects, queuedTaskIds }: Props) {
   const [savingIds, setSavingIds] = useState<Set<string>>(new Set())
   const [saveResults, setSaveResults] = useState<Record<string, 'ok' | string>>({})
   const [copiedPromptId, setCopiedPromptId] = useState<string | null>(null)
-  const [showAddForm, setShowAddForm] = useState(false)
   const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set())
 
   async function copyPrompt(taskId: string, prompt: string) {
@@ -361,20 +359,14 @@ export default function TodoManager({ tasks, projects, queuedTaskIds }: Props) {
 
       {/* Action bar */}
       <div className="flex flex-col gap-2 sm:flex-row">
-        <button
-          onClick={() => setShowAddForm((v) => !v)}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-semibold transition-colors border ${
-            showAddForm
-              ? 'bg-white dark:bg-gray-800 border-blue-400 dark:border-blue-600 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
-              : 'bg-blue-600 border-blue-600 text-white hover:bg-blue-700 dark:hover:bg-blue-500'
-          }`}
+        <a
+          href="#goal-todo-add"
+          className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-semibold transition-colors border bg-blue-600 border-blue-600 text-white hover:bg-blue-700 dark:hover:bg-blue-500"
         >
-          <span className="text-base leading-none font-bold">{showAddForm ? '×' : '+'}</span>
-          <span>{showAddForm ? 'フォームを閉じる' : 'ToDo追加'}</span>
-          {!showAddForm && (
-            <span className="hidden sm:inline text-xs font-normal opacity-70">— 1件ずつ手入力</span>
-          )}
-        </button>
+          <span className="text-base leading-none font-bold">+</span>
+          <span>Goal配下にToDo追加</span>
+          <span className="hidden sm:inline text-xs font-normal opacity-70">— Goal選択必須</span>
+        </a>
         <Link
           href="/tasks/import"
           className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-semibold border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors bg-white dark:bg-gray-800"
@@ -384,16 +376,6 @@ export default function TodoManager({ tasks, projects, queuedTaskIds }: Props) {
           <span className="hidden sm:inline text-xs font-normal opacity-60">— 複数件を一括登録</span>
         </Link>
       </div>
-
-      {/* Inline add form */}
-      {showAddForm && (
-        <TaskAddForm
-          projects={projects}
-          autoOpen={true}
-          onCreated={() => setShowAddForm(false)}
-          onCancel={() => setShowAddForm(false)}
-        />
-      )}
 
       {/* Stats */}
       <div className="grid grid-cols-5 gap-1.5 text-center">
