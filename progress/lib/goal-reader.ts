@@ -60,6 +60,37 @@ export async function readGoals(): Promise<GoalsData> {
   }
 }
 
+const GOAL_PRIORITY_NUM: Record<string, number> = { high: 2, medium: 1, low: 0 }
+
+/**
+ * Goal を表示・実行で共通の優先順に並べ、goalId → 順位（0 が最優先）の Map を返す。
+ * 規則: pinnedTop > priorityBoost > priority(high>med>low) > goals.json 内の並び順（安定）。
+ * 自動実行キューの並びと Factory の次回実行選択は、この順位を第一キーとして共有する。
+ */
+export function rankGoals(goals: Goal[]): Map<string, number> {
+  const ordered = goals
+    .map((goal, idx) => ({ goal, idx }))
+    .sort((a, b) => {
+      const ap = a.goal.pinnedTop === true ? 1 : 0
+      const bp = b.goal.pinnedTop === true ? 1 : 0
+      if (ap !== bp) return bp - ap
+      const ab = a.goal.priorityBoost ?? 0
+      const bb = b.goal.priorityBoost ?? 0
+      if (ab !== bb) return bb - ab
+      const apr = GOAL_PRIORITY_NUM[a.goal.priority] ?? 1
+      const bpr = GOAL_PRIORITY_NUM[b.goal.priority] ?? 1
+      if (apr !== bpr) return bpr - apr
+      return a.idx - b.idx
+    })
+  return new Map(ordered.map((entry, rank) => [entry.goal.id, rank]))
+}
+
+/** goalId の順位を返す。未設定・未知の Goal は末尾（MAX）に寄せる。 */
+export function goalRankOf(rank: Map<string, number>, goalId?: string): number {
+  if (!goalId) return Number.MAX_SAFE_INTEGER
+  return rank.get(goalId) ?? Number.MAX_SAFE_INTEGER
+}
+
 export function findNorthStarGoal(data: GoalsData): Goal | undefined {
   return data.goals.find((g) => g.isNorthStar && g.status === 'active')
     ?? data.goals.find((g) => g.isNorthStar)

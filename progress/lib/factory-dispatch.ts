@@ -8,7 +8,7 @@ import {
 } from './operations-store'
 import { buildExecutionGuard } from './epic-contract'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
-import { readGoals } from '@/lib/goal-reader'
+import { readGoals, rankGoals, goalRankOf } from '@/lib/goal-reader'
 import type { Epic } from '@/lib/types/operations'
 import type { ExecutionRun } from '@/types/execution-run'
 import { AUTONOMY_ANCHOR_SCORE_BOOST, REVIEW_FIX_SCORE_BOOST, autonomyAnchorReason, isAutonomyAnchorEpic } from '@/lib/autonomy-anchor'
@@ -41,7 +41,6 @@ import type {
 // （Dispatch Plan は既存正本から都度生成するビュー。結果は ExecutionRun に記録）。
 
 const PRIORITY_RANK: Record<EpicPriority, number> = { P0: 0, P1: 1, P2: 2 }
-const PRIORITY_SCORE: Record<EpicPriority, number> = { P0: 900, P1: 600, P2: 300 }
 
 function newPlanId(epicId: string): string {
   return `dp-${epicId}-${Date.now().toString(36)}`
@@ -154,28 +153,30 @@ export async function scanFactoryDispatch(): Promise<FactoryDispatchScan> {
   if (!config.factoryEnabled) {
     return { factoryEnabled: false, picked: null, candidates: [], blocked: [] }
   }
-  const epics = await getEpics()
+  const [epics, goalsData] = await Promise.all([getEpics(), readGoals()])
   const priorityOf = new Map(epics.map((e) => [e.epicId, e.priority]))
   const epicById = new Map(epics.map((e) => [e.epicId, e]))
+  const goalRank = rankGoals(goalsData.goals)
   const active = epics.filter((e) => e.status === 'active' || e.status === 'paused')
   const plans = (await Promise.all(active.map((e) => buildDispatchPlan(e.epicId)))).filter(
     (p): p is FactoryDispatchPlan => p !== null,
   )
 
-  const score = (plan: FactoryDispatchPlan) => {
-    const epic = epicById.get(plan.epicId)
-    const p = priorityOf.get(plan.epicId) ?? 'P2'
-    let value = PRIORITY_SCORE[p]
-    if (epic?.queueControl?.pinnedTop) value += 100_000
-    if (plan.hasFixPrompt) value += REVIEW_FIX_SCORE_BOOST
-    if (plan.autonomyAnchor) value += AUTONOMY_ANCHOR_SCORE_BOOST
-    return value
-  }
+  // 安全枠の据置度（要修正 > 自走化アンカー）。Goal順より上位に残す。
+  const safetyValue = (plan: FactoryDispatchPlan) =>
+    (plan.hasFixPrompt ? REVIEW_FIX_SCORE_BOOST : 0) + (plan.autonomyAnchor ? AUTONOMY_ANCHOR_SCORE_BOOST : 0)
+  // 並び順（表示の自動実行キューと同じ階層）:
+  //  1. 明示pin → 2. 安全枠（要修正/自走化アンカー）→ 3. Goal順（rankGoals）→ 4. 優先度 → 5. epicId
   const candidates = plans
     .filter((p) => p.safetyStatus === 'ok')
     .sort((a, b) => {
-      const diff = score(b) - score(a)
-      if (diff !== 0) return diff
+      const ap = epicById.get(a.epicId)?.queueControl?.pinnedTop === true ? 1 : 0
+      const bp = epicById.get(b.epicId)?.queueControl?.pinnedTop === true ? 1 : 0
+      if (ap !== bp) return bp - ap
+      const sv = safetyValue(b) - safetyValue(a)
+      if (sv !== 0) return sv
+      const gr = goalRankOf(goalRank, a.goalId) - goalRankOf(goalRank, b.goalId)
+      if (gr !== 0) return gr
       const ar = PRIORITY_RANK[priorityOf.get(a.epicId) ?? 'P2']
       const br = PRIORITY_RANK[priorityOf.get(b.epicId) ?? 'P2']
       if (ar !== br) return ar - br

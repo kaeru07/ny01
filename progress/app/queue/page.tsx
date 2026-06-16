@@ -98,6 +98,39 @@ function filterItems(items: AutoQueueItem[], filters: ProgressFilterState): Auto
   })
 }
 
+const UNASSIGNED_GOAL = '__unassigned__'
+
+type GoalProgressRow = Awaited<ReturnType<typeof getAutoQueueView>>['goalProgress'][number]
+
+interface GoalGroup {
+  goalId: string
+  title: string
+  row?: GoalProgressRow
+  items: AutoQueueItem[]
+}
+
+/** items を Goal ごとにまとめ、Goal順（goalProgress=rankGoals順）に並べる。未設定は末尾。 */
+function groupItemsByGoal(items: AutoQueueItem[], goalProgress: GoalProgressRow[]): GoalGroup[] {
+  const order = new Map(goalProgress.map((row, index) => [row.goalId, index]))
+  const groups = new Map<string, AutoQueueItem[]>()
+  for (const item of items) {
+    const key = item.goalId ?? UNASSIGNED_GOAL
+    const bucket = groups.get(key)
+    if (bucket) bucket.push(item)
+    else groups.set(key, [item])
+  }
+  return Array.from(groups.entries())
+    .map(([goalId, groupItems]): GoalGroup => {
+      const row = goalId === UNASSIGNED_GOAL ? undefined : goalProgress.find((r) => r.goalId === goalId)
+      return { goalId, title: row?.title ?? groupItems[0]?.goalTitle ?? (goalId === UNASSIGNED_GOAL ? 'Goal未設定' : goalId), row, items: groupItems }
+    })
+    .sort((a, b) => {
+      const ao = a.goalId === UNASSIGNED_GOAL ? Number.MAX_SAFE_INTEGER : order.get(a.goalId) ?? Number.MAX_SAFE_INTEGER - 1
+      const bo = b.goalId === UNASSIGNED_GOAL ? Number.MAX_SAFE_INTEGER : order.get(b.goalId) ?? Number.MAX_SAFE_INTEGER - 1
+      return ao - bo
+    })
+}
+
 export default async function QueuePage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
   const queue = await getAutoQueueView()
   const filters = parseProgressFilters(searchParams)
@@ -106,6 +139,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
   const allQueueItems = allItems(queue)
   const goalScopedItems = allQueueItems.filter((item) => !goalId || (item.goalId ?? 'unassigned') === goalId)
   const items = filterItems(allQueueItems, filters)
+  const goalGroups = groupItemsByGoal(items, queue.goalProgress)
   const projectOptions = Array.from(new Map(allQueueItems.filter((item) => item.projectId || item.projectName).map((item) => [item.projectId ?? item.projectName ?? '', item.projectName ?? item.projectId ?? '未設定'])).entries())
     .filter(([id]) => id)
     .map(([value, label]) => ({ value, label }))
@@ -208,8 +242,32 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
           </div>
         </section>
       ) : (
-        <section className="space-y-3">
-          {items.map((item) => {
+        <div className="space-y-6">
+          {goalGroups.map((group) => (
+            <section key={group.goalId} className="space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-1.5 dark:border-gray-800">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold text-gray-300 dark:text-gray-600">Goal</span>
+                  <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">{group.title}</h2>
+                  {group.row?.pinnedTop && <span className="rounded bg-yellow-100 px-1.5 py-0.5 text-[10px] font-bold text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">最優先</span>}
+                  {(group.row?.priorityBoost ?? 0) > 0 && <span className="rounded bg-indigo-100 px-1.5 py-0.5 text-[10px] font-bold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">boost+{group.row?.priorityBoost}</span>}
+                </div>
+                <div className="flex items-center gap-2 text-[11px] text-gray-400">
+                  {group.row && <span>実行可 {group.row.executable} · {group.row.done}/{group.row.total}（{group.row.ratio}%）</span>}
+                  <span className="font-semibold text-gray-500">{group.items.length}件</span>
+                  {group.goalId !== UNASSIGNED_GOAL && !filters.goalId && (
+                    <Link href={queueHref(filters, { goalId: group.goalId })} className="rounded border border-gray-200 px-1.5 py-0.5 font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
+                      このGoalだけ
+                    </Link>
+                  )}
+                  {group.goalId !== UNASSIGNED_GOAL && (
+                    <Link href={`/goal-planner?goalId=${encodeURIComponent(group.goalId)}`} className="rounded border border-gray-200 px-1.5 py-0.5 font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
+                      Goal詳細
+                    </Link>
+                  )}
+                </div>
+              </div>
+          {group.items.map((item) => {
             const canMove = item.type === 'epic' && item.status === 'executable'
             const isPinned = item.queueControl?.pinnedTop === true
             const isHeld = item.queueControl?.hold === true
@@ -248,7 +306,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
 
                 <h2 className="mt-2 text-base font-bold leading-snug text-gray-900 dark:text-gray-100">{item.title}</h2>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  Goal {item.goalTitle ?? '未設定'} · Project {item.projectName ?? item.projectId ?? '未設定'}
+                  Project {item.projectName ?? item.projectId ?? '未設定'}
                 </p>
                 {!item.candidateEligible && (
                   <div className={`mt-3 rounded-lg px-3 py-2 ${pinnedButExcluded ? 'bg-amber-50 dark:bg-amber-900/20' : 'bg-gray-50 dark:bg-gray-800/50'}`}>
@@ -322,7 +380,9 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
               </article>
             )
           })}
-        </section>
+            </section>
+          ))}
+        </div>
       )}
     </div>
   )

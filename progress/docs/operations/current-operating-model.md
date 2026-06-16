@@ -1,6 +1,6 @@
 ---
-updated: 2026-06-16
-updateNote: 自動実行キュー・Inbox・Goal/Project/ToDo一覧に表示専用のURL同期フィルターを追加。判定/スコア/Factory実行順は変更しない。
+updated: 2026-06-17
+updateNote: 自動実行キューを Goal 順で並べる（表示＋実行）。/queue を Goal ごとにグループ表示し、Goal の並び（rankGoals: pin>boost>優先度>安定順）を第一キーにキュー順＝Factory の次回実行選択を決定。明示pin・自走化アンカー・要修正は安全のため Goal 順より上位に据置。Goal を並べ替えると次に実行する作業も変わる。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -29,7 +29,7 @@ Progress は **AI工場の管理画面ではなく、人間用の司令塔**。
 | 司令塔 | `/` | 毎日最初に開く画面。今日やること・AI工場の状態・収益マイルストーン・直近の成果 |
 | Inbox | `/decide` | 4タブ構成（タブ切り替え）。「今日の判断」=工場停止要因のみ（危険判断/方針選択/人間作業・最大3件・約3分）/「レビュー」=検収（放置しても工場は止まらない・**隠さず全件表示**）/「Epic候補」=実行許可（放置可能）/「AI保留」=件数のみ。社長は「今日の判断」タブだけ処理すれば工場は止まらない。`?tab=today|review|candidates|aiHold`、`?reviewFilter=unconfirmed|followup|snoozed|reviewed`、`?reviewStatus=needs_followup`、互換 `?filter=needs_followup`、`?focusRunId=<runId>`、`?goalId=<id|unassigned>`、`?q=...`、`?fixPrompt=1`で直接表示できる。内部分類・内部IDは「詳細を見る」内のみ |
 | Inbox レビュータブ | `/decide` | **レビュー待ちは未消込リストとして全件表示**（「ほか◯件」「処理すると次が出ます」の隠れ表示は廃止）。上部に件数サマリー（未確認/要修正/あとで/レビュー済み）。各カードに「完了: YYYY/MM/DD HH:mm」を表示し、**completedAt（finishedAt→startedAt）降順**で最新が上。50件ずつの明示ページング（全◯件中◯〜◯件）。状態遷移=問題なし→`reviewed`（一覧から消し込み・「レビュー済み」タブに残置＝物理削除しない）/あとで→`snoozed`（後回しで残置）/修正する→**修正指示プロンプト(textarea)を入力して保存**→`needs_followup`（要修正で残置・`fixPrompt`/`fixRequestedAt`/`fixRequestedBy='human'` を ExecutionRun に保存）。修正指示は要修正カードに表示され、`followupOfRunId` 付きおすすめ次作業の reason/doneCriteria/notes に反映されて次回自動実行の作業指示になる。空欄保存は警告して送信しない。「未確認レビューをAIで一括整理」は未確認**全件**対象（サーバ安全上限200件）で、危険・要判断は必ず残し最終判断は人間 |
-| 自動実行キュー | `/queue` | **AI工場が次に何をやるか**の単一ビュー（派生・新正本を作らない）。`buildAutoQueue()` が Epic / Goal / ExecutionRun / Approval / Inbox から都度生成。`factoryEligible=true && status=executable` のみ自動実行候補。各itemに「なぜこの順位か」の理由を機械生成。スマホで最優先(pin)/保留(hold)/対象外(exclude)/上下移動(manualOrder)。表示専用フィルターとして `?filter=<status>` / `?goalId=` / `?projectId=` / `?app=` / `?priority=P0|P1|P2` / `?pinned=1` / `?excluded=1` / `?manualOnly=1` / `?executor=unset|set` / `?q=` を使える。旧 work-queue 並べ替え画面は `/legacy/queue` に退避 |
+| 自動実行キュー | `/queue` | **AI工場が次に何をやるか**の単一ビュー（派生・新正本を作らない）。`buildAutoQueue()` が Epic / Goal / ExecutionRun / Approval / Inbox から都度生成。`factoryEligible=true && status=executable` のみ自動実行候補。**Goalごとにグループ表示し、Goal順がキュー順＝次回実行選択を決める**（`rankGoals`: pin>boost>優先度>goals.json安定順）。明示pin・自走化アンカー・要修正は安全のためGoal順より上位に据置。各itemに「なぜこの順位か」の理由を機械生成。スマホで最優先(pin)/保留(hold)/対象外(exclude)/上下移動(manualOrder)。表示専用フィルターとして `?filter=<status>` / `?goalId=` / `?projectId=` / `?app=` / `?priority=P0|P1|P2` / `?pinned=1` / `?excluded=1` / `?manualOnly=1` / `?executor=unset|set` / `?q=` を使える。旧 work-queue 並べ替え画面は `/legacy/queue` に退避 |
 | Projects | `/portfolio` | 進行中プロジェクトの一覧と次の作業 |
 | Revenue | `/revenue` | 収益化マイルストーンの現在地 |
 | 📖 運用 | `/guide` | このアプリの使い方を自分で説明するページ（本ドキュメントと連動） |
@@ -208,6 +208,19 @@ MVP完成 → ストア公開 → 広告導入 → DL100 → はじめての収�
 - Todoがなく紐付くEpicがある場合: 紐付くEpic進捗の平均
 - どちらもない場合: Goalの数値指標（current / target）
 
+## ToDoのGoal/Project紐づけ（Goal-linked Todo）
+
+自動実行は **Goal進捗を解消するため**に動く。そのため ToDo は可能な限り Goal / Project を持つ。
+
+- **Todo の goalId/phaseId**: `Task` / `NewTaskInput`（`types/progress.ts`）に `goalId` / `phaseId` を追加。`POST /api/tasks` で `goalId` を渡すと、その Todo が `project-tasks.json` に `goalId` 付きで保存される（tasks API は `goals.json` を変更しない。Todo→Goal の紐づけは Todo 側に持つ）。
+- **GoalTodoAddForm**: 「ToDoをGoalに紐づけて追加」フォーム（`components/goals/GoalTodoAddForm.tsx`）を `/tasks` と `/goal-planner` に配置。対象Goal必須で、`POST /api/goals`（`action: 'appendTodos'`・`source: 'manual_todo'`）経由で Goal 配下に Todo を追加する。
+- **GoalTodo の統合フィールド**: `GoalTodo`（`types/goal.ts`）に `source` / `queueControl` / `decisionPolicy` / `riskFlags` / `dueHint` を追加し、Goal 配下 Todo を自動実行キューの作業単位として扱えるようにした。
+- **AutoQueueItem の todoId/source**: `AutoQueueItem`（`types/auto-queue.ts`）に `todoId` / `source` を追加。`buildAutoQueue()` が Goal 配下 Todo を候補に出せる基盤。`/api/auto-queue/control` は Todo 単位の `prioritize` / `complete` に対応。
+- **JSON取込（`/tasks/import`）**: 取込時に旧 `goal` を `goalProgress`（Goal進捗）へ正規化し、`project` / `goalProgress` を保持する。`priority` / `assignee` / `preferredExecutor` は無視（警告）。title 無しはエラー、project 不一致は未紐付け警告。
+- **未紐付け（unassigned）**: Project / Goal を補完できない Todo・カードは削除せず「未紐付け（未分類）」として表示・絞り込みできる（`command-center.ts` の集計が `unassigned` フォールバックを持つ）。自動実行候補に入れる前に紐付けを促す。
+
+GoalとGoal進捗は分けない方針を維持し、旧 phases/todos 表示は後方互換のため残置する。
+
 ## データ整合ヘルスチェック
 
 司令塔は以下を点検し、異常があるときだけ1行警告を表示する。正常時はUI不変。
@@ -253,6 +266,9 @@ Claude Code / Codex の作業完了時・Epic 完了後に「人間が確認す�
 
 ## 変更履歴
 
+- 2026-06-16: **Goal/Todo/Queue/JSON取込のデータ統合（フル・8項目）**。中断していた統合実装を検証・確定し、Todo を Goal に紐づけて二重Todo系統を解消。`Task`/`NewTaskInput` に `goalId`/`phaseId`、`GoalTodo` に `source`/`queueControl`/`decisionPolicy`/`riskFlags`/`dueHint`、`AutoQueueItem` に `todoId`/`source` を追加。`progress-writer`/`goal-reader`/`goal-writer`/`auto-queue`/`command-center` を統合フィールド対応にし、`POST /api/tasks`（goalId 反映）/ `POST /api/goals`（appendTodos）/ `/api/auto-queue/control`（prioritize/complete）を対応。UI は `GoalTodoAddForm`（ToDoをGoalに紐づけて追加）を `/tasks`・`/goal-planner` に配置、`JsonImportManager` は取込時に `goal→goalProgress` 正規化＋`project`/`goalProgress` 保持、`GoalPlannerForm`/`/queue`/`/tasks/import` を Goal-linked add 対応。紐付け不能は「未紐付け（unassigned）」として表示・絞り込み可能（自動実行候補前に紐付けを促す）。GoalとGoal進捗は分けず、旧 phases/todos は互換残置。検証: `tsc --noEmit` OK / `next build` OK。詳細は本文「ToDoのGoal/Project紐づけ（Goal-linked Todo）」節。
+
+- 2026-06-17: **自動実行キューを Goal 順で並べる（表示＋実行）**。共通ヘルパ `rankGoals(goals)`（lib/goal-reader.ts）を新設し、Goal を `pinnedTop > priorityBoost > priority(high>med>low) > goals.json 安定順` で順位付け。`lib/auto-queue.ts` の `compareItems` に Goal順階層を挿入（並び: ①明示pin ②安全枠[要修正/自走化アンカー] ③**Goal順** ④Goal内[手動順→score→優先度]）し、`goalProgress` も同順に整列。`/queue`（app/queue/page.tsx）は items を Goal ごとにグループ表示（Goalヘッダに進捗・boost・このGoalだけ/Goal詳細導線、未紐付けは末尾「Goal未設定」）。実行系 `scanFactoryDispatch`（lib/factory-dispatch.ts）の候補ソートも同一階層に統一し、**表示順＝Factoryの次回実行選択順**を一致させた。自走化アンカー（goal-ai-factory-os）/要修正/明示pinは安全のためGoal順より上位に据置（既存boost値で順位保持）。これで「Goalを並べ替えると次に実行する作業も変わる」。`PRIORITY_SCORE`(factory-dispatch)は未使用化のため削除。検証: tsc0/build0、`rankGoals`順序規則 PASS、/queue 実描画200（現状キュー0件のため空状態描画）。
 - 2026-06-16: **（Fable実装後レビュー修正）** 自走化Goal完了メールの二重送信防止を是正。no-op(モック)通知は実送信フラグ `autonomyNotifiedAt` を**消費しない**よう変更し、ログ1回の記録は `autonomyNotifyNoopAt` に分離（goal-reader/types/goal も対応）。これにより後で実メールプロバイダ（`AUTONOMY_EMAIL_PROVIDER`）を構成したとき、`autonomyNotifiedAt` が未設定なので実送信が1回だけ走る（no-opが送信済み化して実メールが永久に飛ばない footgun を回避）。実送信モジュールは未実装＝provider設定時も「未送信」として attempts のみ加算し `autonomyNotifiedAt` は立てない。Phase2レビュー結論=close_ok。
 
 - 2026-06-15: **AI工場OS自走化を既存Goal正本で最優先アンカー化**。新規 `factory-autonomy` Goal は作らず、既存 `goal-ai-factory-os`（AI工場OS自走化 / North Star）を正本に統一。Goal単体は実行されないため、配下の `epic-91`（AI工場オペレーションセンター）へ P0 / `factoryEligible=true` / `riskFlags=[]` / 有限の `doneCriteria` 7件を付与して実行Epic化。表示系 `buildAutoQueue()` と実行系 `scanFactoryDispatch()` は共通の自走化アンカー判定を使い、優先順を **pin > review-fix > autonomy anchor > 通常P0** に揃える。ExecutionRun には `selection.selectedGoalKey` 等の選定メタを記録し、Goal側は `lastSelectedRunId/lastSelectedAt` の最小ポインタだけ保持。`/api/operations/goal-ai-factory-os-next-run-selection-test` は実選定関数をread-onlyで呼ぶdry-run確認API。自走化Goal完了時のメール通知は実送信サービスを導入せず、`NOTIFY_EMAIL_TO` 宛のno-op/log senderで二重送信防止（`autonomyNotifiedAt`）を検証する。

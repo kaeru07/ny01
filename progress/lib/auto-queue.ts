@@ -1,9 +1,9 @@
 import { getEpics, getPendingApprovals } from '@/lib/operations-store'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
-import { readGoals } from '@/lib/goal-reader'
+import { readGoals, rankGoals, goalRankOf } from '@/lib/goal-reader'
 import { listInboxItems } from '@/lib/inbox-reader'
 import { computeQueueScore, dangerRiskFlags, deriveResolution, deriveWorkItemStatus, hasFixRequestedForEpic, hasReviewPendingForEpic, latestRunForEpic, normalizePriority } from '@/lib/auto-queue-score'
-import { isAutonomyAnchorEpic } from '@/lib/autonomy-anchor'
+import { isAutonomyAnchorEpic, REVIEW_FIX_SCORE_BOOST, AUTONOMY_ANCHOR_SCORE_BOOST } from '@/lib/autonomy-anchor'
 import type { Approval, Epic } from '@/lib/types/operations'
 import type { AutoQueueCounts, AutoQueueItem, AutoQueueView, GoalProgressRow, WorkItemStatus } from '@/types/auto-queue'
 import type { ExecutionRun } from '@/types/execution-run'
@@ -196,10 +196,34 @@ function toGoalTodoItem(todo: GoalTodo, goal: Goal): AutoQueueItem {
   }
 }
 
-function compareItems(a: AutoQueueItem, b: AutoQueueItem): number {
+/** 安全枠の据置度。要修正(fix) > 自走化アンカー(anchor) の順を boost 値の大小で表す。 */
+function safetyValue(item: AutoQueueItem): number {
+  return (item.fixRequested ? REVIEW_FIX_SCORE_BOOST : 0) + (item.autonomyAnchor ? AUTONOMY_ANCHOR_SCORE_BOOST : 0)
+}
+
+/**
+ * 並び順（上位→下位）:
+ *  1. 明示pin（手動最優先・絶対上位）
+ *  2. 安全枠（要修正優先 / 自走化アンカー）
+ *  3. Goal順（rankGoals: pin>boost>優先度、未設定は末尾）
+ *  4. Goal内（手動順 → score → 優先度 → 直近実行）
+ * goalRank を渡すと「Goalの並びがキュー順を決める」。未指定時は Goal順を無視（後方互換）。
+ */
+function compareItems(a: AutoQueueItem, b: AutoQueueItem, goalRank?: Map<string, number>): number {
   const ap = a.queueControl?.pinnedTop === true
   const bp = b.queueControl?.pinnedTop === true
   if (ap !== bp) return ap ? -1 : 1
+
+  const asv = safetyValue(a)
+  const bsv = safetyValue(b)
+  if (asv !== bsv) return bsv - asv
+
+  if (goalRank) {
+    const ar = goalRankOf(goalRank, a.goalId)
+    const br = goalRankOf(goalRank, b.goalId)
+    if (ar !== br) return ar - br
+  }
+
   const am = a.queueControl?.manualOrder
   const bm = b.queueControl?.manualOrder
   if (typeof am === 'number' && typeof bm === 'number' && am !== bm) return am - bm
@@ -229,10 +253,10 @@ function countsOf(items: AutoQueueItem[], inbox: number): AutoQueueCounts {
   return counts
 }
 
-function buildGoalProgress(goals: Goal[], items: AutoQueueItem[]): GoalProgressRow[] {
+function buildGoalProgress(goals: Goal[], items: AutoQueueItem[], goalRank: Map<string, number>): GoalProgressRow[] {
   return goals.map((goal) => {
     const goalItems = items.filter((item) => item.goalId === goal.id)
-    const executableItems = goalItems.filter((item) => item.status === 'executable').sort(compareItems)
+    const executableItems = goalItems.filter((item) => item.status === 'executable').sort((a, b) => compareItems(a, b, goalRank))
     const todoTotal = goal.todos.length
     const todoDone = goal.todos.filter((todo) => todo.status === 'done' || todo.status === 'skipped').length
     const itemTotal = goalItems.length
@@ -266,11 +290,10 @@ function buildGoalProgress(goals: Goal[], items: AutoQueueItem[]): GoalProgressR
       pinnedTop: goal.pinnedTop,
     }
   }).sort((a, b) => {
-    if (a.pinnedTop !== b.pinnedTop) return a.pinnedTop ? -1 : 1
-    if ((a.priorityBoost ?? 0) !== (b.priorityBoost ?? 0)) return (b.priorityBoost ?? 0) - (a.priorityBoost ?? 0)
-    const activityA = a.total + a.executable + a.waitingUser + a.reviewWaiting + a.aiHold + a.blocked + a.manual
-    const activityB = b.total + b.executable + b.waitingUser + b.reviewWaiting + b.aiHold + b.blocked + b.manual
-    if (activityA !== activityB) return activityB - activityA
+    // Goal行の並びも rankGoals に揃える（キュー順の第一キーと一致させる）。
+    const ar = goalRankOf(goalRank, a.goalId)
+    const br = goalRankOf(goalRank, b.goalId)
+    if (ar !== br) return ar - br
     return b.executable - a.executable
   })
 }
@@ -285,6 +308,7 @@ export async function buildAutoQueue(): Promise<AutoQueueView> {
   ])
   const goals = goalsData.goals
   const goalById = new Map(goals.map((goal) => [goal.id, goal]))
+  const goalRank = rankGoals(goals)
   const epicTodoIds = new Set(epics.flatMap((epic) => epic.relatedTodoIds ?? []))
 
   const items: AutoQueueItem[] = []
@@ -304,29 +328,31 @@ export async function buildAutoQueue(): Promise<AutoQueueView> {
     }
   }
 
+  const cmp = (a: AutoQueueItem, b: AutoQueueItem) => compareItems(a, b, goalRank)
+
   const executable = items
     .filter((item) => item.factoryEligible === true && item.status === 'executable')
-    .sort(compareItems)
+    .sort(cmp)
     .map((item, index) => ({ ...item, queueOrder: index + 1 }))
 
   const withExecutableOrder = new Map(executable.map((item) => [item.workItemId, item]))
   const merged = items.map((item) => withExecutableOrder.get(item.workItemId) ?? item)
   const pinnedExcluded = merged
     .filter((item) => item.queueControl?.pinnedTop === true && item.status !== 'executable')
-    .sort(compareItems)
+    .sort(cmp)
 
   return {
     next: executable[0] ?? null,
     candidates: executable.slice(1, 4),
     executable,
-    waitingUser: merged.filter((item) => item.status === 'waiting_user').sort(compareItems),
-    aiHold: merged.filter((item) => item.status === 'ai_hold').sort(compareItems),
-    reviewWaiting: merged.filter((item) => item.status === 'review_waiting').sort(compareItems),
-    blocked: merged.filter((item) => item.status === 'blocked').sort(compareItems),
-    manual: merged.filter((item) => item.status === 'manual').sort(compareItems),
+    waitingUser: merged.filter((item) => item.status === 'waiting_user').sort(cmp),
+    aiHold: merged.filter((item) => item.status === 'ai_hold').sort(cmp),
+    reviewWaiting: merged.filter((item) => item.status === 'review_waiting').sort(cmp),
+    blocked: merged.filter((item) => item.status === 'blocked').sort(cmp),
+    manual: merged.filter((item) => item.status === 'manual').sort(cmp),
     pinnedExcluded,
     counts: countsOf(merged, inbox.filter((item) => !item.imported).length),
-    goalProgress: buildGoalProgress(goals, merged),
+    goalProgress: buildGoalProgress(goals, merged, goalRank),
     generatedAt: new Date().toISOString(),
   }
 }
