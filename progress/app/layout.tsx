@@ -4,6 +4,7 @@ import BottomNav from '@/components/navigation/BottomNav'
 import TopNav from '@/components/navigation/TopNav'
 import { ThemeProvider, ThemeToggle } from '@/components/ThemeProvider'
 import HelpModal from '@/components/HelpModal'
+import HamburgerMenu from '@/components/navigation/HamburgerMenu'
 import UsageTracker from '@/components/usage/UsageTracker'
 import { countUnreviewed } from '@/lib/execution-run-reader'
 import { readPageExecutionRuns } from '@/lib/page-data-cache'
@@ -29,11 +30,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <ThemeProvider>
           <UsageTracker />
           <div className="fixed top-3 right-3 z-50 flex items-center gap-2 md:hidden">
+            <HamburgerMenu />
             <HelpModal />
             <ThemeToggle />
           </div>
           <TopNav logBadge={logBadge} />
           <div className="hidden md:flex max-w-2xl mx-auto px-4 py-2 justify-end gap-2">
+            <HamburgerMenu />
             <HelpModal />
             <ThemeToggle />
           </div>

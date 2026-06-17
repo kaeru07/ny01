@@ -1,67 +1,10 @@
 import Link from 'next/link'
 import PageGuide from '@/components/newux/PageGuide'
+import { NAV_GROUPS } from '@/lib/nav-menu'
 
-// Legacy = 旧Progressの全画面への入口。機能・データ・APIは何も削除していない。
-// 新UI（司令塔 / Inbox / Projects / Revenue）で足りないときだけここから旧画面を開く。
-
-const groups: Array<{ title: string; links: Array<{ href: string; label: string; note: string }> }> = [
-  {
-    title: '主要（下タブにもあります）',
-    links: [
-      { href: '/revenue', label: 'Revenue（収益マイルストーン）', note: '収益化の現在地' },
-      { href: '/guide', label: '運用ガイド', note: 'このアプリの使い方・最終更新' },
-      { href: '/prompt-queue', label: '作業予約（Prompt Queue）', note: 'やってほしい作業を貯めておく。次回やる候補は定時に自動実行' },
-      { href: '/verify-todos', label: '動作確認Todo', note: '人間が確認すべき画面・URL・手順のチェックリスト' },
-    ],
-  },
-  {
-    title: '全体管理',
-    links: [
-      { href: '/legacy/home', label: '旧ダッシュボード', note: '以前のトップ画面（Goal/Epic/Metrics/Queue分離の全部入り）' },
-      { href: '/morning', label: '朝会', note: '朝のブリーフィング画面' },
-      { href: '/daily', label: '日別', note: '日別の作業まとめ' },
-    ],
-  },
-  {
-    title: 'AI工場（自動作業）',
-    links: [
-      { href: '/epic', label: 'AI工場（大きな作業 = Epic）', note: '作業単位の管理・進行' },
-      { href: '/automation', label: '自動化設定', note: 'AI工場のON/OFF・実行者の切替' },
-      { href: '/factory/candidates', label: '工場候補', note: '自動実行の候補一覧' },
-      { href: '/ai-drive', label: 'AI自走', note: '自走モードの管理' },
-      { href: '/codex', label: 'Codex', note: 'もう1つのAI実行者の管理' },
-    ],
-  },
-  {
-    title: '判断・記録',
-    links: [
-      { href: '/approvals', label: '承認待ち', note: '旧承認画面（新UIではInboxに統合）' },
-      { href: '/decisions', label: '決定事項', note: '過去の判断の記録（Decision Log）' },
-      { href: '/logs', label: '作業ログ', note: 'AIの作業履歴（Execution Run）の一覧' },
-      { href: '/inbox', label: '旧受信箱', note: 'Vault連携の受信箱' },
-      { href: '/pending', label: 'ペンディング', note: '保留中の項目' },
-    ],
-  },
-  {
-    title: '計画・候補',
-    links: [
-      { href: '/goal-planner', label: '目標（Goal）管理', note: '目標の作成・編集' },
-      { href: '/recommended-epics', label: 'おすすめ次作業（推薦Epic）', note: 'AI提案の作業候補の全件管理' },
-      { href: '/monetization', label: '収益化候補管理', note: 'アプリ候補のスコア・詳細管理' },
-      { href: '/tasks', label: 'ToDo', note: '細かいタスク管理' },
-      { href: '/tasks/import', label: 'ToDo JSON一括取り込み', note: 'ChatGPT/ClaudeのJSON出力をToDoへまとめて取り込む' },
-      { href: '/legacy/queue', label: '旧キュー（WorkQueue）', note: '旧 work-queue.json の並べ替え画面（非正本・互換のみ。正本は下タブ「自動実行」/queue）' },
-    ],
-  },
-  {
-    title: '案件・その他',
-    links: [
-      { href: '/projects', label: '案件一覧', note: '全案件（休止中含む）の管理' },
-      { href: '/radar', label: '案件レーダー', note: '案件の状態マップ' },
-      { href: '/app-urls', label: 'アプリURL', note: '各アプリのURL一覧' },
-    ],
-  },
-]
+// Legacy = 全画面のカテゴリ別ディレクトリ。機能・データ・APIは何も削除していない。
+// 画面の一覧は lib/nav-menu.ts（ハンバーガーメニューと共有の正本）を参照する＝二重管理しない。
+const groups = NAV_GROUPS
 
 // 旧画面で使われる専門用語の対訳。新UIでは右側の言葉だけを使う。
 const glossary: Array<[string, string, string]> = [

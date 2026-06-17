@@ -1,6 +1,6 @@
 ---
-updated: 2026-06-17
-updateNote: 使用状況ページ（/usage）を新設。Progress 自身の使われ方（画面別アクセス回数・よく使うボタン操作TOP・画面別最終使用日時・直近7日未アクセスの放置画面）を直近7日で集計表示する。layout 常駐の UsageTracker が画面遷移（page_view）とボタン操作（action）を自動記録し usage-log.ndjson に蓄積。表示専用で判定・実行には非干渉。
+updated: 2026-06-18
+updateNote: 全画面ハンバーガーメニュー（☰）を新設。全ページをカテゴリ別に一覧し、モバイル・デスクトップ両方から全画面へ1タップで遷移できる到達保証の入口にした。メニュー正本 lib/nav-menu.ts（NAV_GROUPS）を新設し、画面一覧 /legacy も同じ正本を参照（二重管理解消）。新ページ追加時は nav-menu.ts に1行足す運用で孤立ページを構造的に防止。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -17,9 +17,14 @@ Progress は **AI工場の管理画面ではなく、人間用の司令塔**。
 - AI が「調査 → 実装 → レビュー候補生成」まで進める
 - 内部構造の複雑さはユーザーに見せない（用語は人間語へ翻訳する）
 
-## 画面構成（モバイル下タブ＝横スクロール全画面・2026-06-14）
+## 画面構成（全画面ハンバーガーメニュー＝到達保証の正本・2026-06-18）
 
-**モバイル BottomNav（`components/navigation/BottomNav.tsx`）は横スクロール**。先頭5つがアイコン付き主要タブ ホーム(`/`) / ToDo(`/decide`) / Project(`/portfolio`) / 目標(`/goal-planner`) / **自動実行(`/queue`)**。続けて `moreItems` として **リンクで飛べる主要画面を全て**テキストタブで列挙（作業予約 `/prompt-queue` / Revenue `/revenue` / 運用 `/guide` / 実行履歴 `/logs` / ToDo管理 `/tasks` / JSON取込 `/tasks/import` / 動作確認 `/verify-todos` / おすすめEpic / 収益化 / 承認 / 自動化 / 工場Epic / Codex / 朝会 / 日別 / AI自走 / レーダー / 案件 / 旧Inbox / 決定事項 / 工場候補 / URL / 旧キュー / 旧ダッシュ / 画面一覧(`/legacy`)）。**「下タブにない主要画面」は無い**（ユーザー指示 2026-06-14）。`/legacy` は全画面のカテゴリ別一覧として残す。
+**全画面メニュー（ハンバーガー ☰・`components/navigation/HamburgerMenu.tsx`）が全ページへの到達を保証する正本**。ヘッダー右の ☰ から開くドロワーで、全ページをカテゴリ別（メイン / よく使う / AI工場 / 判断・記録 / 計画・候補 / 全体管理・旧画面）に一覧する。モバイル・デスクトップ両方で常時表示。メニュー項目の正本は **`lib/nav-menu.ts`（`NAV_GROUPS`）**で、画面一覧 `/legacy` も同じ正本を参照する（二重管理しない）。**新しいページを追加したら必ず `lib/nav-menu.ts` に1行足す**＝「タブかハンバーガーから必ず辿れる」を構造的に担保（孤立ページ防止。ユーザー指示 2026-06-18）。
+
+補助タブ（任意・よく使う画面の近道）:
+- **モバイル BottomNav（`components/navigation/BottomNav.tsx`）は横スクロール**。先頭5つがアイコン付き主要タブ ホーム(`/`) / ToDo(`/decide`) / Project(`/portfolio`) / 目標(`/goal-planner`) / **自動実行(`/queue`)**。続けて `moreItems` として主要画面をテキストタブで列挙。
+- **デスクトップ TopNav** は新UIルートで主要タブ、旧ルートで旧ナビを表示（全画面到達はハンバーガーが担うため最小限でよい）。
+- `/operations`→`/automation`、`/pending`→`/tasks` はリダイレクトのみのエイリアス（メニュー非掲載・遷移先を掲載）。
 
 下表は各画面の役割:
 
@@ -296,6 +301,8 @@ Progress 自身の使われ方を把握するページ（下タブ「使用状�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-18: **全画面ハンバーガーメニュー（☰）を新設し、全ページの到達を保証**（ユーザー指示「存在するページはタブかハンバーガーから遷移できるように／遷移しづらい画面は困る」）。`components/navigation/HamburgerMenu.tsx`（client ドロワー）をヘッダー右（モバイル fixed / デスクトップ flex の両クラスタ）に常時設置し、全ページをカテゴリ別（メイン/よく使う/AI工場/判断・記録/計画・候補/全体管理・旧画面）に一覧。画面遷移で自動クローズ・背面スクロールロック・現在地ハイライト。メニュー項目の正本 `lib/nav-menu.ts`（`NAV_GROUPS` / `ALL_NAV_LINKS`）を新設し、画面一覧 `/legacy` も同じ正本を参照するよう改修（インライン定義を削除＝二重管理解消）。全31実ページを掲載（`/operations`→`/automation`・`/pending`→`/tasks` はリダイレクトのみのため遷移先を掲載）。BottomNav/TopNav の既存タブは近道として残置。**新ページ追加時は nav-menu.ts に1行追加**で孤立ページを構造防止。検証: tsc0 / next build0 / 全ページ href の到達照合スクリプト PASS / pm2再起動後 代表ページ実描画200・チャンク200・白画面なし。運用ドキュメント（画面構成節・frontmatter・変更履歴・guide FAQ）更新。
 
 - 2026-06-17: **使用状況ページ（/usage）を新設**。Progress 自身の使われ方を把握できるようにした。layout 常駐の `components/usage/UsageTracker.tsx`（client）が画面遷移（`page_view`＝usePathname 変化）とボタン操作（`action`＝`button`/`[role=button]` の document 委譲クリック・文言80字）を横断キャプチャし、`navigator.sendBeacon`→`POST /api/usage`→`lib/usage-store.ts` で `usage-log.ndjson`（PROGRESS_DATA_PATH 配下・既存ログと独立）へ追記。`/usage`（app/usage/page.tsx）は `buildUsageSummary(7)` で 画面別アクセス回数（直近7日・棒グラフ）/ よく使うボタン操作TOP（最大20）/ 画面別最終使用日時（全期間）/ 放置画面（直近7日未アクセス）を表示。画面レジストリ正本 `lib/usage-screens.ts`（ルート→人間語・詳細ページは親に丸め）。導線は BottomNav「使用状況」・TopNav(legacy)「使用状況」。**表示専用で判定・スコア・実行順に非干渉**（既存画面・ボタンの改修なし＝横断キャプチャ）。`data-usage-ignore`/`data-usage-label` で個別制御可。検証: tsc0 / next build0 / pm2再起動後 /usage 実描画200・チャンク200・白画面なし、/api/usage に page_view/action を POST→usage-log.ndjson 追記→/usage 集計反映を確認。運用ドキュメント4点（guide FAQ / TERMS `usage` / 本文「使用状況（/usage）」+用語対応表 / frontmatter）更新。
 
