@@ -344,7 +344,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
                 </p>
 
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {(item.type === 'epic' || item.type === 'goal_todo') && (
+                  {(item.type === 'epic' || item.type === 'goal_todo' || item.type === 'goal') && (
                     <QueueActionButton
                       workItemId={item.workItemId}
                       action={isPinned ? 'unpin' : 'pin'}
@@ -355,7 +355,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
                   )}
                   <QueueActionButton workItemId={item.workItemId} action="moveUp" disabled={!canMove}>↑</QueueActionButton>
                   <QueueActionButton workItemId={item.workItemId} action="moveDown" disabled={!canMove}>↓</QueueActionButton>
-                  {(item.type === 'epic' || item.type === 'goal_todo') && (
+                  {(item.type === 'epic' || item.type === 'goal_todo' || item.type === 'goal') && (
                     <QueueActionButton workItemId={item.workItemId} action={isHeld ? 'unhold' : 'hold'}>
                       {isHeld ? '保留解除' : 'あとで'}
                     </QueueActionButton>

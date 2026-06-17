@@ -21,7 +21,7 @@ export interface QueueControl {
 
 export interface AutoQueueItem {
   workItemId: string
-  type: 'epic' | 'goal_todo'
+  type: 'epic' | 'goal_todo' | 'goal'
   sourceId: string
   todoId?: string
   source?: 'manual_todo' | 'goal_resume' | 'review_fix' | 'ai_generated'

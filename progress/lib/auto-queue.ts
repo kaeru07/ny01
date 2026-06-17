@@ -1,6 +1,6 @@
 import { getEpics, getPendingApprovals } from '@/lib/operations-store'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
-import { readGoals, rankGoals, goalRankOf } from '@/lib/goal-reader'
+import { readGoals, rankGoals, goalRankOf, goalAchievement } from '@/lib/goal-reader'
 import { listInboxItems } from '@/lib/inbox-reader'
 import { computeQueueScore, dangerRiskFlags, deriveResolution, deriveWorkItemStatus, hasFixRequestedForEpic, hasReviewPendingForEpic, latestRunForEpic, normalizePriority } from '@/lib/auto-queue-score'
 import { isAutonomyAnchorEpic, REVIEW_FIX_SCORE_BOOST, AUTONOMY_ANCHOR_SCORE_BOOST } from '@/lib/autonomy-anchor'
@@ -209,6 +209,78 @@ function safetyValue(item: AutoQueueItem): number {
  *  4. Goal内（手動順 → score → 優先度 → 直近実行）
  * goalRank を渡すと「Goalの並びがキュー順を決める」。未指定時は Goal順を無視（後方互換）。
  */
+function goalPriority(goal: Goal): 'P0' | 'P1' | 'P2' {
+  if (goal.priority === 'high') return 'P0'
+  if (goal.priority === 'low') return 'P2'
+  return 'P1'
+}
+
+/**
+ * Goal そのものを 1 つの作業単位（type='goal'）にする。
+ * todo も epic も無い未達成 Goal を「達成まで自動実行する対象」としてキューに載せるため。
+ * Factory はこの item を拾うと『次の一歩を Epic 化して進める』（goalの安全ポリシーを継承）。
+ */
+function toGoalItem(goal: Goal): AutoQueueItem {
+  const priority = goalPriority(goal)
+  const dangerous = dangerRiskFlags(goal.riskFlagsDefault).length > 0
+  const status: WorkItemStatus = dangerous
+    ? 'blocked'
+    : goal.decisionPolicyDefault === 'approval_required'
+      ? 'waiting_user'
+    : goal.decisionPolicyDefault === 'manual'
+      ? 'manual'
+      : 'executable'
+  const achievement = goalAchievement(goal)
+  const score = computeQueueScore({
+    priority,
+    queueControl: goal.pinnedTop ? { pinnedTop: true } : undefined,
+    nextAction: goal.summary,
+    updatedAt: goal.updatedAt,
+    factoryEligible: status === 'executable',
+  }, goal)
+  const candidateEligible = status === 'executable'
+  return {
+    workItemId: `goal:${goal.id}`,
+    type: 'goal',
+    sourceId: goal.id,
+    source: 'goal_resume',
+    title: `${goal.title}（達成まで自動で進める）`,
+    goalId: goal.id,
+    goalTitle: goal.title,
+    projectId: goal.projectId,
+    projectName: goal.projectId,
+    status,
+    priority,
+    factoryEligible: status === 'executable',
+    decisionPolicy: goal.decisionPolicyDefault ?? 'autonomous',
+    preferredExecutor: 'claude',
+    doneCriteriaTotal: 100,
+    doneCriteriaDone: achievement,
+    blockers: [],
+    updatedAt: goal.updatedAt,
+    queueScore: score.queueScore,
+    queueOrder: 0,
+    candidateEligible,
+    candidateBlockedReason: candidateEligible
+      ? undefined
+      : dangerous
+        ? `危険操作を含むためBlock（理由: ${dangerRiskFlags(goal.riskFlagsDefault).join(' / ')}）`
+        : statusBlockedReason(status),
+    resolution: candidateEligible
+      ? undefined
+      : dangerous
+        ? { how: 'Goal の riskFlagsDefault が危険操作を含むため、承認またはリスク除去が必要です。', actionLabel: 'Goal詳細', actionHref: `/goal-planner?goalId=${encodeURIComponent(goal.id)}` }
+        : status === 'waiting_user'
+          ? { how: 'この Goal は承認が必要な方針（approval_required）です。Inboxで承認すると自動で進みます。', actionLabel: 'Inboxで承認する', actionHref: `/decide?tab=today&goalId=${encodeURIComponent(goal.id)}` }
+          : { how: 'この Goal は手動方針（manual）です。自動化するには Goal の decisionPolicyDefault を見直してください。', actionLabel: 'Goal詳細', actionHref: `/goal-planner?goalId=${encodeURIComponent(goal.id)}` },
+    reason: status === 'executable'
+      ? `Goal未達成（達成率${achievement}%）・todo/epicが無いため、次の一歩をEpic化して自動で進めます`
+      : reasonFromFactors(status, score.reasonFactors, goal.title, goal.pinnedTop === true),
+    reasonFactors: status === 'executable' ? ['Goal達成が目的', '次の一歩を自動Epic化', priority] : (score.reasonFactors.length > 0 ? score.reasonFactors : [status]),
+    queueControl: goal.pinnedTop ? { pinnedTop: true } : undefined,
+  }
+}
+
 function compareItems(a: AutoQueueItem, b: AutoQueueItem, goalRank?: Map<string, number>): number {
   const ap = a.queueControl?.pinnedTop === true
   const bp = b.queueControl?.pinnedTop === true
@@ -326,6 +398,16 @@ export async function buildAutoQueue(): Promise<AutoQueueView> {
       if (todo.status === 'done' || todo.status === 'skipped') continue
       items.push(toGoalTodoItem(todo, goal))
     }
+  }
+
+  // todo も epic も無い未達成 Goal も「達成が目的」としてキューに載せる。
+  // （Goal達成までFactoryが次の一歩をEpic化して進めるための入口。既に作業itemがあるGoalには出さない）
+  const goalsWithItems = new Set(items.map((item) => item.goalId).filter((id): id is string => Boolean(id)))
+  for (const goal of goals) {
+    if (goal.status !== 'active') continue
+    if (goalsWithItems.has(goal.id)) continue
+    if (goalAchievement(goal) >= 100) continue
+    items.push(toGoalItem(goal))
   }
 
   const cmp = (a: AutoQueueItem, b: AutoQueueItem) => compareItems(a, b, goalRank)

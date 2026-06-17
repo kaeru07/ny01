@@ -454,6 +454,7 @@ export interface AutomationLogEntry {
     | 'factory_dispatch'
     | 'ai_review'
     | 'factory_backpressure'
+    | 'factory_goal_step_epic_created'
   // --- auto_fallback 用（detection イベントでは未設定可） ---
   fallbackTriggered?: boolean
   fallbackReason?: string

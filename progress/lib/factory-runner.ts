@@ -9,6 +9,7 @@ import {
   updateEpic,
 } from './operations-store'
 import { scanFactoryDispatch, buildDispatchPlan, generateClaudeFactoryPrompt } from './factory-dispatch'
+import { ensureNextGoalStepEpic } from './goal-step-epic'
 import { addExecutionRun, updateExecutionRunFields } from './execution-run-writer'
 import { readExecutionRuns } from './execution-run-reader'
 import { readGoals } from './goal-reader'
@@ -283,7 +284,20 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
     }
   }
 
-  const scan = await scanFactoryDispatch()
+  let scan = await scanFactoryDispatch()
+  // 実行できる Epic が無いが、todo/epic の無い未達成 Goal がある場合は「次の一歩」Epic を自動生成して進める。
+  // （Goal達成が自動実行の目的。auto の実起動かつ confirm 済みのときだけ epic を作る＝read経路・dry_run/manualでは作らない）
+  if (!scan.picked && mode === 'auto' && opts.confirm) {
+    const step = await ensureNextGoalStepEpic()
+    if (step.created) {
+      await appendAutomationLog({
+        event: 'factory_goal_step_epic_created',
+        epicId: step.epicId,
+        fallbackReason: `未達成Goal「${step.goalTitle}」にtodo/epicが無いため、次の一歩Epic（${step.epicId}）を自動生成して進めます`,
+      })
+      scan = await scanFactoryDispatch()
+    }
+  }
   if (!scan.picked) {
     return finalize(scan.blocked.length > 0 ? 'all_blocked' : 'no_candidate')
   }

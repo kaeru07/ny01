@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-17
-updateNote: 自動実行キューを Goal 順で並べる（表示＋実行）。/queue を Goal ごとにグループ表示し、Goal の並び（rankGoals: pin>boost>優先度>安定順）を第一キーにキュー順＝Factory の次回実行選択を決定。明示pin・自走化アンカー・要修正は安全のため Goal 順より上位に据置。Goal を並べ替えると次に実行する作業も変わる。
+updateNote: ToDoも大きな作業も無い未達成の目標を「達成まで自動で進める」対象として自動実行キューに載せる（type='goal'）。Factoryが実行可能Epicを見つけられないとき、Goal順最上位の目標に「次の一歩」Epic（epic-goalstep-）を自動生成して達成まで繰り返す。承認要・手動・危険の目標は対象外。これで目標を置いただけでも工場が止まらず自走する。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -44,6 +44,8 @@ Progress は **AI工場の管理画面ではなく、人間用の司令塔**。
 ## AI工場のパイプライン
 
 目標 → 大きな作業 → AI作業 → レビュー → 学習 → 次の作業
+
+**目標から大きな作業を自動で起こす（2026-06-17）**: ToDo も大きな作業も無い未達成の目標は、Factory が実行できる Epic を1つも見つけられなかったとき、`ensureNextGoalStepEpic()` が Goal順最上位の目標に「次の一歩」Epic を自動生成して進める（達成まで繰り返す）。これにより「目標を置いただけ・配下に作業が無い」状態でも工場が止まらず、目標の達成に向けて自走する。詳細は「自動実行キューの使い方」節を参照。
 
 レビューで「修正する」を選んだ `needs_followup` の作業履歴は、`followupOfRunId` 付きのおすすめ次作業へ自動変換する。同じ作業履歴から候補を重複生成しない。スケジュール起動時にも未処理の修正依頼をbackfillする。
 
@@ -103,6 +105,16 @@ Inboxカード（今日の判断 / レビュー / Epic候補 / AI保留集計）
 
 自動実行キューは **Epic / Goal / ExecutionRun / Approval / Inbox から都度生成する派生ビュー**。新しいキュー正本は作らない。司令塔トップの「次回自動実行予定」と `/queue` は同じ `buildAutoQueue()`（別名 `getAutoQueueView()`）の結果を見る。旧 `work-queue.json` は後方互換表示として `/legacy/queue` に残すが、自動実行判断の正本にはしない。
 
+**キューに載る作業の種類（`AutoQueueItem.type`）**:
+
+| type | 何か | キューに載る条件 |
+|---|---|---|
+| `epic` | 大きな作業（Epic） | open な Epic |
+| `goal_todo` | Goal に紐づく ToDo | open な GoalTodo |
+| `goal` | **目標そのもの（達成まで自動で進める）** | ToDo も open Epic も無い未達成の active Goal（`達成率<100%`） |
+
+`type='goal'` のアイテムは「○○（達成まで自動で進める）」と表示する（`toGoalItem()`／lib/auto-queue.ts）。Factory の実起動経路（`runFactory` の auto+confirm）で実行可能 Epic が1つも無いとき、`ensureNextGoalStepEpic()`（lib/goal-step-epic.ts）が Goal順（rankGoals）最上位の対象 Goal に「次の一歩」Epic（`epic-goalstep-<goalId>`）を**1つだけ**自動生成し、自動化ログ `factory_goal_step_epic_created` を残す。step-epic は doneCriteria（次の1ステップを定義→実装・検証→ExecutionRun記録）・Goal の `decisionPolicyDefault`/`riskFlagsDefault` を継承し、通常の安全ゲートを通る。idempotent（open epic を持つ Goal は対象外＝1 Goal 同時1つ）。step-epic が done になっても Goal が未達成なら次回また新しい step-epic が作られ、**達成まで繰り返す**。read 経路（画面表示・API GET）では epic を作らない（表示の度に生成しないため）。承認要 / 手動 / 危険 riskFlags の Goal は `goal` アイテムを出すが自動実行はせず、解消手順（Inbox承認 / Goal詳細）を表示する。
+
 **ステータスの意味**:
 
 | status | 意味 | 自動実行候補 |
@@ -158,6 +170,7 @@ Inboxカード（今日の判断 / レビュー / Epic候補 / AI保留集計）
 | Request Cache | 画面内キャッシュ |
 | Run Archive | 作業履歴アーカイブ |
 | Review Copy | レビュー用コピー |
+| Goal Step Epic（次の一歩） | 達成まで自動で進める（次の一歩） |
 
 **Inbox 6分類**（「何の種類のタスクか」ではなく「人間が何を判断するか」で分類）:
 
@@ -265,6 +278,8 @@ Claude Code / Codex の作業完了時・Epic 完了後に「人間が確認す�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-17: **ToDoも大きな作業も無い目標を「達成まで自動で進める」**（中断作業の再開・完了）。`AutoQueueItem.type` に `'goal'` を追加（types/auto-queue.ts）。`lib/auto-queue.ts` に `toGoalItem()`/`goalPriority()` を新設し、`buildAutoQueue()` で「ToDo も open Epic も無い未達成 active Goal（達成率<100%）」を `type='goal'`・タイトル「○○（達成まで自動で進める）」として items に追加（既に作業 item を持つ Goal には出さない）。承認要/手動/危険 riskFlags の Goal は出すが自動実行はせず resolution（Inbox承認/Goal詳細）を表示。実行系は新規 `lib/goal-step-epic.ts` の `ensureNextGoalStepEpic()` を `runFactory`（lib/factory-runner.ts）の auto+confirm かつ実行可能Epic 0 件のときだけ呼び、Goal順（rankGoals）最上位の対象 Goal に「次の一歩」Epic `epic-goalstep-<goalId>`（doneCriteria=次の1ステップ定義→実装・検証→ExecutionRun記録、Goal の decisionPolicy/riskFlags 継承、factoryEligible=true）を**1つだけ**生成し、自動化ログ `factory_goal_step_epic_created`（lib/types/operations.ts に event 追加）を残してから再 scan。idempotent（open epic を持つ Goal は対象外＝1 Goal 同時1つ）・step-epic が done でも Goal 未達成なら次回また生成して達成まで繰り返す・read 経路では生成しない。`/queue`（app/queue/page.tsx）は `type='goal'` でも pin/あとで（hold）操作を許可。検証: tsc0 / next build0 / `/queue` 実描画200（goalアイテム「達成まで自動で進める」6件ライブ表示・チャンク200・白画面なし）。運用ドキュメント4点（guide FAQ / TERMS `goalStepEpic` / 本文「自動実行キューの使い方」「AI工場のパイプライン」「用語対応表」/ frontmatter）更新済み。
 
 - 2026-06-16: **Goal/Todo/Queue/JSON取込のデータ統合（フル・8項目）**。中断していた統合実装を検証・確定し、Todo を Goal に紐づけて二重Todo系統を解消。`Task`/`NewTaskInput` に `goalId`/`phaseId`、`GoalTodo` に `source`/`queueControl`/`decisionPolicy`/`riskFlags`/`dueHint`、`AutoQueueItem` に `todoId`/`source` を追加。`progress-writer`/`goal-reader`/`goal-writer`/`auto-queue`/`command-center` を統合フィールド対応にし、`POST /api/tasks`（goalId 反映）/ `POST /api/goals`（appendTodos）/ `/api/auto-queue/control`（prioritize/complete）を対応。UI は `GoalTodoAddForm`（ToDoをGoalに紐づけて追加）を `/tasks`・`/goal-planner` に配置、`JsonImportManager` は取込時に `goal→goalProgress` 正規化＋`project`/`goalProgress` 保持、`GoalPlannerForm`/`/queue`/`/tasks/import` を Goal-linked add 対応。紐付け不能は「未紐付け（unassigned）」として表示・絞り込み可能（自動実行候補前に紐付けを促す）。GoalとGoal進捗は分けず、旧 phases/todos は互換残置。検証: `tsc --noEmit` OK / `next build` OK。詳細は本文「ToDoのGoal/Project紐づけ（Goal-linked Todo）」節。
 
