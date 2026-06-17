@@ -1128,20 +1128,13 @@ export async function buildGoalProgressCards(): Promise<GoalProgressCard[]> {
   return goalsData.goals
     .filter((g) => g.status === 'active' || g.status === 'paused')
     .map((goal) => {
-      const linked = epics.filter((e) => e.goalId === goal.id)
-      const linkedProgress =
-        linked.length > 0
-          ? linked.reduce((sum, epic) => sum + clampPct(epic.progress ?? 0), 0) / linked.length
-          : 0
-      const todoProgress = calcGoalProgress(goal).ratio
-      const metricProgress = goalAchievement(goal)
-      const achievementPct = goal.todos.length > 0 ? todoProgress : linked.length > 0 ? clampPct(linkedProgress) : metricProgress
-      const basis =
-        goal.todos.length > 0
-          ? `紐付くTodo ${goal.todos.length}件の完了率`
-          : linked.length > 0
-            ? `紐付く作業 ${linked.length}件の平均`
-            : `${goal.metric || 'metric'} ${goal.current ?? 0}/${goal.target ?? 100}`
+      // 進捗の正本は「今/目標」(target/current = goalAchievement)に統一（ユーザー方針 2026-06-18）。
+      // target 未設定のゴールのみ Todo 完了率にフォールバック（goalAchievement 内で処理）。
+      const hasTarget = typeof goal.target === 'number' && goal.target > 0
+      const achievementPct = goalAchievement(goal)
+      const basis = hasTarget
+        ? `${goal.metric || 'metric'} ${goal.current ?? 0}/${goal.target}`
+        : `紐付くTodo ${goal.todos.length}件の完了率`
       return {
         id: goal.id,
         title: goal.title,

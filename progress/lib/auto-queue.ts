@@ -329,12 +329,14 @@ function buildGoalProgress(goals: Goal[], items: AutoQueueItem[], goalRank: Map<
   return goals.map((goal) => {
     const goalItems = items.filter((item) => item.goalId === goal.id)
     const executableItems = goalItems.filter((item) => item.status === 'executable').sort((a, b) => compareItems(a, b, goalRank))
+    // 進捗の正本は「今/目標」(target/current = goalAchievement)。これが0%問題の修正点。
+    // target 未設定のゴールのみ Todo 完了率にフォールバック（goalAchievement 内で処理）。
+    const hasTarget = typeof goal.target === 'number' && goal.target > 0
     const todoTotal = goal.todos.length
     const todoDone = goal.todos.filter((todo) => todo.status === 'done' || todo.status === 'skipped').length
-    const itemTotal = goalItems.length
-    const itemDone = goalItems.filter((item) => item.status === 'done').length
-    const total = Math.max(todoTotal, itemTotal)
-    const done = Math.max(todoDone, itemDone)
+    const ratio = goalAchievement(goal)
+    const total = hasTarget ? (goal.target as number) : todoTotal
+    const done = hasTarget ? (goal.current ?? 0) : todoDone
     const latestItem = goalItems
       .map((item) => ({ item, at: item.lastRunAt ?? item.updatedAt }))
       .filter((entry): entry is { item: AutoQueueItem; at: string } => Boolean(entry.at))
@@ -346,7 +348,7 @@ function buildGoalProgress(goals: Goal[], items: AutoQueueItem[], goalRank: Map<
       projectId: goal.projectId,
       total,
       done,
-      ratio: total === 0 ? 0 : Math.round((done / total) * 100),
+      ratio,
       executable,
       nextCandidateCount: executable,
       waitingUser: goalItems.filter((item) => item.status === 'waiting_user').length,

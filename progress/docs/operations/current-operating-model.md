@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-18
-updateNote: 全画面ハンバーガーメニュー（☰）を新設。全ページをカテゴリ別に一覧し、モバイル・デスクトップ両方から全画面へ1タップで遷移できる到達保証の入口にした。メニュー正本 lib/nav-menu.ts（NAV_GROUPS）を新設し、画面一覧 /legacy も同じ正本を参照（二重管理解消）。新ページ追加時は nav-menu.ts に1行足す運用で孤立ページを構造的に防止。
+updateNote: ゴール進捗の0%問題を修正。進捗率の正本を「今/目標」(target/current = goalAchievement)に統一し、buildGoalProgress(/queue・目標タブ)と buildGoalProgressCards(司令塔)を変更。旧仕様(done/total が todos＋キューアイテム数のみで target/current を無視)のため todos=0・数値指標管理のゴールが全て0%表示になっていた。target未設定のゴールのみTodo完了率にフォールバック。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -221,11 +221,15 @@ MVP完成 → ストア公開 → 広告導入 → DL100 → はじめての収�
 
 ## Goal進捗
 
-司令塔のGoalカードは、進捗率の根拠を1行表示する。
+**進捗率の正本は「今/目標」（数値指標 current / target = `goalAchievement`）に統一**（ユーザー方針 2026-06-18）。`target>0` のゴールは `round(min(100, current/target*100))`。`target` 未設定のゴールのみ Todo 完了率にフォールバックする。
 
-- GoalにTodoがある場合: Todo完了率
-- Todoがなく紐付くEpicがある場合: 紐付くEpic進捗の平均
-- どちらもない場合: Goalの数値指標（current / target）
+- `/queue` の Goalグループ進捗・Goal Planner（目標タブ）・司令塔の Goalカードはすべてこの 1 計算（`goalAchievement`）に揃える。「作業（Epic）の進み具合の平均」は進捗率には使わない（ユーザー選択「一番単純: 今/目標の数字で出す」）。
+- 表示の `done / total` も、target ありなら `current / target`、target なしなら `doneTodo / totalTodo` を出す（％と一致させる）。
+- 旧仕様（Todo→紐付くEpic平均→数値指標 のフォールバック）は 2026-06-18 に廃止。`buildGoalProgress`（lib/auto-queue.ts）・`buildGoalProgressCards`（lib/command-center.ts）を `goalAchievement` 基準に変更済み。
+
+**背景（0%問題）**: 旧 `buildGoalProgress` は `done/total`（todos＋キューアイテム数のみ）で算出し target/current を無視していたため、todos=0・数値指標管理のゴールが**全て0%**表示になっていた（調査 runId 20260618-012023）。
+
+**データ注意**: `goal-ai-factory-os` は current 60 > target 15（上限で100%表示）。target/current のスケールは別途見直し対象。
 
 ## ToDoのGoal/Project紐づけ（Goal-linked Todo）
 
@@ -301,6 +305,8 @@ Progress 自身の使われ方を把握するページ（下タブ「使用状�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-18: **ゴール進捗の0%問題を修正（進捗率を「今/目標」に統一）**。原因＝`buildGoalProgress`（lib/auto-queue.ts）が `ratio=done/total`（todos＋キューアイテム数のみ）で算出し `goal.target/current` を無視。全ゴール todos=0・数値指標管理のため `done≒0` → 全ゴール0%表示（調査 runId 20260618-012023 / /api/auto-queue で実測）。ユーザー選択「一番単純: 今/目標の数字で出す」に基づき、進捗率の正本を `goalAchievement`（target>0 → round(min(100, current/target*100))、target無 → Todo完了率）に統一。`buildGoalProgress`（/queue・目標タブ）と `buildGoalProgressCards`（司令塔・現状未使用）を変更し、表示の `done/total` も target ありなら `current/target` を出す（％と一致）。旧フォールバック（Todo→紐付Epic平均→数値指標）は廃止。検証: tsc0 / next build0 / /api/auto-queue で 100%/13%/33%/0%（旧 全0%）を実測 / pm2再起動後 /queue・/goal-planner 実描画200・白画面なし。データ注意: goal-ai-factory-os は current60>target15（上限100%）でスケール要見直し。
 
 - 2026-06-18: **全画面ハンバーガーメニュー（☰）を新設し、全ページの到達を保証**（ユーザー指示「存在するページはタブかハンバーガーから遷移できるように／遷移しづらい画面は困る」）。`components/navigation/HamburgerMenu.tsx`（client ドロワー）をヘッダー右（モバイル fixed / デスクトップ flex の両クラスタ）に常時設置し、全ページをカテゴリ別（メイン/よく使う/AI工場/判断・記録/計画・候補/全体管理・旧画面）に一覧。画面遷移で自動クローズ・背面スクロールロック・現在地ハイライト。メニュー項目の正本 `lib/nav-menu.ts`（`NAV_GROUPS` / `ALL_NAV_LINKS`）を新設し、画面一覧 `/legacy` も同じ正本を参照するよう改修（インライン定義を削除＝二重管理解消）。全31実ページを掲載（`/operations`→`/automation`・`/pending`→`/tasks` はリダイレクトのみのため遷移先を掲載）。BottomNav/TopNav の既存タブは近道として残置。**新ページ追加時は nav-menu.ts に1行追加**で孤立ページを構造防止。検証: tsc0 / next build0 / 全ページ href の到達照合スクリプト PASS / pm2再起動後 代表ページ実描画200・チャンク200・白画面なし。運用ドキュメント（画面構成節・frontmatter・変更履歴・guide FAQ）更新。
 
