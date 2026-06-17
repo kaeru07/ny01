@@ -37,6 +37,8 @@
 
 
 
+
+- 2026-06-18: (未取得) / (未取得) / (未取得) / (未取得) / エラーあり(daily-market-research,daily-ai-news,daily-ai-tools,market-research-method-review)
 - 2026-06-17: 低価格AIサブスク比較 / OpenAI、モデル公開前の「Deployment Simulation」を公開 / Arcade.dev / 月額課金: ChatGPT / エラーなし / partial(market,tools)
 - 2026-06-16: AIショート動画制作 / AIエージェント認可の Arcade.dev が $60M 調達 / Arcade.dev / 月額課金: 「商品URLからShorts台本・画像案・投稿文・ハッシュタグを生成」する小型SaaS / エラーなし / partial(market,news,tools)
 - 2026-06-15: AIサブスク節約・ルーティング / OpenAI、Ona買収計画でCodexの長時間エージェント基盤を強化 / Microsoft Intelligent Terminal / 広告: 「AIツール比較」「AIサブスク節約」「動画生成ワークフロー」系のSEO記事・ショート動画で… / エラーなし / partial(market,news,tools)
