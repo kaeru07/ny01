@@ -58,6 +58,7 @@ export const TERMS: Record<string, { ja: string; help: string }> = {
   reviewCopy: { ja: 'レビュー用コピー', help: '司令塔の現在状態をMarkdownにまとめ、ChatGPTやFableへ貼って外部レビューを受けるための読み取り専用コピーです' },
   verifyTodo: { ja: '動作確認Todo', help: 'AIの作業やEpic完了後に、人間が確認すべき画面・URL・手順を一覧で管理する場所。未確認/確認済/NG/保留で状態を管理し、アプリ・Epic・状態で絞り込めます' },
   goalStepEpic: { ja: '達成まで自動で進める（次の一歩）', help: 'ToDoも大きな作業も無い未達成の目標を、AI工場が「達成まで自動で進める」対象として自動実行キューに載せます。工場が拾うと、その目標を進める次の1ステップ（次の一歩）を大きな作業として自動で作り、達成するまで繰り返します。承認待ち・手動方針・危険操作の目標は対象外です' },
+  usage: { ja: '使用状況', help: 'Progress 自身の使われ方を集計する画面（/usage）。どの画面をよく開き・どのボタンをよく押し・最後にいつ使い・どの画面を放置しているかを直近7日で表示します。画面遷移とボタン操作を自動で記録（usage-log.ndjson）した表示専用の集計で、AI工場の判定や実行には影響しません' },
 }
 
 export interface TodayAction {

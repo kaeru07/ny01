@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-17
-updateNote: ToDoも大きな作業も無い未達成の目標を「達成まで自動で進める」対象として自動実行キューに載せる（type='goal'）。Factoryが実行可能Epicを見つけられないとき、Goal順最上位の目標に「次の一歩」Epic（epic-goalstep-）を自動生成して達成まで繰り返す。承認要・手動・危険の目標は対象外。これで目標を置いただけでも工場が止まらず自走する。
+updateNote: 使用状況ページ（/usage）を新設。Progress 自身の使われ方（画面別アクセス回数・よく使うボタン操作TOP・画面別最終使用日時・直近7日未アクセスの放置画面）を直近7日で集計表示する。layout 常駐の UsageTracker が画面遷移（page_view）とボタン操作（action）を自動記録し usage-log.ndjson に蓄積。表示専用で判定・実行には非干渉。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -171,6 +171,7 @@ Inboxカード（今日の判断 / レビュー / Epic候補 / AI保留集計）
 | Run Archive | 作業履歴アーカイブ |
 | Review Copy | レビュー用コピー |
 | Goal Step Epic（次の一歩） | 達成まで自動で進める（次の一歩） |
+| Usage | 使用状況 |
 
 **Inbox 6分類**（「何の種類のタスクか」ではなく「人間が何を判断するか」で分類）:
 
@@ -262,6 +263,23 @@ Claude Code / Codex の作業完了時・Epic 完了後に「人間が確認す�
 
 **運用メモ（AI側の必須動作）**: Claude Code / Codex は作業完了時に、人間が確認すべき項目があれば 1 件ずつこのページへ追加する（アプリ名・Epic名・確認URL・確認手順・期待結果を埋める）。人間は確認URLを開き、手順どおり操作して、期待結果と一致すれば確認済、ずれていればNG、後回しは保留に更新する。
 
+## 使用状況（/usage）
+
+Progress 自身の使われ方を把握するページ（下タブ「使用状況」/ デスクトップ Legacy ナビ「使用状況」）。「どの画面をよく開き・どのボタンをよく押し・最後にいつ使い・どの画面を放置しているか」を**直近7日**で集計表示する。**表示専用**で、AI工場の判定・スコア・実行順には一切影響しない。
+
+- 記録対象（自動・横断キャプチャ）:
+  - `page_view`: 画面遷移（`usePathname` の変化）
+  - `action`: ボタン操作（`button` / `[role=button]` のクリックを document で委譲監視。文言を最大80字で記録）
+- 記録の仕組み: layout 常駐の `components/usage/UsageTracker.tsx`（client）が `navigator.sendBeacon`（fallback: fetch keepalive）で `POST /api/usage` を呼び、`lib/usage-store.ts` が `usage-log.ndjson`（`PROGRESS_DATA_PATH` 配下）へ1行1JSONで追記する。**個別画面・個別ボタンの改修は不要**（横断キャプチャ）。記録を抑止したい要素には `data-usage-ignore`、文言の代わりに残したいラベルは `data-usage-label` を付ける。
+- 表示項目（`buildUsageSummary(7)`）:
+  - サマリー: 画面表示数 / ボタン操作数 / 最後に使った日時
+  - 画面別アクセス回数（直近7日・多い順・棒グラフ）
+  - よく使うボタン操作 TOP（直近7日・多い順・最大20）
+  - 画面別 最終使用日時（全期間・新しい順）
+  - 放置している画面（直近7日 未アクセスの登録画面＝不要画面の見直し用）
+- 画面レジストリ正本: `lib/usage-screens.ts`（ルート→人間語の画面名。詳細ページ `/x/[id]` は親画面に丸める）。ナビ（BottomNav / TopNav）の対応表と整合させること。
+- 既存 ndjson（automation-log 等）とは混ぜず独立ファイル。プライバシー: 単一ユーザーの自分用ダッシュボードのためUI文言の記録に留める（機密値はボタン文言に乗らない前提）。
+
 ## 更新ルール（必須・セット更新）
 
 今後、以下のいずれかを行った場合:
@@ -278,6 +296,8 @@ Claude Code / Codex の作業完了時・Epic 完了後に「人間が確認す�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-17: **使用状況ページ（/usage）を新設**。Progress 自身の使われ方を把握できるようにした。layout 常駐の `components/usage/UsageTracker.tsx`（client）が画面遷移（`page_view`＝usePathname 変化）とボタン操作（`action`＝`button`/`[role=button]` の document 委譲クリック・文言80字）を横断キャプチャし、`navigator.sendBeacon`→`POST /api/usage`→`lib/usage-store.ts` で `usage-log.ndjson`（PROGRESS_DATA_PATH 配下・既存ログと独立）へ追記。`/usage`（app/usage/page.tsx）は `buildUsageSummary(7)` で 画面別アクセス回数（直近7日・棒グラフ）/ よく使うボタン操作TOP（最大20）/ 画面別最終使用日時（全期間）/ 放置画面（直近7日未アクセス）を表示。画面レジストリ正本 `lib/usage-screens.ts`（ルート→人間語・詳細ページは親に丸め）。導線は BottomNav「使用状況」・TopNav(legacy)「使用状況」。**表示専用で判定・スコア・実行順に非干渉**（既存画面・ボタンの改修なし＝横断キャプチャ）。`data-usage-ignore`/`data-usage-label` で個別制御可。検証: tsc0 / next build0 / pm2再起動後 /usage 実描画200・チャンク200・白画面なし、/api/usage に page_view/action を POST→usage-log.ndjson 追記→/usage 集計反映を確認。運用ドキュメント4点（guide FAQ / TERMS `usage` / 本文「使用状況（/usage）」+用語対応表 / frontmatter）更新。
 
 - 2026-06-17: **ToDoも大きな作業も無い目標を「達成まで自動で進める」**（中断作業の再開・完了）。`AutoQueueItem.type` に `'goal'` を追加（types/auto-queue.ts）。`lib/auto-queue.ts` に `toGoalItem()`/`goalPriority()` を新設し、`buildAutoQueue()` で「ToDo も open Epic も無い未達成 active Goal（達成率<100%）」を `type='goal'`・タイトル「○○（達成まで自動で進める）」として items に追加（既に作業 item を持つ Goal には出さない）。承認要/手動/危険 riskFlags の Goal は出すが自動実行はせず resolution（Inbox承認/Goal詳細）を表示。実行系は新規 `lib/goal-step-epic.ts` の `ensureNextGoalStepEpic()` を `runFactory`（lib/factory-runner.ts）の auto+confirm かつ実行可能Epic 0 件のときだけ呼び、Goal順（rankGoals）最上位の対象 Goal に「次の一歩」Epic `epic-goalstep-<goalId>`（doneCriteria=次の1ステップ定義→実装・検証→ExecutionRun記録、Goal の decisionPolicy/riskFlags 継承、factoryEligible=true）を**1つだけ**生成し、自動化ログ `factory_goal_step_epic_created`（lib/types/operations.ts に event 追加）を残してから再 scan。idempotent（open epic を持つ Goal は対象外＝1 Goal 同時1つ）・step-epic が done でも Goal 未達成なら次回また生成して達成まで繰り返す・read 経路では生成しない。`/queue`（app/queue/page.tsx）は `type='goal'` でも pin/あとで（hold）操作を許可。検証: tsc0 / next build0 / `/queue` 実描画200（goalアイテム「達成まで自動で進める」6件ライブ表示・チャンク200・白画面なし）。運用ドキュメント4点（guide FAQ / TERMS `goalStepEpic` / 本文「自動実行キューの使い方」「AI工場のパイプライン」「用語対応表」/ frontmatter）更新済み。
 

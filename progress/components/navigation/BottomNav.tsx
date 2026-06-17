@@ -68,6 +68,7 @@ const moreItems: Array<{ href: string; label: string }> = [
   { href: '/prompt-queue', label: '作業予約' },
   { href: '/revenue', label: 'Revenue' },
   { href: '/guide', label: '運用' },
+  { href: '/usage', label: '使用状況' },
   { href: '/logs', label: '実行履歴' },
   { href: '/tasks', label: 'ToDo管理' },
   { href: '/tasks/import', label: 'JSON取込' },

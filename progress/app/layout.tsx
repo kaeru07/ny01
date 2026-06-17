@@ -4,6 +4,7 @@ import BottomNav from '@/components/navigation/BottomNav'
 import TopNav from '@/components/navigation/TopNav'
 import { ThemeProvider, ThemeToggle } from '@/components/ThemeProvider'
 import HelpModal from '@/components/HelpModal'
+import UsageTracker from '@/components/usage/UsageTracker'
 import { countUnreviewed } from '@/lib/execution-run-reader'
 import { readPageExecutionRuns } from '@/lib/page-data-cache'
 
@@ -26,6 +27,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="ja" suppressHydrationWarning>
       <body className="bg-gray-50 dark:bg-gray-950 min-h-screen transition-colors">
         <ThemeProvider>
+          <UsageTracker />
           <div className="fixed top-3 right-3 z-50 flex items-center gap-2 md:hidden">
             <HelpModal />
             <ThemeToggle />

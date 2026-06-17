@@ -35,6 +35,7 @@ const legacyNavItems = [
   { href: '/projects', label: '案件', exact: true },
   { href: '/inbox', label: '旧Inbox', exact: false },
   { href: '/logs', label: 'ログ', exact: false },
+  { href: '/usage', label: '使用状況', exact: false },
   { href: '/codex', label: 'Codex', exact: false },
   { href: '/daily', label: '日別', exact: false },
 ]
