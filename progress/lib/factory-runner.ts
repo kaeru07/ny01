@@ -11,6 +11,7 @@ import {
 import { scanFactoryDispatch, buildDispatchPlan, generateClaudeFactoryPrompt } from './factory-dispatch'
 import { ensureNextGoalStepEpic } from './goal-step-epic'
 import { requestGoalProposalIfIdle } from './goal-proposal'
+import { proposeGoalsFromResearchIfNeeded } from './research-goals'
 import { addExecutionRun, updateExecutionRunFields } from './execution-run-writer'
 import { readExecutionRuns } from './execution-run-reader'
 import { readGoals } from './goal-reader'
@@ -282,6 +283,23 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
         backpressureAction: 'pause',
       })
       return finalize('blocked_by_danger_decision')
+    }
+  }
+
+  // 自動実行の最初に、日々の調査結果（news-app の daily research）から「効果がありそうなこと」を
+  // ゴール候補として提案する（承認待ちが上限未満のときのみ）。承認されたものが次回以降の自動実行対象になる。
+  // ゴールが優先順で消化されて承認待ちが減ると、次回また調査からゴール候補が補充される（＝達成後に次を提案）。
+  if (mode === 'auto' && opts.confirm) {
+    try {
+      const research = await proposeGoalsFromResearchIfNeeded()
+      if (research.created.length > 0) {
+        await appendAutomationLog({
+          event: 'factory_goal_proposal_requested',
+          fallbackReason: `${research.reason}: ${research.created.map((g) => g.title).join(' / ')}`,
+        })
+      }
+    } catch (err) {
+      console.warn('research goal proposal failed:', err)
     }
   }
 

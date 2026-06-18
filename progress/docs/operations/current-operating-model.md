@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-18
-updateNote: ゴール提案→承認→自動実行フローを新設。自動実行中にFactoryがアイドルだとAIに「次に目指すゴール」の提案を依頼(factory_goal_proposal_requested)し、POST /api/goals/proposeでstatus='proposed'登録。今日の判断(Inbox)上部「🎯ゴール承認」で承認すると active+autonomous=次回以降の自動実行対象に(達成までensureNextGoalStepEpicが次の一歩Epicを自動生成)。Inbox下部に「🤖自動実行の履歴」も追加。proposedはqueue/目標タブ非表示。
+updateNote: ゴール提案の抽出元を日々の調査結果に強化。自動実行の最初にnews-appのdaily-ai-tools「導入価値評価」★4以上(即試したい/即調査/必須/PoC向き)を「効果がありそうなこと」として抽出し○○を試す/調査するゴール候補をproposed登録(★5→P0/★4→P1・例Fableを試す)。処理はゴール優先順(rankGoals)、達成して承認待ちが減ると次回また調査から補充(=達成後に次を提案)。承認待ち3件で打ち止め。承認は今日の判断(Inbox)🎯ゴール承認、承認でactive+autonomous=自動実行対象。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -293,7 +293,9 @@ Progress 自身の使われ方を把握するページ（下タブ「使用状�
 
 「自動実行中にAIがゴール候補を作る → 今日の判断(Inbox)で承認 → 次回以降の自動実行対象にする」フロー。
 
-- **提案（抽出元＝自動実行中にAIがその場で考える）**: Factory が auto+confirm でアイドル（実行可能Epicも auto-advance Goal も無い）のとき、`requestGoalProposalIfIdle()`（lib/goal-proposal.ts）が「次に目指すゴールを提案して」という依頼プロンプトを生成し、自動化ログ `factory_goal_proposal_requested` に残す。実際の候補生成はAI実行者（Claude/Codex）が依頼に従い `POST /api/goals/propose` を呼ぶことで行う（Factory は LLM をインプロセスに持たないため依頼の発行までを担当）。承認待ちが3件（`MAX_PENDING_PROPOSALS`）たまったら新規提案は依頼しない。
+- **処理はゴール優先順**: 自動実行は `rankGoals`（pin>boost>優先度>安定順）の順でゴールを処理する（`ensureNextGoalStepEpic` が最上位ゴールから次の一歩Epicを作る）。優先順の高いゴールから消化される。
+- **提案（抽出元＝日々の調査結果・2026-06-18 ユーザー指定）**: **自動実行の最初**に、`proposeGoalsFromResearchIfNeeded()`（lib/research-goals.ts）が news-app の日々の調査（`news-app/content/research/daily-ai-tools/YYYY-MM-DD.md` 直近数日）を読み、「## 導入価値評価」の★4以上アイテム（「即試したい / 即調査 / 必須 / PoC向き」等）を「効果がありそうなこと」として抽出し、`○○を試す / ○○を調査する`（例: Fableを試す）というゴール候補を `status='proposed'` で提案登録する（★5→P0 / ★4→P1）。`RESEARCH_CONTENT_PATH` で場所変更可。承認待ちが3件（`MAX_PENDING_PROPOSALS`）たまったら新規提案しない。**ゴールが優先順で消化されて承認待ちが減ると、次回の自動実行でまた調査から候補が補充される＝ゴール達成後に次のゴールが提案される**。
+- **アイドル時の追加提案（補助）**: 実行可能Epicも auto-advance Goal も無いアイドル時は、`requestGoalProposalIfIdle()`（lib/goal-proposal.ts）が「次に目指すゴールを提案して」という依頼プロンプトを生成し `factory_goal_proposal_requested` ログに残す（AI実行者が `POST /api/goals/propose` を呼ぶ補助経路。Factory は LLM をインプロセスに持たないため依頼の発行まで）。
 - **登録**: `proposeGoals()`（lib/goal-writer.ts）が `status='proposed'` / `decisionPolicyDefault='autonomous'` でゴールを登録（同名の active/proposed があればスキップ）。`proposed` は queue・目標タブ・進捗ビューには出さない（承認はInbox専用）。
 - **承認（今日の判断 Inbox）**: `buildInbox().proposedGoals` が提案ゴールを「🎯 ゴール承認」カードにして decide 画面上部に表示（capしない）。「承認する」→ `POST /api/goals/[id]/approve {approve:true}` → `setGoalApproval` が `status='active'`（承認＝実行許可）。「やめる」→ `status='dropped'`。
 - **自動実行**: 承認で active+autonomous になったゴールは、次回 Factory 実行時に `ensureNextGoalStepEpic()`（既存）が「次の一歩」Epic を自動生成して達成まで進める。
@@ -315,6 +317,8 @@ Progress 自身の使われ方を把握するページ（下タブ「使用状�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-18: **ゴール提案の抽出元を「日々の調査結果」に強化＋優先順処理＋達成後の次提案**（ユーザー指示「自動実行はゴール優先順で処理／ゴールが終わったら次のゴールを提案／自動実行の最初にnewsアプリ等の日々の調査結果を参照し効果がありそうなものからゴール作成（例: Fableを試す）」）。`lib/research-goals.ts` を新設：`news-app/content/research/daily-ai-tools/YYYY-MM-DD.md`（直近3日・`RESEARCH_CONTENT_PATH` で変更可）の「## 導入価値評価」をパースし★4以上（即試したい/即調査/必須/PoC向き）を抽出→`○○を試す/調査する` ゴール候補（★5→P0・★4→P1）を生成（`buildResearchGoalCandidates`）。`proposeGoalsFromResearchIfNeeded` が承認待ち<3件のとき `proposeGoals(source='research')` で登録（既存ゴールと同名は全status除外＝承認済/却下済を蒸し返さない）。`runFactory`（lib/factory-runner.ts）の auto+confirm **冒頭**で呼ぶ＝自動実行の最初に調査からゴール提案。処理はゴール優先順（既存 rankGoals／ensureNextGoalStepEpic）で、優先順消化により承認待ちが減ると次回また補充＝**ゴール達成後に次のゴールが提案される**。検証: tsc0 / next build0 / 実データ抽出ドライラン（OpenClawを試す/MCP Appsを調査する 等を生成）/ E2E（proposeGoalsFromResearchIfNeeded→goals.json proposed登録→/decide「🎯ゴール承認」描画→テスト分は後始末で削除）。
 
 - 2026-06-18: **ゴール提案→承認→自動実行フローを新設**（ユーザー指示「ゴールを抽出してこちらで承認したら自動実行する仕組み／自動実行時にAIが提案／承認した次回以降／自動実行の履歴をInboxに」）。GoalStatus に `proposed` 追加（types/goal.ts）。`lib/goal-proposal.ts`（`requestGoalProposalIfIdle`：アイドル時に提案依頼プロンプト生成・承認待ち3件で打ち止め）と `lib/goal-writer.ts`（`proposeGoals`：proposed+autonomousで登録・同名skip、`setGoalApproval`：承認→active/却下→dropped）を新設。`runFactory`（lib/factory-runner.ts）のアイドル分岐に提案依頼を接続し自動化ログ `factory_goal_proposal_requested`（lib/types/operations.ts に event 追加）。API `POST /api/goals/propose`（候補登録）・`POST /api/goals/[goalId]/approve`（承認/却下）を新設。`buildInbox`（lib/command-center.ts）に `proposedGoals`（🎯ゴール承認カード・cap無し）と `autoRuns`（🤖自動実行の履歴・factoryRun/source直近10件）を追加し、`InboxTabs` の今日の判断タブ上部/下部に描画（既存判断パイプライン非変更の追加方式）。承認カードは既存 InboxCardItem の汎用 action 実行を再利用。`proposed` は buildGoalProgress・goal-planner 一覧から除外（承認前は queue/目標タブに出さない）。承認で active+autonomous になると既存 `ensureNextGoalStepEpic` が次の一歩Epicを自動生成して達成まで進める。TERMS に `proposedGoal` 追加。検証: tsc0 / next build0 / E2E（propose→goals.json登録→/decide承認カード表示→approve→status=active+autonomous→queue対象、テストゴールは検証後削除）/ Inbox「🤖自動実行の履歴」描画・/decide 200・白画面なし。
 
