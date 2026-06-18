@@ -509,6 +509,10 @@ export interface SingleGoalInput {
   riskFlags?: EpicRiskFlag[]
   notes?: string
   setAsMain?: boolean
+  // 進捗の正本「今/目標」(current/target)を手動設定できるようにする（progress=current/target）。
+  metric?: string
+  target?: number
+  current?: number
 }
 
 function mapPriority(value: unknown, fallback: TaskPriority = 'medium'): TaskPriority {
@@ -543,6 +547,9 @@ export async function upsertSingleGoal(input: SingleGoalInput): Promise<Goal> {
     title,
     summary: prompt || notes || '',
     description: prompt || notes || '',
+    metric: pickString(input.metric, 'progress'),
+    target: pickNumber(input.target, 100),
+    current: pickNumber(input.current, 0),
     status: mapGoalStatus(input.status),
     priority,
     decisionPolicyDefault: decisionPolicy,

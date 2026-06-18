@@ -1,6 +1,6 @@
 ---
-updated: 2026-06-18
-updateNote: ゴール提案の抽出元を日々の調査結果に強化。自動実行の最初にnews-appのdaily-ai-tools「導入価値評価」★4以上(即試したい/即調査/必須/PoC向き)を「効果がありそうなこと」として抽出し○○を試す/調査するゴール候補をproposed登録(★5→P0/★4→P1・例Fableを試す)。処理はゴール優先順(rankGoals)、達成して承認待ちが減ると次回また調査から補充(=達成後に次を提案)。承認待ち3件で打ち止め。承認は今日の判断(Inbox)🎯ゴール承認、承認でactive+autonomous=自動実行対象。
+updated: 2026-06-19
+updateNote: ゴールの手動追加を「直接追加」と「JSON一括追加」に整理し、分解プロンプト生成UIを廃止（ユーザー指示）。直接追加に metric/今(current)/目標(target) を追加し進捗(=current/target)を手動設定可能に。GoalPlannerForm から目標入力→プロンプト生成→コピーの導線を削除。自動実行の最初にnews-appのdaily-ai-tools「導入価値評価」★4以上(即試したい/即調査/必須/PoC向き)を「効果がありそうなこと」として抽出し○○を試す/調査するゴール候補をproposed登録(★5→P0/★4→P1・例Fableを試す)。処理はゴール優先順(rankGoals)、達成して承認待ちが減ると次回また調査から補充(=達成後に次を提案)。承認待ち3件で打ち止め。承認は今日の判断(Inbox)🎯ゴール承認、承認でactive+autonomous=自動実行対象。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -317,6 +317,8 @@ Progress 自身の使われ方を把握するページ（下タブ「使用状�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-19: **ゴールの手動追加を「直接追加 / JSON一括追加」に整理し、分解プロンプト生成UIを廃止**（ユーザー指示「ゴールを完全に手動で追加できるように／直接追加とjson追加／プロンプト生成はいらない」）。`components/goals/GoalPlannerForm.tsx` から「目標を入力する→分解プロンプト生成→コピー」（Step1/Step2）とその state/関数（goalText/monetizationFirst/phaseHint/generatedPrompt/promptCopied/buildPrompt/handleCopyPrompt/copy/fallbackText）を削除。残すのは ①ゴールを直接追加（項目入力で1件・`upsertSingle`）②JSONで一括追加（`validate`→`import`）。直接追加に **metric / 今(current) / 目標(target)** 入力を追加し、`SingleGoalInput`＋`upsertSingleGoal`（lib/goal-writer.ts）に metric/target/current を反映＝**進捗(=current/target)を手動設定できる**。単体の「prompt」ラベルは「説明(任意)」に変更。検証: tsc0 / next build0 / /goal-planner で「ゴールを直接追加」「JSONで一括追加」「今(current)」「目標(target)」描画・分解プロンプト系は非表示 / 直接追加API E2E（current3・target12→/api/auto-queue で 3/12=25% を実測、テストゴール削除）。
 
 - 2026-06-18: **ゴール提案の抽出元を「日々の調査結果」に強化＋優先順処理＋達成後の次提案**（ユーザー指示「自動実行はゴール優先順で処理／ゴールが終わったら次のゴールを提案／自動実行の最初にnewsアプリ等の日々の調査結果を参照し効果がありそうなものからゴール作成（例: Fableを試す）」）。`lib/research-goals.ts` を新設：`news-app/content/research/daily-ai-tools/YYYY-MM-DD.md`（直近3日・`RESEARCH_CONTENT_PATH` で変更可）の「## 導入価値評価」をパースし★4以上（即試したい/即調査/必須/PoC向き）を抽出→`○○を試す/調査する` ゴール候補（★5→P0・★4→P1）を生成（`buildResearchGoalCandidates`）。`proposeGoalsFromResearchIfNeeded` が承認待ち<3件のとき `proposeGoals(source='research')` で登録（既存ゴールと同名は全status除外＝承認済/却下済を蒸し返さない）。`runFactory`（lib/factory-runner.ts）の auto+confirm **冒頭**で呼ぶ＝自動実行の最初に調査からゴール提案。処理はゴール優先順（既存 rankGoals／ensureNextGoalStepEpic）で、優先順消化により承認待ちが減ると次回また補充＝**ゴール達成後に次のゴールが提案される**。検証: tsc0 / next build0 / 実データ抽出ドライラン（OpenClawを試す/MCP Appsを調査する 等を生成）/ E2E（proposeGoalsFromResearchIfNeeded→goals.json proposed登録→/decide「🎯ゴール承認」描画→テスト分は後始末で削除）。
 

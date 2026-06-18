@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -37,19 +37,12 @@ const DEFAULT_QUEUE_ROLES = ['claude']
 
 export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
   const router = useRouter()
-  const [goalText, setGoalText] = useState('')
-  const [projectId, setProjectId] = useState(projects[0]?.id ?? '')
-  const [monetizationFirst, setMonetizationFirst] = useState(true)
-  const [phaseHint, setPhaseHint] = useState('')
-  const [generatedPrompt, setGeneratedPrompt] = useState('')
-  const [promptCopied, setPromptCopied] = useState(false)
   const [jsonText, setJsonText] = useState('')
   const [preview, setPreview] = useState<PreviewSummary | null>(null)
   const [importing, setImporting] = useState(false)
   const [importError, setImportError] = useState('')
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
   const [setAsMain, setSetAsMain] = useState(!hasMainGoal)
-  const [fallbackText, setFallbackText] = useState<string | null>(null)
   const [singleGoal, setSingleGoal] = useState({
     title: '',
     projectId: projects[0]?.id ?? '',
@@ -59,111 +52,12 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
     decisionPolicy: 'autonomous',
     riskFlags: '',
     notes: '',
+    metric: 'progress',
+    target: '100',
+    current: '0',
   })
   const [singleSaving, setSingleSaving] = useState(false)
   const [singleMessage, setSingleMessage] = useState('')
-
-  const selectedProject = useMemo(() => projects.find((p) => p.id === projectId), [projects, projectId])
-
-  async function copy(text: string): Promise<boolean> {
-    try {
-      await navigator.clipboard.writeText(text)
-      return true
-    } catch {
-      setFallbackText(text)
-      return false
-    }
-  }
-
-  function buildPrompt() {
-    if (!goalText.trim()) {
-      setImportError('目標を入力してください')
-      return
-    }
-    if (!projectId) {
-      setImportError('対象案件を選択してください')
-      return
-    }
-    setImportError('')
-
-    const monetizationLine = monetizationFirst
-      ? '- 収益化を最優先する。広告/課金/PR等に直結するタスクの優先度を上げる'
-      : '- ユーザーが指定した目標を素直に分解する。収益化は副次的でよい'
-    const hintLine = phaseHint.trim() ? `\n- 参考フェーズ案: ${phaseHint.trim()}` : ''
-    const projectLine = selectedProject ? `${selectedProject.name} (id: ${projectId})` : projectId
-
-    const prompt = `以下の目標を progress アプリの Goal Planner 用 JSON に分解してください。
-
-# 目標
-${goalText.trim()}
-
-# 対象案件
-${projectLine}
-
-# 実行区分
-- Goal Plannerでは実行担当AIや優先度をユーザー入力にしない
-- todos の role は互換用に "claude" を既定にする
-- ユーザー本人の判断が必要な作業は nextAction / memo に「人間判断が必要」と明記する
-
-# 出力ルール
-- JSON のみで返す。前後に説明文・Markdownコードフェンスを付けない
-- 必ず以下のキーをすべて含める: projectId / goalTitle / goalSummary / priority / monetizationImpact / phases / todos
-${monetizationLine}
-- phases は 3〜6 件、達成順に order を昇順で振る
-- todos は 6〜20 件、それぞれを1個の具体作業に分割（大きすぎる作業は分割する）
-- todos の role は "claude" にする
-- すべての todos に doneCriteria を 1 件以上含める（検証可能な形）
-- 依存関係がある場合は dependsOn に他 todo の id を入れる
-- taskPrompt を 200〜600 字程度で具体的に書く${hintLine}
-
-# JSON スキーマ
-{
-  "projectId": "${projectId}",
-  "goalTitle": "(目標を1〜2行に要約)",
-  "goalSummary": "(目標の背景・達成条件)",
-  "priority": "high | medium | low",
-  "monetizationImpact": "high | medium | low | none",
-  "phases": [
-    {
-      "id": "phase-1",
-      "title": "(フェーズ名)",
-      "summary": "(このフェーズで達成すること)",
-      "order": 0,
-      "status": "todo"
-    }
-  ],
-  "todos": [
-    {
-      "id": "todo-1",
-      "phaseId": "phase-1",
-      "title": "(具体作業)",
-      "role": "claude",
-      "order": 0,
-      "priority": "high | medium | low",
-      "nextAction": "(今すぐ次にやる1行)",
-      "doneCriteria": ["(検証可能な完了条件)"],
-      "taskPrompt": "(Claude/Codex向け詳細指示。humanの場合は空欄でよい)",
-      "memo": "(補足)",
-      "dependsOn": []
-    }
-  ]
-}
-
-JSON のみで返答してください。`
-
-    setGeneratedPrompt(prompt)
-  }
-
-  async function handleCopyPrompt() {
-    if (!generatedPrompt) buildPrompt()
-    const text = generatedPrompt || ''
-    if (!text) return
-    const ok = await copy(text)
-    if (ok) {
-      setPromptCopied(true)
-      setTimeout(() => setPromptCopied(false), 2500)
-    }
-  }
 
   async function handlePreview() {
     setImportError('')
@@ -289,25 +183,13 @@ JSON のみで返答してください。`
 
   return (
     <div className="space-y-5">
-      {fallbackText && (
-        <div className="rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-4 space-y-2">
-          <p className="text-xs font-semibold text-amber-700 dark:text-amber-300">クリップボードコピーに失敗しました</p>
-          <textarea
-            value={fallbackText}
-            readOnly
-            rows={6}
-            className="w-full text-xs font-mono rounded-xl border border-amber-200 dark:border-amber-700 bg-white dark:bg-gray-800 px-3 py-2"
-            onFocus={(e) => e.currentTarget.select()}
-          />
-          <button onClick={() => setFallbackText(null)} className="text-xs text-amber-600 dark:text-amber-400 hover:underline">閉じる</button>
-        </div>
-      )}
 
       <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-4 space-y-3">
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-xs font-bold">A</span>
-          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">単体Goalを項目入力で追加</h2>
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-xs font-bold">＋</span>
+          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">ゴールを直接追加</h2>
         </div>
+        <p className="text-[11px] text-gray-500 dark:text-gray-400">項目を入力して1件追加します。進捗%は「今/目標」(current/target)で決まります。</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="sm:col-span-2">
             <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">title *</label>
@@ -357,8 +239,22 @@ JSON のみで返答してください。`
             <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">riskFlags (カンマ区切り)</label>
             <input value={singleGoal.riskFlags} onChange={(e) => setSingleGoal((prev) => ({ ...prev, riskFlags: e.target.value }))} placeholder="deploy,migration" className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-400" />
           </div>
+          <div className="grid grid-cols-3 gap-2 sm:col-span-2">
+            <div>
+              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">指標 (metric)</label>
+              <input value={singleGoal.metric} onChange={(e) => setSingleGoal((prev) => ({ ...prev, metric: e.target.value }))} placeholder="progress / 月間収益 等" className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-400" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">今 (current)</label>
+              <input type="number" value={singleGoal.current} onChange={(e) => setSingleGoal((prev) => ({ ...prev, current: e.target.value }))} className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-400" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">目標 (target)</label>
+              <input type="number" value={singleGoal.target} onChange={(e) => setSingleGoal((prev) => ({ ...prev, target: e.target.value }))} className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-400" />
+            </div>
+          </div>
           <div className="sm:col-span-2">
-            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">prompt</label>
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">説明 (任意)</label>
             <textarea value={singleGoal.prompt} onChange={(e) => setSingleGoal((prev) => ({ ...prev, prompt: e.target.value }))} rows={3} className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-400 resize-y" />
           </div>
           <div className="sm:col-span-2">
@@ -372,96 +268,13 @@ JSON のみで返答してください。`
         </button>
       </section>
 
-      {/* Step 1: 目標入力 */}
+      {/* JSON で一括追加 */}
       <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-4 space-y-3">
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 text-xs font-bold">1</span>
-          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">目標を入力する</h2>
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 text-xs font-bold">{'{}'}</span>
+          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">JSON で一括追加</h2>
         </div>
-
-        <textarea
-          value={goalText}
-          onChange={(e) => setGoalText(e.target.value)}
-          placeholder="例: 資格アプリを Google Play で公開して広告収入を月3000円得たい"
-          rows={4}
-          className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-400 resize-y"
-        />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">対象案件 *</label>
-            <select
-              value={projectId}
-              onChange={(e) => setProjectId(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-400"
-            >
-              <option value="">選択してください</option>
-              {projects.map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">参考フェーズ案 (任意)</label>
-            <input
-              type="text"
-              value={phaseHint}
-              onChange={(e) => setPhaseHint(e.target.value)}
-              placeholder="例: 仕様確定 → 実装 → 内部テスト → 公開"
-              className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-400"
-            />
-          </div>
-        </div>
-
-        <label className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300 cursor-pointer select-none">
-          <input
-            type="checkbox"
-            checked={monetizationFirst}
-            onChange={(e) => setMonetizationFirst(e.target.checked)}
-            className="w-4 h-4 rounded accent-blue-600"
-          />
-          収益化を最優先で分解する
-        </label>
-
-        <button
-          onClick={buildPrompt}
-          disabled={!goalText.trim() || !projectId}
-          className="w-full py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold disabled:opacity-40 hover:bg-blue-700 transition-colors"
-        >
-          分解プロンプトを生成
-        </button>
-      </section>
-
-      {/* Step 2: プロンプト表示 */}
-      {generatedPrompt && (
-        <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-4 space-y-3">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 text-xs font-bold">2</span>
-            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">プロンプトを Claude / Codex に渡す</h2>
-          </div>
-          <textarea
-            value={generatedPrompt}
-            readOnly
-            rows={10}
-            className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 font-mono text-xs bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 resize-y"
-            onFocus={(e) => e.currentTarget.select()}
-          />
-          <button
-            onClick={handleCopyPrompt}
-            className="w-full py-2.5 rounded-xl text-sm font-medium border border-violet-200 dark:border-violet-700 text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/20 hover:bg-violet-100 dark:hover:bg-violet-900/30 transition-colors"
-          >
-            {promptCopied ? '✓ プロンプトをコピーしました' : '📋 プロンプトをコピー'}
-          </button>
-          <p className="text-xs text-gray-500 dark:text-gray-400">Claude / Codex に貼り付けて、JSON を取得してください。</p>
-        </section>
-      )}
-
-      {/* Step 3: JSON 貼付 */}
-      <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-4 space-y-3">
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 text-xs font-bold">3</span>
-          <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">JSON を貼り付ける</h2>
-        </div>
+        <p className="text-[11px] text-gray-500 dark:text-gray-400">ゴール定義のJSONを貼り付けて検証・一括登録します（projectId / goalTitle / phases / todos）。</p>
         <textarea
           value={jsonText}
           onChange={(e) => setJsonText(e.target.value)}
