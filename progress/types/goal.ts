@@ -4,7 +4,8 @@ import type { QueueControl } from '@/types/auto-queue'
 
 export type GoalRole = 'human' | 'claude' | 'codex'
 
-export type GoalStatus = 'active' | 'paused' | 'done' | 'dropped' | 'archived'
+// 'proposed' = 自動実行中にAIが提案したゴール候補。承認(→active)されるまで自動実行対象にならない。
+export type GoalStatus = 'proposed' | 'active' | 'paused' | 'done' | 'dropped' | 'archived'
 
 export type GoalPhaseStatus = 'todo' | 'in_progress' | 'done'
 
@@ -69,6 +70,12 @@ export interface Goal {
   autonomyNotifyNoopAt?: string
   autonomyNotifyAttempts?: number
   monetizationImpact: MonetizationImpact
+  /** status='proposed' のときの提案元（factory_idle / claude / codex など）。 */
+  proposalSource?: string
+  /** ゴール候補として提案された時刻。 */
+  proposedAt?: string
+  /** 提案ゴールが承認された時刻（承認＝自動実行対象化）。 */
+  approvedAt?: string
   phases: GoalPhase[]
   todos: GoalTodo[]
   createdAt: string

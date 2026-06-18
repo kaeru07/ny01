@@ -59,6 +59,7 @@ export const TERMS: Record<string, { ja: string; help: string }> = {
   verifyTodo: { ja: '動作確認Todo', help: 'AIの作業やEpic完了後に、人間が確認すべき画面・URL・手順を一覧で管理する場所。未確認/確認済/NG/保留で状態を管理し、アプリ・Epic・状態で絞り込めます' },
   goalStepEpic: { ja: '達成まで自動で進める（次の一歩）', help: 'ToDoも大きな作業も無い未達成の目標を、AI工場が「達成まで自動で進める」対象として自動実行キューに載せます。工場が拾うと、その目標を進める次の1ステップ（次の一歩）を大きな作業として自動で作り、達成するまで繰り返します。承認待ち・手動方針・危険操作の目標は対象外です' },
   usage: { ja: '使用状況', help: 'Progress 自身の使われ方を集計する画面（/usage）。どの画面をよく開き・どのボタンをよく押し・最後にいつ使い・どの画面を放置しているかを直近7日で表示します。画面遷移とボタン操作を自動で記録（usage-log.ndjson）した表示専用の集計で、AI工場の判定や実行には影響しません' },
+  proposedGoal: { ja: 'ゴール承認', help: '自動実行中に、やる作業が無くなったとき AI が「次に目指すべきゴール」を提案します（status=proposed）。提案ゴールは今日の判断（Inbox）の「ゴール承認」に並び、承認すると次回以降の自動実行で達成まで自動で進めます。やめると候補から外れます。承認するまで自動実行はされません' },
 }
 
 export interface TodayAction {
@@ -435,6 +436,10 @@ export interface InboxView {
   aiHoldCount: number
   /** AI保留の理由別内訳（件数のみ・降順）。例: 重複・同テーマ候補 12 / 定期処理 4 */
   aiHoldBreakdown: Array<{ label: string; count: number }>
+  /** 自動実行中にAIが提案したゴール候補（status='proposed'）。承認で自動実行対象になる。capしない。 */
+  proposedGoals: InboxCard[]
+  /** 自動実行（Factory）の最近の作業履歴。Inboxで「何が自動で動いたか」を把握する（情報表示）。 */
+  autoRuns: InboxCard[]
   /** Goal単位のInbox件数。cardsとAI保留カウントから同じbuildInbox内で生成する派生集計。 */
   goalSummaries: InboxGoalSummary[]
   /** プロジェクト（targetApp）単位のInbox件数。Goalと同じソースから生成する派生集計。 */
@@ -856,6 +861,63 @@ export async function buildInbox(): Promise<InboxView> {
   // ① 今日の判断 = 工場停止要因のみ（危険判断 → 方針選択 → 人間作業 の優先順・最大3件）
   // ② レビュー = 検収（放置しても工場は止まらない） ③ Epic候補 = 実行許可（放置可能） ④ AI保留 = 件数のみ
   const stopOrder: Record<string, number> = { danger: 0, direction: 1, human_task: 2 }
+  // 自動実行中にAIが提案したゴール候補（承認すると次回以降の自動実行対象になる）。capしない。
+  const proposedGoals: InboxCard[] = goalsData.goals
+    .filter((g) => g.status === 'proposed')
+    .sort((a, b) => (b.proposedAt ?? '').localeCompare(a.proposedAt ?? ''))
+    .map((g) => ({
+      id: `goal-approval-${g.id}`,
+      kind: 'direction' as const,
+      goalId: g.id,
+      goalTitle: g.title,
+      headline: `新しいゴールの提案: ${g.title}`,
+      rows: [
+        { label: '内容', text: g.summary || g.description || '(説明なし)' },
+        { label: '指標', text: `${g.metric || 'progress'} ${g.current ?? 0}/${g.target ?? 100}` },
+        ...(g.notes ? [{ label: '根拠', text: g.notes }] : []),
+        { label: '承認すると', text: '次回以降の自動実行で、このゴールを達成まで自動で進めます。' },
+      ],
+      question: 'このゴールを承認して自動実行の対象にしますか？',
+      detail: [
+        `goalId: ${g.id}`,
+        `提案元: ${g.proposalSource ?? 'ai'}`,
+        ...(g.proposedAt ? [`提案日時: ${fmtDateTime(g.proposedAt)}`] : []),
+      ],
+      actions: [
+        { label: '承認する', tone: 'primary', api: { url: `/api/goals/${g.id}/approve`, method: 'POST', body: { approve: true } } },
+        { label: 'やめる', tone: 'danger', api: { url: `/api/goals/${g.id}/approve`, method: 'POST', body: { approve: false } } },
+        { label: 'あとで', tone: 'ghost', api: null },
+      ],
+    }))
+
+  // 自動実行（Factory）の最近の作業履歴。Inboxで「何が自動で動いたか」を一覧する（情報表示・操作ボタンなし）。
+  const isAutoRun = (r: ExecutionRun) =>
+    r.factoryRun === true || (typeof r.source === 'string' && /factory|schedule|boot/.test(r.source))
+  const autoRuns: InboxCard[] = runs
+    .filter(isAutoRun)
+    .sort((a, b) => (b.finishedAt || b.startedAt || '').localeCompare(a.finishedAt || a.startedAt || ''))
+    .slice(0, 10)
+    .map((r) => {
+      const completedAt = runCompletedAt(r)
+      return {
+        id: `auto-run-${r.runId}`,
+        kind: 'acceptance' as const,
+        ...goalForRun(r),
+        ...projectForRun(r),
+        sourceRunId: r.runId,
+        completedAt,
+        completedAtText: fmtDateTime(completedAt),
+        reviewStatus: r.reviewStatus,
+        headline: `自動実行: ${shorten(humanizeTitle(r.targetTodoTitle || r.summary || ''), 40)}`,
+        rows: [
+          { label: '結果', text: `${r.runStatus}${r.summary ? ` — ${shorten(r.summary, 60)}` : ''}` },
+          { label: '日時', text: fmtDateTime(completedAt) || '不明' },
+        ],
+        detail: [`runId: ${r.runId}`, `状態: ${r.runStatus} / ${r.reviewStatus}`, `発生源: ${r.source ?? (r.factoryRun ? 'factory' : '不明')}`],
+        actions: [],
+      }
+    })
+
   const stopFactors = cards
     .filter((c) => c.kind === 'danger' || c.kind === 'direction' || c.kind === 'human_task')
     .sort((a, b) => (stopOrder[a.kind] ?? 9) - (stopOrder[b.kind] ?? 9))
@@ -931,6 +993,8 @@ export async function buildInbox(): Promise<InboxView> {
     aiHoldBreakdown: Object.entries(heldBy)
       .map(([label, count]) => ({ label, count }))
       .sort((a, b) => b.count - a.count),
+    proposedGoals,
+    autoRuns,
     goalSummaries,
     projectSummaries,
     estimatedMinutes: Math.max(decisions.length, 1),

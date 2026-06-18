@@ -25,7 +25,7 @@ import type { QueueControl } from '@/types/auto-queue'
 const VALID_ROLES: GoalRole[] = ['human', 'claude', 'codex']
 const VALID_PRIORITIES: TaskPriority[] = ['high', 'medium', 'low']
 const VALID_IMPACT: MonetizationImpact[] = ['high', 'medium', 'low', 'none']
-const VALID_GOAL_STATUS: GoalStatus[] = ['active', 'paused', 'done', 'dropped', 'archived']
+const VALID_GOAL_STATUS: GoalStatus[] = ['proposed', 'active', 'paused', 'done', 'dropped', 'archived']
 const VALID_TODO_STATUS: GoalTodoStatus[] = ['pending', 'active', 'done', 'skipped']
 const VALID_DECISION_POLICIES: DecisionPolicy[] = ['autonomous', 'approval_required', 'manual', 'budget_sensitive', 'destructive_sensitive']
 const VALID_RISK_FLAGS: EpicRiskFlag[] = ['billing', 'production_db', 'auth_secret', 'deploy', 'migration', 'destructive', 'external_publish']
@@ -404,6 +404,99 @@ export async function upsertGoal(input: GoalUpsertInput): Promise<Goal> {
   if (input.setAsMain === true || !data.mainGoalId) data.mainGoalId = goalId
   await writeGoals(data)
   return goal
+}
+
+// --- 自動実行中のゴール提案 → 承認 → 自動実行 ---
+
+export interface ProposeGoalInput {
+  title: string
+  summary?: string
+  projectId?: string
+  metric?: string
+  target?: number
+  current?: number
+  priority?: TaskPriority | 'P0' | 'P1' | 'P2'
+  /** 提案の根拠（どのデータ/状況から提案したか）。承認判断のため Inbox に表示する。 */
+  rationale?: string
+  /** 提案元（例: factory_idle / claude / codex）。 */
+  source?: string
+}
+
+export interface ProposeGoalsResult {
+  created: Goal[]
+  skipped: Array<{ title: string; reason: string }>
+}
+
+/**
+ * AIが提案したゴール候補を status='proposed' で登録する（承認されるまで自動実行対象にしない）。
+ * 既に同名の active / proposed ゴールがある候補は重複としてスキップする。
+ */
+export async function proposeGoals(inputs: ProposeGoalInput[], opts: { source?: string } = {}): Promise<ProposeGoalsResult> {
+  const data = await readGoals()
+  const now = nowIso()
+  const created: Goal[] = []
+  const skipped: Array<{ title: string; reason: string }> = []
+  const existingTitles = new Set(
+    data.goals.filter((g) => g.status === 'active' || g.status === 'proposed').map((g) => g.title.trim()),
+  )
+  for (const input of inputs) {
+    const title = pickString(input.title)
+    if (!title) {
+      skipped.push({ title: '(無題)', reason: 'titleが空' })
+      continue
+    }
+    if (existingTitles.has(title)) {
+      skipped.push({ title, reason: '同名のactive/proposedゴールが既存' })
+      continue
+    }
+    existingTitles.add(title)
+    const target = pickNumber(input.target, 100)
+    const goal: Goal = {
+      id: genId('goal'),
+      projectId: pickString(input.projectId) || undefined,
+      title,
+      description: pickString(input.summary),
+      summary: pickString(input.summary),
+      metric: pickString(input.metric, 'progress'),
+      target,
+      current: pickNumber(input.current, 0),
+      isNorthStar: false,
+      status: 'proposed',
+      priority: mapPriority(input.priority),
+      // 承認後すぐ自動実行対象になるよう autonomous を既定にする（承認＝実行許可）。
+      decisionPolicyDefault: 'autonomous',
+      riskFlagsDefault: [],
+      notes: input.rationale ? `提案根拠: ${input.rationale}` : undefined,
+      monetizationImpact: 'none',
+      phases: [],
+      todos: [],
+      proposalSource: opts.source ?? input.source ?? 'ai',
+      proposedAt: now,
+      createdAt: now,
+      updatedAt: now,
+    }
+    data.goals.push(goal)
+    created.push(goal)
+  }
+  if (created.length > 0) await writeGoals(data)
+  return { created, skipped }
+}
+
+/** 提案ゴールを承認(→active=自動実行対象)または却下(→dropped)する。 */
+export async function setGoalApproval(goalId: string, approve: boolean): Promise<Goal | null> {
+  const data = await readGoals()
+  const idx = data.goals.findIndex((g) => g.id === goalId)
+  if (idx < 0) return null
+  const now = nowIso()
+  const goal = data.goals[idx]
+  data.goals[idx] = {
+    ...goal,
+    status: approve ? 'active' : 'dropped',
+    approvedAt: approve ? now : goal.approvedAt,
+    updatedAt: now,
+  }
+  await writeGoals(data)
+  return data.goals[idx]
 }
 
 export interface SingleGoalInput {

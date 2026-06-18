@@ -303,6 +303,21 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
 
       {/* ① 今日の判断（工場停止要因のみ・最大3件） */}
       {tab === 'decisions' && (
+        <>
+        {scopeFiltered(inbox.proposedGoals, selectedGoalId, selectedProjectId).length > 0 && (
+          <section className="mt-4">
+            <div className="mb-2 flex items-baseline justify-between gap-2">
+              <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">🎯 ゴール承認（AIが提案した目標）</h2>
+              <span className="text-xs text-gray-500 dark:text-gray-400">{scopeFiltered(inbox.proposedGoals, selectedGoalId, selectedProjectId).length}件</span>
+            </div>
+            <p className="mb-2 text-[11px] text-gray-500 dark:text-gray-400">承認すると次回以降の自動実行でこの目標を達成まで進めます。やめると候補から外します。</p>
+            <ul className="space-y-3">
+              {scopeFiltered(inbox.proposedGoals, selectedGoalId, selectedProjectId).map((card) => (
+                <InboxCardItem key={card.id} card={card} />
+              ))}
+            </ul>
+          </section>
+        )}
         <section className="mt-4">
           <div className="mb-2 flex items-baseline justify-between gap-2">
             <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">工場が止まる原因だけが入ります</h2>
@@ -331,6 +346,20 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
             <p className="mt-2 text-[11px] text-gray-400">ほか{inbox.decisionTotal - inbox.decisions.length}件は明日以降に順番に出ます</p>
           )}
         </section>
+        {scopeFiltered(inbox.autoRuns, selectedGoalId, selectedProjectId).length > 0 && (
+          <section className="mt-6">
+            <div className="mb-2 flex items-baseline justify-between gap-2">
+              <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">🤖 自動実行の履歴（最近AIが自動で動いた作業）</h2>
+              <span className="text-xs text-gray-500 dark:text-gray-400">直近{scopeFiltered(inbox.autoRuns, selectedGoalId, selectedProjectId).length}件</span>
+            </div>
+            <ul className="space-y-3">
+              {scopeFiltered(inbox.autoRuns, selectedGoalId, selectedProjectId).map((card) => (
+                <InboxCardItem key={card.id} card={card} />
+              ))}
+            </ul>
+          </section>
+        )}
+        </>
       )}
 
       {/* ② レビュー（放置しても工場は止まらない・隠さず全件） */}

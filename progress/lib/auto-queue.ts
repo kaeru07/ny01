@@ -326,7 +326,8 @@ function countsOf(items: AutoQueueItem[], inbox: number): AutoQueueCounts {
 }
 
 function buildGoalProgress(goals: Goal[], items: AutoQueueItem[], goalRank: Map<string, number>): GoalProgressRow[] {
-  return goals.map((goal) => {
+  // 提案中(proposed)のゴール候補は承認(→active)されるまで進捗ビューに出さない（承認はInbox専用）。
+  return goals.filter((goal) => goal.status !== 'proposed').map((goal) => {
     const goalItems = items.filter((item) => item.goalId === goal.id)
     const executableItems = goalItems.filter((item) => item.status === 'executable').sort((a, b) => compareItems(a, b, goalRank))
     // 進捗の正本は「今/目標」(target/current = goalAchievement)。これが0%問題の修正点。

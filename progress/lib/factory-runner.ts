@@ -10,6 +10,7 @@ import {
 } from './operations-store'
 import { scanFactoryDispatch, buildDispatchPlan, generateClaudeFactoryPrompt } from './factory-dispatch'
 import { ensureNextGoalStepEpic } from './goal-step-epic'
+import { requestGoalProposalIfIdle } from './goal-proposal'
 import { addExecutionRun, updateExecutionRunFields } from './execution-run-writer'
 import { readExecutionRuns } from './execution-run-reader'
 import { readGoals } from './goal-reader'
@@ -297,6 +298,15 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
       })
       scan = await scanFactoryDispatch()
     }
+  }
+  // それでも実行できる作業が無い（アイドル）場合は、AIに「次に目指すゴール」の提案を依頼する。
+  // 提案は status='proposed' で登録され、Inbox（今日の判断）で承認されたら次回以降の自動実行対象になる。
+  if (!scan.picked && mode === 'auto' && opts.confirm) {
+    const proposal = await requestGoalProposalIfIdle()
+    await appendAutomationLog({
+      event: 'factory_goal_proposal_requested',
+      fallbackReason: proposal.requested ? `${proposal.reason}\n${proposal.prompt ?? ''}` : proposal.reason,
+    })
   }
   if (!scan.picked) {
     return finalize(scan.blocked.length > 0 ? 'all_blocked' : 'no_candidate')

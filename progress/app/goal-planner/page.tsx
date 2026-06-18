@@ -51,6 +51,8 @@ export default async function GoalPlannerPage({ searchParams }: { searchParams?:
     return text.includes(selectedGoal.id.toLowerCase()) || text.includes(selectedGoal.title.toLowerCase())
   }) : []
   const filteredGoals = goalsData.goals.filter((goal) => {
+    // 提案中(proposed)の候補は承認(Inbox)前なので目標一覧には出さない。
+    if (goal.status === 'proposed') return false
     if (filters.projectId && goal.projectId !== filters.projectId) return false
     if (filters.status && goal.status !== filters.status) return false
     if (!matchesGoal(goal, filters.q)) return false

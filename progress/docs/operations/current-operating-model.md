@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-18
-updateNote: ゴール進捗の0%問題を修正。進捗率の正本を「今/目標」(target/current = goalAchievement)に統一し、buildGoalProgress(/queue・目標タブ)と buildGoalProgressCards(司令塔)を変更。旧仕様(done/total が todos＋キューアイテム数のみで target/current を無視)のため todos=0・数値指標管理のゴールが全て0%表示になっていた。target未設定のゴールのみTodo完了率にフォールバック。
+updateNote: ゴール提案→承認→自動実行フローを新設。自動実行中にFactoryがアイドルだとAIに「次に目指すゴール」の提案を依頼(factory_goal_proposal_requested)し、POST /api/goals/proposeでstatus='proposed'登録。今日の判断(Inbox)上部「🎯ゴール承認」で承認すると active+autonomous=次回以降の自動実行対象に(達成までensureNextGoalStepEpicが次の一歩Epicを自動生成)。Inbox下部に「🤖自動実行の履歴」も追加。proposedはqueue/目標タブ非表示。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -289,6 +289,16 @@ Progress 自身の使われ方を把握するページ（下タブ「使用状�
 - 画面レジストリ正本: `lib/usage-screens.ts`（ルート→人間語の画面名。詳細ページ `/x/[id]` は親画面に丸める）。ナビ（BottomNav / TopNav）の対応表と整合させること。
 - 既存 ndjson（automation-log 等）とは混ぜず独立ファイル。プライバシー: 単一ユーザーの自分用ダッシュボードのためUI文言の記録に留める（機密値はボタン文言に乗らない前提）。
 
+## ゴール提案 → 承認 → 自動実行（2026-06-18）
+
+「自動実行中にAIがゴール候補を作る → 今日の判断(Inbox)で承認 → 次回以降の自動実行対象にする」フロー。
+
+- **提案（抽出元＝自動実行中にAIがその場で考える）**: Factory が auto+confirm でアイドル（実行可能Epicも auto-advance Goal も無い）のとき、`requestGoalProposalIfIdle()`（lib/goal-proposal.ts）が「次に目指すゴールを提案して」という依頼プロンプトを生成し、自動化ログ `factory_goal_proposal_requested` に残す。実際の候補生成はAI実行者（Claude/Codex）が依頼に従い `POST /api/goals/propose` を呼ぶことで行う（Factory は LLM をインプロセスに持たないため依頼の発行までを担当）。承認待ちが3件（`MAX_PENDING_PROPOSALS`）たまったら新規提案は依頼しない。
+- **登録**: `proposeGoals()`（lib/goal-writer.ts）が `status='proposed'` / `decisionPolicyDefault='autonomous'` でゴールを登録（同名の active/proposed があればスキップ）。`proposed` は queue・目標タブ・進捗ビューには出さない（承認はInbox専用）。
+- **承認（今日の判断 Inbox）**: `buildInbox().proposedGoals` が提案ゴールを「🎯 ゴール承認」カードにして decide 画面上部に表示（capしない）。「承認する」→ `POST /api/goals/[id]/approve {approve:true}` → `setGoalApproval` が `status='active'`（承認＝実行許可）。「やめる」→ `status='dropped'`。
+- **自動実行**: 承認で active+autonomous になったゴールは、次回 Factory 実行時に `ensureNextGoalStepEpic()`（既存）が「次の一歩」Epic を自動生成して達成まで進める。
+- **自動実行の履歴**: `buildInbox().autoRuns`（factoryRun / source=factory/schedule/boot の ExecutionRun 直近10件）を decide 画面下部「🤖 自動実行の履歴」に情報表示（操作なし）。詳細は実行履歴 `/logs`。
+
 ## 更新ルール（必須・セット更新）
 
 今後、以下のいずれかを行った場合:
@@ -305,6 +315,8 @@ Progress 自身の使われ方を把握するページ（下タブ「使用状�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-18: **ゴール提案→承認→自動実行フローを新設**（ユーザー指示「ゴールを抽出してこちらで承認したら自動実行する仕組み／自動実行時にAIが提案／承認した次回以降／自動実行の履歴をInboxに」）。GoalStatus に `proposed` 追加（types/goal.ts）。`lib/goal-proposal.ts`（`requestGoalProposalIfIdle`：アイドル時に提案依頼プロンプト生成・承認待ち3件で打ち止め）と `lib/goal-writer.ts`（`proposeGoals`：proposed+autonomousで登録・同名skip、`setGoalApproval`：承認→active/却下→dropped）を新設。`runFactory`（lib/factory-runner.ts）のアイドル分岐に提案依頼を接続し自動化ログ `factory_goal_proposal_requested`（lib/types/operations.ts に event 追加）。API `POST /api/goals/propose`（候補登録）・`POST /api/goals/[goalId]/approve`（承認/却下）を新設。`buildInbox`（lib/command-center.ts）に `proposedGoals`（🎯ゴール承認カード・cap無し）と `autoRuns`（🤖自動実行の履歴・factoryRun/source直近10件）を追加し、`InboxTabs` の今日の判断タブ上部/下部に描画（既存判断パイプライン非変更の追加方式）。承認カードは既存 InboxCardItem の汎用 action 実行を再利用。`proposed` は buildGoalProgress・goal-planner 一覧から除外（承認前は queue/目標タブに出さない）。承認で active+autonomous になると既存 `ensureNextGoalStepEpic` が次の一歩Epicを自動生成して達成まで進める。TERMS に `proposedGoal` 追加。検証: tsc0 / next build0 / E2E（propose→goals.json登録→/decide承認カード表示→approve→status=active+autonomous→queue対象、テストゴールは検証後削除）/ Inbox「🤖自動実行の履歴」描画・/decide 200・白画面なし。
 
 - 2026-06-18: **ゴール進捗の0%問題を修正（進捗率を「今/目標」に統一）**。原因＝`buildGoalProgress`（lib/auto-queue.ts）が `ratio=done/total`（todos＋キューアイテム数のみ）で算出し `goal.target/current` を無視。全ゴール todos=0・数値指標管理のため `done≒0` → 全ゴール0%表示（調査 runId 20260618-012023 / /api/auto-queue で実測）。ユーザー選択「一番単純: 今/目標の数字で出す」に基づき、進捗率の正本を `goalAchievement`（target>0 → round(min(100, current/target*100))、target無 → Todo完了率）に統一。`buildGoalProgress`（/queue・目標タブ）と `buildGoalProgressCards`（司令塔・現状未使用）を変更し、表示の `done/total` も target ありなら `current/target` を出す（％と一致）。旧フォールバック（Todo→紐付Epic平均→数値指標）は廃止。検証: tsc0 / next build0 / /api/auto-queue で 100%/13%/33%/0%（旧 全0%）を実測 / pm2再起動後 /queue・/goal-planner 実描画200・白画面なし。データ注意: goal-ai-factory-os は current60>target15（上限100%）でスケール要見直し。
 
