@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-19
-updateNote: ゴールの手動追加を「直接追加」と「JSON一括追加」に整理し、分解プロンプト生成UIを廃止（ユーザー指示）。直接追加に metric/今(current)/目標(target) を追加し進捗(=current/target)を手動設定可能に。GoalPlannerForm から目標入力→プロンプト生成→コピーの導線を削除。自動実行の最初にnews-appのdaily-ai-tools「導入価値評価」★4以上(即試したい/即調査/必須/PoC向き)を「効果がありそうなこと」として抽出し○○を試す/調査するゴール候補をproposed登録(★5→P0/★4→P1・例Fableを試す)。処理はゴール優先順(rankGoals)、達成して承認待ちが減ると次回また調査から補充(=達成後に次を提案)。承認待ち3件で打ち止め。承認は今日の判断(Inbox)🎯ゴール承認、承認でactive+autonomous=自動実行対象。
+updateNote: 今日の判断(Inbox /decide)に「ゴール承認」タブを新設(5タブ化)。自動実行が提案したゴール候補(proposed)の承認/却下を専用タブ(?tab=goalApproval)に集約(従来は今日の判断タブ上部のセクション)。初回候補3件を調査結果から生成。/ ゴールの手動追加を「直接追加」と「JSON一括追加」に整理し、分解プロンプト生成UIを廃止（ユーザー指示）。直接追加に metric/今(current)/目標(target) を追加し進捗(=current/target)を手動設定可能に。GoalPlannerForm から目標入力→プロンプト生成→コピーの導線を削除。自動実行の最初にnews-appのdaily-ai-tools「導入価値評価」★4以上(即試したい/即調査/必須/PoC向き)を「効果がありそうなこと」として抽出し○○を試す/調査するゴール候補をproposed登録(★5→P0/★4→P1・例Fableを試す)。処理はゴール優先順(rankGoals)、達成して承認待ちが減ると次回また調査から補充(=達成後に次を提案)。承認待ち3件で打ち止め。承認は今日の判断(Inbox)🎯ゴール承認、承認でactive+autonomous=自動実行対象。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -32,7 +32,7 @@ Progress は **AI工場の管理画面ではなく、人間用の司令塔**。
 | タブ | ルート | 役割 |
 |---|---|---|
 | 司令塔 | `/` | 毎日最初に開く画面。今日やること・AI工場の状態・収益マイルストーン・直近の成果 |
-| Inbox | `/decide` | 4タブ構成（タブ切り替え）。「今日の判断」=工場停止要因のみ（危険判断/方針選択/人間作業・最大3件・約3分）/「レビュー」=検収（放置しても工場は止まらない・**隠さず全件表示**）/「Epic候補」=実行許可（放置可能）/「AI保留」=件数のみ。社長は「今日の判断」タブだけ処理すれば工場は止まらない。`?tab=today|review|candidates|aiHold`、`?reviewFilter=unconfirmed|followup|snoozed|reviewed`、`?reviewStatus=needs_followup`、互換 `?filter=needs_followup`、`?focusRunId=<runId>`、`?goalId=<id|unassigned>`、`?q=...`、`?fixPrompt=1`で直接表示できる。内部分類・内部IDは「詳細を見る」内のみ |
+| Inbox | `/decide` | 5タブ構成（タブ切り替え）。「今日の判断」=工場停止要因のみ（危険判断/方針選択/人間作業・最大3件・約3分）/「ゴール承認」=自動実行が提案した目標候補（proposed）の承認/却下/「レビュー」=検収（放置しても工場は止まらない・**隠さず全件表示**）/「Epic候補」=実行許可（放置可能）/「AI保留」=件数のみ。社長は「今日の判断」と「ゴール承認」を見れば足りる。`?tab=today|goalApproval|review|candidates|aiHold`、`?reviewFilter=unconfirmed|followup|snoozed|reviewed`、`?reviewStatus=needs_followup`、互換 `?filter=needs_followup`、`?focusRunId=<runId>`、`?goalId=<id|unassigned>`、`?q=...`、`?fixPrompt=1`で直接表示できる。内部分類・内部IDは「詳細を見る」内のみ |
 | Inbox レビュータブ | `/decide` | **レビュー待ちは未消込リストとして全件表示**（「ほか◯件」「処理すると次が出ます」の隠れ表示は廃止）。上部に件数サマリー（未確認/要修正/あとで/レビュー済み）。各カードに「完了: YYYY/MM/DD HH:mm」を表示し、**completedAt（finishedAt→startedAt）降順**で最新が上。50件ずつの明示ページング（全◯件中◯〜◯件）。状態遷移=問題なし→`reviewed`（一覧から消し込み・「レビュー済み」タブに残置＝物理削除しない）/あとで→`snoozed`（後回しで残置）/修正する→**修正指示プロンプト(textarea)を入力して保存**→`needs_followup`（要修正で残置・`fixPrompt`/`fixRequestedAt`/`fixRequestedBy='human'` を ExecutionRun に保存）。修正指示は要修正カードに表示され、`followupOfRunId` 付きおすすめ次作業の reason/doneCriteria/notes に反映されて次回自動実行の作業指示になる。空欄保存は警告して送信しない。「未確認レビューをAIで一括整理」は未確認**全件**対象（サーバ安全上限200件）で、危険・要判断は必ず残し最終判断は人間 |
 | 自動実行キュー | `/queue` | **AI工場が次に何をやるか**の単一ビュー（派生・新正本を作らない）。`buildAutoQueue()` が Epic / Goal / ExecutionRun / Approval / Inbox から都度生成。`factoryEligible=true && status=executable` のみ自動実行候補。**Goalごとにグループ表示し、Goal順がキュー順＝次回実行選択を決める**（`rankGoals`: pin>boost>優先度>goals.json安定順）。明示pin・自走化アンカー・要修正は安全のためGoal順より上位に据置。各itemに「なぜこの順位か」の理由を機械生成。スマホで最優先(pin)/保留(hold)/対象外(exclude)/上下移動(manualOrder)。表示専用フィルターとして `?filter=<status>` / `?goalId=` / `?projectId=` / `?app=` / `?priority=P0|P1|P2` / `?pinned=1` / `?excluded=1` / `?manualOnly=1` / `?executor=unset|set` / `?q=` を使える。旧 work-queue 並べ替え画面は `/legacy/queue` に退避 |
 | Projects | `/portfolio` | 進行中プロジェクトの一覧と次の作業 |
@@ -297,7 +297,7 @@ Progress 自身の使われ方を把握するページ（下タブ「使用状�
 - **提案（抽出元＝日々の調査結果・2026-06-18 ユーザー指定）**: **自動実行の最初**に、`proposeGoalsFromResearchIfNeeded()`（lib/research-goals.ts）が news-app の日々の調査（`news-app/content/research/daily-ai-tools/YYYY-MM-DD.md` 直近数日）を読み、「## 導入価値評価」の★4以上アイテム（「即試したい / 即調査 / 必須 / PoC向き」等）を「効果がありそうなこと」として抽出し、`○○を試す / ○○を調査する`（例: Fableを試す）というゴール候補を `status='proposed'` で提案登録する（★5→P0 / ★4→P1）。`RESEARCH_CONTENT_PATH` で場所変更可。承認待ちが3件（`MAX_PENDING_PROPOSALS`）たまったら新規提案しない。**ゴールが優先順で消化されて承認待ちが減ると、次回の自動実行でまた調査から候補が補充される＝ゴール達成後に次のゴールが提案される**。
 - **アイドル時の追加提案（補助）**: 実行可能Epicも auto-advance Goal も無いアイドル時は、`requestGoalProposalIfIdle()`（lib/goal-proposal.ts）が「次に目指すゴールを提案して」という依頼プロンプトを生成し `factory_goal_proposal_requested` ログに残す（AI実行者が `POST /api/goals/propose` を呼ぶ補助経路。Factory は LLM をインプロセスに持たないため依頼の発行まで）。
 - **登録**: `proposeGoals()`（lib/goal-writer.ts）が `status='proposed'` / `decisionPolicyDefault='autonomous'` でゴールを登録（同名の active/proposed があればスキップ）。`proposed` は queue・目標タブ・進捗ビューには出さない（承認はInbox専用）。
-- **承認（今日の判断 Inbox）**: `buildInbox().proposedGoals` が提案ゴールを「🎯 ゴール承認」カードにして decide 画面上部に表示（capしない）。「承認する」→ `POST /api/goals/[id]/approve {approve:true}` → `setGoalApproval` が `status='active'`（承認＝実行許可）。「やめる」→ `status='dropped'`。
+- **承認（今日の判断 Inbox の「ゴール承認」タブ・2026-06-19〜）**: `buildInbox().proposedGoals` が提案ゴールを「🎯 ゴール承認」カードにして decide の専用タブ `?tab=goalApproval` に表示（capしない）。「承認する」→ `POST /api/goals/[id]/approve {approve:true}` → `setGoalApproval` が `status='active'`（承認＝実行許可）。「やめる」→ `status='dropped'`。
 - **自動実行**: 承認で active+autonomous になったゴールは、次回 Factory 実行時に `ensureNextGoalStepEpic()`（既存）が「次の一歩」Epic を自動生成して達成まで進める。
 - **自動実行の履歴**: `buildInbox().autoRuns`（factoryRun / source=factory/schedule/boot の ExecutionRun 直近10件）を decide 画面下部「🤖 自動実行の履歴」に情報表示（操作なし）。詳細は実行履歴 `/logs`。
 
@@ -317,6 +317,8 @@ Progress 自身の使われ方を把握するページ（下タブ「使用状�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-19: **今日の判断(Inbox)に「ゴール承認」タブを新設（5タブ化）＋初回候補を生成**（ユーザー指示「todoにgoal承認タブを追加／自動実行時に追加したゴール候補の承認依頼を入れて／初回として候補出して」）。`InboxTabs`（components/newux/InboxTabs.tsx）の `TabKey` に `goalApproval` 追加、`tabFromQuery`/タブ配列/quickFilters/tabCounts に反映。提案ゴール（`inbox.proposedGoals`）の描画を「今日の判断」タブ上部のセクションから **専用タブ `?tab=goalApproval`** へ移設（`filteredProposedGoals` でスコープ/検索フィルタ対応、空状態ガイド付き）。自動実行の履歴（autoRuns）は今日の判断タブに残置。初回として `proposeGoalsFromResearchIfNeeded`（data/real）を実行し調査結果から3件（MCPセキュリティ対策カテゴリを試す[P0] / OpenClawを試す / MCP Appsを調査する）を proposed 登録。検証: tsc0 / next build0 / `/decide?tab=goalApproval` 200・「ゴール承認」タブと候補3件描画。承認すると既存フロー（active+autonomous→ensureNextGoalStepEpic）で自動実行対象になる。
 
 - 2026-06-19: **ゴールの手動追加を「直接追加 / JSON一括追加」に整理し、分解プロンプト生成UIを廃止**（ユーザー指示「ゴールを完全に手動で追加できるように／直接追加とjson追加／プロンプト生成はいらない」）。`components/goals/GoalPlannerForm.tsx` から「目標を入力する→分解プロンプト生成→コピー」（Step1/Step2）とその state/関数（goalText/monetizationFirst/phaseHint/generatedPrompt/promptCopied/buildPrompt/handleCopyPrompt/copy/fallbackText）を削除。残すのは ①ゴールを直接追加（項目入力で1件・`upsertSingle`）②JSONで一括追加（`validate`→`import`）。直接追加に **metric / 今(current) / 目標(target)** 入力を追加し、`SingleGoalInput`＋`upsertSingleGoal`（lib/goal-writer.ts）に metric/target/current を反映＝**進捗(=current/target)を手動設定できる**。単体の「prompt」ラベルは「説明(任意)」に変更。検証: tsc0 / next build0 / /goal-planner で「ゴールを直接追加」「JSONで一括追加」「今(current)」「目標(target)」描画・分解プロンプト系は非表示 / 直接追加API E2E（current3・target12→/api/auto-queue で 3/12=25% を実測、テストゴール削除）。
 

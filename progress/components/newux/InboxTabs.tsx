@@ -19,7 +19,7 @@ const SECTION_DISPLAY_LIMIT = 5
 // レビューが大量でも「隠れている」印象を出さないため、全件を明示ページングで見せる。
 const REVIEW_PAGE_SIZE = 50
 
-type TabKey = 'decisions' | 'reviews' | 'candidates' | 'aiHold'
+type TabKey = 'decisions' | 'goalApproval' | 'reviews' | 'candidates' | 'aiHold'
 type ReviewFilter = 'unconfirmed' | 'followup' | 'snoozed' | 'reviewed'
 
 interface Props {
@@ -30,6 +30,7 @@ interface Props {
 
 function tabFromQuery(value: string | null): TabKey {
   if (value === 'review') return 'reviews'
+  if (value === 'goalApproval') return 'goalApproval'
   if (value === 'candidates') return 'candidates'
   if (value === 'aiHold') return 'aiHold'
   return 'decisions'
@@ -143,6 +144,7 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
   }
 
   const filteredDecisions = filterCards(scopeFiltered(inbox.decisions, selectedGoalId, selectedProjectId), progressFilters)
+  const filteredProposedGoals = filterCards(scopeFiltered(inbox.proposedGoals, selectedGoalId, selectedProjectId), progressFilters)
   const filteredReviews = filterCards(scopeFiltered(inbox.reviews, selectedGoalId, selectedProjectId), progressFilters, { reviewOnly: true })
   const filteredReviewedHistory = filterCards(scopeFiltered(inbox.reviewedHistory, selectedGoalId, selectedProjectId), progressFilters, { reviewOnly: true })
   const filteredCandidates = filterCards(scopeFiltered(inbox.candidates, selectedGoalId, selectedProjectId), progressFilters)
@@ -192,6 +194,7 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
   const aiHoldCount = selectedGoalId ? (selectedGoalSummary?.aiHold ?? 0) : inbox.aiHoldCount
   const tabs: Array<{ key: TabKey; label: string; count: number; alert: boolean }> = [
     { key: 'decisions', label: '今日の判断', count: filteredDecisions.length, alert: filteredDecisions.length > 0 },
+    { key: 'goalApproval', label: 'ゴール承認', count: filteredProposedGoals.length, alert: filteredProposedGoals.length > 0 },
     { key: 'reviews', label: 'レビュー', count: reviewTotal, alert: false },
     { key: 'candidates', label: 'Epic候補', count: filteredCandidates.length, alert: false },
     { key: 'aiHold', label: 'AI保留', count: aiHoldCount, alert: false },
@@ -199,6 +202,7 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
 
   const tabCounts = {
     decisions: filteredDecisions.length,
+    goalApproval: filteredProposedGoals.length,
     reviews: reviewTotal,
     candidates: filteredCandidates.length,
     aiHold: aiHoldCount,
@@ -260,6 +264,7 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
           filters={progressFilters}
           quickFilters={[
             { key: 'today', label: '今日の判断', patch: { tab: 'decisions' }, active: (progressFilters.tab ?? 'decisions') === 'decisions' },
+            { key: 'goalApproval', label: 'ゴール承認', patch: { tab: 'goalApproval' }, active: progressFilters.tab === 'goalApproval' },
             { key: 'review', label: 'レビュー', patch: { tab: 'reviews' }, active: progressFilters.tab === 'reviews' },
             { key: 'followup', label: '要修正', patch: { tab: 'reviews', reviewStatus: 'needs_followup' }, active: progressFilters.tab === 'reviews' && progressFilters.reviewStatus === 'needs_followup' },
             { key: 'fixPrompt', label: 'fixPromptあり', patch: { tab: 'reviews', fixPrompt: true }, active: progressFilters.fixPrompt === true },
@@ -302,22 +307,29 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
       </div>
 
       {/* ① 今日の判断（工場停止要因のみ・最大3件） */}
-      {tab === 'decisions' && (
-        <>
-        {scopeFiltered(inbox.proposedGoals, selectedGoalId, selectedProjectId).length > 0 && (
-          <section className="mt-4">
-            <div className="mb-2 flex items-baseline justify-between gap-2">
-              <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">🎯 ゴール承認（AIが提案した目標）</h2>
-              <span className="text-xs text-gray-500 dark:text-gray-400">{scopeFiltered(inbox.proposedGoals, selectedGoalId, selectedProjectId).length}件</span>
-            </div>
-            <p className="mb-2 text-[11px] text-gray-500 dark:text-gray-400">承認すると次回以降の自動実行でこの目標を達成まで進めます。やめると候補から外します。</p>
+      {tab === 'goalApproval' && (
+        <section className="mt-4">
+          <div className="mb-2 flex items-baseline justify-between gap-2">
+            <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">🎯 ゴール承認（自動実行が提案した目標）</h2>
+            <span className="text-xs text-gray-500 dark:text-gray-400">{filteredProposedGoals.length}件</span>
+          </div>
+          <p className="mb-3 text-[11px] text-gray-500 dark:text-gray-400">自動実行のときにAIが日々の調査などから提案した目標候補です。承認すると次回以降の自動実行でその目標を達成まで進めます。やめると候補から外します。</p>
+          {filteredProposedGoals.length === 0 ? (
+            <p className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800/40 dark:text-gray-400">
+              承認待ちのゴール候補はありません。自動実行（11/14/16/23時）のたびに調査結果から候補が追加されます。
+            </p>
+          ) : (
             <ul className="space-y-3">
-              {scopeFiltered(inbox.proposedGoals, selectedGoalId, selectedProjectId).map((card) => (
+              {filteredProposedGoals.map((card) => (
                 <InboxCardItem key={card.id} card={card} />
               ))}
             </ul>
-          </section>
-        )}
+          )}
+        </section>
+      )}
+
+      {tab === 'decisions' && (
+        <>
         <section className="mt-4">
           <div className="mb-2 flex items-baseline justify-between gap-2">
             <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">工場が止まる原因だけが入ります</h2>
