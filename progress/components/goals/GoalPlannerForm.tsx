@@ -45,16 +45,8 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
   const [setAsMain, setSetAsMain] = useState(!hasMainGoal)
   const [singleGoal, setSingleGoal] = useState({
     title: '',
-    projectId: projects[0]?.id ?? '',
+    projectId: '',
     prompt: '',
-    priority: 'P1',
-    status: 'active',
-    decisionPolicy: 'autonomous',
-    riskFlags: '',
-    notes: '',
-    metric: 'progress',
-    target: '100',
-    current: '0',
   })
   const [singleSaving, setSingleSaving] = useState(false)
   const [singleMessage, setSingleMessage] = useState('')
@@ -160,8 +152,9 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
         body: JSON.stringify({
           action: 'upsertSingle',
           goal: {
-            ...singleGoal,
-            riskFlags: singleGoal.riskFlags.split(',').map((v) => v.trim()).filter(Boolean),
+            title: singleGoal.title,
+            projectId: singleGoal.projectId,
+            prompt: singleGoal.prompt,
             setAsMain: !hasMainGoal,
           },
         }),
@@ -172,7 +165,7 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
         return
       }
       setSingleMessage('Goalを登録しました')
-      setSingleGoal((prev) => ({ ...prev, title: '', prompt: '', riskFlags: '', notes: '' }))
+      setSingleGoal((prev) => ({ ...prev, title: '', prompt: '' }))
       router.refresh()
     } catch {
       setSingleMessage('通信エラーが発生しました')
@@ -189,18 +182,19 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
           <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-xs font-bold">＋</span>
           <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">ゴールを直接追加</h2>
         </div>
-        <p className="text-[11px] text-gray-500 dark:text-gray-400">項目を入力して1件追加します。進捗%は「今/目標」(current/target)で決まります。</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="sm:col-span-2">
-            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">title *</label>
+        <p className="text-[11px] text-gray-500 dark:text-gray-400">タイトルだけで追加できます。案件・説明は任意です。</p>
+        <div className="grid grid-cols-1 gap-3">
+          <div>
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">タイトル *</label>
             <input
               value={singleGoal.title}
               onChange={(e) => setSingleGoal((prev) => ({ ...prev, title: e.target.value }))}
+              placeholder="例: 鳥ログを収益化する"
               className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-400"
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">projectId</label>
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">案件 (任意)</label>
             <select
               value={singleGoal.projectId}
               onChange={(e) => setSingleGoal((prev) => ({ ...prev, projectId: e.target.value }))}
@@ -210,61 +204,14 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
               {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">priority</label>
-              <select value={singleGoal.priority} onChange={(e) => setSingleGoal((prev) => ({ ...prev, priority: e.target.value }))} className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-400">
-                <option value="P0">P0</option>
-                <option value="P1">P1</option>
-                <option value="P2">P2</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">status</label>
-              <select value={singleGoal.status} onChange={(e) => setSingleGoal((prev) => ({ ...prev, status: e.target.value }))} className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-400">
-                <option value="active">active</option>
-                <option value="backlog">backlog</option>
-              </select>
-            </div>
-          </div>
           <div>
-            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">decisionPolicy</label>
-            <select value={singleGoal.decisionPolicy} onChange={(e) => setSingleGoal((prev) => ({ ...prev, decisionPolicy: e.target.value }))} className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-400">
-              <option value="autonomous">autonomous</option>
-              <option value="approval_required">approval_required</option>
-              <option value="manual">manual</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">riskFlags (カンマ区切り)</label>
-            <input value={singleGoal.riskFlags} onChange={(e) => setSingleGoal((prev) => ({ ...prev, riskFlags: e.target.value }))} placeholder="deploy,migration" className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-400" />
-          </div>
-          <div className="grid grid-cols-3 gap-2 sm:col-span-2">
-            <div>
-              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">指標 (metric)</label>
-              <input value={singleGoal.metric} onChange={(e) => setSingleGoal((prev) => ({ ...prev, metric: e.target.value }))} placeholder="progress / 月間収益 等" className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-400" />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">今 (current)</label>
-              <input type="number" value={singleGoal.current} onChange={(e) => setSingleGoal((prev) => ({ ...prev, current: e.target.value }))} className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-400" />
-            </div>
-            <div>
-              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">目標 (target)</label>
-              <input type="number" value={singleGoal.target} onChange={(e) => setSingleGoal((prev) => ({ ...prev, target: e.target.value }))} className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-400" />
-            </div>
-          </div>
-          <div className="sm:col-span-2">
             <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">説明 (任意)</label>
-            <textarea value={singleGoal.prompt} onChange={(e) => setSingleGoal((prev) => ({ ...prev, prompt: e.target.value }))} rows={3} className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-400 resize-y" />
-          </div>
-          <div className="sm:col-span-2">
-            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">notes</label>
-            <textarea value={singleGoal.notes} onChange={(e) => setSingleGoal((prev) => ({ ...prev, notes: e.target.value }))} rows={2} className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-400 resize-y" />
+            <textarea value={singleGoal.prompt} onChange={(e) => setSingleGoal((prev) => ({ ...prev, prompt: e.target.value }))} rows={3} placeholder="どんな目標か、補足があれば" className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-400 resize-y" />
           </div>
         </div>
         {singleMessage && <p className={`text-xs ${singleMessage.includes('登録しました') ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>{singleMessage}</p>}
         <button onClick={handleSingleGoalSubmit} disabled={singleSaving || !singleGoal.title.trim()} className="w-full py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold disabled:opacity-40 hover:bg-emerald-700 transition-colors">
-          {singleSaving ? '登録中...' : '単体Goalを追加'}
+          {singleSaving ? '登録中...' : 'ゴールを追加'}
         </button>
       </section>
 

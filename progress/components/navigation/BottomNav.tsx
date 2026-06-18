@@ -60,6 +60,17 @@ const navItems = [
       </svg>
     ),
   },
+  {
+    href: '/guide',
+    label: '運用',
+    exact: false,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 5a2 2 0 012-2h9l5 5v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M14 3v5h5M8 13h8M8 17h6" />
+      </svg>
+    ),
+  },
 ]
 
 // 下タブに直接出す主要画面（アイコン無しの追加タブ）。リンクで飛べる画面は全てここに載せ、
@@ -67,7 +78,6 @@ const navItems = [
 const moreItems: Array<{ href: string; label: string }> = [
   { href: '/prompt-queue', label: '作業予約' },
   { href: '/revenue', label: 'Revenue' },
-  { href: '/guide', label: '運用' },
   { href: '/usage', label: '使用状況' },
   { href: '/logs', label: '実行履歴' },
   { href: '/tasks', label: 'ToDo管理' },

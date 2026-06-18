@@ -12,6 +12,7 @@ const newNavItems = [
   { href: '/decide', label: 'Inbox', exact: false },
   { href: '/portfolio', label: 'Projects', exact: false },
   { href: '/revenue', label: 'Revenue', exact: false },
+  { href: '/guide', label: '運用', exact: false },
   { href: '/legacy', label: 'Legacy', exact: false },
 ]
 
@@ -40,7 +41,7 @@ const legacyNavItems = [
   { href: '/daily', label: '日別', exact: false },
 ]
 
-const NEW_ROUTES = ['/', '/queue', '/decide', '/portfolio', '/revenue', '/legacy']
+const NEW_ROUTES = ['/', '/queue', '/decide', '/portfolio', '/revenue', '/guide', '/legacy']
 
 interface Props {
   logBadge?: number

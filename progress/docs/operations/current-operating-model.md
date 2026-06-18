@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-19
-updateNote: 今日の判断(Inbox /decide)に「ゴール承認」タブを新設(5タブ化)。自動実行が提案したゴール候補(proposed)の承認/却下を専用タブ(?tab=goalApproval)に集約(従来は今日の判断タブ上部のセクション)。初回候補3件を調査結果から生成。/ ゴールの手動追加を「直接追加」と「JSON一括追加」に整理し、分解プロンプト生成UIを廃止（ユーザー指示）。直接追加に metric/今(current)/目標(target) を追加し進捗(=current/target)を手動設定可能に。GoalPlannerForm から目標入力→プロンプト生成→コピーの導線を削除。自動実行の最初にnews-appのdaily-ai-tools「導入価値評価」★4以上(即試したい/即調査/必須/PoC向き)を「効果がありそうなこと」として抽出し○○を試す/調査するゴール候補をproposed登録(★5→P0/★4→P1・例Fableを試す)。処理はゴール優先順(rankGoals)、達成して承認待ちが減ると次回また調査から補充(=達成後に次を提案)。承認待ち3件で打ち止め。承認は今日の判断(Inbox)🎯ゴール承認、承認でactive+autonomous=自動実行対象。
+updateNote: ゴール直接追加フォームを簡素化（タイトルのみ必須・案件/説明は任意、優先度/状態/decisionPolicy/riskFlag/指標(metric/今/目標)/notesを削除）。運用ページ(/guide)を下タブ・上タブの主要タブへ昇格。/ 今日の判断(Inbox /decide)に「ゴール承認」タブを新設(5タブ化)。自動実行が提案したゴール候補(proposed)の承認/却下を専用タブ(?tab=goalApproval)に集約(従来は今日の判断タブ上部のセクション)。初回候補3件を調査結果から生成。/ ゴールの手動追加を「直接追加」と「JSON一括追加」に整理し、分解プロンプト生成UIを廃止（ユーザー指示）。直接追加に metric/今(current)/目標(target) を追加し進捗(=current/target)を手動設定可能に。GoalPlannerForm から目標入力→プロンプト生成→コピーの導線を削除。自動実行の最初にnews-appのdaily-ai-tools「導入価値評価」★4以上(即試したい/即調査/必須/PoC向き)を「効果がありそうなこと」として抽出し○○を試す/調査するゴール候補をproposed登録(★5→P0/★4→P1・例Fableを試す)。処理はゴール優先順(rankGoals)、達成して承認待ちが減ると次回また調査から補充(=達成後に次を提案)。承認待ち3件で打ち止め。承認は今日の判断(Inbox)🎯ゴール承認、承認でactive+autonomous=自動実行対象。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -22,7 +22,7 @@ Progress は **AI工場の管理画面ではなく、人間用の司令塔**。
 **全画面メニュー（ハンバーガー ☰・`components/navigation/HamburgerMenu.tsx`）が全ページへの到達を保証する正本**。ヘッダー右の ☰ から開くドロワーで、全ページをカテゴリ別（メイン / よく使う / AI工場 / 判断・記録 / 計画・候補 / 全体管理・旧画面）に一覧する。モバイル・デスクトップ両方で常時表示。メニュー項目の正本は **`lib/nav-menu.ts`（`NAV_GROUPS`）**で、画面一覧 `/legacy` も同じ正本を参照する（二重管理しない）。**新しいページを追加したら必ず `lib/nav-menu.ts` に1行足す**＝「タブかハンバーガーから必ず辿れる」を構造的に担保（孤立ページ防止。ユーザー指示 2026-06-18）。
 
 補助タブ（任意・よく使う画面の近道）:
-- **モバイル BottomNav（`components/navigation/BottomNav.tsx`）は横スクロール**。先頭5つがアイコン付き主要タブ ホーム(`/`) / ToDo(`/decide`) / Project(`/portfolio`) / 目標(`/goal-planner`) / **自動実行(`/queue`)**。続けて `moreItems` として主要画面をテキストタブで列挙。
+- **モバイル BottomNav（`components/navigation/BottomNav.tsx`）は横スクロール**。先頭6つがアイコン付き主要タブ ホーム(`/`) / ToDo(`/decide`) / Project(`/portfolio`) / 目標(`/goal-planner`) / 自動実行(`/queue`) / **運用(`/guide`)**。続けて `moreItems` として主要画面をテキストタブで列挙（運用は主要タブへ昇格したため moreItems から除外）。デスクトップ TopNav の新ナビにも「運用」を追加（`/guide` を NEW_ROUTES に追加）。
 - **デスクトップ TopNav** は新UIルートで主要タブ、旧ルートで旧ナビを表示（全画面到達はハンバーガーが担うため最小限でよい）。
 - `/operations`→`/automation`、`/pending`→`/tasks` はリダイレクトのみのエイリアス（メニュー非掲載・遷移先を掲載）。
 
@@ -317,6 +317,8 @@ Progress 自身の使われ方を把握するページ（下タブ「使用状�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-19: **ゴール直接追加フォームの簡素化＋運用ページを主要タブへ昇格**（ユーザー指示「タイトルだけ必須／プロジェクトは未設定でも良い／status・decisionPolicy・riskFlag・指標は消す／プロンプトは任意／全体のタブに運用ページを追加」）。`components/goals/GoalPlannerForm.tsx` の「ゴールを直接追加」を **タイトル(必須) / 案件(任意) / 説明=prompt(任意)** の3項目だけに簡素化（priority/status/decisionPolicy/riskFlags/metric/今(current)/目標(target)/notes の入力欄を削除。未指定値は `upsertSingleGoal` の既定＝status active / priority medium / autonomous / target100・current0 で補完）。`BottomNav` の主要アイコンタブに **運用(`/guide`)** を追加（6タブ化、moreItems の重複は除外）、`TopNav` 新ナビにも「運用」追加＋`/guide` を NEW_ROUTES に追加。検証: tsc0 / next build0 / /goal-planner で「タイトル *」「案件(任意)」「説明(任意)」のみ描画・decisionPolicy/riskFlags/指標は非表示 / タイトルのみの直接追加 API E2E（status=active・priority=medium 既定補完を実測、テストゴール削除）/ ホームに「運用」タブ描画。
 
 - 2026-06-19: **今日の判断(Inbox)に「ゴール承認」タブを新設（5タブ化）＋初回候補を生成**（ユーザー指示「todoにgoal承認タブを追加／自動実行時に追加したゴール候補の承認依頼を入れて／初回として候補出して」）。`InboxTabs`（components/newux/InboxTabs.tsx）の `TabKey` に `goalApproval` 追加、`tabFromQuery`/タブ配列/quickFilters/tabCounts に反映。提案ゴール（`inbox.proposedGoals`）の描画を「今日の判断」タブ上部のセクションから **専用タブ `?tab=goalApproval`** へ移設（`filteredProposedGoals` でスコープ/検索フィルタ対応、空状態ガイド付き）。自動実行の履歴（autoRuns）は今日の判断タブに残置。初回として `proposeGoalsFromResearchIfNeeded`（data/real）を実行し調査結果から3件（MCPセキュリティ対策カテゴリを試す[P0] / OpenClawを試す / MCP Appsを調査する）を proposed 登録。検証: tsc0 / next build0 / `/decide?tab=goalApproval` 200・「ゴール承認」タブと候補3件描画。承認すると既存フロー（active+autonomous→ensureNextGoalStepEpic）で自動実行対象になる。
 
