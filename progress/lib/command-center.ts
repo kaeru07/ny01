@@ -865,30 +865,43 @@ export async function buildInbox(): Promise<InboxView> {
   const proposedGoals: InboxCard[] = goalsData.goals
     .filter((g) => g.status === 'proposed')
     .sort((a, b) => (b.proposedAt ?? '').localeCompare(a.proposedAt ?? ''))
-    .map((g) => ({
-      id: `goal-approval-${g.id}`,
-      kind: 'direction' as const,
-      goalId: g.id,
-      goalTitle: g.title,
-      headline: `新しいゴールの提案: ${g.title}`,
-      rows: [
-        { label: '内容', text: g.summary || g.description || '(説明なし)' },
-        { label: '指標', text: `${g.metric || 'progress'} ${g.current ?? 0}/${g.target ?? 100}` },
-        ...(g.notes ? [{ label: '根拠', text: g.notes }] : []),
-        { label: '承認すると', text: '次回以降の自動実行で、このゴールを達成まで自動で進めます。' },
-      ],
-      question: 'このゴールを承認して自動実行の対象にしますか？',
-      detail: [
-        `goalId: ${g.id}`,
-        `提案元: ${g.proposalSource ?? 'ai'}`,
-        ...(g.proposedAt ? [`提案日時: ${fmtDateTime(g.proposedAt)}`] : []),
-      ],
-      actions: [
-        { label: '承認する', tone: 'primary', api: { url: `/api/goals/${g.id}/approve`, method: 'POST', body: { approve: true } } },
-        { label: 'やめる', tone: 'danger', api: { url: `/api/goals/${g.id}/approve`, method: 'POST', body: { approve: false } } },
-        { label: 'あとで', tone: 'ghost', api: null },
-      ],
-    }))
+    .map((g) => {
+      const enables = g.proposalEnables || g.summary || g.description || ''
+      const pros = (g.proposalPros && g.proposalPros.length > 0)
+        ? g.proposalPros
+        : ['目標として明示され、AI工場が達成まで自動で進められる']
+      const cons = (g.proposalCons && g.proposalCons.length > 0)
+        ? g.proposalCons
+        : ['承認すると自動実行の対象が増える（他の優先作業の時間を一部使う）']
+      const sourceLabel = g.proposalSource === 'manual' ? '自分で追加' : g.proposalSource === 'research' ? '日々の調査から' : (g.proposalSource ?? 'AI')
+      return {
+        id: `goal-approval-${g.id}`,
+        kind: 'direction' as const,
+        goalId: g.id,
+        goalTitle: g.title,
+        headline: `ゴール候補: ${g.title}`,
+        rows: [
+          ...(enables ? [{ label: '✅ できるようになること', text: enables }] : []),
+          { label: '👍 メリット', text: pros.map((p) => `・${p}`).join('\n') },
+          { label: '👎 デメリット・注意', text: cons.map((c) => `・${c}`).join('\n') },
+          { label: '承認すると', text: '次回以降の自動実行の対象になり、このゴールを達成まで自動で進めます（次の一歩を自動でEpic化）。' },
+          { label: 'やめると', text: '候補から外れます（自動実行されません）。あとでまた提案されることがあります。' },
+        ],
+        question: 'このゴールを承認して、AI工場の自動実行の対象にしますか？',
+        detail: [
+          `goalId: ${g.id}`,
+          `提案元: ${sourceLabel}`,
+          `指標: ${g.metric || 'progress'} ${g.current ?? 0}/${g.target ?? 100}`,
+          ...(g.notes ? [g.notes] : []),
+          ...(g.proposedAt ? [`提案日時: ${fmtDateTime(g.proposedAt)}`] : []),
+        ],
+        actions: [
+          { label: '承認して追加する', tone: 'primary', api: { url: `/api/goals/${g.id}/approve`, method: 'POST', body: { approve: true } } },
+          { label: 'やめる', tone: 'danger', api: { url: `/api/goals/${g.id}/approve`, method: 'POST', body: { approve: false } } },
+          { label: 'あとで', tone: 'ghost', api: null },
+        ],
+      }
+    })
 
   // 自動実行（Factory）の最近の作業履歴。Inboxで「何が自動で動いたか」を一覧する（情報表示・操作ボタンなし）。
   const isAutoRun = (r: ExecutionRun) =>

@@ -142,7 +142,7 @@ export default function InboxCardItem({ card, highlight = false, focusNotice = f
           {card.rows.map((row) => (
             <div key={row.label} className="flex gap-1.5 text-xs leading-relaxed">
               <dt className="shrink-0 font-semibold text-gray-500 dark:text-gray-400">{row.label}:</dt>
-              <dd className="min-w-0 text-gray-700 dark:text-gray-200">{row.text}</dd>
+              <dd className="min-w-0 whitespace-pre-line text-gray-700 dark:text-gray-200">{row.text}</dd>
             </div>
           ))}
         </dl>

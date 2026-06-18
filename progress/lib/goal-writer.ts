@@ -418,8 +418,14 @@ export interface ProposeGoalInput {
   priority?: TaskPriority | 'P0' | 'P1' | 'P2'
   /** 提案の根拠（どのデータ/状況から提案したか）。承認判断のため Inbox に表示する。 */
   rationale?: string
-  /** 提案元（例: factory_idle / claude / codex）。 */
+  /** 提案元（例: factory_idle / claude / codex / manual / research）。 */
   source?: string
+  /** 承認カード用: このゴールでできるようになること。 */
+  enables?: string
+  /** 承認カード用: メリット。 */
+  pros?: string[]
+  /** 承認カード用: デメリット・注意。 */
+  cons?: string[]
 }
 
 export interface ProposeGoalsResult {
@@ -472,6 +478,9 @@ export async function proposeGoals(inputs: ProposeGoalInput[], opts: { source?: 
       todos: [],
       proposalSource: opts.source ?? input.source ?? 'ai',
       proposedAt: now,
+      proposalEnables: pickString(input.enables) || undefined,
+      proposalPros: Array.isArray(input.pros) ? input.pros.filter((p) => typeof p === 'string' && p.trim()) : undefined,
+      proposalCons: Array.isArray(input.cons) ? input.cons.filter((c) => typeof c === 'string' && c.trim()) : undefined,
       createdAt: now,
       updatedAt: now,
     }

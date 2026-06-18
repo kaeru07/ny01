@@ -70,12 +70,18 @@ export interface Goal {
   autonomyNotifyNoopAt?: string
   autonomyNotifyAttempts?: number
   monetizationImpact: MonetizationImpact
-  /** status='proposed' のときの提案元（factory_idle / claude / codex など）。 */
+  /** status='proposed' のときの提案元（factory_idle / claude / codex / manual / research など）。 */
   proposalSource?: string
   /** ゴール候補として提案された時刻。 */
   proposedAt?: string
   /** 提案ゴールが承認された時刻（承認＝自動実行対象化）。 */
   approvedAt?: string
+  /** 承認カード用: このゴールでできるようになること（1〜数行）。 */
+  proposalEnables?: string
+  /** 承認カード用: メリット。 */
+  proposalPros?: string[]
+  /** 承認カード用: デメリット・注意。 */
+  proposalCons?: string[]
   phases: GoalPhase[]
   todos: GoalTodo[]
   createdAt: string

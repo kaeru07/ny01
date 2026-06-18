@@ -95,6 +95,16 @@ function toCandidate(raw: RawCandidate): ProposeGoalInput {
     priority: raw.stars >= 5 ? 'P0' : 'P1',
     rationale: `AIツール調査 ${raw.sourceDate} の導入価値評価で ${raw.stars}★（${raw.cue}）。効果が見込めるため検証ゴール化。`,
     source: 'research',
+    enables: `${raw.name} を実際に使えるようになり、${raw.detail}`.slice(0, 200),
+    pros: [
+      `日々の調査で高評価（${raw.stars}★・${raw.cue}）＝効果が見込める`,
+      '早く試すほど、他より先に自分の開発・運用へ取り込める',
+    ],
+    cons: [
+      'まだ未検証（実際に試すまで効果・相性は不確実）',
+      '導入・学習やセットアップの手間がかかる',
+      raw.stars < 5 ? '最優先ではない（他の高優先タスクを圧迫しない範囲で）' : '最優先級だが、深入りしすぎないよう小さく検証する',
+    ],
   }
 }
 

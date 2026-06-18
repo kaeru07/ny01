@@ -146,25 +146,31 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
     }
     setSingleSaving(true)
     try {
-      const res = await fetch('/api/goals', {
+      // 直接追加もまず「ゴール承認」タブに候補(proposed)として入れる。承認ボタンで正式なゴールになる。
+      const res = await fetch('/api/goals/propose', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: 'upsertSingle',
-          goal: {
+          source: 'manual',
+          candidates: [{
             title: singleGoal.title,
-            projectId: singleGoal.projectId,
-            prompt: singleGoal.prompt,
-            setAsMain: !hasMainGoal,
-          },
+            summary: singleGoal.prompt,
+            enables: singleGoal.prompt,
+            projectId: singleGoal.projectId || undefined,
+            rationale: '自分で追加した目標',
+          }],
         }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok || !data.success) {
-        setSingleMessage(data.error ?? 'Goal登録に失敗しました')
+        setSingleMessage(data.error ?? '追加に失敗しました')
         return
       }
-      setSingleMessage('Goalを登録しました')
+      if (Array.isArray(data.created) && data.created.length === 0) {
+        setSingleMessage('同名のゴール/候補が既にあります')
+        return
+      }
+      setSingleMessage('「ゴール承認」タブに追加しました。承認すると目標になります。')
       setSingleGoal((prev) => ({ ...prev, title: '', prompt: '' }))
       router.refresh()
     } catch {
@@ -182,7 +188,7 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
           <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-xs font-bold">＋</span>
           <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">ゴールを直接追加</h2>
         </div>
-        <p className="text-[11px] text-gray-500 dark:text-gray-400">タイトルだけで追加できます。案件・説明は任意です。</p>
+        <p className="text-[11px] text-gray-500 dark:text-gray-400">タイトルだけで追加できます（案件・説明は任意）。追加すると「ゴール承認」タブに入り、承認ボタンを押すと正式な目標になります。</p>
         <div className="grid grid-cols-1 gap-3">
           <div>
             <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">タイトル *</label>
@@ -211,7 +217,7 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
         </div>
         {singleMessage && <p className={`text-xs ${singleMessage.includes('登録しました') ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>{singleMessage}</p>}
         <button onClick={handleSingleGoalSubmit} disabled={singleSaving || !singleGoal.title.trim()} className="w-full py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold disabled:opacity-40 hover:bg-emerald-700 transition-colors">
-          {singleSaving ? '登録中...' : 'ゴールを追加'}
+          {singleSaving ? '追加中...' : 'ゴール承認へ追加'}
         </button>
       </section>
 
