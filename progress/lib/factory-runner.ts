@@ -12,6 +12,7 @@ import { scanFactoryDispatch, buildDispatchPlan, generateClaudeFactoryPrompt } f
 import { ensureNextGoalStepEpic } from './goal-step-epic'
 import { requestGoalProposalIfIdle } from './goal-proposal'
 import { proposeGoalsFromResearchIfNeeded } from './research-goals'
+import { proposeImprovementGoalsIfIdle } from './improvement-goals'
 import { addExecutionRun, updateExecutionRunFields } from './execution-run-writer'
 import { readExecutionRuns } from './execution-run-reader'
 import { readGoals } from './goal-reader'
@@ -317,9 +318,22 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
       scan = await scanFactoryDispatch()
     }
   }
-  // それでも実行できる作業が無い（アイドル）場合は、AIに「次に目指すゴール」の提案を依頼する。
-  // 提案は status='proposed' で登録され、Inbox（今日の判断）で承認されたら次回以降の自動実行対象になる。
+  // それでも自動実行対象が無い（アイドル）場合は「ゴール生成モード」に入り、progress 優先で
+  // 改善事項・試した方がいいことをゴール候補(status='proposed')として実際に登録する。
+  // これにより承認対象が空のままにならず、承認すれば次回以降の自動実行が空にならない。
   if (!scan.picked && mode === 'auto' && opts.confirm) {
+    try {
+      const improvement = await proposeImprovementGoalsIfIdle()
+      if (improvement.created.length > 0) {
+        await appendAutomationLog({
+          event: 'factory_goal_proposal_requested',
+          fallbackReason: `${improvement.reason}: ${improvement.created.map((g) => g.title).join(' / ')}`,
+        })
+      }
+    } catch (err) {
+      console.warn('idle improvement goal proposal failed:', err)
+    }
+    // 補助: 上で候補を埋め切れなかった場合に備え、AIへの「次に目指すゴール」提案依頼プロンプトもログに残す。
     const proposal = await requestGoalProposalIfIdle()
     await appendAutomationLog({
       event: 'factory_goal_proposal_requested',
