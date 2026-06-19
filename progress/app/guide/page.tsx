@@ -89,7 +89,10 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
           guide="AI工場が自動で何をしたか・次に何をするかの報告です。承認待ちのゴール候補や直近の自動実行をここで確認できます。"
         />
         <GuideTabBar active="report" />
-        <AutoExecReport />
+        <AutoExecReport
+          range={typeof searchParams?.range === 'string' ? searchParams.range : ''}
+          status={typeof searchParams?.status === 'string' ? searchParams.status : ''}
+        />
       </div>
     )
   }
