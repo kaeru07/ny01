@@ -39,6 +39,8 @@
 
 
 
+
+- 2026-06-20: AIアシスタント比較 / Google DeepMind の AlphaFold 中核人材 John Jumper 氏が An… / Microsoft Intelligent Terminal / AIサブスク管理ツール: ChatGPT / エラーなし / partial(market,news,tools)
 - 2026-06-19: (未取得) / (未取得) / (未取得) / (未取得) / エラーあり(daily-market-research,daily-ai-news,daily-ai-tools,market-research-method-review)
 - 2026-06-18: (未取得) / (未取得) / (未取得) / (未取得) / エラーあり(daily-market-research,daily-ai-news,daily-ai-tools,market-research-method-review)
 - 2026-06-17: 低価格AIサブスク比較 / OpenAI、モデル公開前の「Deployment Simulation」を公開 / Arcade.dev / 月額課金: ChatGPT / エラーなし / partial(market,tools)
