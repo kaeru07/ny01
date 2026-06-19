@@ -1,6 +1,6 @@
 ---
 updated: 2026-06-19
-updateNote: 運用ページ(/guide)をタブ化し「自動実行レポート」タブ(?tab=report)を追加。AI工場の状態・次回予定(11/14/16/23)・自動実行サマリー(完了/一部/失敗)・直近の自動実行・自動化の動き・承認待ちゴール候補へのリンクを表示。運用は下タブ/上タブの主要タブから到達。/ 【重大修正】goal-reader の normalizeGoal が status='proposed' を許可せず読込時に active へ矯正していたバグを修正（VALID_STATUSES に proposed 追加）。これで承認タブに提案ゴールが正しく表示され承認ゲートが機能する。あわせて ChatGPT用プロンプトのコピーボタン＋複数ゴール+ToDoの一括JSON取込（projectId/phases 任意・{goals:[...]}対応）を追加、手動追加に任意プロンプト欄。/ ゴールの追加経路を「追加→承認」に統一。手動の直接追加も proposed で作成し、ゴール承認タブの承認ボタンで初めて active になる。承認カードに ✅できるようになること/👍メリット/👎デメリット を詳細表示（Goal.proposalEnables/Pros/Cons、research候補は自動付与）。/ ゴール直接追加フォームを簡素化（タイトルのみ必須）。運用ページ(/guide)を主要タブへ昇格。/ 今日の判断(Inbox /decide)に「ゴール承認」タブを新設(5タブ化)。自動実行が提案したゴール候補(proposed)の承認/却下を専用タブ(?tab=goalApproval)に集約(従来は今日の判断タブ上部のセクション)。初回候補3件を調査結果から生成。/ ゴールの手動追加を「直接追加」と「JSON一括追加」に整理し、分解プロンプト生成UIを廃止（ユーザー指示）。直接追加に metric/今(current)/目標(target) を追加し進捗(=current/target)を手動設定可能に。GoalPlannerForm から目標入力→プロンプト生成→コピーの導線を削除。自動実行の最初にnews-appのdaily-ai-tools「導入価値評価」★4以上(即試したい/即調査/必須/PoC向き)を「効果がありそうなこと」として抽出し○○を試す/調査するゴール候補をproposed登録(★5→P0/★4→P1・例Fableを試す)。処理はゴール優先順(rankGoals)、達成して承認待ちが減ると次回また調査から補充(=達成後に次を提案)。承認待ち3件で打ち止め。承認は今日の判断(Inbox)🎯ゴール承認、承認でactive+autonomous=自動実行対象。
+updateNote: モバイル下タブを主要6タブのみ（ホーム/ToDo/Project/目標/自動実行/運用）に整理し均等配置化。旧moreItems(横スクロール全画面列挙)は廃止し、それ以外は右上☰メニューに集約（全実ページの到達は6タブ＋☰で担保・孤立0）。/ 運用ページ(/guide)をタブ化し「自動実行レポート」タブ(?tab=report)を追加。AI工場の状態・次回予定(11/14/16/23)・自動実行サマリー(完了/一部/失敗)・直近の自動実行・自動化の動き・承認待ちゴール候補へのリンクを表示。運用は下タブ/上タブの主要タブから到達。/ 【重大修正】goal-reader の normalizeGoal が status='proposed' を許可せず読込時に active へ矯正していたバグを修正（VALID_STATUSES に proposed 追加）。これで承認タブに提案ゴールが正しく表示され承認ゲートが機能する。あわせて ChatGPT用プロンプトのコピーボタン＋複数ゴール+ToDoの一括JSON取込（projectId/phases 任意・{goals:[...]}対応）を追加、手動追加に任意プロンプト欄。/ ゴールの追加経路を「追加→承認」に統一。手動の直接追加も proposed で作成し、ゴール承認タブの承認ボタンで初めて active になる。承認カードに ✅できるようになること/👍メリット/👎デメリット を詳細表示（Goal.proposalEnables/Pros/Cons、research候補は自動付与）。/ ゴール直接追加フォームを簡素化（タイトルのみ必須）。運用ページ(/guide)を主要タブへ昇格。/ 今日の判断(Inbox /decide)に「ゴール承認」タブを新設(5タブ化)。自動実行が提案したゴール候補(proposed)の承認/却下を専用タブ(?tab=goalApproval)に集約(従来は今日の判断タブ上部のセクション)。初回候補3件を調査結果から生成。/ ゴールの手動追加を「直接追加」と「JSON一括追加」に整理し、分解プロンプト生成UIを廃止（ユーザー指示）。直接追加に metric/今(current)/目標(target) を追加し進捗(=current/target)を手動設定可能に。GoalPlannerForm から目標入力→プロンプト生成→コピーの導線を削除。自動実行の最初にnews-appのdaily-ai-tools「導入価値評価」★4以上(即試したい/即調査/必須/PoC向き)を「効果がありそうなこと」として抽出し○○を試す/調査するゴール候補をproposed登録(★5→P0/★4→P1・例Fableを試す)。処理はゴール優先順(rankGoals)、達成して承認待ちが減ると次回また調査から補充(=達成後に次を提案)。承認待ち3件で打ち止め。承認は今日の判断(Inbox)🎯ゴール承認、承認でactive+autonomous=自動実行対象。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -22,7 +22,7 @@ Progress は **AI工場の管理画面ではなく、人間用の司令塔**。
 **全画面メニュー（ハンバーガー ☰・`components/navigation/HamburgerMenu.tsx`）が全ページへの到達を保証する正本**。ヘッダー右の ☰ から開くドロワーで、全ページをカテゴリ別（メイン / よく使う / AI工場 / 判断・記録 / 計画・候補 / 全体管理・旧画面）に一覧する。モバイル・デスクトップ両方で常時表示。メニュー項目の正本は **`lib/nav-menu.ts`（`NAV_GROUPS`）**で、画面一覧 `/legacy` も同じ正本を参照する（二重管理しない）。**新しいページを追加したら必ず `lib/nav-menu.ts` に1行足す**＝「タブかハンバーガーから必ず辿れる」を構造的に担保（孤立ページ防止。ユーザー指示 2026-06-18）。
 
 補助タブ（任意・よく使う画面の近道）:
-- **モバイル BottomNav（`components/navigation/BottomNav.tsx`）は横スクロール**。先頭6つがアイコン付き主要タブ ホーム(`/`) / ToDo(`/decide`) / Project(`/portfolio`) / 目標(`/goal-planner`) / 自動実行(`/queue`) / **運用(`/guide`)**。続けて `moreItems` として主要画面をテキストタブで列挙（運用は主要タブへ昇格したため moreItems から除外）。デスクトップ TopNav の新ナビにも「運用」を追加（`/guide` を NEW_ROUTES に追加）。
+- **モバイル BottomNav（`components/navigation/BottomNav.tsx`）は主要6タブのみ（均等配置・横スクロール廃止）**。ホーム(`/`) / ToDo(`/decide`) / Project(`/portfolio`) / 目標(`/goal-planner`) / 自動実行(`/queue`) / **運用(`/guide`)**。**それ以外の全画面は右上 ☰ メニュー（HamburgerMenu / 正本 `lib/nav-menu.ts`）から辿る**。旧 `moreItems`（横スクロールの全画面列挙）は ☰ に集約して廃止（2026-06-19 ユーザー指示「合計6つ」）。全実ページの到達は「6タブ＋☰」で担保（到達照合: 孤立0）。デスクトップ TopNav の新ナビにも「運用」（`/guide` を NEW_ROUTES に追加）。
 - **デスクトップ TopNav** は新UIルートで主要タブ、旧ルートで旧ナビを表示（全画面到達はハンバーガーが担うため最小限でよい）。
 - `/operations`→`/automation`、`/pending`→`/tasks` はリダイレクトのみのエイリアス（メニュー非掲載・遷移先を掲載）。
 
@@ -318,6 +318,8 @@ Progress 自身の使われ方を把握するページ（下タブ「使用状�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-19: **モバイル下タブを主要6タブのみに整理（合計6・均等配置）**（ユーザー指示「全体のタブに加えて。6つにして合計」）。`components/navigation/BottomNav.tsx` から旧 `moreItems`（横スクロールの全画面25件列挙）を廃止し、主要6タブ（ホーム/ToDo/Project/目標/自動実行/運用）を `flex-1` で均等配置（横スクロール撤廃）。それ以外の全画面は右上 ☰ メニュー（HamburgerMenu / `lib/nav-menu.ts`）に集約。削除前に moreItems 25件すべてが ☰ メニューに掲載済みであることを照合（孤立0）、削除後も到達照合スクリプトで全33実ページが「6タブ＋☰＋リダイレクト2」で到達可能と確認。検証: tsc0/build0/ホーム200・下タブに6ラベル描画・旧moreItemsラベル（作業予約/工場Epic/おすすめEpic/旧ダッシュ等）非表示。
 
 - 2026-06-19: **運用ページ(/guide)をタブ化し「自動実行レポート」タブを追加**（ユーザー指示「運用タブをメイン画面に追加して、その中に自動実行内容の報告タブを作って」）。運用は既に下タブ/上タブの主要タブ（メイン画面のナビ）に追加済み。`app/guide/page.tsx` を searchParams `?tab=report` で分岐するタブUI（GuideTabBar: 使い方ガイド / 自動実行レポート）に。新規 `components/operations/AutoExecReport.tsx`（server）が **AI工場の状態(ON/OFF)・次回予定(11/14/16/23 JST)・自動実行サマリー(完了/一部完了/失敗/計)・直近の自動実行12件・自動化の動き(提案/次の一歩生成/dispatch等の最近ログ)・承認待ちゴール候補件数→/decide?tab=goalApproval リンク** を表示。readExecutionRuns(factory run抽出)/getAutomationLog/readGoals/getAutomationConfig を使用。検証: tsc0/build0/`/guide?tab=report` 200・全セクション描画・白画面なし。
 
