@@ -1,6 +1,8 @@
 export const dynamic = 'force-dynamic'
 
+import Link from 'next/link'
 import PageGuide from '@/components/newux/PageGuide'
+import AutoExecReport from '@/components/operations/AutoExecReport'
 import { TERMS, buildInbox, buildRevenueMilestones } from '@/lib/command-center'
 import { computeFactoryMetrics } from '@/lib/factory-metrics'
 import { getAutomationConfig } from '@/lib/operations-store'
@@ -54,6 +56,7 @@ const FAQ: Array<{ q: string; a: string }> = [
   { q: '目標（Goal Planner）と自動実行キューの関係は？', a: '同じデータを見ています。「目標」タブの各カードに、その目標に紐づくキューの要約（次回候補・実行可能・判断待ち・レビュー待ち・候補外・最新作業・次にやること）が出て、カードの「自動実行キューを見る」を押すとその目標で絞り込んだ自動実行キューの詳細に飛びます。目標タブ＝俯瞰、自動実行タブ＝詳細、で件数は一致します。さらに自動実行キューは目標ごとにまとまって表示され、目標の順番（最優先pin→boost→優先度）がそのままキューの順番＝次にAIが実行する作業になります。目標を並べ替えると次に動く作業も変わります。', },
   { q: '自分でゴールを追加するには？', a: '目標タブ（/goal-planner）の「ゴールを直接追加」にタイトルを入れて追加します（案件・説明は任意）。追加すると、すぐ目標になるのではなく「今日の判断」（Inbox）の「ゴール承認」タブに候補として入ります。そこで承認ボタンを押すと正式な目標になり、自動実行の対象になります。AIが提案する候補（例: ○○を試す）も同じ「ゴール承認」タブに並ぶので、追加・提案どちらも承認ボタンで取り込む流れに統一しました。たくさんまとめて入れたいときは「JSONで一括追加」を使います。「📋 ChatGPT用プロンプトをコピー」を押してChatGPTに貼ると、ゴール＋ToDoのJSONを作ってくれるので、それを貼り付けて「検証」→「一括登録」すれば複数ゴールをまとめて追加できます（projectId・phasesは任意）。', },
   { q: 'AIが新しいゴールを提案してくるのは？', a: '自動実行の最初に、AI工場が「日々の調査結果」（ニュースアプリのAIツール調査など）を見て、効果がありそうな・やった方が良いことを「次に目指すべきゴール」として1〜3件提案します（例: 評価の高い新ツールを「○○を試す」「○○を調査する」、Fableを試す など）。提案ゴールは「今日の判断」（Inbox）の「ゴール承認」タブに出ます。「承認する」を押すと次回以降の自動実行の対象になり、達成まで自動で進みます。「やめる」で候補から外れます。承認するまで勝手に実行されることはありません。ゴールは優先順の高いものから処理され、達成して承認待ちが減ると、次の自動実行でまた調査から新しい候補が補充されます。承認待ちが3件たまると、それ以上は提案しません（先に承認/却下してください）。', },
+  { q: '自動実行の状況をまとめて見たい', a: 'この運用ページ上部の「自動実行レポート」タブを開いてください。AI工場の状態（稼働中/停止）・次回の自動実行予定（11/14/16/23時）・これまでの自動実行サマリー（完了/一部完了/失敗の件数）・直近の自動実行の一覧・最近の自動化の動き（ゴール提案や次の一歩の自動作成など）・承認待ちのゴール候補の件数が1画面で分かります。', },
   { q: '自動で何が動いたか確認したい', a: '「今日の判断」（Inbox）の下に「🤖 自動実行の履歴」が出ます。最近AI工場が自動で動かした作業（結果・日時）が直近10件まで一覧で見られます。詳しくは「実行履歴」（/logs）でも確認できます。', },
   { q: 'ToDoも大きな作業も無い目標は自動で進む？', a: 'はい。ToDoも大きな作業（Epic）も無い未達成の目標は、自動実行キューに「○○（達成まで自動で進める）」として並びます。AI工場がこれを拾うと、その目標を進めるための次の1ステップ（次の一歩）を大きな作業として自動で作り、実装→検証まで進めます。完了してもまだ目標が未達成なら、次の一歩がまた作られ、達成するまで繰り返します。安全のため、承認が必要な目標・手動方針の目標・危険操作を含む目標は対象外で、その場合は「Inboxで承認」「目標詳細」などの解消手順を表示します。', },
   { q: 'ToDoはどうやって目標（Goal）に紐づける？', a: '自動実行は目標を進めるために動くので、ToDoは目標に紐づけて追加します。「ToDo管理」や「目標」タブの「ToDoをGoalに紐づけて追加」フォームから、対象Goalを選んで追加できます（Goal必須）。JSON取込でも project / Goal進捗を保持します。目標やProjectを補完できないToDoは消さずに「未紐付け」と表示され、自動実行候補に入れる前に紐付けを促します。', },
@@ -64,7 +67,33 @@ const FAQ: Array<{ q: string; a: string }> = [
   { q: 'AI工場を止めたいときは？', a: 'Legacy内の「自動化」画面からオフにできます。オフの間、AIは新しい作業を始めません。' },
 ]
 
-export default async function OperationsGuidePage() {
+function GuideTabBar({ active }: { active: 'guide' | 'report' }) {
+  const base = 'flex-1 text-center rounded-lg px-3 py-2 text-xs font-bold transition-colors'
+  const on = 'bg-blue-600 text-white'
+  const off = 'border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800'
+  return (
+    <div className="flex gap-2">
+      <Link href="/guide" className={`${base} ${active === 'guide' ? on : off}`}>使い方ガイド</Link>
+      <Link href="/guide?tab=report" className={`${base} ${active === 'report' ? on : off}`}>自動実行レポート</Link>
+    </div>
+  )
+}
+
+export default async function OperationsGuidePage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
+  const tab = (typeof searchParams?.tab === 'string' ? searchParams.tab : '') === 'report' ? 'report' : 'guide'
+  if (tab === 'report') {
+    return (
+      <div className="space-y-5 px-4 pb-6 pt-6">
+        <PageGuide
+          title="運用"
+          guide="AI工場が自動で何をしたか・次に何をするかの報告です。承認待ちのゴール候補や直近の自動実行をここで確認できます。"
+        />
+        <GuideTabBar active="report" />
+        <AutoExecReport />
+      </div>
+    )
+  }
+
   const [inbox, metrics, milestones, config, meta] = await Promise.all([
     buildInbox(),
     computeFactoryMetrics(),
@@ -135,6 +164,8 @@ export default async function OperationsGuidePage() {
         title="運用ガイド"
         guide="このページを5分読めば、Progressの使い方がすべて分かります。困ったらいつでもここに戻ってください。"
       />
+
+      <GuideTabBar active="guide" />
 
       {/* 1. このアプリとは */}
       <section className={`${card} border-2 border-blue-200 dark:border-blue-900/50`}>
