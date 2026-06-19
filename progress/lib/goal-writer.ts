@@ -117,17 +117,17 @@ export function validateGoalImport(input: unknown, projects: { id: string; name:
   const projectId = pickString(obj.projectId)
   const goalTitle = pickString(obj.goalTitle)
 
-  if (!projectId) errors.push('projectId は必須です')
-  else if (!projects.some((p) => p.id === projectId)) {
-    errors.push(`projectId "${projectId}" が既存案件に見つかりません`)
+  // projectId は任意（未設定可）。指定された場合のみ存在チェック。
+  if (projectId && !projects.some((p) => p.id === projectId)) {
+    warnings.push(`projectId "${projectId}" が既存案件に見つかりません（未設定として取り込みます）`)
   }
   if (!goalTitle) errors.push('goalTitle は必須です')
 
   const phasesRaw = Array.isArray(obj.phases) ? obj.phases : []
   const todosRaw = Array.isArray(obj.todos) ? obj.todos : []
 
-  if (phasesRaw.length === 0) errors.push('phases は1件以上必要です')
-  if (todosRaw.length === 0) errors.push('todos は1件以上必要です')
+  // phases は任意（無ければ取り込み時に既定フェーズを自動生成）。todos も任意（ゴールだけの追加も可）。
+  if (phasesRaw.length === 0 && todosRaw.length > 0) warnings.push('phases 未指定: 既定フェーズを自動生成して todos を紐づけます')
 
   const phaseTitleSet = new Set<string>()
   const phaseIdSet = new Set<string>()
@@ -225,6 +225,11 @@ export async function importGoal(rawInput: unknown, opts: { projects: { id: stri
 
   const now = nowIso()
   const goalId = genId('goal')
+
+  // phases 未指定でも todos があれば既定フェーズを1つ用意して紐づける（ChatGPT出力の揺れに耐える）。
+  if (input.phases.length === 0 && input.todos.length > 0) {
+    input.phases = [{ id: 'phase-1', title: '初期フェーズ', summary: input.goalTitle, order: 0, status: 'todo' } as GoalImportInputPhase]
+  }
 
   const phases: GoalPhase[] = input.phases.map((p, i) => {
     const rawPhase = p as unknown as Record<string, unknown>

@@ -31,6 +31,7 @@ interface ImportResult {
   queuedCount: number
   queueSkippedCount: number
   warnings: string[]
+  createdCount?: number
 }
 
 const DEFAULT_QUEUE_ROLES = ['claude']
@@ -50,6 +51,48 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
   })
   const [singleSaving, setSingleSaving] = useState(false)
   const [singleMessage, setSingleMessage] = useState('')
+  const [promptCopied, setPromptCopied] = useState(false)
+
+  const projectList = projects.map((p) => `${p.name}（id: ${p.id}）`).join(' / ') || '（案件なし。projectId は空でよい）'
+  const chatgptPrompt = [
+    'あなたは個人開発の目標設計を手伝うアシスタントです。',
+    '私がやりたいことを、progress アプリに取り込める JSON（ゴール＋ToDo）に整理してください。',
+    '',
+    '# 出力ルール',
+    '- JSON のみを出力（前後に説明文・コードフェンスを付けない）',
+    '- 形式は { "goals": [ ... ] }。ゴールは1〜5件。',
+    '- 各ゴールに 2〜8 個の具体的な ToDo を付ける。',
+    '- projectId は任意（分かるものがあれば下記から選ぶ。無ければ "" でよい）。',
+    `- 既存の案件: ${projectList}`,
+    '',
+    '# JSON スキーマ',
+    '{',
+    '  "goals": [',
+    '    {',
+    '      "goalTitle": "ゴール名（達成したい状態）",',
+    '      "goalSummary": "1〜2行の補足",',
+    '      "projectId": "",',
+    '      "priority": "high | medium | low",',
+    '      "todos": [',
+    '        { "title": "具体作業", "nextAction": "次にやる1行", "doneCriteria": ["検証可能な完了条件"] }',
+    '      ]',
+    '    }',
+    '  ]',
+    '}',
+    '',
+    '# 私がやりたいこと（ここに書く）',
+    '- ',
+  ].join('\n')
+
+  async function copyChatgptPrompt() {
+    try {
+      await navigator.clipboard.writeText(chatgptPrompt)
+      setPromptCopied(true)
+      setTimeout(() => setPromptCopied(false), 2500)
+    } catch {
+      setImportError('コピーに失敗しました。手動で選択してコピーしてください。')
+    }
+  }
 
   async function handlePreview() {
     setImportError('')
@@ -121,12 +164,13 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
         return
       }
       setImportResult({
-        goalId: data.goalId,
-        phaseCount: data.phaseCount,
-        todoCount: data.todoCount,
-        queuedCount: data.queuedCount,
-        queueSkippedCount: data.queueSkippedCount,
+        goalId: data.goalId ?? '',
+        phaseCount: data.phaseCount ?? 0,
+        todoCount: data.todoCount ?? 0,
+        queuedCount: data.queuedCount ?? 0,
+        queueSkippedCount: data.queueSkippedCount ?? 0,
         warnings: Array.isArray(data.warnings) ? data.warnings : [],
+        createdCount: typeof data.createdCount === 'number' ? data.createdCount : undefined,
       })
       setJsonText('')
       setPreview(null)
@@ -211,8 +255,8 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
             </select>
           </div>
           <div>
-            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">説明 (任意)</label>
-            <textarea value={singleGoal.prompt} onChange={(e) => setSingleGoal((prev) => ({ ...prev, prompt: e.target.value }))} rows={3} placeholder="どんな目標か、補足があれば" className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-400 resize-y" />
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">プロンプト・説明 (任意)</label>
+            <textarea value={singleGoal.prompt} onChange={(e) => setSingleGoal((prev) => ({ ...prev, prompt: e.target.value }))} rows={3} placeholder="どんな目標か / AIにどう進めてほしいか（任意）" className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-400 resize-y" />
           </div>
         </div>
         {singleMessage && <p className={`text-xs ${singleMessage.includes('登録しました') ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>{singleMessage}</p>}
@@ -227,11 +271,18 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
           <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 text-xs font-bold">{'{}'}</span>
           <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">JSON で一括追加</h2>
         </div>
-        <p className="text-[11px] text-gray-500 dark:text-gray-400">ゴール定義のJSONを貼り付けて検証・一括登録します（projectId / goalTitle / phases / todos）。</p>
+        <p className="text-[11px] text-gray-500 dark:text-gray-400">{'ChatGPTにゴール＋ToDoを作らせて、その JSON を貼り付けて一括登録します。複数ゴール（{ "goals": [...] }）にも対応。projectId・phases は任意です。'}</p>
+        <button
+          onClick={copyChatgptPrompt}
+          className="w-full py-2.5 rounded-xl text-sm font-medium border border-violet-200 dark:border-violet-700 text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/20 hover:bg-violet-100 dark:hover:bg-violet-900/30 transition-colors"
+        >
+          {promptCopied ? '✓ コピーしました（ChatGPTに貼り付け）' : '📋 ChatGPT用プロンプトをコピー（ゴール＋ToDo生成）'}
+        </button>
+        <p className="text-[11px] text-gray-400">コピー → ChatGPTに貼る → 返ってきた JSON を下に貼り付け → 「JSON を検証する」→「一括登録する」。</p>
         <textarea
           value={jsonText}
           onChange={(e) => setJsonText(e.target.value)}
-          placeholder='{ "projectId": "...", "goalTitle": "...", "phases": [...], "todos": [...] }'
+          placeholder='{ "goals": [ { "goalTitle": "...", "todos": [ { "title": "..." } ] } ] }'
           rows={10}
           className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 font-mono text-xs bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100 resize-y"
         />
@@ -301,7 +352,7 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
       {/* Import result */}
       {importResult && (
         <section className="bg-green-50 dark:bg-green-900/20 rounded-2xl border border-green-200 dark:border-green-800 p-4 space-y-3">
-          <p className="text-base font-bold text-green-700 dark:text-green-300">✓ Goal を登録しました</p>
+          <p className="text-base font-bold text-green-700 dark:text-green-300">✓ {importResult.createdCount ? `${importResult.createdCount}件のゴールを登録しました` : 'Goal を登録しました'}</p>
           <p className="text-sm text-green-700 dark:text-green-300">phases: <span className="font-semibold">{importResult.phaseCount}</span> / todos: <span className="font-semibold">{importResult.todoCount}</span></p>
           {importResult.queuedCount > 0 && (
             <p className="text-sm text-blue-700 dark:text-blue-300">今日の作業へ追加: <span className="font-semibold">{importResult.queuedCount}件</span>{importResult.queueSkippedCount > 0 ? ` / スキップ: ${importResult.queueSkippedCount}件` : ''}</p>

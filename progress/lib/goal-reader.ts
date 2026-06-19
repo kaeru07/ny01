@@ -4,7 +4,7 @@ import { getDataPath } from '@/lib/progress-reader'
 import type { Goal, GoalsData, GoalProgress, GoalRoleCounts, GoalStatus } from '@/types/goal'
 
 const EMPTY: GoalsData = { goals: [], mainGoalId: undefined, updatedAt: '' }
-const VALID_STATUSES: GoalStatus[] = ['active', 'paused', 'done', 'dropped', 'archived']
+const VALID_STATUSES: GoalStatus[] = ['proposed', 'active', 'paused', 'done', 'dropped', 'archived']
 
 function normalizeNumber(value: unknown, fallback: number): number {
   return typeof value === 'number' && Number.isFinite(value) ? value : fallback
