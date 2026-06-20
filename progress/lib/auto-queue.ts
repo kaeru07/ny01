@@ -4,6 +4,7 @@ import { readGoals, rankGoals, goalRankOf, goalAchievement } from '@/lib/goal-re
 import { listInboxItems } from '@/lib/inbox-reader'
 import { computeQueueScore, dangerRiskFlags, deriveResolution, deriveWorkItemStatus, hasFixRequestedForEpic, hasReviewPendingForEpic, latestRunForEpic, normalizePriority } from '@/lib/auto-queue-score'
 import { isAutonomyAnchorEpic, REVIEW_FIX_SCORE_BOOST, AUTONOMY_ANCHOR_SCORE_BOOST } from '@/lib/autonomy-anchor'
+import { epicPriorityLabel } from '@/lib/epic-priority-label'
 import type { Approval, Epic } from '@/lib/types/operations'
 import type { AutoQueueCounts, AutoQueueItem, AutoQueueView, GoalProgressRow, WorkItemStatus } from '@/types/auto-queue'
 import type { ExecutionRun } from '@/types/execution-run'
@@ -276,7 +277,7 @@ function toGoalItem(goal: Goal): AutoQueueItem {
     reason: status === 'executable'
       ? `Goal未達成（達成率${achievement}%）・todo/epicが無いため、次の一歩をEpic化して自動で進めます`
       : reasonFromFactors(status, score.reasonFactors, goal.title, goal.pinnedTop === true),
-    reasonFactors: status === 'executable' ? ['Goal達成が目的', '次の一歩を自動Epic化', priority] : (score.reasonFactors.length > 0 ? score.reasonFactors : [status]),
+    reasonFactors: status === 'executable' ? ['Goal達成が目的', '次の一歩を自動Epic化', `優先度${epicPriorityLabel(priority)}`] : (score.reasonFactors.length > 0 ? score.reasonFactors : [status]),
     queueControl: goal.pinnedTop ? { pinnedTop: true } : undefined,
   }
 }

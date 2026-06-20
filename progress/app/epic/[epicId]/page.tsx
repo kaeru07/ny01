@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getEpicDetail } from '@/lib/operations-store'
 import type { EpicDetail } from '@/lib/types/operations'
+import { epicPriorityLabel } from '@/lib/epic-priority-label'
 import ResumeButton from '@/components/epic/ResumeButton'
 import CodexHandoffPanel from '@/components/codex/CodexHandoffPanel'
 import FactoryGuideModal from '@/components/epic/FactoryGuideModal'
@@ -121,7 +122,7 @@ export default async function EpicDetailPage({ params }: { params: { epicId: str
         </div>
         <dl className="space-y-1.5 text-sm">
           <div className="flex gap-2"><dt className="w-24 shrink-0 text-xs text-gray-400">decisionPolicy</dt><dd className="text-gray-700 dark:text-gray-200">{decisionPolicyLabel(epic.decisionPolicy)}</dd></div>
-          <div className="flex gap-2"><dt className="w-24 shrink-0 text-xs text-gray-400">priority</dt><dd className="text-gray-700 dark:text-gray-200">{epic.priority ?? '未設定'}</dd></div>
+          <div className="flex gap-2"><dt className="w-24 shrink-0 text-xs text-gray-400">優先度</dt><dd className="text-gray-700 dark:text-gray-200">{epic.priority ? epicPriorityLabel(epic.priority) : '未設定'}</dd></div>
           <div className="flex gap-2"><dt className="w-24 shrink-0 text-xs text-gray-400">riskFlags</dt><dd className="text-gray-700 dark:text-gray-200">{epic.riskFlags && epic.riskFlags.length > 0 ? epic.riskFlags.join(', ') : 'なし'}</dd></div>
           <div className="flex gap-2">
             <dt className="w-24 shrink-0 text-xs text-gray-400">doneCriteria</dt>

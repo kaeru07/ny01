@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import type { DecisionPolicy, EpicPriority, EpicRiskFlag } from '@/lib/types/operations'
 import type { Goal } from '@/types/goal'
 import { DECISION_POLICIES, EPIC_PRIORITIES, RISK_FLAGS, APPROVAL_RISK_FLAGS, CAUTION_RISK_FLAGS, decisionPolicyLabel } from '@/lib/epic-contract'
+import { epicPriorityLabel } from '@/lib/epic-priority-label'
 
 const RISK_LABEL: Record<EpicRiskFlag, string> = {
   billing: '課金 billing',
@@ -141,9 +142,9 @@ export default function EpicCreateForm() {
           </select>
         </div>
         <div>
-          <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">priority <span className="text-red-400">*</span></label>
+          <label className="mb-1 block text-xs text-gray-500 dark:text-gray-400">優先度 <span className="text-red-400">*</span></label>
           <select value={priority} onChange={(e) => setPriority(e.target.value as EpicPriority)} className={inputCls}>
-            {EPIC_PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}
+            {EPIC_PRIORITIES.map((p) => <option key={p} value={p}>{epicPriorityLabel(p)}</option>)}
           </select>
         </div>
       </div>

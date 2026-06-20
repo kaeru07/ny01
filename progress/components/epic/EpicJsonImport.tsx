@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { EpicContractInput, FactoryEligibility } from '@/lib/types/operations'
 import { describeFactory } from '@/lib/epic-contract'
+import { epicPriorityLabel } from '@/lib/epic-priority-label'
 
 interface PreviewResult {
   ok: boolean
@@ -98,7 +99,7 @@ export default function EpicJsonImport() {
                 <div><span className="text-gray-400">goalId:</span> {preview.normalized.goalId}</div>
                 <div><span className="text-gray-400">goal:</span> {preview.normalized.goal}</div>
                 <div><span className="text-gray-400">doneCriteria:</span> {preview.normalized.doneCriteria.length}件</div>
-                <div><span className="text-gray-400">decisionPolicy:</span> {preview.normalized.decisionPolicy} / <span className="text-gray-400">priority:</span> {preview.normalized.priority}</div>
+                <div><span className="text-gray-400">decisionPolicy:</span> {preview.normalized.decisionPolicy} / <span className="text-gray-400">優先度:</span> {epicPriorityLabel(preview.normalized.priority)}</div>
                 <div><span className="text-gray-400">riskFlags:</span> {preview.normalized.riskFlags.length > 0 ? preview.normalized.riskFlags.join(', ') : 'なし'}</div>
               </dl>
               {preview.factoryEligibility && (() => {

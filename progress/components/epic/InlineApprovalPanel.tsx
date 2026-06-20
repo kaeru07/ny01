@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Approval } from '@/lib/types/operations'
+import { epicPriorityLabel } from '@/lib/epic-priority-label'
 
 interface Props {
   /** サーバーで取得済みのこの Epic の承認待ち（初期表示）。決定後は router.refresh で再取得。 */
@@ -54,7 +55,7 @@ export default function InlineApprovalPanel({ initial }: Props) {
           <div key={a.approvalId} className="rounded-xl border border-rose-200 bg-rose-50/60 p-3 dark:border-rose-900/40 dark:bg-rose-900/15">
             <div className="flex items-start justify-between gap-2">
               <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{a.title}</span>
-              <span className={`shrink-0 rounded px-2 py-0.5 text-[10px] font-semibold ${PRIORITY_BADGE[a.priority]}`}>{a.priority}</span>
+              <span className={`shrink-0 rounded px-2 py-0.5 text-[10px] font-semibold ${PRIORITY_BADGE[a.priority]}`}>優先度{epicPriorityLabel(a.priority)}</span>
             </div>
             <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">{a.reason}</p>
 

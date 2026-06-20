@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import type { RecommendedEpic, RecommendationStatus } from '@/types/recommended-epic'
+import { epicPriorityLabel } from '@/lib/epic-priority-label'
 import { RECOMMENDATION_STATUSES } from '@/types/recommended-epic'
 import { recStatusMeta, impactMeta } from '@/lib/recommended-epics-ui'
 
@@ -66,7 +67,7 @@ export default function RecommendationList({ recommendations }: { recommendation
                   {r.kind === 'new_epic' ? '新規Epic' : '既存Epic継続'}
                 </span>
                 {r.priority && (
-                  <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-300">{r.priority}</span>
+                  <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-300">優先度{epicPriorityLabel(r.priority)}</span>
                 )}
               </div>
 

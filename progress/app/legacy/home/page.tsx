@@ -6,6 +6,7 @@ import { calcDashboardStats, sortByAttention } from '@/lib/progress-transform'
 import { buildFactoryDashboard } from '@/lib/factory-dashboard'
 import { computeFactoryMetrics } from '@/lib/factory-metrics'
 import { buildQueueSplit } from '@/lib/queue-split'
+import { epicPriorityLabel } from '@/lib/epic-priority-label'
 import StatsBar from '@/components/dashboard/StatsBar'
 import ProjectCards from '@/components/dashboard/ProjectCards'
 import RecentLogs from '@/components/dashboard/RecentLogs'
@@ -194,7 +195,7 @@ export default async function DashboardPage() {
                       <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">{item.title}</p>
                       <p className="mt-0.5 line-clamp-2 text-sm font-medium text-gray-900 dark:text-gray-100">{item.description}</p>
                       {item.epic && (
-                        <p className="mt-1 text-[11px] text-gray-400">{item.epic.epicId} · {item.epic.priority ?? 'P2'} · {item.epic.status}</p>
+                        <p className="mt-1 text-[11px] text-gray-400">{item.epic.epicId} · {epicPriorityLabel(item.epic.priority)} · {item.epic.status}</p>
                       )}
                       {item.run && (
                         <p className="mt-1 text-[11px] text-gray-400">{item.run.runId} · {item.run.targetApp} · {item.run.reviewStatus}</p>
@@ -291,7 +292,7 @@ export default async function DashboardPage() {
             {factory.activeEpics.slice(0, 8).map((epic) => (
               <li key={epic.epicId} className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
                 <Link href={`/epic/${epic.epicId}`} className="font-medium text-gray-900 hover:underline dark:text-gray-100">{epic.title}</Link>
-                <p className="mt-1 text-xs text-gray-400">{epic.goalId ? factory.goals.find((g) => g.id === epic.goalId)?.title ?? epic.goalId : 'Goal未紐付き'} · {epic.priority ?? 'P2'}</p>
+                <p className="mt-1 text-xs text-gray-400">{epic.goalId ? factory.goals.find((g) => g.id === epic.goalId)?.title ?? epic.goalId : 'Goal未紐付き'} · {epicPriorityLabel(epic.priority)}</p>
               </li>
             ))}
             {factory.activeEpics.length === 0 && <li className="text-sm text-gray-400">active Epicはありません。</li>}
@@ -343,7 +344,7 @@ export default async function DashboardPage() {
             <div>
               <Link href={`/epic/${factory.nextAiEpic.epicId}`} className="text-base font-semibold text-gray-900 hover:underline dark:text-gray-100">{factory.nextAiEpic.title}</Link>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{factory.nextAiEpic.nextAction || factory.nextAiEpic.goal}</p>
-              <p className="mt-2 text-xs text-gray-400">{factory.nextAiEpic.priority ?? 'P2'} · {factory.nextAiEpic.targetApp ?? factory.nextAiEpic.targetApps?.[0] ?? 'targetApp未設定'}</p>
+              <p className="mt-2 text-xs text-gray-400">{epicPriorityLabel(factory.nextAiEpic.priority)} · {factory.nextAiEpic.targetApp ?? factory.nextAiEpic.targetApps?.[0] ?? 'targetApp未設定'}</p>
             </div>
           ) : (
             <p className="text-sm text-gray-400">着手候補がありません。Goal紐付けとapproveを行ってください。</p>
@@ -432,7 +433,7 @@ export default async function DashboardPage() {
               <li key={rec.id} className="rounded-lg border border-gray-100 p-3 dark:border-gray-800">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-[11px] font-semibold text-gray-400">{rec.goalId ?? 'goal未設定'} · {rec.priority}</p>
+                    <p className="text-[11px] font-semibold text-gray-400">{rec.goalId ?? 'goal未設定'} · 優先度{epicPriorityLabel(rec.priority)}</p>
                     <Link href={`/recommended-epics/${rec.id}`} className="mt-0.5 block line-clamp-2 text-sm font-medium text-gray-900 hover:underline dark:text-gray-100">
                       {rec.title}
                     </Link>

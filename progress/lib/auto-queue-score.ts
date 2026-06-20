@@ -3,6 +3,7 @@ import type { ExecutionRun } from '@/types/execution-run'
 import type { Goal } from '@/types/goal'
 import type { QueueControl, QueueResolution, WorkItemStatus } from '@/types/auto-queue'
 import { AUTONOMY_ANCHOR_SCORE_BOOST, REVIEW_FIX_SCORE_BOOST } from '@/lib/autonomy-anchor'
+import { epicPriorityLabel } from '@/lib/epic-priority-label'
 
 const DANGER_RISK_FLAGS = new Set<EpicRiskFlag>([
   'billing',
@@ -136,7 +137,7 @@ export function computeQueueScore(input: QueueScoreInput, goal?: Goal): QueueSco
   }
 
   score += PRIORITY_SCORE[priority]
-  factors.push(priority)
+  factors.push(`優先度${epicPriorityLabel(priority)}`)
 
   const boost = goal?.priorityBoost ?? GOAL_PRIORITY_BOOST[goal?.priority ?? ''] ?? 0
   if (boost > 0) {

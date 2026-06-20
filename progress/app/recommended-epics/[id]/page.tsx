@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getRecommendation } from '@/lib/recommended-epics-store'
+import { epicPriorityLabel } from '@/lib/epic-priority-label'
 import { recStatusMeta, impactMeta } from '@/lib/recommended-epics-ui'
 import RecActions from '@/components/recommended/RecActions'
 
@@ -49,7 +50,7 @@ export default async function RecommendationDetailPage({ params }: { params: { i
           <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-300">
             {r.kind === 'new_epic' ? '新規Epic' : '既存Epic継続'}
           </span>
-          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-300">{r.priority}</span>
+          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-300">優先度{epicPriorityLabel(r.priority)}</span>
         </div>
         <h1 className="mt-2 text-lg font-bold text-gray-900 dark:text-gray-100">{r.title}</h1>
         <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">{r.reason}</p>

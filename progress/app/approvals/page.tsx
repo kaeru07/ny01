@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import type { Approval } from '@/lib/types/operations'
+import { epicPriorityLabel } from '@/lib/epic-priority-label'
 
 const PRIORITY_BADGE: Record<Approval['priority'], string> = {
   critical: 'bg-red-100 text-red-700',
@@ -52,7 +53,7 @@ export default function ApprovalsPage() {
           <div key={a.approvalId} className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
             <div className="flex items-start justify-between gap-2">
               <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{a.title}</span>
-              <span className={`shrink-0 rounded px-2 py-0.5 text-[11px] ${PRIORITY_BADGE[a.priority]}`}>{a.priority}</span>
+              <span className={`shrink-0 rounded px-2 py-0.5 text-[11px] ${PRIORITY_BADGE[a.priority]}`}>優先度{epicPriorityLabel(a.priority)}</span>
             </div>
             {a.epicId && (
               <Link href={`/epic/${a.epicId}`} className="mt-0.5 inline-block text-[11px] text-blue-600 hover:underline">

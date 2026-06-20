@@ -6,6 +6,8 @@ import PageGuide from '@/components/newux/PageGuide'
 import ReviewCopyButton from '@/components/review-copy/ReviewCopyButton'
 import { buildCommandCenter, KIND_CHIP_LABEL } from '@/lib/command-center'
 import { getAutoQueueView } from '@/lib/auto-queue'
+import { computeFactoryStatus } from '@/lib/factory-status'
+import { epicPriorityLabel } from '@/lib/epic-priority-label'
 
 // 新UXのトップ = 司令塔。毎日最初に開く画面。
 // 「今日の5〜15分をどう使うか」だけが分かることを最優先にする。専門用語は出さない。
@@ -39,7 +41,14 @@ const autoQueueStatusLabel: Record<string, string> = {
 }
 
 export default async function CommandCenterPage() {
-  const [view, autoQueue] = await Promise.all([buildCommandCenter(), getAutoQueueView()])
+  const [view, autoQueue, factoryStatus] = await Promise.all([
+    buildCommandCenter(),
+    getAutoQueueView(),
+    computeFactoryStatus(),
+  ])
+  const executionFailure =
+    autoQueue.counts.executable > 0 &&
+    !factoryStatus.factoryEnabled
   const todayLabel = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' })
   const currentMilestone = view.milestones.find((m) => m.state === 'current')
   const doneCount = view.milestones.filter((m) => m.state === 'done').length
@@ -54,6 +63,19 @@ export default async function CommandCenterPage() {
       <div className="-mt-3">
         <ReviewCopyButton />
       </div>
+
+      {executionFailure && (
+        <section className="rounded-xl border-2 border-rose-600 bg-rose-50 p-4 text-rose-900 dark:bg-rose-950/40 dark:text-rose-100">
+          <p className="text-base font-black">自動実行できない異常状態です</p>
+          <p className="mt-1 text-sm font-semibold">
+            実行可能な作業が {autoQueue.counts.executable} 件ありますが、Factory が
+            OFF のため定時実行されません。
+          </p>
+          <Link href="/automation" className="mt-3 inline-flex rounded-lg bg-rose-700 px-3 py-2 text-xs font-bold text-white">
+            Factory状態を確認
+          </Link>
+        </section>
+      )}
 
       <section className="rounded-xl border-2 border-gray-900 bg-white p-4 dark:border-gray-100 dark:bg-gray-900">
         <div className="flex items-center justify-between gap-3">
@@ -70,7 +92,7 @@ export default async function CommandCenterPage() {
                 実行可能
               </span>
               <span className="rounded bg-gray-100 px-2 py-0.5 text-xs font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                {autoQueue.next.priority}
+                優先度{epicPriorityLabel(autoQueue.next.priority)}
               </span>
               {autoQueue.next.fixRequested && (
                 <span className="rounded bg-rose-100 px-2 py-0.5 text-xs font-bold text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">
@@ -110,7 +132,7 @@ export default async function CommandCenterPage() {
                 <li key={item.workItemId} className="flex items-start gap-2 text-sm">
                   <span className="shrink-0 text-xs font-bold text-gray-400">#{item.queueOrder}</span>
                   <span className="min-w-0 font-medium text-gray-800 dark:text-gray-100">{item.title}</span>
-                  <span className="shrink-0 rounded bg-gray-100 px-1.5 py-0.5 text-[11px] font-bold text-gray-500 dark:bg-gray-800 dark:text-gray-400">{item.priority}</span>
+                  <span className="shrink-0 rounded bg-gray-100 px-1.5 py-0.5 text-[11px] font-bold text-gray-500 dark:bg-gray-800 dark:text-gray-400">優先度{epicPriorityLabel(item.priority)}</span>
                 </li>
               ))}
             </ol>

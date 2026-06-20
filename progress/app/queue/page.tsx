@@ -3,10 +3,12 @@ export const revalidate = 0
 
 import Link from 'next/link'
 import { getAutoQueueView } from '@/lib/auto-queue'
+import { computeFactoryStatus } from '@/lib/factory-status'
 import FilterBar from '@/components/newux/FilterBar'
 import FilterChips from '@/components/newux/FilterChips'
 import QueueActionButton from './QueueActionButton'
 import { buildProgressFilterUrl, parseProgressFilters, updateFilterParam, type ProgressFilterState } from '@/lib/progress-filters'
+import { epicPriorityLabel } from '@/lib/epic-priority-label'
 import type { AutoQueueItem, WorkItemStatus } from '@/types/auto-queue'
 
 const STATUS_LABEL: Record<WorkItemStatus, string> = {
@@ -34,6 +36,19 @@ function formatDate(iso?: string): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return iso
   return d.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })
+}
+
+function formatDateTime(iso?: string): string {
+  if (!iso) return '不明'
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return iso
+  return d.toLocaleString('ja-JP', {
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'Asia/Tokyo',
+  })
 }
 
 function allItems(queue: Awaited<ReturnType<typeof getAutoQueueView>>): AutoQueueItem[] {
@@ -132,7 +147,14 @@ function groupItemsByGoal(items: AutoQueueItem[], goalProgress: GoalProgressRow[
 }
 
 export default async function QueuePage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
-  const queue = await getAutoQueueView()
+  const [queue, factoryStatus] = await Promise.all([getAutoQueueView(), computeFactoryStatus()])
+  const executionFailure =
+    queue.counts.executable > 0 &&
+    !factoryStatus.factoryEnabled
+  const factoryBlocked = !factoryStatus.factoryEnabled || factoryStatus.state === '停止中'
+  const lastBlockedResolved =
+    !factoryBlocked &&
+    factoryStatus.lastScheduleAttempt?.blocked === true
   const filters = parseProgressFilters(searchParams)
   const goalId = filters.goalId
   const goalProgress = goalId ? queue.goalProgress.find((row) => row.goalId === goalId) : undefined
@@ -149,7 +171,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
     { key: 'projectId', label: `Project: ${filters.projectId}`, active: Boolean(filters.projectId), href: queueHref(filters, { projectId: undefined }) },
     { key: 'app', label: `app: ${filters.app}`, active: Boolean(filters.app), href: queueHref(filters, { app: undefined }) },
     { key: 'status', label: `状態: ${filters.status}`, active: Boolean(filters.status), href: queueHref(filters, { status: undefined }) },
-    { key: 'priority', label: `優先度: ${filters.priority}`, active: Boolean(filters.priority), href: queueHref(filters, { priority: undefined }) },
+    { key: 'priority', label: `優先度: ${epicPriorityLabel(filters.priority)}`, active: Boolean(filters.priority), href: queueHref(filters, { priority: undefined }) },
     { key: 'pinned', label: 'pin済み', active: filters.pinned === true, href: queueHref(filters, { pinned: undefined }) },
     { key: 'excluded', label: '候補外', active: filters.excluded === true, href: queueHref(filters, { excluded: undefined }) },
     { key: 'manualOnly', label: '手動/対象外', active: filters.manualOnly === true, href: queueHref(filters, { manualOnly: undefined }) },
@@ -192,6 +214,81 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
         </div>
       </header>
 
+      <section className={`rounded-xl border-2 p-4 ${
+        factoryBlocked
+          ? 'border-rose-600 bg-rose-50 text-rose-950 dark:bg-rose-950/40 dark:text-rose-100'
+          : 'border-emerald-300 bg-emerald-50 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-100'
+      }`}>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-wide opacity-70">自動実行の稼働診断</p>
+            <p className="mt-0.5 text-base font-black">
+              {factoryBlocked
+                ? '自動実行は停止しています'
+                : `自動実行可能です（実行可能 ${queue.counts.executable} 件）`}
+            </p>
+          </div>
+          <span className={`rounded-full px-2.5 py-1 text-xs font-black ${
+            factoryBlocked ? 'bg-rose-700 text-white' : 'bg-emerald-700 text-white'
+          }`}>
+            {factoryStatus.factoryEnabled ? factoryStatus.state : 'OFF'}
+          </span>
+        </div>
+
+        {factoryBlocked ? (
+          <>
+            <p className="mt-2 text-sm font-semibold">
+              原因: {factoryStatus.stopReason ?? (executionFailure
+                ? `キューに実行可能 ${queue.counts.executable} 件がありますがFactoryが起動できません`
+                : '実行条件を満たす作業がありません')}
+            </p>
+            <div className="mt-3 rounded-lg bg-white/80 p-3 dark:bg-gray-950/50">
+              <p className="text-xs font-black">解消方法</p>
+              {factoryStatus.recoveryActions.length > 0 ? (
+                <ul className="mt-2 space-y-2">
+                  {factoryStatus.recoveryActions.map((action) => (
+                    <li key={`${action.href}:${action.label}`} className="text-sm">
+                      <Link href={action.href} className="font-bold underline decoration-2 underline-offset-2">
+                        {action.label}
+                      </Link>
+                      <p className="mt-0.5 text-xs opacity-80">{action.detail}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-1 text-xs">AutomationのFactory状態と実行ログを確認してください。</p>
+              )}
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="mt-2 text-sm font-semibold">
+              次に実行: {factoryStatus.nextPlanned ?? queue.next?.title ?? '候補を選定中'}
+            </p>
+            {lastBlockedResolved && factoryStatus.lastScheduleAttempt && (
+              <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-3 text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100">
+                <p className="text-xs font-black">直近のBlockedは解消済みです</p>
+                <p className="mt-1 text-xs">
+                  {formatDateTime(factoryStatus.lastScheduleAttempt.finishedAt)} の定時実行は
+                  「factoryRunState=Blocked」で起動しませんでした。現在はRunningなので、次回の定時実行では処理対象になります。
+                </p>
+              </div>
+            )}
+          </>
+        )}
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Link href="/automation" className={`rounded-lg px-3 py-1.5 text-xs font-bold ${
+            factoryBlocked ? 'bg-rose-700 text-white' : 'border border-emerald-300 bg-white/80 text-emerald-900 dark:bg-gray-950/50 dark:text-emerald-100'
+          }`}>
+            Factory詳細
+          </Link>
+          <Link href="/logs" className="rounded-lg border border-current/20 bg-white/70 px-3 py-1.5 text-xs font-bold dark:bg-gray-950/40">
+            定時実行ログ
+          </Link>
+        </div>
+      </section>
+
       <FilterBar
         basePath="/queue"
         filters={filters}
@@ -208,7 +305,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
         selectFilters={[
           { key: 'goalId', label: 'Goal', placeholder: 'すべてのGoal', options: goalOptions },
           { key: 'projectId', label: 'Project', placeholder: 'すべてのProject', options: projectOptions },
-          { key: 'priority', label: 'Priority', placeholder: 'すべての優先度', options: ['P0', 'P1', 'P2'].map((value) => ({ value, label: value })) },
+          { key: 'priority', label: '優先度', placeholder: 'すべての優先度', options: ['P0', 'P1', 'P2'].map((value) => ({ value, label: epicPriorityLabel(value) })) },
           { key: 'app', label: 'app', placeholder: 'すべてのapp', options: projectOptions },
         ]}
         showSearch
@@ -283,7 +380,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs font-bold text-gray-400">#{item.queueOrder || '-'}</span>
-                  <span className="rounded bg-gray-900 px-1.5 py-0.5 text-[11px] font-bold text-white dark:bg-gray-100 dark:text-gray-900">{item.priority}</span>
+                  <span className="rounded bg-gray-900 px-1.5 py-0.5 text-[11px] font-bold text-white dark:bg-gray-100 dark:text-gray-900">優先度{epicPriorityLabel(item.priority)}</span>
                   <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[11px] font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
                     {item.preferredExecutor ?? 'executor未設定'}
                   </span>
@@ -369,7 +466,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
                   {item.type === 'goal_todo' && (
                     <>
                       <QueueActionButton workItemId={item.workItemId} action="include">次回候補に戻す</QueueActionButton>
-                      <QueueActionButton workItemId={item.workItemId} action="prioritize">P0で次回優先</QueueActionButton>
+                      <QueueActionButton workItemId={item.workItemId} action="prioritize">最優先で次回実行</QueueActionButton>
                       <QueueActionButton workItemId={item.workItemId} action="complete">完了</QueueActionButton>
                     </>
                   )}

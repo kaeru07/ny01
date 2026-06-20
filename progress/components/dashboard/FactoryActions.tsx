@@ -140,9 +140,9 @@ export function EpicDecisionControls({ epicId, goals, currentGoalId, currentPrio
       </div>
       <div className="grid grid-cols-[1fr_auto] gap-2">
         <select value={priority} onChange={(e) => setPriority(e.target.value as EpicPriority)} className={inputCls}>
-          <option value="P0">P0</option>
-          <option value="P1">P1</option>
-          <option value="P2">P2</option>
+          <option value="P0">高</option>
+          <option value="P1">中</option>
+          <option value="P2">低</option>
         </select>
         <button onClick={() => act('changePriority')} disabled={busy === 'changePriority'} className="rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700 disabled:opacity-40 dark:border-gray-700 dark:text-gray-200">優先度</button>
       </div>
