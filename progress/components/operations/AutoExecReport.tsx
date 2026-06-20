@@ -48,6 +48,41 @@ const STATUS_BADGE: Record<string, string> = {
 }
 const CHECK_LABEL: Record<string, string> = { build: 'build', typescript: 'tsc', lint: 'lint', manual: '手動確認', mainScreen: '主要画面', mobileLayout: 'モバイル', mainScreens: '主要画面', iphone: 'iPhone' }
 
+// stopReason（内部の停止理由）を「この回が何をして、なぜ終わったか」の人間語に変換する。
+// 接尾辞（例: 'epic_done（doneCriteria 7/7）'）が付くため前方一致・包含で判定する。
+function describeOutcome(r: ExecutionRun): string {
+  const s = (r.stopReason || '').toLowerCase()
+  const has = (k: string) => s.includes(k)
+  if (has('epic_done') || has('all_epics_done')) return '作業を完了し、次の作業へ進みました。'
+  if (has('continue')) return '作業を一歩進め、次回の自動実行に続きます。'
+  if (has('approval_required')) return 'あなたの承認待ちになり、ここで止まりました。'
+  if (has('run_failed')) return '作業中にエラーが出て停止しました（下の課題を参照）。'
+  if (has('rate_limited') || has('rate_limit')) return 'AIの利用上限に達して停止しました。'
+  if (has('max_runs_reached')) return '1回分の実行上限（最大3作業）まで動きました。'
+  if (has('manual_execution_pending')) return '手動で実行する作業として記録しました（自動実行はしていません）。'
+  if (has('dry_run')) return '試走（プレビュー）のみで、実際の変更はしていません。'
+  if (has('auto_requires_confirm')) return '自動起動の確認が無く、実行していません。'
+  if (has('blocked_by_danger')) return '危険判断（あなたの承認）待ちのため、この回はスキップしました。'
+  if (has('blocked_by_goal_unset')) return '目標が紐づいていない作業しか無く、停止しました。'
+  if (has('all_blocked')) return '実行できる作業がすべてブロック中で、待機しました。'
+  if (has('no_candidate')) return '実行できる作業が無く、待機しました（新しい目標・作業の登録待ち）。'
+  if (has('factory_off')) return 'AI工場がOFFのため、実行していません。'
+  if (has('blocked')) return '起動条件を満たさず、この回は作業を実行していません。'
+  // stopReason 無し時は runStatus から最低限の結果を示す。
+  if (r.runStatus === 'completed') return 'この回は完了しました。'
+  if (r.runStatus === 'partial') return '一部まで進み、残りは次回に持ち越しました。'
+  if (r.runStatus === 'failed') return '失敗で終わりました（下の課題を参照）。'
+  if (r.runStatus === 'running') return '実行中、または途中で記録が止まっています。'
+  return '結果の記録がありません。'
+}
+
+// この回が実際に「変更を伴う作業」をしたか（＝待機/スキップ/ブロックではないか）。
+function didRealWork(r: ExecutionRun): boolean {
+  if (r.changedFiles && r.changedFiles.length > 0) return true
+  const s = (r.stopReason || '').toLowerCase()
+  return /epic_done|continue|run_failed|max_runs_reached|approval_required|all_epics_done/.test(s)
+}
+
 export default async function AutoExecReport({ range = '', status = '' }: { range?: string; status?: string } = {}) {
   const [runs, goalsData, config] = await Promise.all([
     readExecutionRuns(),
@@ -135,6 +170,11 @@ function RunArticle({ run: r, index }: { run: ExecutionRun; index: number }) {
   const checks = Object.entries(r.checks ?? {}).filter(([, v]) => v && String(v).trim())
   const done = r.runStatus === 'completed'
   const reason = (r.errors ?? [])[0] || r.reviewMemo || (r.warnings ?? [])[0] || ''
+  const outcome = describeOutcome(r)
+  const worked = didRealWork(r)
+  const target = r.selection?.selectedGoalTitle || r.epicId || ''
+  const pickReason = r.selection?.selectedReason || ''
+  const files = r.changedFiles ?? []
   // rawReport を整形（機械メタ情報を除去し、読みやすい段落に）
   const rawParas = cleanRawReport(r.rawReport || '')
 
@@ -152,26 +192,39 @@ function RunArticle({ run: r, index }: { run: ExecutionRun; index: number }) {
         </p>
       </header>
 
-      {/* 概要 */}
-      {r.summary && (
-        <div className="mt-3">
-          <h4 className="text-xs font-bold text-gray-900 dark:text-gray-100">概要</h4>
-          <p className="mt-1 text-xs leading-relaxed text-gray-600 dark:text-gray-300">{r.summary}</p>
+      {/* 結果（この回が何をして、どう終わったか — 常に表示） */}
+      <div className="mt-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+        <p className="text-xs font-semibold text-gray-900 dark:text-gray-100">{outcome}</p>
+        {r.summary && r.summary.trim() && r.summary.trim() !== outcome.trim() && (
+          <p className="mt-1.5 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">{r.summary}</p>
+        )}
+      </div>
+
+      {/* 何の作業か（対象・選定理由） */}
+      {(target || pickReason) && (
+        <div className="mt-3 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
+          {target && <p>🎯 <span className="font-semibold text-gray-800 dark:text-gray-200">対象:</span> {target}</p>}
+          {pickReason && <p className="mt-0.5">🧭 <span className="font-semibold text-gray-800 dark:text-gray-200">選んだ理由:</span> {pickReason}</p>}
         </div>
       )}
 
-      {/* できたこと */}
+      {/* やったこと（変更ファイル or 何をしたかの説明） */}
       <div className="mt-4">
-        <h4 className="text-xs font-bold text-emerald-700 dark:text-emerald-400">✅ できたこと</h4>
+        <h4 className="text-xs font-bold text-emerald-700 dark:text-emerald-400">✅ やったこと</h4>
         <ul className="mt-1.5 space-y-1 text-[11px] leading-relaxed text-gray-700 dark:text-gray-200">
-          {done && <li>・この実行は<span className="font-semibold">完了</span>しました。</li>}
-          {!done && r.changedFiles?.length > 0 && <li>・途中までで以下の変更を行いました（{r.changedFiles.length}ファイル）。</li>}
-          {r.changedFiles?.length > 0 && r.changedFiles.slice(0, 12).map((f, i) => (
-            <li key={i} className="text-gray-600 dark:text-gray-300"><span className="font-mono text-[10px] text-gray-500 dark:text-gray-400">{f.file}</span>{f.change ? ` — ${f.change}` : ''}</li>
-          ))}
-          {r.changedFiles && r.changedFiles.length > 12 && <li className="text-gray-400">…ほか{r.changedFiles.length - 12}ファイル</li>}
-          {(!r.changedFiles || r.changedFiles.length === 0) && !done && <li className="text-gray-400">・ファイル変更の記録はありません。</li>}
-          {(!r.changedFiles || r.changedFiles.length === 0) && done && !r.summary && <li className="text-gray-400">・詳細な変更記録はありません（下の全文を参照）。</li>}
+          {files.length > 0 ? (
+            <>
+              <li>・以下のファイルを変更しました（{files.length}件）。</li>
+              {files.slice(0, 12).map((f, i) => (
+                <li key={i} className="text-gray-600 dark:text-gray-300"><span className="font-mono text-[10px] text-gray-500 dark:text-gray-400">{f.file}</span>{f.change ? ` — ${f.change}` : ''}</li>
+              ))}
+              {files.length > 12 && <li className="text-gray-400">…ほか{files.length - 12}件</li>}
+            </>
+          ) : worked ? (
+            <li>・{r.summary?.trim() || outcome}（変更ファイルの記録はこの回には残っていません）</li>
+          ) : (
+            <li className="text-gray-500 dark:text-gray-400">・この回はコードを変更する作業はしていません（{outcome}）</li>
+          )}
         </ul>
       </div>
 
@@ -234,7 +287,12 @@ function cleanRawReport(raw: string): string[] {
   s = s.split(/\n#+\s*progress\s*レビュー用/i)[0]
   s = s.split('progressレビュー用')[0]
   const META = /^(monetizationImpact|theme|obsidianSummary|obsidianSaveTarget|reviewStatus|targetTodoId|targetTodoTitle|targetApp|runStatus|progressUpdated|changedFiles|checks|nextActions|errors|warnings|runId)\s*[:：]/i
-  const lines = s.split('\n').filter((line) => !META.test(line.trim()))
+  // [factory-runner ...] / [factory-schedule ...] / executor=... の機械プレフィックス行を除去する。
+  const PREFIX = /^\[factory[\w-]*\b.*\]?$|^executor\s*=/i
+  const lines = s.split('\n').filter((line) => {
+    const t = line.trim()
+    return !META.test(t) && !PREFIX.test(t)
+  })
   // 連続改行で段落分割。各段落内の単一改行は空白に。
   return lines
     .join('\n')
