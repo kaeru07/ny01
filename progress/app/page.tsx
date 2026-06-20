@@ -64,6 +64,15 @@ export default async function CommandCenterPage() {
         <ReviewCopyButton />
       </div>
 
+      {/* 一時導線: 旧Vault→今のゴール運用の対応表。統合完了後に撤去予定。 */}
+      <Link
+        href="/integration-map"
+        className="flex items-center justify-between gap-2 rounded-xl border border-indigo-300 bg-indigo-50 px-4 py-2.5 dark:border-indigo-800 dark:bg-indigo-900/20"
+      >
+        <span className="text-sm font-bold text-indigo-800 dark:text-indigo-200">🗺 旧Vault→今のゴール運用 対応表</span>
+        <span className="shrink-0 rounded-full bg-indigo-200 px-2 py-0.5 text-[10px] font-bold text-indigo-800 dark:bg-indigo-800 dark:text-indigo-100">一時 →</span>
+      </Link>
+
       {executionFailure && (
         <section className="rounded-xl border-2 border-rose-600 bg-rose-50 p-4 text-rose-900 dark:bg-rose-950/40 dark:text-rose-100">
           <p className="text-base font-black">自動実行できない異常状態です</p>
