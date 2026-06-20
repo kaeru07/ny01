@@ -1,6 +1,6 @@
 ---
-updated: 2026-06-19
-updateNote: 自動実行レポートに期間フィルタ(7日/30日(既定)/全期間)＋状態フィルタ(すべて/完了/一部完了/失敗)を追加(URL ?range= ?status= 同期・該当件数表示)。詳細レポート全文は整形(progressレビュー用ブロック・monetizationImpact等の機械メタ行を除去し段落表示)。/ 自動実行レポート(/guide?tab=report)を「1実行＝1記事(約1ページ)」形式に。各自動実行ごとに 概要・✅できたこと(完了/変更ファイル)・⚠️できなかったこと(エラー/警告/理由)・🔍検証結果・→次にやること・詳細レポート全文(rawReport) を深く表示(新しい順・最大25件)。/ モバイル下タブを主要6タブのみ（ホーム/ToDo/Project/目標/自動実行/運用）に整理し均等配置化。旧moreItems(横スクロール全画面列挙)は廃止し、それ以外は右上☰メニューに集約（全実ページの到達は6タブ＋☰で担保・孤立0）。/ 運用ページ(/guide)をタブ化し「自動実行レポート」タブ(?tab=report)を追加。AI工場の状態・次回予定(11/14/16/23)・自動実行サマリー(完了/一部/失敗)・直近の自動実行・自動化の動き・承認待ちゴール候補へのリンクを表示。運用は下タブ/上タブの主要タブから到達。/ 【重大修正】goal-reader の normalizeGoal が status='proposed' を許可せず読込時に active へ矯正していたバグを修正（VALID_STATUSES に proposed 追加）。これで承認タブに提案ゴールが正しく表示され承認ゲートが機能する。あわせて ChatGPT用プロンプトのコピーボタン＋複数ゴール+ToDoの一括JSON取込（projectId/phases 任意・{goals:[...]}対応）を追加、手動追加に任意プロンプト欄。/ ゴールの追加経路を「追加→承認」に統一。手動の直接追加も proposed で作成し、ゴール承認タブの承認ボタンで初めて active になる。承認カードに ✅できるようになること/👍メリット/👎デメリット を詳細表示（Goal.proposalEnables/Pros/Cons、research候補は自動付与）。/ ゴール直接追加フォームを簡素化（タイトルのみ必須）。運用ページ(/guide)を主要タブへ昇格。/ 今日の判断(Inbox /decide)に「ゴール承認」タブを新設(5タブ化)。自動実行が提案したゴール候補(proposed)の承認/却下を専用タブ(?tab=goalApproval)に集約(従来は今日の判断タブ上部のセクション)。初回候補3件を調査結果から生成。/ ゴールの手動追加を「直接追加」と「JSON一括追加」に整理し、分解プロンプト生成UIを廃止（ユーザー指示）。直接追加に metric/今(current)/目標(target) を追加し進捗(=current/target)を手動設定可能に。GoalPlannerForm から目標入力→プロンプト生成→コピーの導線を削除。自動実行の最初にnews-appのdaily-ai-tools「導入価値評価」★4以上(即試したい/即調査/必須/PoC向き)を「効果がありそうなこと」として抽出し○○を試す/調査するゴール候補をproposed登録(★5→P0/★4→P1・例Fableを試す)。処理はゴール優先順(rankGoals)、達成して承認待ちが減ると次回また調査から補充(=達成後に次を提案)。承認待ち3件で打ち止め。承認は今日の判断(Inbox)🎯ゴール承認、承認でactive+autonomous=自動実行対象。
+updated: 2026-06-20
+updateNote: 「システム仕様」タブを自動実行フロー中心に再構成（iPhone向けに参照系を折りたたみ）。自動実行の②調査からのゴール提案を仕様に明記し、③-b 自動実行対象が無いアイドル時の「ゴール生成モード」（progress優先で改善事項・試したいことを提案し承認対象を空にしない）を追加。調査=外/ゴール生成モード=中の二系統で承認対象を補充する。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -8,6 +8,15 @@ updateNote: 自動実行レポートに期間フィルタ(7日/30日(既定)/全
 > このファイルが Progress の運用モデルの正本ドキュメント。
 > frontmatter の `updated` / `updateNote` は運用ページ（/guide）最下部の「最終更新」に動的表示される。
 > **機能追加・UI変更・運用変更を行ったら、必ずこのファイルと運用ページをセットで更新すること**（下記「更新ルール」参照）。
+
+## 2026-06-20: factoryRunState 廃止とRunner責務分離
+
+- `factoryRunState`（Running / Paused / Blocked / CodexReady）は複数の観測値を再合成した派生値であり、正本ではない。
+- この派生値を定時スケジュール、Review Fix、Prompt Queueの共通ゲートに使うと、一系統の候補不足・承認待ちが無関係なRunnerまで巻き添え停止するため廃止。
+- 定時起動の共通ゲートは `factoryEnabled` と二重起動lockのみ。
+- Review Fix / Epic Runner / Prompt Queueは、それぞれ自分の候補・安全条件を判定し、`no_candidate` / `blocked` / `completed` 等を個別に返す。
+- 過去のExecutionRunに保存済みの `factoryRunState=Blocked` 文言は監査履歴として書き換えない。画面では「旧Blocked履歴・現在は解消済み」と区別する。
+- `/guide?tab=system` を内部仕様の集約先とし、正本、派生値、全実行経路、安全条件、Runner、API、画面、互換機構を記載する。
 
 ## このアプリの位置付け
 
@@ -50,7 +59,13 @@ Progress は **AI工場の管理画面ではなく、人間用の司令塔**。
 
 目標 → 大きな作業 → AI作業 → レビュー → 学習 → 次の作業
 
+**定時自動実行の実処理順（11/14/16/23時・`runScheduledFactory` → `runFactory`）**: ①lock取得・Factory ON確認 → ②危険判断待ちならスキップ → ③Review Fix（修正依頼）→ ④調査からゴール提案 → ⑤実行Epic選定（無ければ次の一歩生成→ゴール生成モード）→ ⑥Claude実行（上限時Codex Fallback）→ ⑦検証(typecheck/lint)＋ExecutionRun記録 → ⑧doneCriteria判定で次へ/継続（1起動最大3作業）→ ⑨Prompt Queue → ⑩Envelope Run記録。`/guide?tab=system` の「自動実行で行われる処理」がこの順を人間語で図示する正本表示。
+
+**②調査からのゴール提案（毎回・自動実行の最初）**: `proposeGoalsFromResearchIfNeeded()` が日々の調査結果（news-app の AIツール調査「導入価値評価」★4以上）を読み、「○○を試す/調査する」を `status='proposed'` のゴール候補として提案する（`source='research'`）。承認待ち（proposed）が3件未満のときだけ補充。承認（→active）したものが次回以降の自動実行対象になる。
+
 **目標から大きな作業を自動で起こす（2026-06-17）**: ToDo も大きな作業も無い未達成の目標は、Factory が実行できる Epic を1つも見つけられなかったとき、`ensureNextGoalStepEpic()` が Goal順最上位の目標に「次の一歩」Epic を自動生成して進める（達成まで繰り返す）。これにより「目標を置いただけ・配下に作業が無い」状態でも工場が止まらず、目標の達成に向けて自走する。詳細は「自動実行キューの使い方」節を参照。
+
+**自動実行対象が無いアイドル時の「ゴール生成モード」（2026-06-20追加）**: 次の一歩生成でも実行できる作業が見つからない（`!scan.picked`）アイドル時、`proposeImprovementGoalsIfIdle()` が **progressアプリ優先**で改善ゴール候補を `status='proposed'` 登録する（`source='factory_idle_improvement'`）。生成ソースの優先順は (1) 失敗/エラーのまま未解決の Run の解消（改善事項・その後同名タイトルの成功 Run が無いもの）→ (2) 過去 Run の未消化 nextActions のゴール化（試した方がいいこと）→ (3) progress 改善の定番 seed（空回避の保険3件）。承認待ち上限3を尊重し、既存ゴール（全status）と同名は除外。これにより**承認対象が空のまま残らず、承認すれば次回の自動実行が空にならない**。従来のアイドル処理 `requestGoalProposalIfIdle()`（AIへの提案依頼プロンプトをログに出すだけ）は補助フォールバックとして併存。調査（外＝ニュース）とゴール生成モード（中＝progress自身の改善）の二系統で承認対象を補充する設計。
 
 レビューで「修正する」を選んだ `needs_followup` の作業履歴は、`followupOfRunId` 付きのおすすめ次作業へ自動変換する。同じ作業履歴から候補を重複生成しない。スケジュール起動時にも未処理の修正依頼をbackfillする。
 

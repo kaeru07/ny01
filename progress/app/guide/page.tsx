@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import PageGuide from '@/components/newux/PageGuide'
 import AutoExecReport from '@/components/operations/AutoExecReport'
+import SystemSpecification from '@/components/operations/SystemSpecification'
 import { TERMS, buildInbox, buildRevenueMilestones } from '@/lib/command-center'
 import { computeFactoryMetrics } from '@/lib/factory-metrics'
 import { getAutomationConfig } from '@/lib/operations-store'
@@ -54,8 +55,9 @@ const FAQ: Array<{ q: string; a: string }> = [
   { q: '自動実行キューはどこ？', a: 'iPhoneの下タブ「自動実行」（/queue）です。AI工場が次に何をやるか、なぜそれが次か、判断待ち・実行可能・ブロックの件数が見えます。以前は下タブに無くて辿りにくかったため、2026-06-14に主要タブへ昇格しました。', },
   { q: 'フィルターは何に使う？', a: '自動実行キューやInboxの上部にあるチップと「絞り込み」で、Goal・Project・状態・pin済み・候補外・検索語などを表示だけ絞れます。選択はURLに同期されるので、再読み込みや共有リンクでも同じ条件を復元できます。これは表示専用で、AI工場の候補判定・スコア・実行順そのものは変えません。' },
   { q: '目標（Goal Planner）と自動実行キューの関係は？', a: '同じデータを見ています。「目標」タブの各カードに、その目標に紐づくキューの要約（次回候補・実行可能・判断待ち・レビュー待ち・候補外・最新作業・次にやること）が出て、カードの「自動実行キューを見る」を押すとその目標で絞り込んだ自動実行キューの詳細に飛びます。目標タブ＝俯瞰、自動実行タブ＝詳細、で件数は一致します。さらに自動実行キューは目標ごとにまとまって表示され、目標の順番（最優先pin→boost→優先度）がそのままキューの順番＝次にAIが実行する作業になります。目標を並べ替えると次に動く作業も変わります。', },
-  { q: '自分でゴールを追加するには？', a: '目標タブ（/goal-planner）の「ゴールを直接追加」にタイトルを入れて追加します（案件・説明は任意）。追加すると、すぐ目標になるのではなく「今日の判断」（Inbox）の「ゴール承認」タブに候補として入ります。そこで承認ボタンを押すと正式な目標になり、自動実行の対象になります。AIが提案する候補（例: ○○を試す）も同じ「ゴール承認」タブに並ぶので、追加・提案どちらも承認ボタンで取り込む流れに統一しました。たくさんまとめて入れたいときは「JSONで一括追加」を使います。「📋 ChatGPT用プロンプトをコピー」を押してChatGPTに貼ると、ゴール＋ToDoのJSONを作ってくれるので、それを貼り付けて「検証」→「一括登録」すれば複数ゴールをまとめて追加できます（projectId・phasesは任意）。', },
+  { q: '自分でゴールを追加するには？', a: '目標タブ（/goal-planner）の「ゴールを直接追加」にタイトルを入れて追加します（案件・説明は任意）。人間が直接追加したゴールは、その入力自体を実行許可とみなし、承認不要ですぐactive・自動実行対象になります。AIや調査が提案したゴールだけが「ゴール承認」タブに入り、承認後に自動実行対象になります。たくさんまとめて入れたいときは「JSONで一括追加」を使います。', },
   { q: 'AIが新しいゴールを提案してくるのは？', a: '自動実行の最初に、AI工場が「日々の調査結果」（ニュースアプリのAIツール調査など）を見て、効果がありそうな・やった方が良いことを「次に目指すべきゴール」として1〜3件提案します（例: 評価の高い新ツールを「○○を試す」「○○を調査する」、Fableを試す など）。提案ゴールは「今日の判断」（Inbox）の「ゴール承認」タブに出ます。「承認する」を押すと次回以降の自動実行の対象になり、達成まで自動で進みます。「やめる」で候補から外れます。承認するまで勝手に実行されることはありません。ゴールは優先順の高いものから処理され、達成して承認待ちが減ると、次の自動実行でまた調査から新しい候補が補充されます。承認待ちが3件たまると、それ以上は提案しません（先に承認/却下してください）。', },
+  { q: '自動実行する作業が無くなったらどうなる？', a: '空のまま止まらず「ゴール生成モード」に入ります。自動実行できる作業が無いアイドル時、AI工場はprogressアプリ優先で「改善事項（失敗したまま直っていない作業の解消）」と「試した方がいいこと（過去の作業が挙げた未消化の次アクション）」をゴール候補として提案し、それでも無ければ定番の改善テーマを補充します。これらは「ゴール承認」タブに出て、承認すれば次回の自動実行の対象になります。調査が外（ニュース）から、ゴール生成モードが中（progress自身の改善）から候補を足すことで、承認対象が空のままにならず、次の自動実行が空になりません（2026-06-20追加）。承認待ちが3件たまると、それ以上は提案しません。', },
   { q: '自動実行の状況をまとめて見たい', a: 'この運用ページ上部の「自動実行レポート」タブを開いてください。AI工場の状態（稼働中/停止）・次回の自動実行予定（11/14/16/23時）・これまでの自動実行サマリー（完了/一部完了/失敗の件数）・直近の自動実行の一覧・最近の自動化の動き（ゴール提案や次の一歩の自動作成など）・承認待ちのゴール候補の件数が1画面で分かります。', },
   { q: '自動で何が動いたか確認したい', a: '「今日の判断」（Inbox）の下に「🤖 自動実行の履歴」が出ます。最近AI工場が自動で動かした作業（結果・日時）が直近10件まで一覧で見られます。詳しくは「実行履歴」（/logs）でも確認できます。', },
   { q: 'ToDoも大きな作業も無い目標は自動で進む？', a: 'はい。ToDoも大きな作業（Epic）も無い未達成の目標は、自動実行キューに「○○（達成まで自動で進める）」として並びます。AI工場がこれを拾うと、その目標を進めるための次の1ステップ（次の一歩）を大きな作業として自動で作り、実装→検証まで進めます。完了してもまだ目標が未達成なら、次の一歩がまた作られ、達成するまで繰り返します。安全のため、承認が必要な目標・手動方針の目標・危険操作を含む目標は対象外で、その場合は「Inboxで承認」「目標詳細」などの解消手順を表示します。', },
@@ -67,7 +69,7 @@ const FAQ: Array<{ q: string; a: string }> = [
   { q: 'AI工場を止めたいときは？', a: 'Legacy内の「自動化」画面からオフにできます。オフの間、AIは新しい作業を始めません。' },
 ]
 
-function GuideTabBar({ active }: { active: 'guide' | 'report' }) {
+function GuideTabBar({ active }: { active: 'guide' | 'report' | 'system' }) {
   const base = 'flex-1 text-center rounded-lg px-3 py-2 text-xs font-bold transition-colors'
   const on = 'bg-blue-600 text-white'
   const off = 'border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800'
@@ -75,12 +77,14 @@ function GuideTabBar({ active }: { active: 'guide' | 'report' }) {
     <div className="flex gap-2">
       <Link href="/guide" className={`${base} ${active === 'guide' ? on : off}`}>使い方ガイド</Link>
       <Link href="/guide?tab=report" className={`${base} ${active === 'report' ? on : off}`}>自動実行レポート</Link>
+      <Link href="/guide?tab=system" className={`${base} ${active === 'system' ? on : off}`}>システム仕様</Link>
     </div>
   )
 }
 
 export default async function OperationsGuidePage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
-  const tab = (typeof searchParams?.tab === 'string' ? searchParams.tab : '') === 'report' ? 'report' : 'guide'
+  const rawTab = typeof searchParams?.tab === 'string' ? searchParams.tab : ''
+  const tab = rawTab === 'report' ? 'report' : rawTab === 'system' ? 'system' : 'guide'
   if (tab === 'report') {
     return (
       <div className="space-y-5 px-4 pb-6 pt-6">
@@ -93,6 +97,18 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
           range={typeof searchParams?.range === 'string' ? searchParams.range : ''}
           status={typeof searchParams?.status === 'string' ? searchParams.status : ''}
         />
+      </div>
+    )
+  }
+  if (tab === 'system') {
+    return (
+      <div className="space-y-5 px-4 pb-6 pt-6">
+        <PageGuide
+          title="運用"
+          guide="自動実行で何が起きるか（調査→目標→実行→検証→報告）を先頭にまとめた内部仕様です。詳しい参照（安全条件・データ・API・画面）は各見出しをタップで開けます。"
+        />
+        <GuideTabBar active="system" />
+        <SystemSpecification />
       </div>
     )
   }
