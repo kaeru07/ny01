@@ -103,6 +103,7 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
   const [tab, setTab] = useState<TabKey>(() => tabFromQuery(searchParams.get('tab')))
   const [reviewFilter, setReviewFilter] = useState<ReviewFilter>(() => reviewFilterFromQuery(searchParams.get('reviewFilter'), searchParams.get('filter'), searchParams.get('reviewStatus')))
   const [reviewPage, setReviewPage] = useState(0)
+  const [goalCat, setGoalCat] = useState<'all' | 'try' | 'app'>('all')
 
   const allReviewCards = useMemo(() => [...inbox.reviews, ...inbox.reviewedHistory], [inbox.reviews, inbox.reviewedHistory])
   const focusCard = focusRunId ? allReviewCards.find((card) => card.sourceRunId === focusRunId) : undefined
@@ -307,26 +308,51 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
       </div>
 
       {/* ① 今日の判断（工場停止要因のみ・最大3件） */}
-      {tab === 'goalApproval' && (
-        <section className="mt-4">
-          <div className="mb-2 flex items-baseline justify-between gap-2">
-            <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">🎯 ゴール承認（自動実行が提案した目標）</h2>
-            <span className="text-xs text-gray-500 dark:text-gray-400">{filteredProposedGoals.length}件</span>
-          </div>
-          <p className="mb-3 text-[11px] text-gray-500 dark:text-gray-400">自動実行のときにAIが日々の調査などから提案した目標候補です。承認すると次回以降の自動実行でその目標を達成まで進めます。やめると候補から外します。</p>
-          {filteredProposedGoals.length === 0 ? (
-            <p className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800/40 dark:text-gray-400">
-              承認待ちのゴール候補はありません。自動実行（11/14/16/23時）のたびに調査結果から候補が追加されます。
-            </p>
-          ) : (
-            <ul className="space-y-3">
-              {filteredProposedGoals.map((card) => (
-                <InboxCardItem key={card.id} card={card} />
+      {tab === 'goalApproval' && (() => {
+        const tryGoals = filteredProposedGoals.filter((c) => (c.proposalCategory ?? 'app') === 'try')
+        const appGoals = filteredProposedGoals.filter((c) => (c.proposalCategory ?? 'app') === 'app')
+        const catTabs: Array<{ key: 'all' | 'try' | 'app'; label: string; count: number }> = [
+          { key: 'all', label: 'すべて', count: filteredProposedGoals.length },
+          { key: 'try', label: '試した方がいい系', count: tryGoals.length },
+          { key: 'app', label: 'アプリ系', count: appGoals.length },
+        ]
+        const shown = goalCat === 'try' ? tryGoals : goalCat === 'app' ? appGoals : filteredProposedGoals
+        return (
+          <section className="mt-4">
+            <div className="mb-2 flex items-baseline justify-between gap-2">
+              <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">🎯 ゴール承認（自動実行が提案した目標）</h2>
+              <span className="text-xs text-gray-500 dark:text-gray-400">{filteredProposedGoals.length}件</span>
+            </div>
+            <p className="mb-3 text-[11px] text-gray-500 dark:text-gray-400">承認すると次回以降の自動実行でその目標を達成まで進めます。やめると候補から外します。「試した方がいい系」は日々の調査由来、「アプリ系」はprogressアプリの改善です。</p>
+            {/* カテゴリ サブタブ */}
+            <div className="mb-3 flex flex-wrap gap-1.5">
+              {catTabs.map((c) => (
+                <button
+                  key={c.key}
+                  type="button"
+                  onClick={() => setGoalCat(c.key)}
+                  className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-colors ${goalCat === c.key ? 'bg-blue-600 text-white' : 'border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800'}`}
+                >
+                  {c.label} {c.count}
+                </button>
               ))}
-            </ul>
-          )}
-        </section>
-      )}
+            </div>
+            {shown.length === 0 ? (
+              <p className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800/40 dark:text-gray-400">
+                {filteredProposedGoals.length === 0
+                  ? '承認待ちのゴール候補はありません。自動実行（11/14/16/23時）のたびに候補が追加されます。'
+                  : 'このカテゴリの承認待ち候補はありません。'}
+              </p>
+            ) : (
+              <ul className="space-y-3">
+                {shown.map((card) => (
+                  <InboxCardItem key={card.id} card={card} />
+                ))}
+              </ul>
+            )}
+          </section>
+        )
+      })()}
 
       {tab === 'decisions' && (
         <>

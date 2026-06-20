@@ -388,6 +388,13 @@ export interface InboxCard {
   /** kind === 'direction'（Goal紐付け）/ permission（承認時Goal指定）のときの選択肢 */
   goals?: Array<{ id: string; title: string }>
   epicId?: string
+  /** ゴール承認カードのカテゴリ。'try'=試した方がいい系（調査由来）/ 'app'=アプリ系（progress改善）。サブタブ分けに使う。 */
+  proposalCategory?: 'try' | 'app'
+}
+
+/** 提案元(proposalSource)から承認カードのカテゴリを決める。調査由来=試した方がいい系、それ以外=アプリ系。 */
+export function proposalCategoryOf(source?: string): 'try' | 'app' {
+  return source === 'research' ? 'try' : 'app'
 }
 
 export interface InboxGoalSummary {
@@ -879,6 +886,7 @@ export async function buildInbox(): Promise<InboxView> {
         kind: 'direction' as const,
         goalId: g.id,
         goalTitle: g.title,
+        proposalCategory: proposalCategoryOf(g.proposalSource),
         headline: `ゴール候補: ${g.title}`,
         rows: [
           ...(enables ? [{ label: '✅ できるようになること', text: enables }] : []),

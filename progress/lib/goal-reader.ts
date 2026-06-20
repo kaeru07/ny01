@@ -38,6 +38,13 @@ export function normalizeGoal(raw: Partial<Goal> & Record<string, unknown>): Goa
     autonomyNotifyNoopAt: typeof raw.autonomyNotifyNoopAt === 'string' ? raw.autonomyNotifyNoopAt : undefined,
     autonomyNotifyAttempts: normalizeNumber(raw.autonomyNotifyAttempts, 0),
     monetizationImpact: raw.monetizationImpact === 'high' || raw.monetizationImpact === 'medium' || raw.monetizationImpact === 'low' || raw.monetizationImpact === 'none' ? raw.monetizationImpact : 'none',
+    // 提案(proposed)系フィールドは保持必須。落とすと readGoals→writeGoals のたびに提案元・承認カテゴリが消える。
+    proposalSource: typeof raw.proposalSource === 'string' ? raw.proposalSource : undefined,
+    proposedAt: typeof raw.proposedAt === 'string' ? raw.proposedAt : undefined,
+    approvedAt: typeof raw.approvedAt === 'string' ? raw.approvedAt : undefined,
+    proposalEnables: typeof raw.proposalEnables === 'string' ? raw.proposalEnables : undefined,
+    proposalPros: Array.isArray(raw.proposalPros) ? raw.proposalPros.filter((p): p is string => typeof p === 'string') : undefined,
+    proposalCons: Array.isArray(raw.proposalCons) ? raw.proposalCons.filter((c): c is string => typeof c === 'string') : undefined,
     phases: Array.isArray(raw.phases) ? raw.phases : [],
     todos: Array.isArray(raw.todos) ? raw.todos : [],
     createdAt: typeof raw.createdAt === 'string' ? raw.createdAt : now,
