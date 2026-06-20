@@ -68,7 +68,7 @@ export function looksRateLimited(text: string): boolean {
   return RATE_PATTERNS.some((re) => re.test(text))
 }
 
-// git の変更ファイル一覧（cwd 配下）。
+// git の未コミット変更ファイル一覧（cwd 配下・porcelain）。
 export async function changedFilesIn(cwd: string): Promise<string[]> {
   const r = await runCommand('git', ['-C', cwd, 'status', '--porcelain'], { timeoutMs: 15_000 })
   return r.stdout
@@ -76,4 +76,30 @@ export async function changedFilesIn(cwd: string): Promise<string[]> {
     .map((l) => l.trim())
     .filter(Boolean)
     .map((l) => l.replace(/^\S+\s+/, ''))
+}
+
+// 現在の HEAD コミットハッシュ（取得失敗時は空文字）。
+export async function gitHead(cwd: string): Promise<string> {
+  const r = await runCommand('git', ['-C', cwd, 'rev-parse', 'HEAD'], { timeoutMs: 15_000 })
+  return r.code === 0 ? r.stdout.trim() : ''
+}
+
+/**
+ * 実行前後の差分から「この実行で変更されたファイル」を集約して返す。
+ * executor が変更をコミットすると porcelain が clean になり changedFiles が空になる問題に対応:
+ *   - 実行中にコミットされた変更: git diff --name-only <beforeHead>..HEAD
+ *   - 実行後も未コミットの変更: porcelain（実行前から dirty だった分は除外し、この実行起因のみ）
+ */
+export async function changedFilesSince(cwd: string, beforeHead: string, beforeDirty: string[]): Promise<string[]> {
+  const set = new Set<string>()
+  if (beforeHead) {
+    const r = await runCommand('git', ['-C', cwd, 'diff', '--name-only', `${beforeHead}..HEAD`], { timeoutMs: 15_000 })
+    if (r.code === 0) {
+      r.stdout.split('\n').map((l) => l.trim()).filter(Boolean).forEach((f) => set.add(f))
+    }
+  }
+  const beforeSet = new Set(beforeDirty)
+  const after = await changedFilesIn(cwd)
+  for (const f of after) if (!beforeSet.has(f)) set.add(f)
+  return Array.from(set)
 }

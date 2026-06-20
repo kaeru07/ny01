@@ -1,5 +1,5 @@
 import type { ExecutorAdapter, ExecutorResult, ExecutorRunInput } from './types'
-import { runCommand, changedFilesIn } from './shell'
+import { runCommand, changedFilesIn, gitHead, changedFilesSince } from './shell'
 import { classifyCodexEligibility } from '@/lib/operations-store'
 
 // Codex adapter（Claude 上限後の fallback executor）。`codex exec` を非対話で起動する。
@@ -40,7 +40,8 @@ export const codexAdapter: ExecutorAdapter = {
     }
 
     const cwd = input.cwd ?? process.cwd()
-    const before = await changedFilesIn(cwd)
+    const beforeHead = await gitHead(cwd)
+    const beforeDirty = await changedFilesIn(cwd)
     // 非対話・workspace-write サンドボックス（cwd 配下のみ書込可）。stdin は空で閉じる。
     // stdin は ignore（/dev/null 相当）。プロンプトは引数で渡す。
     const r = await runCommand(
@@ -48,8 +49,8 @@ export const codexAdapter: ExecutorAdapter = {
       ['exec', '-C', cwd, '--skip-git-repo-check', '-s', 'workspace-write', input.prompt],
       { cwd, timeoutMs: input.timeoutMs ?? 300_000 },
     )
-    const after = await changedFilesIn(cwd)
-    const changedFiles = after.filter((f) => !before.includes(f))
+    // コミット済み＋未コミットを集約（executor がコミットしても変更を取りこぼさない）。
+    const changedFiles = await changedFilesSince(cwd, beforeHead, beforeDirty)
 
     const status: ExecutorResult['status'] = r.timedOut ? 'partial' : r.code === 0 ? 'completed' : 'failed'
     return {
