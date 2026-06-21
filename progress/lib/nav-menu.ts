@@ -64,6 +64,7 @@ export const NAV_GROUPS: NavGroup[] = [
     title: '計画・候補',
     links: [
       { href: '/integration-map', label: '対応表（旧Vault→今のゴール運用）', note: '一時ページ。旧Vault運用と今のゴール運用の対応表＋統合の進め方①〜⑥' },
+      { href: '/project-goals', label: 'プロジェクト×ゴール進捗', note: 'プロジェクト別にゴールと達成率を一覧。アプリはApp Store公開仕様で「完成」表示・未紐付けゴールも警告' },
       { href: '/goal-dashboard', label: 'ゴール達成率ダッシュボード', note: '全ゴールの状態内訳・達成率の俯瞰（進んでいない目標が上に出る）' },
       { href: '/recommended-epics', label: 'おすすめ次作業（推薦Epic）', note: 'AI提案の作業候補の全件管理' },
       { href: '/monetization', label: '収益化候補管理', note: 'アプリ候補のスコア・詳細管理' },
@@ -78,7 +79,6 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/morning', label: '朝会', note: '朝のブリーフィング画面' },
       { href: '/daily', label: '日別', note: '日別の作業まとめ' },
       { href: '/legacy/home', label: '旧ダッシュボード', note: '以前のトップ画面（全部入り）' },
-      { href: '/legacy/queue', label: '旧キュー（WorkQueue）', note: '非正本・互換のみ。正本は「自動実行」/queue' },
       { href: '/legacy', label: '画面一覧（Legacy）', note: '全画面のカテゴリ別ディレクトリ＋用語対応表' },
     ],
   },

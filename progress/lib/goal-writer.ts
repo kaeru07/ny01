@@ -385,6 +385,7 @@ export async function upsertGoal(input: GoalUpsertInput): Promise<Goal> {
     metric: pickString(input.metric, previous?.metric ?? 'progress'),
     target,
     current: pickNumber(input.current, previous?.current ?? 0),
+    metricSyncedAt: previous?.metricSyncedAt,
     isNorthStar: input.isNorthStar === true,
     summary: pickString(input.description, previous?.summary ?? ''),
     status: pickGoalStatus(input.status, previous?.status ?? 'active'),
@@ -732,4 +733,44 @@ export async function syncGoalTodoStatuses(): Promise<{ synced: number }> {
 
   if (synced > 0) await writeGoals(data)
   return { synced }
+}
+
+/**
+ * ゴールをプロジェクトに紐づける。assignments で明示指定、または defaultProjectId で
+ * 未紐付け(projectId 無し)のゴールに一括設定する。「ゴールは必ずプロジェクトに紐づく」運用のための writer。
+ */
+export async function linkGoalProject(opts: {
+  assignments?: Array<{ goalId: string; projectId: string }>
+  defaultProjectId?: string
+  onlyStatuses?: GoalStatus[]
+}): Promise<{ linked: number; details: Array<{ goalId: string; title: string; projectId: string }> }> {
+  const data = await readGoals()
+  const now = nowIso()
+  const byId = new Map(data.goals.map((g) => [g.id, g]))
+  const details: Array<{ goalId: string; title: string; projectId: string }> = []
+  let linked = 0
+
+  for (const a of opts.assignments ?? []) {
+    const g = byId.get(pickString(a.goalId))
+    const pid = pickString(a.projectId)
+    if (!g || !pid) continue
+    if (g.projectId !== pid) { g.projectId = pid; g.updatedAt = now; linked += 1 }
+    details.push({ goalId: g.id, title: g.title, projectId: pid })
+  }
+
+  if (opts.defaultProjectId) {
+    const pid = pickString(opts.defaultProjectId)
+    const statuses = opts.onlyStatuses
+    for (const g of data.goals) {
+      if (g.projectId && String(g.projectId).trim()) continue
+      if (statuses && !statuses.includes(g.status)) continue
+      g.projectId = pid
+      g.updatedAt = now
+      linked += 1
+      details.push({ goalId: g.id, title: g.title, projectId: pid })
+    }
+  }
+
+  if (linked > 0) await writeGoals(data)
+  return { linked, details }
 }
