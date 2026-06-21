@@ -1,8 +1,10 @@
 export const dynamic = 'force-dynamic'
 
+import Link from 'next/link'
 import PageGuide from '@/components/newux/PageGuide'
 import FilterBar from '@/components/newux/FilterBar'
 import FilterChips from '@/components/newux/FilterChips'
+import ProjectGoalsView from '@/components/projects/ProjectGoalsView'
 import { buildProjectPortfolio } from '@/lib/command-center'
 import { buildProgressFilterUrl, parseProgressFilters, updateFilterParam } from '@/lib/progress-filters'
 
@@ -28,7 +30,30 @@ function matchesProject(project: Awaited<ReturnType<typeof buildProjectPortfolio
   return haystack.includes(q.toLowerCase())
 }
 
+function ProjectTabBar({ active }: { active: 'projects' | 'goals' }) {
+  const base = 'flex-1 text-center rounded-lg px-3 py-2 text-xs font-bold transition-colors'
+  const on = 'bg-blue-600 text-white'
+  const off = 'border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800'
+  return (
+    <div className="flex gap-2">
+      <Link href="/portfolio" className={`${base} ${active === 'projects' ? on : off}`}>案件一覧</Link>
+      <Link href="/portfolio?tab=goals" className={`${base} ${active === 'goals' ? on : off}`}>ゴール進捗</Link>
+    </div>
+  )
+}
+
 export default async function PortfolioPage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
+  const tab = searchParams?.tab === 'goals' ? 'goals' : 'projects'
+  if (tab === 'goals') {
+    return (
+      <div className="space-y-5 px-4 pb-6 pt-6">
+        <PageGuide title="Projects" guide="進行中プロジェクトの状況を確認します。「あなたの作業待ち」のものから手を付けるのがおすすめです。" />
+        <ProjectTabBar active="goals" />
+        <ProjectGoalsView />
+      </div>
+    )
+  }
+
   const allProjects = await buildProjectPortfolio()
   const filters = parseProgressFilters(searchParams)
   const projects = allProjects.filter((project) => {
@@ -42,6 +67,7 @@ export default async function PortfolioPage({ searchParams }: { searchParams?: R
   return (
     <div className="space-y-5 px-4 pb-6 pt-6">
       <PageGuide title="Projects" guide="進行中プロジェクトの状況を確認します。「あなたの作業待ち」のものから手を付けるのがおすすめです。" />
+      <ProjectTabBar active="projects" />
 
       <section className="space-y-2">
         <p className="text-xs text-gray-500 dark:text-gray-400">全{allProjects.length}件中 {projects.length}件表示</p>

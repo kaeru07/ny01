@@ -64,7 +64,7 @@ export const NAV_GROUPS: NavGroup[] = [
     title: '計画・候補',
     links: [
       { href: '/integration-map', label: '対応表（旧Vault→今のゴール運用）', note: '一時ページ。旧Vault運用と今のゴール運用の対応表＋統合の進め方①〜⑥' },
-      { href: '/project-goals', label: 'プロジェクト×ゴール進捗', note: 'プロジェクト別にゴールと達成率を一覧。アプリはApp Store公開仕様で「完成」表示・未紐付けゴールも警告' },
+      { href: '/portfolio?tab=goals', label: 'プロジェクト×ゴール進捗', note: 'プロジェクト別にゴールと達成率を一覧。アプリはApp Store公開仕様で「完成」表示・未紐付けゴールも警告' },
       { href: '/goal-dashboard', label: 'ゴール達成率ダッシュボード', note: '全ゴールの状態内訳・達成率の俯瞰（進んでいない目標が上に出る）' },
       { href: '/recommended-epics', label: 'おすすめ次作業（推薦Epic）', note: 'AI提案の作業候補の全件管理' },
       { href: '/monetization', label: '収益化候補管理', note: 'アプリ候補のスコア・詳細管理' },
