@@ -7,7 +7,7 @@ import SystemSpecification from '@/components/operations/SystemSpecification'
 import { TERMS, buildInbox, buildRevenueMilestones } from '@/lib/command-center'
 import { computeFactoryMetrics } from '@/lib/factory-metrics'
 import { getAutomationConfig } from '@/lib/operations-store'
-import { readOperatingModelMeta } from '@/lib/operating-model'
+import { getOperatingModelFreshness, readOperatingModelMeta } from '@/lib/operating-model'
 
 // 📖 運用 = Progress が自分の使い方を説明するページ。
 // 初見ユーザーが5分で「このアプリは何か / 今日何をやるか / AI工場がどう動くか」を
@@ -51,6 +51,7 @@ const FAQ: Array<{ q: string; a: string }> = [
   { q: '次回予定からレビューへ飛ぶときは？', a: '司令塔トップの「Inboxでレビューする」は /decide?tab=review&goalId=...&focusRunId=... を開きます。今日の判断0件のタブへ飛ばず、該当Goalのレビュー一覧に絞り込み、対象カードを自動でハイライトします。カードが要修正/あとで/レビュー済み側にある場合は、そのフィルタへ自動で切り替えます。該当タブが0件でも同じGoalの他タブに件数があれば案内ボタンを出します。未紐づけは「未紐づけ」として絞り込みできます。' },
   { q: '問題なし／あとで／修正するを押すとどうなる？', a: '「問題なし」=レビュー済みになり待ち一覧から消えます（消えても「レビュー済み」タブに残り、物理削除しません）。「あとで」=後回しとして一覧に残り「あとで」バッジが付きます。「修正する」=修正指示の入力欄が開き、書いて保存すると要修正として残り、その指示が次回自動実行の作業指示になります（空欄保存は不可）。「未確認レビューをAIで一括整理」は未確認の全件が対象で、危険なもの・判断が必要なものは必ず一覧に残し、最終判断は人間が行えます。' },
   { q: 'AI保留って何？', a: '人間が判断する必要のないもの（AIレビュー・候補整理・定期実行・重複・内容不足）をAIが預かっている状態です。件数だけ表示され、あなたの判断は不要です。' },
+  { q: '「ループの健全性」カードは何を見ている？', a: '自動実行（/automation）の上部にあるカードで、「実行 → レビュー → 学び（Knowledge） → 次のEpic候補」の流れが切れていないかを測定します。🟢なら全段つながり済み（こぼれ0件）、🟡ならこぼれ件数を表示します。各段の件数（レビュー済みRun・Knowledge・次Epic候補つき・修正依頼Run・修正候補）も並びます。こぼれがある時だけ「こぼれを自己修復」ボタンが押せ、未生成のKnowledge・次Epic候補・修正候補を冪等に補完します（2026-06-21追加）。', },
   { q: '下タブ（メニュー）の構成は？', a: 'iPhoneの下タブは横スクロールで、先頭が主要5つ（ホーム / ToDo / Project / 目標 / 自動実行）、続けて作業予約・Revenue・運用・実行履歴・収益化・承認…と、リンクで飛べる主要画面が全部並びます。右へスワイプすれば全画面に直接行けます（「下タブにない画面」はありません）。', },
   { q: '自動実行キューはどこ？', a: 'iPhoneの下タブ「自動実行」（/queue）です。AI工場が次に何をやるか、なぜそれが次か、判断待ち・実行可能・ブロックの件数が見えます。以前は下タブに無くて辿りにくかったため、2026-06-14に主要タブへ昇格しました。', },
   { q: 'フィルターは何に使う？', a: '自動実行キューやInboxの上部にあるチップと「絞り込み」で、Goal・Project・状態・pin済み・候補外・検索語などを表示だけ絞れます。選択はURLに同期されるので、再読み込みや共有リンクでも同じ条件を復元できます。これは表示専用で、AI工場の候補判定・スコア・実行順そのものは変えません。' },
@@ -101,6 +102,7 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
     )
   }
   if (tab === 'system') {
+    const freshness = await getOperatingModelFreshness()
     return (
       <div className="space-y-5 px-4 pb-6 pt-6">
         <PageGuide
@@ -108,6 +110,11 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
           guide="自動実行で何が起きるか（調査→目標→実行→検証→報告）を先頭にまとめた内部仕様です。詳しい参照（安全条件・データ・API・画面）は各見出しをタップで開けます。"
         />
         <GuideTabBar active="system" />
+        {freshness.stale && (
+          <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-[12px] text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
+            ⚠ 運用ドキュメントが {freshness.days} 日更新されていません（current-operating-model.md）。実装と乖離していないか点検してください。
+          </div>
+        )}
         <SystemSpecification />
       </div>
     )
