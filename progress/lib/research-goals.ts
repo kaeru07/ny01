@@ -89,6 +89,7 @@ function toCandidate(raw: RawCandidate): ProposeGoalInput {
   return {
     title: `${raw.name}を${verb}`,
     summary: `日々の調査(AIツール ${raw.sourceDate})で高評価(${'★'.repeat(raw.stars)})。${raw.detail}`.slice(0, 200),
+    projectId: 'try-research',
     metric: 'progress',
     target: 100,
     current: 0,
