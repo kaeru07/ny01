@@ -230,11 +230,13 @@ function toGoalItem(goal: Goal): AutoQueueItem {
       ? 'waiting_user'
     : goal.decisionPolicyDefault === 'manual'
       ? 'manual'
+    : goal.queueControl?.hold === true
+      ? 'ai_hold'
       : 'executable'
   const achievement = goalAchievement(goal)
   const score = computeQueueScore({
     priority,
-    queueControl: goal.pinnedTop ? { pinnedTop: true } : undefined,
+    queueControl: goal.queueControl ?? (goal.pinnedTop ? { pinnedTop: true } : undefined),
     nextAction: goal.summary,
     updatedAt: goal.updatedAt,
     factoryEligible: status === 'executable',
@@ -278,7 +280,7 @@ function toGoalItem(goal: Goal): AutoQueueItem {
       ? `Goal未達成（達成率${achievement}%）・todo/epicが無いため、次の一歩をEpic化して自動で進めます`
       : reasonFromFactors(status, score.reasonFactors, goal.title, goal.pinnedTop === true),
     reasonFactors: status === 'executable' ? ['Goal達成が目的', '次の一歩を自動Epic化', `優先度${epicPriorityLabel(priority)}`] : (score.reasonFactors.length > 0 ? score.reasonFactors : [status]),
-    queueControl: goal.pinnedTop ? { pinnedTop: true } : undefined,
+    queueControl: goal.queueControl ?? (goal.pinnedTop ? { pinnedTop: true } : undefined),
   }
 }
 

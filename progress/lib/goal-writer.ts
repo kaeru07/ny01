@@ -690,6 +690,28 @@ export async function updateGoalTodo(goalId: string, todoId: string, updates: { 
   return todo
 }
 
+export async function updateGoalControl(
+  goalId: string,
+  updates: {
+    pinnedTop?: boolean
+    priorityBoost?: 0 | 1 | 2
+    queueControl?: Partial<QueueControl>
+  },
+): Promise<Goal | null> {
+  const data = await readGoals()
+  const goal = data.goals.find((g) => g.id === goalId)
+  if (!goal) return null
+  const now = nowIso()
+  if (updates.pinnedTop !== undefined) goal.pinnedTop = updates.pinnedTop
+  if (updates.priorityBoost !== undefined) goal.priorityBoost = updates.priorityBoost
+  if (updates.queueControl !== undefined) {
+    goal.queueControl = { ...goal.queueControl, ...updates.queueControl, updatedBy: 'user', updatedAt: now }
+  }
+  goal.updatedAt = now
+  await writeGoals(data)
+  return goal
+}
+
 export async function syncGoalTodoStatuses(): Promise<{ synced: number }> {
   const data = await readGoals()
   if (data.goals.length === 0) return { synced: 0 }

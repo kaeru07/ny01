@@ -208,9 +208,6 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
           <Link href="/logs" className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
             実行履歴
           </Link>
-          <Link href="/legacy/queue" className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-500 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800">
-            旧キュー
-          </Link>
         </div>
       </header>
 
@@ -365,7 +362,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
                 </div>
               </div>
           {group.items.map((item) => {
-            const canMove = item.type === 'epic' && item.status === 'executable'
+            const canMove = item.status === 'executable'
             const isPinned = item.queueControl?.pinnedTop === true
             const isHeld = item.queueControl?.hold === true
             const pinnedButExcluded = isPinned && !item.candidateEligible
@@ -463,11 +460,13 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
                   {item.type === 'epic' && !item.factoryEligible && (
                     <QueueActionButton workItemId={item.workItemId} action="include">対象に戻す</QueueActionButton>
                   )}
-                  {item.type === 'goal_todo' && (
+                  {(item.type === 'goal_todo' || item.type === 'goal') && (
                     <>
                       <QueueActionButton workItemId={item.workItemId} action="include">次回候補に戻す</QueueActionButton>
                       <QueueActionButton workItemId={item.workItemId} action="prioritize">最優先で次回実行</QueueActionButton>
-                      <QueueActionButton workItemId={item.workItemId} action="complete">完了</QueueActionButton>
+                      {item.type === 'goal_todo' && (
+                        <QueueActionButton workItemId={item.workItemId} action="complete">完了</QueueActionButton>
+                      )}
                     </>
                   )}
                   <Link href={itemHref(item)} className="rounded-lg border border-gray-200 px-2.5 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">

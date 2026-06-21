@@ -53,6 +53,8 @@ export interface Goal {
   metric?: string
   target?: number
   current?: number
+  /** computeFactoryMetrics 由来の自動計測値で current を更新した時刻（手動編集と区別する）。 */
+  metricSyncedAt?: string
   isNorthStar?: boolean
   summary: string
   decisionPolicyDefault?: DecisionPolicy
@@ -62,6 +64,7 @@ export interface Goal {
   priority: TaskPriority
   priorityBoost?: 0 | 1 | 2
   pinnedTop?: boolean
+  queueControl?: QueueControl
   lastSelectedRunId?: string
   lastSelectedAt?: string
   /** 実メール送信が成功した時刻（不可逆・二重送信防止）。no-op(モック)では立てない。 */
