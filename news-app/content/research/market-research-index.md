@@ -41,6 +41,8 @@
 
 
 
+
+- 2026-06-22: AI エージェント権限管理 / Google DeepMind、AIエージェント制御ロードマップを公開 / Google ADK 2.0 / AI サブスク比較ダッシュボード: ChatGPT / エラーなし / partial(market,news,tools)
 - 2026-06-21: AIネイティブ小型ユーティリティ / Google DeepMind 人材流出が AI 競争の焦点に / Streamdown / 小型学習アプリを無料+広告で出し、復習回数・問題生成・履歴同期を月額課金にする / エラーなし / partial(market,news,tools)
 - 2026-06-20: AIアシスタント比較 / Google DeepMind の AlphaFold 中核人材 John Jumper 氏が An… / Microsoft Intelligent Terminal / AIサブスク管理ツール: ChatGPT / エラーなし / partial(market,news,tools)
 - 2026-06-19: (未取得) / (未取得) / (未取得) / (未取得) / エラーあり(daily-market-research,daily-ai-news,daily-ai-tools,market-research-method-review)
