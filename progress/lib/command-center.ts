@@ -57,6 +57,7 @@ export const TERMS: Record<string, { ja: string; help: string }> = {
   runArchive: { ja: '作業履歴アーカイブ', help: '古い確認済みの作業履歴をバックアップ後に月別ファイルへ移す整理です' },
   reviewCopy: { ja: 'レビュー用コピー', help: '司令塔の現在状態をMarkdownにまとめ、ChatGPTやFableへ貼って外部レビューを受けるための読み取り専用コピーです' },
   verifyTodo: { ja: '動作確認Todo', help: 'AIの作業やEpic完了後に、人間が確認すべき画面・URL・手順を一覧で管理する場所。未確認/確認済/NG/保留で状態を管理し、アプリ・Epic・状態で絞り込めます' },
+  loopHealth: { ja: 'ループの健全性', help: '「実行→レビュー→学び(Knowledge)→次のEpic候補」の流れが切れていないかを測る指標。自動実行画面のカードで🟢=全段つながり済み/🟡=こぼれ件数を表示し、こぼれは「自己修復」で冪等に補完できます（表示・補完専用で工場の実行順は変えません）' },
   goalStepEpic: { ja: '達成まで自動で進める（次の一歩）', help: 'ToDoも大きな作業も無い未達成の目標を、AI工場が「達成まで自動で進める」対象として自動実行キューに載せます。工場が拾うと、その目標を進める次の1ステップ（次の一歩）を大きな作業として自動で作り、達成するまで繰り返します。承認待ち・手動方針・危険操作の目標は対象外です' },
   usage: { ja: '使用状況', help: 'Progress 自身の使われ方を集計する画面（/usage）。どの画面をよく開き・どのボタンをよく押し・最後にいつ使い・どの画面を放置しているかを直近7日で表示します。画面遷移とボタン操作を自動で記録（usage-log.ndjson）した表示専用の集計で、AI工場の判定や実行には影響しません' },
   proposedGoal: { ja: 'ゴール承認', help: 'AI が「次に目指すべきゴール」を提案します（status=proposed）。提案元は2系統で、①自動実行の最初に日々の調査結果（ニュース）から、②自動実行する作業が無くなったアイドル時に progress 自身の改善事項・試したいこと（ゴール生成モード）から補充します。提案ゴールは今日の判断（Inbox）の「ゴール承認」に並び、承認すると次回以降の自動実行で達成まで自動で進めます。やめると候補から外れます。承認するまで自動実行はされません' },
@@ -952,7 +953,24 @@ export async function buildInbox(): Promise<InboxView> {
     snoozed: reviews.filter((c) => c.reviewStatus === 'snoozed').length,
   }
   const candidates = cards.filter((c) => c.kind === 'permission')
-  const decisions = stopFactors.slice(0, TODAY_LIMIT)
+  // 今日の判断は上限 TODAY_LIMIT 件。単純な danger 優先 slice だと、危険レビューが多いとき
+  // 方針選択(direction)・人間作業(human_task)が枠を取れず埋もれる。カテゴリ間でラウンドロビンし、
+  // 各種別が最低1枠は出るようにする（danger→direction→human_task の順は維持）。
+  const decisions = (() => {
+    const queues = [
+      stopFactors.filter((c) => c.kind === 'danger'),
+      stopFactors.filter((c) => c.kind === 'direction'),
+      stopFactors.filter((c) => c.kind === 'human_task'),
+    ]
+    const picked: InboxCard[] = []
+    let qi = 0
+    while (picked.length < TODAY_LIMIT && queues.some((q) => q.length > 0)) {
+      const next = queues[qi % queues.length].shift()
+      if (next) picked.push(next)
+      qi += 1
+    }
+    return picked
+  })()
   const goalIds = new Set<string>([
     ...cards.map((card) => card.goalId ?? 'unassigned'),
     ...reviewedHistory.map((card) => card.goalId ?? 'unassigned'),
