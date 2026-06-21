@@ -63,7 +63,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     title: '計画・候補',
     links: [
-      { href: '/research-flow', label: '毎朝の調査のしくみ(図解)', note: '毎朝の調査→試す候補の自動提案→承認→自動実行 の流れを図で説明' },
+      { href: '/guide?tab=research', label: '毎朝の調査のしくみ(図解)', note: '毎朝の調査→試す候補の自動提案→承認→自動実行 の流れを図で説明' },
       { href: '/projects/import', label: 'プロジェクト＋ゴール追加(JSON)', note: 'プロジェクトとゴールを手動でまとめて追加。ゴールは自動実行対象になりキューで優先調整可' },
       { href: '/integration-map', label: '対応表（旧Vault→今のゴール運用）', note: '一時ページ。旧Vault運用と今のゴール運用の対応表＋統合の進め方①〜⑥' },
       { href: '/portfolio?tab=goals', label: 'プロジェクト×ゴール進捗', note: 'プロジェクト別にゴールと達成率を一覧。アプリはApp Store公開仕様で「完成」表示・未紐付けゴールも警告' },

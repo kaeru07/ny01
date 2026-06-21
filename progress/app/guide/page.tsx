@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import PageGuide from '@/components/newux/PageGuide'
 import AutoExecReport from '@/components/operations/AutoExecReport'
+import ResearchSpecification from '@/components/operations/ResearchSpecification'
 import SystemSpecification from '@/components/operations/SystemSpecification'
 import { TERMS, buildInbox, buildRevenueMilestones } from '@/lib/command-center'
 import { computeFactoryMetrics } from '@/lib/factory-metrics'
@@ -70,7 +71,7 @@ const FAQ: Array<{ q: string; a: string }> = [
   { q: 'AI工場を止めたいときは？', a: 'Legacy内の「自動化」画面からオフにできます。オフの間、AIは新しい作業を始めません。' },
 ]
 
-function GuideTabBar({ active }: { active: 'guide' | 'report' | 'system' }) {
+function GuideTabBar({ active }: { active: 'guide' | 'report' | 'system' | 'research' }) {
   const base = 'flex-1 text-center rounded-lg px-3 py-2 text-xs font-bold transition-colors'
   const on = 'bg-blue-600 text-white'
   const off = 'border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800'
@@ -79,13 +80,14 @@ function GuideTabBar({ active }: { active: 'guide' | 'report' | 'system' }) {
       <Link href="/guide" className={`${base} ${active === 'guide' ? on : off}`}>使い方ガイド</Link>
       <Link href="/guide?tab=report" className={`${base} ${active === 'report' ? on : off}`}>自動実行レポート</Link>
       <Link href="/guide?tab=system" className={`${base} ${active === 'system' ? on : off}`}>システム仕様</Link>
+      <Link href="/guide?tab=research" className={`${base} ${active === 'research' ? on : off}`}>調査仕様</Link>
     </div>
   )
 }
 
 export default async function OperationsGuidePage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
   const rawTab = typeof searchParams?.tab === 'string' ? searchParams.tab : ''
-  const tab = rawTab === 'report' ? 'report' : rawTab === 'system' ? 'system' : 'guide'
+  const tab = rawTab === 'report' ? 'report' : rawTab === 'system' ? 'system' : rawTab === 'research' ? 'research' : 'guide'
   if (tab === 'report') {
     return (
       <div className="space-y-5 px-4 pb-6 pt-6">
@@ -116,6 +118,18 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
           </div>
         )}
         <SystemSpecification />
+      </div>
+    )
+  }
+  if (tab === 'research') {
+    return (
+      <div className="space-y-5 px-4 pb-6 pt-6">
+        <PageGuide
+          title="運用"
+          guide="毎朝の調査→試す候補の自動提案→承認→自動実行の流れと仕様"
+        />
+        <GuideTabBar active="research" />
+        <ResearchSpecification />
       </div>
     )
   }
