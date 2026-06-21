@@ -1,5 +1,5 @@
 import type { ExecutorAdapter, ExecutorResult, ExecutorRunInput } from './types'
-import { runCommand, looksRateLimited, changedFilesIn, gitHead, changedFilesSince } from './shell'
+import { runCommand, looksRateLimited, changedFilesIn, gitHead, changedFilesSince, parseNextActions } from './shell'
 
 // Claude adapter（基本 executor）。`claude -p` を非対話で起動する。
 // 上限検知時は rateLimited=true を返し、runner が AutoFallback 評価へ渡す。
@@ -52,7 +52,7 @@ export const claudeAdapter: ExecutorAdapter = {
       errorType: rateLimited ? 'claude_rate_limited' : r.timedOut ? 'timeout' : r.code === 0 ? undefined : 'nonzero_exit',
       rateLimited,
       needsApproval: false,
-      nextActions: [],
+      nextActions: parseNextActions(r.stdout),
     }
   },
 }

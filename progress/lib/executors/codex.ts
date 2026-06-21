@@ -1,5 +1,5 @@
 import type { ExecutorAdapter, ExecutorResult, ExecutorRunInput } from './types'
-import { runCommand, changedFilesIn, gitHead, changedFilesSince } from './shell'
+import { runCommand, changedFilesIn, gitHead, changedFilesSince, parseNextActions } from './shell'
 import { classifyCodexEligibility } from '@/lib/operations-store'
 
 // Codex adapter（Claude 上限後の fallback executor）。`codex exec` を非対話で起動する。
@@ -62,7 +62,7 @@ export const codexAdapter: ExecutorAdapter = {
       errorType: r.timedOut ? 'timeout' : r.code === 0 ? undefined : 'nonzero_exit',
       rateLimited: false,
       needsApproval: false,
-      nextActions: [],
+      nextActions: parseNextActions(r.stdout),
     }
   },
 }
