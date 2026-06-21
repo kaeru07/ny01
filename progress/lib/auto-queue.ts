@@ -206,9 +206,10 @@ function safetyValue(item: AutoQueueItem): number {
  * 並び順（上位→下位）:
  *  1. 明示pin（手動最優先・絶対上位）
  *  2. 安全枠（要修正優先 / 自走化アンカー）
- *  3. Goal順（rankGoals: pin>boost>優先度、未設定は末尾）
- *  4. Goal内（手動順 → score → 優先度 → 直近実行）
- * goalRank を渡すと「Goalの並びがキュー順を決める」。未指定時は Goal順を無視（後方互換）。
+ *  3. 手動順（指定済みを優先）
+ *  4. Goal順（rankGoals: pin>boost>優先度、未設定は末尾）
+ *  5. score → 優先度 → 直近実行
+ * goalRank を渡すと、手動順が未指定の item は Goal順に従う。未指定時は Goal順を無視（後方互換）。
  */
 function goalPriority(goal: Goal): 'P0' | 'P1' | 'P2' {
   if (goal.priority === 'high') return 'P0'
@@ -293,18 +294,19 @@ function compareItems(a: AutoQueueItem, b: AutoQueueItem, goalRank?: Map<string,
   const bsv = safetyValue(b)
   if (asv !== bsv) return bsv - asv
 
+  const am = a.queueControl?.manualOrder
+  const bm = b.queueControl?.manualOrder
+  if (typeof am === 'number' && typeof bm === 'number' && am !== bm) return am - bm
+  if (typeof am === 'number' && typeof bm !== 'number') return -1
+  if (typeof bm === 'number' && typeof am !== 'number') return 1
+
   if (goalRank) {
     const ar = goalRankOf(goalRank, a.goalId)
     const br = goalRankOf(goalRank, b.goalId)
     if (ar !== br) return ar - br
   }
 
-  const am = a.queueControl?.manualOrder
-  const bm = b.queueControl?.manualOrder
-  if (typeof am === 'number' && typeof bm === 'number' && am !== bm) return am - bm
   if (a.queueScore !== b.queueScore) return b.queueScore - a.queueScore
-  if (typeof am === 'number' && typeof bm !== 'number') return -1
-  if (typeof bm === 'number' && typeof am !== 'number') return 1
   const pr = PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority]
   if (pr !== 0) return pr
   const at = Date.parse(a.lastRunAt ?? a.updatedAt ?? '')

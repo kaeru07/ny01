@@ -6,6 +6,7 @@ import { getAutoQueueView } from '@/lib/auto-queue'
 import { computeFactoryStatus } from '@/lib/factory-status'
 import FilterBar from '@/components/newux/FilterBar'
 import FilterChips from '@/components/newux/FilterChips'
+import { QueueReorderList } from '@/components/queue/QueueReorderList'
 import QueueActionButton from './QueueActionButton'
 import { buildProgressFilterUrl, parseProgressFilters, updateFilterParam, type ProgressFilterState } from '@/lib/progress-filters'
 import { epicPriorityLabel } from '@/lib/epic-priority-label'
@@ -323,6 +324,16 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
           </Link>
         ))}
       </section>
+
+      <QueueReorderList
+        items={queue.executable.map((item) => ({
+          workItemId: item.workItemId,
+          title: item.title,
+          goalTitle: item.goalTitle,
+          projectId: item.projectId,
+          pinned: item.queueControl?.pinnedTop === true,
+        }))}
+      />
 
       {items.length === 0 ? (
         <section className="rounded-lg border border-dashed border-gray-200 px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-700">
