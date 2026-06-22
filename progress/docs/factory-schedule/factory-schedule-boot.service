@@ -5,6 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
+TimeoutStartSec=2h
 User=root
 WorkingDirectory=/root/company/apps/ny01/progress
 # 安全側初回運用: 1 起動あたり最大 1 Run。安定後に値を上げる or 行ごと削除（API 既定=最大3）。

@@ -27,7 +27,7 @@ export type ScheduleTrigger = 'systemd' | 'cron' | 'startup'
 
 const LOCK_FILE = 'factory-schedule.lock'
 /** ロックが残ったまま死んだ場合に備え、この時間を超えた lock は stale として奪取する。 */
-const LOCK_STALE_MS = 30 * 60 * 1000
+const LOCK_STALE_MS = 2 * 60 * 60 * 1000
 
 export interface ScheduleRunInput {
   source: ScheduleSource

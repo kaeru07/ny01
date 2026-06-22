@@ -37,7 +37,7 @@ Factory を **ユーザー操作なし**で起動するためのスケジュー�
 1. `factoryEnabled === true`（false → `skip=factory_off`）
 2. `factoryRunState !== 'Blocked'`（Blocked → `skip=blocked`）
 3. 二重起動防止: `data/real/factory-schedule.lock` が有効 → `skip=already_running`
-   - lock は実行開始時に作成し、`finally` で削除。死活時のため 30 分で stale 奪取。
+   - lock は実行開始時に作成し、`finally` で削除。最大3 Run×25分と前後処理を考慮し、2時間で stale 奪取。
 
 通過したら `runFactory({ mode:'auto', confirm:true })` を起動。Epic ループ・安全ゲート
 （blocked / approval_required / riskFlags / decision 待ち / max_runs / rate_limited）は

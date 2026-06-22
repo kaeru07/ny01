@@ -14,6 +14,8 @@
 #                      未指定なら API 側の既定（最大 3 にクランプ）に従う。
 #   PROGRESS_BASE_URL: progress の URL（既定 http://localhost:3010）
 #   FACTORY_SCHEDULE_LOG_DIR: ログ出力先（既定 /root/company/logs）
+#   FACTORY_EXECUTOR_TIMEOUT_MS: executor 1 Run の上限（既定 1500000ms=25分）
+#   FACTORY_SCHEDULE_HTTP_TIMEOUT_SECONDS: API応答待機上限の明示上書き
 #
 # 例:
 #   定時(systemd): factory-schedule-trigger.sh schedule systemd
@@ -29,6 +31,8 @@ BASE_URL="${PROGRESS_BASE_URL:-http://localhost:3010}"
 LOG_DIR="${FACTORY_SCHEDULE_LOG_DIR:-/root/company/logs}"
 LOG_FILE="${LOG_DIR}/factory-schedule.log"
 MAX_RUNS="${FACTORY_MAX_RUNS:-}"
+EXECUTOR_TIMEOUT_MS="${FACTORY_EXECUTOR_TIMEOUT_MS:-1500000}"
+HTTP_TIMEOUT_OVERRIDE="${FACTORY_SCHEDULE_HTTP_TIMEOUT_SECONDS:-}"
 
 mkdir -p "${LOG_DIR}"
 ts() { date '+%Y-%m-%d %H:%M:%S'; }
@@ -55,12 +59,30 @@ fi
 
 # FACTORY_MAX_RUNS が数値なら maxRuns を body に含める（安全側初回運用 = 1）。
 if [[ "${MAX_RUNS}" =~ ^[0-9]+$ ]]; then
-  PAYLOAD="{\"source\":\"${SOURCE}\",\"trigger\":\"${TRIGGER}\",\"maxRuns\":${MAX_RUNS}}"
+  EFFECTIVE_MAX_RUNS="${MAX_RUNS}"
+  (( EFFECTIVE_MAX_RUNS < 1 )) && EFFECTIVE_MAX_RUNS=1
+  (( EFFECTIVE_MAX_RUNS > 3 )) && EFFECTIVE_MAX_RUNS=3
+  PAYLOAD="{\"source\":\"${SOURCE}\",\"trigger\":\"${TRIGGER}\",\"maxRuns\":${EFFECTIVE_MAX_RUNS}}"
 else
   PAYLOAD="{\"source\":\"${SOURCE}\",\"trigger\":\"${TRIGGER}\"}"
+  EFFECTIVE_MAX_RUNS=3
 fi
 
-RESPONSE="$(curl -sf -m 120 -X POST "${BASE_URL}/api/operations/factory-schedule" \
+# HTTP側がexecutorより先に切れると、実行中なのに「POST失敗」と誤記録される。
+# Epic Run合計 + 前後Runner最大10分 + 後処理2分を待てる値に揃える。
+if [[ "${HTTP_TIMEOUT_OVERRIDE}" =~ ^[0-9]+$ ]] && (( HTTP_TIMEOUT_OVERRIDE > 0 )); then
+  HTTP_TIMEOUT_SECONDS="${HTTP_TIMEOUT_OVERRIDE}"
+else
+  if ! [[ "${EXECUTOR_TIMEOUT_MS}" =~ ^[0-9]+$ ]] || (( EXECUTOR_TIMEOUT_MS <= 0 )); then
+    EXECUTOR_TIMEOUT_MS=1500000
+  fi
+  EXECUTOR_TIMEOUT_SECONDS=$(( (EXECUTOR_TIMEOUT_MS + 999) / 1000 ))
+  HTTP_TIMEOUT_SECONDS=$(( EFFECTIVE_MAX_RUNS * EXECUTOR_TIMEOUT_SECONDS + 720 ))
+fi
+
+log "request timeout=${HTTP_TIMEOUT_SECONDS}s maxRuns=${EFFECTIVE_MAX_RUNS} executorTimeoutMs=${EXECUTOR_TIMEOUT_MS}"
+
+RESPONSE="$(curl -sf -m "${HTTP_TIMEOUT_SECONDS}" -X POST "${BASE_URL}/api/operations/factory-schedule" \
   -H 'Content-Type: application/json' \
   -d "${PAYLOAD}" || true)"
 
