@@ -305,13 +305,13 @@ function CompactItem({
   return (
     <div className="flex min-w-0 flex-1 items-center gap-2">
       <div className="min-w-0 flex-1">
-        <p className="truncate text-xs font-bold text-gray-900 dark:text-gray-100">
+        <p className="break-words text-xs font-bold text-gray-900 dark:text-gray-100">
           <span className="mr-1 text-gray-400 dark:text-gray-500">
             {pinned ? '📌 ' : ''}#{number}
           </span>
           {item.title}
         </p>
-        <p className="mt-0.5 line-clamp-1 truncate text-[11px] text-gray-500 dark:text-gray-400">
+        <p className="mt-0.5 break-words text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
           {item.summary || '概要なし'}
         </p>
       </div>
