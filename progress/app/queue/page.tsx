@@ -332,6 +332,17 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
           goalTitle: item.goalTitle,
           projectId: item.projectId,
           pinned: item.queueControl?.pinnedTop === true,
+          summary: item.reason,
+          status: item.status,
+          priority: item.priority,
+          reason: item.reason,
+          reasonFactors: item.reasonFactors,
+          blockers: item.blockers,
+          doneCriteriaDone: item.doneCriteriaDone,
+          doneCriteriaTotal: item.doneCriteriaTotal,
+          detailHref: item.type === 'epic'
+            ? `/epic/${item.sourceId}`
+            : `/goal-planner?goalId=${encodeURIComponent(item.goalId ?? '')}`,
         }))}
       />
 
