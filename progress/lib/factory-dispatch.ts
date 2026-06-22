@@ -60,8 +60,24 @@ export async function buildDispatchPlan(epicId: string): Promise<FactoryDispatch
   const goalTitle = goalsData.goals.find((goal) => goal.id === epic.goalId)?.title
   const humanFixInstructions = collectHumanFixInstructions(epic, allRuns)
   const autonomyAnchor = isAutonomyAnchorEpic(epic)
-  const nextTitles = nextActions.map((a) => a.title)
-  const text = `${epic.goal} ${nextTitles.join(' ')}`
+  const explicitNextActions = [
+    epic.nextAction,
+    ...(epic.remainingWork ?? []),
+    ...nextActions.map((a) => a.title),
+  ]
+    .map((action) => action?.trim())
+    .filter((action): action is string => Boolean(action))
+    // 「具体的な次アクションを登録する」だけの循環指示は作業指示として再利用しない。
+    .filter((action) => !/nextAction.*remainingWork|具体的.*nextAction/i.test(action))
+  const nextTitles = explicitNextActions.length > 0
+    ? Array.from(new Set(explicitNextActions))
+    : [
+        `既存実装を調査し、DoneCriteria「${(epic.doneCriteria ?? [])[0] ?? 'Goal達成に必要な条件'}」を前進させる最小の未実装1件を特定して実装する。変更は1〜3ファイル程度に限定し、方針決定が必要なら変更せず理由を報告する`,
+      ]
+  // Codex適格性は作業目的だけでなく、実際に求める検証内容も含めて判定する。
+  // 自動生成のstep-epicは nextActions が空でも doneCriteria に test/build 等の
+  // 安全シグナルを持つため、ここを除外すると常にClaude専任と誤判定される。
+  const text = `${epic.goal} ${(epic.doneCriteria ?? []).join(' ')} ${nextTitles.join(' ')}`
   const codexEligible = classifyCodexEligibility(text).eligible
   const canRunOnCodex =
     factoryEligibility.eligible &&

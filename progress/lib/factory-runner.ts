@@ -28,7 +28,7 @@ import type { ExecutorChoice, FactoryDispatchPlan } from './types/operations'
 
 // factory-runner: scan→pick→Dispatch→（adapter で）Run→ExecutionRun 記録→次へ。
 // 安全第一: 既定は dry_run（実起動なし）。caps（maxRuns / maxPerEpic）で無限ループを防ぐ。
-// auto は明示時のみ。Claude 基本→上限時に Codex fallback（AutoFallback ON かつ安全なら）。
+// auto は明示時のみ。Dispatch判定のexecutorを起動し、Claude上限時はCodexへfallbackする。
 // 禁止: 無限ループ / 危険作業の Codex 委譲 / Approval・Decision 待ちの実行 / チャットで質問停止。
 
 interface RunnerOptions {
@@ -376,10 +376,18 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
   if (mode === 'dry_run' || mode === 'manual') {
     const plan = await buildDispatchPlan(currentEpicId)
     if (plan && plan.safetyStatus !== 'blocked') {
-      const prompt = (await generateClaudeFactoryPrompt(currentEpicId))?.promptText ?? plan.goal
+      const executor = plan.executorCandidate === 'codex' ? 'codex' : 'claude'
+      const prompt = executor === 'codex'
+        ? (await generateCodexPrompt(currentEpicId)).promptText
+        : (await generateClaudeFactoryPrompt(currentEpicId))?.promptText ?? plan.goal
       if (mode === 'dry_run') {
-        const result = await getAdapter('claude').run({ epicId: currentEpicId, prompt, dryRun: true })
-        steps.push({ epicId: currentEpicId, epicTitle: plan.epicTitle, dispatchPlanId: plan.dispatchPlanId, executor: 'claude', result, stopped: false })
+        const result = await getAdapter(executor).run({
+          epicId: currentEpicId,
+          prompt,
+          dryRun: true,
+          safetyText: `${plan.goal} ${plan.doneCriteria.join(' ')}`,
+        })
+        steps.push({ epicId: currentEpicId, epicTitle: plan.epicTitle, dispatchPlanId: plan.dispatchPlanId, executor, result, stopped: false })
         return finalize('dry_run_single_step')
       }
       const detail = await getEpicDetail(currentEpicId)
@@ -431,14 +439,16 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
       continue
     }
 
-    let executor: ExecutorChoice = 'claude'
+    let executor: ExecutorChoice = plan.executorCandidate === 'codex' ? 'codex' : 'claude'
     const detail = await getEpicDetail(currentEpicId)
     const targetApp = detail?.epic.targetApps?.[0] ?? 'progress'
     const followupOfRunId = extractFollowupOfRunId(detail?.epic.notes)
     // 安全判定の意図テキストは Epic 固有（goal + doneCriteria）のみ。
     // dispatch.nextActions は他 Epic 由来の候補が混じり禁止語を誤検知するため使わない。
     const intent = `${plan.goal} ${(detail?.epic.doneCriteria ?? []).join(' ')}`
-    const claudePrompt = (await generateClaudeFactoryPrompt(currentEpicId))?.promptText ?? plan.goal
+    const executorPrompt = executor === 'codex'
+      ? (await generateCodexPrompt(currentEpicId)).promptText
+      : (await generateClaudeFactoryPrompt(currentEpicId))?.promptText ?? plan.goal
 
     const runIndex = runs + 1
     const runningRunId = await startRunningRun({
@@ -453,21 +463,29 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
       selection: selectionFromPlan(plan),
     })
 
-    // 基本 Claude（simulateRateLimit のときは擬似的に上限化）。
+    // Dispatch判定で選ばれたexecutorを起動する。
     let result: ExecutorResult
     const shouldSimulateRateLimit =
-      opts.simulateRateLimit ||
-      (typeof opts.simulateRateLimitFromRun === 'number' && runIndex >= opts.simulateRateLimitFromRun)
+      executor === 'claude' &&
+      (opts.simulateRateLimit ||
+        (typeof opts.simulateRateLimitFromRun === 'number' && runIndex >= opts.simulateRateLimitFromRun))
     if (shouldSimulateRateLimit) {
       result = { status: 'failed', stdout: '[sim] claude rate_limit', stderr: '', resultSummary: '[sim] Claude 上限を擬似発生', changedFiles: [], errorType: 'claude_rate_limited', rateLimited: true, needsApproval: false, nextActions: [] }
-    } else if (opts.simulateClaudeSuccessBeforeRateLimit) {
+    } else if (executor === 'claude' && opts.simulateClaudeSuccessBeforeRateLimit) {
       result = { status: 'completed', stdout: '[sim] Claude completed before rate_limit', stderr: '', resultSummary: '[sim] Claude 上限前のRunを成功扱い', changedFiles: [], rateLimited: false, needsApproval: false, nextActions: [] }
     } else {
-      result = await getAdapter('claude').run({ epicId: currentEpicId, prompt: claudePrompt, cwd, dryRun: false, timeoutMs: executorTimeoutMs })
+      result = await getAdapter(executor).run({
+        epicId: currentEpicId,
+        prompt: executorPrompt,
+        cwd,
+        dryRun: false,
+        safetyText: intent,
+        timeoutMs: executorTimeoutMs,
+      })
     }
 
     // Claude 上限 → AutoFallback → Codex（ON かつ安全なら）
-    if (result.rateLimited) {
+    if (executor === 'claude' && result.rateLimited) {
       await appendAutomationLog({ event: 'auto_fallback', fallbackTriggered: true, fallbackReason: 'claude_rate_limited', fallbackTarget: 'codex', codexPromptGenerated: false, safetyGuard: true, epicId: currentEpicId })
       if (config.autoFallback && plan.canRunOnCodex) {
         const codexPrompt = (await generateCodexPrompt(currentEpicId)).promptText

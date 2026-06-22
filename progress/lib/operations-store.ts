@@ -794,6 +794,22 @@ export async function generateCodexPrompt(epicId?: string): Promise<CodexPrompt>
   const decisions = epic ? allDecisions.filter((d) => d.epicId === epic.epicId) : allDecisions
   const approvals = epic ? allApprovals.filter((a) => a.epicId === epic.epicId) : allApprovals
   const nextActions = buildNextTodoCandidates(scopedRuns).slice(0, 5)
+  const explicitNextActions = [
+    epic?.nextAction,
+    ...(epic?.remainingWork ?? []),
+    ...nextActions.map((a) => a.title),
+  ]
+    .map((action) => action?.trim())
+    .filter((action): action is string => Boolean(action))
+    // 「具体的な次アクションを登録する」だけの循環指示は作業指示として再利用しない。
+    .filter((action) => !/nextAction.*remainingWork|具体的.*nextAction/i.test(action))
+  const dispatchNextActions = explicitNextActions.length > 0
+    ? Array.from(new Set(explicitNextActions))
+    : epic
+      ? [
+          `既存実装を調査し、DoneCriteria「${epic.doneCriteria?.[0] ?? 'Goal達成に必要な条件'}」を前進させる最小の未実装1件を特定して実装する。変更は1〜3ファイル程度に限定し、方針決定が必要なら変更せず理由を報告する`,
+        ]
+      : []
   const changedFiles = (latestRun?.changedFiles ?? []).map((f) => f.file).slice(0, 8)
   const targetApp = epic?.targetApps?.[0] ?? latestRun?.targetApp
 
@@ -829,7 +845,7 @@ export async function generateCodexPrompt(epicId?: string): Promise<CodexPrompt>
     lines.push('')
   }
   lines.push('[5] 次にやること（安全判定OKのものだけ）')
-  lines.push(nextActions.length > 0 ? nextActions.map((a) => `- ${a.title}`).join('\n') : '- なし')
+  lines.push(dispatchNextActions.length > 0 ? dispatchNextActions.map((action) => `- ${action}`).join('\n') : '- なし')
   lines.push('')
   lines.push('[6] 進め方')
   lines.push('- 安全判定OKの作業だけ実行する')
@@ -847,7 +863,7 @@ export async function generateCodexPrompt(epicId?: string): Promise<CodexPrompt>
       epicTitle: epic?.title,
       sourceRunId: latestRun?.runId,
       targetApp,
-      nextActionsCount: nextActions.length,
+      nextActionsCount: dispatchNextActions.length,
       approvalsPending: approvals.length,
       hasSafetyGuard: true,
       generatedAt: new Date().toISOString(),

@@ -1,4 +1,7 @@
 import { spawn } from 'child_process'
+import { createHash } from 'crypto'
+import fs from 'fs/promises'
+import path from 'path'
 
 // 実 executor 起動用の最小シェルヘルパー。タイムアウトと stdin プロンプト渡しに対応。
 // CLI を直接呼ぶのは adapter 経由のみ（factory-runner が auto モードのときだけ）。
@@ -70,7 +73,7 @@ export function looksRateLimited(text: string): boolean {
 
 // git の未コミット変更ファイル一覧（cwd 配下・porcelain）。
 export async function changedFilesIn(cwd: string): Promise<string[]> {
-  const r = await runCommand('git', ['-C', cwd, 'status', '--porcelain'], { timeoutMs: 15_000 })
+  const r = await runCommand('git', ['-C', cwd, 'status', '--porcelain', '--untracked-files=all'], { timeoutMs: 15_000 })
   return r.stdout
     .split('\n')
     .map((l) => l.trim())
@@ -118,13 +121,31 @@ export async function gitHead(cwd: string): Promise<string> {
   return r.code === 0 ? r.stdout.trim() : ''
 }
 
+/** dirtyファイルの内容指紋。実行前からdirtyでも、実行中に内容が変わったか判定するために使う。 */
+export async function fileFingerprints(cwd: string, files: string[]): Promise<Record<string, string>> {
+  const entries = await Promise.all(files.map(async (file) => {
+    try {
+      const content = await fs.readFile(path.resolve(cwd, file))
+      return [file, createHash('sha256').update(content).digest('hex')] as const
+    } catch {
+      return [file, '__missing__'] as const
+    }
+  }))
+  return Object.fromEntries(entries)
+}
+
 /**
  * 実行前後の差分から「この実行で変更されたファイル」を集約して返す。
  * executor が変更をコミットすると porcelain が clean になり changedFiles が空になる問題に対応:
  *   - 実行中にコミットされた変更: git diff --name-only <beforeHead>..HEAD
- *   - 実行後も未コミットの変更: porcelain（実行前から dirty だった分は除外し、この実行起因のみ）
+ *   - 実行後も未コミットの変更: 新規dirty + 実行前からdirtyでも内容指紋が変わったファイル
  */
-export async function changedFilesSince(cwd: string, beforeHead: string, beforeDirty: string[]): Promise<string[]> {
+export async function changedFilesSince(
+  cwd: string,
+  beforeHead: string,
+  beforeDirty: string[],
+  beforeFingerprints: Record<string, string> = {},
+): Promise<string[]> {
   const set = new Set<string>()
   if (beforeHead) {
     const r = await runCommand('git', ['-C', cwd, 'diff', '--name-only', `${beforeHead}..HEAD`], { timeoutMs: 15_000 })
@@ -135,5 +156,9 @@ export async function changedFilesSince(cwd: string, beforeHead: string, beforeD
   const beforeSet = new Set(beforeDirty)
   const after = await changedFilesIn(cwd)
   for (const f of after) if (!beforeSet.has(f)) set.add(f)
+  const afterFingerprints = await fileFingerprints(cwd, Array.from(new Set([...beforeDirty, ...after])))
+  for (const f of beforeDirty) {
+    if (beforeFingerprints[f] !== afterFingerprints[f]) set.add(f)
+  }
   return Array.from(set)
 }
