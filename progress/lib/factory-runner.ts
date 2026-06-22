@@ -394,6 +394,8 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
   // mode === 'auto'（実起動・Epic 内ループ + 完了後に次 Epic へ）
   if (!opts.confirm) return finalize('auto_requires_confirm')
 
+  const executorTimeoutMs = Number(process.env.FACTORY_EXECUTOR_TIMEOUT_MS) || 1_500_000
+
   while (runs < maxRuns) {
     // P4: 同一 Epic の上限に達したら「全体停止」ではなく「その Epic を打ち切って次 Epic へ」。
     if (perEpic >= maxPerEpic) {
@@ -461,7 +463,7 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
     } else if (opts.simulateClaudeSuccessBeforeRateLimit) {
       result = { status: 'completed', stdout: '[sim] Claude completed before rate_limit', stderr: '', resultSummary: '[sim] Claude 上限前のRunを成功扱い', changedFiles: [], rateLimited: false, needsApproval: false, nextActions: [] }
     } else {
-      result = await getAdapter('claude').run({ epicId: currentEpicId, prompt: claudePrompt, cwd, dryRun: false })
+      result = await getAdapter('claude').run({ epicId: currentEpicId, prompt: claudePrompt, cwd, dryRun: false, timeoutMs: executorTimeoutMs })
     }
 
     // Claude 上限 → AutoFallback → Codex（ON かつ安全なら）
@@ -471,7 +473,7 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
         const codexPrompt = (await generateCodexPrompt(currentEpicId)).promptText
         result = opts.simulateCodexSuccessAfterFallback
           ? { status: 'completed', stdout: '[sim] Codex continued after Claude rate_limit', stderr: '', resultSummary: '[sim] Codex fallback Runを成功扱い', changedFiles: [], rateLimited: false, needsApproval: false, nextActions: [] }
-          : await getAdapter('codex').run({ epicId: currentEpicId, prompt: codexPrompt, cwd, dryRun: false, safetyText: intent })
+          : await getAdapter('codex').run({ epicId: currentEpicId, prompt: codexPrompt, cwd, dryRun: false, safetyText: intent, timeoutMs: executorTimeoutMs })
         executor = 'codex'
       } else {
         await finishRunningRun({ runId: runningRunId, executor: 'claude', mode, result, stopReason: 'claude_rate_limited / Codex不可' })

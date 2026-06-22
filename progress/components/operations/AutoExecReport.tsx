@@ -175,6 +175,9 @@ function RunArticle({ run: r, index }: { run: ExecutionRun; index: number }) {
   const target = r.selection?.selectedGoalTitle || r.epicId || ''
   const pickReason = r.selection?.selectedReason || ''
   const files = r.changedFiles ?? []
+  const summary = r.summary?.trim() ?? ''
+  const hasNoOutputSummary = summary === '' || /^[（(]?出力なし[）)]?$/.test(summary)
+  const showNoWorkBanner = !worked && (r.runStatus === 'partial' || r.runStatus === 'failed')
   // rawReport を整形（機械メタ情報を除去し、読みやすい段落に）
   const rawParas = cleanRawReport(r.rawReport || '')
 
@@ -200,6 +203,14 @@ function RunArticle({ run: r, index }: { run: ExecutionRun; index: number }) {
         )}
       </div>
 
+      {showNoWorkBanner && (
+        <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[11px] leading-relaxed text-amber-700 dark:border-amber-900/50 dark:bg-amber-900/15 dark:text-amber-400">
+          {r.runStatus === 'partial' || hasNoOutputSummary
+            ? '⏱ この回は実行担当が時間内に終わらず、成果物が残っていません（タイムアウトの可能性）。対象が大きすぎるか、実行時間の上限(FACTORY_EXECUTOR_TIMEOUT_MS)が不足している可能性があります。'
+            : '⚠ この回は実行担当がエラーで停止し、成果物が残っていません。下の『できなかったこと・課題』を確認してください。'}
+        </div>
+      )}
+
       {/* 何の作業か（対象・選定理由） */}
       {(target || pickReason) && (
         <div className="mt-3 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
@@ -210,7 +221,7 @@ function RunArticle({ run: r, index }: { run: ExecutionRun; index: number }) {
 
       {/* やったこと（変更ファイル or 何をしたかの説明） */}
       <div className="mt-4">
-        <h4 className="text-xs font-bold text-emerald-700 dark:text-emerald-400">✅ やったこと</h4>
+        <h4 className="text-xs font-bold text-emerald-700 dark:text-emerald-400">✅ やったこと{files.length > 0 ? `（変更 ${files.length} ファイル）` : ''}</h4>
         <ul className="mt-1.5 space-y-1 text-[11px] leading-relaxed text-gray-700 dark:text-gray-200">
           {files.length > 0 ? (
             <>
