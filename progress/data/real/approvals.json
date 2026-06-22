@@ -26,5 +26,673 @@
     "decidedOption": "keep",
     "decidedBy": "operator",
     "decidedAt": "2026-06-10T23:50:35.744Z"
+  },
+  {
+    "approvalId": "appr-1781149758277",
+    "title": "Run一次レビュー: epic-vault-4suq: 研究ビューのVault同期を自動化",
+    "category": "external_publish",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 公開・デプロイ関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "decided",
+    "createdRunId": "20260609-212534",
+    "createdAt": "2026-06-11T03:49:18.277Z",
+    "decidedOption": "keep",
+    "decidedBy": "operator",
+    "decidedAt": "2026-06-11T11:45:22.139Z"
+  },
+  {
+    "approvalId": "appr-1781178331002",
+    "title": "Run一次レビュー: 今日の判断を「社長向け意思決定アプリ」へ強化 — 状況文タイトル・影響1行・3分類・3件制限+AI保留",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: completed だが checks に NG がある（rendering=実カード3枚すべて状況文+影響行+ボタンを390x844ビューポートで確認(市場調査停止/データ更新停止/AI工場失敗)）。",
+    "status": "decided",
+    "createdRunId": "20260611-203856",
+    "createdAt": "2026-06-11T11:45:31.002Z",
+    "decidedOption": "keep",
+    "decidedBy": "operator",
+    "decidedAt": "2026-06-11T11:51:42.057Z"
+  },
+  {
+    "approvalId": "appr-1781178688362",
+    "title": "Run一次レビュー: URL一覧のlocalhost:3000誤登録を緊急修正",
+    "category": "external_publish",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 公開・デプロイ関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "decided",
+    "createdRunId": "20260608-135049",
+    "createdAt": "2026-06-11T11:51:28.362Z",
+    "decidedOption": "keep",
+    "decidedBy": "operator",
+    "decidedAt": "2026-06-11T11:51:47.699Z"
+  },
+  {
+    "approvalId": "appr-1781178688368",
+    "title": "Run一次レビュー: progressアプリに全アプリURL一覧を追加する",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: completed だが checks に NG がある（manual=npx tsc --noEmit は既存 .next/types 欠損参照で失敗。next build 内の型検査は成功。）。",
+    "status": "decided",
+    "createdRunId": "20260608-123610",
+    "createdAt": "2026-06-11T11:51:28.368Z",
+    "decidedOption": "keep",
+    "decidedBy": "operator",
+    "decidedAt": "2026-06-11T11:51:50.357Z"
+  },
+  {
+    "approvalId": "appr-1781178720389",
+    "title": "Run一次レビュー: Factory判定修正を本番反映（commit/push + rebuild + pm2 restart）",
+    "category": "external_publish",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 公開・デプロイ関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "pending",
+    "createdRunId": "20260608-184752",
+    "createdAt": "2026-06-11T11:52:00.389Z"
+  },
+  {
+    "approvalId": "appr-1781178720398",
+    "title": "Run一次レビュー: 実行プロンプトの禁止事項からdeployを除外（注意扱いへ）・riskFlags連動の安全ガード共通化",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "pending",
+    "createdRunId": "20260608-173559",
+    "createdAt": "2026-06-11T11:52:00.398Z"
+  },
+  {
+    "approvalId": "appr-1781178720403",
+    "title": "Run一次レビュー: Factory承認過多を解消（deployを承認不要の注意扱いに・判定を4概念へ整理）",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "pending",
+    "createdRunId": "20260608-143957",
+    "createdAt": "2026-06-11T11:52:00.403Z"
+  },
+  {
+    "approvalId": "appr-1781323366076",
+    "title": "Run一次レビュー: レビュー用コピー機能の実装（Codex実装→Fable検証・本番反映）",
+    "category": "external_publish",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 公開・デプロイ関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "pending",
+    "createdRunId": "20260613-013109",
+    "createdAt": "2026-06-13T04:02:46.076Z"
+  },
+  {
+    "approvalId": "appr-1781323367911",
+    "title": "Run一次レビュー: AI工場OS運用設計レビュー+Codex実装TOP10完了（Fableレビュー/Codex実装）",
+    "category": "external_publish",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 公開・デプロイ関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "pending",
+    "createdRunId": "20260612-212444",
+    "createdAt": "2026-06-13T04:02:47.911Z"
+  },
+  {
+    "approvalId": "appr-1781939063230",
+    "title": "Run一次レビュー: Factory(auto): Execution→Review→Next Epicループ完成: 次の一歩",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: runStatus=running のまま放置されている。実際の状態を人間が確認する必要あり。",
+    "status": "pending",
+    "createdRunId": "20260620-160012-044",
+    "createdAt": "2026-06-20T07:04:23.230Z"
+  },
+  {
+    "approvalId": "appr-1781939065617",
+    "title": "Run一次レビュー: 自動実行レポートに期間/状態フィルタ＋詳細レポートの整形を追加",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: completed だが checks に NG がある（manual=/guide?tab=report フィルタ描画(期間7/30/全・状態すべて/完了/一部/失敗・該当件数)。range=7/status=failed 200。詳細レポートに progressレビュー用/monetizationImpact/obsidianSaveTarget が残らないこと(0件)確認。）。",
+    "status": "pending",
+    "createdRunId": "20260619-232121",
+    "createdAt": "2026-06-20T07:04:25.617Z"
+  },
+  {
+    "approvalId": "appr-1781939068164",
+    "title": "Run一次レビュー: 自動実行タブ(/queue)白画面の原因調査と修正＋検証不足の再発防止",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: completed だが checks に NG がある（manual=主要7ルート200 / /queue参照チャンク8件全200 / restart後ランタイムエラーなし）。",
+    "status": "pending",
+    "createdRunId": "20260616-123240",
+    "createdAt": "2026-06-20T07:04:28.164Z"
+  },
+  {
+    "approvalId": "appr-1781939068597",
+    "title": "Run一次レビュー: 自動実行キューの「レビュー待ちで止まる」判定を見直し（Codex実装→Fableレビュー）",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "pending",
+    "createdRunId": "20260615-204710",
+    "createdAt": "2026-06-20T07:04:28.597Z"
+  },
+  {
+    "approvalId": "appr-1781939068704",
+    "title": "Run一次レビュー: テスト: goalplanner修正依頼(fixPrompt)が次回自動実行で拾われるか",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "pending",
+    "createdRunId": "20260615-154109",
+    "createdAt": "2026-06-20T07:04:28.704Z"
+  },
+  {
+    "approvalId": "appr-1781939069094",
+    "title": "Run一次レビュー: レビュー「修正する」のfixPromptを定時自動実行の最優先で実行（承認不要・安全ゲート）",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "pending",
+    "createdRunId": "20260614-175356",
+    "createdAt": "2026-06-20T07:04:29.094Z"
+  },
+  {
+    "approvalId": "appr-1781939069803",
+    "title": "Run一次レビュー: Prompt Queueを実Factory自動実行に接続（安全ゲート付き・Codex実装→Fableレビュー）",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "pending",
+    "createdRunId": "20260614-100448",
+    "createdAt": "2026-06-20T07:04:29.803Z"
+  },
+  {
+    "approvalId": "appr-1781939071019",
+    "title": "Run一次レビュー: アカウント登録・サブスク・課金系の候補を今日の判断から除外（AI保留へ）",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "pending",
+    "createdRunId": "20260612-083126",
+    "createdAt": "2026-06-20T07:04:31.019Z"
+  },
+  {
+    "approvalId": "appr-1781939071188",
+    "title": "Run一次レビュー: Inboxを「人間が何を判断するか」の6分類へ再設計（検収/実行許可/方針選択/人間作業/危険判断/AI保留）",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "pending",
+    "createdRunId": "20260611-211508",
+    "createdAt": "2026-06-20T07:04:31.188Z"
+  },
+  {
+    "approvalId": "appr-1781939071322",
+    "title": "Run一次レビュー: EpicカードのFactory対象外誤判定を修正（riskFlags=deployで対象外化される設計バグ）",
+    "category": "external_publish",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 公開・デプロイ関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "pending",
+    "createdRunId": "20260608-133645",
+    "createdAt": "2026-06-20T07:04:31.322Z"
+  },
+  {
+    "approvalId": "appr-1781939071703",
+    "title": "Run一次レビュー: 天鳳公開牌譜URLを少数取得し /yomi 取り込み試験",
+    "category": "secret",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 認証・秘密情報関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "pending",
+    "createdRunId": "20260607-234517",
+    "createdAt": "2026-06-20T07:04:31.703Z"
+  },
+  {
+    "approvalId": "appr-1781939071858",
+    "title": "Run一次レビュー: 天鳳 公開牌譜 収集方法の調査（/yomi 高品質牌譜収集）",
+    "category": "secret",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 認証・秘密情報関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "pending",
+    "createdRunId": "20260607-212218",
+    "createdAt": "2026-06-20T07:04:31.858Z"
+  },
+  {
+    "approvalId": "appr-1781939071947",
+    "title": "Run一次レビュー: 運用ルール更新 - 前進優先ルール(承認待ち停止しない)＋前タスクのGitHub反映完了",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "pending",
+    "createdRunId": "20260607-160250",
+    "createdAt": "2026-06-20T07:04:31.947Z"
+  },
+  {
+    "approvalId": "appr-1781939072266",
+    "title": "Run一次レビュー: 当たり牌読みモード /yomi の仕上げ確認・本番反映(commit/push)",
+    "category": "external_publish",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 公開・デプロイ関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "pending",
+    "createdRunId": "20260606-232717",
+    "createdAt": "2026-06-20T07:04:32.266Z"
+  },
+  {
+    "approvalId": "appr-1782006446950",
+    "title": "互換データ(work-queue/work-candidates)の廃止のやり方を決める",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "keep",
+        "label": "現状維持(二重管理を許容)"
+      },
+      {
+        "key": "migrate",
+        "label": "依存ページをauto-queueへ移植してから削除"
+      },
+      {
+        "key": "drop_legacy",
+        "label": "legacyページごと撤去"
+      }
+    ],
+    "recommended": "migrate",
+    "reason": "work-queue/work-candidatesはoperations-store・session-reader/writer・api/queue・tasks・morning・radar・legacy/queueが依存(正本はauto-queue)。単純削除は既存画面を壊すため、廃止のやり方を方針選択したい。",
+    "status": "decided",
+    "createdAt": "2026-06-21T01:47:26.948Z",
+    "decidedOption": "migrate",
+    "decidedBy": "operator",
+    "decidedAt": "2026-06-21T04:52:50.558Z"
+  },
+  {
+    "approvalId": "appr-1782006447285",
+    "title": "残りの旧運用画面を消すか決める(旧ダッシュボード/承認待ち/旧受信箱/レーダー/朝会)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "keep_all",
+        "label": "全部残す"
+      },
+      {
+        "key": "migrate_remove",
+        "label": "移植して順次削除(approvals/inboxから)"
+      },
+      {
+        "key": "drop_legacy_only",
+        "label": "明確な旧画面(旧ダッシュボード/旧受信箱)のみ削除"
+      }
+    ],
+    "recommended": "drop_legacy_only",
+    "reason": "旧キュー/legacy/queueは削除済み。残る旧系画面の取捨。/approvalsは7箇所被リンク、/radar/morningはwork-queue依存の機能画面のため、どれを消すか方針選択したい。",
+    "status": "decided",
+    "createdAt": "2026-06-21T01:47:27.285Z",
+    "decidedOption": "drop_legacy_only",
+    "decidedBy": "operator",
+    "decidedAt": "2026-06-21T04:52:38.831Z"
+  },
+  {
+    "approvalId": "appr-1782020129265",
+    "title": "プロジェクトの整理方針を決める(15件: 休止/統合/アーカイブ)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "keep",
+        "label": "現状維持(全15件を残す)"
+      },
+      {
+        "key": "archive_stale",
+        "label": "停滞PJをアーカイブ(active作業なしを整理)"
+      },
+      {
+        "key": "merge_dup",
+        "label": "重複PJを統合(mahjong系などを集約)"
+      }
+    ],
+    "recommended": "archive_stale",
+    "reason": "プロジェクトが15件あり、停滞・重複(mahjong系が複数等)が見られる。プロジェクト×ゴール一覧を実態に合わせるため整理方針を決めたい。",
+    "status": "decided",
+    "createdAt": "2026-06-21T05:35:29.265Z",
+    "decidedOption": "merge_dup",
+    "decidedBy": "operator",
+    "decidedAt": "2026-06-22T11:45:27.199Z"
   }
 ]

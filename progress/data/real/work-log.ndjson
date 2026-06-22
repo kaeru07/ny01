@@ -92,3 +92,8 @@
 {"time":"2026-05-12T11:40:00.000Z","project":"company-mgmt","type":"project_summary_updated","title":"Company Management サマリー更新","detail":"currentTask → \"完了: ToDo JSON取り込み画面のテンプレートコピーボタンにexecCommandフォールバック実装\""}
 {"time":"2026-06-08T12:36:10.667Z","project":"progress","type":"epic_completed","title":"progressアプリに全アプリURL一覧を追加する","detail":"/app-urls、app-urls.json、ナビ導線を追加。npm run build成功。runId=20260608-123610"}
 {"time":"2026-06-08T13:50:49.781Z","project":"progress","type":"bugfix_completed","title":"URL一覧のlocalhost:3000誤登録を緊急修正","detail":"URL種別/根拠/確認状態を追加。NetScope以外の根拠なしlocalhost:3000を未確認へ戻した。runId=20260608-135049"}
+{"time":"2026-06-19T03:14:42.343Z","project":"","type":"task_added","title":"タスク一括追加 2件","detail":"A作業1 / A作業2"}
+{"time":"2026-06-19T03:14:42.363Z","project":"nonexistent","type":"task_added","title":"タスク一括追加 1件","detail":"B作業1"}
+{"time":"2026-06-21T08:57:00.578Z","project":"try-research","type":"project_added","title":"試す系 追加","detail":"status:active phase:trial"}
+{"time":"2026-06-21T09:31:20.517Z","project":"autoexec-test-proj","type":"project_added","title":"自動実行テスト用 追加","detail":"status:active phase:"}
+{"time":"2026-06-21T09:33:22.149Z","project":"autoexec-test-proj","type":"project_summary_updated","title":"自動実行テスト用 サマリー更新","detail":"nextAction → \"(テスト用・アーカイブ)\" / status: active → archived"}

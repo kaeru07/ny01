@@ -101,7 +101,7 @@ const PLAIN_TERMS = [
 const LEGACY_ITEMS = [
   ['factoryRunState', '廃止済み', '複数Runnerを一括停止する合成ゲートだった。現在は起動ゲートにも表示にも使わず、過去ログの文字列だけ監査用に残す。'],
   ['work-queue.json / work-candidates.json', '互換', '旧キュー・旧候補データ。自動実行順の正本には使わない。'],
-  ['/legacy/queue・/approvals', '互換画面', '閲覧用。現行キューは /queue、通常判断は /decide に集約。'],
+  ['/approvals', '互換画面', '閲覧用。通常判断は /decide（Inbox）に集約。旧キュー画面 /legacy/queue は廃止（正本は /queue）。'],
   ['Auto Resume / Auto Fallback', '部分・半自動', 'Auto Resumeは再開候補の評価・記録。FallbackはCodex用プロンプト生成まで（外部Codexの完全自動起動は保証しない）。'],
 ] as const
 

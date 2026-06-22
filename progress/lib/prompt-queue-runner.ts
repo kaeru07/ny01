@@ -1,5 +1,4 @@
 import { classifyCodexEligibility, getAutomationConfig } from '@/lib/operations-store'
-import { computeFactoryStatus } from '@/lib/factory-status'
 import { addExecutionRun } from '@/lib/execution-run-writer'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { buildPromptQueueView, updatePromptQueueItem } from '@/lib/prompt-queue'
@@ -164,8 +163,6 @@ export async function runPromptQueueDispatch(opts: PromptQueueDispatchOptions = 
 
   const config = await getAutomationConfig()
   if (!config.factoryEnabled) return finalize('factory_off')
-  const factoryStatus = await computeFactoryStatus()
-  if (factoryStatus.factoryRunState === 'Blocked') return finalize('blocked')
 
   const view = await buildPromptQueueView()
   const candidates = view.nextCandidates.slice(0, maxItems)

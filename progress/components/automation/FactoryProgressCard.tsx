@@ -1,14 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import type { FactoryStatusSummary, FactoryState, FactoryRunState } from '@/lib/factory-status'
-
-const RUN_STATE_VIEW: Record<FactoryRunState, { cls: string }> = {
-  Running: { cls: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' },
-  Paused: { cls: 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300' },
-  Blocked: { cls: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300' },
-  CodexReady: { cls: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' },
-}
+import type { FactoryStatusSummary, FactoryState } from '@/lib/factory-status'
 
 const STATE_VIEW: Record<FactoryState, { emoji: string; cls: string }> = {
   実行中: { emoji: '🟢', cls: 'border-green-300 bg-green-50 dark:border-green-800 dark:bg-green-900/20' },
@@ -56,8 +49,6 @@ export default function FactoryProgressCard() {
   if (!s) return <div className="rounded-2xl border border-gray-200 p-4 text-sm text-gray-400 dark:border-gray-800">読み込み中…</div>
 
   const view = STATE_VIEW[s.state]
-  const runView = RUN_STATE_VIEW[s.factoryRunState]
-
   return (
     <section className={`rounded-2xl border p-4 ${view.cls}`}>
       <div className="flex items-center justify-between">
@@ -65,10 +56,7 @@ export default function FactoryProgressCard() {
           <span className="text-2xl leading-none" aria-hidden>{view.emoji}</span>
           <div>
             <p className="text-[11px] font-medium text-gray-400">Factory 進行状況</p>
-            <div className="flex items-center gap-2">
-              <p className="text-base font-bold text-gray-900 dark:text-gray-100">{s.state}</p>
-              <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${runView.cls}`}>{s.factoryRunState}</span>
-            </div>
+            <p className="text-base font-bold text-gray-900 dark:text-gray-100">{s.state}</p>
           </div>
         </div>
         <button onClick={load} className="text-[11px] text-blue-600 underline">更新</button>

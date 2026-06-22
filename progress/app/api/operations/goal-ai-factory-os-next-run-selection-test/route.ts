@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
   const url = new URL(request.url)
-  const ignoreFactoryState = url.searchParams.get('ignoreFactoryState') === '1'
+  const ignoreFactoryEnabled = url.searchParams.get('ignoreFactoryEnabled') === '1'
   const [config, status, queue, scan] = await Promise.all([
     getAutomationConfig(),
     computeFactoryStatus(),
@@ -17,19 +17,15 @@ export async function GET(request: Request) {
     scanFactoryDispatch(),
   ])
 
-  const blockedByFactoryState = !ignoreFactoryState && (!config.factoryEnabled || status.factoryRunState === 'Blocked')
-  const blockedReason = !config.factoryEnabled
-    ? 'factory_off'
-    : status.factoryRunState === 'Blocked'
-      ? 'factory_blocked'
-      : undefined
+  const blockedByFactoryEnabled = !ignoreFactoryEnabled && !config.factoryEnabled
+  const blockedReason = !config.factoryEnabled ? 'factory_off' : undefined
 
   const queueNext = queue.next
   const dispatchNext = scan.picked
   const selectedGoalKey = dispatchNext?.selectedGoalKey ?? dispatchNext?.goalId ?? queueNext?.goalId ?? null
   const selectedTitle = dispatchNext?.epicTitle ?? queueNext?.title ?? null
   const sameSelection = Boolean(queueNext && dispatchNext && queueNext.sourceId === dispatchNext.epicId)
-  const wouldRunNext = !blockedByFactoryState && sameSelection && selectedGoalKey === AUTONOMY_GOAL_ID
+  const wouldRunNext = !blockedByFactoryEnabled && sameSelection && selectedGoalKey === AUTONOMY_GOAL_ID
   const passed = wouldRunNext
 
   return NextResponse.json({
@@ -38,14 +34,14 @@ export async function GET(request: Request) {
     selectedGoalKey,
     selectedTitle,
     wouldRunNext,
-    reason: blockedByFactoryState
-      ? `Factory state blocks execution: ${blockedReason}`
+    reason: blockedByFactoryEnabled
+      ? `Factory is disabled: ${blockedReason}`
       : sameSelection
         ? (dispatchNext?.selectedReason ?? queueNext?.reason ?? 'selection matched')
         : `selection mismatch: queue=${queueNext?.sourceId ?? 'none'} dispatch=${dispatchNext?.epicId ?? 'none'}`,
-    blockedByFactoryState,
+    blockedByFactoryEnabled,
     blockedReason,
-    ignoreFactoryState,
+    ignoreFactoryEnabled,
     queue: queueNext ? {
       workItemId: queueNext.workItemId,
       sourceId: queueNext.sourceId,

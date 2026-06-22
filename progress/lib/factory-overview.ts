@@ -107,18 +107,18 @@ export async function getFactoryOverview(): Promise<FactoryOverview> {
   )
   const lastRunRaw = sortedRuns[0]
 
-  // factoryRunState（Running/Paused/Blocked/CodexReady）+ 承認待ち から表示状態を決める。
+  // 具体的な観測値から表示状態を決める。合成状態を実行ゲートには使わない。
   let state: FactoryDisplayState
   if (!status.factoryEnabled) {
     state = 'OFF'
+  } else if (status.state === 'Codex準備完了') {
+    state = 'Codex Ready'
+  } else if (status.state === '実行中' || status.runnable > 0) {
+    state = 'Running'
   } else if (status.pendingApproval > 0) {
     state = 'Approval Required'
-  } else if (status.factoryRunState === 'CodexReady') {
-    state = 'Codex Ready'
-  } else if (status.factoryRunState === 'Blocked') {
+  } else if (status.state === '停止中') {
     state = 'Blocked'
-  } else if (status.factoryRunState === 'Running') {
-    state = 'Running'
   } else {
     state = 'Paused'
   }
@@ -144,7 +144,7 @@ export async function getFactoryOverview(): Promise<FactoryOverview> {
   const codexCapable =
     status.executorMode === 'both' || status.executorMode === 'codex'
   const codex: FactoryOverview['codex'] =
-    status.factoryRunState === 'CodexReady' || (status.autoFallback && codexCapable)
+    status.state === 'Codex準備完了' || (status.autoFallback && codexCapable)
       ? 'Ready'
       : 'Unavailable'
 

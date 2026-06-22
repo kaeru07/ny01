@@ -1,4 +1,21 @@
 {
-  "items": [],
-  "updatedAt": "2026-06-14T09:23:57.842638"
+  "updatedAt": "2026-06-14T01:50:58.802Z",
+  "items": [
+    {
+      "id": "pq-mqd3acmp-k0tp3r",
+      "title": "下タブ未掲載の重要ページを棚卸しし、自動実行キューを主要導線に追加する",
+      "prompt": "ny01/progressで、全ページ/全ルートを棚卸しし、下タブや主要ナビに出ていないが旧画面や内部リンクから使われている重要ページを洗い出してください。特に自動実行キュー(/queue)、/prompt-queue、/legacy/queue(旧WorkQueue)、/tasks/import(ToDo JSON取り込み)、/logs(ExecutionRun詳細/ログ)、/decide(今日の判断)、/inbox(旧Inbox)、/decisions(Decision Log)、/verify-todos(動作確認)を確認してください。最優先: 自動実行キュー(/queue)と/prompt-queueがモバイルBottomNav(components/navigation/BottomNav.tsx)に無くiPhoneから辿れないため、BottomNavに自動実行系の導線を追加すること(タブ増やしすぎ回避のため統合案も可)。Queue/WorkQueue/Prompt Queueの重複を整理し統合方針を出す。既存導線(/legacy/desktop TopNav)を壊さず、iPhone表示・tsc・lint・build・主要画面確認まで実施し、変更ファイル一覧と残課題を報告。",
+      "projectName": "ny01/progress",
+      "goalProgressTitle": "progressアプリの主要導線を整理し、旧画面由来の重要ページを下タブに統合する",
+      "goalTitle": "progressアプリの主要導線を整理し、旧画面由来の重要ページを下タブに統合する",
+      "status": "completed",
+      "source": "json_import",
+      "createdAt": "2026-06-14T01:12:12.906Z",
+      "updatedAt": "2026-06-14T01:50:58.802Z",
+      "notes": "自動実行キュー(/queue)と/prompt-queueがモバイルBottomNavに無くiPhoneから辿れない。レビュー(runId後述)で特定。",
+      "preferredExecutor": "auto",
+      "resultSummary": "Fableが手動実装（BottomNav 5主要+その他再編・/queue主要タブ昇格）。commit参照。",
+      "completedAt": "2026-06-14T01:50:58.802Z"
+    }
+  ]
 }

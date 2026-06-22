@@ -35,11 +35,11 @@ Factory を **ユーザー操作なし**で起動するためのスケジュー�
 `runScheduledFactory` が以下を順に判定し、満たさなければ起動せず envelope ExecutionRun を残す。
 
 1. `factoryEnabled === true`（false → `skip=factory_off`）
-2. `factoryRunState !== 'Blocked'`（Blocked → `skip=blocked`）
-3. 二重起動防止: `data/real/factory-schedule.lock` が有効 → `skip=already_running`
+2. 二重起動防止: `data/real/factory-schedule.lock` が有効 → `skip=already_running`
+3. Review Fix / Epic Runner / Prompt Queue が、それぞれ自分の候補と安全条件を判定
    - lock は実行開始時に作成し、`finally` で削除。最大3 Run×25分と前後処理を考慮し、2時間で stale 奪取。
 
-通過したら `runFactory({ mode:'auto', confirm:true })` を起動。Epic ループ・安全ゲート
+通過したら3つのRunnerを起動。Epic ループ・安全ゲート
 （blocked / approval_required / riskFlags / decision 待ち / max_runs / rate_limited）は
 **runFactory 既存実装のまま**。P3 では一切変更しない。
 

@@ -1,5 +1,4 @@
 import { classifyCodexEligibility, getAutomationConfig } from '@/lib/operations-store'
-import { computeFactoryStatus } from '@/lib/factory-status'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { addExecutionRun, updateReviewStatus } from '@/lib/execution-run-writer'
 import { getAdapter } from '@/lib/executors'
@@ -180,8 +179,6 @@ export async function runReviewFixDispatch(opts: ReviewFixDispatchOptions = {}):
 
   const config = await getAutomationConfig()
   if (!config.factoryEnabled) return finalize('factory_off')
-  const factoryStatus = await computeFactoryStatus()
-  if (factoryStatus.factoryRunState === 'Blocked') return finalize('blocked')
 
   const runs = await readExecutionRuns()
   const targets = pickTargets(runs, maxItems)

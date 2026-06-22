@@ -3212,6 +3212,56 @@
           "updatedAt": "2026-05-30T09:17:21.305Z"
         }
       ]
+    },
+    {
+      "projectId": "",
+      "tasks": [
+        {
+          "id": "task--1781838882343-0",
+          "goalId": "goal-mqkcv4td-zycti",
+          "phaseId": "phase-1",
+          "title": "A作業1",
+          "status": "pending_approval",
+          "priority": "medium",
+          "assignee": "claude",
+          "memo": "[Claude] [初期フェーズ] goal:検証用：一括ゴールA",
+          "doneCriteria": [
+            "完了条件1"
+          ],
+          "createdAt": "2026-06-19T03:14:42.343Z",
+          "updatedAt": "2026-06-19T03:14:42.343Z"
+        },
+        {
+          "id": "task--1781838882344-1",
+          "goalId": "goal-mqkcv4td-zycti",
+          "phaseId": "phase-1",
+          "title": "A作業2",
+          "status": "pending_approval",
+          "priority": "medium",
+          "assignee": "claude",
+          "memo": "[Claude] [初期フェーズ] goal:検証用：一括ゴールA",
+          "createdAt": "2026-06-19T03:14:42.343Z",
+          "updatedAt": "2026-06-19T03:14:42.343Z"
+        }
+      ]
+    },
+    {
+      "projectId": "nonexistent",
+      "tasks": [
+        {
+          "id": "task-nonexistent-1781838882363-0",
+          "goalId": "goal-mqkcv4u1-hfoij",
+          "phaseId": "phase-1",
+          "title": "B作業1",
+          "status": "pending_approval",
+          "priority": "medium",
+          "assignee": "claude",
+          "memo": "[Claude] [初期フェーズ] goal:検証用：一括ゴールB",
+          "targetApp": "nonexistent",
+          "createdAt": "2026-06-19T03:14:42.363Z",
+          "updatedAt": "2026-06-19T03:14:42.363Z"
+        }
+      ]
     }
   ]
 }

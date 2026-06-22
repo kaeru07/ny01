@@ -9,6 +9,7 @@ import AutoResumePanel from '@/components/automation/AutoResumePanel'
 import FactoryDispatchPanel from '@/components/automation/FactoryDispatchPanel'
 import FactoryProgressCard from '@/components/automation/FactoryProgressCard'
 import FactoryStatusCard from '@/components/automation/FactoryStatusCard'
+import LoopHealthCard from '@/components/automation/LoopHealthCard'
 import FactoryRunnerPanel from '@/components/automation/FactoryRunnerPanel'
 import DevModeGate, { DevModeToggle } from '@/components/DevModeGate'
 
@@ -101,6 +102,9 @@ export default function AutomationPage() {
 
       {/* Factory 進行状況（状態中心・詳細） */}
       <FactoryProgressCard />
+
+      {/* ループの健全性（実行→レビュー→学び→次Epic候補が閉じているか） */}
+      <LoopHealthCard />
 
       {/* 現在状態 */}
       <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">

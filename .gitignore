@@ -2,3 +2,13 @@ node_modules/
 .next/
 .env
 .env.local
+
+# build artifacts
+*.tsbuildinfo
+
+# scratch / debug artifacts (Claude/Codex factory runs)
+_*.py
+_*.mjs
+_dispatch_*.json
+*-marker.txt
+.factory-probe

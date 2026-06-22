@@ -2,13 +2,13 @@ import fs from 'fs/promises'
 import path from 'path'
 import { getDataPath } from '@/lib/progress-reader'
 import { getAutomationConfig, appendAutomationLog } from './operations-store'
-import { computeFactoryStatus } from './factory-status'
 import { runFactory } from './factory-runner'
 import { runReviewFixDispatch } from './review-fix-runner'
 import { runPromptQueueDispatch } from './prompt-queue-runner'
 import { addExecutionRun, updateExecutionRunFields } from './execution-run-writer'
 import { syncCandidatesFromVault } from './monetization-vault-sync'
-import { backfillFollowupRecommendations } from './knowledge-loop'
+import { backfillFollowupRecommendations, backfillReviewedKnowledgeLoop } from './knowledge-loop'
+import { syncGoalMetricsFromFactory } from './goal-metric-sync'
 import { expireStaleRecommendations } from './recommended-epics-store'
 import { rotateExecutionRunsArchive } from './execution-run-archive'
 import { checkAutonomyCompletionAndNotify } from './autonomy-notification'
@@ -45,7 +45,6 @@ export interface ScheduleRunResult {
   source: ScheduleSource
   trigger: ScheduleTrigger
   factoryEnabled: boolean
-  factoryRunState?: string
   stoppedReason?: string
   runsExecuted: number
   promptQueueExecuted?: number
@@ -150,8 +149,9 @@ async function recordEnvelope(args: {
 
 /**
  * スケジューラ（systemd timer / cron / boot service）から呼ばれる Factory 起動入口。
- * 起動条件: factoryEnabled=true かつ factoryRunState !== 'Blocked'。
+ * 起動条件: factoryEnabled=true。
  * 二重起動防止: lock ファイルが有効なら skip='already_running'。
+ * Review Fix / Epic Runner / Prompt Queue はそれぞれ自分の候補・安全条件を判定する。
  * 起動後は runFactory(auto) が生成した各 Run に source / trigger を後付けし、
  * さらに 1 件の envelope ExecutionRun（source / trigger / 結果サマリー）を必ず残す。
  */
@@ -183,15 +183,29 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
   }
 
   // 0.5) AI候補の棚卸し。修正依頼は候補へ戻し、古い suggested は期限切れにする。
+  //      さらに reviewed 済みなのに Knowledge/Next Epic 候補が未生成の Run を補完し、
+  //      Review→Knowledge→Next Epic ループの取りこぼし（手動更新・旧データ等）を自動で閉じる。
+  //      ※ not_reviewed を勝手に reviewed にはしない（一次レビューは別の明示操作のまま）。
   try {
-    const [followup, expired] = await Promise.all([
+    const [followup, expired, reviewedLoop] = await Promise.all([
       backfillFollowupRecommendations(),
       expireStaleRecommendations(),
+      backfillReviewedKnowledgeLoop(),
     ])
-    if (followup.createdRecommendations > 0 || expired.expired > 0) {
+    if (followup.createdRecommendations > 0 || expired.expired > 0 || reviewedLoop.createdRecommendations > 0) {
       await appendAutomationLog({
         event: 'factory_schedule',
-        fallbackReason: `followupCreated=${followup.createdRecommendations} expiredRecommendations=${expired.expired}`,
+        fallbackReason: `followupCreated=${followup.createdRecommendations} expiredRecommendations=${expired.expired} reviewedLoopCreated=${reviewedLoop.createdRecommendations}`,
+        detectionStatus: input.source,
+      } as never)
+    }
+    // 0.5b) ループの実測値（closedLoopRate 等）を Goal の current へ反映し、達成度を可視化する。
+    //       Knowledge補完直後に実行することで、新規 Knowledge 生成分まで current に反映される。
+    const metricSync = await syncGoalMetricsFromFactory()
+    if (metricSync.updated.length > 0) {
+      await appendAutomationLog({
+        event: 'factory_schedule',
+        fallbackReason: `goalMetricSync: ${metricSync.updated.map((u) => `${u.goalId}=${u.previous}→${u.next}`).join(' ')}`,
         detectionStatus: input.source,
       } as never)
     }
@@ -230,32 +244,7 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
     return { ...base, factoryEnabled: false, skipReason: 'factory_off', envelopeRunId, startedAt, finishedAt: new Date().toISOString() }
   }
 
-  // 2) 起動条件: state !== Blocked
-  const status = await computeFactoryStatus()
-  if (status.factoryRunState === 'Blocked') {
-    const envelopeRunId = await recordEnvelope({
-      source: input.source,
-      trigger: input.trigger,
-      runStatus: 'completed',
-      summary: `factoryRunState=Blocked のため起動しません（${input.source}/${input.trigger}）`,
-      rawReport: `[factory-schedule] skip=blocked source=${input.source} trigger=${input.trigger} state=${status.factoryRunState}`,
-      startedAt,
-      stoppedReason: 'blocked',
-      runsExecuted: 0,
-    })
-    await appendAutomationLog({ event: 'factory_schedule', fallbackReason: 'blocked', detectionStatus: input.source } as never)
-    return {
-      ...base,
-      factoryEnabled: true,
-      factoryRunState: status.factoryRunState,
-      skipReason: 'blocked',
-      envelopeRunId,
-      startedAt,
-      finishedAt: new Date().toISOString(),
-    }
-  }
-
-  // 3) 二重起動防止
+  // 2) 二重起動防止
   const locked = await acquireLock(input.source, input.trigger)
   if (!locked) {
     const envelopeRunId = await recordEnvelope({
@@ -272,7 +261,6 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
     return {
       ...base,
       factoryEnabled: true,
-      factoryRunState: status.factoryRunState,
       skipReason: 'already_running',
       envelopeRunId,
       startedAt,
@@ -280,7 +268,7 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
     }
   }
 
-  // 4) 起動（auto / confirm）。Epic ループ・安全ゲートは runFactory に委譲（P3 では何も変えない）。
+  // 3) 起動（auto / confirm）。各Runnerが自分の候補・安全ゲートを判定する。
   try {
     const reviewFix = await runReviewFixDispatch({
       mode: 'auto',
@@ -343,7 +331,6 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
       source: input.source,
       trigger: input.trigger,
       factoryEnabled: true,
-      factoryRunState: status.factoryRunState,
       stoppedReason: report.stoppedReason,
       runsExecuted: report.runsExecuted + promptQueue.executed + promptQueue.reserved + reviewFix.executed + reviewFix.reserved,
       promptQueueExecuted: promptQueue.executed,

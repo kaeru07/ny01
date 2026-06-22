@@ -1,6 +1,6 @@
 ---
-updated: 2026-06-20
-updateNote: 「システム仕様」タブを自動実行フロー中心に再構成（iPhone向けに参照系を折りたたみ）。自動実行の②調査からのゴール提案を仕様に明記し、③-b 自動実行対象が無いアイドル時の「ゴール生成モード」（progress優先で改善事項・試したいことを提案し承認対象を空にしない）を追加。調査=外/ゴール生成モード=中の二系統で承認対象を補充する。
+updated: 2026-06-21
+updateNote: ループの健全性カードを自動実行画面（/automation）に追加。「実行→レビュー→学び(Knowledge)→次のEpic候補」の流れが閉じているか（🟢全段つながり済み/🟡こぼれ件数）と各段の件数を可視化し、こぼれがある時だけ「自己修復」（既存backfill・冪等）を実行できる。バックエンド（loop-health API / getLoopClosureReport / healLoopClosure）は実装済みでUI出口だけ無かったのを補完。表示・補完専用で工場の実行順は変えない。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -333,6 +333,8 @@ Progress 自身の使われ方を把握するページ（下タブ「使用状�
 4. 本ドキュメント（`docs/operations/current-operating-model.md`）の本文 + frontmatter の `updated` / `updateNote` + 変更履歴
 
 ## 変更履歴
+
+- 2026-06-21: **ループの健全性カードを自動実行画面に追加（Execution→Review→Knowledge→Next Epicループの可視化）**（Epic: Execution→Review→Next Epicループ完成 / goal-execution-review-loop）。バックエンドの `getLoopClosureReport()` / `healLoopClosure()`（`lib/knowledge-loop.ts`）と `GET/POST /api/operations/loop-health` は実装済みだが、ループが閉じているかを人間が確認できるUI出口が無かった。`components/automation/LoopHealthCard.tsx` を新設し `/automation` の FactoryProgressCard 直下に配置。🟢=全段つながり済み（こぼれ0）/🟡=こぼれ件数を最上部に表示し、各段の件数（レビュー済みRun・Knowledge・次Epic候補つき・修正依頼Run・修正候補・レビュー起点候補）と、こぼれ一覧（最大8件）を表示。こぼれがある時のみ「こぼれを自己修復」ボタンが活性化し、`POST /api/operations/loop-health` で既存 backfill（冪等）を実行して未生成のKnowledge・次Epic候補・修正候補を補完、前後差分を文言表示。表示・補完専用で工場の実行順判定には影響しない。用語 `loopHealth` を `command-center.ts` の TERMS に追加、`/guide` に FAQ 1件追加。検証: tsc0 / next build0 / `/automation` 200 / `/api/operations/loop-health` GET が `closed:true, gapCount:0` を返すこと確認（pm2再起動で新カード描画反映）。
 
 - 2026-06-19: **自動実行レポートにフィルタ＋詳細レポート整形を追加**（ユーザー指示「フィルタと整形やって」）。`AutoExecReport` に **期間フィルタ（7日 / 30日=既定 / 全期間）＋状態フィルタ（すべて / 完了 / 一部完了 / 失敗）** をチップ（Link）で追加。`/guide` 経由で `?range=` `?status=` を AutoExecReport に渡し URL 同期、該当件数を表示。**詳細レポート全文を整形**: `cleanRawReport()` が rawReport から「progressレビュー用」ブロック以降と `monetizationImpact/theme/obsidianSummary/obsidianSaveTarget/reviewStatus/...` 等の機械メタ行を除去し、段落配列にして表示（旧 `<pre>` 全文ベタ貼りを廃止）。検証: tsc0/build0/`/guide?tab=report` フィルタ描画＋range7・status=failed 200・出力に progressレビュー用/monetizationImpact/obsidianSaveTarget が残らないこと確認。
 

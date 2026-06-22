@@ -10,7 +10,7 @@ const VALID_TRIGGERS: ScheduleTrigger[] = ['systemd', 'cron', 'startup']
 // POST: スケジューラ（systemd timer / cron / boot service）から Factory を起動する入口。
 //   body: { source: 'schedule'|'boot', trigger: 'systemd'|'cron'|'startup', maxRuns?, maxPerEpic? }
 //   - factoryEnabled=false → 何も起動しない（skip=factory_off）
-//   - factoryRunState=Blocked → 起動しない（skip=blocked）
+//   - 各Runnerが自分の候補・安全条件を判定する（グローバルな合成状態では止めない）
 //   - 実行中（lock 有効）→ 起動しない（skip=already_running）
 //   - 上記以外は runFactory(auto) を起動し、各 Run に source/trigger を付与 + envelope を記録。
 export async function POST(request: Request) {

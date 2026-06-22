@@ -186,6 +186,28 @@
       "url": "",
       "excluded": true,
       "updatedAt": "2026-04-29T09:00:00+09:00"
+    },
+    {
+      "id": "try-research",
+      "name": "試す系",
+      "status": "active",
+      "phase": "trial",
+      "progress": 0,
+      "currentTask": "AIツール等の検証候補を試す/調査する",
+      "nextAction": "ゴール承認で試す候補を承認→検証",
+      "blockers": [],
+      "updatedAt": "2026-06-21T08:57:00.578Z"
+    },
+    {
+      "id": "autoexec-test-proj",
+      "name": "自動実行テスト用",
+      "status": "archived",
+      "phase": "",
+      "progress": 0,
+      "currentTask": "テスト",
+      "nextAction": "(テスト用・アーカイブ)",
+      "blockers": [],
+      "updatedAt": "2026-06-21T09:33:22.146Z"
     }
   ]
 }

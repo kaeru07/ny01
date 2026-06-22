@@ -136,6 +136,87 @@
         "sourcePath": "05_monetization/収益化候補一覧.md",
         "runId": "20260611-110003",
         "impact": "no_change"
+      },
+      {
+        "date": "2026-06-11",
+        "type": "vault_sync",
+        "note": "定期取り込み: 野鳥観察ノート BirdLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 26 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260611-140005",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-06-11",
+        "type": "vault_sync",
+        "note": "定期取り込み: 野鳥観察ノート BirdLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 32 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260611-230004",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-06-12",
+        "type": "vault_sync",
+        "note": "定期取り込み: 野鳥観察ノート BirdLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 34 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260612-110005",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-06-12",
+        "type": "vault_sync",
+        "note": "定期取り込み: 野鳥観察ノート BirdLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 35 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260612-230011",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-06-13",
+        "type": "vault_sync",
+        "note": "定期取り込み: 野鳥観察ノート BirdLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 41 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260613-140005",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-06-13",
+        "type": "vault_sync",
+        "note": "定期取り込み: 野鳥観察ノート BirdLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 42 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260613-160001",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-06-13",
+        "type": "vault_sync",
+        "note": "定期取り込み: 野鳥観察ノート BirdLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 43 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260613-225548",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-06-13",
+        "type": "vault_sync",
+        "note": "定期取り込み: 野鳥観察ノート BirdLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 44 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260613-230015",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-06-20",
+        "type": "vault_sync",
+        "note": "定期取り込み: 野鳥観察ノート BirdLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 54 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260620-230010",
+        "impact": "no_change"
       }
     ],
     "history": [
@@ -191,6 +272,78 @@
         "reason": "既存候補と重複（再登場）",
         "runId": "20260611-110003",
         "timestamp": "2026-06-11T02:00:03.202Z"
+      },
+      {
+        "at": "2026-06-11T05:00:05.055Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260611-140005",
+        "timestamp": "2026-06-11T05:00:05.055Z"
+      },
+      {
+        "at": "2026-06-11T14:00:04.987Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260611-230004",
+        "timestamp": "2026-06-11T14:00:04.987Z"
+      },
+      {
+        "at": "2026-06-12T02:00:05.009Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260612-110005",
+        "timestamp": "2026-06-12T02:00:05.009Z"
+      },
+      {
+        "at": "2026-06-12T14:00:11.720Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260612-230011",
+        "timestamp": "2026-06-12T14:00:11.720Z"
+      },
+      {
+        "at": "2026-06-13T05:00:05.622Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260613-140005",
+        "timestamp": "2026-06-13T05:00:05.622Z"
+      },
+      {
+        "at": "2026-06-13T07:00:01.691Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260613-160001",
+        "timestamp": "2026-06-13T07:00:01.691Z"
+      },
+      {
+        "at": "2026-06-13T13:55:48.698Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（manual/test）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260613-225548",
+        "timestamp": "2026-06-13T13:55:48.698Z"
+      },
+      {
+        "at": "2026-06-13T14:00:15.136Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260613-230015",
+        "timestamp": "2026-06-13T14:00:15.136Z"
+      },
+      {
+        "at": "2026-06-20T14:00:10.751Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260620-230010",
+        "timestamp": "2026-06-20T14:00:10.751Z"
       }
     ],
     "links": {
@@ -198,8 +351,8 @@
       "researchNote": "06_research/local-first-app-ideas-2026-05-14"
     },
     "discoveredAt": "2026-06-02T20:46:00.000Z",
-    "updatedAt": "2026-06-11T02:00:03.202Z",
-    "lastResearchedAt": "2026-06-11",
+    "updatedAt": "2026-06-20T14:00:10.751Z",
+    "lastResearchedAt": "2026-06-20",
     "sourceRefs": [
       {
         "id": "sr-birdlog-9em4-7",
@@ -409,6 +562,285 @@
         "discoveredAt": "2026-06-11",
         "addedByRunId": "20260611-110003",
         "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-3uof-23",
+        "type": "research",
+        "path": "06_research/2026-06-11_know-20260611-110003.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-140005",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-3uok-24",
+        "type": "review",
+        "path": "20_reviews/2026-06-11_know-20260611-110003.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-140005",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-3uok-25",
+        "type": "review",
+        "path": "20_reviews/2026-06-11_progress-newux-resume.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-140005",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-eaym-26",
+        "type": "research",
+        "path": "06_research/2026-06-11_know-20260608-140010.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-230004",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-eaym-27",
+        "type": "research",
+        "path": "06_research/2026-06-11_know-20260608-230014.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-230004",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-eaym-28",
+        "type": "research",
+        "path": "06_research/2026-06-11_know-20260611-140005.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-230004",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-eaze-29",
+        "type": "review",
+        "path": "20_reviews/2026-06-11_know-20260608-140010.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-230004",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-eaze-30",
+        "type": "review",
+        "path": "20_reviews/2026-06-11_know-20260608-230014.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-230004",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-eaze-31",
+        "type": "review",
+        "path": "20_reviews/2026-06-11_know-20260611-140005.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-230004",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-480w-32",
+        "type": "review",
+        "path": "20_reviews/2026-06-12_ai-factory-os-design-review.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-12",
+        "addedByRunId": "20260612-110005",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-480x-33",
+        "type": "review",
+        "path": "20_reviews/2026-06-12_exclude-premature-human-tasks.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-12",
+        "addedByRunId": "20260612-110005",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-uafm-34",
+        "type": "review",
+        "path": "20_reviews/2026-06-12_ai-factory-os-review-top10.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-12",
+        "addedByRunId": "20260612-230011",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-zkig-35",
+        "type": "research",
+        "path": "06_research/2026-06-13_know-20260612-110005.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-13",
+        "addedByRunId": "20260613-140005",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-zkih-36",
+        "type": "research",
+        "path": "06_research/2026-06-13_know-20260612-230011.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-13",
+        "addedByRunId": "20260613-140005",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-zkih-37",
+        "type": "research",
+        "path": "06_research/2026-06-13_know-20260613-110006-962.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-13",
+        "addedByRunId": "20260613-140005",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-zkin-38",
+        "type": "review",
+        "path": "20_reviews/2026-06-13_know-20260612-110005.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-13",
+        "addedByRunId": "20260613-140005",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-zkin-39",
+        "type": "review",
+        "path": "20_reviews/2026-06-13_know-20260612-230011.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-13",
+        "addedByRunId": "20260613-140005",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-zkin-40",
+        "type": "review",
+        "path": "20_reviews/2026-06-13_know-20260613-110006-962.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-13",
+        "addedByRunId": "20260613-140005",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-9st6-41",
+        "type": "review",
+        "path": "20_reviews/2026-06-13_auto-execution-queue-mvp-codex.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-13",
+        "addedByRunId": "20260613-160001",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-4i55-42",
+        "type": "review",
+        "path": "20_reviews/2026-06-13_auto-queue-pin-reflect-fix.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-13",
+        "addedByRunId": "20260613-225548",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-a7tg-43",
+        "type": "review",
+        "path": "20_reviews/2026-06-13_monetization-daily-ingestion.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-13",
+        "addedByRunId": "20260613-230015",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-d33i-44",
+        "type": "research",
+        "path": "06_research/2026-06-20_know-20260608-093320.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-20",
+        "addedByRunId": "20260620-230010",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-d33i-45",
+        "type": "research",
+        "path": "06_research/2026-06-20_know-20260611-230004.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-20",
+        "addedByRunId": "20260620-230010",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-d33i-46",
+        "type": "research",
+        "path": "06_research/2026-06-20_know-20260613-140005.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-20",
+        "addedByRunId": "20260620-230010",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-d33i-47",
+        "type": "research",
+        "path": "06_research/2026-06-20_know-20260613-150148.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-20",
+        "addedByRunId": "20260620-230010",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-d33i-48",
+        "type": "research",
+        "path": "06_research/2026-06-20_know-20260613-160001.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-20",
+        "addedByRunId": "20260620-230010",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-d33i-49",
+        "type": "research",
+        "path": "06_research/2026-06-20_know-20260613-160139.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-20",
+        "addedByRunId": "20260620-230010",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-d33i-50",
+        "type": "research",
+        "path": "06_research/2026-06-20_know-20260613-160420.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-20",
+        "addedByRunId": "20260620-230010",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-d33i-51",
+        "type": "research",
+        "path": "06_research/2026-06-20_know-20260613-225548.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-20",
+        "addedByRunId": "20260620-230010",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-d33i-52",
+        "type": "research",
+        "path": "06_research/2026-06-20_know-20260613-225744.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-20",
+        "addedByRunId": "20260620-230010",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-d33i-53",
+        "type": "research",
+        "path": "06_research/2026-06-20_know-20260613-230015.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-06-20",
+        "addedByRunId": "20260620-230010",
+        "confidence": "medium"
       }
     ],
     "evidenceLinks": [
@@ -521,9 +953,164 @@
         "label": "2026-06-11_ai-factory-os-v2-ops-review.md",
         "path": "20_reviews/2026-06-11_ai-factory-os-v2-ops-review.md",
         "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_know-20260611-110003.md",
+        "path": "06_research/2026-06-11_know-20260611-110003.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_know-20260611-110003.md",
+        "path": "20_reviews/2026-06-11_know-20260611-110003.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_progress-newux-resume.md",
+        "path": "20_reviews/2026-06-11_progress-newux-resume.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_know-20260608-140010.md",
+        "path": "06_research/2026-06-11_know-20260608-140010.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_know-20260608-230014.md",
+        "path": "06_research/2026-06-11_know-20260608-230014.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_know-20260611-140005.md",
+        "path": "06_research/2026-06-11_know-20260611-140005.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_know-20260608-140010.md",
+        "path": "20_reviews/2026-06-11_know-20260608-140010.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_know-20260608-230014.md",
+        "path": "20_reviews/2026-06-11_know-20260608-230014.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_know-20260611-140005.md",
+        "path": "20_reviews/2026-06-11_know-20260611-140005.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-12_ai-factory-os-design-review.md",
+        "path": "20_reviews/2026-06-12_ai-factory-os-design-review.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-12_exclude-premature-human-tasks.md",
+        "path": "20_reviews/2026-06-12_exclude-premature-human-tasks.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-12_ai-factory-os-review-top10.md",
+        "path": "20_reviews/2026-06-12_ai-factory-os-review-top10.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-13_know-20260612-110005.md",
+        "path": "06_research/2026-06-13_know-20260612-110005.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-13_know-20260612-230011.md",
+        "path": "06_research/2026-06-13_know-20260612-230011.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-13_know-20260613-110006-962.md",
+        "path": "06_research/2026-06-13_know-20260613-110006-962.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-13_know-20260612-110005.md",
+        "path": "20_reviews/2026-06-13_know-20260612-110005.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-13_know-20260612-230011.md",
+        "path": "20_reviews/2026-06-13_know-20260612-230011.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-13_know-20260613-110006-962.md",
+        "path": "20_reviews/2026-06-13_know-20260613-110006-962.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-13_auto-execution-queue-mvp-codex.md",
+        "path": "20_reviews/2026-06-13_auto-execution-queue-mvp-codex.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-13_auto-queue-pin-reflect-fix.md",
+        "path": "20_reviews/2026-06-13_auto-queue-pin-reflect-fix.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-13_monetization-daily-ingestion.md",
+        "path": "20_reviews/2026-06-13_monetization-daily-ingestion.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-20_know-20260608-093320.md",
+        "path": "06_research/2026-06-20_know-20260608-093320.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-20_know-20260611-230004.md",
+        "path": "06_research/2026-06-20_know-20260611-230004.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-20_know-20260613-140005.md",
+        "path": "06_research/2026-06-20_know-20260613-140005.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-20_know-20260613-150148.md",
+        "path": "06_research/2026-06-20_know-20260613-150148.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-20_know-20260613-160001.md",
+        "path": "06_research/2026-06-20_know-20260613-160001.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-20_know-20260613-160139.md",
+        "path": "06_research/2026-06-20_know-20260613-160139.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-20_know-20260613-160420.md",
+        "path": "06_research/2026-06-20_know-20260613-160420.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-20_know-20260613-225548.md",
+        "path": "06_research/2026-06-20_know-20260613-225548.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-20_know-20260613-225744.md",
+        "path": "06_research/2026-06-20_know-20260613-225744.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-20_know-20260613-230015.md",
+        "path": "06_research/2026-06-20_know-20260613-230015.md",
+        "note": "名称が再登場"
       }
     ],
-    "lastSyncRunId": "20260611-110003"
+    "lastSyncRunId": "20260620-230010"
   },
   {
     "id": "mc-anglerlog-001",
@@ -645,6 +1232,33 @@
         "sourcePath": "05_monetization/収益化候補一覧.md",
         "runId": "20260611-110003",
         "impact": "no_change"
+      },
+      {
+        "date": "2026-06-11",
+        "type": "vault_sync",
+        "note": "定期取り込み: 釣果ログ AnglerLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 16 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260611-140005",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-06-11",
+        "type": "vault_sync",
+        "note": "定期取り込み: 釣果ログ AnglerLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 22 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260611-230004",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-06-20",
+        "type": "vault_sync",
+        "note": "定期取り込み: 釣果ログ AnglerLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 23 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260620-230010",
+        "impact": "no_change"
       }
     ],
     "history": [
@@ -697,6 +1311,30 @@
         "reason": "既存候補と重複（再登場）",
         "runId": "20260611-110003",
         "timestamp": "2026-06-11T02:00:03.202Z"
+      },
+      {
+        "at": "2026-06-11T05:00:05.055Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260611-140005",
+        "timestamp": "2026-06-11T05:00:05.055Z"
+      },
+      {
+        "at": "2026-06-11T14:00:04.987Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260611-230004",
+        "timestamp": "2026-06-11T14:00:04.987Z"
+      },
+      {
+        "at": "2026-06-20T14:00:10.751Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260620-230010",
+        "timestamp": "2026-06-20T14:00:10.751Z"
       }
     ],
     "links": {
@@ -705,8 +1343,8 @@
       "runId": "20260604-082420"
     },
     "discoveredAt": "2026-06-02T20:22:00.000Z",
-    "updatedAt": "2026-06-11T02:00:03.202Z",
-    "lastResearchedAt": "2026-06-11",
+    "updatedAt": "2026-06-20T14:00:10.751Z",
+    "lastResearchedAt": "2026-06-20",
     "sourceRefs": [
       {
         "id": "sr-anglerlog-9eln-2",
@@ -808,6 +1446,114 @@
         "discoveredAt": "2026-06-11",
         "addedByRunId": "20260611-110003",
         "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-3um4-11",
+        "type": "research",
+        "path": "06_research/2026-06-11_know-20260611-110003.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-140005",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-3um5-12",
+        "type": "research",
+        "path": "06_research/2026-06-11_know-20260611-120733.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-140005",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-3unf-13",
+        "type": "review",
+        "path": "20_reviews/2026-06-11_know-20260611-110003.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-140005",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-3unf-14",
+        "type": "review",
+        "path": "20_reviews/2026-06-11_know-20260611-120733.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-140005",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-3ung-15",
+        "type": "review",
+        "path": "20_reviews/2026-06-11_progress-newux-resume.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-140005",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-eaqk-16",
+        "type": "research",
+        "path": "06_research/2026-06-11_know-20260608-140010.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-230004",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-eaqk-17",
+        "type": "research",
+        "path": "06_research/2026-06-11_know-20260608-230014.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-230004",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-eaqk-18",
+        "type": "research",
+        "path": "06_research/2026-06-11_know-20260611-140005.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-230004",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-easv-19",
+        "type": "review",
+        "path": "20_reviews/2026-06-11_know-20260608-140010.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-230004",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-easv-20",
+        "type": "review",
+        "path": "20_reviews/2026-06-11_know-20260608-230014.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-230004",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-easv-21",
+        "type": "review",
+        "path": "20_reviews/2026-06-11_know-20260611-140005.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-11",
+        "addedByRunId": "20260611-230004",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-d32p-22",
+        "type": "research",
+        "path": "06_research/2026-06-20_know-20260611-230004.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-06-20",
+        "addedByRunId": "20260620-230010",
+        "confidence": "medium"
       }
     ],
     "evidenceLinks": [
@@ -860,9 +1606,69 @@
         "label": "2026-06-11_ai-factory-goal-mapping-report.md",
         "path": "20_reviews/2026-06-11_ai-factory-goal-mapping-report.md",
         "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_know-20260611-110003.md",
+        "path": "06_research/2026-06-11_know-20260611-110003.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_know-20260611-120733.md",
+        "path": "06_research/2026-06-11_know-20260611-120733.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_know-20260611-110003.md",
+        "path": "20_reviews/2026-06-11_know-20260611-110003.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_know-20260611-120733.md",
+        "path": "20_reviews/2026-06-11_know-20260611-120733.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_progress-newux-resume.md",
+        "path": "20_reviews/2026-06-11_progress-newux-resume.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_know-20260608-140010.md",
+        "path": "06_research/2026-06-11_know-20260608-140010.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_know-20260608-230014.md",
+        "path": "06_research/2026-06-11_know-20260608-230014.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_know-20260611-140005.md",
+        "path": "06_research/2026-06-11_know-20260611-140005.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_know-20260608-140010.md",
+        "path": "20_reviews/2026-06-11_know-20260608-140010.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_know-20260608-230014.md",
+        "path": "20_reviews/2026-06-11_know-20260608-230014.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-11_know-20260611-140005.md",
+        "path": "20_reviews/2026-06-11_know-20260611-140005.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-06-20_know-20260611-230004.md",
+        "path": "06_research/2026-06-20_know-20260611-230004.md",
+        "note": "名称が再登場"
       }
     ],
-    "lastSyncRunId": "20260611-110003"
+    "lastSyncRunId": "20260620-230010"
   },
   {
     "id": "mc-roastjournal-001",

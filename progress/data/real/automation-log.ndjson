@@ -59,3 +59,84 @@
 {"id":"alog-1781111823166","at":"2026-06-10T17:17:03.166Z","event":"factory_backpressure","fallbackReason":"not_reviewed=48 > 20: 今回のFactory自動実行をスキップ（レビュー滞留の解消が先。factoryEnabledは変更しない）","notReviewedCount":48,"backpressureAction":"pause"}
 {"id":"alog-1781143203841","at":"2026-06-11T02:00:03.842Z","event":"monetization_sync","fallbackReason":"added=0 updated=2","detectionStatus":"schedule"}
 {"id":"alog-1781143203909","at":"2026-06-11T02:00:03.909Z","event":"factory_backpressure","fallbackReason":"not_reviewed=50 > 20: 今回のFactory自動実行をスキップ（レビュー滞留の解消が先。factoryEnabledは変更しない）","notReviewedCount":50,"backpressureAction":"pause"}
+{"id":"alog-1781149758444","at":"2026-06-11T03:49:18.444Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=8 needs_human=1 partial=1 failed=0 / 残not_reviewed=43","aiReviewCounts":{"processed":10,"reviewed":8,"needsHuman":1,"partial":1,"failed":0}}
+{"id":"alog-1781154005852","at":"2026-06-11T05:00:05.852Z","event":"monetization_sync","fallbackReason":"added=0 updated=2","detectionStatus":"schedule"}
+{"id":"alog-1781154006268","at":"2026-06-11T05:00:06.268Z","event":"factory_backpressure","fallbackReason":"not_reviewed=44 > 20: 今回のFactory自動実行をスキップ（レビュー滞留の解消が先。factoryEnabledは変更しない）","notReviewedCount":44,"backpressureAction":"pause"}
+{"id":"alog-1781178331146","at":"2026-06-11T11:45:31.146Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=9 needs_human=1 partial=0 failed=0 / 残not_reviewed=40","aiReviewCounts":{"processed":10,"reviewed":9,"needsHuman":1,"partial":0,"failed":0}}
+{"id":"alog-1781178688372","at":"2026-06-11T11:51:28.372Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=7 needs_human=2 partial=1 failed=0 / 残not_reviewed=35","aiReviewCounts":{"processed":10,"reviewed":7,"needsHuman":2,"partial":1,"failed":0}}
+{"id":"alog-1781178720429","at":"2026-06-11T11:52:00.429Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=6 needs_human=3 partial=1 failed=0 / 残not_reviewed=30","aiReviewCounts":{"processed":10,"reviewed":6,"needsHuman":3,"partial":1,"failed":0}}
+{"id":"alog-1781186406232","at":"2026-06-11T14:00:06.232Z","event":"monetization_sync","fallbackReason":"added=0 updated=2","detectionStatus":"schedule"}
+{"id":"alog-1781186406340","at":"2026-06-11T14:00:06.340Z","event":"factory_backpressure","fallbackReason":"not_reviewed=32 > 20: 今回のFactory自動実行をスキップ（レビュー滞留の解消が先。factoryEnabledは変更しない）","notReviewedCount":32,"backpressureAction":"pause"}
+{"id":"alog-1781229605838","at":"2026-06-12T02:00:05.839Z","event":"monetization_sync","fallbackReason":"added=0 updated=1","detectionStatus":"schedule"}
+{"id":"alog-1781229926348","at":"2026-06-12T02:05:26.348Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1781233975281","at":"2026-06-12T03:12:55.282Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"boot"}
+{"id":"alog-1781240726724","at":"2026-06-12T05:05:26.724Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1781272812420","at":"2026-06-12T14:00:12.420Z","event":"monetization_sync","fallbackReason":"added=0 updated=1","detectionStatus":"schedule"}
+{"id":"alog-1781273127561","at":"2026-06-12T14:05:27.562Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1781316263943","at":"2026-06-13T02:04:23.943Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1781323366204","at":"2026-06-13T04:02:46.204Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=8 needs_human=1 partial=1 failed=0 / 残not_reviewed=47","aiReviewCounts":{"processed":10,"reviewed":8,"needsHuman":1,"partial":1,"failed":0}}
+{"id":"alog-1781323368166","at":"2026-06-13T04:02:48.166Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=6 needs_human=1 partial=3 failed=0 / 残not_reviewed=37","aiReviewCounts":{"processed":10,"reviewed":6,"needsHuman":1,"partial":3,"failed":0}}
+{"id":"alog-1781326806570","at":"2026-06-13T05:00:06.570Z","event":"monetization_sync","fallbackReason":"added=0 updated=1","detectionStatus":"schedule"}
+{"id":"alog-1781326806834","at":"2026-06-13T05:00:06.834Z","event":"factory_schedule","fallbackReason":"followupCreated=5 expiredRecommendations=0","detectionStatus":"schedule"}
+{"id":"alog-1781327123557","at":"2026-06-13T05:05:23.557Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1781334002241","at":"2026-06-13T07:00:02.241Z","event":"monetization_sync","fallbackReason":"added=0 updated=1","detectionStatus":"schedule"}
+{"id":"alog-1781334317882","at":"2026-06-13T07:05:17.883Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1781359216015","at":"2026-06-13T14:00:16.015Z","event":"monetization_sync","fallbackReason":"added=0 updated=1","detectionStatus":"schedule"}
+{"id":"alog-1781359531035","at":"2026-06-13T14:05:31.036Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1781393331193","at":"2026-06-13T23:28:51.194Z","event":"factory_dispatch","dispatchPlanId":"dp-epic-91-mqczlfcg","epicId":"epic-91","executorCandidate":"claude","promptType":"none","fallbackReason":"doneCriteria が無い / priority 未設定"}
+{"id":"alog-1781394581417","at":"2026-06-13T23:49:41.417Z","event":"factory_dispatch","dispatchPlanId":"dp-epic-91-mqd0c7ze","epicId":"epic-91","executorCandidate":"claude","promptType":"claude_factory"}
+{"id":"alog-1781402738265","at":"2026-06-14T02:05:38.266Z","event":"factory_schedule","fallbackReason":"all_epics_done","detectionStatus":"schedule"}
+{"id":"alog-1781413214614","at":"2026-06-14T05:00:14.614Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1781420413295","at":"2026-06-14T07:00:13.295Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1781445613014","at":"2026-06-14T14:00:13.014Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1781488810817","at":"2026-06-15T02:00:10.821Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1781499607417","at":"2026-06-15T05:00:07.420Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1781506813482","at":"2026-06-15T07:00:13.482Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1781532014505","at":"2026-06-15T14:00:14.505Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1781575839141","at":"2026-06-16T02:10:39.141Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1781586346178","at":"2026-06-16T05:05:46.178Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1781593532948","at":"2026-06-16T07:05:32.948Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1781618722505","at":"2026-06-16T14:05:22.505Z","event":"factory_schedule","fallbackReason":"all_epics_done","detectionStatus":"schedule"}
+{"id":"alog-1781661610311","at":"2026-06-17T02:00:10.311Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1781672409268","at":"2026-06-17T05:00:09.268Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1781679612802","at":"2026-06-17T07:00:12.803Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1781704802874","at":"2026-06-17T14:00:02.874Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1781748006644","at":"2026-06-18T02:00:06.645Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1781758806113","at":"2026-06-18T05:00:06.113Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1781766014444","at":"2026-06-18T07:00:14.444Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1781791213377","at":"2026-06-18T14:00:13.377Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1781834413824","at":"2026-06-19T02:00:13.824Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1781845212247","at":"2026-06-19T05:00:12.247Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1781852415375","at":"2026-06-19T07:00:15.380Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1781877613613","at":"2026-06-19T14:00:13.613Z","event":"factory_schedule","fallbackReason":"blocked","detectionStatus":"schedule"}
+{"id":"alog-1781920812408","at":"2026-06-20T02:00:12.408Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-execution-review-loop","fallbackReason":"未達成Goal「Execution→Review→Next Epicループ完成」にtodo/epicが無いため、次の一歩Epic（epic-goalstep-goal-execution-review-loop）を自動生成して進めます"}
+{"id":"alog-1781921129895","at":"2026-06-20T02:05:29.895Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1781931613201","at":"2026-06-20T05:00:13.202Z","event":"factory_schedule","fallbackReason":"followupCreated=0 expiredRecommendations=0 reviewedLoopCreated=1","detectionStatus":"schedule"}
+{"id":"alog-1781931964320","at":"2026-06-20T05:06:04.321Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1781938811870","at":"2026-06-20T07:00:11.870Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=10→24.3","detectionStatus":"schedule"}
+{"id":"alog-1781939072532","at":"2026-06-20T07:04:32.532Z","event":"ai_review","fallbackReason":"一次レビュー 160件処理: reviewed=133 needs_human=14 partial=13 failed=0 / 残not_reviewed=5","aiReviewCounts":{"processed":160,"reviewed":133,"needsHuman":14,"partial":13,"failed":0}}
+{"id":"alog-1781939133067","at":"2026-06-20T07:05:33.067Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1781964011744","at":"2026-06-20T14:00:11.744Z","event":"monetization_sync","fallbackReason":"added=0 updated=2","detectionStatus":"schedule"}
+{"id":"alog-1781964013348","at":"2026-06-20T14:00:13.348Z","event":"factory_schedule","fallbackReason":"followupCreated=12 expiredRecommendations=0 reviewedLoopCreated=0","detectionStatus":"schedule"}
+{"id":"alog-1781964013379","at":"2026-06-20T14:00:13.379Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=79.5→77.2","detectionStatus":"schedule"}
+{"id":"alog-1781964338135","at":"2026-06-20T14:05:38.135Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782007216530","at":"2026-06-21T02:00:16.530Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=77.2→74.5","detectionStatus":"schedule"}
+{"id":"alog-1782007539011","at":"2026-06-21T02:05:39.011Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782018014384","at":"2026-06-21T05:00:14.384Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=74.5→73.1","detectionStatus":"schedule"}
+{"id":"alog-1782018344838","at":"2026-06-21T05:05:44.838Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782025210401","at":"2026-06-21T07:00:10.401Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=73.1→71.7","detectionStatus":"schedule"}
+{"id":"alog-1782025531732","at":"2026-06-21T07:05:31.732Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782050415334","at":"2026-06-21T14:00:15.334Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=71.7→69.1","detectionStatus":"schedule"}
+{"id":"alog-1782050733946","at":"2026-06-21T14:05:33.946Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782093606705","at":"2026-06-22T02:00:06.705Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=69.1→67.4","detectionStatus":"schedule"}
+{"id":"alog-1782093927074","at":"2026-06-22T02:05:27.074Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782104415664","at":"2026-06-22T05:00:15.664Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=67.4→66.4","detectionStatus":"schedule"}
+{"id":"alog-1782104737811","at":"2026-06-22T05:05:37.811Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782111605002","at":"2026-06-22T07:00:05.002Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=66.4→65.5","detectionStatus":"schedule"}
+{"id":"alog-1782111922039","at":"2026-06-22T07:05:22.039Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782131457987","at":"2026-06-22T12:30:57.992Z","event":"auto_fallback","fallbackTriggered":true,"fallbackReason":"claude_rate_limited","fallbackTarget":"codex","codexPromptGenerated":false,"safetyGuard":true,"epicId":"epic-goalstep-goal-execution-review-loop"}
+{"id":"alog-1782136805099","at":"2026-06-22T14:00:05.099Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=65.5→64.2","detectionStatus":"schedule"}
+{"id":"alog-1782136811708","at":"2026-06-22T14:00:11.708Z","event":"auto_fallback","fallbackTriggered":true,"fallbackReason":"claude_rate_limited","fallbackTarget":"codex","codexPromptGenerated":false,"safetyGuard":true,"epicId":"epic-goalstep-goal-execution-review-loop"}
+{"id":"alog-1782136811822","at":"2026-06-22T14:00:11.822Z","event":"factory_schedule","fallbackReason":"rate_limited_no_codex","detectionStatus":"schedule"}
+{"id":"alog-1782138444419","at":"2026-06-22T14:27:24.419Z","event":"factory_dispatch","dispatchPlanId":"dp-epic-goalstep-goal-execution-review-loop-mqpb7sdq","epicId":"epic-goalstep-goal-execution-review-loop","executorCandidate":"codex","promptType":"codex_handoff"}
+{"id":"alog-1782138573850","at":"2026-06-22T14:29:33.850Z","event":"factory_dispatch","dispatchPlanId":"dp-epic-goalstep-goal-execution-review-loop-mqpbak93","epicId":"epic-goalstep-goal-execution-review-loop","executorCandidate":"codex","promptType":"codex_handoff"}

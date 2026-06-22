@@ -1,0 +1,18 @@
+{
+  "updatedAt": "2026-06-13T00:00:00.000Z",
+  "operationMemo": "Claude Code / Codex が作業完了時や Epic 完了後に「人間が確認すべき画面・URL・手順」をここへ登録する。人間は確認URLを開き、確認手順に沿って操作し、期待結果と一致すれば「確認済」、ずれていれば「NG」、後回しなら「保留」に更新する。iPhone から押せる公開URL（Vercel / 公開VPS）を登録すること。localhost / 内部ポートは iPhone から直接開けない点に注意。",
+  "todos": [
+    {
+      "id": "vt-seed-progress-verify",
+      "appName": "progress",
+      "epicName": "epic-progress-todo（動作確認Todoページ）",
+      "url": "http://160.251.143.146:3010/verify-todos",
+      "steps": "1. 上部メニューから「動作確認」を開く\n2. 「＋ 動作確認Todoを追加」で1件登録する\n3. 状態を未確認→確認済に変更してみる\n4. アプリ・Epic・状態の絞り込みを切り替える",
+      "expectedResult": "Todoが追加・編集・状態変更でき、絞り込みで該当件数だけ表示される。確認URLを押すと対象画面が開く。",
+      "status": "unconfirmed",
+      "notes": "このページ自身の動作確認。Claude Code/Codex 作業完了時に人間確認項目をここへ追加する運用の初期サンプル。",
+      "createdAt": "2026-06-13T00:00:00.000Z",
+      "updatedAt": "2026-06-13T00:00:00.000Z"
+    }
+  ]
+}

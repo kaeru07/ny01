@@ -4,7 +4,7 @@
     "githubIssue": 91,
     "title": "AI工場オペレーションセンター",
     "goal": "ProgressをAI工場の管制塔にし、AIが止まらずToDoを継続消化できる運用基盤を作る",
-    "progress": 20,
+    "progress": 100,
     "remainingWork": [
       "/operations ページ実装",
       "ヘルスダッシュボード",
@@ -14,24 +14,46 @@
     "latestRunId": null,
     "nextAction": "Step 2以降を実装する",
     "decisionPolicy": "autonomous",
-    "status": "active",
+    "status": "done",
     "targetApps": [
       "progress",
       "ny01/progress"
     ],
-    "updatedAt": "2026-05-30",
-    "goalId": "goal-ai-factory-os"
+    "doneCriteria": [
+      "goal-ai-factory-os が次回自動実行候補にGoal単位で表示",
+      "buildAutoQueueとscanFactoryDispatch/runFactoryの選定一致",
+      "ExecutionRun.selection.selectedGoalKey記録",
+      "dry-runでwouldRunNextと理由確認",
+      "completed時メール通知(モック可)",
+      "二重送信なし",
+      "Opus/Fableレビュー用報告生成"
+    ],
+    "priority": "P0",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "updatedAt": "2026-06-16T14:05:21.431Z",
+    "goalId": "goal-ai-factory-os",
+    "queueControl": {
+      "pinnedTop": true,
+      "pinnedAt": "2026-06-13T06:11:45.365Z",
+      "updatedBy": "user",
+      "updatedAt": "2026-06-15T14:16:52.069Z",
+      "excludedByUser": false
+    },
+    "factoryEligible": true
   },
   {
     "epicId": "epic-p2-factory-multiple-run-",
     "title": "P2 Factory multiple Run loop verification",
     "goal": "Factory Runnerで同一Epic内の複数RunとClaude上限時のCodex継続を検証する",
     "progress": 100,
-    "remainingWork": [],
+    "remainingWork": [
+      "失敗していた Run の原因を特定し、build/typecheck/lint が成功する状態にする"
+    ],
     "nextAction": "",
     "decisionPolicy": "autonomous",
     "status": "done",
-    "updatedAt": "2026-05-31T13:01:43.680Z",
+    "updatedAt": "2026-06-11T11:45:33.793Z",
     "doneCriteria": [
       "ExecutionRunが記録されている",
       "typecheck または lint が成功している",
@@ -109,12 +131,12 @@
     "epicId": "epic-birdlog-mvp-local-first-",
     "title": "野鳥観察ノート BirdLog の MVP を作る（local-first / API不要）",
     "goal": "収益化候補(score 83, 記録 / 収集 / 趣味)。海外birding市場が厚く言語非依存で海外展開が効く。図鑑コレクション×観察記録×目撃マップで習慣化・継続率が高い。",
-    "progress": 0,
+    "progress": 100,
     "remainingWork": [],
     "nextAction": "",
     "decisionPolicy": "autonomous",
-    "status": "active",
-    "updatedAt": "2026-06-07T14:16:54.024Z",
+    "status": "done",
+    "updatedAt": "2026-06-13T07:05:17.527Z",
     "doneCriteria": [
       "野鳥静的JSON（50種以上・和名/英名/科）からの種選択 がローカルで動作し永続化される",
       "観察記録のCRUD（種/写真/日時/場所匿名化/メモ） がローカルで動作し永続化される",
@@ -133,7 +155,13 @@
     "targetApps": [
       "birdlog"
     ],
-    "goalId": "goal-value-validation-pipeline"
+    "goalId": "goal-value-validation-pipeline",
+    "queueControl": {
+      "pinnedTop": false,
+      "updatedBy": "user",
+      "updatedAt": "2026-06-13T06:59:03.499Z",
+      "hold": false
+    }
   },
   {
     "epicId": "epic-progress-url",
@@ -171,12 +199,12 @@
     "epicId": "epic-progress-todo",
     "title": "progressアプリに動作確認Todoページを追加する",
     "goal": "Claude Code/Codexの日々の作業やEpic完了後に、人間が確認すべき画面・URL・手順をprogressアプリ内で一元管理できるようにする。",
-    "progress": 0,
+    "progress": 100,
     "remainingWork": [],
     "nextAction": "",
     "decisionPolicy": "autonomous",
-    "status": "active",
-    "updatedAt": "2026-06-10T23:59:40.553Z",
+    "status": "done",
+    "updatedAt": "2026-06-14T02:05:37.077Z",
     "doneCriteria": [
       "progressアプリに動作確認Todoページが追加されている",
       "アプリ名・Epic名・確認URL・確認手順・期待結果・状態を登録できる",
@@ -198,7 +226,12 @@
     "targetApps": [
       "progress"
     ],
-    "goalId": "goal-ai-factory-os"
+    "goalId": "goal-ai-factory-os",
+    "queueControl": {
+      "hold": false,
+      "updatedBy": "user",
+      "updatedAt": "2026-06-13T06:59:03.649Z"
+    }
   },
   {
     "epicId": "epic-url-iphone-vps-url",
@@ -241,11 +274,18 @@
     "title": "ニュースアプリのVault日次更新反映不具合を調査・修正する",
     "goal": "Obsidian Vaultに生成された日次Markdownを、ニュースアプリの市場調査ビューへ朝の定期実行・アプリ起動時・手動更新で毎日反映できる状態にする。",
     "progress": 100,
-    "remainingWork": "",
+    "remainingWork": [
+      "Vercel再デプロイ確認",
+      "同期をデプロイ前フック/朝定期に組込",
+      "ESLint設定",
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
     "nextAction": "",
     "decisionPolicy": "autonomous",
     "status": "done",
-    "updatedAt": "2026-06-09T12:24:58.092093Z",
+    "updatedAt": "2026-06-11T11:51:55.418Z",
     "doneCriteria": [
       "ニュースアプリが参照しているVaultパス、カテゴリマッピング、partial判定、キャッシュ、定期実行処理の現状が調査され、原因が報告されている",
       "2026-06-08などVault側の最新日次ファイルが存在する場合、市場調査ビューの最新日付として反映される",
@@ -330,5 +370,32 @@
       "news-app"
     ],
     "goalId": "goal-value-validation-pipeline"
+  },
+  {
+    "epicId": "epic-goalstep-goal-execution-review-loop",
+    "goalId": "goal-execution-review-loop",
+    "title": "Execution→Review→Next Epicループ完成: 次の一歩",
+    "goal": "Goal「Execution→Review→Next Epicループ完成」の達成に向けて、次の具体的な1ステップを進める。Codex/Claudeの実行結果を完了報告で終わらせず、Review、Knowledge、Next Epic候補生成までつなげる。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-22T12:15:06.006Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P0",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "factoryEligible": true,
+    "queueControl": {
+      "manualOrder": 12,
+      "updatedBy": "user",
+      "updatedAt": "2026-06-22T12:15:06.006Z",
+      "pinnedTop": false
+    }
   }
 ]
