@@ -72,11 +72,11 @@ const FAQ: Array<{ q: string; a: string }> = [
 ]
 
 function GuideTabBar({ active }: { active: 'guide' | 'report' | 'system' | 'research' }) {
-  const base = 'flex-1 text-center rounded-lg px-3 py-2 text-xs font-bold transition-colors'
+  const base = 'flex-1 min-w-[80px] whitespace-nowrap text-center rounded-lg px-2 py-2 text-[11px] font-bold transition-colors'
   const on = 'bg-blue-600 text-white'
   const off = 'border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800'
   return (
-    <div className="flex gap-2">
+    <div className="flex flex-wrap gap-1.5">
       <Link href="/guide" className={`${base} ${active === 'guide' ? on : off}`}>使い方ガイド</Link>
       <Link href="/guide?tab=report" className={`${base} ${active === 'report' ? on : off}`}>自動実行レポート</Link>
       <Link href="/guide?tab=system" className={`${base} ${active === 'system' ? on : off}`}>システム仕様</Link>

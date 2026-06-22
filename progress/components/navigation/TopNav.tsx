@@ -29,7 +29,6 @@ const legacyNavItems = [
   { href: '/goal-planner', label: '目標', exact: false },
   { href: '/tasks', label: 'ToDo', exact: false },
   { href: '/prompt-queue', label: '作業予約', exact: false },
-  { href: '/legacy/queue', label: '旧キュー', exact: false },
   { href: '/app-urls', label: 'URL', exact: false },
   { href: '/verify-todos', label: '動作確認', exact: false },
   { href: '/radar', label: 'レーダー', exact: false },
