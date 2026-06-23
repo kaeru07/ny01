@@ -5,10 +5,12 @@ import {
   generateCodexPrompt,
   appendAutomationLog,
   getAutomationConfig,
+  getPendingApprovals,
 } from './operations-store'
 import { buildExecutionGuard } from './epic-contract'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { readGoals, rankGoals, goalRankOf } from '@/lib/goal-reader'
+import { computeQueueScore, deriveWorkItemStatus, hasFixRequestedForEpic, latestRunForEpic } from '@/lib/auto-queue-score'
 import type { Epic } from '@/lib/types/operations'
 import type { ExecutionRun } from '@/types/execution-run'
 import { AUTONOMY_ANCHOR_SCORE_BOOST, REVIEW_FIX_SCORE_BOOST, autonomyAnchorReason, isAutonomyAnchorEpic } from '@/lib/autonomy-anchor'
@@ -169,10 +171,17 @@ export async function scanFactoryDispatch(): Promise<FactoryDispatchScan> {
   if (!config.factoryEnabled) {
     return { factoryEnabled: false, picked: null, candidates: [], blocked: [] }
   }
-  const [epics, goalsData] = await Promise.all([getEpics(), readGoals()])
+  const [epics, goalsData, runs, approvals] = await Promise.all([
+    getEpics(),
+    readGoals(),
+    readExecutionRuns(),
+    getPendingApprovals(),
+  ])
   const priorityOf = new Map(epics.map((e) => [e.epicId, e.priority]))
   const epicById = new Map(epics.map((e) => [e.epicId, e]))
+  const goalById = new Map(goalsData.goals.map((goal) => [goal.id, goal]))
   const goalRank = rankGoals(goalsData.goals)
+  const statusContext = { runs, approvals }
   const active = epics.filter((e) => e.status === 'active' || e.status === 'paused')
   const plans = (await Promise.all(active.map((e) => buildDispatchPlan(e.epicId)))).filter(
     (p): p is FactoryDispatchPlan => p !== null,
@@ -181,8 +190,25 @@ export async function scanFactoryDispatch(): Promise<FactoryDispatchScan> {
   // 安全枠の据置度（要修正 > 自走化アンカー）。Goal順より上位に残す。
   const safetyValue = (plan: FactoryDispatchPlan) =>
     (plan.hasFixPrompt ? REVIEW_FIX_SCORE_BOOST : 0) + (plan.autonomyAnchor ? AUTONOMY_ANCHOR_SCORE_BOOST : 0)
+  const queueScore = (plan: FactoryDispatchPlan) => {
+    const epic = epicById.get(plan.epicId)
+    if (!epic) return 0
+    const status = deriveWorkItemStatus(epic, statusContext)
+    const latestRun = latestRunForEpic(epic, runs)
+    return computeQueueScore({
+      priority: epic.priority,
+      queueControl: epic.queueControl,
+      lastRunAt: latestRun?.finishedAt || latestRun?.startedAt || undefined,
+      nextAction: epic.nextAction,
+      updatedAt: epic.updatedAt,
+      factoryEligible: epic.factoryEligible,
+      fixRequested: status === 'executable' && hasFixRequestedForEpic(epic, runs),
+      autonomyAnchor: status === 'executable' && isAutonomyAnchorEpic(epic),
+    }, epic.goalId ? goalById.get(epic.goalId) : undefined).queueScore
+  }
   // 並び順（表示の自動実行キューと同じ階層）:
-  //  1. 明示pin → 2. 安全枠（要修正/自走化アンカー）→ 3. Goal順（rankGoals）→ 4. 優先度 → 5. epicId
+  //  1. 明示pin → 2. 安全枠（要修正/自走化アンカー）→ 3. 手動順 → 4. Goal順（rankGoals）
+  //  5. score → 6. 優先度 → 7. epicId
   const candidates = plans
     .filter((p) => p.safetyStatus === 'ok')
     .sort((a, b) => {
@@ -191,8 +217,15 @@ export async function scanFactoryDispatch(): Promise<FactoryDispatchScan> {
       if (ap !== bp) return bp - ap
       const sv = safetyValue(b) - safetyValue(a)
       if (sv !== 0) return sv
+      const am = epicById.get(a.epicId)?.queueControl?.manualOrder
+      const bm = epicById.get(b.epicId)?.queueControl?.manualOrder
+      if (typeof am === 'number' && typeof bm === 'number' && am !== bm) return am - bm
+      if (typeof am === 'number' && typeof bm !== 'number') return -1
+      if (typeof bm === 'number' && typeof am !== 'number') return 1
       const gr = goalRankOf(goalRank, a.goalId) - goalRankOf(goalRank, b.goalId)
       if (gr !== 0) return gr
+      const qs = queueScore(b) - queueScore(a)
+      if (qs !== 0) return qs
       const ar = PRIORITY_RANK[priorityOf.get(a.epicId) ?? 'P2']
       const br = PRIORITY_RANK[priorityOf.get(b.epicId) ?? 'P2']
       if (ar !== br) return ar - br

@@ -36,15 +36,23 @@ export type EnsureGoalStepResult =
  *   riskFlagsDefault を継承し、通常の Factory 安全ゲートを通る。
  * - **Factory の実起動経路からのみ呼ぶこと**（read 経路＝画面表示やAPI GET では呼ばない。表示の度に epic を作らないため）。
  */
-export async function ensureNextGoalStepEpic(): Promise<EnsureGoalStepResult> {
+export async function ensureNextGoalStepEpic(targetGoalId?: string): Promise<EnsureGoalStepResult> {
   const [epics, goalsData] = await Promise.all([getEpics(), readGoals()])
   const goalsWithOpenEpic = new Set(
     epics.filter((e) => OPEN_EPIC_STATUSES.has(e.status) && e.goalId).map((e) => e.goalId as string),
   )
-  const rank = rankGoals(goalsData.goals)
-  const target = goalsData.goals
-    .filter((goal) => isAutoAdvanceGoal(goal) && !goalsWithOpenEpic.has(goal.id))
-    .sort((a, b) => goalRankOf(rank, a.id) - goalRankOf(rank, b.id))[0]
+  const target = targetGoalId
+    ? goalsData.goals.find((goal) => (
+        goal.id === targetGoalId &&
+        isAutoAdvanceGoal(goal) &&
+        !goalsWithOpenEpic.has(goal.id)
+      ))
+    : (() => {
+        const rank = rankGoals(goalsData.goals)
+        return goalsData.goals
+          .filter((goal) => isAutoAdvanceGoal(goal) && !goalsWithOpenEpic.has(goal.id))
+          .sort((a, b) => goalRankOf(rank, a.id) - goalRankOf(rank, b.id))[0]
+      })()
   if (!target) return { created: false }
 
   const epic = await createEpic({

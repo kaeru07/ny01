@@ -9,6 +9,7 @@ import {
   updateEpic,
 } from './operations-store'
 import { scanFactoryDispatch, buildDispatchPlan, generateClaudeFactoryPrompt } from './factory-dispatch'
+import { buildAutoQueue } from './auto-queue'
 import { ensureNextGoalStepEpic } from './goal-step-epic'
 import { requestGoalProposalIfIdle } from './goal-proposal'
 import { proposeGoalsFromResearchIfNeeded } from './research-goals'
@@ -340,37 +341,63 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
       fallbackReason: proposal.requested ? `${proposal.reason}\n${proposal.prompt ?? ''}` : proposal.reason,
     })
   }
-  if (!scan.picked) {
-    return finalize(scan.blocked.length > 0 ? 'all_blocked' : 'no_candidate')
-  }
-  // Goal未設定Epicは対象外（方針選択待ち）。対象外を除いた先頭を選び直す。
-  const firstRunnable = goalUnsetEpicIds.has(scan.picked.epicId)
-    ? scan.candidates.find((p) => !goalUnsetEpicIds.has(p.epicId))
-    : scan.picked
-  if (!firstRunnable) {
-    await appendAutomationLog({
-      event: 'factory_backpressure',
-      fallbackReason: `Goal未設定Epic=${goalUnsetEpicIds.size}件のみが候補: Goal紐付け（方針選択）が済むまで停止`,
-      backpressureAction: 'pause',
-    })
-    return finalize('blocked_by_goal_unset')
-  }
-
   const cwd = opts.cwd ?? process.cwd()
-  let currentEpicId = firstRunnable.epicId
   const doneEpics: string[] = []
   // P4: 複数 Epic ループの「処理済み/スキップ済み」を統合管理し、再選択で無限ループしないようにする。
   // Goal未設定（方針選択待ち）のEpicは最初から対象外に入れる。
   const excludedEpics = new Set<string>(goalUnsetEpicIds)
 
-  // 次に進める eligible Epic を選ぶ（priority 順 / excluded は除外）。無ければ null。
-  // scan.candidates は safetyStatus=ok のみ（blocked / approval / riskFlags / manual / factoryEligible=false
-  // は evaluateFactoryEligibility → buildDispatchPlan で既に除外済み）。
+  // 表示キューを順序の正本とし、scan.candidates の安全ゲートを通過した最初の Epic を選ぶ。
+  // Goal/todo は auto の実起動かつ confirm 済みの場合だけ「次の一歩」Epic に materialize する。
   async function pickNextEpic(): Promise<string | null> {
-    const rescan = await scanFactoryDispatch()
-    const next = rescan.candidates.find((p) => !excludedEpics.has(p.epicId))
-    return next?.epicId ?? null
+    const view = await buildAutoQueue()
+    let epics = await getEpics()
+    let rescan = await scanFactoryDispatch()
+
+    for (const item of view.executable) {
+      let epicId: string | undefined
+      if (item.type === 'epic') {
+        epicId = item.sourceId
+      } else if ((item.type === 'goal' || item.type === 'goal_todo') && item.goalId) {
+        const expectedEpicId = `epic-goalstep-${item.goalId}`
+        if (mode === 'auto' && opts.confirm) {
+          const step = await ensureNextGoalStepEpic(item.goalId)
+          if (step.created) {
+            await appendAutomationLog({
+              event: 'factory_goal_step_epic_created',
+              epicId: step.epicId,
+              fallbackReason: `キュー上位のGoal「${step.goalTitle}」を進めるため、次の一歩Epic（${step.epicId}）を自動生成しました`,
+            })
+          }
+          epics = await getEpics()
+          rescan = await scanFactoryDispatch()
+          epicId = step.created
+            ? step.epicId
+            : epics.find((epic) => epic.epicId === expectedEpicId)?.epicId
+        } else {
+          epicId = epics.find((epic) => epic.epicId === expectedEpicId)?.epicId
+        }
+      }
+
+      if (!epicId || excludedEpics.has(epicId) || goalUnsetEpicIds.has(epicId)) continue
+      if (rescan.candidates.some((candidate) => candidate.epicId === epicId)) return epicId
+    }
+    return null
   }
+
+  const firstRunnableEpicId = await pickNextEpic()
+  if (!firstRunnableEpicId) {
+    if (scan.picked && goalUnsetEpicIds.size > 0 && scan.candidates.every((p) => goalUnsetEpicIds.has(p.epicId))) {
+      await appendAutomationLog({
+        event: 'factory_backpressure',
+        fallbackReason: `Goal未設定Epic=${goalUnsetEpicIds.size}件のみが候補: Goal紐付け（方針選択）が済むまで停止`,
+        backpressureAction: 'pause',
+      })
+      return finalize('blocked_by_goal_unset')
+    }
+    return finalize(scan.blocked.length > 0 ? 'all_blocked' : 'no_candidate')
+  }
+  let currentEpicId = firstRunnableEpicId
 
   // dry_run / manual は 1 ステップのプレビュー（状態を変えない）。
   if (mode === 'dry_run' || mode === 'manual') {
