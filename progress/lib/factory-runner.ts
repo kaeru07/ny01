@@ -18,6 +18,7 @@ import { addExecutionRun, updateExecutionRunFields } from './execution-run-write
 import { readExecutionRuns } from './execution-run-reader'
 import { readGoals } from './goal-reader'
 import { writeGoals } from './goal-writer'
+import { resolveAppCwd } from './app-paths'
 import { DANGER_CATEGORIES, isReviewApprovalOptions } from './inbox-labels'
 import { getAdapter } from './executors'
 import { runChecks } from './checks-runner'
@@ -31,6 +32,8 @@ import type { ExecutorChoice, FactoryDispatchPlan } from './types/operations'
 // 安全第一: 既定は dry_run（実起動なし）。caps（maxRuns / maxPerEpic）で無限ループを防ぐ。
 // auto は明示時のみ。Dispatch判定のexecutorを起動し、Claude上限時はCodexへfallbackする。
 // 禁止: 無限ループ / 危険作業の Codex 委譲 / Approval・Decision 待ちの実行 / チャットで質問停止。
+
+const OPEN_EPIC_STATUSES = new Set(['active', 'approved', 'paused'])
 
 interface RunnerOptions {
   mode?: FactoryRunMode
@@ -97,6 +100,31 @@ async function updateGoalSelectionPointer(selection: ExecutionRun['selection'] |
     updatedAt: new Date().toISOString(),
   }
   await writeGoals(data)
+}
+
+async function propagateEpicDoneToGoal(epicId: string, goalId?: string): Promise<void> {
+  if (!goalId) return
+  const [epics, goalsData] = await Promise.all([getEpics(), readGoals()])
+  const goal = goalsData.goals.find((g) => g.id === goalId)
+  if (!goal || goal.status !== 'active') return
+
+  const hasOtherOpenEpic = epics.some((epic) => (
+    epic.goalId === goalId &&
+    epic.epicId !== epicId &&
+    OPEN_EPIC_STATUSES.has(epic.status)
+  ))
+  const hasOpenAutoTodo = goal.todos.some((todo) => (
+    todo.role !== 'human' &&
+    todo.status !== 'done' &&
+    todo.status !== 'skipped'
+  ))
+  if (hasOtherOpenEpic || hasOpenAutoTodo) return
+
+  const now = new Date().toISOString()
+  goal.status = 'done'
+  goal.current = typeof goal.target === 'number' ? goal.target : goal.current
+  goal.updatedAt = now
+  await writeGoals(goalsData)
 }
 
 async function recordRun(args: {
@@ -341,7 +369,6 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
       fallbackReason: proposal.requested ? `${proposal.reason}\n${proposal.prompt ?? ''}` : proposal.reason,
     })
   }
-  const cwd = opts.cwd ?? process.cwd()
   const doneEpics: string[] = []
   // P4: 複数 Epic ループの「処理済み/スキップ済み」を統合管理し、再選択で無限ループしないようにする。
   // Goal未設定（方針選択待ち）のEpicは最初から対象外に入れる。
@@ -405,6 +432,18 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
   if (mode === 'dry_run' || mode === 'manual') {
     const plan = await buildDispatchPlan(currentEpicId)
     if (plan && plan.safetyStatus !== 'blocked') {
+      const detail = await getEpicDetail(currentEpicId)
+      const targetApp = detail?.epic.targetApps?.[0] ?? 'progress'
+      const epicCwd = opts.cwd ?? resolveAppCwd(targetApp)
+      if (!epicCwd) {
+        await appendAutomationLog({
+          event: 'factory_backpressure',
+          fallbackReason: `targetApp=${targetApp} の repo パスが未登録のため実行スキップ（誤repo実行防止）`,
+          backpressureAction: 'pause',
+        })
+        steps.push(stop(currentEpicId, plan.epicTitle, plan.executorCandidate, `targetApp=${targetApp} repo未登録`, plan.dispatchPlanId))
+        return finalize('target_app_repo_unregistered')
+      }
       const executor = plan.executorCandidate === 'codex' ? 'codex' : 'claude'
       const prompt = executor === 'codex'
         ? (await generateCodexPrompt(currentEpicId)).promptText
@@ -413,15 +452,15 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
         const result = await getAdapter(executor).run({
           epicId: currentEpicId,
           prompt,
+          cwd: epicCwd,
           dryRun: true,
           safetyText: `${plan.goal} ${plan.doneCriteria.join(' ')}`,
         })
         steps.push({ epicId: currentEpicId, epicTitle: plan.epicTitle, dispatchPlanId: plan.dispatchPlanId, executor, result, stopped: false })
         return finalize('dry_run_single_step')
       }
-      const detail = await getEpicDetail(currentEpicId)
-      const result = await getAdapter('manual').run({ epicId: currentEpicId, prompt, dryRun: false })
-      const recordedRunId = await recordRun({ epicId: currentEpicId, targetApp: detail?.epic.targetApps?.[0] ?? 'progress', title: `Factory(manual): ${plan.epicTitle}`, executor: 'manual', mode, dispatchPlanId: plan.dispatchPlanId, result, selection: selectionFromPlan(plan) })
+      const result = await getAdapter('manual').run({ epicId: currentEpicId, prompt, cwd: epicCwd, dryRun: false })
+      const recordedRunId = await recordRun({ epicId: currentEpicId, targetApp, title: `Factory(manual): ${plan.epicTitle}`, executor: 'manual', mode, dispatchPlanId: plan.dispatchPlanId, result, selection: selectionFromPlan(plan) })
       steps.push({ epicId: currentEpicId, epicTitle: plan.epicTitle, dispatchPlanId: plan.dispatchPlanId, executor: 'manual', result, recordedRunId, stopped: true, stopReason: 'manual_execution_pending' })
       return finalize('manual_execution_pending')
     }
@@ -471,6 +510,21 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
     let executor: ExecutorChoice = plan.executorCandidate === 'codex' ? 'codex' : 'claude'
     const detail = await getEpicDetail(currentEpicId)
     const targetApp = detail?.epic.targetApps?.[0] ?? 'progress'
+    const epicCwd = opts.cwd ?? resolveAppCwd(targetApp)
+    if (!epicCwd) {
+      excludedEpics.add(currentEpicId)
+      await appendAutomationLog({
+        event: 'factory_backpressure',
+        fallbackReason: `targetApp=${targetApp} の repo パスが未登録のため実行スキップ（誤repo実行防止）`,
+        backpressureAction: 'pause',
+      })
+      steps.push(stop(currentEpicId, plan.epicTitle, executor, `targetApp=${targetApp} repo未登録 → 次Epicへ`, plan.dispatchPlanId))
+      const next = await pickNextEpic()
+      if (!next) { stoppedReason = 'all_epics_done'; break }
+      currentEpicId = next
+      perEpic = 0
+      continue
+    }
     const followupOfRunId = extractFollowupOfRunId(detail?.epic.notes)
     // 安全判定の意図テキストは Epic 固有（goal + doneCriteria）のみ。
     // dispatch.nextActions は他 Epic 由来の候補が混じり禁止語を誤検知するため使わない。
@@ -506,7 +560,7 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
       result = await getAdapter(executor).run({
         epicId: currentEpicId,
         prompt: executorPrompt,
-        cwd,
+        cwd: epicCwd,
         dryRun: false,
         safetyText: intent,
         timeoutMs: executorTimeoutMs,
@@ -520,7 +574,7 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
         const codexPrompt = (await generateCodexPrompt(currentEpicId)).promptText
         result = opts.simulateCodexSuccessAfterFallback
           ? { status: 'completed', stdout: '[sim] Codex continued after Claude rate_limit', stderr: '', resultSummary: '[sim] Codex fallback Runを成功扱い', changedFiles: [], rateLimited: false, needsApproval: false, nextActions: [] }
-          : await getAdapter('codex').run({ epicId: currentEpicId, prompt: codexPrompt, cwd, dryRun: false, safetyText: intent, timeoutMs: executorTimeoutMs })
+          : await getAdapter('codex').run({ epicId: currentEpicId, prompt: codexPrompt, cwd: epicCwd, dryRun: false, safetyText: intent, timeoutMs: executorTimeoutMs })
         executor = 'codex'
       } else {
         await finishRunningRun({ runId: runningRunId, executor: 'claude', mode, result, stopReason: 'claude_rate_limited / Codex不可' })
@@ -532,7 +586,7 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
     }
 
     // Level1（機械判定）: typecheck / lint を実行して checks へ構造化保存する。
-    const checks = await runChecks(cwd, { typecheck: true, lint: true })
+    const checks = await runChecks(epicCwd, { typecheck: true, lint: true })
     await finishRunningRun({ runId: runningRunId, executor, mode, result, checks })
     const recordedRunId = runningRunId
     lastRecordedRunId = recordedRunId
@@ -562,6 +616,7 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
     const evalResult = await getDoneCriteriaForEpic(currentEpicId)
     if (evalResult && evalResult.verdict === 'done') {
       await updateEpic(currentEpicId, { status: 'done', progress: 100 })
+      await propagateEpicDoneToGoal(currentEpicId, detail?.epic.goalId)
       doneEpics.push(currentEpicId)
       excludedEpics.add(currentEpicId)
       await updateExecutionRunFields(recordedRunId, { doneCriteriaStatus: 'done', stopReason: `epic_done（doneCriteria ${evalResult.ratio}）` })
