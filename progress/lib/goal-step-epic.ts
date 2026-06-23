@@ -36,7 +36,7 @@ export type EnsureGoalStepResult =
  *   riskFlagsDefault を継承し、通常の Factory 安全ゲートを通る。
  * - **Factory の実起動経路からのみ呼ぶこと**（read 経路＝画面表示やAPI GET では呼ばない。表示の度に epic を作らないため）。
  */
-export async function ensureNextGoalStepEpic(targetGoalId?: string): Promise<EnsureGoalStepResult> {
+export async function ensureNextGoalStepEpic(targetGoalId?: string, sourceTodoId?: string): Promise<EnsureGoalStepResult> {
   const [epics, goalsData] = await Promise.all([getEpics(), readGoals()])
   const goalsWithOpenEpic = new Set(
     epics.filter((e) => OPEN_EPIC_STATUSES.has(e.status) && e.goalId).map((e) => e.goalId as string),
@@ -70,6 +70,7 @@ export async function ensureNextGoalStepEpic(targetGoalId?: string): Promise<Ens
     riskFlags: target.riskFlagsDefault ?? [],
     factoryEligible: true,
     targetApp: target.projectId,
+    relatedTodoIds: sourceTodoId ? [sourceTodoId] : undefined,
     notes: 'todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。',
   })
   return { created: true, epicId: epic.epicId, goalId: target.id, goalTitle: target.title }

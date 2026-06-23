@@ -361,7 +361,9 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
       } else if ((item.type === 'goal' || item.type === 'goal_todo') && item.goalId) {
         const expectedEpicId = `epic-goalstep-${item.goalId}`
         if (mode === 'auto' && opts.confirm) {
-          const step = await ensureNextGoalStepEpic(item.goalId)
+          const step = item.type === 'goal_todo'
+            ? await ensureNextGoalStepEpic(item.goalId, item.todoId)
+            : await ensureNextGoalStepEpic(item.goalId)
           if (step.created) {
             await appendAutomationLog({
               event: 'factory_goal_step_epic_created',

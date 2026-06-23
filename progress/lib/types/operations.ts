@@ -79,6 +79,7 @@ export interface Epic {
 /** Epic 作成/インポートの入力契約（バリデーション前の生入力に近い形）。 */
 export interface EpicContractInput {
   goalId?: string
+  relatedTodoIds?: string[]
   title: string
   goal: string
   doneCriteria: string[]

@@ -141,6 +141,7 @@ export async function createEpic(input: EpicContractInput & { epicId?: string })
   const epic: Epic = {
     epicId,
     goalId: input.goalId,
+    relatedTodoIds: input.relatedTodoIds,
     title: input.title,
     goal: input.goal,
     progress: 0,
