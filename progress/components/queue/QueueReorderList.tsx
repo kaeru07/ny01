@@ -55,6 +55,7 @@ export function QueueReorderList({ items }: QueueReorderListProps) {
   const [order, setOrder] = useState(() => items.filter((item) => !item.pinned))
   const [detail, setDetail] = useState<QueueReorderItem | null>(null)
   const [saving, setSaving] = useState(false)
+  const [pinningId, setPinningId] = useState<string>()
   const [unpinningId, setUnpinningId] = useState<string>()
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -104,6 +105,16 @@ export function QueueReorderList({ items }: QueueReorderListProps) {
     void saveOrder(nextOrder, previousOrder)
   }
 
+  function moveToEnd(index: number) {
+    if (saving || index === order.length - 1) return
+    const previousOrder = order
+    const nextOrder = [...order]
+    const [movedItem] = nextOrder.splice(index, 1)
+    nextOrder.push(movedItem)
+    setOrder(nextOrder)
+    void saveOrder(nextOrder, previousOrder)
+  }
+
   function handleDragEnd(event: DragEndEvent) {
     if (saving) return
 
@@ -138,6 +149,27 @@ export function QueueReorderList({ items }: QueueReorderListProps) {
       alert(error instanceof Error ? error.message : '固定解除に失敗しました')
     } finally {
       setUnpinningId(undefined)
+    }
+  }
+
+  async function pin(workItemId: string) {
+    if (pinningId) return
+    setPinningId(workItemId)
+    try {
+      const response = await fetch('/api/auto-queue/control', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ workItemId, action: 'pin' }),
+      })
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.error ?? '最優先への移動に失敗しました')
+      }
+      window.location.reload()
+    } catch (error) {
+      alert(error instanceof Error ? error.message : '最優先への移動に失敗しました')
+    } finally {
+      setPinningId(undefined)
     }
   }
 
@@ -199,10 +231,13 @@ export function QueueReorderList({ items }: QueueReorderListProps) {
                       item={item}
                       index={index}
                       itemCount={order.length}
-                      disabled={saving}
+                      disabled={saving || Boolean(pinningId)}
                       onMove={move}
+                      onMoveToEnd={moveToEnd}
+                      onPin={(workItemId) => void pin(workItemId)}
                       onDetail={() => setDetail(item)}
                       number={pinnedItems.length + index + 1}
+                      pinning={pinningId === item.workItemId}
                     />
                   ))}
                 </ol>
@@ -223,16 +258,22 @@ function SortableRow({
   itemCount,
   disabled,
   onMove,
+  onMoveToEnd,
+  onPin,
   onDetail,
   number,
+  pinning,
 }: {
   item: QueueReorderItem
   index: number
   itemCount: number
   disabled: boolean
   onMove: (index: number, offset: -1 | 1) => void
+  onMoveToEnd: (index: number) => void
+  onPin: (workItemId: string) => void
   onDetail: () => void
   number: number
+  pinning: boolean
 }) {
   const {
     attributes,
@@ -266,8 +307,18 @@ function SortableRow({
         ⠿
       </span>
       <CompactItem item={item} number={number} />
-      <div className="flex shrink-0 items-center gap-1">
+      <div className="flex max-w-[10rem] shrink-0 flex-wrap items-center justify-end gap-1">
         <DetailButton onClick={onDetail} stopPointerPropagation />
+        <button
+          type="button"
+          onClick={() => onPin(item.workItemId)}
+          onPointerDown={(event) => event.stopPropagation()}
+          disabled={disabled}
+          aria-label={`${item.title}を最優先に固定`}
+          className="rounded border border-amber-300 bg-amber-50 px-2 py-1 text-[11px] font-bold text-amber-800 hover:bg-amber-100 disabled:opacity-40 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200 dark:hover:bg-amber-950/50"
+        >
+          {pinning ? '移動中' : '最優先'}
+        </button>
         <button
           type="button"
           onClick={() => onMove(index, -1)}
@@ -287,6 +338,16 @@ function SortableRow({
           className="rounded border border-gray-200 bg-white px-2 py-1 text-[11px] font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-40 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
         >
           ↓
+        </button>
+        <button
+          type="button"
+          onClick={() => onMoveToEnd(index)}
+          onPointerDown={(event) => event.stopPropagation()}
+          disabled={disabled || index === itemCount - 1}
+          aria-label={`${item.title}を最後尾へ移動`}
+          className="rounded border border-gray-200 bg-white px-2 py-1 text-[11px] font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-40 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
+        >
+          最後尾
         </button>
       </div>
     </li>
