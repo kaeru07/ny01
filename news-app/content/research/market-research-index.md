@@ -43,6 +43,8 @@
 
 
 
+
+- 2026-06-24: AI動画広告生成 / OpenAIがサイバー防御向けモデルと「Patch the Planet」を拡大 / Disney AI-generated TV ad tool / AI動画広告テンプレを月額課金化し、業種別に「美容室」「不動産」「飲食店」「個人講師」向けへ分ける。 / エラーなし / partial(market,news,tools)
 - 2026-06-23: AI アシスタント比較 / Micron と Anthropic の AI メモリ供給提携 / GitHub Copilot app / Google Play Shorts / エラーなし / partial(market,news,tools)
 - 2026-06-22: AI エージェント権限管理 / Google DeepMind、AIエージェント制御ロードマップを公開 / Google ADK 2.0 / AI サブスク比較ダッシュボード: ChatGPT / エラーなし / partial(market,news,tools)
 - 2026-06-21: AIネイティブ小型ユーティリティ / Google DeepMind 人材流出が AI 競争の焦点に / Streamdown / 小型学習アプリを無料+広告で出し、復習回数・問題生成・履歴同期を月額課金にする / エラーなし / partial(market,news,tools)
