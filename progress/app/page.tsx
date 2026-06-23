@@ -514,6 +514,28 @@ export default async function CommandCenterPage() {
         </ul>
       </section>
 
+      {/* 最近の調査結果 */}
+      <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">最近の調査結果</h2>
+          <Link href="/monetization" className="text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">調査一覧</Link>
+        </div>
+        <ul className="mt-2 space-y-2">
+          {view.recentResearch.map((item) => (
+            <li key={`${item.candidateId}-${item.date}-${item.summary}`} className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+              <div className="flex items-start justify-between gap-3">
+                <Link href={`/monetization/${item.candidateId}`} className="min-w-0 text-sm font-bold text-gray-900 hover:underline dark:text-gray-100">
+                  {item.candidateName}
+                </Link>
+                <span className="shrink-0 text-xs text-gray-400">{item.date}</span>
+              </div>
+              <p className="mt-1 text-xs leading-relaxed text-gray-600 dark:text-gray-300">{item.summary}</p>
+            </li>
+          ))}
+          {view.recentResearch.length === 0 && <li className="text-sm text-gray-400">まだ調査結果がありません。</li>}
+        </ul>
+      </section>
+
       <p className="text-center text-[11px] text-gray-400">
         細かい管理画面は <Link href="/legacy" className="underline">Legacy（旧画面）</Link> にあります
       </p>

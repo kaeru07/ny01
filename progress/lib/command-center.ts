@@ -93,6 +93,13 @@ export interface RecentWin {
   title: string
 }
 
+export interface RecentResearch {
+  date: string
+  candidateId: string
+  candidateName: string
+  summary: string
+}
+
 export interface FactoryStopAlert {
   days: number
   reason: string
@@ -119,6 +126,7 @@ export interface CommandCenterView {
   projectProgress: ProjectProgressCard[]
   goalProgress: GoalProgressCard[]
   recentWins: RecentWin[]
+  recentResearch: RecentResearch[]
   metrics: FactoryMetrics
 }
 
@@ -250,11 +258,12 @@ export async function buildRevenueMilestones(): Promise<Milestone[]> {
 const HIDDEN_WIN_PATTERN = /Factory schedule|定期取り込み/
 
 export async function buildCommandCenter(): Promise<CommandCenterView> {
-  const [metrics, inbox, config, runs, milestones, revenueConfig, tasksData, factoryOutlook, fixRequests, projectProgress, goalProgress, dataHealth] = await Promise.all([
+  const [metrics, inbox, config, runs, candidates, milestones, revenueConfig, tasksData, factoryOutlook, fixRequests, projectProgress, goalProgress, dataHealth] = await Promise.all([
     computeFactoryMetrics(),
     buildInbox(),
     getAutomationConfig(),
     readPageExecutionRuns(),
+    readPageMonetizationCandidates(),
     buildRevenueMilestones(),
     readPageRevenueConfig(),
     readPageProjectTasks(),
@@ -298,6 +307,20 @@ export async function buildCommandCenter(): Promise<CommandCenterView> {
     .slice(0, 5)
     .map((r) => ({ date: fmtDate(r.finishedAt || r.startedAt), app: r.targetApp, title: r.targetTodoTitle || r.summary }))
 
+  const recentResearch: RecentResearch[] = candidates
+    .flatMap((candidate) =>
+      (candidate.researchLogs ?? []).map((log) => ({
+        date: log.date,
+        candidateId: candidate.id,
+        candidateName: candidate.name,
+        summary: log.summary || log.note,
+      })),
+    )
+    .filter((item) => item.date && item.summary)
+    .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
+    .slice(0, 3)
+    .map((item) => ({ ...item, date: fmtDate(item.date) }))
+
   return {
     todayActions,
     todayDecisions: inbox.decisions.map((c) => ({ kind: c.kind, headline: c.headline })),
@@ -317,6 +340,7 @@ export async function buildCommandCenter(): Promise<CommandCenterView> {
     projectProgress,
     goalProgress,
     recentWins,
+    recentResearch,
     metrics,
   }
 }
