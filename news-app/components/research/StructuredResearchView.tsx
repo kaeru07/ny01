@@ -1,4 +1,5 @@
 import { StructuredResearch } from "@/lib/research/types";
+import { MarkdownView } from "./MarkdownView";
 import { TopicCard } from "./TopicCard";
 
 interface Props {
@@ -27,6 +28,17 @@ export function StructuredResearchView({ data, docDate }: Props) {
             ))}
           </div>
         </section>
+      )}
+
+      {data.articleBody.trim().length > 0 && (
+        <article className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <p className="text-[11px] font-semibold tracking-widest text-gray-400 mb-3">
+            記事本文
+          </p>
+          <div className="prose-sm">
+            <MarkdownView markdown={data.articleBody} />
+          </div>
+        </article>
       )}
 
       <div>

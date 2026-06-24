@@ -89,6 +89,7 @@ export interface ResearchTopic {
 /** 日次レポートを「カード分離できる構造」に解析した結果。topics が空なら従来表示へ fallback。 */
 export interface StructuredResearch {
   conclusion: string;   // 今日の結論
+  articleBody: string;  // 記事本文（一日1ページの読み物として表示）
   topics: ResearchTopic[];
   todos: string[];      // 今日のToDo候補
   pending: string[];    // 保留・未確認

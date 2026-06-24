@@ -241,7 +241,7 @@ function pickPriority(raw: string, paperInfo?: PaperInfo): Priority | undefined 
 /* ── 新フォーマット（トピックカード）解析 ───────────────────────── */
 
 /**
- * 「## 今日の結論 / ## トピック一覧 / ## 今日のToDo候補 / ## 保留・未確認」を構造化する。
+ * 「## 今日の結論 / ## 記事本文 / ## トピック一覧 / ## 今日のToDo候補 / ## 保留・未確認」を構造化する。
  * トピックが 1 件も取れない場合は undefined を返し、呼び出し側で従来表示に fallback する。
  */
 function extractStructured(
@@ -254,6 +254,7 @@ function extractStructured(
   if (topics.length === 0) return undefined;
 
   const conclusionSection = sections.find((s) => s.heading.includes("結論"));
+  const articleSection = sections.find(isArticleBodySection);
   const todoSection = sections.find(
     (s) => s.heading.includes("ToDo") || s.heading.includes("やること")
   );
@@ -263,10 +264,21 @@ function extractStructured(
 
   return {
     conclusion: conclusionSection ? conclusionSection.body.trim() : "",
+    articleBody: articleSection ? articleSection.body.trim() : "",
     topics,
     todos: bulletItemsOf(todoSection),
     pending: bulletItemsOf(pendingSection),
   };
+}
+
+function isArticleBodySection(section: ResearchSection): boolean {
+  const heading = section.heading.trim();
+  return (
+    heading.includes("記事本文") ||
+    heading.includes("詳細記事") ||
+    heading === "本文" ||
+    /^article body$/i.test(heading)
+  );
 }
 
 function bulletItemsOf(section?: ResearchSection): string[] {

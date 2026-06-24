@@ -59,7 +59,8 @@ function needsCopy(src, dst) {
   if (!fs.existsSync(dst)) return true;
   const s = fs.statSync(src);
   const d = fs.statSync(dst);
-  return s.size !== d.size || s.mtimeMs > d.mtimeMs;
+  // Build-time sync must not clobber newer local policy/template edits.
+  return s.mtimeMs > d.mtimeMs;
 }
 
 function copyFile(src, dst, label) {
