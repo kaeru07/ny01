@@ -16,7 +16,7 @@ export default function FactoryRunnerPanel() {
       const res = await fetch('/api/operations/factory-run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode, maxRuns: 3, maxPerEpic: 3, confirm: mode === 'auto' ? confirmAuto : false }),
+        body: JSON.stringify({ mode, maxPerEpic: 3, confirm: mode === 'auto' ? confirmAuto : false }),
       })
       setReport(res.ok ? await res.json() : null)
     } finally {
@@ -37,7 +37,7 @@ export default function FactoryRunnerPanel() {
         </label>
         <button onClick={() => run('auto')} disabled={busy || !confirmAuto} className="rounded-lg bg-rose-600 px-3 py-1.5 text-[11px] font-semibold text-white disabled:opacity-40 hover:bg-rose-700">auto 実行</button>
       </div>
-      <p className="text-[10px] text-gray-400">既定は dry_run（実起動なし）。1 起動最大 3 Run / 同一 Epic 最大 3 Run。Factory OFF / Approval / blocked / rate-limit(Codex不可) で停止。</p>
+      <p className="text-[10px] text-gray-400">既定は dry_run（実起動なし）。実行件数はユーザー入力で制御せず、内部安全ガードで停止します。同一 Epic 最大 3 Run。Factory OFF / Approval / blocked / rate-limit(Codex不可) で停止。</p>
 
       {report && (
         <div className="rounded-xl border border-gray-200 p-3 dark:border-gray-700">

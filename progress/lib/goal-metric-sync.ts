@@ -1,6 +1,7 @@
 import { computeFactoryMetrics, type FactoryMetrics } from '@/lib/factory-metrics'
 import { readGoals } from '@/lib/goal-reader'
 import { writeGoals } from '@/lib/goal-writer'
+import { countValidatedProjectCandidates } from '@/lib/monetization-store'
 
 // Execution→Review→Knowledge→Next Epic ループの「結果」を Goal の current 値へ反映する。
 // closedLoopRate などの実測メトリクスは computeFactoryMetrics で都度算出されるが、
@@ -23,11 +24,17 @@ export interface GoalMetricSyncResult {
 
 // metric 名 → 0〜100 スケールの実測値（target も 0〜100 前提）。
 // 計測できない metric は null を返し、その Goal はスキップする。
-export function metricValueFor(metric: string | undefined, metrics: FactoryMetrics): number | null {
+export function metricValueFor(
+  metric: string | undefined,
+  metrics: FactoryMetrics,
+  extra: { validatedProjectCount?: number } = {},
+): number | null {
   switch (metric) {
     case 'closed_loop_rate':
       // command-center と同じ式（パーセント・小数1桁）。
       return Math.round(metrics.closedLoopRate * 1000) / 10
+    case 'validated_project_count':
+      return typeof extra.validatedProjectCount === 'number' ? extra.validatedProjectCount : null
     default:
       return null
   }
@@ -36,6 +43,7 @@ export function metricValueFor(metric: string | undefined, metrics: FactoryMetri
 /** computeFactoryMetrics の実測値で、機械計測できる Goal の current を更新する。 */
 export async function syncGoalMetricsFromFactory(metrics?: FactoryMetrics): Promise<GoalMetricSyncResult> {
   const computed = metrics ?? (await computeFactoryMetrics())
+  const validatedProjectCount = await countValidatedProjectCandidates()
   const data = await readGoals()
   const now = new Date().toISOString()
   const updated: GoalMetricSyncUpdate[] = []
@@ -43,7 +51,7 @@ export async function syncGoalMetricsFromFactory(metrics?: FactoryMetrics): Prom
   let changed = false
 
   for (const goal of data.goals) {
-    const next = metricValueFor(goal.metric, computed)
+    const next = metricValueFor(goal.metric, computed, { validatedProjectCount })
     if (next === null) {
       skipped += 1
       continue

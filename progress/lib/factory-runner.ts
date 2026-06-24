@@ -15,6 +15,7 @@ import { requestGoalProposalIfIdle } from './goal-proposal'
 import { proposeGoalsFromResearchIfNeeded } from './research-goals'
 import { proposeImprovementGoalsIfIdle } from './improvement-goals'
 import { addExecutionRun, updateExecutionRunFields } from './execution-run-writer'
+import { ensureExecutionRunNextActions } from './execution-run-next-actions'
 import { readExecutionRuns } from './execution-run-reader'
 import { readGoals } from './goal-reader'
 import { writeGoals } from './goal-writer'
@@ -152,6 +153,17 @@ async function recordRun(args: {
     failed: 'failed',
     needs_manual: 'running',
   }
+  const rawReport = `[factory-runner ${args.mode}] executor=${args.executor}\n${args.result.stdout || args.result.resultSummary}`
+  const errors = args.result.stderr ? [args.result.stderr.slice(0, 500)] : []
+  const nextActions = ensureExecutionRunNextActions({
+    nextActions: args.result.nextActions,
+    rawReport,
+    runStatus: runStatusMap[args.result.status],
+    stopReason: args.stopReason,
+    summary: args.result.resultSummary,
+    targetTodoTitle: args.title,
+    errors,
+  })
   const run: ExecutionRun = {
     runId,
     startedAt: now,
@@ -176,15 +188,15 @@ async function recordRun(args: {
     runIndex: args.runIndex,
     stopReason: args.stopReason,
     selection: args.selection,
-    nextActionCount: args.result.nextActions.length,
+    nextActionCount: nextActions.length,
     summary: args.result.resultSummary,
     changedFiles: args.result.changedFiles.map((f) => ({ file: f, change: '' })),
     checks: args.checks ?? {},
-    errors: args.result.stderr ? [args.result.stderr.slice(0, 500)] : [],
+    errors,
     warnings: [],
     progressUpdated: false,
-    nextActions: args.result.nextActions,
-    rawReport: `[factory-runner ${args.mode}] executor=${args.executor}\n${args.result.stdout || args.result.resultSummary}`,
+    nextActions,
+    rawReport,
   }
   await addExecutionRun(run)
   await updateGoalSelectionPointer(args.selection, runId)
@@ -255,6 +267,16 @@ async function finishRunningRun(args: {
     failed: 'failed',
     needs_manual: 'partial',
   }
+  const rawReport = `[factory-runner ${args.mode}] executor=${args.executor}\n${args.result.stdout || args.result.resultSummary}`
+  const errors = args.result.stderr ? [args.result.stderr.slice(0, 500)] : []
+  const nextActions = ensureExecutionRunNextActions({
+    nextActions: args.result.nextActions,
+    rawReport,
+    runStatus: runStatusMap[args.result.status],
+    stopReason: args.stopReason,
+    summary: args.result.resultSummary,
+    errors,
+  })
   await updateExecutionRunFields(args.runId, {
     finishedAt: new Date().toISOString(),
     runStatus: runStatusMap[args.result.status],
@@ -263,15 +285,15 @@ async function finishRunningRun(args: {
     resultReturned: args.mode === 'auto',
     fallbackReason: args.fallbackReason ?? (args.result.rateLimited ? 'claude_rate_limited' : undefined),
     stopReason: args.stopReason,
-    nextActionCount: args.result.nextActions.length,
+    nextActionCount: nextActions.length,
     summary: args.result.resultSummary,
     changedFiles: args.result.changedFiles.map((f) => ({ file: f, change: '' })),
     checks: args.checks ?? {},
-    errors: args.result.stderr ? [args.result.stderr.slice(0, 500)] : [],
+    errors,
     warnings: [],
     progressUpdated: false,
-    nextActions: args.result.nextActions,
-    rawReport: `[factory-runner ${args.mode}] executor=${args.executor}\n${args.result.stdout || args.result.resultSummary}`,
+    nextActions,
+    rawReport,
   })
 }
 

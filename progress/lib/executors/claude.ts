@@ -1,5 +1,5 @@
 import type { ExecutorAdapter, ExecutorResult, ExecutorRunInput } from './types'
-import { runCommand, looksRateLimited, changedFilesIn, fileFingerprints, gitHead, changedFilesSince, parseNextActions } from './shell'
+import { runCommand, looksRateLimited, changedFilesIn, fileFingerprints, gitHead, changedFilesSince, parseNextActions, parseChangedFilesFromOutput } from './shell'
 
 // Claude adapter（基本 executor）。`claude -p` を非対話で起動する。
 // 上限検知時は rateLimited=true を返し、runner が AutoFallback 評価へ渡す。
@@ -32,7 +32,10 @@ export const claudeAdapter: ExecutorAdapter = {
       timeoutMs: input.timeoutMs ?? 300_000,
     })
     // コミット済み＋未コミットを集約（executor がコミットしても変更を取りこぼさない）。
-    const changedFiles = await changedFilesSince(cwd, beforeHead, beforeDirty, beforeFingerprints)
+    const changedFiles = Array.from(new Set([
+      ...(await changedFilesSince(cwd, beforeHead, beforeDirty, beforeFingerprints)),
+      ...parseChangedFilesFromOutput(`${r.stdout}\n${r.stderr}`),
+    ]))
     const combined = `${r.stdout}\n${r.stderr}`
     const rateLimited = looksRateLimited(combined)
 

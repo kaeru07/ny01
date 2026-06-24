@@ -105,6 +105,17 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
   }
   if (tab === 'system') {
     const freshness = await getOperatingModelFreshness()
+    const freshnessWarnings = [
+      freshness.invalidUpdated
+        ? 'current-operating-model.md の updated が未設定、または YYYY-MM-DD 形式ではありません。'
+        : '',
+      !freshness.invalidUpdated && freshness.days >= 14
+        ? `運用ドキュメントが ${freshness.days} 日更新されていません。`
+        : '',
+      freshness.implementationChangedAfterDoc
+        ? `監視対象の実装が updated（${freshness.updated || '未設定'}）より新しい可能性があります: ${freshness.latestImplementationPath}（${freshness.latestImplementationDate}）`
+        : '',
+    ].filter(Boolean)
     return (
       <div className="space-y-5 px-4 pb-6 pt-6">
         <PageGuide
@@ -114,7 +125,12 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
         <GuideTabBar active="system" />
         {freshness.stale && (
           <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-[12px] text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
-            ⚠ 運用ドキュメントが {freshness.days} 日更新されていません（current-operating-model.md）。実装と乖離していないか点検してください。
+            <p className="font-bold">⚠ current-operating-model.md の鮮度を点検してください。</p>
+            <ul className="mt-1 list-disc space-y-1 pl-4">
+              {freshnessWarnings.map((warning) => (
+                <li key={warning}>{warning}</li>
+              ))}
+            </ul>
           </div>
         )}
         <SystemSpecification />

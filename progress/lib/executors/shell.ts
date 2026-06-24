@@ -115,6 +115,64 @@ export function parseNextActions(stdout: string): string[] {
   return Array.from(new Set(out.map((s) => s.slice(0, 200)))).slice(0, 5)
 }
 
+const CHANGED_FILES_HEADING = /(変更(済み)?ファイル|changed\s*files?|files?\s*changed|modified\s*files?)/i
+const FILE_FIELD = /["']?(?:file|path)["']?\s*:\s*["']([^"'\n]+)["']/gi
+const PATH_TOKEN = /(?:^|[`'"\s(])((?:\.\/)?(?:(?:app|components|lib|types|data|docs|scripts|tests|pages|public|src)\/[A-Za-z0-9_@./-]+|[A-Za-z0-9_@./-]+\.[A-Za-z0-9]{1,12}))(?=[`'"\s),:;]|$)/g
+
+function normalizeReportedPath(file: string): string | null {
+  const normalized = file
+    .trim()
+    .replace(/^[-*・]\s+/, '')
+    .replace(/^`|`$/g, '')
+    .replace(/^\.\//, '')
+    .replace(/[.,;:]+$/g, '')
+  if (!normalized) return null
+  if (normalized.startsWith('/') || normalized.includes('..') || normalized.includes('://')) return null
+  if (normalized.includes('node_modules/')) return null
+  return normalized
+}
+
+function addReportedPath(out: Set<string>, file: string): void {
+  const normalized = normalizeReportedPath(file)
+  if (normalized) out.add(normalized)
+}
+
+/**
+ * executor の作業報告から変更ファイルを抽出する。
+ * git差分が空でも、CLIが「変更ファイル」欄や changedFiles JSON に結果を書いた場合の補完用。
+ */
+export function parseChangedFilesFromOutput(output: string): string[] {
+  const out = new Set<string>()
+  const lines = (output || '').split('\n')
+  let inChangedFilesSection = false
+
+  for (const raw of lines) {
+    const line = raw.replace(/\r/g, '')
+    FILE_FIELD.lastIndex = 0
+    let fieldMatch: RegExpExecArray | null
+    while ((fieldMatch = FILE_FIELD.exec(line)) !== null) {
+      const match = fieldMatch
+      addReportedPath(out, match[1])
+    }
+
+    if (CHANGED_FILES_HEADING.test(line)) {
+      inChangedFilesSection = true
+    } else if (inChangedFilesSection && /^\s*(#{1,6}\s|\*\*[^*]+\*\*|[A-Za-z0-9_ -]+[:：])/.test(line) && !/^\s*[-*・]/.test(line)) {
+      inChangedFilesSection = false
+    }
+
+    if (!inChangedFilesSection) continue
+    PATH_TOKEN.lastIndex = 0
+    let pathMatch: RegExpExecArray | null
+    while ((pathMatch = PATH_TOKEN.exec(line)) !== null) {
+      const match = pathMatch
+      addReportedPath(out, match[1])
+    }
+  }
+
+  return Array.from(out)
+}
+
 // 現在の HEAD コミットハッシュ（取得失敗時は空文字）。
 export async function gitHead(cwd: string): Promise<string> {
   const r = await runCommand('git', ['-C', cwd, 'rev-parse', 'HEAD'], { timeoutMs: 15_000 })

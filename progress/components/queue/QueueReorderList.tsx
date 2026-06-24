@@ -198,16 +198,16 @@ export function QueueReorderList({ items }: QueueReorderListProps) {
                 {pinnedItems.map((item, index) => (
                   <li
                     key={item.workItemId}
-                    className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/60 px-2.5 py-2 dark:border-amber-900/60 dark:bg-amber-950/20"
+                    className="flex flex-col gap-2 rounded-lg border border-amber-200 bg-amber-50/60 px-2.5 py-2 dark:border-amber-900/60 dark:bg-amber-950/20 sm:flex-row sm:items-center"
                   >
                     <CompactItem item={item} number={index + 1} pinned />
-                    <div className="flex shrink-0 items-center gap-1">
+                    <div className="flex w-full shrink-0 items-center gap-1 sm:w-auto">
                       <DetailButton onClick={() => setDetail(item)} />
                       <button
                         type="button"
                         onClick={() => void unpin(item.workItemId)}
                         disabled={Boolean(unpinningId)}
-                        className="rounded border border-amber-300 bg-white px-2 py-1 text-[11px] font-bold text-amber-800 hover:bg-amber-100 disabled:opacity-40 dark:border-amber-800 dark:bg-gray-900 dark:text-amber-200 dark:hover:bg-amber-950/40"
+                        className="min-h-10 flex-1 rounded border border-amber-300 bg-white px-2 py-1 text-[11px] font-bold text-amber-800 hover:bg-amber-100 disabled:opacity-40 dark:border-amber-800 dark:bg-gray-900 dark:text-amber-200 dark:hover:bg-amber-950/40 sm:min-h-0 sm:flex-none"
                       >
                         {unpinningId === item.workItemId ? '解除中' : '固定解除'}
                       </button>
@@ -296,18 +296,20 @@ function SortableRow({
       }}
       {...attributes}
       {...listeners}
-      className={`touch-none flex items-center gap-2 rounded-lg border border-gray-200 px-2.5 py-2 dark:border-gray-800 ${
+      className={`touch-none flex flex-col gap-2 rounded-lg border border-gray-200 px-2.5 py-2 dark:border-gray-800 sm:flex-row sm:items-center ${
         isDragging ? 'relative z-10 opacity-60' : ''
       }`}
     >
-      <span
-        aria-hidden="true"
-        className="shrink-0 cursor-grab text-sm text-gray-400 active:cursor-grabbing dark:text-gray-500"
-      >
-        ⠿
-      </span>
-      <CompactItem item={item} number={number} />
-      <div className="flex max-w-[10rem] shrink-0 flex-wrap items-center justify-end gap-1">
+      <div className="flex min-w-0 items-center gap-2 self-stretch sm:flex-1">
+        <span
+          aria-hidden="true"
+          className="shrink-0 cursor-grab text-sm text-gray-400 active:cursor-grabbing dark:text-gray-500"
+        >
+          ⠿
+        </span>
+        <CompactItem item={item} number={number} />
+      </div>
+      <div className="grid w-full shrink-0 grid-cols-5 gap-1 sm:flex sm:w-auto sm:max-w-[10rem] sm:flex-wrap sm:items-center sm:justify-end">
         <DetailButton onClick={onDetail} stopPointerPropagation />
         <button
           type="button"
@@ -315,7 +317,7 @@ function SortableRow({
           onPointerDown={(event) => event.stopPropagation()}
           disabled={disabled}
           aria-label={`${item.title}を最優先に固定`}
-          className="rounded border border-amber-300 bg-amber-50 px-2 py-1 text-[11px] font-bold text-amber-800 hover:bg-amber-100 disabled:opacity-40 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200 dark:hover:bg-amber-950/50"
+          className="min-h-10 rounded border border-amber-300 bg-amber-50 px-1.5 py-1 text-[11px] font-bold text-amber-800 hover:bg-amber-100 disabled:opacity-40 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200 dark:hover:bg-amber-950/50 sm:min-h-0 sm:px-2"
         >
           {pinning ? '移動中' : '最優先'}
         </button>
@@ -325,7 +327,7 @@ function SortableRow({
           onPointerDown={(event) => event.stopPropagation()}
           disabled={disabled || index === 0}
           aria-label={`${item.title}を上へ移動`}
-          className="rounded border border-gray-200 bg-white px-2 py-1 text-[11px] font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-40 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
+          className="min-h-10 rounded border border-gray-200 bg-white px-1.5 py-1 text-[11px] font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-40 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 sm:min-h-0 sm:px-2"
         >
           ↑
         </button>
@@ -335,7 +337,7 @@ function SortableRow({
           onPointerDown={(event) => event.stopPropagation()}
           disabled={disabled || index === itemCount - 1}
           aria-label={`${item.title}を下へ移動`}
-          className="rounded border border-gray-200 bg-white px-2 py-1 text-[11px] font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-40 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
+          className="min-h-10 rounded border border-gray-200 bg-white px-1.5 py-1 text-[11px] font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-40 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 sm:min-h-0 sm:px-2"
         >
           ↓
         </button>
@@ -345,7 +347,7 @@ function SortableRow({
           onPointerDown={(event) => event.stopPropagation()}
           disabled={disabled || index === itemCount - 1}
           aria-label={`${item.title}を最後尾へ移動`}
-          className="rounded border border-gray-200 bg-white px-2 py-1 text-[11px] font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-40 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
+          className="min-h-10 rounded border border-gray-200 bg-white px-1 py-1 text-[11px] font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-40 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 sm:min-h-0 sm:px-2"
         >
           最後尾
         </button>
@@ -397,7 +399,7 @@ function DetailButton({
       type="button"
       onClick={onClick}
       onPointerDown={stopPointerPropagation ? (event) => event.stopPropagation() : undefined}
-      className="rounded border border-gray-200 bg-white px-2 py-1 text-[11px] font-bold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
+      className="min-h-10 rounded border border-gray-200 bg-white px-1.5 py-1 text-[11px] font-bold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 sm:min-h-0 sm:px-2"
     >
       詳細
     </button>

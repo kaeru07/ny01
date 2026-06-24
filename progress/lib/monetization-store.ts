@@ -66,6 +66,16 @@ export async function getCandidate(id: string): Promise<MonetizationCandidate | 
   return list.find((c) => c.id === id) ?? null
 }
 
+export function isValidatedProjectCandidate(candidate: MonetizationCandidate): boolean {
+  if (candidate.status === 'Draft' || candidate.status === 'Hold' || candidate.status === 'Rejected') return false
+  return (candidate.score ?? 0) > 0 && Boolean(candidate.lastResearchedAt)
+}
+
+export async function countValidatedProjectCandidates(): Promise<number> {
+  const list = await readJson<MonetizationCandidate[]>(FILE, [])
+  return list.filter(isValidatedProjectCandidate).length
+}
+
 export async function createCandidate(
   input: Partial<MonetizationCandidate> & { name: string },
 ): Promise<MonetizationCandidate> {

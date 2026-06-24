@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { addExecutionRun } from '@/lib/execution-run-writer'
+import { ensureExecutionRunNextActions } from '@/lib/execution-run-next-actions'
 import { resolveEpicId } from '@/lib/operations-store'
 import type { ExecutorType, RunStatus, ReviewStatus, ChangedFile } from '@/types/execution-run'
 
@@ -118,6 +119,20 @@ export async function POST(request: Request) {
       targetTodoId,
     })
 
+    const summary = String(body.summary).trim()
+    const rawReport = String(body.rawReport).trim()
+    const errors = Array.isArray(body.errors) ? body.errors : []
+    const warnings = Array.isArray(body.warnings) ? body.warnings : []
+    const nextActions = ensureExecutionRunNextActions({
+      nextActions: body.nextActions,
+      rawReport,
+      runStatus: body.runStatus as RunStatus,
+      summary,
+      targetTodoTitle: String(body.targetTodoTitle).trim(),
+      errors,
+      warnings,
+    })
+
     const run = {
       runId,
       startedAt: typeof body.startedAt === 'string' ? body.startedAt : now,
@@ -144,14 +159,14 @@ export async function POST(request: Request) {
       beforeStatus: typeof body.beforeStatus === 'string' ? body.beforeStatus : undefined,
       afterStatus: typeof body.afterStatus === 'string' ? body.afterStatus : undefined,
       promptUsed: typeof body.promptUsed === 'string' ? body.promptUsed : undefined,
-      summary: String(body.summary).trim(),
+      summary,
       changedFiles,
       checks: normalizeChecks(body.checks),
-      errors: Array.isArray(body.errors) ? body.errors : [],
-      warnings: Array.isArray(body.warnings) ? body.warnings : [],
+      errors,
+      warnings,
       progressUpdated: typeof body.progressUpdated === 'boolean' ? body.progressUpdated : false,
-      nextActions: Array.isArray(body.nextActions) ? body.nextActions : [],
-      rawReport: String(body.rawReport).trim(),
+      nextActions,
+      rawReport,
     }
 
     await addExecutionRun(run)

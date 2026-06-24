@@ -1,5 +1,5 @@
 import type { ExecutorAdapter, ExecutorResult, ExecutorRunInput } from './types'
-import { runCommand, changedFilesIn, fileFingerprints, gitHead, changedFilesSince, parseNextActions } from './shell'
+import { runCommand, changedFilesIn, fileFingerprints, gitHead, changedFilesSince, parseNextActions, parseChangedFilesFromOutput } from './shell'
 import { classifyCodexEligibility } from '@/lib/operations-store'
 
 // Codex adapter（Claude 上限後の fallback executor）。`codex exec` を非対話で起動する。
@@ -51,7 +51,10 @@ export const codexAdapter: ExecutorAdapter = {
       { cwd, timeoutMs: input.timeoutMs ?? 300_000 },
     )
     // コミット済み＋未コミットを集約（executor がコミットしても変更を取りこぼさない）。
-    const changedFiles = await changedFilesSince(cwd, beforeHead, beforeDirty, beforeFingerprints)
+    const changedFiles = Array.from(new Set([
+      ...(await changedFilesSince(cwd, beforeHead, beforeDirty, beforeFingerprints)),
+      ...parseChangedFilesFromOutput(`${r.stdout}\n${r.stderr}`),
+    ]))
 
     const status: ExecutorResult['status'] = r.timedOut ? 'partial' : r.code === 0 ? 'completed' : 'failed'
     return {

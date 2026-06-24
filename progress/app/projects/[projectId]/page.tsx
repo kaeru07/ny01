@@ -33,8 +33,15 @@ export default async function ProjectDetailPage({ params }: Props) {
 
   const projectLogs = allLogs.filter((l) => l.project === projectId).slice(0, 8)
 
+  const taskStats = [
+    { label: 'TODO', value: ts.todo, color: 'text-gray-600 dark:text-gray-300' },
+    { label: '進行中', value: ts.inProgress, color: 'text-blue-600 dark:text-blue-400' },
+    { label: '完了', value: ts.done, color: 'text-green-600 dark:text-green-400' },
+    { label: 'ブロック', value: ts.blocked, color: 'text-red-600 dark:text-red-400' },
+  ]
+
   return (
-    <div className="px-4 pt-6 pb-4 space-y-5">
+    <div className="px-4 pt-6 pb-4 space-y-5 lg:mx-auto lg:max-w-6xl">
       <header>
         <Link href="/projects" className="text-sm text-blue-500 hover:text-blue-600 flex items-center gap-1 mb-3">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
@@ -52,65 +59,68 @@ export default async function ProjectDetailPage({ params }: Props) {
       </header>
 
       {/* Progress + task stats */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-4 space-y-3">
-        <div>
-          <div className="flex justify-between text-sm mb-1">
-            <span className="text-gray-500 dark:text-gray-400">進捗</span>
-            <span className="font-semibold text-gray-800 dark:text-gray-200">{project.progress}%</span>
-          </div>
-          <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-blue-500 rounded-full transition-all"
-              style={{ width: `${project.progress}%` }}
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-4 gap-2 text-center pt-1">
-          {[
-            { label: 'TODO', value: ts.todo, color: 'text-gray-600 dark:text-gray-300' },
-            { label: '進行中', value: ts.inProgress, color: 'text-blue-600 dark:text-blue-400' },
-            { label: '完了', value: ts.done, color: 'text-green-600 dark:text-green-400' },
-            { label: 'ブロック', value: ts.blocked, color: 'text-red-600 dark:text-red-400' },
-          ].map((s) => (
-            <div key={s.label}>
-              <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
-              <p className="text-xs text-gray-400 dark:text-gray-500">{s.label}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Exclude toggle */}
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-4">
-        <p className="text-xs text-gray-400 dark:text-gray-500 mb-2">候補更新での処理対象</p>
-        <ExcludeToggle projectId={projectId} excluded={project.excluded ?? false} />
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-center">
+          <div>
+            <div className="flex justify-between text-sm mb-1">
+              <span className="text-gray-500 dark:text-gray-400">進捗</span>
+              <span className="font-semibold text-gray-800 dark:text-gray-200">{project.progress}%</span>
+            </div>
+            <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-blue-500 rounded-full transition-all"
+                style={{ width: `${project.progress}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-4 gap-2 text-center">
+            {taskStats.map((s) => (
+              <div key={s.label} className="rounded-xl bg-gray-50 px-2 py-2 dark:bg-gray-900/30">
+                <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">{s.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Summary editor */}
-      <ProjectSummaryEditor project={project} />
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+        <main className="space-y-5">
+          {/* Summary editor */}
+          <ProjectSummaryEditor project={project} />
 
-      {/* Blockers */}
-      <section>
-        <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">ブロッカー</h2>
-        <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-4">
-          <BlockersEditor projectId={projectId} blockers={project.blockers} />
-        </div>
-      </section>
+          {/* Tasks */}
+          <section>
+            <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">タスク</h2>
+            <div className="space-y-3">
+              <TaskList tasks={tasks} projectId={projectId} />
+              <TaskAddForm projectId={projectId} />
+            </div>
+          </section>
+        </main>
 
-      {/* Tasks */}
-      <section>
-        <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">タスク</h2>
-        <div className="space-y-3">
-          <TaskList tasks={tasks} projectId={projectId} />
-          <TaskAddForm projectId={projectId} />
-        </div>
-      </section>
+        <aside className="space-y-5 lg:sticky lg:top-4">
+          {/* Exclude toggle */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-4">
+            <p className="text-xs text-gray-400 dark:text-gray-500 mb-2">候補更新での処理対象</p>
+            <ExcludeToggle projectId={projectId} excluded={project.excluded ?? false} />
+          </div>
 
-      {/* Project logs */}
-      {projectLogs.length > 0 && (
-        <RecentLogs logs={projectLogs} />
-      )}
+          {/* Blockers */}
+          <section>
+            <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">ブロッカー</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-4">
+              <BlockersEditor projectId={projectId} blockers={project.blockers} />
+            </div>
+          </section>
+
+          {/* Project logs */}
+          {projectLogs.length > 0 && (
+            <RecentLogs logs={projectLogs} />
+          )}
+        </aside>
+      </div>
     </div>
   )
 }

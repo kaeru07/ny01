@@ -7,15 +7,14 @@ export const dynamic = 'force-dynamic'
 const VALID_MODES: FactoryRunMode[] = ['dry_run', 'manual', 'auto']
 
 // POST: factory-runner を 1 回起動する。
-//   body: { mode?: 'dry_run'|'manual'|'auto', maxRuns?, maxPerEpic?, confirm? }
+//   body: { mode?: 'dry_run'|'manual'|'auto', maxPerEpic?, confirm? }
 //   - 既定は dry_run（実起動なし）。auto は confirm:true がないと実起動しない。
-//   - Factory OFF のときは何もしない（factory_off）。caps は最大 3 にクランプ。
+//   - Factory OFF のときは何もしない（factory_off）。maxRuns は外部から制御しない。
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}))
   const mode: FactoryRunMode = VALID_MODES.includes(body?.mode) ? body.mode : 'dry_run'
   const report = await runFactory({
     mode,
-    maxRuns: typeof body?.maxRuns === 'number' ? body.maxRuns : undefined,
     maxPerEpic: typeof body?.maxPerEpic === 'number' ? body.maxPerEpic : undefined,
     confirm: body?.confirm === true,
     // テスト用: Claude を擬似上限化して Codex fallback 経路を検証する。

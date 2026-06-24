@@ -10,18 +10,31 @@ import { readGoals } from '@/lib/goal-reader'
 const card = 'rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900'
 const text = 'text-[12px] leading-relaxed text-gray-600 dark:text-gray-300'
 
-// 対応表（旧Vault → 今のprogress / 所見）。
-const MAP_ROWS: Array<[string, string, string]> = [
-  ['収益化の候補（candidate-001〜007）', '目標（Goal・収益化系）', '二重 → progressへ移す'],
-  ['候補の状態（候補/承認待ち/承認済）', '目標の状態（提案/実行中/保留）', '概念はほぼ一致'],
-  ['ChatGPT承認待ち・方向性レビュー', 'ゴール承認 ＋ レビューキュー', '承認が二系統'],
-  ['vloopの実行待ち一覧（vloop_queue）', '自動実行キュー（/queue）', 'キューが二系統'],
-  ['vloop（まとめてToDoを処理）', '自動実行（11/14/16/23時）', '実行エンジンが二系統'],
-  ['案件別ToDo一覧', '目標内のToDo / タスク', 'ToDoが二系統'],
-  ['案件別ゴール進捗', '目標の進捗（今/目標）', '進捗が二系統'],
-  ['完了ToDoログ', '実行履歴（作業ログ）', '完了履歴が二系統'],
-  ['収益化のEpic（A〜D）', '工場Epic（大きな作業）', 'Epicが二系統'],
-  ['収益化ロードマップ', '収益（Revenue）のマイルストーン', 'progress側にも既存'],
+type MapRow = {
+  oldVault: string
+  progressConcept: string
+  sourceOfTruth: string
+  note: string
+}
+
+// 対応表（旧Vault → 今のprogress / 正本寄せ先 / 所見）。
+const MAP_ROWS: MapRow[] = [
+  { oldVault: '収益化の候補（candidate-001〜007）', progressConcept: '目標（Goal・収益化系）', sourceOfTruth: 'progress: Goal', note: 'Vaultは元メモ・調査背景として参照' },
+  { oldVault: '候補の状態（候補/承認待ち/承認済）', progressConcept: '目標の状態（提案/実行中/保留）', sourceOfTruth: 'progress: Goal.status', note: '候補/承認/保留の判断状態をGoalStatusへ寄せる' },
+  { oldVault: 'ChatGPT承認待ち・方向性レビュー', progressConcept: 'ゴール承認 ＋ レビューキュー', sourceOfTruth: 'progress: Inbox / Approval / Review', note: 'Vaultはレビュー依頼文と判断ログの置き場に限定' },
+  { oldVault: 'vloopの実行待ち一覧（vloop_queue）', progressConcept: '自動実行キュー（/queue）', sourceOfTruth: 'progress: buildAutoQueue()', note: '実行順はProgressの派生キューに統一' },
+  { oldVault: 'vloop（まとめてToDoを処理）', progressConcept: '自動実行（11/14/16/23時）', sourceOfTruth: 'progress: Factory / ExecutionRun', note: '実行エンジンと結果記録はProgress側へ寄せる' },
+  { oldVault: '案件別ToDo一覧', progressConcept: '目標内のToDo / タスク', sourceOfTruth: 'progress: Goal.todos / Task', note: '未完了作業はGoalに紐づけて管理' },
+  { oldVault: '案件別ゴール進捗', progressConcept: '目標の進捗（今/目標）', sourceOfTruth: 'progress: Goal.current / Goal.target', note: '進捗率は今/目標の数値指標へ統一' },
+  { oldVault: '完了ToDoログ', progressConcept: '実行履歴（作業ログ）', sourceOfTruth: 'progress: ExecutionRun', note: '完了・検証・次アクションはExecutionRunに残す' },
+  { oldVault: '収益化のEpic（A〜D）', progressConcept: '工場Epic（大きな作業）', sourceOfTruth: 'progress: Epic', note: 'VaultのEpic案はProgress Epic化後に実行対象' },
+  { oldVault: '収益化ロードマップ', progressConcept: '収益（Revenue）のマイルストーン', sourceOfTruth: 'progress: Revenue milestones', note: 'ロードマップ表示と現在地はProgress側で見る' },
+]
+
+const SOURCE_RULES = [
+  '実行・順番・ToDo・進捗・完了履歴はprogressを正本にする',
+  'Vaultは元資料、判断ログ、ナレッジ、ChatGPTレビュー依頼の入口として残す',
+  '同じ判断をVaultとprogressの2か所で更新しない',
 ]
 
 // 統合の進め方（①〜⑥）。タイトル先頭の丸数字で goals.json と突き合わせて状態を出す。
@@ -74,23 +87,30 @@ export default async function IntegrationMapPage() {
               <tr className="border-b border-gray-200 text-gray-400 dark:border-gray-700">
                 <th className="p-2">旧Vault運用</th>
                 <th className="p-2">今のprogress（寄せ先）</th>
+                <th className="p-2">正本寄せ先</th>
                 <th className="p-2">所見</th>
               </tr>
             </thead>
             <tbody>
-              {MAP_ROWS.map(([oldV, newV, note]) => (
-                <tr key={oldV} className="border-b border-gray-100 dark:border-gray-800">
-                  <td className="p-2 align-top text-gray-600 dark:text-gray-300">{oldV}</td>
-                  <td className="p-2 align-top font-semibold text-gray-800 dark:text-gray-100">{newV}</td>
-                  <td className="p-2 align-top text-gray-500 dark:text-gray-400">{note}</td>
+              {MAP_ROWS.map((row) => (
+                <tr key={row.oldVault} className="border-b border-gray-100 dark:border-gray-800">
+                  <td className="p-2 align-top text-gray-600 dark:text-gray-300">{row.oldVault}</td>
+                  <td className="p-2 align-top font-semibold text-gray-800 dark:text-gray-100">{row.progressConcept}</td>
+                  <td className="p-2 align-top font-semibold text-indigo-700 dark:text-indigo-300">{row.sourceOfTruth}</td>
+                  <td className="p-2 align-top text-gray-500 dark:text-gray-400">{row.note}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <p className={`mt-3 rounded-lg bg-indigo-50 p-3 font-semibold text-indigo-900 dark:bg-indigo-900/20 dark:text-indigo-200 ${text}`}>
-          正本の寄せ先: 実行・キュー・ToDo・進捗・完了履歴は <strong>progress</strong>。Vault は判断ログ／ナレッジ／ChatGPTレビューの入口。
-        </p>
+        <div className={`mt-3 rounded-lg bg-indigo-50 p-3 font-semibold text-indigo-900 dark:bg-indigo-900/20 dark:text-indigo-200 ${text}`}>
+          <p>正本寄せの確定ルール</p>
+          <ul className="mt-2 list-disc space-y-1 pl-4">
+            {SOURCE_RULES.map((rule) => (
+              <li key={rule}>{rule}</li>
+            ))}
+          </ul>
+        </div>
       </section>
 
       <section className={card}>
