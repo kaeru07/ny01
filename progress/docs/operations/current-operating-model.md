@@ -1,6 +1,6 @@
 ---
-updated: 2026-06-24
-updateNote: /guide?tab=system に current-operating-model.md の鮮度チェックを追加。updated が未設定/形式不正、14日以上古い、または監視対象の実装ファイルが updated より新しい場合に理由付き警告を出し、実装と正本ドキュメントの乖離点検を促す。
+updated: 2026-06-25
+updateNote: 画面の役割を管理/実行/閲覧に分離。ゴール×todo消化を /goal-dashboard に集約。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -43,7 +43,9 @@ Progress は **AI工場の管理画面ではなく、人間用の司令塔**。
 | 司令塔 | `/` | 毎日最初に開く画面。今日やること・AI工場の状態・収益マイルストーン・直近の成果 |
 | Inbox | `/decide` | 5タブ構成（タブ切り替え）。「今日の判断」=工場停止要因のみ（危険判断/方針選択/人間作業・最大3件・約3分）/「ゴール承認」=自動実行が提案した目標候補（proposed）の承認/却下/「レビュー」=検収（放置しても工場は止まらない・**隠さず全件表示**）/「Epic候補」=実行許可（放置可能）/「AI保留」=件数のみ。社長は「今日の判断」と「ゴール承認」を見れば足りる。`?tab=today|goalApproval|review|candidates|aiHold`、`?reviewFilter=unconfirmed|followup|snoozed|reviewed`、`?reviewStatus=needs_followup`、互換 `?filter=needs_followup`、`?focusRunId=<runId>`、`?goalId=<id|unassigned>`、`?q=...`、`?fixPrompt=1`で直接表示できる。内部分類・内部IDは「詳細を見る」内のみ |
 | Inbox レビュータブ | `/decide` | **レビュー待ちは未消込リストとして全件表示**（「ほか◯件」「処理すると次が出ます」の隠れ表示は廃止）。上部に件数サマリー（未確認/要修正/あとで/レビュー済み）。各カードに「完了: YYYY/MM/DD HH:mm」を表示し、**completedAt（finishedAt→startedAt）降順**で最新が上。50件ずつの明示ページング（全◯件中◯〜◯件）。状態遷移=問題なし→`reviewed`（一覧から消し込み・「レビュー済み」タブに残置＝物理削除しない）/あとで→`snoozed`（後回しで残置）/修正する→**修正指示プロンプト(textarea)を入力して保存**→`needs_followup`（要修正で残置・`fixPrompt`/`fixRequestedAt`/`fixRequestedBy='human'` を ExecutionRun に保存）。修正指示は要修正カードに表示され、`followupOfRunId` 付きおすすめ次作業の reason/doneCriteria/notes に反映されて次回自動実行の作業指示になる。空欄保存は警告して送信しない。「未確認レビューをAIで一括整理」は未確認**全件**対象（サーバ安全上限200件）で、危険・要判断は必ず残し最終判断は人間 |
-| 自動実行キュー | `/queue` | **AI工場が次に何をやるか**の単一ビュー（派生・新正本を作らない）。`buildAutoQueue()` が Epic / Goal / ExecutionRun / Approval / Inbox から都度生成。`factoryEligible=true && status=executable` のみ自動実行候補。**Goalごとにグループ表示し、Goal順がキュー順＝次回実行選択を決める**（`rankGoals`: pin>boost>優先度>goals.json安定順）。明示pin・自走化アンカー・要修正は安全のためGoal順より上位に据置。各itemに「なぜこの順位か」の理由を機械生成。スマホで最優先(pin)/保留(hold)/対象外(exclude)/上下移動(manualOrder)。表示専用フィルターとして `?filter=<status>` / `?goalId=` / `?projectId=` / `?app=` / `?priority=P0|P1|P2` / `?pinned=1` / `?excluded=1` / `?manualOnly=1` / `?executor=unset|set` / `?q=` を使える。旧 work-queue 並べ替え画面は `/legacy/queue` に退避 |
+| 目標 | `/goal-planner` | Goal と todo の作成・編集・並び替えを行う管理画面。キュー由来の進捗要約は置かず、配下todoの消化状況は `/goal-dashboard`、実行順・実行制御は `/queue` に分ける |
+| 自動実行キュー | `/queue` | **AI工場が次に何をやるか**の実行画面（派生・新正本を作らない）。`buildAutoQueue()` が Epic / Goal / ExecutionRun / Approval / Inbox から都度生成。`factoryEligible=true && status=executable` のみ自動実行候補。**Goalごとにグループ表示し、Goal順がキュー順＝次回実行選択を決める**（`rankGoals`: pin>boost>優先度>goals.json安定順）。明示pin・自走化アンカー・要修正は安全のためGoal順より上位に据置。各itemに「なぜこの順位か」の理由を機械生成。スマホで最優先(pin)/保留(hold)/対象外(exclude)/上下移動(manualOrder)。Goal配下todoのチェックリストは表示せず、実行順・実行制御に専念する。表示専用フィルターとして `?filter=<status>` / `?goalId=` / `?projectId=` / `?app=` / `?priority=P0|P1|P2` / `?pinned=1` / `?excluded=1` / `?manualOnly=1` / `?executor=unset|set` / `?q=` を使える。旧 work-queue 並べ替え画面は `/legacy/queue` に退避 |
+| ゴール×todo消化状況 | `/goal-dashboard` | Goal と todo の閲覧専用画面。全ゴールの状態内訳、実行中ゴールの達成率、配下todoの完了/未完了/進行中/止まっている状態を一覧する。止まっている判定は「未完了todoがあり、そのGoalに executable な work item が無い」状態 |
 | Projects | `/portfolio` | 進行中プロジェクトの一覧と次の作業 |
 | Revenue | `/revenue` | 収益化マイルストーンの現在地 |
 | 📖 運用 | `/guide` | このアプリの使い方を自分で説明するページ（本ドキュメントと連動） |
@@ -336,6 +338,7 @@ Progress 自身の使われ方を把握するページ（下タブ「使用状�
 
 ## 変更履歴
 
+- 2026-06-25: **画面の役割を管理/実行/閲覧に分離**。`/goal-planner` は Goal/todo の作成・編集・並び替えに専念し、キュー由来の進捗要約を撤去。`/queue` は work item の実行順・pin/保留/対象外・理由表示に専念し、Goal配下todoチェックリストを撤去。`/goal-dashboard` を「ゴール×todo消化状況」として拡張し、状態内訳・達成率に加えて active Goal 配下todoの done/skipped/in_progress/未完了/止まっている判定を一覧表示する閲覧専用画面に集約。
 - 2026-06-24: **current-operating-model.md の鮮度チェックを強化**（Epic: `/guide`のFAQ・運用ページの鮮度を点検する仕組み）。既存の「14日以上未更新」警告に加え、`lib/operating-model.ts` で `updated` の形式不正と、監視対象の実装ファイルの最終更新日が `updated` より新しい可能性を検知するようにした。`/guide?tab=system` では理由（未設定/形式不正、未更新日数、対象ファイル名と日付）を箇条書きで表示し、正本ドキュメントと実装の乖離点検を促す。表示専用で自動実行・キュー判定には非干渉。
 
 - 2026-06-21: **ループの健全性カードを自動実行画面に追加（Execution→Review→Knowledge→Next Epicループの可視化）**（Epic: Execution→Review→Next Epicループ完成 / goal-execution-review-loop）。バックエンドの `getLoopClosureReport()` / `healLoopClosure()`（`lib/knowledge-loop.ts`）と `GET/POST /api/operations/loop-health` は実装済みだが、ループが閉じているかを人間が確認できるUI出口が無かった。`components/automation/LoopHealthCard.tsx` を新設し `/automation` の FactoryProgressCard 直下に配置。🟢=全段つながり済み（こぼれ0）/🟡=こぼれ件数を最上部に表示し、各段の件数（レビュー済みRun・Knowledge・次Epic候補つき・修正依頼Run・修正候補・レビュー起点候補）と、こぼれ一覧（最大8件）を表示。こぼれがある時のみ「こぼれを自己修復」ボタンが活性化し、`POST /api/operations/loop-health` で既存 backfill（冪等）を実行して未生成のKnowledge・次Epic候補・修正候補を補完、前後差分を文言表示。表示・補完専用で工場の実行順判定には影響しない。用語 `loopHealth` を `command-center.ts` の TERMS に追加、`/guide` に FAQ 1件追加。検証: tsc0 / next build0 / `/automation` 200 / `/api/operations/loop-health` GET が `closed:true, gapCount:0` を返すこと確認（pm2再起動で新カード描画反映）。
