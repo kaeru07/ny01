@@ -4,6 +4,7 @@ export const revalidate = 0
 import Link from 'next/link'
 import { getAutoQueueView } from '@/lib/auto-queue'
 import { computeFactoryStatus } from '@/lib/factory-status'
+import { readGoals } from '@/lib/goal-reader'
 import FilterBar from '@/components/newux/FilterBar'
 import FilterChips from '@/components/newux/FilterChips'
 import { QueueReorderList } from '@/components/queue/QueueReorderList'
@@ -11,6 +12,7 @@ import QueueActionButton from './QueueActionButton'
 import { buildProgressFilterUrl, parseProgressFilters, updateFilterParam, type ProgressFilterState } from '@/lib/progress-filters'
 import { epicPriorityLabel } from '@/lib/epic-priority-label'
 import type { AutoQueueItem, WorkItemStatus } from '@/types/auto-queue'
+import type { Goal, GoalTodo } from '@/types/goal'
 
 const STATUS_LABEL: Record<WorkItemStatus, string> = {
   executable: '実行可能',
@@ -73,6 +75,146 @@ function queueHref(filters: ProgressFilterState, patch: Partial<ProgressFilterSt
 
 function statusCount(items: AutoQueueItem[], status: WorkItemStatus): number {
   return items.filter((item) => item.status === status).length
+}
+
+function isTodoComplete(todo: GoalTodo): boolean {
+  return todo.status === 'done' || todo.status === 'skipped'
+}
+
+function isTodoInProgress(todo: GoalTodo): boolean {
+  return String(todo.status) === 'in_progress' || String(todo.status) === 'active'
+}
+
+function goalHasExecutableWork(group: GoalGroup): boolean {
+  return (group.row?.executable ?? 0) > 0 || group.items.some((item) => item.status === 'executable')
+}
+
+function todoDoneSummary(todos: GoalTodo[]): string {
+  const done = todos.filter(isTodoComplete).length
+  return `todo ${done}/${todos.length} 完了`
+}
+
+function TodoChecklist({ goal, group }: { goal?: Goal; group: GoalGroup }) {
+  if (!goal) {
+    if (group.goalId === UNASSIGNED_GOAL) return null
+    return (
+      <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 px-3 py-3 text-xs text-gray-500 dark:border-gray-800 dark:bg-gray-900/50 dark:text-gray-400">
+        Goal正本のtodo一覧を取得できませんでした。
+      </div>
+    )
+  }
+
+  const todos = [...goal.todos].sort((a, b) => a.order - b.order)
+  if (todos.length === 0) {
+    return (
+      <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 px-3 py-3 text-xs text-gray-500 dark:border-gray-800 dark:bg-gray-900/50 dark:text-gray-400">
+        このGoalにはtodoがありません。
+      </div>
+    )
+  }
+
+  const hasExecutable = goalHasExecutableWork(group)
+
+  return (
+    <div className="rounded-lg border border-gray-200 bg-gray-50/70 p-3 dark:border-gray-800 dark:bg-gray-900/60">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs font-black text-gray-700 dark:text-gray-200">Goal配下todo</p>
+        <span className={`rounded px-1.5 py-0.5 text-[11px] font-bold ${
+          hasExecutable
+            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+            : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+        }`}>
+          {hasExecutable ? '実行予定あり' : '実行候補なし'}
+        </span>
+      </div>
+      <ul className="mt-2 space-y-1.5">
+        {todos.map((todo) => {
+          const complete = isTodoComplete(todo)
+          const inProgress = isTodoInProgress(todo)
+          const stuck = !complete && !hasExecutable
+          return (
+            <li
+              key={todo.id}
+              className={`rounded-lg border px-2.5 py-2 ${
+                stuck
+                  ? 'border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30'
+                  : complete
+                    ? 'border-gray-200 bg-white/60 dark:border-gray-800 dark:bg-gray-950/30'
+                    : 'border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950/40'
+              }`}
+            >
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className={`text-sm font-black ${complete ? 'text-gray-400 dark:text-gray-500' : stuck ? 'text-amber-700 dark:text-amber-300' : 'text-gray-500 dark:text-gray-400'}`}>
+                  {complete ? '✓' : '•'}
+                </span>
+                <span className={`min-w-0 flex-1 break-words text-sm font-semibold ${
+                  complete
+                    ? 'text-gray-400 line-through dark:text-gray-500'
+                    : stuck
+                      ? 'text-amber-900 dark:text-amber-100'
+                      : 'text-gray-800 dark:text-gray-100'
+                }`}>
+                  {todo.title}
+                </span>
+                {complete && (
+                  <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-bold text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                    {todo.status === 'skipped' ? 'skipped' : 'done'}
+                  </span>
+                )}
+                {inProgress && !complete && (
+                  <span className="rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                    進行中
+                  </span>
+                )}
+                {stuck && (
+                  <span className="rounded bg-amber-200 px-1.5 py-0.5 text-[10px] font-black text-amber-900 dark:bg-amber-900/60 dark:text-amber-100">
+                    ⚠ 止まっている
+                  </span>
+                )}
+                {todo.role === 'human' && (
+                  <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                    人手
+                  </span>
+                )}
+              </div>
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}
+
+function GoalGroupHeader({ group, goal, filters }: { group: GoalGroup; goal?: Goal; filters: ProgressFilterState }) {
+  const todos = goal?.todos ?? []
+  const stuckCount = todos.filter((todo) => !isTodoComplete(todo) && !goalHasExecutableWork(group)).length
+
+  return (
+    <div className="flex flex-wrap items-start justify-between gap-2 border-b border-gray-100 pb-1.5 dark:border-gray-800">
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
+        <span className="text-[11px] font-bold text-gray-300 dark:text-gray-600">Goal</span>
+        <h2 className="min-w-0 break-words text-sm font-bold text-gray-900 dark:text-gray-100">{group.title}</h2>
+        {goal && <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-300">{todoDoneSummary(todos)}</span>}
+        {stuckCount > 0 && <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-black text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">⚠ {stuckCount}件 止まっています</span>}
+        {group.row?.pinnedTop && <span className="rounded bg-yellow-100 px-1.5 py-0.5 text-[10px] font-bold text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">最優先</span>}
+        {(group.row?.priorityBoost ?? 0) > 0 && <span className="rounded bg-indigo-100 px-1.5 py-0.5 text-[10px] font-bold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">boost+{group.row?.priorityBoost}</span>}
+      </div>
+      <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
+        {group.row && <span>実行可 {group.row.executable} · {group.row.done}/{group.row.total}（{group.row.ratio}%）</span>}
+        <span className="font-semibold text-gray-500">{group.items.length}件</span>
+        {group.goalId !== UNASSIGNED_GOAL && !filters.goalId && (
+          <Link href={queueHref(filters, { goalId: group.goalId })} className="rounded border border-gray-200 px-1.5 py-0.5 font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
+            このGoalだけ
+          </Link>
+        )}
+        {group.goalId !== UNASSIGNED_GOAL && (
+          <Link href={`/goal-planner?goalId=${encodeURIComponent(group.goalId)}`} className="rounded border border-gray-200 px-1.5 py-0.5 font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
+            Goal詳細
+          </Link>
+        )}
+      </div>
+    </div>
+  )
 }
 
 function matchesQuery(item: AutoQueueItem, q?: string): boolean {
@@ -148,7 +290,8 @@ function groupItemsByGoal(items: AutoQueueItem[], goalProgress: GoalProgressRow[
 }
 
 export default async function QueuePage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
-  const [queue, factoryStatus] = await Promise.all([getAutoQueueView(), computeFactoryStatus()])
+  const [queue, factoryStatus, goalsData] = await Promise.all([getAutoQueueView(), computeFactoryStatus(), readGoals()])
+  const goalById = new Map(goalsData.goals.map((goal) => [goal.id, goal]))
   const executionFailure =
     queue.counts.executable > 0 &&
     !factoryStatus.factoryEnabled
@@ -361,28 +504,8 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
         <div className="space-y-6">
           {goalGroups.map((group) => (
             <section key={group.goalId} className="space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-1.5 dark:border-gray-800">
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-bold text-gray-300 dark:text-gray-600">Goal</span>
-                  <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">{group.title}</h2>
-                  {group.row?.pinnedTop && <span className="rounded bg-yellow-100 px-1.5 py-0.5 text-[10px] font-bold text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">最優先</span>}
-                  {(group.row?.priorityBoost ?? 0) > 0 && <span className="rounded bg-indigo-100 px-1.5 py-0.5 text-[10px] font-bold text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">boost+{group.row?.priorityBoost}</span>}
-                </div>
-                <div className="flex items-center gap-2 text-[11px] text-gray-400">
-                  {group.row && <span>実行可 {group.row.executable} · {group.row.done}/{group.row.total}（{group.row.ratio}%）</span>}
-                  <span className="font-semibold text-gray-500">{group.items.length}件</span>
-                  {group.goalId !== UNASSIGNED_GOAL && !filters.goalId && (
-                    <Link href={queueHref(filters, { goalId: group.goalId })} className="rounded border border-gray-200 px-1.5 py-0.5 font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
-                      このGoalだけ
-                    </Link>
-                  )}
-                  {group.goalId !== UNASSIGNED_GOAL && (
-                    <Link href={`/goal-planner?goalId=${encodeURIComponent(group.goalId)}`} className="rounded border border-gray-200 px-1.5 py-0.5 font-bold text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800">
-                      Goal詳細
-                    </Link>
-                  )}
-                </div>
-              </div>
+              <GoalGroupHeader group={group} goal={goalById.get(group.goalId)} filters={filters} />
+              <TodoChecklist goal={goalById.get(group.goalId)} group={group} />
           {group.items.map((item) => {
             const canMove = item.status === 'executable'
             const isPinned = item.queueControl?.pinnedTop === true
