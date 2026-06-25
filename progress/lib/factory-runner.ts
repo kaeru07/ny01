@@ -20,6 +20,7 @@ import { readExecutionRuns } from './execution-run-reader'
 import { readGoals } from './goal-reader'
 import { writeGoals } from './goal-writer'
 import { resolveAppCwd } from './app-paths'
+import { triggerProgressSelfHealIfNeeded } from './progress-self-heal'
 import { DANGER_CATEGORIES, isReviewApprovalOptions } from './inbox-labels'
 import { getAdapter } from './executors'
 import { runChecks } from './checks-runner'
@@ -307,6 +308,8 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
   let runs = 0
   let perEpic = 0
   let lastRecordedRunId: string | undefined
+  let selfHealNeeded = false
+  const progressCwd = resolveAppCwd('progress')
 
   const config = await getAutomationConfig()
   if (!config.factoryEnabled) {
@@ -600,6 +603,7 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
         executor = 'codex'
       } else {
         await finishRunningRun({ runId: runningRunId, executor: 'claude', mode, result, stopReason: 'claude_rate_limited / Codex不可' })
+        if (progressCwd && epicCwd === progressCwd) selfHealNeeded = true
         const recordedRunId = runningRunId
         steps.push({ epicId: currentEpicId, epicTitle: plan.epicTitle, dispatchPlanId: plan.dispatchPlanId, executor: 'claude', result, recordedRunId, stopped: true, stopReason: 'claude_rate_limited / Codex不可' })
         stoppedReason = 'rate_limited_no_codex'
@@ -612,6 +616,7 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
     await finishRunningRun({ runId: runningRunId, executor, mode, result, checks })
     const recordedRunId = runningRunId
     lastRecordedRunId = recordedRunId
+    if (progressCwd && epicCwd === progressCwd) selfHealNeeded = true
     runs++; perEpic++
 
     if (result.needsApproval) {
@@ -668,6 +673,9 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
   }
 
   function finalize(reason: string): FactoryRunReport {
+    if (selfHealNeeded && progressCwd && mode === 'auto' && opts.confirm) {
+      triggerProgressSelfHealIfNeeded({ cwd: progressCwd, mode, confirm: opts.confirm })
+    }
     // 遷移順（重複排除）。steps は着手・スキップ・完了を時系列で持つため順序がそのまま遷移順。
     const epicsVisited = Array.from(new Set(steps.map((s) => s.epicId)))
     return {
