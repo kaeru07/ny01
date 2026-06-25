@@ -415,11 +415,28 @@ export interface InboxCard {
   epicId?: string
   /** ゴール承認カードのカテゴリ。'try'=試した方がいい系（調査由来）/ 'app'=アプリ系（progress改善）。サブタブ分けに使う。 */
   proposalCategory?: 'try' | 'app'
+  /** ゴール承認カードの提案元。サブタブ分けと起因表示に使う。 */
+  proposalSource?: string
+  /** ゴール承認カードの提案時刻。無い場合は updatedAt 由来の推定時刻を入れる。 */
+  proposedAt?: string
+  /** proposedAt が未記録で updatedAt にフォールバックしたかどうか。 */
+  proposedAtEstimated?: boolean
+  proposalSourceLabel?: string
+  proposedAtText?: string
 }
 
 /** 提案元(proposalSource)から承認カードのカテゴリを決める。調査由来=試した方がいい系、それ以外=アプリ系。 */
 export function proposalCategoryOf(source?: string): 'try' | 'app' {
   return source === 'research' ? 'try' : 'app'
+}
+
+export function proposalSourceLabelOf(source?: string): string {
+  if (source === 'research') return '日々の調査'
+  if (source === 'app_improvement' || source === 'factory_idle_improvement') return 'アプリ改善'
+  if (source === 'vision_followup') return 'ビジョン追従'
+  if (source === 'origin_gap') return '方針ギャップ'
+  if (source === 'manual') return '自分で追加'
+  return 'AI'
 }
 
 export interface InboxGoalSummary {
@@ -896,7 +913,7 @@ export async function buildInbox(): Promise<InboxView> {
   // 自動実行中にAIが提案したゴール候補（承認すると次回以降の自動実行対象になる）。capしない。
   const proposedGoals: InboxCard[] = goalsData.goals
     .filter((g) => g.status === 'proposed')
-    .sort((a, b) => (b.proposedAt ?? '').localeCompare(a.proposedAt ?? ''))
+    .sort((a, b) => (b.proposedAt ?? b.updatedAt ?? '').localeCompare(a.proposedAt ?? a.updatedAt ?? ''))
     .map((g) => {
       const enables = g.proposalEnables || g.summary || g.description || ''
       const pros = (g.proposalPros && g.proposalPros.length > 0)
@@ -905,15 +922,25 @@ export async function buildInbox(): Promise<InboxView> {
       const cons = (g.proposalCons && g.proposalCons.length > 0)
         ? g.proposalCons
         : ['承認すると自動実行の対象が増える（他の優先作業の時間を一部使う）']
-      const sourceLabel = g.proposalSource === 'manual' ? '自分で追加' : g.proposalSource === 'research' ? '日々の調査から' : (g.proposalSource ?? 'AI')
+      const sourceLabel = proposalSourceLabelOf(g.proposalSource)
+      const proposedAt = g.proposedAt ?? g.updatedAt
+      const proposedAtEstimated = !g.proposedAt && Boolean(g.updatedAt)
+      const proposedAtText = proposedAt ? `${fmtDateTime(proposedAt)}${proposedAtEstimated ? ' (推定)' : ''}` : undefined
       return {
         id: `goal-approval-${g.id}`,
         kind: 'direction' as const,
         goalId: g.id,
         goalTitle: g.title,
         proposalCategory: proposalCategoryOf(g.proposalSource),
+        proposalSource: g.proposalSource,
+        proposedAt,
+        proposedAtEstimated,
+        proposalSourceLabel: sourceLabel,
+        proposedAtText,
         headline: `ゴール候補: ${g.title}`,
         rows: [
+          { label: '追加日時', text: proposedAtText ?? '不明' },
+          { label: '起因', text: sourceLabel },
           ...(enables ? [{ label: '✅ できるようになること', text: enables }] : []),
           { label: '👍 メリット', text: pros.map((p) => `・${p}`).join('\n') },
           { label: '👎 デメリット・注意', text: cons.map((c) => `・${c}`).join('\n') },
@@ -924,9 +951,10 @@ export async function buildInbox(): Promise<InboxView> {
         detail: [
           `goalId: ${g.id}`,
           `提案元: ${sourceLabel}`,
+          ...(g.proposalSource ? [`proposalSource: ${g.proposalSource}`] : []),
           `指標: ${g.metric || 'progress'} ${g.current ?? 0}/${g.target ?? 100}`,
           ...(g.notes ? [g.notes] : []),
-          ...(g.proposedAt ? [`提案日時: ${fmtDateTime(g.proposedAt)}`] : []),
+          ...(proposedAtText ? [`提案日時: ${proposedAtText}`] : []),
         ],
         actions: [
           { label: '承認して追加する', tone: 'primary', api: { url: `/api/goals/${g.id}/approve`, method: 'POST', body: { approve: true } } },

@@ -132,7 +132,7 @@ function failureToCandidate(f: FailureSignal): ProposeGoalInput {
     current: 0,
     priority: isProgress ? 'P0' : 'P1',
     rationale: `targetApp=${f.app} の Run が失敗のまま成功 Run で上書きされていない（最終 ${f.finishedAt}）。改善事項として解消をゴール化。`,
-    source: 'factory_idle_improvement',
+    source: 'app_improvement',
     enables: '失敗していた作業が完了し、自動実行が前に進めるようになる。',
     pros: ['未解決の失敗を放置せず潰せる', isProgress ? '自動実行基盤(progress)の信頼性が上がる' : '対象アプリの不具合が解消される'],
     cons: ['失敗原因が環境/外部要因なら再発しうる', '原因調査に時間がかかる場合がある'],
@@ -149,7 +149,7 @@ function nextActionToCandidate(item: { text: string; app: string }): ProposeGoal
     current: 0,
     priority: isProgress ? 'P1' : 'P2',
     rationale: `過去 Run の nextActions に挙がったまま着手されていない項目。試した方がいいこととしてゴール化。`,
-    source: 'factory_idle_improvement',
+    source: 'app_improvement',
     enables: 'やり残しの次アクションが正式なゴールとして承認・実行対象になる。',
     pros: ['自動実行が自分で挙げた改善が埋もれない', '承認するだけで次の自動実行対象になる'],
     cons: ['nextAction の粒度がゴールとして大きすぎ/小さすぎる場合がある'],
@@ -223,7 +223,7 @@ export async function proposeImprovementGoalsIfIdle(): Promise<ImprovementPropos
     }
   }
 
-  const result = await proposeGoals(candidates, { source: 'factory_idle_improvement' })
+  const result = await proposeGoals(candidates, { source: 'app_improvement' })
   return {
     proposed: result.created.length > 0,
     reason: `アイドル時の改善提案を${result.created.length}件登録（失敗解消=${bySource.failures}/次アクション=${bySource.nextActions}/seed=${bySource.seeds}・承認後に自動実行対象）`,

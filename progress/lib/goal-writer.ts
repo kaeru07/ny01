@@ -377,6 +377,7 @@ export async function upsertGoal(input: GoalUpsertInput): Promise<Goal> {
   const idx = data.goals.findIndex((g) => g.id === goalId)
   const previous = idx >= 0 ? data.goals[idx] : undefined
   const target = pickNumber(input.target, previous?.target ?? 100)
+  const status = pickGoalStatus(input.status, previous?.status ?? 'active')
   const goal: Goal = {
     id: goalId,
     projectId: previous?.projectId,
@@ -388,13 +389,19 @@ export async function upsertGoal(input: GoalUpsertInput): Promise<Goal> {
     metricSyncedAt: previous?.metricSyncedAt,
     isNorthStar: input.isNorthStar === true,
     summary: pickString(input.description, previous?.summary ?? ''),
-    status: pickGoalStatus(input.status, previous?.status ?? 'active'),
+    status,
     priority: pickPriority(input.priority, previous?.priority ?? 'medium'),
     priorityBoost: previous?.priorityBoost,
     pinnedTop: previous?.pinnedTop,
     decisionPolicyDefault: previous?.decisionPolicyDefault,
     riskFlagsDefault: previous?.riskFlagsDefault,
     notes: previous?.notes,
+    proposalSource: previous?.proposalSource,
+    proposedAt: status === 'proposed' ? (previous?.proposedAt ?? now) : previous?.proposedAt,
+    approvedAt: previous?.approvedAt,
+    proposalEnables: previous?.proposalEnables,
+    proposalPros: previous?.proposalPros,
+    proposalCons: previous?.proposalCons,
     monetizationImpact: previous?.monetizationImpact ?? 'none',
     phases: previous?.phases ?? [],
     todos: previous?.todos ?? [],

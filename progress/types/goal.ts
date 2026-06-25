@@ -51,6 +51,8 @@ export interface Goal {
   title: string
   description?: string
   metric?: string
+  /** 達成方向。'up'=大きいほど良い(既定)。'down'=小さいほど良い(例: daily_decision_minutes は target に近づけたい)。 */
+  metricDirection?: 'up' | 'down'
   target?: number
   current?: number
   /** computeFactoryMetrics 由来の自動計測値で current を更新した時刻（手動編集と区別する）。 */
