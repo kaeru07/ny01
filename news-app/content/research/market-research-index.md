@@ -45,6 +45,8 @@
 
 
 
+
+- 2026-06-26: AI縦型動画制作 / Anthropic が Alibaba/Qwen による Claude 能力の蒸留攻撃を主張 / Daybreak / 無料プラン + 広告: 低頻度利用者向けに広告を入れ、ヘビーユーザーは月額課金へ誘導する / エラーなし / partial(market,news,tools)
 - 2026-06-25: AIミニアプリ生成 / Gemini 3.5 Pro の一般投入が 7 月へ延期報道 / GitHub Copilot desktop app / AIミニアプリ生成テンプレを販売: 業種別に「予約管理」「問い合わせ整理」「学習カード」「動画台本管… / エラーなし / partial(market,news,tools)
 - 2026-06-24: AI動画広告生成 / OpenAIがサイバー防御向けモデルと「Patch the Planet」を拡大 / Disney AI-generated TV ad tool / AI動画広告テンプレを月額課金化し、業種別に「美容室」「不動産」「飲食店」「個人講師」向けへ分ける。 / エラーなし / partial(market,news,tools)
 - 2026-06-23: AI アシスタント比較 / Micron と Anthropic の AI メモリ供給提携 / GitHub Copilot app / Google Play Shorts / エラーなし / partial(market,news,tools)
