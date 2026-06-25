@@ -1,6 +1,7 @@
 import { readGoals } from '@/lib/goal-reader'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { proposeGoals, type ProposeGoalInput, type ProposeGoalsResult } from '@/lib/goal-writer'
+import { buildUsageSummary } from '@/lib/usage-store'
 import type { ExecutionRun } from '@/types/execution-run'
 
 // 自動実行対象が無い（アイドル）ときに、progress アプリ優先で「改善事項」「試した方がいいこと」を
@@ -14,7 +15,8 @@ import type { ExecutionRun } from '@/types/execution-run'
 // シグナルの優先順（progress アプリ優先）:
 //   1. 失敗/エラー Run の解消（改善事項）   … その後に同名の成功 Run が無いものだけ
 //   2. 未消化の nextActions のゴール化（試した方がいいこと）
-//   3. 定番の progress 改善 seed（1・2 で枠が埋まらない時のフォールバック＝空回避の保険）
+//   3. 使用状況(usage-log)シグナル … よく開く画面の便利機能 / 放置画面の運用改善（使用状況から自動抽出）
+//   4. 定番の progress 改善 seed（1〜3 で枠が埋まらない時のフォールバック＝空回避の保険）
 
 /** 承認待ち(proposed)がこの件数以上なら新規提案しない（承認を促す）。research 側と揃える。 */
 const MAX_PENDING_PROPOSALS = 3
@@ -24,6 +26,12 @@ const SCAN_RUNS = 60
 
 /** progress アプリ名（targetApp 一致判定）。 */
 const PROGRESS_APP = 'progress'
+
+/** 使用状況シグナルの集計窓（日）。/usage の既定と揃える。 */
+const USAGE_RANGE_DAYS = 7
+
+/** この窓内でこの回数以上開かれた画面は「よく使う中心画面」とみなし、便利機能の提案対象にする。 */
+const HOT_SCREEN_MIN_VIEWS = 8
 
 /**
  * 1・2 で枠が埋まらない時のフォールバック候補。progress アプリの定番改善テーマ。
@@ -156,13 +164,68 @@ function nextActionToCandidate(item: { text: string; app: string }): ProposeGoal
   }
 }
 
+/**
+ * 使用状況(usage-log)から「運用上あると便利な機能」の提案候補を作る。
+ * - よく開く画面（hot）→ その画面の操作を速くする便利機能を提案（試した方がいいこと）
+ * - 登録済みだが直近この窓で1度も開かれていない画面（放置）→ 導線見直し/統廃合を提案（運用改善）
+ * progress 自身の使われ方を一次データにするため、候補は progress アプリ扱い（priority やや高め）。
+ */
+async function collectUsageSignals(): Promise<ProposeGoalInput[]> {
+  const out: ProposeGoalInput[] = []
+  let summary
+  try {
+    summary = await buildUsageSummary(USAGE_RANGE_DAYS)
+  } catch {
+    return out // usage-log 読めない/未蓄積でも他シグナルで進める
+  }
+  if (!summary.hasData) return out
+
+  // 1. よく開く画面（最上位）を便利機能の提案にする
+  const hot = summary.screens.find((s) => s.count >= HOT_SCREEN_MIN_VIEWS)
+  if (hot) {
+    out.push({
+      title: `よく開く画面「${hot.label}」の操作を速くする便利機能を足す`,
+      summary: `直近${USAGE_RANGE_DAYS}日で${hot.count}回開かれている主要画面。よく使う操作をショートカット/まとめ表示で短縮できないか検討する。`,
+      metric: 'progress',
+      target: 100,
+      current: 0,
+      priority: 'P1',
+      rationale: `usage-log の集計で「${hot.label}」(${hot.href}) が直近${USAGE_RANGE_DAYS}日に${hot.count}回と最も多く開かれている。使用状況から導いた便利機能の候補。`,
+      source: 'usage_signal',
+      enables: 'よく使う画面の操作回数/移動を減らし、毎日の運用が速くなる。',
+      pros: ['実データ（使用状況）に基づく改善', '効果が体感しやすい中心画面が対象'],
+      cons: ['「便利」の具体化に設計判断が要る', '使い方が変わると陳腐化しうる'],
+    })
+  }
+
+  // 2. 放置画面（登録済みだが直近窓で未アクセス）を運用改善の提案にする
+  const unused = summary.unusedScreens[0]
+  if (unused) {
+    out.push({
+      title: `使われていない画面「${unused.label}」の導線を見直す`,
+      summary: `登録済みだが直近${USAGE_RANGE_DAYS}日に1度も開かれていない画面。発見性の改善（導線追加）か、不要なら統廃合を検討する。`,
+      metric: 'progress',
+      target: 100,
+      current: 0,
+      priority: 'P2',
+      rationale: `usage-log の放置検知で「${unused.label}」(${unused.href}) が直近${USAGE_RANGE_DAYS}日に未アクセス。使用状況から導いた運用改善の候補。`,
+      source: 'usage_signal',
+      enables: '使われていない画面を改善 or 整理でき、ナビの見通しが良くなる。',
+      pros: ['放置画面を放置しない', '統廃合すれば保守対象が減る'],
+      cons: ['未アクセス=不要とは限らない（用途が季節性の場合あり）'],
+    })
+  }
+
+  return out
+}
+
 export interface ImprovementProposalResult {
   proposed: boolean
   reason: string
   created: ProposeGoalsResult['created']
   pendingCount: number
   /** 候補がどのシグナルから来たかの内訳（ログ用）。 */
-  bySource: { failures: number; nextActions: number; seeds: number }
+  bySource: { failures: number; nextActions: number; usage: number; seeds: number }
 }
 
 /**
@@ -173,7 +236,7 @@ export interface ImprovementProposalResult {
 export async function proposeImprovementGoalsIfIdle(): Promise<ImprovementProposalResult> {
   const goals = await readGoals()
   const pending = goals.goals.filter((g) => g.status === 'proposed').length
-  const bySource = { failures: 0, nextActions: 0, seeds: 0 }
+  const bySource = { failures: 0, nextActions: 0, usage: 0, seeds: 0 }
   if (pending >= MAX_PENDING_PROPOSALS) {
     return {
       proposed: false,
@@ -207,7 +270,12 @@ export async function proposeImprovementGoalsIfIdle(): Promise<ImprovementPropos
     if (candidates.length >= fill) break
     pushUnique(nextActionToCandidate(item), 'nextActions')
   }
-  // 3. seed フォールバック（空回避の保険）
+  // 3. 使用状況シグナル（よく使う画面の便利機能 / 放置画面の運用改善）
+  for (const c of await collectUsageSignals()) {
+    if (candidates.length >= fill) break
+    pushUnique(c, 'usage')
+  }
+  // 4. seed フォールバック（空回避の保険）
   for (const seed of PROGRESS_IMPROVEMENT_SEEDS) {
     if (candidates.length >= fill) break
     pushUnique(seed, 'seeds')
@@ -226,7 +294,7 @@ export async function proposeImprovementGoalsIfIdle(): Promise<ImprovementPropos
   const result = await proposeGoals(candidates, { source: 'app_improvement' })
   return {
     proposed: result.created.length > 0,
-    reason: `アイドル時の改善提案を${result.created.length}件登録（失敗解消=${bySource.failures}/次アクション=${bySource.nextActions}/seed=${bySource.seeds}・承認後に自動実行対象）`,
+    reason: `アイドル時の改善提案を${result.created.length}件登録（失敗解消=${bySource.failures}/次アクション=${bySource.nextActions}/使用状況=${bySource.usage}/seed=${bySource.seeds}・承認後に自動実行対象）`,
     created: result.created,
     pendingCount: pending + result.created.length,
     bySource,
