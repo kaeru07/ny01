@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { readGoals } from '@/lib/goal-reader'
+import { humanizeTitle } from '@/lib/humanize'
 import { getAutomationConfig, getEpics } from '@/lib/operations-store'
 import type { ExecutionRun } from '@/types/execution-run'
 import type { Epic } from '@/lib/types/operations'
@@ -10,10 +11,12 @@ import type { Epic } from '@/lib/types/operations'
 // 変更ファイル/検証/次にやること/詳細レポート全文 を深く残す。常に ExecutionRun から都度生成。
 
 const card = 'rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900'
-const runCard = 'rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900 shadow-sm'
+const runCard = 'rounded-xl border border-gray-200 bg-white p-3 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-4'
 
 const SCHEDULE = ['11:00', '14:00', '16:00', '23:00']
 const MAX_RUNS = 25
+const REPORT_TIME_ZONE = 'Asia/Tokyo'
+type GroupKey = 'day' | 'week' | 'month'
 
 type ReportSearch = {
   q?: string
@@ -23,6 +26,7 @@ type ReportSearch = {
   app?: string
   review?: string
   limit?: string
+  group?: string
 }
 
 type RunContext = {
@@ -77,6 +81,11 @@ const REVIEW_OPTS: Array<{ key: string; label: string }> = [
   { key: 'reviewed', label: 'レビュー済み' },
   { key: 'needs_followup', label: '要修正' },
   { key: 'snoozed', label: 'あとで' },
+]
+const GROUP_OPTS: Array<{ key: GroupKey; label: string }> = [
+  { key: 'day', label: '日' },
+  { key: 'week', label: '週' },
+  { key: 'month', label: '月' },
 ]
 const EXECUTOR_LABEL: Record<string, string> = { all: 'すべて', claude: 'Claude', codex: 'Codex', manual: '手動', other: 'その他' }
 const REVIEW_LABEL: Record<string, string> = {
@@ -140,6 +149,7 @@ export default async function AutoExecReport({
   app = '',
   review = '',
   limit = '',
+  group = '',
   basePath = '/guide',
   standalone = false,
 }: ReportSearch & { basePath?: string; standalone?: boolean } = {}) {
@@ -175,6 +185,7 @@ export default async function AutoExecReport({
   const rangeKey = RANGE_OPTS.some((o) => o.key === range) ? range : '30'
   const statusKey = STATUS_OPTS.some((o) => o.key === status) ? status : 'all'
   const reviewKey = REVIEW_OPTS.some((o) => o.key === review) ? review : 'all'
+  const groupKey: GroupKey = GROUP_OPTS.some((o) => o.key === group) ? (group as GroupKey) : 'day'
   const rawExecutor = executor || 'all'
   const executorKey = ['all', 'claude', 'codex', 'manual', 'other'].includes(rawExecutor) ? rawExecutor : 'other'
   const appOptions = Array.from(new Set(allAuto.map((r) => r.targetApp).filter(Boolean))).sort((a, b) => a.localeCompare(b))
@@ -208,6 +219,8 @@ export default async function AutoExecReport({
     return true
   })
   const articles = filtered.slice(0, displayLimit)
+  const articleItems = articles.map((run, i) => ({ run, index: filtered.length - i }))
+  const groupedArticles = groupArticleItems(articleItems, groupKey)
   const periodStats = {
     completed: filtered.filter((r) => r.runStatus === 'completed').length,
     partial: filtered.filter((r) => r.runStatus === 'partial').length,
@@ -233,9 +246,10 @@ export default async function AutoExecReport({
       app: appKey,
       review: reviewKey,
       limit: String(displayLimit),
+      group: groupKey,
     }
     for (const [key, value] of Object.entries({ ...current, ...patch })) {
-      if (!value || value === 'all' || (key === 'range' && value === '30') || (key === 'limit' && value === String(MAX_RUNS))) continue
+      if (!value || value === 'all' || (key === 'range' && value === '30') || (key === 'limit' && value === String(MAX_RUNS)) || (key === 'group' && value === 'day')) continue
       p.set(key, value)
     }
     const qs = p.toString()
@@ -281,6 +295,7 @@ export default async function AutoExecReport({
           {executorKey !== 'all' && <input type="hidden" name="executor" value={executorKey} />}
           {appKey !== 'all' && <input type="hidden" name="app" value={appKey} />}
           {reviewKey !== 'all' && <input type="hidden" name="review" value={reviewKey} />}
+          {groupKey !== 'day' && <input type="hidden" name="group" value={groupKey} />}
           <input
             name="q"
             defaultValue={q}
@@ -322,6 +337,12 @@ export default async function AutoExecReport({
               <Link key={o.key} href={hrefWith({ review: o.key })} className={chip(reviewKey === o.key)}>{o.label}</Link>
             ))}
           </div>
+          <span className="ml-2 text-[11px] font-semibold text-gray-500 dark:text-gray-400">まとめ方</span>
+          <div className="flex flex-wrap gap-1.5">
+            {GROUP_OPTS.map((o) => (
+              <Link key={o.key} href={hrefWith({ group: o.key })} className={chip(groupKey === o.key)}>{o.label}</Link>
+            ))}
+          </div>
         </div>
         <p className="mt-2 text-[11px] text-gray-400">該当 {filtered.length}件 / 表示 {articles.length}件{filtered.length > articles.length ? `（最大${displayLimit}件）` : ''}</p>
       </section>
@@ -329,7 +350,25 @@ export default async function AutoExecReport({
       {articles.length === 0 ? (
         <p className={`${card} text-xs text-gray-500 dark:text-gray-400`}>この条件に一致する自動実行はありません。期間や状態のフィルタを変えてみてください。</p>
       ) : (
-        articles.map((r, i) => <RunArticle key={r.runId} run={r} context={contexts.get(r.runId) ?? {}} index={filtered.length - i} />)
+        <div className="space-y-4">
+          {groupedArticles.map((grouped) => (
+            <section key={grouped.key} className="space-y-2">
+              <header className="sticky top-0 z-10 rounded-lg border border-gray-200 bg-white/95 px-3 py-2 backdrop-blur dark:border-gray-800 dark:bg-gray-950/95">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="text-sm font-black text-gray-900 dark:text-gray-100">{grouped.label}</h3>
+                  <p className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+                    {grouped.items.length}件 / 完了{grouped.completed}・一部{grouped.partial}・失敗{grouped.failed}・実行中{grouped.running}
+                  </p>
+                </div>
+              </header>
+              <div className="space-y-2">
+                {grouped.items.map(({ run, index }) => (
+                  <RunArticle key={run.runId} run={run} context={contexts.get(run.runId) ?? {}} index={index} />
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
       )}
 
       {filtered.length > articles.length && (
@@ -359,6 +398,71 @@ function Metric({ label, value, tone }: { label: string; value: string; tone: 'e
   )
 }
 
+type ArticleItem = { run: ExecutionRun; index: number }
+
+function groupArticleItems(items: ArticleItem[], group: GroupKey) {
+  const map = new Map<string, { key: string; label: string; items: ArticleItem[]; completed: number; partial: number; failed: number; running: number }>()
+  for (const item of items) {
+    const date = item.run.finishedAt || item.run.startedAt
+    const key = groupKeyForDate(date, group)
+    const label = groupLabelForDate(date, group)
+    const current = map.get(key) ?? { key, label, items: [], completed: 0, partial: 0, failed: 0, running: 0 }
+    current.items.push(item)
+    if (item.run.runStatus === 'completed') current.completed += 1
+    if (item.run.runStatus === 'partial') current.partial += 1
+    if (item.run.runStatus === 'failed') current.failed += 1
+    if (item.run.runStatus === 'running') current.running += 1
+    map.set(key, current)
+  }
+  return Array.from(map.values())
+}
+
+function dateParts(iso?: string): { year: number; month: number; day: number; weekday: string } | null {
+  const date = new Date(iso ?? '')
+  if (Number.isNaN(date.getTime())) return null
+  const parts = new Intl.DateTimeFormat('ja-JP', {
+    timeZone: REPORT_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    weekday: 'short',
+  }).formatToParts(date)
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? ''
+  const year = Number(get('year'))
+  const month = Number(get('month'))
+  const day = Number(get('day'))
+  if (!year || !month || !day) return null
+  return { year, month, day, weekday: get('weekday') }
+}
+
+function groupKeyForDate(iso: string | undefined, group: GroupKey): string {
+  const p = dateParts(iso)
+  if (!p) return 'unknown'
+  if (group === 'month') return `${p.year}-${String(p.month).padStart(2, '0')}`
+  if (group === 'week') {
+    const utc = Date.UTC(p.year, p.month - 1, p.day)
+    const day = new Date(utc).getUTCDay()
+    const mondayOffset = day === 0 ? -6 : 1 - day
+    const monday = new Date(utc + mondayOffset * 86_400_000)
+    return `${monday.getUTCFullYear()}-${String(monday.getUTCMonth() + 1).padStart(2, '0')}-${String(monday.getUTCDate()).padStart(2, '0')}`
+  }
+  return `${p.year}-${String(p.month).padStart(2, '0')}-${String(p.day).padStart(2, '0')}`
+}
+
+function groupLabelForDate(iso: string | undefined, group: GroupKey): string {
+  const p = dateParts(iso)
+  if (!p) return '日付不明'
+  if (group === 'month') return `${p.year}年${p.month}月`
+  if (group === 'week') {
+    const key = groupKeyForDate(iso, group)
+    const [year, month, day] = key.split('-').map(Number)
+    const start = new Date(Date.UTC(year, month - 1, day))
+    const end = new Date(start.getTime() + 6 * 86_400_000)
+    return `${year}年${month}月${day}日週 - ${end.getUTCMonth() + 1}月${end.getUTCDate()}日`
+  }
+  return `${p.year}年${p.month}月${p.day}日（${p.weekday}）`
+}
+
 function RunArticle({ run: r, context, index }: { run: ExecutionRun; context: RunContext; index: number }) {
   const checks = Object.entries(r.checks ?? {}).filter(([, v]) => v && String(v).trim())
   const done = r.runStatus === 'completed'
@@ -373,132 +477,134 @@ function RunArticle({ run: r, context, index }: { run: ExecutionRun; context: Ru
   const showNoWorkBanner = !worked && (r.runStatus === 'partial' || r.runStatus === 'failed')
   // rawReport を整形（機械メタ情報を除去し、読みやすい段落に）
   const rawParas = cleanRawReport(r.rawReport || '')
+  const workSummary = buildWorkSummary(r, rawParas, outcome)
+  const visibleTarget = context.goalTitle || r.selection?.selectedGoalTitle || context.epic?.title || r.targetApp || '対象未設定'
 
   return (
     <section className={runCard}>
-      {/* ヘッダ */}
-      <header className="border-b border-gray-100 pb-2 dark:border-gray-800">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="min-w-0 text-base font-bold text-gray-900 dark:text-gray-100">#{index} {r.targetTodoTitle || '(無題の自動実行)'}</h3>
+      <header>
+        <div className="flex min-w-0 items-start justify-between gap-2">
+          <h4 className="min-w-0 break-words text-sm font-bold leading-snug text-gray-900 dark:text-gray-100">#{index} {humanizeTitle(r.targetTodoTitle || '(無題の自動実行)')}</h4>
           <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
             <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${STATUS_BADGE[r.runStatus] ?? 'bg-gray-100 text-gray-500'}`}>{STATUS_LABEL[r.runStatus] ?? r.runStatus}</span>
             <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-[11px] font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-300">{REVIEW_LABEL[r.reviewStatus] ?? r.reviewStatus}</span>
           </div>
         </div>
-        <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">
-          開始 {fmtFull(r.startedAt)} ・ 終了 {fmtFull(r.finishedAt)} ・ 所要 {fmtDuration(r.startedAt, r.finishedAt)}
+        <p className="mt-1 min-w-0 break-words text-[11px] text-gray-500 dark:text-gray-400">
+          {visibleTarget} / {fmtFull(r.finishedAt || r.startedAt)} / {fmtDuration(r.startedAt, r.finishedAt)}
+        </p>
+        <p className="mt-2 min-w-0 truncate text-[12px] leading-relaxed text-gray-700 dark:text-gray-200">
+          {workSummary[0]}
         </p>
       </header>
 
-      <div className="mt-3 grid grid-cols-1 gap-2 text-[11px] sm:grid-cols-2">
-        <Meta label="実行者" value={EXECUTOR_LABEL[r.executorUsed ?? 'other'] ?? r.executorUsed ?? 'その他'} />
-        <Meta label="対象アプリ" value={r.targetApp || '—'} />
-        <Meta label="対象Goal" value={context.goalTitle || '未紐づけ'} href={context.goalId ? `/goal-dashboard?goalId=${encodeURIComponent(context.goalId)}` : undefined} />
-        <Meta label="対象todo/Epic" value={context.epic?.title || r.targetTodoTitle || '—'} href={r.epicId ? `/epic/${encodeURIComponent(r.epicId)}` : undefined} />
-        <Meta label="runId" value={r.runId} mono />
-        <Meta label="経路" value={r.source || r.runnerMode || '—'} />
-      </div>
+      <details className="mt-2 group">
+        <summary className="cursor-pointer select-none text-[11px] font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">詳細を開く</summary>
+        <div className="mt-3 border-t border-gray-100 pt-3 dark:border-gray-800">
+          <div className="grid grid-cols-1 gap-2 text-[11px] sm:grid-cols-2">
+            <Meta label="実行者" value={EXECUTOR_LABEL[r.executorUsed ?? 'other'] ?? r.executorUsed ?? 'その他'} />
+            <Meta label="対象アプリ" value={r.targetApp || '—'} />
+            <Meta label="対象Goal" value={context.goalTitle || '未紐づけ'} href={context.goalId ? `/goal-dashboard?goalId=${encodeURIComponent(context.goalId)}` : undefined} />
+            <Meta label="対象todo/Epic" value={context.epic?.title || r.targetTodoTitle || '—'} href={r.epicId ? `/epic/${encodeURIComponent(r.epicId)}` : undefined} />
+            <Meta label="runId" value={r.runId} mono />
+            <Meta label="経路" value={r.source || r.runnerMode || '—'} />
+          </div>
 
-      {/* 結果（この回が何をして、どう終わったか — 常に表示） */}
-      <div className="mt-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-        <p className="text-xs font-semibold text-gray-900 dark:text-gray-100">{outcome}</p>
-        {r.summary && r.summary.trim() && r.summary.trim() !== outcome.trim() && (
-          <p className="mt-1.5 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">{r.summary}</p>
-        )}
-      </div>
+          <div className="mt-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+            <p className="text-xs font-semibold text-gray-900 dark:text-gray-100">{outcome}</p>
+            <div className="mt-1.5 space-y-1 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
+              {workSummary.map((line, i) => <p key={i}>{line}</p>)}
+            </div>
+          </div>
 
-      {showNoWorkBanner && (
-        <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[11px] leading-relaxed text-amber-700 dark:border-amber-900/50 dark:bg-amber-900/15 dark:text-amber-400">
-          {r.runStatus === 'partial' || hasNoOutputSummary
-            ? '⏱ この回は実行担当が時間内に終わらず、成果物が残っていません（タイムアウトの可能性）。対象が大きすぎるか、実行時間の上限(FACTORY_EXECUTOR_TIMEOUT_MS)が不足している可能性があります。'
-            : '⚠ この回は実行担当がエラーで停止し、成果物が残っていません。下の『できなかったこと・課題』を確認してください。'}
-        </div>
-      )}
+          {showNoWorkBanner && (
+            <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-[11px] leading-relaxed text-amber-700 dark:border-amber-900/50 dark:bg-amber-900/15 dark:text-amber-400">
+              {r.runStatus === 'partial' || hasNoOutputSummary
+                ? 'この回は実行担当が時間内に終わらず、成果物が残っていません。対象が大きすぎるか、実行時間の上限が不足している可能性があります。'
+                : 'この回は実行担当がエラーで停止し、成果物が残っていません。下の「できなかったこと・課題」を確認してください。'}
+            </div>
+          )}
 
-      {/* 何の作業か（対象・選定理由） */}
-      {(target || pickReason) && (
-        <div className="mt-3 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
-          {target && <p>🎯 <span className="font-semibold text-gray-800 dark:text-gray-200">対象:</span> {target}</p>}
-          {pickReason && <p className="mt-0.5">🧭 <span className="font-semibold text-gray-800 dark:text-gray-200">選んだ理由:</span> {pickReason}</p>}
-          {(r.stopReason || r.doneCriteriaStatus || r.nextActionCount != null) && (
-            <p className="mt-0.5">
-              <span className="font-semibold text-gray-800 dark:text-gray-200">停止/進捗:</span>
-              {r.stopReason ? ` ${r.stopReason}` : ''}
-              {r.doneCriteriaStatus ? ` / doneCriteria=${r.doneCriteriaStatus}` : ''}
-              {r.nextActionCount != null ? ` / 未達${r.nextActionCount}件` : ''}
-            </p>
+          {(target || pickReason) && (
+            <div className="mt-3 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
+              {target && <p><span className="font-semibold text-gray-800 dark:text-gray-200">対象:</span> {target}</p>}
+              {pickReason && <p className="mt-0.5"><span className="font-semibold text-gray-800 dark:text-gray-200">選んだ理由:</span> {toJapaneseSentence(pickReason)}</p>}
+              {(r.stopReason || r.doneCriteriaStatus || r.nextActionCount != null) && (
+                <p className="mt-0.5">
+                  <span className="font-semibold text-gray-800 dark:text-gray-200">停止/進捗:</span>
+                  {r.stopReason ? ` ${r.stopReason}` : ''}
+                  {r.doneCriteriaStatus ? ` / doneCriteria=${r.doneCriteriaStatus}` : ''}
+                  {r.nextActionCount != null ? ` / 未達${r.nextActionCount}件` : ''}
+                </p>
+              )}
+            </div>
+          )}
+
+          <div className="mt-4">
+            <h4 className="text-xs font-bold text-emerald-700 dark:text-emerald-400">やったこと</h4>
+            <div className="mt-1.5 space-y-1 text-[11px] leading-relaxed text-gray-700 dark:text-gray-200">
+              {workSummary.map((line, i) => <p key={i}>{line}</p>)}
+              {!worked && <p className="text-gray-500 dark:text-gray-400">この回はコードを変更する作業はしていません。</p>}
+            </div>
+            {files.length > 0 && (
+              <details className="mt-2 rounded-lg border border-gray-100 px-3 py-2 dark:border-gray-800">
+                <summary className="cursor-pointer text-[11px] font-semibold text-gray-500 dark:text-gray-400">変更ファイル {files.length}件</summary>
+                <ul className="mt-2 space-y-1 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
+                  {files.slice(0, 16).map((f, i) => (
+                    <li key={i} className="min-w-0 break-words"><span className="font-mono text-[10px] text-gray-500 dark:text-gray-400">{f.file}</span>{f.change ? ` — ${toJapaneseSentence(f.change)}` : ''}</li>
+                  ))}
+                  {files.length > 16 && <li className="text-gray-400">ほか{files.length - 16}件あります。</li>}
+                </ul>
+              </details>
+            )}
+          </div>
+
+          <div className="mt-4">
+            <h4 className="text-xs font-bold text-amber-700 dark:text-amber-400">できなかったこと・課題</h4>
+            {done && (r.errors?.length ?? 0) === 0 && (r.warnings?.length ?? 0) === 0 ? (
+              <p className="mt-1 text-[11px] text-gray-400">特にありません。予定した作業は完了しています。</p>
+            ) : (
+              <ul className="mt-1.5 list-disc space-y-1 pl-4 text-[11px] leading-relaxed">
+                {!done && reason && <li className="text-gray-700 dark:text-gray-200">{toJapaneseSentence(reason)}</li>}
+                {(r.errors ?? []).slice(0, 6).map((e, i) => <li key={`e${i}`} className="text-red-600 dark:text-red-400">{toJapaneseSentence(e)}</li>)}
+                {(r.warnings ?? []).slice(0, 6).map((w, i) => <li key={`w${i}`} className="text-amber-600 dark:text-amber-400">{toJapaneseSentence(w)}</li>)}
+                {!done && (r.errors?.length ?? 0) === 0 && (r.warnings?.length ?? 0) === 0 && !reason && <li className="text-gray-400">未完了ですが、明確なエラー記録はありません。</li>}
+              </ul>
+            )}
+          </div>
+
+          {checks.length > 0 && (
+            <div className="mt-4">
+              <h4 className="text-xs font-bold text-gray-900 dark:text-gray-100">検証結果</h4>
+              <ul className="mt-1.5 list-disc space-y-1 pl-4 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
+                {checks.map(([k, v]) => (
+                  <li key={k}>{formatCheckText(k, String(v))}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {r.nextActions?.length > 0 && (
+            <div className="mt-4">
+              <h4 className="text-xs font-bold text-blue-700 dark:text-blue-400">次にやること</h4>
+              <ul className="mt-1.5 list-disc space-y-1 pl-4">
+                {r.nextActions.slice(0, 8).map((a, i) => <li key={i} className="text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">{toJapaneseSentence(a)}</li>)}
+              </ul>
+            </div>
+          )}
+
+          {rawParas.length > 0 && (
+            <details className="mt-4 group">
+              <summary className="cursor-pointer text-[11px] font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">詳細レポート全文を読む</summary>
+              <div className="mt-2 max-h-96 space-y-2 overflow-auto rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                {rawParas.map((para, i) => (
+                  <p key={i} className="min-w-0 break-words text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">{para}</p>
+                ))}
+              </div>
+            </details>
           )}
         </div>
-      )}
-
-      {/* やったこと（変更ファイル or 何をしたかの説明） */}
-      <div className="mt-4">
-        <h4 className="text-xs font-bold text-emerald-700 dark:text-emerald-400">✅ やったこと{files.length > 0 ? `（変更 ${files.length} ファイル）` : ''}</h4>
-        <ul className="mt-1.5 space-y-1 text-[11px] leading-relaxed text-gray-700 dark:text-gray-200">
-          {files.length > 0 ? (
-            <>
-              <li>・以下のファイルを変更しました（{files.length}件）。</li>
-              {files.slice(0, 12).map((f, i) => (
-                <li key={i} className="text-gray-600 dark:text-gray-300"><span className="font-mono text-[10px] text-gray-500 dark:text-gray-400">{f.file}</span>{f.change ? ` — ${f.change}` : ''}</li>
-              ))}
-              {files.length > 12 && <li className="text-gray-400">…ほか{files.length - 12}件</li>}
-            </>
-          ) : worked ? (
-            <li>・{r.summary?.trim() || outcome}（変更ファイルの記録はこの回には残っていません）</li>
-          ) : (
-            <li className="text-gray-500 dark:text-gray-400">・この回はコードを変更する作業はしていません（{outcome}）</li>
-          )}
-        </ul>
-      </div>
-
-      {/* できなかったこと・課題 */}
-      <div className="mt-4">
-        <h4 className="text-xs font-bold text-amber-700 dark:text-amber-400">⚠️ できなかったこと・課題</h4>
-        {done && (r.errors?.length ?? 0) === 0 && (r.warnings?.length ?? 0) === 0 ? (
-          <p className="mt-1 text-[11px] text-gray-400">特になし（完了）。</p>
-        ) : (
-          <ul className="mt-1.5 space-y-1 text-[11px] leading-relaxed">
-            {!done && reason && <li className="text-gray-700 dark:text-gray-200">理由: {reason}</li>}
-            {(r.errors ?? []).slice(0, 6).map((e, i) => <li key={`e${i}`} className="text-red-600 dark:text-red-400">✗ {e}</li>)}
-            {(r.warnings ?? []).slice(0, 6).map((w, i) => <li key={`w${i}`} className="text-amber-600 dark:text-amber-400">⚠ {w}</li>)}
-            {!done && (r.errors?.length ?? 0) === 0 && (r.warnings?.length ?? 0) === 0 && !reason && <li className="text-gray-400">未完了ですが、明確なエラー記録はありません。</li>}
-          </ul>
-        )}
-      </div>
-
-      {/* 検証結果 */}
-      {checks.length > 0 && (
-        <div className="mt-4">
-          <h4 className="text-xs font-bold text-gray-900 dark:text-gray-100">🔍 検証結果</h4>
-          <div className="mt-1.5 flex flex-wrap gap-1.5">
-            {checks.map(([k, v]) => (
-              <span key={k} className="rounded bg-gray-100 px-2 py-0.5 text-[10px] text-gray-700 dark:bg-gray-800 dark:text-gray-300">{CHECK_LABEL[k] ?? k}: {String(v).slice(0, 40)}</span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* 次にやること */}
-      {r.nextActions?.length > 0 && (
-        <div className="mt-4">
-          <h4 className="text-xs font-bold text-blue-700 dark:text-blue-400">→ 次にやること</h4>
-          <ul className="mt-1.5 space-y-0.5">
-            {r.nextActions.slice(0, 8).map((a, i) => <li key={i} className="text-[11px] text-gray-600 dark:text-gray-300">→ {a}</li>)}
-          </ul>
-        </div>
-      )}
-
-      {/* 詳細レポート（整形済み） */}
-      {rawParas.length > 0 && (
-        <details className="mt-4 group">
-          <summary className="cursor-pointer text-[11px] font-semibold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">詳細レポートを読む</summary>
-          <div className="mt-2 max-h-96 space-y-2 overflow-auto rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-            {rawParas.map((para, i) => (
-              <p key={i} className="text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">{para}</p>
-            ))}
-          </div>
-        </details>
-      )}
+      </details>
     </section>
   )
 }
@@ -511,6 +617,66 @@ function Meta({ label, value, href, mono = false }: { label: string; value: stri
       {href ? <Link href={href} className="block min-w-0 truncate font-semibold text-blue-600 hover:underline dark:text-blue-400">{content}</Link> : content}
     </div>
   )
+}
+
+function buildWorkSummary(run: ExecutionRun, rawParas: string[], outcome: string): string[] {
+  const summary = run.summary?.trim() ?? ''
+  const source = isWeakSummary(summary) ? rawParas[0] || outcome : humanizeTitle(summary)
+  const cleaned = source
+    .replace(/\s+/g, ' ')
+    .replace(/^[・\-\s]+/, '')
+    .replace(/（出力なし）|\(出力なし\)/g, '')
+    .trim()
+  const sentences = splitSentences(cleaned).slice(0, 3)
+  if (sentences.length > 0) return sentences.map((s) => makeWorkSentence(s, run))
+  if (didRealWork(run)) return [makeWorkSentence(outcome, run)]
+  return [outcome]
+}
+
+function isWeakSummary(summary: string): boolean {
+  const s = summary.trim()
+  if (!s) return true
+  if (/^[（(]?出力なし[）)]?$/.test(s)) return true
+  if (/^(ok|pass|done|完了)$/i.test(s)) return true
+  return s.length < 8
+}
+
+function splitSentences(text: string): string[] {
+  if (!text.trim()) return []
+  const normalized = text.replace(/\s+/g, ' ').trim()
+  const matches = normalized.match(/[^。！？.!?]+[。！？.!?]?/g) ?? [normalized]
+  return matches.map((s) => s.trim()).filter(Boolean)
+}
+
+function makeWorkSentence(text: string, run: ExecutionRun): string {
+  const s = toJapaneseSentence(text)
+  if (/しました。$|済みです。$|完了です。$|成功です。$|完了しました。$|確認しました。$|整理しました。$|修正しました。$|実装しました。$|追加しました。$/.test(s)) return s
+  if (!didRealWork(run)) return s
+  if (s.length > 80) return s
+  if (/実装|追加|新規|作成|導入/.test(s)) return s.replace(/。$/, 'を実装しました。')
+  if (/修正|改善|改修|調整/.test(s)) return s.replace(/。$/, 'を修正しました。')
+  if (/確認|検証|調査|診断/.test(s)) return s.replace(/。$/, 'を確認しました。')
+  return s
+}
+
+function toJapaneseSentence(text: string): string {
+  const s = humanizeTitle(String(text))
+    .replace(/\s+/g, ' ')
+    .replace(/^[・\-\s]+/, '')
+    .trim()
+  if (!s) return '記録がありません。'
+  if (/[。！？!?]$/.test(s)) return s
+  if (/済み$|完了$|成功$|失敗$|未実行$|確認$|実装$|修正$|追加$|更新$|整理$|調査$|検証$|対応$/.test(s)) return `${s}です。`
+  return `${s}。`
+}
+
+function formatCheckText(key: string, value: string): string {
+  const label = CHECK_LABEL[key] ?? key
+  const normalized = value.trim()
+  const lower = normalized.toLowerCase()
+  if (['pass', 'passed', 'ok', 'success', 'true'].includes(lower)) return `${label} は問題ありません。`
+  if (['fail', 'failed', 'ng', 'false'].includes(lower)) return `${label} で失敗しました。`
+  return `${label}: ${toJapaneseSentence(normalized)}`
 }
 
 // rawReport を表示用に整形: 機械メタ情報（progressレビュー用ブロック・monetizationImpact 等の key:value 末尾）を除去し、段落配列にする。

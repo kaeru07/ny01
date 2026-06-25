@@ -29,6 +29,7 @@ export default async function AutoExecutionReportPage({
         app={one(searchParams, 'app')}
         review={one(searchParams, 'review')}
         limit={one(searchParams, 'limit')}
+        group={one(searchParams, 'group')}
       />
     </div>
   )
