@@ -51,6 +51,17 @@ const navItems = [
     ),
   },
   {
+    href: '/goal-dashboard',
+    label: 'todo消化',
+    exact: false,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5a2 2 0 012-2h2a2 2 0 012 2M8 12l2 2 4-4" />
+      </svg>
+    ),
+  },
+  {
     href: '/queue',
     label: '自動実行',
     exact: false,
@@ -73,7 +84,7 @@ const navItems = [
   },
 ]
 
-// 下タブは主要6タブのみ（合計6）。それ以外の全画面は右上の ☰ メニュー（HamburgerMenu）から辿る。
+// 下タブは主要7タブ（合計7）。それ以外の全画面は右上の ☰ メニュー（HamburgerMenu）から辿る。
 // 以前の moreItems（横スクロールの全画面列挙）は ☰ に集約したため廃止（2026-06-19 ユーザー指示）。
 
 interface Props {
@@ -91,7 +102,7 @@ export default function BottomNav({ logBadge = 0 }: Props) {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur border-t border-gray-200 dark:border-gray-700 safe-area-pb md:hidden">
-      {/* 主要6タブのみを均等配置。その他の画面は右上 ☰ メニューから。 */}
+      {/* 主要7タブを均等配置。その他の画面は右上 ☰ メニューから。 */}
       <div className="flex items-stretch">
         {navItems.map((item) => (
           <Link
