@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { InboxCard, InboxCardAction } from '@/lib/command-center'
@@ -200,22 +201,28 @@ export default function InboxCardItem({ card, highlight = false, focusNotice = f
               </div>
             )}
             {card.actions.map((action) => (
-              <button
-                key={action.label}
-                disabled={busy}
-                className={toneClass[action.tone]}
-                onClick={() => {
-                  if (isFixAction(action)) {
-                    setError('')
-                    setFixAction(action)
-                    setFixPrompt(card.fixPrompt ?? '')
-                    return
-                  }
-                  run(action.api)
-                }}
-              >
-                {action.label}
-              </button>
+              action.href ? (
+                <Link key={action.label} href={action.href} className={toneClass[action.tone]}>
+                  {action.label}
+                </Link>
+              ) : (
+                <button
+                  key={action.label}
+                  disabled={busy}
+                  className={toneClass[action.tone]}
+                  onClick={() => {
+                    if (isFixAction(action)) {
+                      setError('')
+                      setFixAction(action)
+                      setFixPrompt(card.fixPrompt ?? '')
+                      return
+                    }
+                    run(action.api)
+                  }}
+                >
+                  {action.label}
+                </button>
+              )
             ))}
           </>
         )}

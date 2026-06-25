@@ -2,6 +2,7 @@ import { readProjectTasks } from '@/lib/progress-reader'
 import { getAutomationConfig } from '@/lib/operations-store'
 import { computeFactoryMetrics, type FactoryMetrics } from '@/lib/factory-metrics'
 import { calcGoalProgress, goalAchievement } from '@/lib/goal-reader'
+import { getAutoQueueView } from '@/lib/auto-queue'
 import type { InboxCardKind } from '@/lib/inbox-labels'
 import { humanizeTitle, subjectOf, shorten } from '@/lib/humanize'
 import { formatRevenueJpy } from '@/lib/revenue-config'
@@ -42,7 +43,7 @@ export const TERMS: Record<string, { ja: string; help: string }> = {
   closedLoopRate: { ja: '自動化率', help: 'AIが人間の介入なしで作業を完了し、学習結果まで残せた割合' },
   notReviewed: { ja: '未確認の作業履歴', help: 'AIの作業結果のうち、まだ内容確認が済んでいないもの。たまっても工場は止まりません（参考情報）' },
   needsHuman: { ja: 'あなたの判断待ち', help: 'AIだけでは決められず、人間の判断を待っている項目' },
-  inbox: { ja: '今日の判断', help: '工場が止まる原因（危険判断・方針選択・人間作業）だけが入る判断箱。最大3件・約3分。処理すると工場が動き出します' },
+  inbox: { ja: '今日の判断', help: '工場が止まる原因（危険判断・方針選択・人間作業）だけが入る判断箱。最大5件・約5分。処理すると工場が動き出します' },
   aiHold: { ja: 'AI保留', help: '人間が判断する必要のないもの（AIレビュー・候補整理・定期実行・重複・内容不足）をAIが預かっている状態。件数だけ表示します' },
   acceptance: { ja: '検収', help: 'AIの作業が終わったので、結果だけ見て「問題なし/修正する」を選ぶ判断' },
   permission: { ja: '実行許可', help: 'AIがやりたい作業を「進める/やめる」で許可する判断' },
@@ -107,7 +108,7 @@ export interface FactoryStopAlert {
 
 export interface CommandCenterView {
   todayActions: TodayAction[]
-  /** 今日の判断（工場停止要因のみ・最大3件）の見出しリスト。ホームの「今日やること」カードに出す */
+  /** 今日の判断（工場停止要因のみ・最大5件）の見出しリスト。ホームの「今日やること」カードに出す */
   todayDecisions: Array<{ kind: InboxCardKind; headline: string }>
   decisionCount: number
   /** 参考情報（放置しても工場は止まらない）: レビュー / Epic候補 / AI保留 の件数 */
@@ -372,6 +373,8 @@ export type { InboxCardKind } from '@/lib/inbox-labels'
 export interface InboxCardAction {
   label: string
   tone: 'primary' | 'ghost' | 'danger'
+  /** 画面遷移だけのアクション。api より優先してリンク表示する。 */
+  href?: string
   /** null のときは「あとで」= 今日は見ない（画面から閉じるだけ。状態は変えない） */
   api: { url: string; method: 'POST' | 'PATCH'; body: Record<string, unknown> } | null
 }
@@ -463,7 +466,7 @@ export interface InboxProjectSummary {
 
 /**
  * Inbox の画面ビュー（4セクション構成・2026-06-11 運用方針変更）。
- * ① 今日の判断 = 工場停止要因のみ（危険判断 / 方針選択 / 人間作業）。最大3件
+ * ① 今日の判断 = 工場停止要因のみ（危険判断 / 方針選択 / 人間作業）。最大5件
  * ② レビュー = 検収。放置しても工場は止まらない
  * ③ Epic候補 = 実行許可（改善案・次Epic・収益化候補）。放置可能
  * ④ AI保留 = 件数のみ表示（カードは出さない）
@@ -572,8 +575,10 @@ function describeSituation(title: string): Situation {
     }
 }
 
-/** 今日見せる上限。社長アプリとして「3件・約3分」を超えない。 */
-const TODAY_LIMIT = 3
+/** 今日見せる上限。社長アプリとして「5件・約5分」を超えない。 */
+const TODAY_LIMIT = 5
+const REVIEW_NUDGE_THRESHOLD = 5
+const STUCK_GOAL_LIMIT = 2
 
 /** 同じテーマの大量候補をAI保留に回すためのテーマキー。 */
 function themeKeyOf(rawTitle: string): string | null {
@@ -584,12 +589,13 @@ function themeKeyOf(rawTitle: string): string | null {
 }
 
 export async function buildInbox(): Promise<InboxView> {
-  const [approvals, epics, recommendations, runs, goalsData] = await Promise.all([
+  const [approvals, epics, recommendations, runs, goalsData, autoQueue] = await Promise.all([
     readPagePendingApprovals(),
     readPageEpics(),
     readPageRecommendations(),
     readPageExecutionRuns(),
     readPageGoals(),
+    getAutoQueueView(),
   ])
   const goals = goalsData.goals.map((g) => ({ id: g.id, title: g.title }))
   const goalTitleById = new Map(goalsData.goals.map((g) => [g.id, g.title]))
@@ -665,6 +671,35 @@ export async function buildInbox(): Promise<InboxView> {
   }
   for (const rec of recommendations.filter((r) => r.status === 'expired')) {
     hold('期限切れ', goalForRecommendation(rec).goalId, projectForRecommendation(rec).projectId)
+  }
+
+  for (const goal of goalsData.goals.filter((g) => g.status === 'active')) {
+    for (const todo of goal.todos) {
+      if (todo.role !== 'human') continue
+      if (todo.status === 'done' || todo.status === 'skipped') continue
+      cards.push({
+        id: `human-todo-${goal.id}-${todo.id}`,
+        kind: 'human_task',
+        goalId: goal.id,
+        goalTitle: goal.title,
+        ...projectMeta(goal.projectId),
+        headline: `あなたの作業: ${todo.title}`,
+        rows: [
+          { label: 'ゴール', text: goal.title },
+        ],
+        question: 'これはAIではできない、あなたが手を動かす作業です。終わったら印を付けてください。',
+        detail: [
+          `goalId: ${goal.id}`,
+          `todoId: ${todo.id}`,
+          `状態: ${todo.status}`,
+          ...(todo.nextAction ? [`次の一手: ${todo.nextAction}`] : []),
+        ],
+        actions: [
+          { label: '完了', tone: 'primary', api: { url: '/api/goals', method: 'POST', body: { action: 'updateTodo', goalId: goal.id, todoId: todo.id, updates: { status: 'done' } } } },
+          { label: 'あとで', tone: 'ghost', api: null },
+        ],
+      })
+    }
   }
 
   // ① 承認待ち → 危険判断 / 検収 / 方針選択
@@ -906,8 +941,49 @@ export async function buildInbox(): Promise<InboxView> {
     }
   }
 
+  const activeGoalIds = new Set(goalsData.goals.filter((goal) => goal.status === 'active').map((goal) => goal.id))
+  const goalsById = new Map(goalsData.goals.map((goal) => [goal.id, goal]))
+  const directionGoalIds = new Set(
+    cards
+      .filter((card) => (card.kind === 'danger' || card.kind === 'direction') && card.goalId)
+      .map((card) => card.goalId as string),
+  )
+  const stuckGoalRows = autoQueue.goalProgress
+    .filter((row) => {
+      const goal = goalsById.get(row.goalId)
+      if (!goal || !activeGoalIds.has(row.goalId) || directionGoalIds.has(row.goalId)) return false
+      const hasOpenTodo = goal.todos.some((todo) => todo.status !== 'done' && todo.status !== 'skipped')
+      return hasOpenTodo && row.executable === 0
+    })
+    .slice(0, STUCK_GOAL_LIMIT)
+  for (const row of stuckGoalRows) {
+    const goal = goalsById.get(row.goalId)
+    if (!goal) continue
+    cards.push({
+      id: `stuck-goal-${goal.id}`,
+      kind: 'direction',
+      goalId: goal.id,
+      goalTitle: goal.title,
+      ...projectMeta(goal.projectId),
+      headline: `「${goal.title}」が止まっています`,
+      rows: [
+        { label: '状況', text: '未完了の作業があるのに自動実行候補に入っていません。原因解消が必要です。' },
+      ],
+      question: '原因を確認しますか？',
+      detail: [
+        `goalId: ${goal.id}`,
+        `実行可能候補: ${row.executable}`,
+        `待機: user=${row.waitingUser} aiHold=${row.aiHold} review=${row.reviewWaiting} blocked=${row.blocked} manual=${row.manual}`,
+      ],
+      actions: [
+        { label: '詳細を見る', tone: 'primary', href: `/goal-dashboard?goalId=${encodeURIComponent(goal.id)}`, api: null },
+        { label: 'あとで', tone: 'ghost', api: null },
+      ],
+    })
+  }
+
   // 4セクションへ振り分け（2026-06-11 運用方針変更）:
-  // ① 今日の判断 = 工場停止要因のみ（危険判断 → 方針選択 → 人間作業 の優先順・最大3件）
+  // ① 今日の判断 = 工場停止要因のみ（危険判断 → 方針選択 → 人間作業 の優先順・最大5件）
   // ② レビュー = 検収（放置しても工場は止まらない） ③ Epic候補 = 実行許可（放置可能） ④ AI保留 = 件数のみ
   const stopOrder: Record<string, number> = { danger: 0, direction: 1, human_task: 2 }
   // 自動実行中にAIが提案したゴール候補（承認すると次回以降の自動実行対象になる）。capしない。
@@ -1004,6 +1080,23 @@ export async function buildInbox(): Promise<InboxView> {
     followup: reviews.filter((c) => c.reviewStatus === 'needs_followup').length,
     snoozed: reviews.filter((c) => c.reviewStatus === 'snoozed').length,
   }
+  const reviewNudgeCard: InboxCard | null = reviewCounts.unconfirmed >= REVIEW_NUDGE_THRESHOLD
+    ? {
+        id: 'review-unconfirmed-nudge',
+        kind: 'human_task',
+        ...unassignedGoal,
+        ...unassignedProject,
+        headline: `レビューが${reviewCounts.unconfirmed}件たまっています`,
+        rows: [
+          { label: '状況', text: 'AIの作業結果の確認待ちです。工場は止まりませんが、まとめて確認すると安心です。' },
+        ],
+        detail: [`未確認レビュー: ${reviewCounts.unconfirmed}件`, `閾値: ${REVIEW_NUDGE_THRESHOLD}件`],
+        actions: [
+          { label: 'まとめて確認', tone: 'primary', href: '/decide?tab=reviews', api: null },
+          { label: 'あとで', tone: 'ghost', api: null },
+        ],
+      }
+    : null
   const candidates = cards.filter((c) => c.kind === 'permission')
   // 今日の判断は上限 TODAY_LIMIT 件。単純な danger 優先 slice だと、危険レビューが多いとき
   // 方針選択(direction)・人間作業(human_task)が枠を取れず埋もれる。カテゴリ間でラウンドロビンし、
@@ -1021,8 +1114,13 @@ export async function buildInbox(): Promise<InboxView> {
       if (next) picked.push(next)
       qi += 1
     }
+    if (reviewNudgeCard && !picked.some((card) => card.id === reviewNudgeCard.id)) {
+      picked.splice(Math.min(1, picked.length), 0, reviewNudgeCard)
+      if (picked.length > TODAY_LIMIT) picked.pop()
+    }
     return picked
   })()
+  const decisionTotal = stopFactors.length + (reviewNudgeCard ? 1 : 0)
   const goalIds = new Set<string>([
     ...cards.map((card) => card.goalId ?? 'unassigned'),
     ...reviewedHistory.map((card) => card.goalId ?? 'unassigned'),
@@ -1072,7 +1170,7 @@ export async function buildInbox(): Promise<InboxView> {
 
   return {
     decisions,
-    decisionTotal: stopFactors.length,
+    decisionTotal,
     reviews,
     reviewTotal: reviews.length,
     reviewCounts,
