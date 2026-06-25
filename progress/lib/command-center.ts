@@ -404,6 +404,8 @@ export interface InboxCard {
   reviewStatus?: ReviewStatus
   /** 人間が「修正する」で入力した修正指示。次回作業候補へ渡す。 */
   fixPrompt?: string
+  /** AIが needs_human と判断して人間判断へ上げた一次レビュー承認。今日の判断に出す。 */
+  escalated?: boolean
   /** 何が起きているか（状況文）。内部語禁止 */
   headline: string
   /** 本文の説明行。内部語禁止 */
@@ -725,6 +727,7 @@ export async function buildInbox(): Promise<InboxView> {
       cards.push({
         id: `approval-${a.approvalId}`,
         kind: 'acceptance',
+        escalated: true,
         ...goalForApproval(a),
         ...projectForApproval(a),
         sourceRunId: a.createdRunId,
@@ -1071,9 +1074,12 @@ export async function buildInbox(): Promise<InboxView> {
   const stopFactors = cards
     .filter((c) => c.kind === 'danger' || c.kind === 'direction' || c.kind === 'human_task')
     .sort((a, b) => (stopOrder[a.kind] ?? 9) - (stopOrder[b.kind] ?? 9))
+  const escalatedReviews = cards
+    .filter((c) => c.kind === 'acceptance' && c.escalated)
+    .sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? ''))
   // レビューは完了日時（completedAt）の新しい順。完了日時が無いものは末尾。
   const reviews = cards
-    .filter((c) => c.kind === 'acceptance')
+    .filter((c) => c.kind === 'acceptance' && !c.escalated)
     .sort((a, b) => (b.completedAt ?? '').localeCompare(a.completedAt ?? ''))
   const reviewCounts = {
     unconfirmed: reviews.filter((c) => c.reviewStatus === 'not_reviewed' || c.reviewStatus === 'copied' || c.reviewStatus === 'needs_human').length,
@@ -1099,13 +1105,18 @@ export async function buildInbox(): Promise<InboxView> {
     : null
   const candidates = cards.filter((c) => c.kind === 'permission')
   // 今日の判断は上限 TODAY_LIMIT 件。単純な danger 優先 slice だと、危険レビューが多いとき
-  // 方針選択(direction)・人間作業(human_task)が枠を取れず埋もれる。カテゴリ間でラウンドロビンし、
-  // 各種別が最低1枠は出るようにする（danger→direction→human_task の順は維持）。
+  // 方針選択(direction)・AIエスカレ・人間作業(human_task)が枠を取れず埋もれる。カテゴリ間でラウンドロビンし、
+  // 各種別が最低1枠は出るようにする（danger→direction→escalatedReview→human_task の順は維持）。
   const decisions = (() => {
+    const humanTaskFactors = [
+      ...stopFactors.filter((c) => c.kind === 'human_task'),
+      ...(reviewNudgeCard ? [reviewNudgeCard] : []),
+    ]
     const queues = [
       stopFactors.filter((c) => c.kind === 'danger'),
       stopFactors.filter((c) => c.kind === 'direction'),
-      stopFactors.filter((c) => c.kind === 'human_task'),
+      escalatedReviews,
+      humanTaskFactors,
     ]
     const picked: InboxCard[] = []
     let qi = 0
@@ -1114,13 +1125,14 @@ export async function buildInbox(): Promise<InboxView> {
       if (next) picked.push(next)
       qi += 1
     }
-    if (reviewNudgeCard && !picked.some((card) => card.id === reviewNudgeCard.id)) {
-      picked.splice(Math.min(1, picked.length), 0, reviewNudgeCard)
-      if (picked.length > TODAY_LIMIT) picked.pop()
-    }
     return picked
   })()
-  const decisionTotal = stopFactors.length + (reviewNudgeCard ? 1 : 0)
+  const decisionFactors = [
+    ...stopFactors,
+    ...escalatedReviews,
+    ...(reviewNudgeCard ? [reviewNudgeCard] : []),
+  ]
+  const decisionTotal = decisionFactors.length
   const goalIds = new Set<string>([
     ...cards.map((card) => card.goalId ?? 'unassigned'),
     ...reviewedHistory.map((card) => card.goalId ?? 'unassigned'),
@@ -1134,7 +1146,7 @@ export async function buildInbox(): Promise<InboxView> {
       return {
         goalId,
         goalTitle: meta.goalTitle,
-        today: countByGoal(stopFactors, goalId),
+        today: countByGoal(decisionFactors, goalId),
         reviews: goalReviews.length + countByGoal(reviewedHistory, goalId),
         followup: goalReviews.filter((card) => card.reviewStatus === 'needs_followup').length,
         snoozed: goalReviews.filter((card) => card.reviewStatus === 'snoozed').length,
@@ -1159,7 +1171,7 @@ export async function buildInbox(): Promise<InboxView> {
       return {
         projectId,
         projectTitle: projectId === 'unassigned' ? '未分類' : projectId,
-        today: countByProject(stopFactors, projectId),
+        today: countByProject(decisionFactors, projectId),
         reviews: projectReviews.length + countByProject(reviewedHistory, projectId),
         candidates: countByProject(candidates, projectId),
         aiHold: heldByProject[projectId] ?? 0,

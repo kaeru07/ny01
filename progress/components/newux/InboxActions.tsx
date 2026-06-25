@@ -132,6 +132,11 @@ export default function InboxCardItem({ card, highlight = false, focusNotice = f
             {REVIEW_BADGE[card.reviewStatus].label}
           </span>
         )}
+        {card.escalated && (
+          <span className="inline-block rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-semibold text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">
+            要判断(AIエスカレ)
+          </span>
+        )}
         {card.completedAtText && (
           <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">完了: {card.completedAtText}</span>
         )}
