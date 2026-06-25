@@ -213,19 +213,10 @@ export default async function CommandCenterPage() {
         </div>
 
         {autoQueue.goalProgress.length > 0 && (
-          <div className="mt-4 space-y-2">
-            <p className="text-xs font-bold text-gray-400">Goal別進捗</p>
-            {autoQueue.goalProgress.slice(0, 3).map((goal) => (
-              <div key={goal.goalId} className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/60">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="min-w-0 text-sm font-bold text-gray-900 dark:text-gray-100">{goal.title}</p>
-                  <p className="shrink-0 text-xs font-bold text-gray-500 dark:text-gray-400">{goal.done}/{goal.total}</p>
-                </div>
-                <div className="mt-2 h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-                  <div className="h-full rounded-full bg-green-600" style={{ width: `${goal.ratio}%` }} />
-                </div>
-              </div>
-            ))}
+          <div className="mt-4">
+            <Link href="/goal-dashboard" className="text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">
+              ゴール別の進捗・配下todoの消化状況を見る →
+            </Link>
           </div>
         )}
       </section>
