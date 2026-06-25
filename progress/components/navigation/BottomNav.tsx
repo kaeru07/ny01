@@ -72,6 +72,17 @@ const navItems = [
     ),
   },
   {
+    href: '/report',
+    label: 'レポート',
+    exact: false,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 3v6h6M8 13h8M8 17h5" />
+      </svg>
+    ),
+  },
+  {
     href: '/guide',
     label: '運用',
     exact: false,

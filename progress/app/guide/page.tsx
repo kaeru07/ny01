@@ -96,6 +96,14 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
           guide="AI工場が自動で何をしたか・次に何をするかの報告です。承認待ちのゴール候補や直近の自動実行をここで確認できます。"
         />
         <GuideTabBar active="report" />
+        <section className={`${card} border-blue-200 dark:border-blue-900/50`}>
+          <p className="text-xs leading-relaxed text-gray-600 dark:text-gray-300">
+            自動実行レポートは独立ページへ昇格しました。このタブでも引き続き確認できますが、検索・実行者・対象アプリ・レビュー状態まで使う場合は専用ページが便利です。
+          </p>
+          <Link href="/report" className="mt-3 inline-flex rounded-lg bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-700">
+            専用レポートページを開く
+          </Link>
+        </section>
         <AutoExecReport
           range={typeof searchParams?.range === 'string' ? searchParams.range : ''}
           status={typeof searchParams?.status === 'string' ? searchParams.status : ''}
