@@ -1,4 +1,5 @@
-import { classifyCodexEligibility, getAutomationConfig } from '@/lib/operations-store'
+import { getAutomationConfig } from '@/lib/operations-store'
+import { routesToApprovalQueue } from '@/lib/executor-roles'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { addExecutionRun, updateReviewStatus } from '@/lib/execution-run-writer'
 import { getAdapter } from '@/lib/executors'
@@ -34,8 +35,6 @@ export interface ReviewFixDispatchReport {
   stoppedReason: string
 }
 
-const HARD_DENY_PATTERN = /課金|billing|deploy|デプロイ|本番|production|secret|\.env|認証|migration|マイグレーション|削除|destructive|force/i
-
 function generateRunId(): string {
   const now = new Date()
   const pad = (n: number) => String(n).padStart(2, '0')
@@ -69,14 +68,10 @@ function pickTargets(runs: ExecutionRun[], maxItems: number): ExecutionRun[] {
 }
 
 function safetyBlockReason(run: ExecutionRun): string | null {
+  // 危険操作の自動実行ブロック判定は executor-roles.ts の正本ヘルパーに集約。
+  // （旧 HARD_DENY_PATTERN + classifyCodexEligibility の二重判定と同一挙動）
   const text = `${run.targetTodoTitle} ${run.fixPrompt ?? ''}`
-  const hard = text.match(HARD_DENY_PATTERN)?.[0]
-  if (hard) return `危険シグナル「${hard}」を含むため自動実行不可`
-  const verdict = classifyCodexEligibility(text)
-  if (!verdict.eligible && verdict.reason.includes('危険シグナル')) {
-    return `${verdict.reason}。自動実行不可`
-  }
-  return null
+  return routesToApprovalQueue(text).reason
 }
 
 function buildDispatchPrompt(run: ExecutionRun): string {
