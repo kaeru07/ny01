@@ -1,6 +1,8 @@
 export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
+import FaqAccordion from '@/components/guide/FaqAccordion'
+import { FlowDiagram, LegendGrid, LoopDiagram, Roadmap, Slide, StatTiles } from '@/components/guide/SlideKit'
 import PageGuide from '@/components/newux/PageGuide'
 import AutoExecReport from '@/components/operations/AutoExecReport'
 import ResearchSpecification from '@/components/operations/ResearchSpecification'
@@ -15,23 +17,7 @@ import { getOperatingModelFreshness, readOperatingModelMeta } from '@/lib/operat
 // 理解できることだけを目的にする。内部構造・専門用語は見せない。
 
 const card = 'rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900'
-const h2 = 'text-sm font-bold text-gray-900 dark:text-gray-100'
 const body = 'text-xs leading-relaxed text-gray-600 dark:text-gray-300'
-
-function FlowSteps({ steps }: { steps: string[] }) {
-  return (
-    <div className="mt-3 flex flex-col items-stretch gap-1">
-      {steps.map((s, i) => (
-        <div key={i} className="flex flex-col items-center gap-1">
-          {i > 0 && <span className="text-gray-300 dark:text-gray-600">↓</span>}
-          <span className="w-full rounded-lg bg-gray-50 px-3 py-2 text-center text-xs font-medium text-gray-700 dark:bg-gray-800/60 dark:text-gray-200">
-            {s}
-          </span>
-        </div>
-      ))}
-    </div>
-  )
-}
 
 const FAQ: Array<{ q: string; a: string }> = [
   { q: '毎日何をすればいい？', a: 'Inbox（今日の判断）だけ見れば大丈夫です。カードごとに「はい・いいえ・あとで」を選ぶだけで、3〜5分で終わります。空なら何もしなくてOKです。' },
@@ -231,244 +217,177 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
 
       <GuideTabBar active="guide" />
 
-      {/* 1. このアプリとは */}
-      <section className={`${card} border-2 border-blue-200 dark:border-blue-900/50`}>
-        <h2 className={h2}>1. このアプリとは</h2>
-        <p className={`mt-2 ${body}`}>
+      <Slide n={1} title="このアプリとは" accent="blue" lead="あなたは毎日5〜15分だけ判断">
+        <p className={body}>
           AI工場を動かすための<strong>司令塔</strong>です。あなたは毎日<strong>5〜15分だけ判断</strong>します。
           残りはAIが進めます。
         </p>
-        <FlowSteps steps={['AIが調査する', 'AIが実装する', 'AIがレビュー候補を作る', 'あなたが判断する（ここだけ）', '必要ならレビュー用コピーで外部レビュー']} />
-      </section>
+        <div className="mt-4">
+          <FlowDiagram
+            steps={[
+              { label: 'AIが調査する', icon: '🔎' },
+              { label: 'AIが実装する', icon: '🛠️' },
+              { label: 'AIがレビュー候補を作る', icon: '📝' },
+              { label: 'あなたが判断する（ここだけ）', icon: '🧑‍⚖️', highlight: true },
+              { label: '必要ならレビュー用コピーで外部レビュー', icon: '📋' },
+            ]}
+          />
+        </div>
+      </Slide>
 
-      {/* 2. 今日の流れ */}
-      <section className={card}>
-        <h2 className={h2}>2. 今日の流れ</h2>
-        <p className={`mt-1 ${body}`}>朝と夜、それぞれ数分で終わります。</p>
-        <div className="mt-3 grid grid-cols-2 gap-3">
-          <div className="rounded-lg bg-amber-50 p-3 dark:bg-amber-900/15">
-            <p className="text-xs font-bold text-amber-700 dark:text-amber-300">🌅 朝</p>
-            <FlowSteps steps={['司令塔を開く', 'Inboxを開く', '判断する', '必要ならレビュー用コピー', '終了']} />
+      <Slide n={2} title="今日の流れ" accent="amber" lead="朝と夜、それぞれ数分で終わります。">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-xl border border-amber-200 bg-white p-3 dark:border-amber-900/60 dark:bg-gray-900">
+            <p className="mb-3 text-sm font-black text-amber-700 dark:text-amber-300">🌅 朝</p>
+            <FlowDiagram steps={['司令塔を開く', 'Inboxを開く', '判断する', '必要ならレビュー用コピー', '終了'].map((label) => ({ label }))} />
           </div>
-          <div className="rounded-lg bg-indigo-50 p-3 dark:bg-indigo-900/15">
-            <p className="text-xs font-bold text-indigo-700 dark:text-indigo-300">🌙 夜</p>
-            <FlowSteps steps={['司令塔を開く', 'Inboxを開く', 'おすすめ次作業を確認', '必要ならレビュー用コピー', '終了']} />
+          <div className="rounded-xl border border-indigo-200 bg-white p-3 dark:border-indigo-900/60 dark:bg-gray-900">
+            <p className="mb-3 text-sm font-black text-indigo-700 dark:text-indigo-300">🌙 夜</p>
+            <FlowDiagram steps={['司令塔を開く', 'Inboxを開く', 'おすすめ次作業を確認', '必要ならレビュー用コピー', '終了'].map((label) => ({ label }))} />
           </div>
         </div>
-      </section>
+      </Slide>
 
-      {/* 3. AI工場の流れ */}
-      <section className={card}>
-        <h2 className={h2}>3. AI工場の流れ</h2>
-        <p className={`mt-1 ${body}`}>すべての作業はこの順番でぐるぐる回ります。</p>
-        <div className="mt-3 flex flex-col items-stretch gap-1">
-          {factoryStages.map((stage, i) => {
+      <Slide n={3} title="AI工場の流れ" accent="gray" lead="すべての作業はこの順番でぐるぐる回ります。">
+        <LoopDiagram
+          steps={factoryStages.map((stage) => {
             const hit = bottleneck?.stage === stage
-            return (
-              <div key={stage} className="flex flex-col items-center gap-1">
-                {i > 0 && <span className="text-gray-300 dark:text-gray-600">↓</span>}
-                <span
-                  className={`w-full rounded-lg px-3 py-2 text-center text-xs font-medium ${
-                    hit
-                      ? 'bg-rose-50 text-rose-700 ring-2 ring-rose-300 dark:bg-rose-900/20 dark:text-rose-300 dark:ring-rose-800'
-                      : 'bg-gray-50 text-gray-700 dark:bg-gray-800/60 dark:text-gray-200'
-                  }`}
-                >
-                  {stage}
-                  {hit && (
-                    <span className="mt-1 block text-[11px] font-bold">
-                      現在 {bottleneck!.text} ⚠ ここがボトルネックです
-                    </span>
-                  )}
-                </span>
-              </div>
-            )
+            return {
+              label: stage,
+              icon: stage === '目標' ? '🎯' : stage === 'レビュー' ? '📝' : stage === '学習' ? '🧠' : '⚙️',
+              highlight: hit,
+              sub: hit ? `現在 ${bottleneck!.text} ⚠ ここがボトルネックです` : undefined,
+            }
           })}
-        </div>
+        />
         {!bottleneck && (
-          <p className="mt-2 text-[11px] font-semibold text-green-600 dark:text-green-400">✅ 現在、詰まりはありません</p>
+          <p className="mt-3 rounded-xl bg-green-50 px-4 py-3 text-sm font-black text-green-700 dark:bg-green-950/20 dark:text-green-300">
+            ✅ 現在、詰まりはありません
+          </p>
         )}
-        <p className="mt-2 text-[11px] leading-relaxed text-gray-400">
+        <p className="mt-3 text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
           レビューで「修正する」を選ぶと、修正依頼は次の作業候補へ戻ります。AI工場の「今」は実行中の作業があれば表示し、30分以上残った古い実行中表示は待機中として扱います。
         </p>
-        <p className="mt-1 text-[11px] leading-relaxed text-gray-400">
+        <p className="mt-1 text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
           画面表示では同じ読み取り結果を画面内だけで使い回します。更新APIは別経路なので、判断ボタンを押した直後の読み戻しは従来どおり最新データを読みます。
         </p>
-      </section>
+      </Slide>
 
-      {/* 4. 今日やること */}
-      <section className={`${card} border-2 border-blue-200 dark:border-blue-900/50`}>
-        <h2 className={h2}>4. 今日やること（いま現在）</h2>
+      <Slide n={4} title="今日やること（いま現在）" accent="blue">
         {todayLines.length === 0 ? (
-          <p className={`mt-2 ${body}`}>🎉 いまあなたの判断待ちはありません。AI工場が自動で進めています。</p>
+          <p className="rounded-xl bg-white px-4 py-5 text-center text-base font-black text-green-700 dark:bg-gray-900 dark:text-green-300">
+            🎉 判断待ちなし
+          </p>
         ) : (
           <>
-            <p className={`mt-1 ${body}`}>あなたの作業:</p>
-            <ul className="mt-2 space-y-1">
+            <p className={body}>あなたの作業:</p>
+            <div className="mt-3 space-y-2">
               {todayLines.map((l) => (
-                <li key={l.label} className="text-xs font-medium text-gray-800 dark:text-gray-100">
-                  ・{l.label} {l.count}件
-                </li>
+                <div key={l.label} className="flex min-h-14 items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-900">
+                  <p className="text-sm font-black leading-snug text-gray-900 dark:text-gray-100">⚠️ {l.label}</p>
+                  <span className="rounded-full bg-blue-600 px-3 py-1 text-sm font-black text-white">{l.count}件</span>
+                </div>
               ))}
-            </ul>
-            <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-              予想時間: <span className="text-base font-bold text-gray-900 dark:text-gray-100">約{estimatedMinutes}分</span>
-              （Inboxで処理できます）
-            </p>
+            </div>
+            <div className="mt-3 rounded-xl border border-blue-200 bg-white p-4 text-center dark:border-blue-900/60 dark:bg-gray-900">
+              <p className="text-xs font-bold text-gray-500 dark:text-gray-400">予想時間（Inboxで処理できます）</p>
+              <p className="mt-1 text-4xl font-black text-blue-700 dark:text-blue-300">約{estimatedMinutes}分</p>
+            </div>
           </>
         )}
         <p className="mt-3 text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
           司令塔の「レビュー用コピー」は、Progress内の現在状態を読み取り専用でMarkdown化します。外部レビューの結果をProgressへ戻す経路はまだないため、採用する指摘は人間がInboxへ手動で起票します。
         </p>
-      </section>
+      </Slide>
 
-      {/* 5. 用語辞典 */}
-      <section className={card}>
-        <h2 className={h2}>5. 用語辞典</h2>
-        <p className={`mt-1 ${body}`}>画面に出てくる言葉はすべて人間語に直しています。内部の英語が出てきたらこの表で読み替えてください。</p>
-        <dl className="mt-3 space-y-2">
+      <Slide n={5} title="用語辞典" accent="gray" lead="画面に出てくる言葉はすべて人間語に直しています。内部の英語が出てきたらこの表で読み替えてください。">
+        <div className="grid gap-3">
           {Object.entries(TERMS).map(([key, t]) => (
-            <div key={key} className="rounded-lg bg-gray-50 p-2.5 dark:bg-gray-800/50">
-              <dt className="text-xs font-bold text-gray-900 dark:text-gray-100">
+            <div key={key} className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900">
+              <p className="text-sm font-black text-gray-900 dark:text-gray-100">
                 {t.ja}
-                <span className="ml-2 font-normal text-gray-400">（{key}）</span>
-              </dt>
-              <dd className="mt-0.5 text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">{t.help}</dd>
+                <span className="ml-2 text-xs font-bold text-gray-400">（{key}）</span>
+              </p>
+              <p className="mt-1 text-xs font-medium leading-relaxed text-gray-500 dark:text-gray-400">{t.help}</p>
             </div>
           ))}
-        </dl>
-      </section>
+        </div>
+      </Slide>
 
-      {/* 6. 現在の工場状態 */}
-      <section className={card}>
-        <h2 className={h2}>6. 現在の工場状態</h2>
-        <p className={`mt-1 ${body}`}>
+      <Slide n={6} title="現在の工場状態" accent={config.factoryEnabled ? 'green' : 'rose'}>
+        <div className={`mb-3 rounded-full px-4 py-2 text-center text-sm font-black ${
+          config.factoryEnabled
+            ? 'bg-green-600 text-white'
+            : 'bg-rose-600 text-white'
+        }`}>
           AI工場はいま{config.factoryEnabled ? '稼働中' : '停止中'}です。
-        </p>
-        <div className="mt-3 space-y-2">
-          {stateRows.map((row) => (
-            <div key={row.label} className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-              <div className="flex items-baseline justify-between gap-3">
-                <p className="text-xs font-bold text-gray-900 dark:text-gray-100">{row.label}</p>
-                <p className="text-sm font-bold text-blue-600 dark:text-blue-400">{row.value}</p>
-              </div>
-              <p className="mt-1 text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">{row.desc}</p>
-            </div>
-          ))}
         </div>
-      </section>
+        <StatTiles tiles={stateRows} />
+      </Slide>
 
-      {/* 7. 収益化ロードマップ */}
-      <section className={card}>
-        <h2 className={h2}>7. 収益化ロードマップ</h2>
-        <p className={`mt-1 ${body}`}>収益設定の対象アプリを先頭に、この順番で「はじめての収益 1円」を目指します。現在の初期対象はBirdLogです。</p>
-        <div className="mt-3 flex flex-col items-stretch gap-1">
-          {milestones.map((m, i) => (
-            <div key={m.label} className="flex flex-col items-center gap-1">
-              {i > 0 && <span className="text-gray-300 dark:text-gray-600">↓</span>}
-              <span
-                className={`w-full rounded-lg px-3 py-2 text-center text-xs font-medium ${
-                  m.state === 'done'
-                    ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-300'
-                    : m.state === 'current'
-                      ? 'bg-blue-50 text-blue-700 ring-2 ring-blue-300 dark:bg-blue-900/20 dark:text-blue-300 dark:ring-blue-800'
-                      : 'bg-gray-50 text-gray-400 dark:bg-gray-800/60 dark:text-gray-500'
-                }`}
-              >
-                {m.state === 'done' && '✅ '}
-                {m.state === 'current' && '📍 いまここ → '}
-                {m.label}
-                <span className="mt-0.5 block text-[11px] font-normal opacity-80">{m.note}</span>
-              </span>
-            </div>
-          ))}
+      <Slide n={7} title="収益化ロードマップ" accent="green" lead="収益設定の対象アプリを先頭に、この順番で「はじめての収益 1円」を目指します。現在の初期対象はBirdLogです。">
+        <Roadmap items={milestones} />
+      </Slide>
+
+      <Slide n={8} title="自動実行キュー" accent="indigo" lead="司令塔トップの「次回自動実行予定」と /queue は、同じ派生ロジックを見ています。新しいキュー正本は作らず、既存の大きな作業・目標・作業履歴・承認から毎回計算します。">
+        <LegendGrid
+          items={[
+            { dot: 'bg-green-500', term: '実行可能', desc: 'AIが自動実行できる候補です。' },
+            { dot: 'bg-amber-500', term: '判断待ち', desc: '人間の承認や方針判断が必要です。' },
+            { dot: 'bg-blue-500', term: 'レビュー待ち', desc: '結果確認待ちです。低優先レビューでは工場全体を止めません。' },
+            { dot: 'bg-gray-400', term: 'AI保留', desc: '保留中です。解除後、条件を満たせば候補に戻ります。' },
+            { dot: 'bg-red-500', term: 'Block', desc: 'blockerや失敗で詰まっています。' },
+            { dot: 'bg-gray-500', term: '手動/対象外', desc: '自動実行しません。' },
+          ]}
+        />
+        <div className="mt-3 rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900">
+          <p className="text-sm font-black text-gray-900 dark:text-gray-100">操作</p>
+          <ul className="mt-2 space-y-1 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
+            <li>・自動実行を最優先: 実行可能なら次回候補の最上位へ固定します。</li>
+            <li>・復帰時に最優先: いま候補外の作業を、条件が解けた時に上位へ戻します。</li>
+            <li>・↑ / ↓: 実行可能キュー内の相対順を保存します。</li>
+            <li>・保留 / 保留解除: AI保留へ移す、または戻します。</li>
+            <li>・対象外: 自動実行対象から外します。</li>
+            <li>・詳細: 大きな作業の詳細へ移動します。</li>
+          </ul>
         </div>
-      </section>
-
-      {/* 8. 自動実行キュー */}
-      <section className={card}>
-        <h2 className={h2}>8. 自動実行キュー</h2>
-        <p className={`mt-1 ${body}`}>
-          司令塔トップの「次回自動実行予定」と /queue は、同じ派生ロジックを見ています。新しいキュー正本は作らず、既存の大きな作業・目標・作業履歴・承認から毎回計算します。
-        </p>
-        <div className="mt-3 space-y-3">
-          <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-            <p className="text-xs font-bold text-gray-900 dark:text-gray-100">ステータス</p>
-            <ul className="mt-2 space-y-1 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
-              <li>・実行可能: AIが自動実行できる候補です。</li>
-              <li>・判断待ち: 人間の承認や方針判断が必要です。</li>
-              <li>・レビュー待ち: 結果確認待ちです。低優先レビューでは工場全体を止めません。</li>
-              <li>・AI保留: 保留中です。解除後、条件を満たせば候補に戻ります。</li>
-              <li>・Block: blockerや失敗で詰まっています。</li>
-              <li>・手動/対象外: 自動実行しません。</li>
-            </ul>
-          </div>
-          <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-            <p className="text-xs font-bold text-gray-900 dark:text-gray-100">操作</p>
-            <ul className="mt-2 space-y-1 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
-              <li>・自動実行を最優先: 実行可能なら次回候補の最上位へ固定します。</li>
-              <li>・復帰時に最優先: いま候補外の作業を、条件が解けた時に上位へ戻します。</li>
-              <li>・↑ / ↓: 実行可能キュー内の相対順を保存します。</li>
-              <li>・保留 / 保留解除: AI保留へ移す、または戻します。</li>
-              <li>・対象外: 自動実行対象から外します。</li>
-              <li>・詳細: 大きな作業の詳細へ移動します。</li>
-            </ul>
-          </div>
-          <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-            <p className="text-xs font-bold text-gray-900 dark:text-gray-100">並び順（Goal順）</p>
-            <p className="mt-1 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
-              自動実行キューは <span className="font-semibold">Goalごとにまとまって</span>表示され、<span className="font-semibold">Goalの順番がキューの順番</span>になります。Goalの並びは「最優先(pin) → boost → 優先度(高→中→低)」で決まり、目標タブでGoalを並べ替えると、次にAIが自動実行する作業も変わります。Goalに紐づかない作業は末尾の「Goal未設定」にまとまります。
-            </p>
-            <ul className="mt-2 space-y-1 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
-              <li>1. 明示pin（手動で最優先にした作業・絶対上位）</li>
-              <li>2. 自走化アンカー / 要修正（安全のため上に据え置き）</li>
-              <li>3. Goal順（pin &gt; boost &gt; 優先度）</li>
-              <li>4. Goal内（手動の上下移動 → スコア → 優先度）</li>
-            </ul>
-          </div>
-          <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs font-semibold leading-relaxed text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
-            重要: 最優先指定は安全条件を上書きしません。人間判断待ち・レビュー待ち・ブロック中・手動/対象外の作業は自動実行されず、司令塔と /queue に「最優先指定中だが候補外」と理由を表示します。
+        <div className="mt-3 rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900">
+          <p className="text-sm font-black text-gray-900 dark:text-gray-100">並び順（Goal順）</p>
+          <p className="mt-1 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
+            自動実行キューは <span className="font-semibold">Goalごとにまとまって</span>表示され、<span className="font-semibold">Goalの順番がキューの順番</span>になります。Goalの並びは「最優先(pin) → boost → 優先度(高→中→低)」で決まり、目標タブでGoalを並べ替えると、次にAIが自動実行する作業も変わります。Goalに紐づかない作業は末尾の「Goal未設定」にまとまります。
           </p>
-          <p className="rounded-lg bg-blue-50 px-3 py-2 text-xs font-semibold leading-relaxed text-blue-800 dark:bg-blue-900/20 dark:text-blue-200">
-            Inboxでレビューするボタンは、/decide のレビュータブへ直接移動します。Goal単位で絞り込み、可能なら該当作業履歴をハイライトするため、レビュー件数があるのに今日の判断0件で止まることはありません。
-          </p>
+          <ul className="mt-2 space-y-1 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
+            <li>1. 明示pin（手動で最優先にした作業・絶対上位）</li>
+            <li>2. 自走化アンカー / 要修正（安全のため上に据え置き）</li>
+            <li>3. Goal順（pin &gt; boost &gt; 優先度）</li>
+            <li>4. Goal内（手動の上下移動 → スコア → 優先度）</li>
+          </ul>
         </div>
-      </section>
-
-      {/* 9. 動作確認Todo */}
-      <section className={card}>
-        <h2 className={h2}>9. 動作確認Todo</h2>
-        <p className={`mt-1 ${body}`}>
-          AIの作業やEpic完了後に「人間がこの画面をこう確認してほしい」という項目を一覧管理する場所です（上部メニュー「動作確認」／ /verify-todos）。AIが作業を終えるたびに、アプリ名・Epic名・確認URL・確認手順・期待結果を1件ずつ登録します。
+        <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs font-semibold leading-relaxed text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
+          重要: 最優先指定は安全条件を上書きしません。人間判断待ち・レビュー待ち・ブロック中・手動/対象外の作業は自動実行されず、司令塔と /queue に「最優先指定中だが候補外」と理由を表示します。
         </p>
-        <div className="mt-3 space-y-3">
-          <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-            <p className="text-xs font-bold text-gray-900 dark:text-gray-100">状態</p>
-            <ul className="mt-2 space-y-1 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
-              <li>・未確認: まだ人間が確認していない項目です。</li>
-              <li>・確認済: 確認URLを開き、手順どおりに操作して期待結果と一致したものです。</li>
-              <li>・NG: 期待結果とずれていた項目です。修正が必要です。</li>
-              <li>・保留: 後回しにする項目です。</li>
-            </ul>
-          </div>
-          <p className="rounded-lg bg-gray-50 px-3 py-2 text-[11px] leading-relaxed text-gray-600 dark:bg-gray-800/50 dark:text-gray-300">
-            アプリ・Epic・状態で絞り込めます。確認URL（iPhoneから押せる公開URL推奨）を押すと対象画面が開きます。
-          </p>
-        </div>
-      </section>
+        <p className="mt-2 rounded-xl bg-blue-50 px-3 py-2 text-xs font-semibold leading-relaxed text-blue-800 dark:bg-blue-900/20 dark:text-blue-200">
+          Inboxでレビューするボタンは、/decide のレビュータブへ直接移動します。Goal単位で絞り込み、可能なら該当作業履歴をハイライトするため、レビュー件数があるのに今日の判断0件で止まることはありません。
+        </p>
+      </Slide>
 
-      {/* 10. よくある質問 */}
-      <section className={card}>
-        <h2 className={h2}>10. よくある質問</h2>
-        <dl className="mt-3 space-y-3">
-          {FAQ.map((f) => (
-            <div key={f.q}>
-              <dt className="text-xs font-bold text-gray-900 dark:text-gray-100">Q. {f.q}</dt>
-              <dd className={`mt-1 ${body}`}>A. {f.a}</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
+      <Slide n={9} title="動作確認Todo" accent="rose" lead="AIの作業やEpic完了後に「人間がこの画面をこう確認してほしい」という項目を一覧管理する場所です（上部メニュー「動作確認」／ /verify-todos）。AIが作業を終えるたびに、アプリ名・Epic名・確認URL・確認手順・期待結果を1件ずつ登録します。">
+        <LegendGrid
+          items={[
+            { dot: 'bg-gray-400', term: '未確認', desc: 'まだ人間が確認していない項目です。' },
+            { dot: 'bg-green-500', term: '確認済', desc: '確認URLを開き、手順どおりに操作して期待結果と一致したものです。' },
+            { dot: 'bg-red-500', term: 'NG', desc: '期待結果とずれていた項目です。修正が必要です。' },
+            { dot: 'bg-amber-500', term: '保留', desc: '後回しにする項目です。' },
+          ]}
+        />
+        <p className="mt-3 rounded-xl bg-white px-3 py-2 text-[11px] leading-relaxed text-gray-600 dark:bg-gray-900 dark:text-gray-300">
+          アプリ・Epic・状態で絞り込めます。確認URL（iPhoneから押せる公開URL推奨）を押すと対象画面が開きます。
+        </p>
+      </Slide>
+
+      <Slide n={10} title="よくある質問" accent="gray">
+        <FaqAccordion items={FAQ} />
+      </Slide>
 
       {/* 最終更新（docs/operations/current-operating-model.md の frontmatter から動的表示） */}
       <footer className="rounded-xl bg-gray-50 px-4 py-3 text-center dark:bg-gray-800/50">

@@ -1,6 +1,6 @@
 ---
-updated: 2026-06-25
-updateNote: 画面の役割を管理/実行/閲覧に分離。ゴール×todo消化を /goal-dashboard に集約。
+updated: 2026-06-28
+updateNote: 運用ガイド（/guide）を図ベースの縦スクロール・スライド型（パワポ風・iPhone前提）に刷新。内容は不変。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -338,6 +338,7 @@ Progress 自身の使われ方を把握するページ（下タブ「使用状�
 
 ## 変更履歴
 
+- 2026-06-28: **運用ガイド（/guide）を図ベースのスライド型に刷新**（ユーザー指示「運用ページをもっと図でわかりやすく／文字ベースではなく図ベース／iPhone前提／パワポみたいなイメージ」。前回JSON破損で中断していた作業の再開）。`/guide` の使い方ガイドタブを、各セクション=1スライド（パワポ1枚相当の大カード+番号バッジ）の縦スクロール構成に再構成。新設 `components/guide/SlideKit.tsx`（`Slide`/`FlowDiagram`/`LoopDiagram`/`StatTiles`/`Roadmap`/`LegendGrid`）と `components/guide/FaqAccordion.tsx`（'use client'・折りたたみFAQ）で、AI工場の流れを循環図（↻最初に戻る）、今日の流れを朝/夜フロー図、工場状態をKPIタイル、収益化をロードマップ、キュー/動作確認の状態を色分け凡例として図解。**文言・件数・データ・3タブ（report/system/research）・footerは不変、表示のみ刷新**。再発防止として `data/` 配下（特に `data/real/`）には一切触れない方針で実装。検証: tsc0 / next build0 / pm2(next start)再起動で新ビルド反映を確認し `/guide` 200・LoopDiagram「↻最初に戻る」・FAQ `<details>` 35件・各スライド実描画・エラーマーカー0。
 - 2026-06-25: **画面の役割を管理/実行/閲覧に分離**。`/goal-planner` は Goal/todo の作成・編集・並び替えに専念し、キュー由来の進捗要約を撤去。`/queue` は work item の実行順・pin/保留/対象外・理由表示に専念し、Goal配下todoチェックリストを撤去。`/goal-dashboard` を「ゴール×todo消化状況」として拡張し、状態内訳・達成率に加えて active Goal 配下todoの done/skipped/in_progress/未完了/止まっている判定を一覧表示する閲覧専用画面に集約。
 - 2026-06-24: **current-operating-model.md の鮮度チェックを強化**（Epic: `/guide`のFAQ・運用ページの鮮度を点検する仕組み）。既存の「14日以上未更新」警告に加え、`lib/operating-model.ts` で `updated` の形式不正と、監視対象の実装ファイルの最終更新日が `updated` より新しい可能性を検知するようにした。`/guide?tab=system` では理由（未設定/形式不正、未更新日数、対象ファイル名と日付）を箇条書きで表示し、正本ドキュメントと実装の乖離点検を促す。表示専用で自動実行・キュー判定には非干渉。
 
