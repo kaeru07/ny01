@@ -49,6 +49,8 @@
 
 
 
+
+- 2026-06-29: AI アプリ発見最適化 / GPT-5.6 が限定プレビュー、政府要請で段階公開 / Arcade / Google Play / エラーなし / partial(market,news,tools)
 - 2026-06-28: AI検索 / Codex 利用が「チャット」から「委任型エージェント」へ移行 / Gemini Spark / 月額課金: 汎用AIと競合せず、用途を「学習計画」「会議後処理」「レビュー要約」などに絞った $5-… / エラーなし / partial(market,news,tools)
 - 2026-06-27: AIブラウザ / Claude API のレート制限が引き上げ / GPT-5.6 / 業種特化テンプレ課金: 不動産、飲食、美容室、士業向けに「投稿文 + 縦動画 + サムネ」を一括生成… / エラーなし / partial(market,news,tools)
 - 2026-06-26: AI縦型動画制作 / Anthropic が Alibaba/Qwen による Claude 能力の蒸留攻撃を主張 / Daybreak / 無料プラン + 広告: 低頻度利用者向けに広告を入れ、ヘビーユーザーは月額課金へ誘導する / エラーなし / partial(market,news,tools)
