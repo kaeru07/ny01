@@ -90,7 +90,7 @@ export default async function TasksPage({ searchParams }: { searchParams?: Recor
   const queueCount = queueData.items.filter((i) => i.status === 'queued' || i.status === 'in_progress').length
 
   return (
-    <div className="px-4 pt-6 pb-4 space-y-4">
+    <div className="space-y-4 px-4 pb-4 pt-4">
       <header className="flex items-start justify-between gap-2">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">ToDo管理</h1>

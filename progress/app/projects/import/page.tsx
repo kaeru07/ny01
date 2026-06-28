@@ -59,7 +59,7 @@ export default function ProjectGoalsImportPage() {
   }
 
   return (
-    <div className="px-4 pt-6 pb-4 space-y-4">
+    <div className="space-y-4 px-4 pb-4 pt-4">
       <header>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
           プロジェクト＋ゴールを手動追加(JSON)
@@ -71,7 +71,7 @@ export default function ProjectGoalsImportPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+        className="space-y-3 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm dark:border-gray-700 dark:bg-gray-800"
       >
         <label htmlFor="project-goals-json" className="block text-sm font-medium text-gray-700 dark:text-gray-200">
           追加するJSON
@@ -80,7 +80,7 @@ export default function ProjectGoalsImportPage() {
           id="project-goals-json"
           value={json}
           onChange={(event) => setJson(event.target.value)}
-          rows={16}
+          rows={12}
           spellCheck={false}
           className="w-full rounded-xl border border-gray-200 bg-white px-3 py-3 font-mono text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
         />

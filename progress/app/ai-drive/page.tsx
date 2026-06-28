@@ -158,7 +158,7 @@ export default function AIDrivePage() {
   const monetizationHighCount = goals.filter((g) => g.monetizationImpact === 'high').length
 
   return (
-    <div className="px-4 pt-6 pb-4 space-y-6">
+    <div className="space-y-4 px-4 pb-4 pt-4">
       <Header
         runningCount={runningCount}
         needsDecisionCount={needsDecisionCount}

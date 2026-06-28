@@ -7,7 +7,7 @@ import { readGoals } from '@/lib/goal-reader'
 // 統合作業(①〜⑥)が終わったら役目を終える想定。正本ドキュメントは
 // obsidian-sync-vault/06_research/2026-06-20_旧Vault運用と現ゴール運用の統合点検.md。
 
-const card = 'rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900'
+const card = 'rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900'
 const text = 'text-[12px] leading-relaxed text-gray-600 dark:text-gray-300'
 
 type MapRow = {
@@ -35,6 +35,35 @@ const SOURCE_RULES = [
   '実行・順番・ToDo・進捗・完了履歴はprogressを正本にする',
   'Vaultは元資料、判断ログ、ナレッジ、ChatGPTレビュー依頼の入口として残す',
   '同じ判断をVaultとprogressの2か所で更新しない',
+]
+
+// ⑤ vloop→progress 置き換え可否チェック（代替可否の検証）。
+// 旧vloop（まとめてVaultのToDoを処理する仕組み）の各機能を、progressの自動実行
+// （factory-runner / auto-queue / ExecutionRun）が代替できるかを1機能ずつ突き合わせた結果。
+// 「やめる/寄せる」の最終決定はユーザー承認に委ね、ここでは検証材料のみを提示する。
+type ParityRow = {
+  vloopFeature: string
+  progressCounterpart: string
+  covered: '○' | '△' | '×'
+  note: string
+}
+
+const PARITY_ROWS: ParityRow[] = [
+  { vloopFeature: 'まとめてToDo/Epicを処理', progressCounterpart: 'factory-runner（scan→pick→Dispatch→Run→記録→次へ）', covered: '○', note: '一括処理の中核はfactory-runnerが担う' },
+  { vloopFeature: 'Epic完了優先（doneCriteriaまで回す）', progressCounterpart: 'auto-queue（doneCriteria進捗）＋ caps(maxPerEpic)', covered: '○', note: 'Epic単位の進捗・完了判定はauto-queue側にある' },
+  { vloopFeature: '定時実行', progressCounterpart: '自動実行 11/14/16/23時', covered: '○', note: 'スケジュール実行はprogress側で稼働中' },
+  { vloopFeature: '実行待ち一覧（vloop_queue）', progressCounterpart: 'auto-queue / 自動実行キュー（/queue）', covered: '○', note: '実行順はProgressの派生キューに一本化済み' },
+  { vloopFeature: '完了ログ記録', progressCounterpart: 'ExecutionRun（検証・次アクション付き）', covered: '○', note: '記録の構造化はProgress側が上位互換' },
+  { vloopFeature: 'Claude上限時の継続', progressCounterpart: 'Codex fallback（factory-runner）', covered: '○', note: 'vloopは上限「検知」のみ。継続はProgressが上' },
+  { vloopFeature: '承認/Decision待ちのgating', progressCounterpart: 'auto-queueの承認・Decision待ち除外', covered: '○', note: '危険作業・承認待ちの停止はProgressで担保' },
+  { vloopFeature: 'pm2常駐プロセス', progressCounterpart: 'スケジュール駆動（常駐プロセスなし）', covered: '△', note: '実行形態が違う。廃止時はautoexec routeの扱いを決める' },
+]
+
+// 廃止する場合に後始末が要るコード上のvloop参照（⑥の片付け対象）。
+const PARITY_RESIDUALS = [
+  'claude-limit-detector.ts: vloop実行ログ(stop_reason)を上限検知のSource2として参照',
+  'operations-store.ts: vloopSourceOfTruth / executionTarget がVaultパスをハードコード',
+  'api/operations/autoexec/route.ts: pm2の"vloop"プロセスをstart/stop前提',
 ]
 
 // 統合の進め方（①〜⑥）。タイトル先頭の丸数字で goals.json と突き合わせて状態を出す。
@@ -68,7 +97,7 @@ export default async function IntegrationMapPage() {
   })
 
   return (
-    <div className="space-y-4 px-4 pb-6 pt-6">
+    <div className="space-y-4 px-4 pb-5 pt-4">
       <section className={`${card} border-2 border-indigo-300 dark:border-indigo-800`}>
         <p className="text-[11px] font-bold uppercase tracking-wide text-indigo-500">一時ページ</p>
         <h1 className="mt-1 text-lg font-black text-gray-950 dark:text-white">旧Vault運用 → 今のゴール運用 対応表</h1>
@@ -103,9 +132,9 @@ export default async function IntegrationMapPage() {
             </tbody>
           </table>
         </div>
-        <div className={`mt-3 rounded-lg bg-indigo-50 p-3 font-semibold text-indigo-900 dark:bg-indigo-900/20 dark:text-indigo-200 ${text}`}>
+        <div className={`mt-3 rounded-lg bg-indigo-50 p-2.5 font-semibold text-indigo-900 dark:bg-indigo-900/20 dark:text-indigo-200 ${text}`}>
           <p>正本寄せの確定ルール</p>
-          <ul className="mt-2 list-disc space-y-1 pl-4">
+          <ul className="mt-2 grid grid-cols-2 gap-1 pl-0">
             {SOURCE_RULES.map((rule) => (
               <li key={rule}>{rule}</li>
             ))}
@@ -114,11 +143,56 @@ export default async function IntegrationMapPage() {
       </section>
 
       <section className={card}>
+        <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">⑤ vloop → progress 置き換え可否チェック</h2>
+        <p className={`mt-1 ${text}`}>
+          旧vloop（まとめてVaultのToDoを処理する仕組み）の各機能を、progressの自動実行（factory-runner / auto-queue / ExecutionRun）が
+          代替できるかを1機能ずつ突き合わせた<strong>検証材料</strong>です。「やめる/寄せる」の最終決定はゴール承認でユーザーが行います（ここでは決めません）。
+        </p>
+        <div className="mt-3 overflow-x-auto">
+          <table className="w-full min-w-[560px] text-left text-[12px]">
+            <thead>
+              <tr className="border-b border-gray-200 text-gray-400 dark:border-gray-700">
+                <th className="p-2">vloopの機能</th>
+                <th className="p-2">progress側の対応</th>
+                <th className="p-2 text-center">カバー</th>
+                <th className="p-2">所見</th>
+              </tr>
+            </thead>
+            <tbody>
+              {PARITY_ROWS.map((row) => (
+                <tr key={row.vloopFeature} className="border-b border-gray-100 dark:border-gray-800">
+                  <td className="p-2 align-top text-gray-600 dark:text-gray-300">{row.vloopFeature}</td>
+                  <td className="p-2 align-top font-semibold text-gray-800 dark:text-gray-100">{row.progressCounterpart}</td>
+                  <td className={`p-2 text-center align-top text-base font-bold ${row.covered === '○' ? 'text-green-600 dark:text-green-400' : row.covered === '△' ? 'text-amber-500' : 'text-red-500'}`}>{row.covered}</td>
+                  <td className="p-2 align-top text-gray-500 dark:text-gray-400">{row.note}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className={`mt-3 rounded-lg bg-green-50 p-2.5 font-semibold text-green-900 dark:bg-green-900/20 dark:text-green-200 ${text}`}>
+          <p>検証の結論（判断材料）</p>
+          <p className="mt-1 font-normal">
+            vloopの中核（まとめ処理・Epic完了優先・実行キュー・完了記録・上限時の継続）は progress の factory-runner / auto-queue が<strong>すべてカバー済み</strong>。
+            機能面では「やめてprogressに寄せる」が成立します。残るのは下記のコード参照3点の後始末（⑥の片付け）のみで、これは実行エンジンの代替可否とは別問題です。
+          </p>
+        </div>
+        <div className={`mt-2 rounded-lg bg-amber-50 p-2.5 dark:bg-amber-900/15 ${text}`}>
+          <p className="font-semibold text-amber-900 dark:text-amber-200">廃止時に後始末が要るコード参照（⑥対象）</p>
+          <ul className="mt-2 grid grid-cols-2 gap-1 pl-0 text-amber-800 dark:text-amber-300">
+            {PARITY_RESIDUALS.map((r) => (
+              <li key={r}>{r}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section className={card}>
         <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">統合の進め方（①〜⑥）</h2>
         <p className={`mt-1 ${text}`}>各ステップはゴール承認に登録済み。状態はゴールと連動します。</p>
-        <ol className="mt-3 space-y-2">
+        <ol className="mt-3 grid grid-cols-2 gap-2">
           {stepStatus.map((s) => (
-            <li key={s.mark} className="flex gap-2.5">
+            <li key={s.mark} className="flex gap-2 rounded-lg bg-gray-50 p-2 dark:bg-gray-800/50">
               <span className="mt-0.5 shrink-0 text-base font-bold text-indigo-500">{s.mark}</span>
               <div className="min-w-0">
                 <p className="flex flex-wrap items-center gap-1.5 text-[12px] font-semibold text-gray-900 dark:text-gray-100">

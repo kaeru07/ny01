@@ -21,7 +21,7 @@ export default async function EpicIndexPage() {
   }
 
   return (
-    <div className="space-y-4 px-4 pb-4 pt-6">
+    <div className="space-y-4 px-4 pb-4 pt-4">
       <header>
         <div className="flex items-start justify-between gap-3">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">AI工場</h1>
@@ -48,7 +48,7 @@ export default async function EpicIndexPage() {
       <FactoryStatusBar />
 
       {/* 初見ユーザー向けの運用導線 */}
-      <div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-4 dark:border-blue-900/40 dark:bg-blue-900/10">
+      <div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-3 dark:border-blue-900/40 dark:bg-blue-900/10">
         <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">ここは AI 作業を管理する場所です</p>
         <p className="mt-1 text-xs leading-relaxed text-gray-600 dark:text-gray-300">
           Epic を開く → AI に作業させる → 結果レビュー → 承認 → 次の作業、の順で進みます。
@@ -62,7 +62,7 @@ export default async function EpicIndexPage() {
       {epics.length === 0 ? (
         <p className="text-sm text-gray-400">Epic がまだありません。</p>
       ) : (
-        <ul className="space-y-3">
+        <ul className="grid grid-cols-2 gap-2 md:grid-cols-3">
           {epics.map((e) => {
             const p = pendingByEpic.get(e.epicId) ?? 0
             const s = STATUS_LABEL[e.status] ?? STATUS_LABEL.paused
@@ -72,10 +72,10 @@ export default async function EpicIndexPage() {
               <li key={e.epicId}>
                 <Link
                   href={`/epic/${e.epicId}`}
-                  className="block rounded-2xl border border-gray-200 bg-white p-4 transition-colors hover:border-blue-300 dark:border-gray-800 dark:bg-gray-900"
+                  className="block h-full rounded-2xl border border-gray-200 bg-white p-3 transition-colors hover:border-blue-300 dark:border-gray-800 dark:bg-gray-900"
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <h2 className="font-semibold text-gray-900 dark:text-gray-100">{e.title}</h2>
+                    <h2 className="line-clamp-3 text-sm font-semibold leading-snug text-gray-900 dark:text-gray-100">{e.title}</h2>
                     {p > 0 ? (
                       <span className="shrink-0 rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">
                         承認待ち {p}

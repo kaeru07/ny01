@@ -41,7 +41,7 @@ export default async function ProjectDetailPage({ params }: Props) {
   ]
 
   return (
-    <div className="px-4 pt-6 pb-4 space-y-5 lg:mx-auto lg:max-w-6xl">
+    <div className="space-y-4 px-4 pb-4 pt-4 lg:mx-auto lg:max-w-6xl">
       <header>
         <Link href="/projects" className="text-sm text-blue-500 hover:text-blue-600 flex items-center gap-1 mb-3">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
@@ -59,8 +59,8 @@ export default async function ProjectDetailPage({ params }: Props) {
       </header>
 
       {/* Progress + task stats */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-4">
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-center">
+      <div className="rounded-2xl border border-gray-100 bg-white p-3 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-center">
           <div>
             <div className="flex justify-between text-sm mb-1">
               <span className="text-gray-500 dark:text-gray-400">進捗</span>
@@ -76,8 +76,8 @@ export default async function ProjectDetailPage({ params }: Props) {
 
           <div className="grid grid-cols-4 gap-2 text-center">
             {taskStats.map((s) => (
-              <div key={s.label} className="rounded-xl bg-gray-50 px-2 py-2 dark:bg-gray-900/30">
-                <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
+              <div key={s.label} className="rounded-xl bg-gray-50 px-2 py-1.5 dark:bg-gray-900/30">
+                <p className={`text-lg font-bold ${s.color}`}>{s.value}</p>
                 <p className="text-xs text-gray-400 dark:text-gray-500">{s.label}</p>
               </div>
             ))}
@@ -85,8 +85,8 @@ export default async function ProjectDetailPage({ params }: Props) {
         </div>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-        <main className="space-y-5">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+        <main className="space-y-4">
           {/* Summary editor */}
           <ProjectSummaryEditor project={project} />
 
@@ -100,9 +100,9 @@ export default async function ProjectDetailPage({ params }: Props) {
           </section>
         </main>
 
-        <aside className="space-y-5 lg:sticky lg:top-4">
+        <aside className="space-y-4 lg:sticky lg:top-4">
           {/* Exclude toggle */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-4">
+          <div className="rounded-2xl border border-gray-100 bg-white p-3 shadow-sm dark:border-gray-700 dark:bg-gray-800">
             <p className="text-xs text-gray-400 dark:text-gray-500 mb-2">候補更新での処理対象</p>
             <ExcludeToggle projectId={projectId} excluded={project.excluded ?? false} />
           </div>
@@ -110,7 +110,7 @@ export default async function ProjectDetailPage({ params }: Props) {
           {/* Blockers */}
           <section>
             <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">ブロッカー</h2>
-            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-4">
+            <div className="rounded-2xl border border-gray-100 bg-white p-3 shadow-sm dark:border-gray-700 dark:bg-gray-800">
               <BlockersEditor projectId={projectId} blockers={project.blockers} />
             </div>
           </section>

@@ -13,8 +13,8 @@ export default async function AppUrlsPage() {
   const unknownCount = apps.filter((a) => a.iphoneAccess === 'unknown').length
 
   return (
-    <div className="space-y-4 px-4 pb-4 pt-6">
-      <header className="space-y-3">
+    <div className="space-y-4 px-4 pb-4 pt-4">
+      <header className="space-y-2">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">アプリURL</h1>

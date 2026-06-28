@@ -103,14 +103,14 @@ export default async function LogsPage({ searchParams }: Props) {
     : historyRuns.length
 
   return (
-    <div className="px-4 pt-6 pb-4">
-      <header className="mb-4">
+    <div className="px-4 pb-4 pt-4">
+      <header className="mb-3">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">ログ</h1>
         <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5">{displayCount} 件</p>
       </header>
 
       {/* Mode switch */}
-      <div className="flex rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-4">
+      <div className="mb-3 flex overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700">
         {(
           [
             { value: 'event' as LogMode, label: 'イベント' },
@@ -136,7 +136,7 @@ export default async function LogsPage({ searchParams }: Props) {
       </div>
 
       {/* Project filter */}
-      <div className="mb-3">
+      <div className="mb-2">
         <ProjectFilterSelect
           projects={projects}
           currentProject={projectFilter}
@@ -147,7 +147,7 @@ export default async function LogsPage({ searchParams }: Props) {
 
       {/* Type filter (event mode only) */}
       {mode === 'event' && (
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide mb-4">
+        <div className="scrollbar-hide mb-3 flex gap-2 overflow-x-auto pb-1">
           {logTypes.map((t) => (
             <a
               key={t.value}
@@ -195,9 +195,9 @@ export default async function LogsPage({ searchParams }: Props) {
             <section className="mb-3 rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
               <p className="text-xs font-bold text-gray-900 dark:text-gray-100">アーカイブ済み作業履歴</p>
               <p className="mt-1 text-[11px] text-gray-400">通常表示は最新のアクティブ履歴だけです。過去分は月別ファイルに退避されています。</p>
-              <dl className="mt-2 space-y-1">
+              <dl className="mt-2 grid grid-cols-2 gap-1.5">
                 {archives.map((archive) => (
-                  <div key={archive.file} className="flex items-center justify-between text-xs">
+                  <div key={archive.file} className="flex items-center justify-between gap-2 rounded-lg bg-gray-50 px-2 py-1.5 text-xs dark:bg-gray-800/50">
                     <dt className="font-mono text-gray-500 dark:text-gray-400">{archive.file}</dt>
                     <dd className="font-semibold text-gray-700 dark:text-gray-200">{archive.count}件</dd>
                   </div>

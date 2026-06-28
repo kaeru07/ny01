@@ -57,7 +57,7 @@ export default async function MorningPage() {
   ]
 
   return (
-    <div className="px-4 pt-6 pb-4 space-y-5">
+    <div className="space-y-4 px-4 pb-4 pt-4">
       <header>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">朝起動</h1>
         <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5">
@@ -69,8 +69,8 @@ export default async function MorningPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {statItems.map((s) => (
-          <div key={s.label} className={`${s.bg} rounded-2xl p-3 text-center`}>
-            <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
+          <div key={s.label} className={`${s.bg} rounded-2xl p-2.5 text-center`}>
+            <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{s.label}</p>
           </div>
         ))}
@@ -81,7 +81,7 @@ export default async function MorningPage() {
 
       {/* Handoff from previous session */}
       {session.handoffText && (
-        <div className="bg-amber-50 dark:bg-amber-900/20 rounded-2xl border border-amber-100 dark:border-amber-800 p-4">
+        <div className="rounded-2xl border border-amber-100 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
           <h2 className="text-sm font-semibold text-amber-700 dark:text-amber-300 mb-2">前回の引き継ぎ</h2>
           <p className="text-sm text-amber-800 dark:text-amber-200 leading-relaxed whitespace-pre-wrap">
             {session.handoffText}
@@ -95,9 +95,9 @@ export default async function MorningPage() {
           <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
             今日のおすすめ作業候補
           </h2>
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2">
             {topCandidates.map((c, i) => (
-              <div key={c.id} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 px-4 py-3">
+              <div key={c.id} className="rounded-xl border border-gray-100 bg-white px-3 py-2.5 dark:border-gray-700 dark:bg-gray-800">
                 <div className="flex items-start gap-2">
                   <span className="flex-shrink-0 w-5 h-5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-xs font-bold flex items-center justify-center mt-0.5">
                     {i + 1}
@@ -109,7 +109,7 @@ export default async function MorningPage() {
                         {PRIORITY_LABEL[c.priority]}
                       </span>
                     </div>
-                    <p className="text-sm font-medium text-gray-800 dark:text-gray-100 mt-0.5 leading-snug">{c.taskTitle}</p>
+                    <p className="mt-0.5 line-clamp-2 text-xs font-medium leading-snug text-gray-800 dark:text-gray-100">{c.taskTitle}</p>
                     <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 leading-relaxed line-clamp-2">{c.reason}</p>
                   </div>
                 </div>
@@ -123,14 +123,14 @@ export default async function MorningPage() {
       )}
 
       {/* Quick links */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
           今日の作業を始める
         </h2>
 
         {/* Pending */}
         <Link href="/tasks">
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 px-4 py-3 flex items-center gap-3 hover:border-blue-100 dark:hover:border-blue-800 transition-colors active:scale-[0.99]">
+          <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white px-3 py-2.5 transition-colors hover:border-blue-100 active:scale-[0.99] dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-800">
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                 pendingCount > 0 ? 'bg-amber-100 dark:bg-amber-900/40' : 'bg-green-100 dark:bg-green-900/40'
@@ -160,7 +160,7 @@ export default async function MorningPage() {
 
         {/* Queue */}
         <Link href="/queue">
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 px-4 py-3 flex items-center gap-3 hover:border-blue-100 dark:hover:border-blue-800 transition-colors active:scale-[0.99]">
+          <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white px-3 py-2.5 transition-colors hover:border-blue-100 active:scale-[0.99] dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-800">
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                 queueActive.length > 0 ? 'bg-blue-100 dark:bg-blue-900/40' : 'bg-gray-100 dark:bg-gray-700'

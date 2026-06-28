@@ -8,7 +8,7 @@ export default async function RecommendedEpicsPage() {
   const recommendations = await getRecommendations()
 
   return (
-    <div className="space-y-4 px-4 pb-24 pt-6">
+    <div className="space-y-4 px-4 pb-24 pt-4">
       <header className="space-y-1">
         <div className="flex items-start justify-between gap-3">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">おすすめ追加Epic</h1>

@@ -8,7 +8,7 @@ import ApprovalActions from '@/components/monetization/ApprovalActions'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+    <section className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
       <h2 className="mb-2 text-sm font-bold text-gray-900 dark:text-gray-100">{title}</h2>
       {children}
     </section>
@@ -45,7 +45,7 @@ export default async function CandidateDetailPage({ params }: { params: { id: st
   const breakdownTotal = breakdownEntries.reduce((s, [, v]) => s + (v ?? 0), 0)
 
   return (
-    <div className="space-y-3 px-4 pb-24 pt-6">
+    <div className="space-y-3 px-4 pb-24 pt-4">
       <div className="flex items-center gap-2 text-xs text-gray-400">
         <Link href="/monetization" className="hover:underline">収益化候補</Link>
         <span className="text-gray-300">/</span>
@@ -53,7 +53,7 @@ export default async function CandidateDetailPage({ params }: { params: { id: st
       </div>
 
       {/* 概要 */}
-      <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <section className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
         <div className="flex items-start gap-3">
           <div className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl text-lg font-bold leading-none ${scoreColor(c.score)}`}>
             {c.score}
@@ -163,9 +163,9 @@ export default async function CandidateDetailPage({ params }: { params: { id: st
       {/* 競合分析 */}
       {c.competitors && c.competitors.length > 0 && (
         <Section title="競合分析">
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2">
             {c.competitors.map((cp, i) => (
-              <div key={i} className="rounded-xl bg-gray-50 p-3 dark:bg-gray-800/60">
+              <div key={i} className="rounded-xl bg-gray-50 p-2.5 dark:bg-gray-800/60">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">{cp.name}</span>
                   <span className="text-xs text-gray-400">{[cp.rating && `★${cp.rating}`, cp.downloads].filter(Boolean).join(' / ')}</span>
@@ -204,9 +204,9 @@ export default async function CandidateDetailPage({ params }: { params: { id: st
       {/* 調査元一覧（Vault 由来の根拠） */}
       {c.sourceRefs && c.sourceRefs.length > 0 && (
         <Section title={`調査元一覧（${c.sourceRefs.length}件）`}>
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2">
             {c.sourceRefs.map((s) => (
-              <div key={s.id} className="rounded-xl bg-gray-50 p-3 dark:bg-gray-800/60">
+              <div key={s.id} className="rounded-xl bg-gray-50 p-2.5 dark:bg-gray-800/60">
                 <div className="flex items-center justify-between gap-2">
                   <span className="break-all font-mono text-[11px] text-gray-700 dark:text-gray-200">{s.path}</span>
                   <span className="shrink-0 rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300">{s.type}</span>
@@ -227,7 +227,7 @@ export default async function CandidateDetailPage({ params }: { params: { id: st
       {/* 根拠リンク */}
       {c.evidenceLinks && c.evidenceLinks.length > 0 && (
         <Section title="根拠リンク">
-          <ul className="space-y-1 text-sm">
+          <ul className="grid grid-cols-2 gap-1 text-sm">
             {c.evidenceLinks.map((e, i) => (
               <li key={i} className="break-all text-gray-700 dark:text-gray-200">
                 <span className="font-mono text-[11px]">{e.path}</span>
@@ -241,7 +241,7 @@ export default async function CandidateDetailPage({ params }: { params: { id: st
       {/* 調査履歴 */}
       {c.researchLogs && c.researchLogs.length > 0 && (
         <Section title="調査履歴">
-          <ol className="space-y-2">
+          <ol className="grid grid-cols-2 gap-2">
             {[...c.researchLogs].reverse().map((r, i) => (
               <li key={i} className="border-l-2 border-blue-200 pl-3 dark:border-blue-800">
                 <div className="text-xs font-semibold text-gray-500">

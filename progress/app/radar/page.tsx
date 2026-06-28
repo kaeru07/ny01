@@ -18,7 +18,7 @@ export default async function RadarPage() {
   const dates = ganttDates(21)
 
   return (
-    <div className="px-4 pt-6 pb-4 space-y-5">
+    <div className="space-y-4 px-4 pb-4 pt-4">
       <header>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">案件レーダー</h1>
         <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5">

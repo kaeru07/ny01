@@ -13,7 +13,7 @@ export default async function DecisionsPage() {
   const decisions = (await getOperationalDecisions()).slice().reverse()
 
   return (
-    <div className="mx-auto max-w-lg space-y-4 px-4 py-6">
+    <div className="mx-auto max-w-lg space-y-4 px-4 py-4">
       <header>
         <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">決定事項（Decision Log）</h1>
         <p className="mt-0.5 text-sm text-gray-400">承認の決定が時系列で記録される。AI はこの判断と矛盾する作業を実行しない。</p>

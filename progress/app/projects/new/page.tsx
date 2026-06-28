@@ -3,7 +3,7 @@ import ProjectCreateForm from '@/components/projects/ProjectCreateForm'
 
 export default function NewProjectPage() {
   return (
-    <div className="px-4 pt-6 pb-4">
+    <div className="px-4 pb-4 pt-4">
       <Link href="/projects" className="text-sm text-blue-500 hover:text-blue-600 flex items-center gap-1 mb-4">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />

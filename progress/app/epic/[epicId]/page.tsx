@@ -39,7 +39,7 @@ function StatusBadge({ detail }: { detail: EpicDetail }) {
 
 function Section({ title, href, hrefLabel, children }: { title: string; href?: string; hrefLabel?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+    <section className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
       <div className="mb-2 flex items-center justify-between">
         <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">{title}</h2>
         {href && (
@@ -73,9 +73,9 @@ export default async function EpicDetailPage({ params }: { params: { epicId: str
   const resumePacket = buildResumePacket(epic, goalsData.goals, allRuns)
 
   return (
-    <div className="space-y-4 px-4 pb-4 pt-6">
+    <div className="space-y-4 px-4 pb-4 pt-4">
       {/* ヘッダー: Epic名 / 状態 / 進捗 */}
-      <header className="space-y-3">
+      <header className="space-y-2">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Link href="/epic" className="text-xs text-gray-400 hover:underline">工場</Link>
@@ -101,7 +101,7 @@ export default async function EpicDetailPage({ params }: { params: { epicId: str
       </header>
 
       {/* Epic Contract（自動化テストの明示的契約 + Factory 対象判定） */}
-      <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <section className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Epic Contract</h2>
           <div className="flex flex-wrap items-center gap-1.5">
@@ -120,7 +120,7 @@ export default async function EpicDetailPage({ params }: { params: { epicId: str
             )}
           </div>
         </div>
-        <dl className="space-y-1.5 text-sm">
+        <dl className="grid grid-cols-2 gap-2 text-[12px]">
           <div className="flex gap-2"><dt className="w-24 shrink-0 text-xs text-gray-400">decisionPolicy</dt><dd className="text-gray-700 dark:text-gray-200">{decisionPolicyLabel(epic.decisionPolicy)}</dd></div>
           <div className="flex gap-2"><dt className="w-24 shrink-0 text-xs text-gray-400">優先度</dt><dd className="text-gray-700 dark:text-gray-200">{epic.priority ? epicPriorityLabel(epic.priority) : '未設定'}</dd></div>
           <div className="flex gap-2"><dt className="w-24 shrink-0 text-xs text-gray-400">riskFlags</dt><dd className="text-gray-700 dark:text-gray-200">{epic.riskFlags && epic.riskFlags.length > 0 ? epic.riskFlags.join(', ') : 'なし'}</dd></div>
@@ -153,16 +153,16 @@ export default async function EpicDetailPage({ params }: { params: { epicId: str
 
       {/* doneCriteria 自動判定（ExecutionRun から評価。done/continue） */}
       {doneEval && doneEval.hasContract && (
-        <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <section className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
           <div className="mb-2 flex items-center justify-between">
             <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">doneCriteria 達成状況</h2>
             <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${doneEval.verdict === 'done' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'}`}>
               {doneEval.verdict === 'done' ? 'DONE' : 'CONTINUE'} · 達成率 {doneEval.ratio}
             </span>
           </div>
-          <ul className="space-y-1">
+          <ul className="grid grid-cols-2 gap-1.5">
             {doneEval.criteria.map((c, i) => (
-              <li key={i} className="text-sm text-gray-700 dark:text-gray-200">
+              <li key={i} className="rounded-lg bg-gray-50 p-2 text-[12px] text-gray-700 dark:bg-gray-950/35 dark:text-gray-200">
                 <span className={c.met ? 'text-green-600' : 'text-rose-500'}>{c.met ? '✓' : '✗'}</span> {c.text}
                 <span className="ml-1 text-[11px] text-gray-400">[{c.level}] {c.evidence}</span>
               </li>
@@ -172,7 +172,7 @@ export default async function EpicDetailPage({ params }: { params: { epicId: str
       )}
 
       {/* Automation 状態（最低限: executor / running / stopped / 承認待ち件数） */}
-      <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <section className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
         <div className="mb-2 flex items-center justify-between">
           <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">自動実行の状態</h2>
           <Link href="/automation" className="text-xs text-blue-600 hover:underline dark:text-blue-400">制御へ →</Link>
@@ -219,9 +219,9 @@ export default async function EpicDetailPage({ params }: { params: { epicId: str
       {/* 決定事項（Decision Log） */}
       <Section title="決定事項" href="/decisions">
         {recentDecisions.length > 0 ? (
-          <ul className="space-y-2">
+          <ul className="grid grid-cols-2 gap-2">
             {recentDecisions.map((d) => (
-              <li key={d.decisionId} className="text-sm text-gray-800 dark:text-gray-200">
+              <li key={d.decisionId} className="rounded-lg bg-gray-50 p-2 text-[12px] text-gray-800 dark:bg-gray-950/35 dark:text-gray-200">
                 <span className="text-gray-500">{d.topic}</span> → {d.decision}
               </li>
             ))}
@@ -234,9 +234,9 @@ export default async function EpicDetailPage({ params }: { params: { epicId: str
       {/* 次回予定（Next Actions）+ 続きから実行 */}
       <Section title="次回予定">
         {nextActions.length > 0 ? (
-          <ul className="mb-3 space-y-2">
+          <ul className="mb-3 grid grid-cols-2 gap-2">
             {nextActions.map((a, i) => (
-              <li key={`${a.sourceRunId}-${i}`} className="text-sm text-gray-800 dark:text-gray-200">
+              <li key={`${a.sourceRunId}-${i}`} className="rounded-lg bg-gray-50 p-2 text-[12px] text-gray-800 dark:bg-gray-950/35 dark:text-gray-200">
                 <span className="text-gray-400">・</span> {a.title}
                 <span className="ml-1 text-[11px] text-gray-400">（{a.targetApp}）</span>
               </li>
@@ -292,7 +292,7 @@ export default async function EpicDetailPage({ params }: { params: { epicId: str
       </Section>
 
       {/* 今後（配置のみ・未実装） */}
-      <section className="rounded-2xl border border-dashed border-gray-200 p-4 opacity-60 dark:border-gray-800">
+      <section className="rounded-2xl border border-dashed border-gray-200 p-3 opacity-60 dark:border-gray-800">
         <h2 className="mb-2 text-sm font-bold text-gray-400">今後（配置のみ）</h2>
         <div className="flex flex-wrap gap-1.5 text-[11px] text-gray-400">
           <span className="rounded-full border border-gray-200 px-2 py-0.5 dark:border-gray-700">Executor: Claude / Codex / Both</span>

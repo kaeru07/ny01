@@ -23,8 +23,8 @@ export default async function ProjectsPage() {
   )
 
   return (
-    <div className="px-4 pt-6 pb-4">
-      <header className="mb-5 flex items-start justify-between gap-2">
+    <div className="px-4 pb-4 pt-4">
+      <header className="mb-4 flex items-start justify-between gap-2">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">案件</h1>
           <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5">{sorted.length} 件</p>
@@ -40,15 +40,15 @@ export default async function ProjectsPage() {
         </Link>
       </header>
 
-      <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
         {sorted.map((project) => {
           const ts = taskMap[project.id]
           return (
             <Link key={project.id} href={`/projects/${project.id}`}>
-              <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-4 hover:shadow-md hover:border-blue-100 dark:hover:border-blue-800 transition-all active:scale-[0.99]">
-                <div className="flex items-start justify-between gap-2 mb-3">
+              <div className="rounded-2xl border border-gray-100 bg-white p-3 shadow-sm transition-all hover:border-blue-100 hover:shadow-md active:scale-[0.99] dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-800">
+                <div className="mb-2 flex flex-col gap-1.5">
                   <div>
-                    <h2 className="font-semibold text-gray-900 dark:text-gray-100">{project.name}</h2>
+                    <h2 className="line-clamp-2 text-sm font-semibold leading-snug text-gray-900 dark:text-gray-100">{project.name}</h2>
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <p className="text-xs text-gray-400 dark:text-gray-500">{project.phase}</p>
                       {project.excluded && (
@@ -59,7 +59,7 @@ export default async function ProjectsPage() {
                   <StatusBadge status={project.status} />
                 </div>
 
-                <div className="mb-3">
+                <div className="mb-2">
                   <div className="flex justify-between text-xs text-gray-400 dark:text-gray-500 mb-1">
                     <span>進捗</span>
                     <span className="font-medium text-gray-600 dark:text-gray-300">{project.progress}%</span>
@@ -72,7 +72,7 @@ export default async function ProjectsPage() {
                   </div>
                 </div>
 
-                <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-1 mb-3">
+                <p className="mb-2 line-clamp-2 text-xs text-gray-600 dark:text-gray-300">
                   <span className="text-gray-300 dark:text-gray-600 text-xs mr-1">現在:</span>
                   {project.currentTask}
                 </p>
@@ -87,7 +87,7 @@ export default async function ProjectsPage() {
                   </div>
                 )}
 
-                <div className="flex items-center justify-between pt-2 border-t border-gray-50 dark:border-gray-700 text-xs text-gray-400 dark:text-gray-500">
+                <div className="flex flex-col gap-1 border-t border-gray-50 pt-2 text-xs text-gray-400 dark:border-gray-700 dark:text-gray-500">
                   <span>{formatDateTime(project.updatedAt)}</span>
                   {ts && (
                     <span>

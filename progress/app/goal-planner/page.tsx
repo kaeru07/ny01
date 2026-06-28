@@ -48,7 +48,7 @@ export default async function GoalPlannerPage({ searchParams }: { searchParams?:
   })
 
   return (
-    <div className="px-4 pt-6 pb-4 space-y-6">
+    <div className="space-y-4 px-4 pb-4 pt-4">
       <header className="space-y-1">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div>
@@ -64,7 +64,7 @@ export default async function GoalPlannerPage({ searchParams }: { searchParams?:
       </header>
 
       {mainGoal && (
-        <section className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-2xl p-4 space-y-2">
+        <section className="space-y-2 rounded-2xl border border-blue-100 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">現在のメイン目標</span>
             <Link href="/" className="ml-auto text-xs text-blue-600 dark:text-blue-400 hover:underline">ダッシュボードを見る</Link>
@@ -77,7 +77,7 @@ export default async function GoalPlannerPage({ searchParams }: { searchParams?:
       <GoalPlannerForm projects={projects} hasMainGoal={!!mainGoal} />
 
       {selectedGoal && (
-        <section className="space-y-3 rounded-2xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-900/50 dark:bg-blue-900/20">
+        <section className="space-y-3 rounded-2xl border border-blue-100 bg-blue-50 p-3 dark:border-blue-900/50 dark:bg-blue-900/20">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">Goal詳細</p>
@@ -86,9 +86,9 @@ export default async function GoalPlannerPage({ searchParams }: { searchParams?:
             </div>
             <Link href="/goal-planner" className="rounded-lg border border-blue-200 bg-white px-3 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:bg-gray-900 dark:text-blue-300">詳細を閉じる</Link>
           </div>
-          <div className="rounded-xl bg-white p-3 dark:bg-gray-900/50">
+          <div className="rounded-xl bg-white p-2.5 dark:bg-gray-900/50">
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">紐づくTodo一覧</h3>
-            <div className="mt-2 space-y-2">
+            <div className="mt-2 grid grid-cols-2 gap-2">
               {selectedGoal.todos.map((todo) => (
                 <div key={todo.id} className="rounded-lg border border-gray-100 px-3 py-2 text-xs dark:border-gray-700">
                   <p className="font-semibold text-gray-800 dark:text-gray-100">{todo.title}</p>
@@ -98,10 +98,10 @@ export default async function GoalPlannerPage({ searchParams }: { searchParams?:
               {selectedGoal.todos.length === 0 && <p className="text-xs text-gray-500 dark:text-gray-400">Todoはまだありません。</p>}
             </div>
           </div>
-          <div className="rounded-xl bg-white p-3 dark:bg-gray-900/50">
+          <div className="rounded-xl bg-white p-2.5 dark:bg-gray-900/50">
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">紐づくInboxレビュー・修正依頼</h3>
-            <div className="mt-2 space-y-1">
-              {inboxForSelectedGoal.slice(0, 5).map((item) => <p key={item.hash} className="text-xs text-gray-600 dark:text-gray-300">{item.title}</p>)}
+            <div className="mt-2 grid grid-cols-2 gap-1.5">
+              {inboxForSelectedGoal.slice(0, 5).map((item) => <p key={item.hash} className="rounded-lg bg-gray-50 p-2 text-xs text-gray-600 dark:bg-gray-800/50 dark:text-gray-300">{item.title}</p>)}
               {inboxForSelectedGoal.length === 0 && <p className="text-xs text-gray-500 dark:text-gray-400">関連Inboxは見つかりません。</p>}
             </div>
           </div>
@@ -136,7 +136,7 @@ export default async function GoalPlannerPage({ searchParams }: { searchParams?:
       </section>
 
       {filteredGoals.length > 0 ? (
-        <section className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm p-4 space-y-3">
+        <section className="space-y-3 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm dark:border-gray-700 dark:bg-gray-800">
           <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">登録済みの目標 ({filteredGoals.length}/{goalsData.goals.length}件)</h2>
           <div className="space-y-2">
             {filteredGoals.map((g) => {

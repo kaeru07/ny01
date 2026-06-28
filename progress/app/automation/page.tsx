@@ -91,7 +91,7 @@ export default function AutomationPage() {
         : { label: 'paused', cls: 'bg-gray-200 text-gray-600' }
 
   return (
-    <div className="mx-auto max-w-lg space-y-4 px-4 py-6">
+    <div className="mx-auto max-w-lg space-y-4 px-4 py-4">
       <header>
         <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Automation</h1>
         <p className="mt-0.5 text-sm text-gray-400">AI工場のエンジン。状態中心で確認する（Executor は内部状態）。</p>

@@ -13,7 +13,7 @@ export default async function VerifyTodosPage() {
   const pending = todos.filter((t) => t.status === 'pending').length
 
   return (
-    <div className="space-y-4 px-4 pb-4 pt-6">
+    <div className="space-y-4 px-4 pb-4 pt-4">
       <header className="space-y-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">動作確認Todo</h1>

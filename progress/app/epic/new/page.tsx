@@ -12,7 +12,7 @@ export default function NewEpicPage() {
   const [tab, setTab] = useState<Tab>('form')
 
   return (
-    <div className="space-y-4 px-4 pb-8 pt-6">
+    <div className="space-y-4 px-4 pb-8 pt-4">
       <header className="space-y-1">
         <div className="flex items-center gap-2 text-xs text-gray-400">
           <Link href="/epic" className="hover:underline">工場</Link>

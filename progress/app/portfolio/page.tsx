@@ -46,7 +46,7 @@ export default async function PortfolioPage({ searchParams }: { searchParams?: R
   const tab = searchParams?.tab === 'goals' ? 'goals' : 'projects'
   if (tab === 'goals') {
     return (
-      <div className="space-y-5 px-4 pb-6 pt-6">
+      <div className="space-y-4 px-4 pb-5 pt-4">
         <PageGuide title="Projects" guide="進行中プロジェクトの状況を確認します。「あなたの作業待ち」のものから手を付けるのがおすすめです。" />
         <ProjectTabBar active="goals" />
         <ProjectGoalsView />
@@ -65,7 +65,7 @@ export default async function PortfolioPage({ searchParams }: { searchParams?: R
     .map(([value, label]) => ({ value, label }))
 
   return (
-    <div className="space-y-5 px-4 pb-6 pt-6">
+    <div className="space-y-4 px-4 pb-5 pt-4">
       <PageGuide title="Projects" guide="進行中プロジェクトの状況を確認します。「あなたの作業待ち」のものから手を付けるのがおすすめです。" />
       <ProjectTabBar active="projects" />
 

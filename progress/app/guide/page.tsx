@@ -76,7 +76,7 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
   const tab = rawTab === 'report' ? 'report' : rawTab === 'system' ? 'system' : rawTab === 'research' ? 'research' : 'guide'
   if (tab === 'report') {
     return (
-      <div className="space-y-5 px-4 pb-6 pt-6">
+      <div className="space-y-4 px-4 pb-5 pt-4">
         <PageGuide
           title="運用"
           guide="AI工場が自動で何をしたか・次に何をするかの報告です。承認待ちのゴール候補や直近の自動実行をここで確認できます。"
@@ -111,7 +111,7 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
         : '',
     ].filter(Boolean)
     return (
-      <div className="space-y-5 px-4 pb-6 pt-6">
+      <div className="space-y-4 px-4 pb-5 pt-4">
         <PageGuide
           title="運用"
           guide="自動実行で何が起きるか（調査→目標→実行→検証→報告）を先頭にまとめた内部仕様です。詳しい参照（安全条件・データ・API・画面）は各見出しをタップで開けます。"
@@ -133,7 +133,7 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
   }
   if (tab === 'research') {
     return (
-      <div className="space-y-5 px-4 pb-6 pt-6">
+      <div className="space-y-4 px-4 pb-5 pt-4">
         <PageGuide
           title="運用"
           guide="毎朝の調査→試す候補の自動提案→承認→自動実行の流れと仕様"
@@ -209,7 +209,7 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
   ]
 
   return (
-    <div className="space-y-4 px-4 pb-6 pt-6">
+    <div className="space-y-4 px-4 pb-5 pt-4">
       <PageGuide
         title="運用ガイド"
         guide="このページを5分読めば、Progressの使い方がすべて分かります。困ったらいつでもここに戻ってください。"

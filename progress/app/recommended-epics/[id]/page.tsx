@@ -9,7 +9,7 @@ import RecActions from '@/components/recommended/RecActions'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+    <section className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
       <h2 className="mb-2 text-sm font-bold text-gray-900 dark:text-gray-100">{title}</h2>
       {children}
     </section>
@@ -35,7 +35,7 @@ export default async function RecommendationDetailPage({ params }: { params: { i
   const elig = r.factoryEligiblePreview
 
   return (
-    <div className="space-y-3 px-4 pb-24 pt-6">
+    <div className="space-y-3 px-4 pb-24 pt-4">
       <div className="flex items-center gap-2 text-xs text-gray-400">
         <Link href="/recommended-epics" className="hover:underline">おすすめ追加Epic</Link>
         <span className="text-gray-300">/</span>
@@ -43,7 +43,7 @@ export default async function RecommendationDetailPage({ params }: { params: { i
       </div>
 
       {/* 概要 */}
-      <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <section className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
         <div className="flex flex-wrap items-center gap-1.5">
           <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${im.cls}`}>{im.label}</span>
           <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${st.cls}`}>{st.label}</span>
@@ -97,7 +97,7 @@ export default async function RecommendationDetailPage({ params }: { params: { i
         <Row label="推奨executor" value={[r.preferredExecutor, r.fallbackExecutor].filter(Boolean).join(' → ')} />
         <div className="mt-2">
           <div className="mb-1 text-xs font-semibold text-gray-400">doneCriteria</div>
-          <ul className="list-disc space-y-1 pl-5 text-sm text-gray-700 dark:text-gray-200">
+          <ul className="grid grid-cols-2 gap-1 pl-0 text-sm text-gray-700 dark:text-gray-200">
             {r.doneCriteria.map((d, i) => <li key={i}>{d}</li>)}
           </ul>
         </div>
@@ -139,7 +139,7 @@ export default async function RecommendationDetailPage({ params }: { params: { i
       {/* 操作履歴 */}
       {r.history && r.history.length > 0 && (
         <Section title="操作履歴">
-          <ol className="space-y-1.5">
+          <ol className="grid grid-cols-2 gap-1.5">
             {[...r.history].reverse().map((h, i) => (
               <li key={i} className="text-xs text-gray-600 dark:text-gray-300">
                 <span className="text-gray-400">{h.at.slice(0, 16).replace('T', ' ')}</span> · {h.action}

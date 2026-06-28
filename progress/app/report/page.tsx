@@ -14,7 +14,7 @@ export default async function AutoExecutionReportPage({
   searchParams?: Record<string, string | string[] | undefined>
 }) {
   return (
-    <div className="space-y-5 px-4 pb-6 pt-6">
+    <div className="space-y-4 px-4 pb-5 pt-4">
       <PageGuide
         title="レポート"
         guide="AI工場の自動実行を1件ずつ深く確認する専用ページです。検索・期間・状態・実行者・対象アプリ・レビュー状態で絞り込めます。"

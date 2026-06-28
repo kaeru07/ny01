@@ -7,7 +7,7 @@ import { buildUsageSummary } from '@/lib/usage-store'
 // どの画面をよく開き、どのボタンをよく押し、最後にいつ使い、どの画面を放置しているかを集計表示する。
 // 記録は UsageTracker（layout 常駐）→ /api/usage → usage-log.ndjson。表示専用で実行ロジックには影響しない。
 
-const card = 'rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900'
+const card = 'rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900'
 const h2 = 'text-sm font-bold text-gray-900 dark:text-gray-100'
 const body = 'text-xs leading-relaxed text-gray-600 dark:text-gray-300'
 
@@ -46,7 +46,7 @@ export default async function UsagePage() {
   const maxActionCount = summary.topActions[0]?.count ?? 0
 
   return (
-    <div className="space-y-5 px-4 pb-6 pt-6">
+    <div className="space-y-4 px-4 pb-5 pt-4">
       <PageGuide
         title="使用状況"
         guide="Progress 自身の使われ方（よく開く画面・よく押すボタン・最後に使った日時・放置している画面）を直近7日で集計します。記録は自動で、画面の動作には影響しません。"
@@ -60,16 +60,16 @@ export default async function UsagePage() {
             まだ記録がありません。画面を開いたりボタンを押したりすると、ここに使用状況が集計されます（数回操作してから再読み込みしてください）。
           </p>
         ) : (
-          <div className="mt-3 grid grid-cols-3 gap-3 text-center">
-            <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+          <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+            <div className="rounded-lg bg-gray-50 p-2.5 dark:bg-gray-800/50">
               <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{summary.totalPageViews}</p>
               <p className="text-[11px] text-gray-500 dark:text-gray-400">画面表示</p>
             </div>
-            <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+            <div className="rounded-lg bg-gray-50 p-2.5 dark:bg-gray-800/50">
               <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{summary.totalActions}</p>
               <p className="text-[11px] text-gray-500 dark:text-gray-400">ボタン操作</p>
             </div>
-            <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+            <div className="rounded-lg bg-gray-50 p-2.5 dark:bg-gray-800/50">
               <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{fmtDateTime(summary.lastAt)}</p>
               <p className="text-[11px] text-gray-500 dark:text-gray-400">最後に使った</p>
             </div>
@@ -83,9 +83,9 @@ export default async function UsagePage() {
         {summary.screens.length === 0 ? (
           <p className={`mt-2 ${body}`}>記録がありません。</p>
         ) : (
-          <ul className="mt-3 space-y-2.5">
+          <ul className="mt-3 grid grid-cols-2 gap-2">
             {summary.screens.map((s) => (
-              <li key={s.href}>
+              <li key={s.href} className="rounded-lg bg-gray-50 p-2 dark:bg-gray-800/50">
                 <div className="flex items-center justify-between gap-2">
                   <span className="truncate text-xs font-medium text-gray-800 dark:text-gray-200">{s.label}</span>
                   <span className="shrink-0 text-xs tabular-nums text-gray-500 dark:text-gray-400">{s.count}回</span>
@@ -105,9 +105,9 @@ export default async function UsagePage() {
         {summary.topActions.length === 0 ? (
           <p className={`mt-2 ${body}`}>記録がありません。ボタンを押すとここに集計されます。</p>
         ) : (
-          <ol className="mt-3 space-y-2.5">
+          <ol className="mt-3 grid grid-cols-2 gap-2">
             {summary.topActions.map((a, i) => (
-              <li key={`${a.label}-${i}`}>
+              <li key={`${a.label}-${i}`} className="rounded-lg bg-gray-50 p-2 dark:bg-gray-800/50">
                 <div className="flex items-center justify-between gap-2">
                   <span className="truncate text-xs font-medium text-gray-800 dark:text-gray-200">
                     <span className="mr-1.5 text-gray-400">{i + 1}.</span>
@@ -130,11 +130,11 @@ export default async function UsagePage() {
         {summary.lastUsedByScreen.length === 0 ? (
           <p className={`mt-2 ${body}`}>記録がありません。</p>
         ) : (
-          <ul className="mt-3 divide-y divide-gray-100 dark:divide-gray-800">
+          <ul className="mt-3 grid grid-cols-2 gap-2">
             {summary.lastUsedByScreen.map((s) => (
-              <li key={s.href} className="flex items-center justify-between gap-2 py-1.5">
+              <li key={s.href} className="rounded-lg bg-gray-50 p-2 dark:bg-gray-800/50">
                 <span className="truncate text-xs font-medium text-gray-800 dark:text-gray-200">{s.label}</span>
-                <span className="shrink-0 text-[11px] text-gray-500 dark:text-gray-400">
+                <span className="mt-1 block text-[11px] text-gray-500 dark:text-gray-400">
                   {fmtDateTime(s.lastAt)}・{relativeFromNow(s.lastAt)}
                 </span>
               </li>

@@ -14,7 +14,7 @@ export default async function FactoryCandidatesPage() {
   const queue = await getAppFactoryCandidates()
 
   return (
-    <div className="space-y-4 px-4 pb-4 pt-6">
+    <div className="space-y-4 px-4 pb-4 pt-4">
       <header className="space-y-1">
         <Link href="/epic" className="text-xs text-gray-400 hover:underline">
           ← AI工場
@@ -26,21 +26,21 @@ export default async function FactoryCandidatesPage() {
       {queue.candidates.length === 0 ? (
         <p className="text-sm text-gray-400">候補がまだありません。</p>
       ) : (
-        <ul className="space-y-3">
+        <ul className="grid grid-cols-2 gap-2 md:grid-cols-3">
           {queue.candidates.map((c) => {
             const badge = PRIORITY_BADGE[c.priority] ?? PRIORITY_BADGE.low
             return (
               <li
                 key={c.id}
-                className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900"
+                className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900"
               >
                 <div className="flex items-start justify-between gap-2">
-                  <h2 className="text-base font-bold text-gray-900 dark:text-gray-100">{c.title}</h2>
+                  <h2 className="line-clamp-3 text-sm font-bold leading-snug text-gray-900 dark:text-gray-100">{c.title}</h2>
                   <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${badge.cls}`}>
                     {badge.label}
                   </span>
                 </div>
-                <dl className="mt-3 space-y-2 text-sm">
+                <dl className="mt-3 space-y-2 text-xs">
                   <div>
                     <dt className="text-xs font-semibold text-gray-400">目的</dt>
                     <dd className="text-gray-800 dark:text-gray-200">{c.purpose}</dd>

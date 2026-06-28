@@ -30,7 +30,7 @@ export default async function RevenuePage() {
   const candidateCount = candidates.length
 
   return (
-    <div className="space-y-4 px-4 pb-6 pt-6">
+    <div className="space-y-4 px-4 pb-5 pt-4">
       <PageGuide title="Revenue" guide="収益化までの進捗を確認します。いま現実にいくら稼げているかと、次の一歩だけを表示します。" />
 
       <section className="rounded-xl border-2 border-emerald-200 bg-white p-4 text-center dark:border-emerald-900/50 dark:bg-gray-900">

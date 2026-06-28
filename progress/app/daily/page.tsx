@@ -31,7 +31,7 @@ export default async function DailyPage() {
   const grouped = groupByDate(logs)
 
   return (
-    <div className="px-4 pt-6 pb-4 space-y-5">
+    <div className="space-y-4 px-4 pb-4 pt-4">
       <header>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">日別進捗</h1>
         <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5">{grouped.size} 日分</p>
@@ -72,11 +72,11 @@ export default async function DailyPage() {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
+            <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
               {dayLogs.map((log, i) => (
                 <div
                   key={i}
-                  className={`flex items-start gap-3 px-4 py-3 ${
+                  className={`flex items-start gap-3 px-3 py-2.5 ${
                     i < dayLogs.length - 1 ? 'border-b border-gray-50 dark:border-gray-700' : ''
                   }`}
                 >

@@ -40,7 +40,7 @@ export default function ApprovalsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-4 px-4 py-6">
+    <div className="mx-auto max-w-lg space-y-4 px-4 py-4">
       <header>
         <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">承認待ち（横断）</h1>
         <p className="mt-0.5 text-sm text-gray-400">全 Epic の承認待ちをここで決定する。決定は Decision Log に自動記録される。</p>
@@ -50,7 +50,7 @@ export default function ApprovalsPage() {
         <p className="text-sm text-gray-400">承認待ちはありません。</p>
       ) : (
         approvals.map((a) => (
-          <div key={a.approvalId} className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+          <div key={a.approvalId} className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
             <div className="flex items-start justify-between gap-2">
               <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{a.title}</span>
               <span className={`shrink-0 rounded px-2 py-0.5 text-[11px] ${PRIORITY_BADGE[a.priority]}`}>優先度{epicPriorityLabel(a.priority)}</span>

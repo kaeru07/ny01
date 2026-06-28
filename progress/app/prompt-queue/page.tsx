@@ -19,7 +19,7 @@ export default async function PromptQueuePage() {
     .map((goal) => ({ id: goal.id, title: goal.title }))
 
   return (
-    <div className="space-y-4 px-4 pb-6 pt-6">
+    <div className="space-y-4 px-4 pb-5 pt-4">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Prompt Queue</h1>

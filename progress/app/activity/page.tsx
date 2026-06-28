@@ -269,7 +269,7 @@ export default async function ActivityPage({ searchParams }: { searchParams?: Re
   ]
 
   return (
-    <div className="space-y-3 px-3 pb-6 pt-4 sm:px-4">
+    <div className="space-y-3 px-3 pb-5 pt-4 sm:px-4">
       <section className={`${card} border-2 border-blue-200 dark:border-blue-900/50`}>
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -320,12 +320,12 @@ export default async function ActivityPage({ searchParams }: { searchParams?: Re
         {completedRuns.length === 0 ? (
           <p className="mt-2 text-[12px] text-gray-500 dark:text-gray-400">この期間の完了Runはありません。</p>
         ) : (
-          <ul className="mt-2 divide-y divide-gray-100 dark:divide-gray-800">
+          <ul className="mt-2 grid grid-cols-2 gap-2">
             {completedRuns.slice(0, 8).map((r) => {
               const epic = r.epicId ? epicById.get(r.epicId) : undefined
               const goalTitle = getGoalTitle(goalById, epic?.goalId ?? r.selection?.selectedGoalKey, r.selection?.selectedGoalTitle ?? epic?.goal)
               return (
-                <li key={r.runId} className="py-2 first:pt-0 last:pb-0">
+                <li key={r.runId} className="rounded-lg bg-gray-50 p-2 dark:bg-gray-950/35">
                   <p className="line-clamp-2 text-[13px] font-bold leading-snug text-gray-900 dark:text-gray-100">{displayTitle(r)}</p>
                   <p className="mt-0.5 text-[11px] font-semibold text-gray-500 dark:text-gray-400">
                     {appLabel(r.targetApp)} / {shorten(humanizeTitle(goalTitle), 24)}
@@ -347,7 +347,7 @@ export default async function ActivityPage({ searchParams }: { searchParams?: Re
         {repeatedEpics.length === 0 ? (
           <p className="mt-2 text-[12px] text-gray-500 dark:text-gray-400">同じEpicの再実行はありません。</p>
         ) : (
-          <ul className="mt-2 space-y-2">
+          <ul className="mt-2 grid grid-cols-2 gap-2">
             {repeatedEpics.map((row) => {
               const epic = epicById.get(row.key)
               const heavy = row.count >= 5
@@ -433,7 +433,7 @@ export default async function ActivityPage({ searchParams }: { searchParams?: Re
         {doneGoals.length === 0 ? (
           <p className="mt-2 text-[12px] text-gray-500 dark:text-gray-400">なし</p>
         ) : (
-          <ul className="mt-2 space-y-1.5">
+          <ul className="mt-2 grid grid-cols-2 gap-1.5">
             {doneGoals.slice(0, 6).map((g) => (
               <li key={g.id} className="rounded-lg bg-emerald-50 px-2.5 py-2 text-[13px] font-bold text-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-100">
                 {shorten(humanizeTitle(g.title), 34)}
@@ -471,7 +471,7 @@ export default async function ActivityPage({ searchParams }: { searchParams?: Re
         {activeGoals.length === 0 ? (
           <p className="mt-2 text-[12px] text-gray-500 dark:text-gray-400">進行中のゴールはありません。</p>
         ) : (
-          <ul className="mt-2 space-y-2">
+          <ul className="mt-2 grid grid-cols-2 gap-2">
             {activeGoals.map(({ goal, achievement }) => (
               <li key={goal.id}>
                 <div className="flex items-center justify-between gap-2">

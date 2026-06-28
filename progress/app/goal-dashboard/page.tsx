@@ -139,7 +139,7 @@ export default async function GoalDashboardPage({ searchParams }: { searchParams
   const selectedGoal = selectedGoalId ? activeWithAch.find(({ g }) => g.id === selectedGoalId) : undefined
 
   return (
-    <div className="space-y-4 px-4 pb-6 pt-6">
+    <div className="space-y-4 px-4 pb-5 pt-4">
       {!selectedGoalId && (
         <section className={`${card} border-2 border-blue-200 dark:border-blue-900/50`}>
           <h1 className="text-lg font-black text-gray-950 dark:text-white">ゴール×todo消化状況</h1>

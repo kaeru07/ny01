@@ -8,7 +8,7 @@ export default async function MonetizationPage() {
   const candidates = await getCandidates()
 
   return (
-    <div className="space-y-4 px-4 pb-24 pt-6">
+    <div className="space-y-4 px-4 pb-24 pt-4">
       <header className="space-y-1">
         <div className="flex items-start justify-between gap-3">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">収益化候補管理</h1>

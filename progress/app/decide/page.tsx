@@ -14,7 +14,7 @@ export default async function TodayDecisionsPage() {
   const [inbox, metrics, autoQueue] = await Promise.all([buildInbox(), computeFactoryMetrics(), getAutoQueueView()])
 
   return (
-    <div className="space-y-4 px-4 pb-6 pt-6">
+    <div className="space-y-4 px-4 pb-5 pt-4">
       <PageGuide
         title="今日の判断"
         guide="「今日の判断」タブだけ処理すれば工場は止まりません。ほかのタブは時間があるときで大丈夫です。"

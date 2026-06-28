@@ -15,7 +15,7 @@ export default async function InboxPage() {
   const imported = items.filter((i) => i.imported)
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-5 space-y-5 pb-24">
+    <div className="max-w-3xl mx-auto px-4 py-4 space-y-4 pb-24">
       <header className="space-y-1">
         <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
           ChatGPT Inbox

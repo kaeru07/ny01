@@ -208,7 +208,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
   ]
 
   return (
-    <div className="space-y-5 px-4 pb-6 pt-6">
+    <div className="space-y-4 px-4 pb-5 pt-4">
       <header className="space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -239,7 +239,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
         </div>
       </header>
 
-      <section className={`rounded-xl border-2 p-4 ${
+      <section className={`rounded-xl border-2 p-3 ${
         factoryBlocked
           ? 'border-rose-600 bg-rose-50 text-rose-950 dark:bg-rose-950/40 dark:text-rose-100'
           : 'border-emerald-300 bg-emerald-50 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-100'
@@ -267,7 +267,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
                 ? `キューに実行可能 ${queue.counts.executable} 件がありますがFactoryが起動できません`
                 : '実行条件を満たす作業がありません')}
             </p>
-            <div className="mt-3 rounded-lg bg-white/80 p-3 dark:bg-gray-950/50">
+            <div className="mt-3 rounded-lg bg-white/80 p-2.5 dark:bg-gray-950/50">
               <p className="text-xs font-black">解消方法</p>
               {factoryStatus.recoveryActions.length > 0 ? (
                 <ul className="mt-2 space-y-2">
@@ -337,7 +337,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
       />
       <FilterChips chips={activeChips} clearHref="/queue" />
 
-      <section className="grid grid-cols-1 gap-2 sm:grid-cols-5">
+      <section className="grid grid-cols-2 gap-2 sm:grid-cols-5">
         {[
           ['判断待ち', statusCount(goalScopedItems, 'waiting_user'), 'waiting_user'],
           ['AI保留', statusCount(goalScopedItems, 'ai_hold'), 'ai_hold'],
@@ -345,9 +345,9 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
           ['実行可', statusCount(goalScopedItems, 'executable'), 'executable'],
           ['Block', statusCount(goalScopedItems, 'blocked'), 'blocked'],
         ].map(([label, count, key]) => (
-          <Link key={key} href={queueHref(filters, { status: key as WorkItemStatus })} className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/60">
+          <Link key={key} href={queueHref(filters, { status: key as WorkItemStatus })} className="rounded-lg bg-gray-50 p-2.5 dark:bg-gray-800/60">
             <p className="text-[11px] font-semibold text-gray-400">{label}</p>
-            <p className="mt-1 text-xl font-bold text-gray-900 dark:text-gray-100">{count}</p>
+            <p className="mt-0.5 text-lg font-bold text-gray-900 dark:text-gray-100">{count}</p>
           </Link>
         ))}
       </section>
@@ -385,9 +385,9 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
           </div>
         </section>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {goalGroups.map((group) => (
-            <section key={group.goalId} className="space-y-3">
+            <section key={group.goalId} className="space-y-2">
               <GoalGroupHeader group={group} filters={filters} />
           {group.items.map((item) => {
             const canMove = item.status === 'executable'
@@ -397,7 +397,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
             return (
               <article
                 key={item.workItemId}
-                className={`rounded-lg border bg-white p-4 dark:bg-gray-900 ${
+                className={`rounded-lg border bg-white p-3 dark:bg-gray-900 ${
                   pinnedButExcluded
                     ? 'border-amber-300 ring-2 ring-amber-100 dark:border-amber-800 dark:ring-amber-900/40'
                     : 'border-gray-200 dark:border-gray-800'
@@ -426,7 +426,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
                   </span>
                 </div>
 
-                <h2 className="mt-2 text-base font-bold leading-snug text-gray-900 dark:text-gray-100">{item.title}</h2>
+                <h2 className="mt-2 text-sm font-bold leading-snug text-gray-900 dark:text-gray-100">{item.title}</h2>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Project {item.projectName ?? item.projectId ?? '未設定'}
                 </p>
