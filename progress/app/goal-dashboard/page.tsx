@@ -198,7 +198,7 @@ export default async function GoalDashboardPage({ searchParams }: { searchParams
           {activeWithAch.length === 0 ? (
             <p className="mt-2 text-[12px] text-gray-500 dark:text-gray-400">実行中のゴールはありません。</p>
           ) : (
-            <ul className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <ul className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-4">
               {activeWithAch.map(({ g, ach }) => {
                 const hasExecutable = goalHasExecutable(g, goalProgressById, executableGoalIds)
                 const { done, total } = todoSummary(g)
@@ -207,12 +207,12 @@ export default async function GoalDashboardPage({ searchParams }: { searchParams
                   <li key={g.id}>
                     <Link
                       href={`/goal-dashboard?goalId=${encodeURIComponent(g.id)}`}
-                      className="block h-full rounded-lg border border-gray-100 bg-gray-50/60 p-3 transition-colors hover:border-blue-200 hover:bg-blue-50/50 dark:border-gray-800 dark:bg-gray-950/30 dark:hover:border-blue-900/60 dark:hover:bg-blue-900/10"
+                      className="block h-full rounded-lg border border-gray-100 bg-gray-50/60 p-2.5 transition-colors hover:border-blue-200 hover:bg-blue-50/50 dark:border-gray-800 dark:bg-gray-950/30 dark:hover:border-blue-900/60 dark:hover:bg-blue-900/10"
                     >
-                      <div className="flex h-full flex-col gap-3">
+                      <div className="flex h-full flex-col gap-2">
                         <div className="min-w-0">
-                          <p className="break-words text-sm font-black text-gray-900 dark:text-gray-100">{g.title}</p>
-                          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                          <p className="line-clamp-3 break-words text-xs font-black leading-snug text-gray-900 dark:text-gray-100">{g.title}</p>
+                          <div className="mt-1.5 flex flex-wrap items-center gap-1">
                             <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-300">todo {done}/{total} 完了</span>
                             {stuckCount > 0 && <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-black text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">⚠ {stuckCount}件</span>}
                           </div>
@@ -220,9 +220,9 @@ export default async function GoalDashboardPage({ searchParams }: { searchParams
                         <div className="mt-auto">
                           <div className="flex items-center justify-between gap-2">
                             <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400">{g.current ?? 0}/{g.target ?? 100}</span>
-                            <span className="text-lg font-black text-gray-900 dark:text-gray-100">{ach}%</span>
+                            <span className="text-base font-black text-gray-900 dark:text-gray-100">{ach}%</span>
                           </div>
-                          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+                          <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
                             <div className={`h-full rounded-full ${bar(ach)}`} style={{ width: `${Math.max(2, Math.min(100, ach))}%` }} />
                           </div>
                         </div>

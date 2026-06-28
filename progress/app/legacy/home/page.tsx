@@ -59,7 +59,7 @@ export default async function DashboardPage() {
   })
 
   return (
-    <div className="space-y-6 px-4 pb-6 pt-6">
+    <div className="space-y-5 px-4 pb-6 pt-6">
       <header className="space-y-1">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Progress Command</h1>
         <p className="text-sm text-gray-400 dark:text-gray-500">{todayLabel}</p>
@@ -85,45 +85,45 @@ export default async function DashboardPage() {
         </section>
       )}
 
-      <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <section className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
         <div className="mb-3 flex items-center justify-between gap-3">
           <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Factory Metrics</h2>
           <span className="text-[11px] text-gray-400">{fmt(metrics.computedAt)} 時点</span>
         </div>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+          <div className="rounded-lg bg-gray-50 p-2.5 dark:bg-gray-800/50">
             <p className="text-[11px] text-gray-400">closed_loop_rate</p>
             <p className="mt-0.5 text-lg font-bold text-gray-900 dark:text-gray-100">{(metrics.closedLoopRate * 100).toFixed(1)}%</p>
             <p className="text-[11px] text-gray-400">Knowledge {metrics.knowledgeCount} / Run {metrics.totalRuns}</p>
           </div>
-          <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+          <div className="rounded-lg bg-gray-50 p-2.5 dark:bg-gray-800/50">
             <p className="text-[11px] text-gray-400">not_reviewed_count</p>
             <p className="mt-0.5 text-lg font-bold text-gray-900 dark:text-gray-100">{metrics.notReviewedCount}</p>
             <p className="text-[11px] text-gray-400">needs_human {metrics.needsHumanCount} · followup {metrics.needsFollowupCount}</p>
           </div>
-          <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+          <div className="rounded-lg bg-gray-50 p-2.5 dark:bg-gray-800/50">
             <p className="text-[11px] text-gray-400">oldest_not_reviewed_age</p>
             <p className="mt-0.5 text-lg font-bold text-gray-900 dark:text-gray-100">{metrics.oldestNotReviewedAgeDays ?? '-'}{metrics.oldestNotReviewedAgeDays !== null && <span className="text-xs font-normal">日</span>}</p>
           </div>
-          <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+          <div className="rounded-lg bg-gray-50 p-2.5 dark:bg-gray-800/50">
             <p className="text-[11px] text-gray-400">daily_decision_count</p>
             <p className="mt-0.5 text-lg font-bold text-gray-900 dark:text-gray-100">{metrics.dailyDecisionCount}</p>
             <p className="text-[11px] text-gray-400">承認待ち {metrics.pendingApprovalCount}</p>
           </div>
-          <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+          <div className="rounded-lg bg-gray-50 p-2.5 dark:bg-gray-800/50">
             <p className="text-[11px] text-gray-400">suggested_epic_count</p>
             <p className="mt-0.5 text-lg font-bold text-gray-900 dark:text-gray-100">{metrics.suggestedEpicCount}</p>
           </div>
-          <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+          <div className="rounded-lg bg-gray-50 p-2.5 dark:bg-gray-800/50">
             <p className="text-[11px] text-gray-400">stale_suggested_count</p>
             <p className={`mt-0.5 text-lg font-bold ${metrics.staleSuggestedCount > 0 ? 'text-amber-600' : 'text-gray-900 dark:text-gray-100'}`}>{metrics.staleSuggestedCount}</p>
             <p className="text-[11px] text-gray-400">7日以上 suggested のまま</p>
           </div>
-          <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+          <div className="rounded-lg bg-gray-50 p-2.5 dark:bg-gray-800/50">
             <p className="text-[11px] text-gray-400">factory_last_result</p>
             <p className="mt-0.5 line-clamp-2 text-xs font-semibold text-gray-900 dark:text-gray-100">{metrics.factoryLastResult ?? 'なし'}</p>
           </div>
-          <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+          <div className="rounded-lg bg-gray-50 p-2.5 dark:bg-gray-800/50">
             <p className="text-[11px] text-gray-400">factory_last_error</p>
             <p className={`mt-0.5 line-clamp-2 text-xs font-semibold ${metrics.factoryLastError ? 'text-rose-600' : 'text-gray-900 dark:text-gray-100'}`}>{metrics.factoryLastError ?? 'なし'}</p>
           </div>
@@ -258,20 +258,20 @@ export default async function DashboardPage() {
         {factory.goalCards.length === 0 ? (
           <p className="text-sm text-gray-400">Goalがありません。</p>
         ) : (
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
             {factory.goalCards.map((card) => (
-              <div key={card.goal.id} className="rounded-lg border border-gray-100 p-3 dark:border-gray-800">
+              <div key={card.goal.id} className="rounded-lg border border-gray-100 p-2.5 dark:border-gray-800">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="font-semibold text-gray-900 dark:text-gray-100">{card.goal.title}</p>
+                    <p className="line-clamp-2 text-xs font-semibold leading-snug text-gray-900 dark:text-gray-100">{card.goal.title}</p>
                     <p className="mt-0.5 text-xs text-gray-400">{card.epics.length} Epic · active {card.activeEpics.length}</p>
                   </div>
                   <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">{card.achievement}%</span>
                 </div>
-                <div className="mt-2 h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
                   <div className="h-full rounded-full bg-blue-600" style={{ width: pct(card.achievement) }} />
                 </div>
-                <ul className="mt-3 space-y-1">
+                <ul className="mt-2 space-y-1">
                   {card.epics.slice(0, 4).map((epic) => (
                     <li key={epic.epicId} className="flex items-center justify-between gap-2 text-xs">
                       <Link href={`/epic/${epic.epicId}`} className="truncate text-gray-700 hover:underline dark:text-gray-200">{epic.title}</Link>
@@ -288,14 +288,14 @@ export default async function DashboardPage() {
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
           <h2 className="mb-3 text-sm font-bold text-gray-900 dark:text-gray-100">進行中Epic</h2>
-          <ul className="space-y-2">
+          <ul className="grid grid-cols-2 gap-2">
             {factory.activeEpics.slice(0, 8).map((epic) => (
-              <li key={epic.epicId} className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                <Link href={`/epic/${epic.epicId}`} className="font-medium text-gray-900 hover:underline dark:text-gray-100">{epic.title}</Link>
-                <p className="mt-1 text-xs text-gray-400">{epic.goalId ? factory.goals.find((g) => g.id === epic.goalId)?.title ?? epic.goalId : 'Goal未紐付き'} · {epicPriorityLabel(epic.priority)}</p>
+              <li key={epic.epicId} className="rounded-lg bg-gray-50 p-2.5 dark:bg-gray-800/50">
+                <Link href={`/epic/${epic.epicId}`} className="line-clamp-2 text-xs font-medium leading-snug text-gray-900 hover:underline dark:text-gray-100">{epic.title}</Link>
+                <p className="mt-1 line-clamp-2 text-[11px] text-gray-400">{epic.goalId ? factory.goals.find((g) => g.id === epic.goalId)?.title ?? epic.goalId : 'Goal未紐付き'} · {epicPriorityLabel(epic.priority)}</p>
               </li>
             ))}
-            {factory.activeEpics.length === 0 && <li className="text-sm text-gray-400">active Epicはありません。</li>}
+            {factory.activeEpics.length === 0 && <li className="col-span-2 text-sm text-gray-400">active Epicはありません。</li>}
           </ul>
         </div>
 

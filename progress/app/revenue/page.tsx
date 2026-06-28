@@ -30,13 +30,13 @@ export default async function RevenuePage() {
   const candidateCount = candidates.length
 
   return (
-    <div className="space-y-5 px-4 pb-6 pt-6">
+    <div className="space-y-4 px-4 pb-6 pt-6">
       <PageGuide title="Revenue" guide="収益化までの進捗を確認します。いま現実にいくら稼げているかと、次の一歩だけを表示します。" />
 
-      <section className="rounded-xl border-2 border-emerald-200 bg-white p-5 text-center dark:border-emerald-900/50 dark:bg-gray-900">
+      <section className="rounded-xl border-2 border-emerald-200 bg-white p-4 text-center dark:border-emerald-900/50 dark:bg-gray-900">
         <p className="text-xs text-gray-400">現在の収益</p>
-        <p className="mt-1 text-4xl font-bold text-gray-900 dark:text-gray-100">{formatRevenueJpy(revenueConfig.currentRevenueJpy)}</p>
-        <p className="mt-2 text-[11px] text-gray-400">
+        <p className="mt-1 text-3xl font-bold text-gray-900 dark:text-gray-100">{formatRevenueJpy(revenueConfig.currentRevenueJpy)}</p>
+        <p className="mt-1.5 text-[11px] text-gray-400">
           ストア・広告の収益データはまだ接続されていません。最初の収益が出たらここに反映します
         </p>
       </section>
@@ -61,12 +61,12 @@ export default async function RevenuePage() {
 
       <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
         <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">Project別の収益化距離</h2>
-        <ul className="mt-3 space-y-2">
+        <ul className="mt-3 grid grid-cols-2 gap-2">
           {projects.slice(0, 8).map((p) => (
-            <li key={p.id} className="rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800/50">
-              <div className="flex items-center justify-between gap-3">
-                <p className="min-w-0 text-sm font-semibold text-gray-900 dark:text-gray-100">{p.name}</p>
-                <p className="shrink-0 text-sm font-bold text-gray-900 dark:text-gray-100">残り{p.monetizationStepsRemaining}ステップ</p>
+            <li key={p.id} className="rounded-lg bg-gray-50 px-2.5 py-2 dark:bg-gray-800/50">
+              <div className="min-w-0">
+                <p className="line-clamp-2 text-xs font-semibold leading-snug text-gray-900 dark:text-gray-100">{p.name}</p>
+                <p className="mt-1 text-xs font-bold text-gray-900 dark:text-gray-100">残り{p.monetizationStepsRemaining}ステップ</p>
               </div>
               <p className="mt-1 line-clamp-1 text-[11px] text-gray-400">次: {p.nextWork}</p>
             </li>

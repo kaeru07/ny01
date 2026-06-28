@@ -91,7 +91,7 @@ export default function AutomationPage() {
         : { label: 'paused', cls: 'bg-gray-200 text-gray-600' }
 
   return (
-    <div className="mx-auto max-w-lg space-y-5 px-4 py-6">
+    <div className="mx-auto max-w-lg space-y-4 px-4 py-6">
       <header>
         <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Automation</h1>
         <p className="mt-0.5 text-sm text-gray-400">AI工場のエンジン。状態中心で確認する（Executor は内部状態）。</p>
@@ -107,12 +107,12 @@ export default function AutomationPage() {
       <LoopHealthCard />
 
       {/* 現在状態 */}
-      <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <section className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
         <div className="flex items-center justify-between">
           <span className="text-sm font-bold text-gray-900 dark:text-gray-100">現在状態</span>
           <span className={`rounded-full px-3 py-1 text-xs font-semibold ${runState.cls}`}>{runState.label}</span>
         </div>
-        <div className="mt-3 grid grid-cols-4 gap-2 text-center">
+        <div className="mt-3 grid grid-cols-4 gap-1.5 text-center">
           <Stat label="実行可" value={health?.runnable} />
           <Stat label="実行中" value={health?.running} />
           <Stat label="承認待ち" value={health?.pendingApproval} warn={(health?.pendingApproval ?? 0) > 0} />
@@ -121,7 +121,7 @@ export default function AutomationPage() {
       </section>
 
       {/* 自動実行コントロール (vloop) */}
-      <section className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <section className="rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
         <div className="flex items-center justify-between">
           <span className="text-sm font-bold text-gray-900 dark:text-gray-100">自動実行 (vloop)</span>
           <span className="text-xs text-gray-500">
@@ -177,6 +177,28 @@ export default function AutomationPage() {
           busy={busy}
           onChange={(v) => patchConfig({ autoFallback: v })}
         />
+
+        {/* 深掘り回数（同一Epicを1起動内で何Run回すか）。1=毎Run別Epicへローテ / 3=同Epicを最大3回深掘り */}
+        <div className="mt-4">
+          <p className="mb-0.5 text-xs text-gray-500">1サイクルの深掘り回数</p>
+          <p className="mb-1 text-[11px] text-gray-400">
+            同じEpicを1起動内で何回まで掘るか。1=毎回ちがうEpicへ / 3=同じEpicを最大3回（既定）
+          </p>
+          <div className="flex gap-2">
+            {([1, 2, 3] as const).map((n) => (
+              <button
+                key={n}
+                disabled={busy}
+                onClick={() => patchConfig({ factoryMaxPerEpic: n })}
+                className={`flex-1 rounded-lg px-3 py-2 text-sm disabled:opacity-50 ${
+                  (config?.factoryMaxPerEpic ?? 3) === n ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                }`}
+              >
+                {n}回
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Auto Resume 状態（Claude上限後に安全作業だけ自動継続） */}
         <div className="mt-4">

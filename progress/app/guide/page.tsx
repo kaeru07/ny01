@@ -209,7 +209,7 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
   ]
 
   return (
-    <div className="space-y-5 px-4 pb-6 pt-6">
+    <div className="space-y-4 px-4 pb-6 pt-6">
       <PageGuide
         title="運用ガイド"
         guide="このページを5分読めば、Progressの使い方がすべて分かります。困ったらいつでもここに戻ってください。"
@@ -236,13 +236,13 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
       </Slide>
 
       <Slide n={2} title="今日の流れ" accent="amber" lead="朝と夜、それぞれ数分で終わります。">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-xl border border-amber-200 bg-white p-3 dark:border-amber-900/60 dark:bg-gray-900">
-            <p className="mb-3 text-sm font-black text-amber-700 dark:text-amber-300">🌅 朝</p>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="rounded-xl border border-amber-200 bg-white p-2 dark:border-amber-900/60 dark:bg-gray-900">
+            <p className="mb-2 text-sm font-black text-amber-700 dark:text-amber-300">🌅 朝</p>
             <FlowDiagram steps={['司令塔を開く', 'Inboxを開く', '判断する', '必要ならレビュー用コピー', '終了'].map((label) => ({ label }))} />
           </div>
-          <div className="rounded-xl border border-indigo-200 bg-white p-3 dark:border-indigo-900/60 dark:bg-gray-900">
-            <p className="mb-3 text-sm font-black text-indigo-700 dark:text-indigo-300">🌙 夜</p>
+          <div className="rounded-xl border border-indigo-200 bg-white p-2 dark:border-indigo-900/60 dark:bg-gray-900">
+            <p className="mb-2 text-sm font-black text-indigo-700 dark:text-indigo-300">🌙 夜</p>
             <FlowDiagram steps={['司令塔を開く', 'Inboxを開く', 'おすすめ次作業を確認', '必要ならレビュー用コピー', '終了'].map((label) => ({ label }))} />
           </div>
         </div>
@@ -301,14 +301,14 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
       </Slide>
 
       <Slide n={5} title="用語辞典" accent="gray" lead="画面に出てくる言葉はすべて人間語に直しています。内部の英語が出てきたらこの表で読み替えてください。">
-        <div className="grid gap-3">
+        <div className="grid grid-cols-2 gap-2">
           {Object.entries(TERMS).map(([key, t]) => (
-            <div key={key} className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900">
-              <p className="text-sm font-black text-gray-900 dark:text-gray-100">
+            <div key={key} className="rounded-xl border border-gray-200 bg-white p-2 dark:border-gray-700 dark:bg-gray-900">
+              <p className="text-xs font-black leading-snug text-gray-900 dark:text-gray-100">
                 {t.ja}
-                <span className="ml-2 text-xs font-bold text-gray-400">（{key}）</span>
+                <span className="ml-1 text-[10px] font-bold text-gray-400">（{key}）</span>
               </p>
-              <p className="mt-1 text-xs font-medium leading-relaxed text-gray-500 dark:text-gray-400">{t.help}</p>
+              <p className="mt-1 line-clamp-3 text-[10px] font-medium leading-snug text-gray-500 dark:text-gray-400">{t.help}</p>
             </div>
           ))}
         </div>
@@ -340,9 +340,14 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
             { dot: 'bg-gray-500', term: '手動/対象外', desc: '自動実行しません。' },
           ]}
         />
-        <div className="mt-3 rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900">
-          <p className="text-sm font-black text-gray-900 dark:text-gray-100">操作</p>
-          <ul className="mt-2 space-y-1 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
+        <details className="mt-3 rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+          <summary className="min-h-11 cursor-pointer list-none px-3 py-2 text-sm font-black text-gray-900 marker:hidden dark:text-gray-100">
+            <span className="flex items-center justify-between gap-2">
+              操作
+              <span className="text-blue-600 dark:text-blue-300">＋</span>
+            </span>
+          </summary>
+          <ul className="border-t border-gray-100 px-3 py-2 text-[11px] leading-relaxed text-gray-600 dark:border-gray-800 dark:text-gray-300">
             <li>・自動実行を最優先: 実行可能なら次回候補の最上位へ固定します。</li>
             <li>・復帰時に最優先: いま候補外の作業を、条件が解けた時に上位へ戻します。</li>
             <li>・↑ / ↓: 実行可能キュー内の相対順を保存します。</li>
@@ -350,19 +355,26 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
             <li>・対象外: 自動実行対象から外します。</li>
             <li>・詳細: 大きな作業の詳細へ移動します。</li>
           </ul>
-        </div>
-        <div className="mt-3 rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900">
-          <p className="text-sm font-black text-gray-900 dark:text-gray-100">並び順（Goal順）</p>
-          <p className="mt-1 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
-            自動実行キューは <span className="font-semibold">Goalごとにまとまって</span>表示され、<span className="font-semibold">Goalの順番がキューの順番</span>になります。Goalの並びは「最優先(pin) → boost → 優先度(高→中→低)」で決まり、目標タブでGoalを並べ替えると、次にAIが自動実行する作業も変わります。Goalに紐づかない作業は末尾の「Goal未設定」にまとまります。
-          </p>
-          <ul className="mt-2 space-y-1 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
-            <li>1. 明示pin（手動で最優先にした作業・絶対上位）</li>
-            <li>2. 自走化アンカー / 要修正（安全のため上に据え置き）</li>
-            <li>3. Goal順（pin &gt; boost &gt; 優先度）</li>
-            <li>4. Goal内（手動の上下移動 → スコア → 優先度）</li>
-          </ul>
-        </div>
+        </details>
+        <details className="mt-2 rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+          <summary className="min-h-11 cursor-pointer list-none px-3 py-2 text-sm font-black text-gray-900 marker:hidden dark:text-gray-100">
+            <span className="flex items-center justify-between gap-2">
+              並び順（Goal順）
+              <span className="text-blue-600 dark:text-blue-300">＋</span>
+            </span>
+          </summary>
+          <div className="border-t border-gray-100 px-3 py-2 dark:border-gray-800">
+            <p className="text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
+              自動実行キューは <span className="font-semibold">Goalごとにまとまって</span>表示され、<span className="font-semibold">Goalの順番がキューの順番</span>になります。Goalの並びは「最優先(pin) → boost → 優先度(高→中→低)」で決まり、目標タブでGoalを並べ替えると、次にAIが自動実行する作業も変わります。Goalに紐づかない作業は末尾の「Goal未設定」にまとまります。
+            </p>
+            <ul className="mt-2 space-y-1 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
+              <li>1. 明示pin（手動で最優先にした作業・絶対上位）</li>
+              <li>2. 自走化アンカー / 要修正（安全のため上に据え置き）</li>
+              <li>3. Goal順（pin &gt; boost &gt; 優先度）</li>
+              <li>4. Goal内（手動の上下移動 → スコア → 優先度）</li>
+            </ul>
+          </div>
+        </details>
         <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs font-semibold leading-relaxed text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
           重要: 最優先指定は安全条件を上書きしません。人間判断待ち・レビュー待ち・ブロック中・手動/対象外の作業は自動実行されず、司令塔と /queue に「最優先指定中だが候補外」と理由を表示します。
         </p>

@@ -92,41 +92,41 @@ export default async function PortfolioPage({ searchParams }: { searchParams?: R
         />
       </section>
 
-      <ul className="space-y-3">
+      <ul className="grid grid-cols-2 gap-2 md:grid-cols-3">
         {projects.map((p) => (
-          <li key={p.id} className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-start justify-between gap-3">
-              <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{p.name}</p>
-              <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${toneClass[p.statusTone]}`}>{p.statusLabel}</span>
+          <li key={p.id} className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
+            <div className="flex flex-col gap-1.5">
+              <p className="line-clamp-2 text-xs font-bold leading-snug text-gray-900 dark:text-gray-100">{p.name}</p>
+              <span className={`w-fit rounded-full px-2 py-0.5 text-[10px] font-bold ${toneClass[p.statusTone]}`}>{p.statusLabel}</span>
             </div>
-            <div className="mt-3 flex items-center gap-3">
-              <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+            <div className="mt-2 flex items-center gap-2">
+              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
                 <div className="h-full rounded-full bg-blue-600" style={{ width: `${p.progressPct}%` }} />
               </div>
-              <span className="w-12 text-right text-sm font-bold text-gray-900 dark:text-gray-100">{p.progressPct}%</span>
+              <span className="w-9 text-right text-xs font-bold text-gray-900 dark:text-gray-100">{p.progressPct}%</span>
             </div>
-            <dl className="mt-2 space-y-1 text-xs">
+            <dl className="mt-2 space-y-1 text-[11px]">
               <div className="flex gap-2">
-                <dt className="w-20 shrink-0 text-gray-400">残作業</dt>
+                <dt className="w-12 shrink-0 text-gray-400">残作業</dt>
                 <dd className="text-gray-700 dark:text-gray-200">{p.remainingWorkCount}作業</dd>
               </div>
               <div className="flex gap-2">
-                <dt className="w-20 shrink-0 text-gray-400">次の作業</dt>
+                <dt className="w-12 shrink-0 text-gray-400">次</dt>
                 <dd className="line-clamp-2 text-gray-700 dark:text-gray-200">{p.nextWork}</dd>
               </div>
               <div className="flex gap-2">
-                <dt className="w-20 shrink-0 text-gray-400">最終更新</dt>
+                <dt className="w-12 shrink-0 text-gray-400">更新</dt>
                 <dd className="text-gray-700 dark:text-gray-200">{fmt(p.updatedAt)}</dd>
               </div>
               <div className="flex gap-2">
-                <dt className="w-20 shrink-0 text-gray-400">収益化</dt>
-                <dd className="text-gray-700 dark:text-gray-200">{p.monetizationLabel}</dd>
+                <dt className="w-12 shrink-0 text-gray-400">収益化</dt>
+                <dd className="line-clamp-1 text-gray-700 dark:text-gray-200">{p.monetizationLabel}</dd>
               </div>
             </dl>
           </li>
         ))}
         {projects.length === 0 && (
-          <li className="rounded-xl border border-gray-200 bg-white px-4 py-6 text-center text-sm text-gray-500 dark:border-gray-800 dark:bg-gray-900">
+          <li className="col-span-2 rounded-xl border border-gray-200 bg-white px-4 py-6 text-center text-sm text-gray-500 dark:border-gray-800 dark:bg-gray-900 md:col-span-3">
             動いているプロジェクトはありません。
           </li>
         )}
