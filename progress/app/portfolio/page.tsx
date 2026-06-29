@@ -94,10 +94,17 @@ export default async function PortfolioPage({ searchParams }: { searchParams?: R
 
       <ul className="grid grid-cols-2 gap-2 md:grid-cols-3">
         {projects.map((p) => (
-          <li key={p.id} className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex flex-col gap-1.5">
-              <p className="line-clamp-2 text-xs font-bold leading-snug text-gray-900 dark:text-gray-100">{p.name}</p>
-              <span className={`w-fit rounded-full px-2 py-0.5 text-[10px] font-bold ${toneClass[p.statusTone]}`}>{p.statusLabel}</span>
+          <li key={p.id}>
+            <Link
+              href={`/projects/${p.id}`}
+              className="block rounded-xl border border-gray-200 bg-white p-3 transition-colors hover:border-blue-300 hover:bg-blue-50/40 active:bg-blue-50 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-blue-800 dark:hover:bg-blue-950/20"
+            >
+            <div className="flex items-start justify-between gap-1.5">
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <p className="line-clamp-2 text-xs font-bold leading-snug text-gray-900 dark:text-gray-100">{p.name}</p>
+                <span className={`w-fit rounded-full px-2 py-0.5 text-[10px] font-bold ${toneClass[p.statusTone]}`}>{p.statusLabel}</span>
+              </div>
+              <span aria-hidden className="mt-0.5 shrink-0 text-gray-300 dark:text-gray-600">›</span>
             </div>
             <div className="mt-2 flex items-center gap-2">
               <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
@@ -123,6 +130,7 @@ export default async function PortfolioPage({ searchParams }: { searchParams?: R
                 <dd className="line-clamp-1 text-gray-700 dark:text-gray-200">{p.monetizationLabel}</dd>
               </div>
             </dl>
+            </Link>
           </li>
         ))}
         {projects.length === 0 && (
