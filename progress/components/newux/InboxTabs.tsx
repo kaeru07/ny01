@@ -129,6 +129,67 @@ function groupCardsByGoal(cards: InboxCard[], goalTitleById: Map<string, string>
     })
 }
 
+function groupCardsByProject(cards: InboxCard[], projectTitleById: Map<string, string>) {
+  return Array.from(
+    cards.reduce((map, card) => {
+      const projectId = card.projectId ?? 'unassigned'
+      const group = map.get(projectId)
+      if (group) group.push(card)
+      else map.set(projectId, [card])
+      return map
+    }, new Map<string, InboxCard[]>()),
+  )
+    .map(([projectId, groupCards]) => ({
+      projectId,
+      title:
+        projectId === 'unassigned'
+          ? '未分類'
+          : projectTitleById.get(projectId) ?? groupCards.find((card) => card.projectTitle)?.projectTitle ?? projectId,
+      cards: groupCards,
+    }))
+    .sort((a, b) => {
+      if (a.projectId === 'unassigned') return 1
+      if (b.projectId === 'unassigned') return -1
+      return b.cards.length - a.cards.length || a.title.localeCompare(b.title, 'ja')
+    })
+}
+
+function ProjectChipRow({
+  groups,
+  activeProjectId,
+  onSelect,
+}: {
+  groups: Array<{ projectId: string; title: string; cards: InboxCard[] }>
+  activeProjectId: string
+  onSelect: (projectId: string) => void
+}) {
+  const total = groups.reduce((sum, group) => sum + group.cards.length, 0)
+  const chipClass = (active: boolean) =>
+    `min-h-8 shrink-0 rounded-full px-3 py-1.5 text-[11px] font-bold transition-colors ${
+      active
+        ? 'bg-blue-600 text-white'
+        : 'border border-gray-200 text-gray-600 dark:border-gray-700 dark:text-gray-300'
+    }`
+
+  return (
+    <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
+      <button type="button" onClick={() => onSelect('all')} className={chipClass(activeProjectId === 'all')}>
+        すべて ({total})
+      </button>
+      {groups.map((group) => (
+        <button
+          key={group.projectId}
+          type="button"
+          onClick={() => onSelect(group.projectId)}
+          className={chipClass(activeProjectId === group.projectId)}
+        >
+          {group.title} ({group.cards.length})
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props) {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -141,6 +202,8 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
   const [reviewFilter, setReviewFilter] = useState<ReviewFilter>(() => reviewFilterFromQuery(searchParams.get('reviewFilter'), searchParams.get('filter'), searchParams.get('reviewStatus')))
   const [reviewPage, setReviewPage] = useState(0)
   const [goalApprovalSource, setGoalApprovalSource] = useState<GoalApprovalSourceFilter>(() => goalApprovalSourceFromQuery(searchParams.get('goalApprovalSource')))
+  const [goalApprovalProject, setGoalApprovalProject] = useState('all')
+  const [achievementProject, setAchievementProject] = useState('all')
 
   const allReviewCards = useMemo(() => [...inbox.reviews, ...inbox.reviewedHistory], [inbox.reviews, inbox.reviewedHistory])
   const focusCard = focusRunId ? allReviewCards.find((card) => card.sourceRunId === focusRunId) : undefined
@@ -190,7 +253,17 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
   const achievedGoalIdSet = new Set(inbox.achievedGoalIds)
   const filteredAchievementReviews = filteredReviews.filter((card) => Boolean(card.goalId && achievedGoalIdSet.has(card.goalId)))
   const goalTitleById = new Map(inbox.goalSummaries.map((summary) => [summary.goalId, summary.goalTitle]))
-  const groupedAchievementReviews = groupCardsByGoal(filteredAchievementReviews, goalTitleById)
+  const projectTitleById = new Map(inbox.projectSummaries.map((summary) => [summary.projectId, summary.projectTitle]))
+  const achievementProjectGroups = groupCardsByProject(filteredAchievementReviews, projectTitleById)
+  const effectiveAchievementProject =
+    achievementProject === 'all' || achievementProjectGroups.some((group) => group.projectId === achievementProject)
+      ? achievementProject
+      : 'all'
+  const visibleAchievementReviews =
+    effectiveAchievementProject === 'all'
+      ? filteredAchievementReviews
+      : filteredAchievementReviews.filter((card) => (card.projectId ?? 'unassigned') === effectiveAchievementProject)
+  const groupedAchievementReviews = groupCardsByGoal(visibleAchievementReviews, goalTitleById)
   const selectedGoalSummary = selectedGoalId ? inbox.goalSummaries.find((summary) => summary.goalId === selectedGoalId) : undefined
   const selectedProjectSummary = selectedProjectId ? inbox.projectSummaries.find((summary) => summary.projectId === selectedProjectId) : undefined
   const selectedProjectTitle = selectedProjectId
@@ -370,29 +443,15 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
           { key: 'other', label: 'それ以外', count: otherGoals.length },
         ]
         const shown = goalApprovalSource === 'other' ? otherGoals : autoGoals
-        const projectTitleById = new Map(inbox.projectSummaries.map((summary) => [summary.projectId, summary.projectTitle]))
-        const groupedShown = Array.from(
-          shown.reduce((map, card) => {
-            const projectId = card.projectId ?? 'unassigned'
-            const group = map.get(projectId)
-            if (group) group.push(card)
-            else map.set(projectId, [card])
-            return map
-          }, new Map<string, InboxCard[]>()),
-        )
-          .map(([projectId, cards]) => ({
-            projectId,
-            title:
-              projectId === 'unassigned'
-                ? '未分類'
-                : projectTitleById.get(projectId) ?? cards.find((card) => card.projectTitle)?.projectTitle ?? projectId,
-            cards,
-          }))
-          .sort((a, b) => {
-            if (a.projectId === 'unassigned') return 1
-            if (b.projectId === 'unassigned') return -1
-            return b.cards.length - a.cards.length || a.title.localeCompare(b.title, 'ja')
-          })
+        const groupedShown = groupCardsByProject(shown, projectTitleById)
+        const effectiveGoalApprovalProject =
+          goalApprovalProject === 'all' || groupedShown.some((group) => group.projectId === goalApprovalProject)
+            ? goalApprovalProject
+            : 'all'
+        const visibleGroupedShown =
+          effectiveGoalApprovalProject === 'all'
+            ? groupedShown
+            : groupedShown.filter((group) => group.projectId === effectiveGoalApprovalProject)
         return (
           <section className="mt-4">
             <div className="mb-2 flex items-baseline justify-between gap-2">
@@ -420,11 +479,13 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
                   : 'この分類の承認待ち候補はありません。'}
               </p>
             ) : (
-              <div className="space-y-3">
-                {groupedShown.map((group) => (
+              <>
+                <ProjectChipRow groups={groupedShown} activeProjectId={effectiveGoalApprovalProject} onSelect={setGoalApprovalProject} />
+                <div className="space-y-3">
+                {visibleGroupedShown.map((group) => (
                   <details
                     key={group.projectId}
-                    open
+                    open={effectiveGoalApprovalProject !== 'all'}
                     className="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
                   >
                     <summary className="min-h-12 cursor-pointer list-none px-3 py-2.5 marker:hidden">
@@ -442,7 +503,8 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
                     </ul>
                   </details>
                 ))}
-              </div>
+                </div>
+              </>
             )}
           </section>
         )
@@ -513,29 +575,32 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
               <EmptyGuidance currentLabel="ゴール達成確認" />
             </>
           ) : (
-            <div className="space-y-3">
-              {groupedAchievementReviews.map((group) => (
-                <details
-                  key={group.goalId}
-                  open
-                  className="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
-                >
-                  <summary className="min-h-12 cursor-pointer list-none px-3 py-2.5 marker:hidden">
-                    <span className="flex items-center justify-between gap-3">
-                      <span className="min-w-0 text-sm font-bold text-gray-900 dark:text-gray-100">{group.title}</span>
-                      <span className="shrink-0 rounded-full bg-green-100 px-2.5 py-1 text-[11px] font-bold text-green-700 dark:bg-green-900/30 dark:text-green-300">
-                        確認待ち {group.cards.length}件
+            <>
+              <ProjectChipRow groups={achievementProjectGroups} activeProjectId={effectiveAchievementProject} onSelect={setAchievementProject} />
+              <div className="space-y-3">
+                {groupedAchievementReviews.map((group) => (
+                  <details
+                    key={group.goalId}
+                    open={effectiveAchievementProject !== 'all'}
+                    className="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+                  >
+                    <summary className="min-h-12 cursor-pointer list-none px-3 py-2.5 marker:hidden">
+                      <span className="flex items-center justify-between gap-3">
+                        <span className="min-w-0 text-sm font-bold text-gray-900 dark:text-gray-100">{group.title}</span>
+                        <span className="shrink-0 rounded-full bg-green-100 px-2.5 py-1 text-[11px] font-bold text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                          確認待ち {group.cards.length}件
+                        </span>
                       </span>
-                    </span>
-                  </summary>
-                  <ul className="space-y-3 border-t border-gray-100 p-3 dark:border-gray-800">
-                    {group.cards.map((card) => (
-                      <InboxCardItem key={card.id} card={card} />
-                    ))}
-                  </ul>
-                </details>
-              ))}
-            </div>
+                    </summary>
+                    <ul className="space-y-3 border-t border-gray-100 p-3 dark:border-gray-800">
+                      {group.cards.map((card) => (
+                        <InboxCardItem key={card.id} card={card} />
+                      ))}
+                    </ul>
+                  </details>
+                ))}
+              </div>
+            </>
           )}
         </section>
       )}
