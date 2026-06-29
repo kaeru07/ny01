@@ -141,6 +141,80 @@ function didRealWork(r: ExecutionRun): boolean {
   return /epic_done|continue|run_failed|max_runs_reached|approval_required|all_epics_done/.test(s)
 }
 
+const MACHINE_TOKEN_RE = /\b(?:block\d+|executed=\d+|reserved=\d+|skipped=\d+|blocked=\d+|runs=\d+|considered=\d+|scanned=\d+|stopped=\w+|no_candidate|source=\w+|trigger=\w+|tagged=\S+|runIds=\S+)\b|\[[\w-]+\]|Review Fix\s*実行\d+・予約\d+・skip\d+・block\d+|Prompt Queue\s*実行\d+|Epic\s*\d+\s*Run|Vault走査\s*\d+\s*ファイル/
+
+function numAfter(text: string, key: string): number | null {
+  const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const match = text.match(new RegExp(`${escaped}\\s*[=:]?\\s*(\\d+)`, 'i'))
+  return match ? Number(match[1]) : null
+}
+
+function jpNumAfter(text: string, label: string): number | null {
+  const match = text.match(new RegExp(`${label}\\s*(\\d+)\\s*(?:件|ファイル)?`))
+  return match ? Number(match[1]) : null
+}
+
+function machineStopSentence(text: string, run: ExecutionRun): string {
+  const lower = `${run.stopReason ?? ''} ${text}`.toLowerCase()
+  if (/blocked_by_danger|danger/.test(lower)) return '危険判断（あなたの承認）待ちのため、この回はスキップしました。'
+  if (/blocked_by_goal_unset/.test(lower)) return '目標が紐づいていない作業しか無く、停止しました。'
+  if (/all_blocked|blocked=\d*[1-9]\d*/.test(lower)) return '起動条件を満たさず、この回は作業を実行していません。'
+  if (/no_candidate/.test(lower)) return '今回は自動実行できる作業がなかったため、何も実行せずに待機しました。'
+  return describeOutcome(run)
+}
+
+function humanizeAutoSummary(run: ExecutionRun): string[] | null {
+  const text = [run.summary, run.rawReport, run.stopReason].filter(Boolean).join('\n')
+  if (!MACHINE_TOKEN_RE.test(text)) return null
+
+  if (/\[monetization-sync\]|Vault走査|monetization-sync/i.test(text)) {
+    const scanned = jpNumAfter(text, 'Vault走査') ?? numAfter(text, 'scanned')
+    const added = jpNumAfter(text, '新規追加')
+    const updated = jpNumAfter(text, '既存追記')
+    const counts = [
+      scanned != null ? `${scanned}件を確認` : '',
+      added != null ? `新規${added}件` : '',
+      updated != null ? `更新${updated}件` : '',
+    ].filter(Boolean).join('、')
+    return [`収益化候補をVaultから点検しました${counts ? `（${counts}）。` : '。'}`]
+  }
+
+  if (/\[review-fix\]|Review Fix/i.test(text)) {
+    const considered = numAfter(text, 'considered')
+    const executed = numAfter(text, 'executed') ?? jpNumAfter(text, 'Review Fix 実行')
+    const blocked = numAfter(text, 'blocked') ?? jpNumAfter(text, 'block')
+    const lines = [
+      `修正候補を${considered ?? 0}件確認し、${executed ?? 0}件を自動で処理しました。`,
+    ]
+    if ((executed ?? 0) === 0 && (blocked ?? 0) > 0) {
+      lines.push('ただし安全に自動実行できる条件を満たさず、実行は見送りました。')
+    }
+    return lines
+  }
+
+  const epicRuns = (() => {
+    const match = text.match(/Epic\s*(\d+)\s*Run/i)
+    return match ? Number(match[1]) : null
+  })()
+  const runs = numAfter(text, 'runs')
+  const executedMatches = Array.from(text.matchAll(/executed=(\d+)/gi)).map((match) => Number(match[1]))
+  const executedMax = executedMatches.length > 0 ? Math.max(...executedMatches) : null
+  const workCount = Math.max(epicRuns ?? 0, runs ?? 0, executedMax ?? 0)
+  if (workCount > 0) {
+    const target = run.selection?.selectedGoalTitle || run.targetTodoTitle || run.targetApp
+    return [`自動で${workCount}件の作業を進めました${target ? `（対象: ${target}）` : ''}。`]
+  }
+
+  const blockedTotal = Array.from(text.matchAll(/blocked=(\d+)/gi)).reduce((sum, match) => sum + Number(match[1]), 0)
+  const noCandidate = /no_candidate|Epic\s*0\s*Run|runs=0/i.test(text)
+  const allExecutedZero = executedMatches.length > 0 && executedMatches.every((n) => n === 0)
+  if (blockedTotal > 0 || noCandidate || allExecutedZero) {
+    return [machineStopSentence(text, run)]
+  }
+
+  return null
+}
+
 export default async function AutoExecReport({
   range = '',
   status = '',
@@ -467,7 +541,7 @@ function RunArticle({ run: r, context, index }: { run: ExecutionRun; context: Ru
   const checks = Object.entries(r.checks ?? {}).filter(([, v]) => v && String(v).trim())
   const done = r.runStatus === 'completed'
   const reason = (r.errors ?? [])[0] || r.reviewMemo || (r.warnings ?? [])[0] || ''
-  const outcome = describeOutcome(r)
+  const outcome = stripMachineTokens(describeOutcome(r))
   const worked = didRealWork(r)
   const target = context.goalTitle || r.selection?.selectedGoalTitle || r.epicId || ''
   const pickReason = r.selection?.selectedReason || ''
@@ -620,6 +694,9 @@ function Meta({ label, value, href, mono = false }: { label: string; value: stri
 }
 
 function buildWorkSummary(run: ExecutionRun, rawParas: string[], outcome: string): string[] {
+  const autoSummary = humanizeAutoSummary(run)
+  if (autoSummary) return nonEmptyLines(autoSummary.map(stripMachineTokens), outcome)
+
   const summary = run.summary?.trim() ?? ''
   const source = isWeakSummary(summary) ? rawParas[0] || outcome : humanizeTitle(summary)
   const cleaned = source
@@ -628,9 +705,14 @@ function buildWorkSummary(run: ExecutionRun, rawParas: string[], outcome: string
     .replace(/（出力なし）|\(出力なし\)/g, '')
     .trim()
   const sentences = splitSentences(cleaned).slice(0, 3)
-  if (sentences.length > 0) return sentences.map((s) => makeWorkSentence(s, run))
-  if (didRealWork(run)) return [makeWorkSentence(outcome, run)]
-  return [outcome]
+  if (sentences.length > 0) return nonEmptyLines(sentences.map((s) => stripMachineTokens(makeWorkSentence(s, run))), outcome)
+  if (didRealWork(run)) return nonEmptyLines([stripMachineTokens(makeWorkSentence(outcome, run))], outcome)
+  return nonEmptyLines([stripMachineTokens(outcome)], outcome)
+}
+
+function nonEmptyLines(lines: string[], fallback: string): string[] {
+  const cleaned = lines.map((line) => line.trim()).filter(Boolean)
+  return cleaned.length > 0 ? cleaned : [fallback || '記録がありません。']
 }
 
 function isWeakSummary(summary: string): boolean {
@@ -668,6 +750,23 @@ function toJapaneseSentence(text: string): string {
   if (/[。！？!?]$/.test(s)) return s
   if (/済み$|完了$|成功$|失敗$|未実行$|確認$|実装$|修正$|追加$|更新$|整理$|調査$|検証$|対応$/.test(s)) return `${s}です。`
   return `${s}。`
+}
+
+function stripMachineTokens(text: string): string {
+  let s = String(text)
+    .replace(/\[[\w-]+\]/g, '')
+    .replace(/\b(?:block\d+|executed=\d+|reserved=\d+|skipped=\d+|blocked=\d+|runs=\d+|considered=\d+|scanned=\d+|stopped=\S+|no_candidate|source=\S+|trigger=\S+|tagged=\S+|runIds=\S+)\b/g, '')
+    .replace(/\b[\w-]+=\S+/g, '')
+    .replace(/Review Fix\s*実行\d+・予約\d+・skip\d+・block\d+/g, '')
+    .replace(/Prompt Queue\s*実行\d+(?:・予約\d+・skip\d+・block\d+)?/g, '')
+    .replace(/Epic\s*\d+\s*Run/gi, '')
+    .replace(/\s*\/\s*(?=\/|$)/g, '')
+    .replace(/(?:\s*[・/,]\s*){2,}/g, ' / ')
+    .replace(/^[\s・/,、。:：-]+|[\s・/,、:：-]+$/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+  s = s.replace(/（\s*）|\(\s*\)/g, '').trim()
+  return s
 }
 
 function formatCheckText(key: string, value: string): string {
