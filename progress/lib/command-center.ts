@@ -476,6 +476,8 @@ export interface InboxProjectSummary {
 export interface InboxView {
   decisions: InboxCard[]
   decisionTotal: number
+  /** 達成済みゴール（done または current >= target）。ゴール達成確認タブの派生フィルタに使う。 */
+  achievedGoalIds: string[]
   /** レビュー待ち（未確認/あとで/要修正）の全件。completedAt 降順。隠さず全件返す。 */
   reviews: InboxCard[]
   reviewTotal: number
@@ -600,6 +602,19 @@ export async function buildInbox(): Promise<InboxView> {
     getAutoQueueView(),
   ])
   const goals = goalsData.goals.map((g) => ({ id: g.id, title: g.title }))
+  const achievedGoalIds = Array.from(new Set(
+    goalsData.goals
+      .filter((goal) => (
+        goal.status === 'done'
+        || (
+          typeof goal.target === 'number'
+          && goal.target > 0
+          && typeof goal.current === 'number'
+          && goal.current >= goal.target
+        )
+      ))
+      .map((goal) => goal.id),
+  ))
   const goalTitleById = new Map(goalsData.goals.map((g) => [g.id, g.title]))
   const epicById = new Map(epics.map((epic) => [epic.epicId, epic]))
   const runById = new Map(runs.map((run) => [run.runId, run]))
@@ -1183,6 +1198,7 @@ export async function buildInbox(): Promise<InboxView> {
   return {
     decisions,
     decisionTotal,
+    achievedGoalIds,
     reviews,
     reviewTotal: reviews.length,
     reviewCounts,

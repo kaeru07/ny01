@@ -19,7 +19,7 @@ const SECTION_DISPLAY_LIMIT = 5
 // レビューが大量でも「隠れている」印象を出さないため、全件を明示ページングで見せる。
 const REVIEW_PAGE_SIZE = 50
 
-type TabKey = 'decisions' | 'goalApproval' | 'reviews' | 'candidates' | 'aiHold'
+type TabKey = 'decisions' | 'goalApproval' | 'achievement' | 'reviews' | 'candidates' | 'aiHold'
 type ReviewFilter = 'unconfirmed' | 'followup' | 'snoozed' | 'reviewed'
 type GoalApprovalSourceFilter = 'auto' | 'other'
 
@@ -32,6 +32,7 @@ interface Props {
 function tabFromQuery(value: string | null): TabKey {
   if (value === 'review') return 'reviews'
   if (value === 'goalApproval') return 'goalApproval'
+  if (value === 'achievement') return 'achievement'
   if (value === 'candidates') return 'candidates'
   if (value === 'aiHold') return 'aiHold'
   return 'decisions'
@@ -103,6 +104,31 @@ function filterCards(cards: InboxCard[], filters: ProgressFilterState, options: 
   })
 }
 
+function groupCardsByGoal(cards: InboxCard[], goalTitleById: Map<string, string>) {
+  return Array.from(
+    cards.reduce((map, card) => {
+      const goalId = card.goalId ?? 'unassigned'
+      const group = map.get(goalId)
+      if (group) group.push(card)
+      else map.set(goalId, [card])
+      return map
+    }, new Map<string, InboxCard[]>()),
+  )
+    .map(([goalId, groupCards]) => ({
+      goalId,
+      title:
+        goalId === 'unassigned'
+          ? '未紐づけ'
+          : goalTitleById.get(goalId) ?? groupCards.find((card) => card.goalTitle)?.goalTitle ?? goalId,
+      cards: groupCards,
+    }))
+    .sort((a, b) => {
+      if (a.goalId === 'unassigned') return 1
+      if (b.goalId === 'unassigned') return -1
+      return b.cards.length - a.cards.length || a.title.localeCompare(b.title, 'ja')
+    })
+}
+
 export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props) {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -161,6 +187,10 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
   const filteredReviews = filterCards(scopeFiltered(inbox.reviews, selectedGoalId, selectedProjectId), progressFilters, { reviewOnly: true })
   const filteredReviewedHistory = filterCards(scopeFiltered(inbox.reviewedHistory, selectedGoalId, selectedProjectId), progressFilters, { reviewOnly: true })
   const filteredCandidates = filterCards(scopeFiltered(inbox.candidates, selectedGoalId, selectedProjectId), progressFilters)
+  const achievedGoalIdSet = new Set(inbox.achievedGoalIds)
+  const filteredAchievementReviews = filteredReviews.filter((card) => Boolean(card.goalId && achievedGoalIdSet.has(card.goalId)))
+  const goalTitleById = new Map(inbox.goalSummaries.map((summary) => [summary.goalId, summary.goalTitle]))
+  const groupedAchievementReviews = groupCardsByGoal(filteredAchievementReviews, goalTitleById)
   const selectedGoalSummary = selectedGoalId ? inbox.goalSummaries.find((summary) => summary.goalId === selectedGoalId) : undefined
   const selectedProjectSummary = selectedProjectId ? inbox.projectSummaries.find((summary) => summary.projectId === selectedProjectId) : undefined
   const selectedProjectTitle = selectedProjectId
@@ -216,6 +246,7 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
   const tabs: Array<{ key: TabKey; label: string; count: number; alert: boolean }> = [
     { key: 'decisions', label: '今日の判断', count: filteredDecisions.length, alert: filteredDecisions.length > 0 },
     { key: 'goalApproval', label: 'ゴール承認', count: filteredProposedGoals.length, alert: filteredProposedGoals.length > 0 },
+    { key: 'achievement', label: '達成確認', count: filteredAchievementReviews.length, alert: filteredAchievementReviews.length > 0 },
     { key: 'reviews', label: 'レビュー', count: reviewTotal, alert: false },
     { key: 'candidates', label: 'Epic候補', count: filteredCandidates.length, alert: false },
     { key: 'aiHold', label: 'AI保留', count: aiHoldCount, alert: false },
@@ -224,6 +255,7 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
   const tabCounts = {
     decisions: filteredDecisions.length,
     goalApproval: filteredProposedGoals.length,
+    achievement: filteredAchievementReviews.length,
     reviews: reviewTotal,
     candidates: filteredCandidates.length,
     aiHold: aiHoldCount,
@@ -268,6 +300,7 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
           </div>
           <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] font-semibold text-blue-800 dark:text-blue-200">
             <span>今日の判断 {tabCounts.decisions}</span>
+            <span>達成確認 {tabCounts.achievement}</span>
             <span>レビュー {tabCounts.reviews}</span>
             <span>要修正 {selectedGoalSummary?.followup ?? followupReviews.length}</span>
             <span>あとで {selectedGoalSummary?.snoozed ?? snoozedReviews.length}</span>
@@ -286,6 +319,7 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
           quickFilters={[
             { key: 'today', label: '今日の判断', patch: { tab: 'decisions' }, active: (progressFilters.tab ?? 'decisions') === 'decisions' },
             { key: 'goalApproval', label: 'ゴール承認', patch: { tab: 'goalApproval' }, active: progressFilters.tab === 'goalApproval' },
+            { key: 'achievement', label: '達成確認', patch: { tab: 'achievement' }, active: progressFilters.tab === 'achievement' },
             { key: 'review', label: 'レビュー', patch: { tab: 'reviews' }, active: progressFilters.tab === 'reviews' },
             { key: 'followup', label: '要修正', patch: { tab: 'reviews', reviewStatus: 'needs_followup' }, active: progressFilters.tab === 'reviews' && progressFilters.reviewStatus === 'needs_followup' },
             { key: 'fixPrompt', label: 'fixPromptあり', patch: { tab: 'reviews', fixPrompt: true }, active: progressFilters.fixPrompt === true },
@@ -458,6 +492,52 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
           </section>
         )}
         </>
+      )}
+
+      {/* ② ゴール達成確認（完了ゴールに紐づくレビューだけの再フレーム） */}
+      {tab === 'achievement' && (
+        <section className="mt-4">
+          <div className="mb-3 rounded-xl border border-green-100 bg-green-50 px-3 py-2 text-[11px] leading-relaxed text-green-800 dark:border-green-900/50 dark:bg-green-900/15 dark:text-green-200">
+            完了したゴールの達成内容です。問題なければ『問題なし』、直したい点があれば『修正する』に要修正概要を書くと次回の自動実行で対応します。
+          </div>
+          <div className="mb-2 flex items-baseline justify-between gap-2">
+            <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">✅ ゴール達成確認</h2>
+            <span className="text-xs text-gray-500 dark:text-gray-400">{filteredAchievementReviews.length}件</span>
+          </div>
+
+          {filteredAchievementReviews.length === 0 ? (
+            <>
+              <p className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-center text-xs text-gray-400 dark:border-gray-800 dark:bg-gray-900">
+                達成して確認待ちのゴールはありません。
+              </p>
+              <EmptyGuidance currentLabel="ゴール達成確認" />
+            </>
+          ) : (
+            <div className="space-y-3">
+              {groupedAchievementReviews.map((group) => (
+                <details
+                  key={group.goalId}
+                  open
+                  className="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+                >
+                  <summary className="min-h-12 cursor-pointer list-none px-3 py-2.5 marker:hidden">
+                    <span className="flex items-center justify-between gap-3">
+                      <span className="min-w-0 text-sm font-bold text-gray-900 dark:text-gray-100">{group.title}</span>
+                      <span className="shrink-0 rounded-full bg-green-100 px-2.5 py-1 text-[11px] font-bold text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                        確認待ち {group.cards.length}件
+                      </span>
+                    </span>
+                  </summary>
+                  <ul className="space-y-3 border-t border-gray-100 p-3 dark:border-gray-800">
+                    {group.cards.map((card) => (
+                      <InboxCardItem key={card.id} card={card} />
+                    ))}
+                  </ul>
+                </details>
+              ))}
+            </div>
+          )}
+        </section>
       )}
 
       {/* ② レビュー（放置しても工場は止まらない・隠さず全件） */}
