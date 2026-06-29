@@ -62,6 +62,28 @@ const navItems = [
     ),
   },
   {
+    href: '/app-proposals',
+    label: 'アプリ承認',
+    exact: false,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+        <rect x="7" y="3" width="10" height="18" rx="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M11 18h2" />
+      </svg>
+    ),
+  },
+  {
+    href: '/project-complete',
+    label: 'PJ完了',
+    exact: false,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+        <circle cx="12" cy="12" r="9" strokeLinecap="round" strokeLinejoin="round" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 12l3 3 5-6" />
+      </svg>
+    ),
+  },
+  {
     href: '/queue',
     label: '自動実行',
     exact: false,
