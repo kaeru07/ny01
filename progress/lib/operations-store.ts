@@ -266,20 +266,28 @@ export async function recordOperationalDecision(input: {
   action: string
   topic: string
   decision: string
+  type?: string
+  targetId?: string
+  note?: string
   epicId?: string
   runId?: string
   goalId?: string
   approvalId?: string
-  source?: 'human' | 'ai'
+  source?: 'human' | 'ai' | 'app-proposals-page'
 }): Promise<OperationalDecision> {
   decisionSeq = (decisionSeq + 1) % 1000
+  const now = new Date().toISOString()
   const entry: OperationalDecision = {
     decisionId: `dec-${Date.now()}-${decisionSeq}`,
+    type: input.type,
+    targetId: input.targetId,
+    time: now,
     epicId: input.epicId,
     topic: input.topic,
     decision: input.decision,
+    note: input.note,
     approvalId: input.approvalId,
-    decidedAt: new Date().toISOString(),
+    decidedAt: now,
     action: input.action,
     runId: input.runId,
     goalId: input.goalId,
@@ -946,13 +954,22 @@ const DEFAULT_AUTOMATION_CONFIG: AutomationConfig = {
   autoResume: false,
   autoFallback: false,
   factoryEnabled: false,
+  factoryMaxPerEpic: 3,
   updatedAt: '',
+}
+
+/** factoryMaxPerEpic は 1〜3 にクランプする（無限ループ防止の安全上限は維持）。 */
+function clampMaxPerEpic(value: unknown): number {
+  const n = typeof value === 'number' && Number.isFinite(value) ? Math.round(value) : 3
+  return Math.max(1, Math.min(n, 3))
 }
 
 export async function getAutomationConfig(): Promise<AutomationConfig> {
   const stored = await readJson<Partial<AutomationConfig>>('automation-config.json', DEFAULT_AUTOMATION_CONFIG)
-  // 旧 config に新フィールド（factoryEnabled 等）が無くても既定で補完する。
-  return { ...DEFAULT_AUTOMATION_CONFIG, ...stored }
+  // 旧 config に新フィールド（factoryEnabled / factoryMaxPerEpic 等）が無くても既定で補完する。
+  const merged = { ...DEFAULT_AUTOMATION_CONFIG, ...stored }
+  merged.factoryMaxPerEpic = clampMaxPerEpic(merged.factoryMaxPerEpic)
+  return merged
 }
 
 export async function updateAutomationConfig(
@@ -964,6 +981,7 @@ export async function updateAutomationConfig(
     autoResume: patch.autoResume ?? current.autoResume,
     autoFallback: patch.autoFallback ?? current.autoFallback,
     factoryEnabled: patch.factoryEnabled ?? current.factoryEnabled,
+    factoryMaxPerEpic: clampMaxPerEpic(patch.factoryMaxPerEpic ?? current.factoryMaxPerEpic),
     updatedAt: new Date().toISOString(),
   }
   await writeJson('automation-config.json', next)

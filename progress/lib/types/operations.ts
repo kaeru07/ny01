@@ -236,17 +236,23 @@ export interface Approval {
 
 export interface OperationalDecision {
   decisionId: string
+  /** 判断ログの用途分類。例: app_proposal */
+  type?: string
+  /** 用途別の対象ID。例: アプリ提案ID */
+  targetId?: string
+  time?: string
   epicId?: string
   topic: string
   decision: string
+  note?: string
   approvalId?: string
   decidedAt: string
   /** 操作種別: approve / reject / assignGoal / changePriority / markReviewed / pause / drop / factory_pause / factory_resume / goal_adjust 等。 */
   action?: string
   runId?: string
   goalId?: string
-  /** 判断主体。human=UI操作 / ai=AI一次レビュー等の自動判断。 */
-  source?: 'human' | 'ai'
+  /** 判断主体または記録元。human=UI操作 / ai=AI一次レビュー等の自動判断。 */
+  source?: 'human' | 'ai' | 'app-proposals-page'
 }
 
 export interface ExecutorSummary {
@@ -388,6 +394,12 @@ export interface AutomationConfig {
   autoFallback: boolean
   /** Factory 自動運転の ON/OFF。OFF のとき Factory は一切 scan しない。ON のときのみ scan→pick へ進む。 */
   factoryEnabled: boolean
+  /**
+   * 1 起動内で同一 Epic を深掘りする最大 Run 数（1〜3）。
+   * 既定 3 = 1 Epic を最大3回深掘り。1 にすると1 Run ごとに次の Epic へローテーションし、
+   * 1サイクルで複数の異なるタスクを回せる。API opts.maxPerEpic 未指定時の既定として使う。
+   */
+  factoryMaxPerEpic: number
   updatedAt: string
 }
 

@@ -48,6 +48,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/epic', label: '工場Epic（大きな作業）', note: '作業単位の管理・進行' },
       { href: '/automation', label: '自動化設定', note: 'AI工場のON/OFF・実行者の切替' },
       { href: '/factory/candidates', label: '工場候補', note: '自動実行の候補一覧' },
+      { href: '/app-proposals', label: 'アプリ概要承認', note: 'アプリ案の概要+画面イメージ(モック)を確認して承認/却下/保留' },
       { href: '/ai-drive', label: 'AI自走', note: '自走モードの管理' },
       { href: '/codex', label: 'Codex', note: 'もう1つのAI実行者の管理' },
     ],
