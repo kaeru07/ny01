@@ -58,6 +58,7 @@ export const NAV_GROUPS: NavGroup[] = [
     links: [
       { href: '/approvals', label: '承認待ち', note: '旧承認画面（新UIではInboxに統合）' },
       { href: '/decisions', label: '決定事項', note: '過去の判断の記録（Decision Log）' },
+      { href: '/project-complete', label: 'プロジェクト完了', note: '全ゴール達成プロジェクトの提供内容・残確認・次候補のまとめ' },
       { href: '/inbox', label: '旧受信箱', note: 'Vault連携の受信箱' },
     ],
   },
