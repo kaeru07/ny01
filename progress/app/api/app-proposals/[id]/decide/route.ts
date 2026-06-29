@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { recordOperationalDecision } from '@/lib/operations-store'
 
-const decisions = ['approve', 'reject', 'hold'] as const
+const decisions = ['approve', 'reject', 'hold', 'not_needed'] as const
 type Decision = (typeof decisions)[number]
 
 function isDecision(value: unknown): value is Decision {
@@ -23,7 +23,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
   const payload = body as { decision?: unknown; note?: unknown }
   if (!isDecision(payload.decision)) {
-    return NextResponse.json({ success: false, error: 'decision must be approve, reject, or hold' }, { status: 400 })
+    return NextResponse.json({ success: false, error: 'decision must be approve, reject, hold, or not_needed' }, { status: 400 })
   }
 
   const note = typeof payload.note === 'string' ? payload.note.trim() : undefined

@@ -1,7 +1,7 @@
 import { getAppFactoryCandidates } from '@/lib/app-factory-candidates'
 import { getOperationalDecisions } from '@/lib/operations-store'
 
-export type AppProposalDecision = 'approved' | 'rejected' | 'held'
+export type AppProposalDecision = 'approved' | 'rejected' | 'held' | 'not_needed'
 
 export interface MockScreen {
   key: string
@@ -36,6 +36,40 @@ const DEFAULT_SCREEN_NAMES = [
 ]
 
 const FALLBACK_FEATURES = ['状況確認', '記録', '一覧管理', '詳細確認', '設定']
+
+const PROJECT_SCREEN_TEMPLATES: Record<string, MockScreen[]> = {
+  'shogi-kakoi-trainer': [
+    { key: 'home', name: '囲い一覧', rows: ['美濃囲い', '矢倉囲い', '穴熊囲い', '舟囲い', '学習進捗', '今日の一問'] },
+    { key: 'detail', name: '囲い詳細', rows: ['完成図', '手順1〜8手', '狙い・弱点', '類似の囲い', 'この囲いをテスト'] },
+    { key: 'guide', name: '誘導モード', rows: ['盤面（現在）', '次の一手ハイライト', '▶次へ / ◀戻る', '残り手数', '最初から'] },
+    { key: 'test', name: 'テスト', rows: ['囲い名を当てる', '4択', '正誤フィードバック', 'スコア'] },
+    { key: 'record', name: '学習記録', rows: ['学習した囲い', '正答率', '連続学習日数', '苦手な囲い'] },
+  ],
+  mahjong: [
+    { key: 'home', name: 'ホーム', rows: ['問題10問', '難易度フィルタ', 'タグフィルタ', 'ランダム開始', '直近の成績'] },
+    { key: 'list', name: '問題一覧', rows: ['q001〜q010', '難易度バッジ', 'タグ', '解くボタン'] },
+    { key: 'quiz', name: 'クイズ', rows: ['手牌（牌画）', 'ドラ・局', '選択肢A/B/C/D', '回答→正誤+解説'] },
+    { key: 'result', name: '結果', rows: ['スコア%', '正解数', '問題別結果', 'もう一度/ホーム'] },
+    { key: 'board', name: '牌盤ビュー', rows: ['自分の手牌', '河（捨て牌）', 'ドラ表示', '場風・自風'] },
+  ],
+  'ny-ai': [
+    { key: 'quiz', name: '待ち牌クイズ', rows: ['手牌13枚', '待ち牌を選ぶ', '正誤判定', '解説'] },
+    { key: 'list', name: '問題', rows: ['全5問', '天鳳牌譜ベース', '難易度'] },
+    { key: 'result', name: 'スコア', rows: ['正答数', '待ち牌の種類別', 'もう一度'] },
+  ],
+  'ny01-news-app': [
+    { key: 'list', name: 'ニュース一覧', rows: ['Dev.to/HN/Zenn/NHK', '翻訳済みタイトル', 'カテゴリ', '日付'] },
+    { key: 'detail', name: '記事詳細', rows: ['要約', '原文リンク', 'タグ', '関連記事'] },
+    { key: 'research', name: 'Research DB', rows: ['Topicカード', '重要度S/A/B/C', 'タイムライン', '重複候補'] },
+    { key: 'tag', name: 'タグ検索', rows: ['#monetization', '#market-research', '#app-strategy', 'タグ別件数'] },
+    { key: 'todo', name: 'ToDo化候補', rows: ['ToDo化 yes/no', '生成JSON', '承認→ゴール'] },
+  ],
+  'ny01-mahjong-analyzer': [
+    { key: 'input', name: '牌譜入力', rows: ['牌譜を貼付', '形式選択', '解析開始'] },
+    { key: 'result', name: '解析結果', rows: ['推奨打牌', '期待値', '危険度', '理由'] },
+    { key: 'detail', name: '局面詳細', rows: ['手牌', '残り枚数', '待ち', '安全牌'] },
+  ],
+}
 
 function compactLabel(value: string): string {
   return value
@@ -93,10 +127,16 @@ function buildScreens(features: string[]): MockScreen[] {
   }))
 }
 
+function screensForProject(projectId: string | null, features: string[]): MockScreen[] {
+  if (projectId && PROJECT_SCREEN_TEMPLATES[projectId]) return PROJECT_SCREEN_TEMPLATES[projectId]
+  return buildScreens(features)
+}
+
 function normalizeDecision(decision: string | undefined): AppProposalDecision | null {
   if (decision === 'approve' || decision === 'approved') return 'approved'
   if (decision === 'reject' || decision === 'rejected') return 'rejected'
   if (decision === 'hold' || decision === 'held') return 'held'
+  if (decision === 'not_needed' || decision === 'skip_creation') return 'not_needed'
   return null
 }
 
@@ -130,7 +170,7 @@ export async function getAppProposals(): Promise<AppProposal[]> {
       factoryNote: candidate.factoryNote,
       targetUser: deriveTargetUser(candidate.purpose),
       features,
-      screens: buildScreens(features),
+      screens: screensForProject(candidate.sourceProjectId, features),
       decision: latest?.decision ?? null,
       decisionNote: latest?.note,
     }

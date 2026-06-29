@@ -5,14 +5,37 @@ import { useRouter } from 'next/navigation'
 import MockPhone from '@/components/app-proposals/MockPhone'
 import type { AppProposal } from '@/lib/app-proposals'
 
-const decisionLabels: Record<string, string> = {
-  approved: '承認済み',
-  rejected: '却下済み',
-  held: '保留中',
-}
+const decisionBadge = {
+  undecided: {
+    label: '未判断',
+    className: 'border border-gray-300 bg-white text-gray-700 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-200',
+    article: 'border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950',
+  },
+  approved: {
+    label: '承認済み',
+    className: 'bg-green-600 text-white dark:bg-green-500',
+    article: 'border-green-200 bg-green-50/40 dark:border-green-900/60 dark:bg-green-950/20',
+  },
+  not_needed: {
+    label: '作成不要',
+    className: 'bg-blue-600 text-white dark:bg-blue-500',
+    article: 'border-blue-200 bg-blue-50/40 dark:border-blue-900/60 dark:bg-blue-950/20',
+  },
+  rejected: {
+    label: '却下',
+    className: 'bg-rose-600 text-white dark:bg-rose-500',
+    article: 'border-rose-200 bg-rose-50/40 dark:border-rose-900/60 dark:bg-rose-950/20',
+  },
+  held: {
+    label: '保留',
+    className: 'bg-amber-500 text-white dark:bg-amber-500',
+    article: 'border-amber-200 bg-amber-50/40 dark:border-amber-900/60 dark:bg-amber-950/20',
+  },
+} as const
 
 const postDecisions = {
   approve: '承認',
+  not_needed: '作成不要',
   reject: '却下',
   hold: '保留',
 } as const
@@ -28,6 +51,7 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
   const [error, setError] = useState<string | null>(null)
   const screen = proposal.screens[screenIndex] ?? proposal.screens[0]
   const tabs = proposal.screens.map((item) => item.name)
+  const status = decisionBadge[proposal.decision ?? 'undecided']
 
   async function decide(decision: PostDecision) {
     if (busy) return
@@ -44,7 +68,7 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           decision,
-          note: decision === 'approve' ? undefined : note,
+          note: decision === 'approve' || decision === 'not_needed' ? undefined : note,
         }),
       })
       if (!res.ok) {
@@ -62,22 +86,17 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
   }
 
   return (
-    <article className="space-y-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-950">
+    <article className={`space-y-3 rounded-2xl border p-4 shadow-sm ${status.article}`}>
       <div className="space-y-2">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400">{proposal.projectId ?? '未分類'}</p>
             <h2 className="text-base font-black text-gray-900 dark:text-gray-100">{proposal.name}</h2>
           </div>
-          {proposal.decision ? (
-            <span className="shrink-0 rounded-full bg-green-100 px-2 py-1 text-[10px] font-black text-green-700 dark:bg-green-900/30 dark:text-green-200">
-              {decisionLabels[proposal.decision]}
-            </span>
-          ) : (
-            <span className="shrink-0 rounded-full bg-amber-100 px-2 py-1 text-[10px] font-black text-amber-700 dark:bg-amber-900/30 dark:text-amber-200">
-              未判断
-            </span>
-          )}
+        </div>
+        <div className={`rounded-xl px-3 py-2 text-sm font-black ${status.className}`}>
+          <p>{status.label}</p>
+          {proposal.decisionNote ? <p className="mt-0.5 text-[11px] font-bold opacity-80">{proposal.decisionNote}</p> : null}
         </div>
         <p className="text-xs leading-relaxed text-gray-700 dark:text-gray-300">{proposal.purpose}</p>
         <div className="grid grid-cols-2 gap-2 text-[11px]">
@@ -142,8 +161,9 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
 
       {error ? <p className="rounded-lg bg-red-50 px-3 py-2 text-xs font-bold text-red-700 dark:bg-red-900/20 dark:text-red-200">{error}</p> : null}
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         <DecisionButton disabled={busy} label="承認" tone="green" onClick={() => decide('approve')} />
+        <DecisionButton disabled={busy} label="作成不要" tone="blue" onClick={() => decide('not_needed')} />
         <DecisionButton disabled={busy} label={pendingDecision === 'reject' ? '却下を保存' : '却下'} tone="rose" onClick={() => decide('reject')} />
         <DecisionButton disabled={busy} label={pendingDecision === 'hold' ? '保留を保存' : '保留'} tone="gray" onClick={() => decide('hold')} />
       </div>
@@ -160,9 +180,10 @@ function InfoTile({ label, value }: { label: string; value: string }) {
   )
 }
 
-function DecisionButton({ disabled, label, tone, onClick }: { disabled: boolean; label: string; tone: 'green' | 'rose' | 'gray'; onClick: () => void }) {
+function DecisionButton({ disabled, label, tone, onClick }: { disabled: boolean; label: string; tone: 'green' | 'blue' | 'rose' | 'gray'; onClick: () => void }) {
   const toneClass = {
     green: 'bg-green-600 text-white dark:bg-green-500',
+    blue: 'bg-blue-600 text-white dark:bg-blue-500',
     rose: 'bg-rose-600 text-white dark:bg-rose-500',
     gray: 'bg-gray-800 text-white dark:bg-gray-700',
   }[tone]
