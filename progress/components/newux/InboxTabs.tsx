@@ -336,6 +336,29 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
           { key: 'other', label: 'それ以外', count: otherGoals.length },
         ]
         const shown = goalApprovalSource === 'other' ? otherGoals : autoGoals
+        const projectTitleById = new Map(inbox.projectSummaries.map((summary) => [summary.projectId, summary.projectTitle]))
+        const groupedShown = Array.from(
+          shown.reduce((map, card) => {
+            const projectId = card.projectId ?? 'unassigned'
+            const group = map.get(projectId)
+            if (group) group.push(card)
+            else map.set(projectId, [card])
+            return map
+          }, new Map<string, InboxCard[]>()),
+        )
+          .map(([projectId, cards]) => ({
+            projectId,
+            title:
+              projectId === 'unassigned'
+                ? '未分類'
+                : projectTitleById.get(projectId) ?? cards.find((card) => card.projectTitle)?.projectTitle ?? projectId,
+            cards,
+          }))
+          .sort((a, b) => {
+            if (a.projectId === 'unassigned') return 1
+            if (b.projectId === 'unassigned') return -1
+            return b.cards.length - a.cards.length || a.title.localeCompare(b.title, 'ja')
+          })
         return (
           <section className="mt-4">
             <div className="mb-2 flex items-baseline justify-between gap-2">
@@ -363,11 +386,29 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
                   : 'この分類の承認待ち候補はありません。'}
               </p>
             ) : (
-              <ul className="space-y-3">
-                {shown.map((card) => (
-                  <InboxCardItem key={card.id} card={card} />
+              <div className="space-y-3">
+                {groupedShown.map((group) => (
+                  <details
+                    key={group.projectId}
+                    open
+                    className="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+                  >
+                    <summary className="min-h-12 cursor-pointer list-none px-3 py-2.5 marker:hidden">
+                      <span className="flex items-center justify-between gap-3">
+                        <span className="min-w-0 text-sm font-bold text-gray-900 dark:text-gray-100">{group.title}</span>
+                        <span className="shrink-0 rounded-full bg-blue-100 px-2.5 py-1 text-[11px] font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                          承認待ち {group.cards.length}件
+                        </span>
+                      </span>
+                    </summary>
+                    <ul className="space-y-3 border-t border-gray-100 p-3 dark:border-gray-800">
+                      {group.cards.map((card) => (
+                        <InboxCardItem key={card.id} card={card} />
+                      ))}
+                    </ul>
+                  </details>
                 ))}
-              </ul>
+              </div>
             )}
           </section>
         )
