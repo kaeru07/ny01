@@ -51,6 +51,8 @@
 
 
 
+
+- 2026-07-01: AI 生活プランナー / Claude Sonnet 5 が日常業務向けに公開 / GitHub Agentic Workflows / 用途特化 AI プランナーを無料 + 月額で提供し、リマインダー・AI 分解・カレンダー同期を有料化… / エラーなし / partial(market,news,tools)
 - 2026-06-30: AI アプリ発見最適化 / OpenAI、Codex向け物理ショートカットデバイスを予告 / GitHub Copilot desktop app / Google Play 向けに「自然文検索で推薦されやすい説明文・FAQ・スクリーンショット文言」を… / エラーなし / partial(market,news,tools)
 - 2026-06-29: AI アプリ発見最適化 / GPT-5.6 が限定プレビュー、政府要請で段階公開 / Arcade / Google Play / エラーなし / partial(market,news,tools)
 - 2026-06-28: AI検索 / Codex 利用が「チャット」から「委任型エージェント」へ移行 / Gemini Spark / 月額課金: 汎用AIと競合せず、用途を「学習計画」「会議後処理」「レビュー要約」などに絞った $5-… / エラーなし / partial(market,news,tools)
