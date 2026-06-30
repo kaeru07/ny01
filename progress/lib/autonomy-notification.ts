@@ -3,6 +3,7 @@ import { readGoals } from '@/lib/goal-reader'
 import { writeGoals } from '@/lib/goal-writer'
 import { appendAutomationLog } from '@/lib/operations-store'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
+import { isSmtpConfigured, sendMail } from '@/lib/email-sender'
 
 export interface AutonomyNotificationResult {
   checked: boolean
@@ -37,16 +38,14 @@ function buildBody(args: {
 }
 
 export async function checkAutonomyCompletionAndNotify(): Promise<AutonomyNotificationResult> {
-  const to = process.env.NOTIFY_EMAIL_TO || 'toku106ma@yahoo.co.jp'
+  const to = process.env.MAIL_TO || process.env.NOTIFY_EMAIL_TO || 'toku106ma@yahoo.co.jp'
   const data = await readGoals()
   const idx = data.goals.findIndex((goal) => goal.id === AUTONOMY_GOAL_ID)
   if (idx === -1) return { checked: true, sent: false, skippedReason: 'goal_not_found', provider: 'noop', to }
 
   const goal = data.goals[idx]
-  // 実メールプロバイダが構成されているか（未構成なら no-op=ログのみ）。実送信導入は別Phase。
-  // AUTONOMY_EMAIL_PROVIDER に 'noop' 以外（例 'resend' / 'smtp'）が設定され、かつ送信モジュールが用意されたら実送信に切替える。
-  const providerEnv = (process.env.AUTONOMY_EMAIL_PROVIDER || 'noop').trim()
-  const hasRealProvider = providerEnv !== '' && providerEnv !== 'noop'
+  const providerEnv = (process.env.AUTONOMY_EMAIL_PROVIDER || '').trim()
+  const hasRealProvider = providerEnv !== 'noop' && isSmtpConfigured()
   if (goal.status !== 'done') return { checked: true, sent: false, skippedReason: 'goal_not_completed', provider: hasRealProvider ? 'email' : 'noop', to }
   // 実送信は autonomyNotifiedAt が立っていれば二重送信防止。no-op は autonomyNotifyNoopAt で「ログ済み」を判定（実送信フラグを消費しない）。
   if (goal.autonomyNotifiedAt) return { checked: true, sent: false, skippedReason: 'already_notified', provider: hasRealProvider ? 'email' : 'noop', to }
@@ -81,9 +80,19 @@ export async function checkAutonomyCompletionAndNotify(): Promise<AutonomyNotifi
     return { checked: true, sent: false, skippedReason: 'noop_logged_only', provider: 'noop', to }
   }
 
-  // 実プロバイダ構成時の実送信は別Phaseで実装する。
-  // 実装時の正しい順序: ①実送信を試みる → ②成功時のみ autonomyNotifiedAt=now を立てる（不可逆・二重送信防止）→ ③失敗時は attempts++（notifiedAt は立てない）。
-  // 現状は送信モジュール未実装のため、AUTONOMY_EMAIL_PROVIDER が設定されていても「未送信」として attempts のみ加算し、autonomyNotifiedAt は絶対に立てない（誤った送信済み化を防ぐ）。
+  const result = await sendMail({ to, subject, body })
+  if (result.ok) {
+    data.goals[idx] = { ...goal, autonomyNotifiedAt: now, updatedAt: now }
+    await writeGoals(data)
+    await appendAutomationLog({
+      event: 'factory_schedule',
+      fallbackReason: `autonomy_notify provider=smtp(sent) to=${to} subject=${subject}`,
+      detectionStatus: 'autonomy_notify',
+    } as never)
+
+    return { checked: true, sent: true, provider: 'email', to }
+  }
+
   data.goals[idx] = {
     ...goal,
     autonomyNotifyAttempts: (goal.autonomyNotifyAttempts ?? 0) + 1,
@@ -92,9 +101,9 @@ export async function checkAutonomyCompletionAndNotify(): Promise<AutonomyNotifi
   await writeGoals(data)
   await appendAutomationLog({
     event: 'factory_schedule',
-    fallbackReason: `autonomy_notify provider=${providerEnv}(sender-not-implemented) to=${to} subject=${subject}`,
+    fallbackReason: `autonomy_notify provider=smtp(send_failed err=${result.error.slice(0, 200)}) to=${to}`,
     detectionStatus: 'autonomy_notify',
   } as never)
 
-  return { checked: true, sent: false, skippedReason: 'real_provider_not_implemented', provider: 'email', to }
+  return { checked: true, sent: false, skippedReason: 'send_failed', provider: 'email', to }
 }
