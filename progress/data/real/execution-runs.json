@@ -1720,7 +1720,7 @@
         "BottomNav主要タブへ昇格するか検討(現状Legacyナビ)"
       ],
       "rawReport": "Codex実装→Fableレビュー(reviewer)。tsc0/lint0/build成功を独立再実行。e2e: フォーム4項目のみ(実行対象AI/優先度なし)、import promptQueue/todos両形式・goal→goalProgress正規化・priority/assignee/preferredExecutor無視(警告)・title/prompt無しエラー・project不一致は未紐付け警告、次回やる候補3件が理由付き(Goal進捗が未完了のため等)、snoozeで候補除外(3→2)、DELETE→archived(物理削除なし)、既存/queue/decide/tasks-import回帰なしを確認。テストデータはprompt-queue.jsonを空に戻して消去。minor: promptQueueとtodosを同一payloadに両方入れるとpromptQueueのみ処理(実運用は片方)。\n\nmonetizationImpact: low\ntheme: [workflow, prompt-template]\nobsidianSummary: Prompt Queue(作業プロンプト貯蔵庫)新設。入力4項目(タスク名/プロンプト/Project/Goal進捗)、実行対象AI・優先度非表示、GoalとGoal進捗統一、JSON取り込み(goal→goalProgress正規化)、未完了は次回やる候補に理由付きで表示。\nobsidianSaveTarget: 20_reviews/2026-06-14_prompt-queue.md",
-      "reviewMemo": "修正指示: # 修正依頼 / 次Epic\n# Goal Plannerと自動実行キューを同じ文脈に統合する\n\n## 背景\n\n現状の ny01/progress では、Goal Planner と 自動実行キュー が別物のように見えている。\n\nユーザーのイメージでは、\n\n- Goal Planner は Goal進捗の入力・管理画面\n- 自動実行キュー は そのGoal進捗に紐づく実際の作業キュー表示\n\nであり、3・4枚目のキュー内容が、1・2枚目のGoal Plannerとも連動して見える状態を期待している。\n\nしかし現状は、\n\n- Goal Planner 側では「現在のメイン目標」「登録済みの目標」「phases / todos / 進捗 0%」などの旧画面寄りUIが見えている\n- 自動実行キュー側では、review待ち、pin、候補外理由、Project progress、Goalラベルなど、別系統の実運用情報が見えている\n\nこのため、\n「Goal Plannerで登録・管理しているもの」と\n「自動実行キューで実際に処理されるもの」が\n同じ世界に見えず、連動していないのが問題。\n\n---\n\n## 目的\n\nGoal Planner と 自動実行キューを、同じ作業文脈・同じデータ文脈に統合する。\n\nユーザーが期待しているのは以下。\n\n1. Goal Planner の内容が、自動実行キューの内容と連動している\n2. Goal Planner のカードを見れば、そのGoal進捗に紐づくキュー状況が分かる\n3. 自動実行キューは Goal Planner の実行詳細ビューとして見える\n4. Goal Planner と キューで別々の概念や別正本が見えない\n5. 古いUI由来のズレを減らす\n\n---\n\n## 問題認識\n\n今回のズレは、単なる表示崩れではなく、設計上のズレとして扱うこと。\n\n仮説として以下を確認してほしい。\n\n- Goal Planner が goals / phases / todos の旧系データを見ている\n- 自動実行キューが Epic / Queue / Review / Project progress 系の別データを見ている\n- Goal Planner の「登録済み目標」が、自動実行キューの実際の候補や状態と連動していない\n- Goal Planner のカードが空集計（0/0/0）になりやすく、実運用上の状態を反映できていない\n- role選択や旧JSON前提など、今の運用思想とズレたUIが残っている\n\n---\n\n## やりたい状態\n\n### Goal Planner\n\nGoal Planner は「Goal進捗の入力・俯瞰画面」とする。\n\n各Goal進捗カードには、最低限以下を表示する。\n\n- Goal進捗タイトル\n- 紐づくProject\n- 全体進捗\n- 次回自動実行候補数\n- 実行可能数\n- 判断待ち数\n- レビュー待ち数\n- 候補外数\n- 最新作業\n- 次にやるべきこと\n- 自動実行キューを見る導線\n- ToDoを見る導線\n- Prompt Queueを見る導線（必要なら）\n\nつまり、今の「phases / todos / 進捗 0%」だけではなく、\n3・4枚目のキューで見えている内容の要約が Goal Planner にも見えるようにする。\n\n### 自動実行キュー\n\n自動実行キューは「Goal進捗に紐づく実行詳細ビュー」とする。\n\n- Goal Planner のカードをタップすると、そのGoal進捗に紐づくキューへ遷移できる\n- キュー側では、候補理由・候補外理由・review待ち・pin・実行可否など詳細を見る\n- Goal Planner で見えていた数値と整合する\n\n---\n\n## 重要な設計方針\n\n### 1. Goal と Goal進捗は分けない\n\n引き続き、Goal と Goal進捗は分けすぎず、goalProgress として扱う。\n\n### 2. Goal Planner と 自動実行キューの正本を揃える\n\n別々の正本や別々の集計ロジックを持たせないこと。\n\n理想:\n- Goal Planner は same-source の要約ビュー\n- 自動実行キュー は same-source の詳細ビュー\n\n### 3. 旧UI由来の不要要素を整理する\n\n以下が今の運用に不要・またはズレているなら整理対象にする。\n\n- role選択（人間 / Claude / Codex）\n- 旧phases/todos前提だけの表示\n- Goal Planner上の空カード\n- 旧画面からしか意味がない入力項目\n\n### 4. 下タブ構成と役割を明確にする\n\n現状の下タブ:\n- ホーム\n- ToDo\n- Project\n- 目標\n- 自動実行\n\nこの構成なら、\n- 目標 = Goal Planner（入力・俯瞰）\n- 自動実行 = 実行詳細\nという役割分担を明確にすること。\n\n---\n\n## 調査してほしいこと\n\n### データ面\n\n- Goal Planner は何を正本にしているか\n- 自動実行キューは何を正本にしているか\n- Project progress はどこから来ているか\n- review待ち / 判断待ち / 候補外 はどのデータから導出しているか\n- Goal Planner 側でも同じ集計が可能か\n- 旧 goals / phases / todos モデルが残っているか\n- Prompt Queue と Goal Planner の関係は何か\n\n### UI面\n\n- Goal Planner のカードに何を出すべきか\n- 0件表示になる理由\n- Goal Planner と キューでラベルや用語がズレていないか\n- 下タブ「目標」から見える情報量が足りているか\n- 「自動実行」タブに飛ばないと状況が分からない状態になっていないか\n\n---\n\n## 実装してほしいこと\n\n### Phase 1: 現状棚卸し\n\n- Goal Planner のデータ源を調査\n- 自動実行キューのデータ源を調査\n- 両者のズレを整理\n- 旧モデル / 旧画面依存を洗い出す\n\n### Phase 2: 表示統合\n\nGoal Planner のGoal進捗カードに、\n自動実行キューの集計結果を要約表示する。\n\n最低限表示:\n- 次回候補数\n- 実行可能数\n- 判断待ち数\n- レビュー待ち数\n- 候補外数\n- 最新作業\n- 次アクション\n\n### Phase 3: 導線統合\n\n- Goal Planner の各カードから、そのGoal進捗で絞り込まれた自動実行キューへ遷移できるようにする\n- 必要なら ToDo / Prompt Queue にも遷移できるようにする\n\n### Phase 4: 旧UI整理\n\n- role選択など、今の運用思想とズレるものを整理する\n- 不要なら非表示または撤去する\n- ただし既存機能を壊さないこと\n\n---\n\n## 変更OK範囲\n\n- Goal Planner 関連画面\n- 自動実行キュー画面\n- Goal進捗カードUI\n- 集計ロジック\n- Goal進捗→キュー導線\n- 旧UIの軽微な整理\n- 必要なドキュメント更新\n\n---\n\n## 変更禁止範囲\n\n- 既存データの削除\n- Queue / Project / ToDo / Inbox の破壊的変更\n- GoalとGoal進捗を再度分離すること\n- 実行対象AIや優先度を新入力必須に戻すこと\n- 旧画面機能を確認なしで削除すること\n\n---\n\n## 検証条件\n\n必須で確認すること。\n\n- TypeScriptエラー 0\n- lint成功\n- build成功\n- Goal Planner のカード内容が自動実行キューと整合する\n- Goal Planner で見える件数と、キューで見える件数が大きくズレない\n- Goal Planner から該当Goal進捗のキューへ遷移できる\n- iPhone表示で崩れない\n- 旧画面由来のrole選択などが残る場合、その理由を説明する\n- 既存の ToDo / Project / Inbox / Review / Prompt Queue を壊していない\n\n---\n\n## 最終報告フォーマット\n\n### 実装概要\n- Goal Planner と 自動実行キューのズレ原因\n- 今回どう揃えたか\n\n### データ源整理\n- Goal Planner が見ているデータ\n- 自動実行キューが見ているデータ\n- 統合後の正本と集計方法\n\n### 変更ファイル一覧\n- ファイルパス\n- 変更内容\n\n### UI変更点\n- Goal Planner カードで何が見えるようになったか\n- 自動実行キューとの導線がどうなったか\n- 整理した旧UI要素\n\n### 検証結果\n- TypeScript\n- lint\n- build\n- iPhone表示\n- Goal Planner と キューの整合性確認\n\n### 残課題\n- まだ残る旧UI\n- 今後さらに統合すべき箇所\n- 次にやるべきこと\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。",
+      "reviewMemo": "修正指示: # 修正依頼 / 次Epic\n# Goal Plannerと自動実行キューを同じ文脈に統合する\n\n## 背景\n\n現状の ny01/progress では、Goal Planner と 自動実行キュー が別物のように見えている。\n\nユーザーのイメージでは、\n\n- Goal Planner は Goal進捗の入力・管理画面\n- 自動実行キュー は そのGoal進捗に紐づく実際の作業キュー表示\n\nであり、3・4枚目のキュー内容が、1・2枚目のGoal Plannerとも連動して見える状態を期待している。\n\nしかし現状は、\n\n- Goal Planner 側では「現在のメイン目標」「登録済みの目標」「phases / todos / 進捗 0%」などの旧画面寄りUIが見えている\n- 自動実行キュー側では、review待ち、pin、候補外理由、Project progress、Goalラベルなど、別系統の実運用情報が見えている\n\nこのため、\n「Goal Plannerで登録・管理しているもの」と\n「自動実行キューで実際に処理されるもの」が\n同じ世界に見えず、連動していないのが問題。\n\n---\n\n## 目的\n\nGoal Planner と 自動実行キューを、同じ作業文脈・同じデータ文脈に統合する。\n\nユーザーが期待しているのは以下。\n\n1. Goal Planner の内容が、自動実行キューの内容と連動している\n2. Goal Planner のカードを見れば、そのGoal進捗に紐づくキュー状況が分かる\n3. 自動実行キューは Goal Planner の実行詳細ビューとして見える\n4. Goal Planner と キューで別々の概念や別正本が見えない\n5. 古いUI由来のズレを減らす\n\n---\n\n## 問題認識\n\n今回のズレは、単なる表示崩れではなく、設計上のズレとして扱うこと。\n\n仮説として以下を確認してほしい。\n\n- Goal Planner が goals / phases / todos の旧系データを見ている\n- 自動実行キューが Epic / Queue / Review / Project progress 系の別データを見ている\n- Goal Planner の「登録済み目標」が、自動実行キューの実際の候補や状態と連動していない\n- Goal Planner のカードが空集計（0/0/0）になりやすく、実運用上の状態を反映できていない\n- role選択や旧JSON前提など、今の運用思想とズレたUIが残っている\n\n---\n\n## やりたい状態\n\n### Goal Planner\n\nGoal Planner は「Goal進捗の入力・俯瞰画面」とする。\n\n各Goal進捗カードには、最低限以下を表示する。\n\n- Goal進捗タイトル\n- 紐づくProject\n- 全体進捗\n- 次回自動実行候補数\n- 実行可能数\n- 判断待ち数\n- レビュー待ち数\n- 候補外数\n- 最新作業\n- 次にやるべきこと\n- 自動実行キューを見る導線\n- ToDoを見る導線\n- Prompt Queueを見る導線（必要なら）\n\nつまり、今の「phases / todos / 進捗 0%」だけではなく、\n3・4枚目のキューで見えている内容の要約が Goal Planner にも見えるようにする。\n\n### 自動実行キュー\n\n自動実行キューは「Goal進捗に紐づく実行詳細ビュー」とする。\n\n- Goal Planner のカードをタップすると、そのGoal進捗に紐づくキューへ遷移できる\n- キュー側では、候補理由・候補外理由・review待ち・pin・実行可否など詳細を見る\n- Goal Planner で見えていた数値と整合する\n\n---\n\n## 重要な設計方針\n\n### 1. Goal と Goal進捗は分けない\n\n引き続き、Goal と Goal進捗は分けすぎず、goalProgress として扱う。\n\n### 2. Goal Planner と 自動実行キューの正本を揃える\n\n別々の正本や別々の集計ロジックを持たせないこと。\n\n理想:\n- Goal Planner は same-source の要約ビュー\n- 自動実行キュー は same-source の詳細ビュー\n\n### 3. 旧UI由来の不要要素を整理する\n\n以下が今の運用に不要・またはズレているなら整理対象にする。\n\n- role選択（人間 / Claude / Codex）\n- 旧phases/todos前提だけの表示\n- Goal Planner上の空カード\n- 旧画面からしか意味がない入力項目\n\n### 4. 下タブ構成と役割を明確にする\n\n現状の下タブ:\n- ホーム\n- ToDo\n- Project\n- 目標\n- 自動実行\n\nこの構成なら、\n- 目標 = Goal Planner（入力・俯瞰）\n- 自動実行 = 実行詳細\nという役割分担を明確にすること。\n\n---\n\n## 調査してほしいこと\n\n### データ面\n\n- Goal Planner は何を正本にしているか\n- 自動実行キューは何を正本にしているか\n- Project progress はどこから来ているか\n- review待ち / 判断待ち / 候補外 はどのデータから導出しているか\n- Goal Planner 側でも同じ集計が可能か\n- 旧 goals / phases / todos モデルが残っているか\n- Prompt Queue と Goal Planner の関係は何か\n\n### UI面\n\n- Goal Planner のカードに何を出すべきか\n- 0件表示になる理由\n- Goal Planner と キューでラベルや用語がズレていないか\n- 下タブ「目標」から見える情報量が足りているか\n- 「自動実行」タブに飛ばないと状況が分からない状態になっていないか\n\n---\n\n## 実装してほしいこと\n\n### Phase 1: 現状棚卸し\n\n- Goal Planner のデータ源を調査\n- 自動実行キューのデータ源を調査\n- 両者のズレを整理\n- 旧モデル / 旧画面依存を洗い出す\n\n### Phase 2: 表示統合\n\nGoal Planner のGoal進捗カードに、\n自動実行キューの集計結果を要約表示する。\n\n最低限表示:\n- 次回候補数\n- 実行可能数\n- 判断待ち数\n- レビュー待ち数\n- 候補外数\n- 最新作業\n- 次アクション\n\n### Phase 3: 導線統合\n\n- Goal Planner の各カードから、そのGoal進捗で絞り込まれた自動実行キューへ遷移できるようにする\n- 必要なら ToDo / Prompt Queue にも遷移できるようにする\n\n### Phase 4: 旧UI整理\n\n- role選択など、今の運用思想とズレるものを整理する\n- 不要なら非表示または撤去する\n- ただし既存機能を壊さないこと\n\n---\n\n## 変更OK範囲\n\n- Goal Planner 関連画面\n- 自動実行キュー画面\n- Goal進捗カードUI\n- 集計ロジック\n- Goal進捗→キュー導線\n- 旧UIの軽微な整理\n- 必要なドキュメント更新\n\n---\n\n## 変更禁止範囲\n\n- 既存データの削除\n- Queue / Project / ToDo / Inbox の破壊的変更\n- GoalとGoal進捗を再度分離すること\n- 実行対象AIや優先度を新入力必須に戻すこと\n- 旧画面機能を確認なしで削除すること\n\n---\n\n## 検証条件\n\n必須で確認すること。\n\n- TypeScriptエラー 0\n- lint成功\n- build成功\n- Goal Planner のカード内容が自動実行キューと整合する\n- Goal Planner で見える件数と、キューで見える件数が大きくズレない\n- Goal Planner から該当Goal進捗のキューへ遷移できる\n- iPhone表示で崩れない\n- 旧画面由来のrole選択などが残る場合、その理由を説明する\n- 既存の ToDo / Project / Inbox / Review / Prompt Queue を壊していない\n\n---\n\n## 最終報告フォーマット\n\n### 実装概要\n- Goal Planner と 自動実行キューのズレ原因\n- 今回どう揃えたか\n\n### データ源整理\n- Goal Planner が見ているデータ\n- 自動実行キューが見ているデータ\n- 統合後の正本と集計方法\n\n### 変更ファイル一覧\n- ファイルパス\n- 変更内容\n\n### UI変更点\n- Goal Planner カードで何が見えるようになったか\n- 自動実行キューとの導線がどうなったか\n- 整理した旧UI要素\n\n### 検証結果\n- TypeScript\n- lint\n- build\n- iPhone表示\n- Goal Planner と キューの整合性確認\n\n### 残課題\n- まだ残る旧UI\n- 今後さらに統合すべき箇所\n- 次にやるべきこと\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。",
       "fixPrompt": "# 修正依頼 / 次Epic\n# Goal Plannerと自動実行キューを同じ文脈に統合する\n\n## 背景\n\n現状の ny01/progress では、Goal Planner と 自動実行キュー が別物のように見えている。\n\nユーザーのイメージでは、\n\n- Goal Planner は Goal進捗の入力・管理画面\n- 自動実行キュー は そのGoal進捗に紐づく実際の作業キュー表示\n\nであり、3・4枚目のキュー内容が、1・2枚目のGoal Plannerとも連動して見える状態を期待している。\n\nしかし現状は、\n\n- Goal Planner 側では「現在のメイン目標」「登録済みの目標」「phases / todos / 進捗 0%」などの旧画面寄りUIが見えている\n- 自動実行キュー側では、review待ち、pin、候補外理由、Project progress、Goalラベルなど、別系統の実運用情報が見えている\n\nこのため、\n「Goal Plannerで登録・管理しているもの」と\n「自動実行キューで実際に処理されるもの」が\n同じ世界に見えず、連動していないのが問題。\n\n---\n\n## 目的\n\nGoal Planner と 自動実行キューを、同じ作業文脈・同じデータ文脈に統合する。\n\nユーザーが期待しているのは以下。\n\n1. Goal Planner の内容が、自動実行キューの内容と連動している\n2. Goal Planner のカードを見れば、そのGoal進捗に紐づくキュー状況が分かる\n3. 自動実行キューは Goal Planner の実行詳細ビューとして見える\n4. Goal Planner と キューで別々の概念や別正本が見えない\n5. 古いUI由来のズレを減らす\n\n---\n\n## 問題認識\n\n今回のズレは、単なる表示崩れではなく、設計上のズレとして扱うこと。\n\n仮説として以下を確認してほしい。\n\n- Goal Planner が goals / phases / todos の旧系データを見ている\n- 自動実行キューが Epic / Queue / Review / Project progress 系の別データを見ている\n- Goal Planner の「登録済み目標」が、自動実行キューの実際の候補や状態と連動していない\n- Goal Planner のカードが空集計（0/0/0）になりやすく、実運用上の状態を反映できていない\n- role選択や旧JSON前提など、今の運用思想とズレたUIが残っている\n\n---\n\n## やりたい状態\n\n### Goal Planner\n\nGoal Planner は「Goal進捗の入力・俯瞰画面」とする。\n\n各Goal進捗カードには、最低限以下を表示する。\n\n- Goal進捗タイトル\n- 紐づくProject\n- 全体進捗\n- 次回自動実行候補数\n- 実行可能数\n- 判断待ち数\n- レビュー待ち数\n- 候補外数\n- 最新作業\n- 次にやるべきこと\n- 自動実行キューを見る導線\n- ToDoを見る導線\n- Prompt Queueを見る導線（必要なら）\n\nつまり、今の「phases / todos / 進捗 0%」だけではなく、\n3・4枚目のキューで見えている内容の要約が Goal Planner にも見えるようにする。\n\n### 自動実行キュー\n\n自動実行キューは「Goal進捗に紐づく実行詳細ビュー」とする。\n\n- Goal Planner のカードをタップすると、そのGoal進捗に紐づくキューへ遷移できる\n- キュー側では、候補理由・候補外理由・review待ち・pin・実行可否など詳細を見る\n- Goal Planner で見えていた数値と整合する\n\n---\n\n## 重要な設計方針\n\n### 1. Goal と Goal進捗は分けない\n\n引き続き、Goal と Goal進捗は分けすぎず、goalProgress として扱う。\n\n### 2. Goal Planner と 自動実行キューの正本を揃える\n\n別々の正本や別々の集計ロジックを持たせないこと。\n\n理想:\n- Goal Planner は same-source の要約ビュー\n- 自動実行キュー は same-source の詳細ビュー\n\n### 3. 旧UI由来の不要要素を整理する\n\n以下が今の運用に不要・またはズレているなら整理対象にする。\n\n- role選択（人間 / Claude / Codex）\n- 旧phases/todos前提だけの表示\n- Goal Planner上の空カード\n- 旧画面からしか意味がない入力項目\n\n### 4. 下タブ構成と役割を明確にする\n\n現状の下タブ:\n- ホーム\n- ToDo\n- Project\n- 目標\n- 自動実行\n\nこの構成なら、\n- 目標 = Goal Planner（入力・俯瞰）\n- 自動実行 = 実行詳細\nという役割分担を明確にすること。\n\n---\n\n## 調査してほしいこと\n\n### データ面\n\n- Goal Planner は何を正本にしているか\n- 自動実行キューは何を正本にしているか\n- Project progress はどこから来ているか\n- review待ち / 判断待ち / 候補外 はどのデータから導出しているか\n- Goal Planner 側でも同じ集計が可能か\n- 旧 goals / phases / todos モデルが残っているか\n- Prompt Queue と Goal Planner の関係は何か\n\n### UI面\n\n- Goal Planner のカードに何を出すべきか\n- 0件表示になる理由\n- Goal Planner と キューでラベルや用語がズレていないか\n- 下タブ「目標」から見える情報量が足りているか\n- 「自動実行」タブに飛ばないと状況が分からない状態になっていないか\n\n---\n\n## 実装してほしいこと\n\n### Phase 1: 現状棚卸し\n\n- Goal Planner のデータ源を調査\n- 自動実行キューのデータ源を調査\n- 両者のズレを整理\n- 旧モデル / 旧画面依存を洗い出す\n\n### Phase 2: 表示統合\n\nGoal Planner のGoal進捗カードに、\n自動実行キューの集計結果を要約表示する。\n\n最低限表示:\n- 次回候補数\n- 実行可能数\n- 判断待ち数\n- レビュー待ち数\n- 候補外数\n- 最新作業\n- 次アクション\n\n### Phase 3: 導線統合\n\n- Goal Planner の各カードから、そのGoal進捗で絞り込まれた自動実行キューへ遷移できるようにする\n- 必要なら ToDo / Prompt Queue にも遷移できるようにする\n\n### Phase 4: 旧UI整理\n\n- role選択など、今の運用思想とズレるものを整理する\n- 不要なら非表示または撤去する\n- ただし既存機能を壊さないこと\n\n---\n\n## 変更OK範囲\n\n- Goal Planner 関連画面\n- 自動実行キュー画面\n- Goal進捗カードUI\n- 集計ロジック\n- Goal進捗→キュー導線\n- 旧UIの軽微な整理\n- 必要なドキュメント更新\n\n---\n\n## 変更禁止範囲\n\n- 既存データの削除\n- Queue / Project / ToDo / Inbox の破壊的変更\n- GoalとGoal進捗を再度分離すること\n- 実行対象AIや優先度を新入力必須に戻すこと\n- 旧画面機能を確認なしで削除すること\n\n---\n\n## 検証条件\n\n必須で確認すること。\n\n- TypeScriptエラー 0\n- lint成功\n- build成功\n- Goal Planner のカード内容が自動実行キューと整合する\n- Goal Planner で見える件数と、キューで見える件数が大きくズレない\n- Goal Planner から該当Goal進捗のキューへ遷移できる\n- iPhone表示で崩れない\n- 旧画面由来のrole選択などが残る場合、その理由を説明する\n- 既存の ToDo / Project / Inbox / Review / Prompt Queue を壊していない\n\n---\n\n## 最終報告フォーマット\n\n### 実装概要\n- Goal Planner と 自動実行キューのズレ原因\n- 今回どう揃えたか\n\n### データ源整理\n- Goal Planner が見ているデータ\n- 自動実行キューが見ているデータ\n- 統合後の正本と集計方法\n\n### 変更ファイル一覧\n- ファイルパス\n- 変更内容\n\n### UI変更点\n- Goal Planner カードで何が見えるようになったか\n- 自動実行キューとの導線がどうなったか\n- 整理した旧UI要素\n\n### 検証結果\n- TypeScript\n- lint\n- build\n- iPhone表示\n- Goal Planner と キューの整合性確認\n\n### 残課題\n- まだ残る旧UI\n- 今後さらに統合すべき箇所\n- 次にやるべきこと",
       "fixRequestedAt": "2026-06-14T04:16:42.356Z",
       "fixRequestedBy": "human"
@@ -16836,7 +16836,7 @@
       "targetApp": "progress",
       "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "source": "monetization_sync",
       "trigger": "cron",
       "summary": "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
@@ -16846,7 +16846,15 @@
       "warnings": [],
       "progressUpdated": false,
       "nextActions": [],
-      "rawReport": "[monetization-sync] source=schedule trigger=cron scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+      "rawReport": "[monetization-sync] source=schedule trigger=cron scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 14:11] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T14:11:04.637Z"
+      },
+      "reviewedAt": "2026-07-01T14:11:04.637Z"
     },
     {
       "runId": "20260627-203657-237",
@@ -16855,7 +16863,7 @@
       "targetApp": "company-mgmt",
       "targetTodoTitle": "Auto executor fallback smoke test",
       "runStatus": "failed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "needs_followup",
       "source": "prompt_queue",
       "executorUsed": "claude",
       "factoryRun": true,
@@ -16874,7 +16882,14 @@
       "warnings": [],
       "progressUpdated": false,
       "nextActions": [],
-      "rawReport": "[prompt-queue auto] item=pq-mqwabegj-b1elmv executor=claude\nYou've hit your weekly limit · resets 1am (Asia/Tokyo)\n"
+      "rawReport": "[prompt-queue auto] item=pq-mqwabegj-b1elmv executor=claude\nYou've hit your weekly limit · resets 1am (Asia/Tokyo)\n",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 14:11] 判定=failed 理由=runStatus=failed（失敗理由未記録）。再試行または修復候補。（rule=run_failed）",
+      "aiReview": {
+        "verdict": "failed",
+        "reason": "runStatus=failed（失敗理由未記録）。再試行または修復候補。",
+        "rule": "run_failed",
+        "reviewedAt": "2026-07-01T14:11:04.566Z"
+      }
     },
     {
       "runId": "20260627-203657",
@@ -16905,7 +16920,7 @@
       "targetApp": "progress",
       "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "source": "monetization_sync",
       "trigger": "cron",
       "summary": "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
@@ -16915,7 +16930,15 @@
       "warnings": [],
       "progressUpdated": false,
       "nextActions": [],
-      "rawReport": "[monetization-sync] source=schedule trigger=cron scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+      "rawReport": "[monetization-sync] source=schedule trigger=cron scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 14:11] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T14:11:04.431Z"
+      },
+      "reviewedAt": "2026-07-01T14:11:04.431Z"
     },
     {
       "runId": "20260627-203811-331",
@@ -16924,7 +16947,7 @@
       "targetApp": "company-mgmt",
       "targetTodoTitle": "Auto executor fallback smoke test",
       "runStatus": "failed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "needs_followup",
       "source": "prompt_queue",
       "executorUsed": "claude",
       "factoryRun": true,
@@ -16943,7 +16966,14 @@
       "warnings": [],
       "progressUpdated": false,
       "nextActions": [],
-      "rawReport": "[prompt-queue auto] item=pq-mqwabegj-b1elmv executor=claude\nYou've hit your weekly limit · resets 1am (Asia/Tokyo)\n"
+      "rawReport": "[prompt-queue auto] item=pq-mqwabegj-b1elmv executor=claude\nYou've hit your weekly limit · resets 1am (Asia/Tokyo)\n",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 14:11] 判定=failed 理由=runStatus=failed（失敗理由未記録）。再試行または修復候補。（rule=run_failed）",
+      "aiReview": {
+        "verdict": "failed",
+        "reason": "runStatus=failed（失敗理由未記録）。再試行または修復候補。",
+        "rule": "run_failed",
+        "reviewedAt": "2026-07-01T14:11:04.364Z"
+      }
     },
     {
       "runId": "20260627-203811",
@@ -16952,7 +16982,7 @@
       "targetApp": "progress",
       "targetTodoTitle": "Factory schedule (schedule/cron)",
       "runStatus": "partial",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "needs_followup",
       "source": "schedule",
       "trigger": "cron",
       "factoryRun": true,
@@ -16965,7 +16995,14 @@
       "warnings": [],
       "progressUpdated": false,
       "nextActions": [],
-      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=cron runs=0 stopped=no_candidate tagged=none\n[prompt-queue] considered=1 executed=0 reserved=0 skipped=1 blocked=0 stopped=completed runIds=20260627-203811-331"
+      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=cron runs=0 stopped=no_candidate tagged=none\n[prompt-queue] considered=1 executed=0 reserved=0 skipped=1 blocked=0 stopped=completed runIds=20260627-203811-331",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 14:11] 判定=partial 理由=runStatus=partial（未完了の検証・作業が残っている）。継続または修復候補。（rule=run_partial）",
+      "aiReview": {
+        "verdict": "partial",
+        "reason": "runStatus=partial（未完了の検証・作業が残っている）。継続または修復候補。",
+        "rule": "run_partial",
+        "reviewedAt": "2026-07-01T14:11:04.508Z"
+      }
     },
     {
       "runId": "20260627-204008",
@@ -16974,7 +17011,7 @@
       "targetApp": "progress",
       "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "source": "monetization_sync",
       "trigger": "cron",
       "summary": "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
@@ -16984,7 +17021,15 @@
       "warnings": [],
       "progressUpdated": false,
       "nextActions": [],
-      "rawReport": "[monetization-sync] source=schedule trigger=cron scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+      "rawReport": "[monetization-sync] source=schedule trigger=cron scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 14:11] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T14:11:04.074Z"
+      },
+      "reviewedAt": "2026-07-01T14:11:04.074Z"
     },
     {
       "runId": "20260627-204029-318",
@@ -17031,7 +17076,7 @@
       "targetApp": "progress",
       "targetTodoTitle": "Factory schedule (schedule/cron)",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "source": "schedule",
       "trigger": "cron",
       "factoryRun": true,
@@ -17044,7 +17089,15 @@
       "warnings": [],
       "progressUpdated": false,
       "nextActions": [],
-      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=cron runs=0 stopped=no_candidate tagged=none\n[prompt-queue] considered=1 executed=1 reserved=0 skipped=0 blocked=0 stopped=completed runIds=20260627-204029-318"
+      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=cron runs=0 stopped=no_candidate tagged=none\n[prompt-queue] considered=1 executed=1 reserved=0 skipped=0 blocked=0 stopped=completed runIds=20260627-204029-318",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 14:11] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T14:11:04.195Z"
+      },
+      "reviewedAt": "2026-07-01T14:11:04.195Z"
     },
     {
       "runId": "20260627-230007",
@@ -22333,7 +22386,7 @@
       "targetApp": "progress",
       "targetTodoTitle": "Factory schedule (schedule/systemd)",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "source": "schedule",
       "trigger": "systemd",
       "factoryRun": true,
@@ -22346,7 +22399,15 @@
       "warnings": [],
       "progressUpdated": false,
       "nextActions": [],
-      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260701-160026-567\n[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none"
+      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260701-160026-567\n[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 14:11] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T14:11:03.997Z"
+      },
+      "reviewedAt": "2026-07-01T14:11:03.997Z"
     },
     {
       "runId": "20260701-161604",
@@ -22356,7 +22417,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "日次アプリ案をAI生成化(ストア公開前提・勝機/懸念/仕様/モック)",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "needs_human",
       "summary": "日次アプリ案生成をAI生成(claude -p→codex fallback)に刷新。App Store/Google Play公開・DL・収益化前提のモバイルアプリ案を1〜3件生成し、市場性/ブルーレッド/収益化計画(ストア課金)/勝機/懸念/詳細仕様/モック画面を埋める。CLI失敗時もストア前提テンプレで最低1案保証。型に winningFactors/concerns/spec 追加、詳細モーダルに勝機/懸念/仕様タブ追加。",
       "changedFiles": [
         {
@@ -22393,7 +22454,14 @@
         "勝機/懸念/仕様の粒度は運用で調整",
         "platform既定iOS/Android・収益化ストア前提を維持(記憶: アプリ開発はストア公開限定)"
       ],
-      "rawReport": "## 日次アプリ案をAI生成化(ストア公開前提)\n\n### 背景\n従来はAIニュース/Knowledge起点のテンプレで汎用「〜支援アプリ」を1件生成するだけで、ストア公開・収益化・勝機・懸念・仕様が無かった。ユーザー方針: アプリ開発はApp Store/Google Play公開のモバイルアプリ限定。日次最低1案(良ければ複数)。生成はAI本命。\n\n### 実装\n- ensureDailyAppProposal を AI生成化。executor(claude -p→codex exec, shell spawn)でストア公開前提のモバイルアプリ案を1〜3件JSON生成し、title/overview/purpose/targetUser/features/screens(モバイル)/marketValue/oceanType/oceanRationale/monetizationHypothesis/monetizationPlan(ストア課金)/winningFactors(勝機)/concerns(懸念)/spec(詳細仕様)/decisionPoints(platform iOS/Android)を埋める。research/knowledgeを種にする。\n- 失敗(CLI未起動/dry-run/timeout/parse失敗/0件)時はストア前提テンプレで最低1件保証。\n- 型に winningFactors/concerns/spec 追加。UI詳細モーダルに勝機/懸念/詳細仕様を表示。\n\n### 検証(Claude)\ntsc OK/build OK。live: /api/app-proposals/generate 実行→ automation-log mode=ai count=3 reason=codex(Claude上限→Codex fallbackで成功)。3案とも winningFactors3/concerns2/spec有/platform=iOS/Android/iPad。例 MCP Guard Pocket: oceanType=blue, monetizationPlan=App Store/Google Play買い切り+アプリ内課金。app-proposals 91KB実描画・エラー境界なし・UIチャンクに勝機/懸念/詳細仕様含有。\n\nmonetizationImpact: high\ntheme: [app-strategy, monetization, market-research]\nobsidianSummary: 日次アプリ案をAI生成化。App Store/Play公開前提でモバイルアプリ案を1〜3件、市場/勝機/懸念/仕様/収益化(ストア課金)/モック付きで生成。CLI失敗時も最低1案保証。"
+      "rawReport": "## 日次アプリ案をAI生成化(ストア公開前提)\n\n### 背景\n従来はAIニュース/Knowledge起点のテンプレで汎用「〜支援アプリ」を1件生成するだけで、ストア公開・収益化・勝機・懸念・仕様が無かった。ユーザー方針: アプリ開発はApp Store/Google Play公開のモバイルアプリ限定。日次最低1案(良ければ複数)。生成はAI本命。\n\n### 実装\n- ensureDailyAppProposal を AI生成化。executor(claude -p→codex exec, shell spawn)でストア公開前提のモバイルアプリ案を1〜3件JSON生成し、title/overview/purpose/targetUser/features/screens(モバイル)/marketValue/oceanType/oceanRationale/monetizationHypothesis/monetizationPlan(ストア課金)/winningFactors(勝機)/concerns(懸念)/spec(詳細仕様)/decisionPoints(platform iOS/Android)を埋める。research/knowledgeを種にする。\n- 失敗(CLI未起動/dry-run/timeout/parse失敗/0件)時はストア前提テンプレで最低1件保証。\n- 型に winningFactors/concerns/spec 追加。UI詳細モーダルに勝機/懸念/詳細仕様を表示。\n\n### 検証(Claude)\ntsc OK/build OK。live: /api/app-proposals/generate 実行→ automation-log mode=ai count=3 reason=codex(Claude上限→Codex fallbackで成功)。3案とも winningFactors3/concerns2/spec有/platform=iOS/Android/iPad。例 MCP Guard Pocket: oceanType=blue, monetizationPlan=App Store/Google Play買い切り+アプリ内課金。app-proposals 91KB実描画・エラー境界なし・UIチャンクに勝機/懸念/詳細仕様含有。\n\nmonetizationImpact: high\ntheme: [app-strategy, monetization, market-research]\nobsidianSummary: 日次アプリ案をAI生成化。App Store/Play公開前提でモバイルアプリ案を1〜3件、市場/勝機/懸念/仕様/収益化(ストア課金)/モック付きで生成。CLI失敗時も最低1案保証。",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 14:00] 判定=needs_human 理由=課金関連の作業（危険キーワード検知）。人間の確認を推奨。（rule=risk_keyword）",
+      "aiReview": {
+        "verdict": "needs_human",
+        "reason": "課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
+        "rule": "risk_keyword",
+        "reviewedAt": "2026-07-01T14:00:10.346Z"
+      }
     },
     {
       "runId": "20260701-162915",
@@ -22403,7 +22471,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "アプリ承認欄を一覧→詳細でモック/収益イメージ展開に再構成",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "summary": "アプリ案カードをインラインでモック・情報満載の重いカードから、一覧行(アプリ名/概要/状態/優先度/オーシャンバッジ+詳細ボタン)に軽量化。モック(画面送り付)と収益イメージ(収益ファネル可視化)・仕様・勝機・懸念は詳細ポップアップに集約。",
       "changedFiles": [
         {
@@ -22424,7 +22492,15 @@
         "詳細モーダル SpecTab: MockPhone(◀▶画面送り)を先頭に移設。",
         "詳細モーダル MoneyTab: 収益イメージ(RevenueImage: DL→継続→課金転換→月次収益のファネル可視化)を追加。"
       ],
-      "rawReport": "## アプリ承認欄を一覧→詳細展開に\n\nユーザー要望: まず一覧で見れて、詳細押下でモック・収益イメージ等が展開される形。\n\n### 変更\n- カード: アプリ名/概要(2行)/状態・優先度・オーシャンのバッジ + 「詳細(モック・収益イメージ・仕様)を見る」ボタン + 作る/見送り/保留 に軽量化。インラインのMockPhone・InfoTile4枚・features・次アクション/工場判定ボックスを撤去。\n- 詳細モーダル SpecTab: MockPhone(◀▶画面送り)を先頭に移設。\n- 詳細モーダル MoneyTab: 収益イメージ(RevenueImage: DL→継続→課金転換→月次収益のファネル可視化)を追加。\n- 勝機/懸念/仕様は既存の詳細タブで表示継続。\n\n### 検証\nbuild OK。live: app-proposals 91KB→51KB、一覧に詳細ボタン、収益イメージがチャンク含有、エラー境界なし。\n\nmonetizationImpact: low\ntheme: [app-strategy, workflow]"
+      "rawReport": "## アプリ承認欄を一覧→詳細展開に\n\nユーザー要望: まず一覧で見れて、詳細押下でモック・収益イメージ等が展開される形。\n\n### 変更\n- カード: アプリ名/概要(2行)/状態・優先度・オーシャンのバッジ + 「詳細(モック・収益イメージ・仕様)を見る」ボタン + 作る/見送り/保留 に軽量化。インラインのMockPhone・InfoTile4枚・features・次アクション/工場判定ボックスを撤去。\n- 詳細モーダル SpecTab: MockPhone(◀▶画面送り)を先頭に移設。\n- 詳細モーダル MoneyTab: 収益イメージ(RevenueImage: DL→継続→課金転換→月次収益のファネル可視化)を追加。\n- 勝機/懸念/仕様は既存の詳細タブで表示継続。\n\n### 検証\nbuild OK。live: app-proposals 91KB→51KB、一覧に詳細ボタン、収益イメージがチャンク含有、エラー境界なし。\n\nmonetizationImpact: low\ntheme: [app-strategy, workflow]",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 14:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T14:00:10.273Z"
+      },
+      "reviewedAt": "2026-07-01T14:00:10.273Z"
     },
     {
       "runId": "20260701-170115",
@@ -22434,7 +22510,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "ホームに緊急問題トップ5+自動実行ごとに記録",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "summary": "自動実行全体でいま早急対処が必要な問題を最大5件ホーム最上部に表示。検出: 自動実行OFF/キュー空/作成対象アプリ長期停止/失敗Run放置/ブロック多数/今日の判断滞留/ゴール停滞。毎回の自動実行(factory-runner)でrecordUrgentIssues()を必ず記録。",
       "changedFiles": [
         {
@@ -22465,7 +22541,15 @@
       "nextActions": [
         "ホームに緊急問題トップ5+自動実行ごとに記録 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
-      "rawReport": "## ホーム緊急問題トップ5\n\nユーザー要望: progress自動実行全体で早急対処が必要な問題を最大5点ホーム表示。毎回の自動実行時に必ず記録。例=キュー空/作成対象アプリがずっと止まってる。\n\n### 実装\n- lib/urgent-issues.ts: detectUrgentIssues()(a自動実行OFF/bキュー空/c作成対象アプリ長期停止/d失敗Run放置/eブロック多数/f今日の判断滞留/gゴール停滞、severity順)/recordUrgentIssues()(urgent-issues.json+automation-log)。\n- factory-runner: runFactoryで毎回 recordUrgentIssues() を try/catch実行。\n- app/page.tsx: 最上部に緊急問題トップ5表示。\n\n### 検証\ntsc/build OK。live: ホームに『早急に対処が必要な問題』セクション+実例『<アプリ>が作成対象なのに…進んでいません』描画。エラー境界なし。\n\nmonetizationImpact: none\ntheme: [workflow]"
+      "rawReport": "## ホーム緊急問題トップ5\n\nユーザー要望: progress自動実行全体で早急対処が必要な問題を最大5点ホーム表示。毎回の自動実行時に必ず記録。例=キュー空/作成対象アプリがずっと止まってる。\n\n### 実装\n- lib/urgent-issues.ts: detectUrgentIssues()(a自動実行OFF/bキュー空/c作成対象アプリ長期停止/d失敗Run放置/eブロック多数/f今日の判断滞留/gゴール停滞、severity順)/recordUrgentIssues()(urgent-issues.json+automation-log)。\n- factory-runner: runFactoryで毎回 recordUrgentIssues() を try/catch実行。\n- app/page.tsx: 最上部に緊急問題トップ5表示。\n\n### 検証\ntsc/build OK。live: ホームに『早急に対処が必要な問題』セクション+実例『<アプリ>が作成対象なのに…進んでいません』描画。エラー境界なし。\n\nmonetizationImpact: none\ntheme: [workflow]",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 14:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T14:00:10.195Z"
+      },
+      "reviewedAt": "2026-07-01T14:00:10.195Z"
     },
     {
       "runId": "20260701-170947",
@@ -22475,7 +22559,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "ゴール承認に 試す系/それ以外 の内容分類タブを追加",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "summary": "ゴール承認タブ(提案ゴール)に、既存の提案元(auto/other)フィルタに加えて内容分類トグル『すべて/試す系/それ以外』を追加。試す系はタイトル等のキーワード(試す/検証/PoC/実験/調査等)で判定。試す系の実験ゴールと作る系等を分離できる。",
       "changedFiles": [
         {
@@ -22494,7 +22578,15 @@
       "nextActions": [
         "ゴール承認に 試す系/それ以外 の内容分類タブを追加 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
-      "rawReport": "## ゴール承認に試す系分類タブ\n\nユーザー要望: ゴール承認で試す系とそれ以外を分類できるタブ。\n\n### 実装\n既存は提案元(自動実行で追加/それ以外)フィルタのみ。内容ベースの分類トグルを追加:\n- isTryGoal(card): headline/question/detail/rows のテキストを /試す|試用|お試し|トライアル|検証|PoC|実験|調査|リサーチ.../ で判定。\n- goalApprovalKind 状態(all/try/other)。提案元フィルタ適用後の集合に、すべて/試す系/それ以外 のチップ行(emerald)を追加。\n- 型: InboxCardにtitle無しのため headline/rows で判定(型エラー修正)。\n\n### 検証\ntsc/build OK。live: /decide?tab=goalApproval に すべて/試す系/それ以外 チップ描画・エラーなし。\n\nmonetizationImpact: none\ntheme: [workflow]"
+      "rawReport": "## ゴール承認に試す系分類タブ\n\nユーザー要望: ゴール承認で試す系とそれ以外を分類できるタブ。\n\n### 実装\n既存は提案元(自動実行で追加/それ以外)フィルタのみ。内容ベースの分類トグルを追加:\n- isTryGoal(card): headline/question/detail/rows のテキストを /試す|試用|お試し|トライアル|検証|PoC|実験|調査|リサーチ.../ で判定。\n- goalApprovalKind 状態(all/try/other)。提案元フィルタ適用後の集合に、すべて/試す系/それ以外 のチップ行(emerald)を追加。\n- 型: InboxCardにtitle無しのため headline/rows で判定(型エラー修正)。\n\n### 検証\ntsc/build OK。live: /decide?tab=goalApproval に すべて/試す系/それ以外 チップ描画・エラーなし。\n\nmonetizationImpact: none\ntheme: [workflow]",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 14:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T14:00:10.106Z"
+      },
+      "reviewedAt": "2026-07-01T14:00:10.106Z"
     },
     {
       "runId": "20260701-182914",
@@ -22504,7 +22596,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "自動実行キューを実行可能のみに/キュー外を別タブ化+ai_holdをAIが後回し中にリネーム",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "summary": "/queueを2タブ化。既定=自動実行キュー(executableのみ+factory状態+並べ替え)。?view=others=キュー外(判断待ち/AIが後回し中/ブロック/手動/レビュー互換)を一覧+ステータスバッジ+キュー外理由+解消導線+フィルタ。ai_holdの表示名をAIが後回し中に統一。",
       "changedFiles": [
         {
@@ -22535,7 +22627,15 @@
       "nextActions": [
         "自動実行キューを実行可能のみに/キュー外を別タブ化+ai_holdをAIが後回し中にリネーム の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
-      "rawReport": "## 自動実行キューのタブ分割+ai_holdリネーム\n\nユーザー要望: ①ai_holdを人間語に ②キューページは実行可能のみ、キュー外(ブロック等)は別タブでフィルタ表示。\n\n### 実装\n- ①ai_hold表示名を『AIが後回し中』に統一(page STATUS_LABEL / auto-queue statusBlockedReason)。\n- ②/queue を ?view で2タブ化: 既定=自動実行キュー(executableのみ+factory状態/回復/並べ替え)、view=others=キュー外(判断待ち/AIが後回し中/ブロック/手動/レビュー互換)を一覧+ステータスバッジ+キュー外理由+解消導線+既存フィルタ。ProgressFilterStateにview追加でタブ保持。\n\n### 検証\nbuild OK。live: 両タブ描画、AI保留表記消滅→AIが後回し中、キュー外にブロック/判断待ち/後回し/手動+フィルタ、エラーなし。\n\nmonetizationImpact: none\ntheme: [workflow]"
+      "rawReport": "## 自動実行キューのタブ分割+ai_holdリネーム\n\nユーザー要望: ①ai_holdを人間語に ②キューページは実行可能のみ、キュー外(ブロック等)は別タブでフィルタ表示。\n\n### 実装\n- ①ai_hold表示名を『AIが後回し中』に統一(page STATUS_LABEL / auto-queue statusBlockedReason)。\n- ②/queue を ?view で2タブ化: 既定=自動実行キュー(executableのみ+factory状態/回復/並べ替え)、view=others=キュー外(判断待ち/AIが後回し中/ブロック/手動/レビュー互換)を一覧+ステータスバッジ+キュー外理由+解消導線+既存フィルタ。ProgressFilterStateにview追加でタブ保持。\n\n### 検証\nbuild OK。live: 両タブ描画、AI保留表記消滅→AIが後回し中、キュー外にブロック/判断待ち/後回し/手動+フィルタ、エラーなし。\n\nmonetizationImpact: none\ntheme: [workflow]",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 14:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T14:00:10.019Z"
+      },
+      "reviewedAt": "2026-07-01T14:00:10.019Z"
     },
     {
       "runId": "20260701-185810",
@@ -22545,7 +22645,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "ブロック項目を必ず今日の判断に入れる整合性確保",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "summary": "blocked項目に対応する今日の判断(pending Approval)が無い異常状態を検出(1件)。ensureBlockedDecisions()で全blockedに今日の判断を担保(理由別options: 危険/failed/汎用)。factory毎サイクル+手動endpoint。実行し滞留1件を解消、blocked中の今日の判断なし=0に。",
       "changedFiles": [
         {
@@ -22576,7 +22676,15 @@
       "nextActions": [
         "ブロック項目を必ず今日の判断に入れる整合性確保 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
-      "rawReport": "## ブロック=今日の判断待ちの不変条件を担保\n\nユーザー指摘: ブロックは今日の判断待ちでないと異常。必ずblockになるものは今日の判断に入れる。\n\n### 監査\nblocked 1件(epic-goalstep-goal-mqvpojj2-9nbn3, 前回failedでBlock)が対応する今日の判断なし=異常を確認。\n\n### 実装\n- lib/blocked-decisions.ts ensureBlockedDecisions(): buildAutoQueue().blocked を走査、同epicIdのpending承認が無いものに multi_option Approval を作成(危険→許可/中止/保留、failed→再試行/中止/保留、汎用→対処/中止/保留)。重複防止・例外握り・blocked_decisions_ensuredログ。\n- factory-runner: recordUrgentIssues近くで毎サイクル実行。\n- POST /api/operations/ensure-blocked-decisions で即時修正可。\n\n### 検証\ntsc/build OK。live: endpoint created=1、再監査で blocked中の今日の判断なし=0。生成された今日の判断はfailed理由で再試行/中止/保留options。\n\nmonetizationImpact: none\ntheme: [workflow]"
+      "rawReport": "## ブロック=今日の判断待ちの不変条件を担保\n\nユーザー指摘: ブロックは今日の判断待ちでないと異常。必ずblockになるものは今日の判断に入れる。\n\n### 監査\nblocked 1件(epic-goalstep-goal-mqvpojj2-9nbn3, 前回failedでBlock)が対応する今日の判断なし=異常を確認。\n\n### 実装\n- lib/blocked-decisions.ts ensureBlockedDecisions(): buildAutoQueue().blocked を走査、同epicIdのpending承認が無いものに multi_option Approval を作成(危険→許可/中止/保留、failed→再試行/中止/保留、汎用→対処/中止/保留)。重複防止・例外握り・blocked_decisions_ensuredログ。\n- factory-runner: recordUrgentIssues近くで毎サイクル実行。\n- POST /api/operations/ensure-blocked-decisions で即時修正可。\n\n### 検証\ntsc/build OK。live: endpoint created=1、再監査で blocked中の今日の判断なし=0。生成された今日の判断はfailed理由で再試行/中止/保留options。\n\nmonetizationImpact: none\ntheme: [workflow]",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 14:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T14:00:09.944Z"
+      },
+      "reviewedAt": "2026-07-01T14:00:09.944Z"
     },
     {
       "runId": "20260701-202311",
@@ -22586,7 +22694,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "今日の判断から重複の自動実行履歴セクションを撤去",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "summary": "今日の判断(decisionsタブ)下部の『🤖 自動実行の履歴』は 実行履歴(/logs)・状況(/activity)・レポート(/report) と重複のため撤去。guideのFAQも実態に合わせ修正。",
       "changedFiles": [
         {
@@ -22609,7 +22717,15 @@
       "nextActions": [
         "今日の判断から重複の自動実行履歴セクションを撤去 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
-      "rawReport": "## 今日の判断の重複レイアウト撤去\n\nユーザー指摘: 今日の判断の下に自動実行レポート(履歴)があり他タブと重複。\n\n### 変更\n- InboxTabs decisionsタブの『🤖 自動実行の履歴』(inbox.autoRuns)セクションを削除。同内容は /logs(実行履歴)・/activity(状況)・/report・運用ページの自動実行レポートタブにあり重複だった。\n- guide FAQを実態に合わせ更新。\n\n### 検証\ntsc/build OK。live /decide HTMLで該当文言0件。\n\nmonetizationImpact: none\ntheme: [workflow]"
+      "rawReport": "## 今日の判断の重複レイアウト撤去\n\nユーザー指摘: 今日の判断の下に自動実行レポート(履歴)があり他タブと重複。\n\n### 変更\n- InboxTabs decisionsタブの『🤖 自動実行の履歴』(inbox.autoRuns)セクションを削除。同内容は /logs(実行履歴)・/activity(状況)・/report・運用ページの自動実行レポートタブにあり重複だった。\n- guide FAQを実態に合わせ更新。\n\n### 検証\ntsc/build OK。live /decide HTMLで該当文言0件。\n\nmonetizationImpact: none\ntheme: [workflow]",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 14:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T14:00:09.849Z"
+      },
+      "reviewedAt": "2026-07-01T14:00:09.849Z"
     },
     {
       "runId": "20260701-220418",
@@ -22619,7 +22735,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "重複レイアウト削除(ホーム工場状態/Project・Goal進捗, 状況の達成ゴール)+重複横断監査",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "summary": "ホームからAI工場計器盤/AI工場の状態(=/queue・/activity正本)・Project進捗(=/portfolio)・Goal進捗(=/goal-planner)を削除。状況から達成したゴール(=/project-complete)を削除。削除後の横断監査で複数ページ跨りの重複見出しは検出されず。",
       "changedFiles": [
         {
@@ -22642,7 +22758,15 @@
       "nextActions": [
         "重複レイアウト削除(ホーム工場状態/Project・Goal進捗, 状況の達成ゴール)+重複横断監査 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
-      "rawReport": "## 重複レイアウト削除+横断監査(横並び調査)\n\nユーザー指定の重複を削除。横並び=重複調査の意。\n\n### 削除(表示のみ・正本は他ページ)\n- ホーム: AI工場計器盤/AI工場の状態(正本 /queue・/activity) / Project進捗(正本 /portfolio) / Goal進捗(正本 /goal-planner)\n- 状況: 達成したゴール(正本 /project-complete)\n- 未使用: toneClass / doneGoals / inRange 除去\n\n### 横断監査\napp配下主要ページのh1/h2見出しを突合。削除後、複数ページに跨る重複見出しは検出されず(先の自動実行履歴撤去と今回の削除で主要な概念重複は解消)。\n\n### 検証\nbuild OK。live: ホーム該当4見出し0・残すべき見出し維持・状況達成ゴール0・エラーなし。\n\nmonetizationImpact: none\ntheme: [workflow]"
+      "rawReport": "## 重複レイアウト削除+横断監査(横並び調査)\n\nユーザー指定の重複を削除。横並び=重複調査の意。\n\n### 削除(表示のみ・正本は他ページ)\n- ホーム: AI工場計器盤/AI工場の状態(正本 /queue・/activity) / Project進捗(正本 /portfolio) / Goal進捗(正本 /goal-planner)\n- 状況: 達成したゴール(正本 /project-complete)\n- 未使用: toneClass / doneGoals / inRange 除去\n\n### 横断監査\napp配下主要ページのh1/h2見出しを突合。削除後、複数ページに跨る重複見出しは検出されず(先の自動実行履歴撤去と今回の削除で主要な概念重複は解消)。\n\n### 検証\nbuild OK。live: ホーム該当4見出し0・残すべき見出し維持・状況達成ゴール0・エラーなし。\n\nmonetizationImpact: none\ntheme: [workflow]",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 14:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T14:00:09.777Z"
+      },
+      "reviewedAt": "2026-07-01T14:00:09.777Z"
     },
     {
       "runId": "20260701-223436",
@@ -22652,7 +22776,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "レビュー判定で自動実行を止めない/止めるのは今日の判断のみに修正",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "needs_human",
       "summary": "20件のgoalstepがreviewStatus=needs_human(errors_recorded誤検知)でwaiting_user停止し、承認もレビュー型でレビュータブ誘導だった。品質レビュー(errors/checks)はneeds_followup化して止めない。危険/要判断のみneeds_humanでepicId付き判断型Approvalとして今日の判断で停止。deriveWorkItemStatusのneeds_human直接停止を削除。結果waiting_user 20→0/executable 6→26。",
       "changedFiles": [
         {
@@ -22676,7 +22800,1262 @@
       "nextActions": [
         "レビュー判定で自動実行を止めない/止めるのは今日の判断のみに修正 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
-      "rawReport": "## レビュー判定で止めない・止めるのは今日の判断のみ\n\nユーザー指摘: キュー外がレビュー必要?で止まる。止めるなら今日の判断に理由付きで。レビュータブ由来で止めるのは運用上おかしい。\n\n### 確認\n20件がneeds_human(errors_recorded=stderr片の誤検知)でwaiting_user停止、承認はレビュー型(問題なし/要フォロー)でレビュータブ誘導。\n\n### 修正\n- ai-review classifyRun: errors_recorded/check_failed → partial(needs_followup,非停止,レビュータブで任意確認)。risk_keyword/decision_needed/approval_required/stale_running のみ needs_human。\n- needs_human承認に epicId 付与+判断型options(方針を確認して進める/中止/保留)+title 判断が必要/reason 停止理由。→今日の判断に理由付きで出て止まる。\n- auto-queue-score: reviewStatus===needs_humanの直接停止行を削除。停止はepicId付きpending承認経由(→resolutionは今日の判断)。\n\n### 検証\ntsc/build/test OK。live: waiting_user 20→0、executable 6→26(誤検知解消)、blocked1件は今日の判断保持。\n\nmonetizationImpact: none\ntheme: [workflow]"
+      "rawReport": "## レビュー判定で止めない・止めるのは今日の判断のみ\n\nユーザー指摘: キュー外がレビュー必要?で止まる。止めるなら今日の判断に理由付きで。レビュータブ由来で止めるのは運用上おかしい。\n\n### 確認\n20件がneeds_human(errors_recorded=stderr片の誤検知)でwaiting_user停止、承認はレビュー型(問題なし/要フォロー)でレビュータブ誘導。\n\n### 修正\n- ai-review classifyRun: errors_recorded/check_failed → partial(needs_followup,非停止,レビュータブで任意確認)。risk_keyword/decision_needed/approval_required/stale_running のみ needs_human。\n- needs_human承認に epicId 付与+判断型options(方針を確認して進める/中止/保留)+title 判断が必要/reason 停止理由。→今日の判断に理由付きで出て止まる。\n- auto-queue-score: reviewStatus===needs_humanの直接停止行を削除。停止はepicId付きpending承認経由(→resolutionは今日の判断)。\n\n### 検証\ntsc/build/test OK。live: waiting_user 20→0、executable 6→26(誤検知解消)、blocked1件は今日の判断保持。\n\nmonetizationImpact: none\ntheme: [workflow]",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 14:00] 判定=needs_human 理由=方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。（rule=decision_needed）",
+      "aiReview": {
+        "verdict": "needs_human",
+        "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+        "rule": "decision_needed",
+        "reviewedAt": "2026-07-01T14:00:09.748Z"
+      }
+    },
+    {
+      "runId": "20260701-230006",
+      "startedAt": "2026-07-01T14:00:06.150Z",
+      "finishedAt": "2026-07-01T14:00:06.980Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新2",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "source": "monetization_sync",
+      "trigger": "systemd",
+      "summary": "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 2 件 / skip 10 件",
+      "changedFiles": [
+        {
+          "file": "data/real/monetization-candidates.json",
+          "change": "追加0/更新2"
+        }
+      ],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[釣果ログ AnglerLog, 野鳥観察ノート BirdLog] skipped=10. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 14:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T14:00:09.666Z"
+      },
+      "reviewedAt": "2026-07-01T14:00:09.666Z"
+    },
+    {
+      "runId": "20260701-230011-632",
+      "startedAt": "2026-07-01T14:00:11.632Z",
+      "finishedAt": "2026-07-01T14:11:02.342Z",
+      "targetApp": "mahjong",
+      "epicId": "epic-goalstep-goal-mqqmhcb9-jndlz",
+      "targetTodoTitle": "Factory(auto): testflightでのui修正: testflightでのui修正",
+      "runStatus": "partial",
+      "reviewStatus": "needs_followup",
+      "source": "schedule",
+      "executorUsed": "claude",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "factoryDispatch": true,
+      "dispatchMode": "auto",
+      "dispatchPlanId": "dp-epic-goalstep-goal-mqqmhcb9-jndlz-mr257ggn",
+      "executorCandidate": "claude",
+      "promptGenerated": true,
+      "resultReturned": true,
+      "runIndex": 1,
+      "selection": {
+        "selectedGoalKey": "goal-mqqmhcb9-jndlz",
+        "selectedGoalTitle": "testflightでのui修正",
+        "selectedWorkItemId": "epic:epic-goalstep-goal-mqqmhcb9-jndlz",
+        "selectedReason": "P1 / 契約OK / 安全に dispatch 可能（claude）",
+        "priority": "P1",
+        "decisionPolicy": "autonomous",
+        "riskFlags": [],
+        "hasFixPrompt": false,
+        "selectedAt": "2026-07-01T14:00:11.615Z"
+      },
+      "summary": "- 検証: npm run build 成功 / tsc 成功 / cap sync はCodemagic側(node22)に委譲 / - push: ebba607 → origin/ios-codemagic-test / - 次アクション: CodemagicでRebuild→実機で上部/下部の被り解消を確認（Dynamic Island機種含む）",
+      "changedFiles": [
+        {
+          "file": ".gitignore",
+          "change": ""
+        },
+        {
+          "file": "app/globals.css",
+          "change": ""
+        },
+        {
+          "file": "app/layout.tsx",
+          "change": ""
+        },
+        {
+          "file": "app/questions/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "app/yomi/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "app/yomi/quiz/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "app/yomi/result/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "app/yomi/review/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "capacitor.config.ts",
+          "change": ""
+        },
+        {
+          "file": "codemagic.yaml",
+          "change": ""
+        },
+        {
+          "file": "components/BoardView.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/HomeContent.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/TileDisplay.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/YomiBoardView.tsx",
+          "change": ""
+        },
+        {
+          "file": "data/imported/README.md",
+          "change": ""
+        },
+        {
+          "file": "data/questions.json",
+          "change": ""
+        },
+        {
+          "file": "data/rejected/README.md",
+          "change": ""
+        },
+        {
+          "file": "data/yomi-questions.json",
+          "change": ""
+        },
+        {
+          "file": "docs/epic6-opinion-discussion.md",
+          "change": ""
+        },
+        {
+          "file": "docs/tenhou-collection.md",
+          "change": ""
+        },
+        {
+          "file": "docs/yomi-ingestion.md",
+          "change": ""
+        },
+        {
+          "file": "ios/.gitignore",
+          "change": ""
+        },
+        {
+          "file": "ios/App/App.xcodeproj/project.pbxproj",
+          "change": ""
+        },
+        {
+          "file": "ios/App/App.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist",
+          "change": ""
+        },
+        {
+          "file": "ios/App/App.xcodeproj/xcshareddata/xcschemes/App.xcscheme",
+          "change": ""
+        },
+        {
+          "file": "ios/App/App/AppDelegate.swift",
+          "change": ""
+        },
+        {
+          "file": "ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png",
+          "change": ""
+        },
+        {
+          "file": "ios/App/App/Assets.xcassets/AppIcon.appiconset/Contents.json",
+          "change": ""
+        },
+        {
+          "file": "ios/App/App/Assets.xcassets/Contents.json",
+          "change": ""
+        },
+        {
+          "file": "ios/App/App/Assets.xcassets/Splash.imageset/Contents.json",
+          "change": ""
+        },
+        {
+          "file": "ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732-1.png",
+          "change": ""
+        },
+        {
+          "file": "ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732-2.png",
+          "change": ""
+        },
+        {
+          "file": "ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732.png",
+          "change": ""
+        },
+        {
+          "file": "ios/App/App/Base.lproj/LaunchScreen.storyboard",
+          "change": ""
+        },
+        {
+          "file": "ios/App/App/Base.lproj/Main.storyboard",
+          "change": ""
+        },
+        {
+          "file": "ios/App/App/Info.plist",
+          "change": ""
+        },
+        {
+          "file": "ios/App/CapApp-SPM/.gitignore",
+          "change": ""
+        },
+        {
+          "file": "ios/App/CapApp-SPM/Package.swift",
+          "change": ""
+        },
+        {
+          "file": "ios/App/CapApp-SPM/README.md",
+          "change": ""
+        },
+        {
+          "file": "ios/App/CapApp-SPM/Sources/CapApp-SPM/CapApp-SPM.swift",
+          "change": ""
+        },
+        {
+          "file": "ios/debug.xcconfig",
+          "change": ""
+        },
+        {
+          "file": "lib/yomi.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/yomiScore.ts",
+          "change": ""
+        },
+        {
+          "file": "next.config.ts",
+          "change": ""
+        },
+        {
+          "file": "package-lock.json",
+          "change": ""
+        },
+        {
+          "file": "package.json",
+          "change": ""
+        },
+        {
+          "file": "scripts/ingest-yomi.mjs",
+          "change": ""
+        },
+        {
+          "file": "scripts/lib/yomi-score.mjs",
+          "change": ""
+        },
+        {
+          "file": "scripts/lib/yomi-source-validate.mjs",
+          "change": ""
+        },
+        {
+          "file": "scripts/lib/yomi-validate.mjs",
+          "change": ""
+        },
+        {
+          "file": "scripts/tenhou-to-yomi.mjs",
+          "change": ""
+        },
+        {
+          "file": "scripts/validate-yomi.mjs",
+          "change": ""
+        },
+        {
+          "file": "scripts/yomi-quality-score.mjs",
+          "change": ""
+        },
+        {
+          "file": "scripts/yomi-source-report.mjs",
+          "change": ""
+        },
+        {
+          "file": "scripts/yomi-stats.mjs",
+          "change": ""
+        },
+        {
+          "file": "types/question.ts",
+          "change": ""
+        },
+        {
+          "file": "types/yomi.ts",
+          "change": ""
+        },
+        {
+          "file": "vercel.json",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8832.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8833.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8834.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8835.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8836.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8837.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8838.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8839.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8840.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8841.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8842.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8843.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8844.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8845.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8846.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8847.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8848.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8849.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8850.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8851.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8852.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8853.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8854.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8855.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8856.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8857.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8858.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8859.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8860.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8861.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8862.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8863.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8864.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8865.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8866.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8867.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8868.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8869.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8870.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8871.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8872.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8873.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8874.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8875.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8876.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8877.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8878.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8879.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8880.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8881.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8882.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8883.jpg",
+          "change": ""
+        },
+        {
+          "file": "converted/IMG_8884.jpg",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8832.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8833.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8834.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8835.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8836.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8837.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8838.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8839.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8840.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8841.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8842.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8843.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8844.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8845.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8846.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8847.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8848.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8849.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8850.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8851.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8852.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8853.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8854.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8855.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8856.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8857.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8858.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8859.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8860.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8861.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8862.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8863.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8864.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8865.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8866.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8867.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8868.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8869.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8870.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8871.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8872.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8873.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8874.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8875.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8876.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8877.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8878.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8879.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8880.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8881.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8882.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8883.HEIC",
+          "change": ""
+        },
+        {
+          "file": "inputdata/IMG_8884.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8832.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8833.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8834.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8835.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8836.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8837.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8838.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8839.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8840.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8841.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8842.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8843.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8844.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8845.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8846.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8847.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8848.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8849.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8850.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8851.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8852.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8853.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8854.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8855.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8856.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8857.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8858.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8859.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8860.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8861.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8862.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8863.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8864.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8865.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8866.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8867.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8868.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8869.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8870.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8871.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8872.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8873.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8874.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8875.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8876.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8877.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8878.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8879.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8880.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8881.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8882.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8883.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/IMG_8884.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8361.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8362.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8363.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8364.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8365.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8366.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8367.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8368.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8369.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8370.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8371.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8372.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8373.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8374.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8375.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8376.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8377.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8378.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8379.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8380.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8381.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8382.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8383.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8384.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8385.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8386.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8387.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8388.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8389.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8390.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8391.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8392.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8393.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8394.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8395.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8396.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8397.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8398.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8399.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8400.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8401.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8402.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8403.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8404.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8405.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8406.HEIC",
+          "change": ""
+        },
+        {
+          "file": "screenshot/yomi/IMG_8407.HEIC",
+          "change": ""
+        }
+      ],
+      "checks": {
+        "typescript": "NG",
+        "lint": "NG"
+      },
+      "errors": [],
+      "warnings": [
+        "lintゲート: checks NG（typescript=NG / lint=NG）のため completed→partial に格下げ。要修正/レビュー待ち。"
+      ],
+      "progressUpdated": false,
+      "nextActions": [
+        "targetApp: mahjong / targetTodoTitle: testflightでのui修正 / runStatus: completed",
+        "次アクション: CodemagicでRebuild→実機で上部/下部の被り解消を確認（Dynamic Island機種含む）"
+      ],
+      "rawReport": "[factory-runner auto] executor=claude\n✓ 完了状態: iOS safe area 対応でクイズ画面ほか全ページの上部/下部被りを修正し、ios-codemagic-test へ push 済み\n✓ ExecutionRun POST: runId 20260701-231009\n✓ 作業レビュー: n/a（Factory Dispatch フロー。progress ExecutionRun に集約）\n✓ Obsidian追記: n/a（monetizationImpact:low・ドメインUIバグ修正のため対象外）\n✓ ob sync: n/a（ob sync 一旦中止中 / Vault 編集なし）\n✓ GitHub反映: commit ebba607 / pushed (origin/ios-codemagic-test)\n✓ iPhone確認ページ: クイズ画面「待ち選択」上部の被り・下部ホームインジケータ回避\n\n---\n\n## 原因\n`viewport-fit=cover` が未設定だったため CSS の `env(safe-area-inset-*)` がすべて 0 を返し、Capacitor の全画面 WebView 上で各ページのルート `<main>` コンテンツが y=0（ステータスバー / Dynamic Island の直下）から描画されていた。結果、上部の進捗バー・`1 / 10`・タイトルがステータスバーに食い込み、下部もホームインジケータ分の余白が確保されていなかった。\n\n## 修正内容\n1. **`app/layout.tsx`**: Next.js の `export const viewport` を追加し `viewportFit: \"cover\"`（＋`width: device-width` / `initialScale: 1`）を設定。これで各 HTML に `viewport-fit=cover` が出力され、実機で `env(safe-area-inset-*)` が実値を返すようになる。\n2. **`app/globals.css`**: 全ページ共通のルート要素 `<main>`（全ページ `min-h-screen bg-...` 構造）に `padding-top/bottom/left/right: env(safe-area-inset-*)` を付与。Tailwind preflight の `box-sizing: border-box` により `min-h-screen`(100vh) を保ったまま「内側」に安全域余白を確保 → 背景色は画面端まで伸び、コンテンツだけが安全域に収まる。home / quiz / result / questions / import が同一 `<main>` 構造のため 1 ルールで一括対応。\n\nBundle ID・codemagic.yaml・署名参照名・問題データ・正誤ロジックは一切変更していません。\n\n## 変更ファイル\n- `app/layout.tsx`（viewport export 追加）\n- `app/globals.css`（`<main>` に safe-area inset padding）\n\n## 実行した確認コマンド\n- `npm ci` → 環境が `NODE_ENV=production` で devDeps が抜けたため `npm install --include=dev` で `@tailwindcss/postcss` 等を追加\n- `npm run build` → Compiled / TypeScript / 8 ページ static 生成すべて成功\n- 生成物検証: `out/index.html`・`out/quiz/index.html` に `viewport-fit=cover` を確認、compiled CSS に `main{padding-top:env(safe-area-inset-top);...}` を確認\n- `git diff` / `git status` で変更 2 ファイルのみを確認\n- `npx cap sync ios` はローカル node が v20 のため未実行（CLI は node ≥22 要求／login shell が承認待ちでスキップ）。`out/` と `ios/App/App/public` は共に gitignore で、Codemagic が `node: latest` で `npm ci → npm run build → npx cap sync ios` を実行し再生成するため影響なし。\n\n## iPhone実機で次に確認すべきポイント\n- クイズ画面: 進捗バー / `1 / 10` / タイトル「待ち選択」がステータスバー・Dynamic Island に被らないか\n- 回答後の解説エリア最下部・「次の問題へ」ボタンがホームインジケータに隠れず、スクロールで最後まで読めるか\n- ホーム / 結果 / 問題一覧でも上部・下部に被りがないか\n- Dynamic Island 搭載機（iPhone 15 Pro 等）と非搭載機の両方\n\n## CodemagicでRebuildしてよいか\n**よい。** commit `ebba607` を `ios-codemagic-test` に push 済み。codemagic.yaml・署名参照名（`ASC_API_KEY` / `IOS_DISTRIBUTION_CERTIFICATE` / `IOS_APP_STORE_PROFILE`）・Bundle ID（`com.kaeru07.mahjong`）は不変更。Codemagic 側が `out/` を再生成して cap sync するため、そのまま Rebuild できます。\n\n## progressレビュー用\n- runId: 20260701-231009\n- targetApp: mahjong / targetTodoTitle: testflightでのui修正 / runStatus: completed\n- epicId: epic-goalstep-goal-mqqmhcb9-jndlz / factoryDispatch: true / dispatchMode: manual_copy\n- 変更: app/layout.tsx（viewport-fit=cover）, app/globals.css（<main> safe-area padding）\n- 検証: npm run build 成功 / tsc 成功 / cap sync はCodemagic側(node22)に委譲\n- push: ebba607 → origin/ios-codemagic-test\n- 次アクション: CodemagicでRebuild→実機で上部/下部の被り解消を確認（Dynamic Island機種含む）\n",
+      "stopReason": "max_runs_reached",
+      "nextActionCount": 2,
+      "doneCriteriaStatus": "continue",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 14:11] 判定=partial 理由=runStatus=partial（未完了の検証・作業が残っている）。継続または修復候補。（rule=run_partial）",
+      "aiReview": {
+        "verdict": "partial",
+        "reason": "runStatus=partial（未完了の検証・作業が残っている）。継続または修復候補。",
+        "rule": "run_partial",
+        "reviewedAt": "2026-07-01T14:11:03.922Z"
+      },
+      "trigger": "systemd"
+    },
+    {
+      "runId": "20260701-231009",
+      "startedAt": "2026-07-01T14:10:09.591Z",
+      "finishedAt": "2026-07-01T14:10:09.591Z",
+      "targetApp": "mahjong",
+      "epicId": "epic-goalstep-goal-mqqmhcb9-jndlz",
+      "targetTodoTitle": "testflightでのui修正",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "executorUsed": "claude",
+      "factoryDispatch": true,
+      "dispatchMode": "manual_copy",
+      "dispatchPlanId": "dp-epic-goalstep-goal-mqqmhcb9-jndlz-mr257gim",
+      "resultReturned": true,
+      "summary": "iOS safe area未対応でクイズ画面上部がステータスバー/Dynamic Islandに被る問題を修正。layout.tsxにviewport-fit=cover、globals.cssで全ページ<main>にenv(safe-area-inset-*)paddingを付与。build成功、ios-codemagic-testへpush(ebba607)。",
+      "changedFiles": [
+        {
+          "file": "app/layout.tsx",
+          "change": "viewport export追加(width/initialScale/viewportFit:cover)。env()を実機で有効化"
+        },
+        {
+          "file": "app/globals.css",
+          "change": "全ページ共通<main>にsafe-area-inset padding付与(top/bottom/left/right)"
+        }
+      ],
+      "checks": {
+        "build": "pass",
+        "typescript": "pass",
+        "capSync": "skipped(node22要・Codemagicで実行)"
+      },
+      "errors": [],
+      "warnings": [
+        "ローカルnodeがv20のためnpx cap sync ios未実行。Codemagicはnode:latestでcap syncを実行するため問題なし。out/とios public/はgitignore(Codemagic再生成)"
+      ],
+      "progressUpdated": false,
+      "nextActions": [
+        "Codemagicでios-codemagic-testをRebuildし実機TestFlightで上部/下部の被り解消を確認",
+        "Dynamic Island機種(iPhone 15 Pro等)とホームインジケータ機種の両方で確認"
+      ],
+      "rawReport": "## 原因\nviewport-fit=cover未設定によりenv(safe-area-inset-*)が0を返し、Capacitor全画面WebViewで各ページの<main>コンテンツがy=0(ステータスバー/Dynamic Island直下)から描画され上部UI(進捗バー/1-of-10/タイトル)が被っていた。下部もホームインジケータ分の余白なし。\n\n## 修正内容\n1. app/layout.tsx: export const viewport(width:device-width, initialScale:1, viewportFit:cover)を追加。これでindex.html等に viewport-fit=cover が出力され実機でenv()が実値を返す。\n2. app/globals.css: 全ページのルート<main>(min-h-screen bg-...)にpadding-top/bottom/left/right: env(safe-area-inset-*)を付与。Tailwind preflightのbox-sizing:border-boxによりmin-h-screen(100vh)を保ったまま内側に安全域余白を確保、背景色は画面端まで伸びる。全ページ(home/quiz/result/questions/import)が同じ<main>構造のため一括対応。\n\n## 変更ファイル\n- app/layout.tsx\n- app/globals.css\n\n## 実行した確認コマンド\n- npm ci / npm install --include=dev (devDeps含めて導入。環境NODE_ENV=productionでdevDepsが抜けていたため)\n- npm run build → Compiled/ TypeScript/ 8ページstatic生成すべて成功\n- 生成物検証: out/index.html・out/quiz/index.html に viewport-fit=cover 出力を確認、out/_next chunk cssに main{padding-top:env(safe-area-inset-top)...} を確認\n- git diff / git status で変更2ファイルのみを確認\n- npx cap sync ios はローカルnode v20のため未実行(CLIはnode>=22要求)。Codemagicはnode:latestでcap syncを実行し out/ を ios/App/App/public(gitignore)へ取り込むため影響なし。\n\n## iPhone実機で次に確認すべきポイント\n- クイズ画面: 進捗バー/1-of-10/タイトル『待ち選択』がステータスバー・Dynamic Islandに被らないか\n- 回答後の解説エリア最下部・次へボタンがホームインジケータに隠れず、スクロールで最後まで読めるか\n- ホーム/結果/問題一覧でも上部・下部の被りがないか\n- Dynamic Island機種と非搭載機種の両方\n\n## CodemagicでRebuildしてよいか\nよい。commit ebba607 を ios-codemagic-test にpush済み。codemagic.yaml/署名参照名(ASC_API_KEY/IOS_DISTRIBUTION_CERTIFICATE/IOS_APP_STORE_PROFILE)/Bundle ID(com.kaeru07.mahjong)は不変更。Codemagicが npm ci→npm run build→npx cap sync ios を実行しout/を再生成するため、そのままRebuild可。",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 14:11] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T14:11:03.521Z"
+      },
+      "reviewedAt": "2026-07-01T14:11:03.521Z"
+    },
+    {
+      "runId": "20260701-231104",
+      "startedAt": "2026-07-01T14:00:06.148Z",
+      "finishedAt": "2026-07-01T14:11:04.883Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "Factory schedule (schedule/systemd)",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "schedule",
+      "trigger": "systemd",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "stopReason": "max_runs_reached",
+      "summary": "Factory 起動: Review Fix 実行0・予約0・skip0・block1 / Epic 1 Run / Prompt Queue 実行0・予約0・skip0・block0 / 停止理由=max_runs_reached（schedule/systemd）",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260701-230011-632\n[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none"
+    },
+    {
+      "runId": "20260702-085231",
+      "startedAt": "2026-07-01T23:52:31.710Z",
+      "finishedAt": "2026-07-01T23:52:31.710Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "自動実行キュータブの重複詳細カードをキュー外専用に移動",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "自動実行キュータブが並び替えリスト(QueueReorderList)の下に同じexecutable項目をGoal別・理由付き詳細カードで再表示していた重複を解消。詳細カード(status/理由/resolution/pin/hold/exclude制御)はview===others(キュー外)専用にし、自動実行キュータブは並び替えリストのみに。",
+      "changedFiles": [
+        {
+          "file": "app/queue/page.tsx",
+          "change": "goalGroups詳細カードのternaryをview===others限定に(items>0時)。自動実行キュー(view=queue)はQueueReorderListのみ表示"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "manual": "OK live: /queue で 次の理由/候補順位 0件(並び替えリストのみ)・/queue?view=others に詳細カード保持・エラーなし"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "自動実行キュータブの重複詳細カードをキュー外専用に移動 の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## 自動実行キュータブの重複レイアウト解消\n\nユーザー指摘: 並び替えできるものの下に別レイアウト(Goal別・理由付き詳細カード)がある=同じキュー項目の重複。\n\n### 原因\nview=queue で QueueReorderList(並び替え) と goalGroups詳細カード の両方が executable を表示していた。\n\n### 修正\ngoalGroups詳細カードを view===others(キュー外)専用に。executableでは冗長(resolution等は非executable向け)。自動実行キュータブは並び替えリストのみ。キュー外は詳細カード(status/理由/こうすれば動きます/pin/hold/exclude)継続。\n\n### 検証\ntsc/build OK。live: 自動実行キューに 次の理由/候補順位 0件(並び替えリストのみ)、キュー外に詳細カード保持、エラーなし。\n\nmonetizationImpact: none\ntheme: [workflow]"
     }
   ]
 }

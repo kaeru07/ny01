@@ -978,5 +978,57 @@
     "reason": "前回実行がfailedのためBlock",
     "status": "pending",
     "createdAt": "2026-07-01T09:38:58.039Z"
+  },
+  {
+    "approvalId": "appr-1782914409774-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: レビュー判定で自動実行を止めない/止めるのは今日の判断のみに修正",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "pending",
+    "createdRunId": "20260701-223436",
+    "createdAt": "2026-07-01T14:00:09.774Z"
+  },
+  {
+    "approvalId": "appr-1782914410374-2",
+    "epicId": "epic-91",
+    "title": "判断が必要: 日次アプリ案をAI生成化(ストア公開前提・勝機/懸念/仕様/モック)",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "pending",
+    "createdRunId": "20260701-161604",
+    "createdAt": "2026-07-01T14:00:10.374Z"
   }
 ]

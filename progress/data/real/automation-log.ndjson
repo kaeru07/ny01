@@ -261,3 +261,10 @@
 {"id":"alog-1782889530973","at":"2026-07-01T07:05:30.973Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqp6f72n-nb2xn-e6hn","fallbackReason":"キュー上位のGoal「朝の自動調査の形式変更。記事のようにまとめる」を進めるため、次の一歩Epic（epic-goalstep-goal-mqp6f72n-nb2xn-e6hn）を自動生成しました"}
 {"id":"alog-1782889532359","at":"2026-07-01T07:05:32.359Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
 {"id":"alog-1782898738042","at":"2026-07-01T09:38:58.042Z","event":"blocked_decisions_ensured","fallbackReason":"created=1"}
+{"id":"alog-1782914407006","at":"2026-07-01T14:00:07.006Z","event":"monetization_sync","fallbackReason":"added=0 updated=2","detectionStatus":"schedule"}
+{"id":"alog-1782914408328","at":"2026-07-01T14:00:08.328Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=9.7→13.8","detectionStatus":"schedule"}
+{"id":"alog-1782914408545","at":"2026-07-01T14:00:08.545Z","event":"urgent_issues_recorded","fallbackReason":"count=6 『/guideのFAQ・運用ページの鮮度を点検する仕組み』が作成対象なのに0日進んでいません, 『ny01/mahjong-analyzer（手牌解析）』が作成対象なのに0日進んでいません, 失敗した作業が6件、未対応です, ブロック中の作業が1件, 1件のゴールが1週間以上停滞"}
+{"id":"alog-1782914408586","at":"2026-07-01T14:00:08.586Z","event":"blocked_decisions_ensured","fallbackReason":"created=0"}
+{"id":"alog-1782914410389","at":"2026-07-01T14:00:10.389Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=8 needs_human=2 partial=0 failed=0 / 残not_reviewed=169","aiReviewCounts":{"processed":10,"reviewed":8,"needsHuman":2,"partial":0,"failed":0}}
+{"id":"alog-1782915064718","at":"2026-07-01T14:11:04.718Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=6 needs_human=0 partial=2 failed=2 / 残not_reviewed=161","aiReviewCounts":{"processed":10,"reviewed":6,"needsHuman":0,"partial":2,"failed":2}}
+{"id":"alog-1782915064909","at":"2026-07-01T14:11:04.909Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}

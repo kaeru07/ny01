@@ -444,7 +444,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
             {filters.goalId && <Link href={queueHref(filterView, { goalId: undefined })} className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 dark:border-gray-700 dark:text-gray-200">Goal解除</Link>}
           </div>
         </section>
-      ) : (
+      ) : view === 'others' ? (
         <div className="space-y-4">
           {goalGroups.map((group) => (
             <section key={group.goalId} className="space-y-2">
@@ -572,7 +572,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
             </section>
           ))}
         </div>
-      )}
+      ) : null}
     </div>
   )
 }

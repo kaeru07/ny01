@@ -217,6 +217,15 @@
         "sourcePath": "05_monetization/収益化候補一覧.md",
         "runId": "20260620-230010",
         "impact": "no_change"
+      },
+      {
+        "date": "2026-07-01",
+        "type": "vault_sync",
+        "note": "定期取り込み: 野鳥観察ノート BirdLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 55 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260701-230006",
+        "impact": "no_change"
       }
     ],
     "history": [
@@ -344,6 +353,14 @@
         "reason": "既存候補と重複（再登場）",
         "runId": "20260620-230010",
         "timestamp": "2026-06-20T14:00:10.751Z"
+      },
+      {
+        "at": "2026-07-01T14:00:06.150Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260701-230006",
+        "timestamp": "2026-07-01T14:00:06.150Z"
       }
     ],
     "links": {
@@ -351,8 +368,8 @@
       "researchNote": "06_research/local-first-app-ideas-2026-05-14"
     },
     "discoveredAt": "2026-06-02T20:46:00.000Z",
-    "updatedAt": "2026-06-20T14:00:10.751Z",
-    "lastResearchedAt": "2026-06-20",
+    "updatedAt": "2026-07-01T14:00:06.150Z",
+    "lastResearchedAt": "2026-07-01",
     "sourceRefs": [
       {
         "id": "sr-birdlog-9em4-7",
@@ -841,6 +858,15 @@
         "discoveredAt": "2026-06-20",
         "addedByRunId": "20260620-230010",
         "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-7cwm-54",
+        "type": "research",
+        "path": "06_research/2026-07-01_know-20260628-222810.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-07-01",
+        "addedByRunId": "20260701-230006",
+        "confidence": "medium"
       }
     ],
     "evidenceLinks": [
@@ -1108,9 +1134,14 @@
         "label": "2026-06-20_know-20260613-230015.md",
         "path": "06_research/2026-06-20_know-20260613-230015.md",
         "note": "名称が再登場"
+      },
+      {
+        "label": "2026-07-01_know-20260628-222810.md",
+        "path": "06_research/2026-07-01_know-20260628-222810.md",
+        "note": "名称が再登場"
       }
     ],
-    "lastSyncRunId": "20260620-230010"
+    "lastSyncRunId": "20260701-230006"
   },
   {
     "id": "mc-anglerlog-001",
@@ -1259,6 +1290,15 @@
         "sourcePath": "05_monetization/収益化候補一覧.md",
         "runId": "20260620-230010",
         "impact": "no_change"
+      },
+      {
+        "date": "2026-07-01",
+        "type": "vault_sync",
+        "note": "定期取り込み: 釣果ログ AnglerLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 24 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260701-230006",
+        "impact": "no_change"
       }
     ],
     "history": [
@@ -1335,6 +1375,14 @@
         "reason": "既存候補と重複（再登場）",
         "runId": "20260620-230010",
         "timestamp": "2026-06-20T14:00:10.751Z"
+      },
+      {
+        "at": "2026-07-01T14:00:06.150Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260701-230006",
+        "timestamp": "2026-07-01T14:00:06.150Z"
       }
     ],
     "links": {
@@ -1343,8 +1391,8 @@
       "runId": "20260604-082420"
     },
     "discoveredAt": "2026-06-02T20:22:00.000Z",
-    "updatedAt": "2026-06-20T14:00:10.751Z",
-    "lastResearchedAt": "2026-06-20",
+    "updatedAt": "2026-07-01T14:00:06.150Z",
+    "lastResearchedAt": "2026-07-01",
     "sourceRefs": [
       {
         "id": "sr-anglerlog-9eln-2",
@@ -1554,6 +1602,15 @@
         "discoveredAt": "2026-06-20",
         "addedByRunId": "20260620-230010",
         "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-7cv7-23",
+        "type": "research",
+        "path": "06_research/2026-07-01_know-20260628-222810.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-07-01",
+        "addedByRunId": "20260701-230006",
+        "confidence": "medium"
       }
     ],
     "evidenceLinks": [
@@ -1666,9 +1723,14 @@
         "label": "2026-06-20_know-20260611-230004.md",
         "path": "06_research/2026-06-20_know-20260611-230004.md",
         "note": "名称が再登場"
+      },
+      {
+        "label": "2026-07-01_know-20260628-222810.md",
+        "path": "06_research/2026-07-01_know-20260628-222810.md",
+        "note": "名称が再登場"
       }
     ],
-    "lastSyncRunId": "20260620-230010"
+    "lastSyncRunId": "20260701-230006"
   },
   {
     "id": "mc-roastjournal-001",
