@@ -73,6 +73,8 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/integration-map', label: '対応表（旧Vault→今のゴール運用）', note: '一時ページ。旧Vault運用と今のゴール運用の対応表＋統合の進め方①〜⑥' },
       { href: '/goal-planner', label: '目標（Goal）', note: '目標とtodoの作成・編集・並び替え（管理）' },
       { href: '/portfolio?tab=goals', label: 'プロジェクト×ゴール進捗', note: 'プロジェクト別にゴールと達成率を一覧。アプリはApp Store公開仕様で「完成」表示・未紐付けゴールも警告' },
+      { href: '/project-goals', label: 'プロジェクト×ゴール一覧', note: 'プロジェクトとゴールの対応一覧（旧導線復活・孤立防止）' },
+      { href: '/research-flow', label: '調査フロー', note: '調査→候補→承認→自動実行のフロー画面（旧導線復活・孤立防止）' },
       { href: '/goal-dashboard', label: 'ゴール×todo消化状況', note: '各ゴール配下のtodoが完了/未完了/止まっているかと達成率を一覧（閲覧専用）' },
       { href: '/recommended-epics', label: 'おすすめ次作業（推薦Epic）', note: 'AI提案の作業候補の全件管理' },
       { href: '/monetization', label: '収益化候補管理', note: 'アプリ候補のスコア・詳細管理' },

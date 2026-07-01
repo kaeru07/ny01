@@ -819,5 +819,55 @@
     "reason": "アプリ案決定時に方針決定が必要な項目",
     "status": "pending",
     "createdAt": "2026-07-01T03:48:22.539Z"
+  },
+  {
+    "approvalId": "appr-1782882019066-1",
+    "title": "Run一次レビュー: 下タブ整理: 5タブ化+内蔵サブタブ(状況/アプリ開発/自動実行)+新規2ページ",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "pending",
+    "createdRunId": "20260701-134744",
+    "createdAt": "2026-07-01T05:00:19.066Z"
+  },
+  {
+    "approvalId": "appr-1782882019095-2",
+    "title": "Run一次レビュー: 今日の判断: 方針カードで選択肢の説明を常時表示",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "pending",
+    "createdRunId": "20260701-132951",
+    "createdAt": "2026-07-01T05:00:19.095Z"
   }
 ]

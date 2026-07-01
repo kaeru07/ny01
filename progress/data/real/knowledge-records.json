@@ -5331,5 +5331,202 @@
     "createdAt": "2026-07-01T02:04:50.234Z",
     "updatedAt": "2026-07-01T02:04:50.254Z",
     "nextEpicCandidateId": "rec-knowledge-20260629-230019"
+  },
+  {
+    "id": "know-20260701-140015",
+    "sourceRunId": "20260701-140015",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-01 05:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260701-140015.md",
+    "researchPath": "06_research/2026-07-01_know-20260701-140015.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T05:00:18.984Z",
+    "updatedAt": "2026-07-01T05:00:19.018Z",
+    "nextEpicCandidateId": "rec-knowledge-20260701-140015"
+  },
+  {
+    "id": "know-20260701-125820",
+    "sourceRunId": "20260701-125820",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: アプリ案 決定の不具合修正（今日の判断が空/ゴール二重化）＋今日の判断へボタン",
+    "summary": "[AI一次レビュー 2026-07-01 05:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "手牌解析で作る押下→今日の判断が空だった原因はdecisionPoints 0件。空でも既定方針3問をフォールバックで今日の判断へ。さらにapprove非冪等でゴール二重化していたのをprojectId基準固定id+承認重複ガードで冪等化。作る押下後に今日の判断へ遷移ボタンを追加。",
+      "## アプリ案 決定まわりの不具合修正",
+      "### 事象",
+      "ユーザーが手牌解析(cand-mahjong-analyzer)で「作る」を押したが今日の判断に何も出なかった。",
+      "### 原因"
+    ],
+    "nextActions": [
+      "検証で出た重複ゴールは掃除済(固定id 1件に統一)",
+      "他の既存案(ny-ai-quiz/news-app)もdp0だが同フォールバックで今日の判断に方針が並ぶ"
+    ],
+    "changedFiles": [
+      "app/api/app-proposals/[id]/decide/route.ts: decisionPoints空時のDEFAULT_DECISION_POINTSフォールバック / goal id を goal-app-<projectId> 固定で冪等化 / 承認をprojectId+title重複ガード",
+      "components/app-proposals/AppProposalCard.tsx: approve成功後に「今日の判断へ →」ボタン+作成結果バナー表示"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260701-125820.md",
+    "researchPath": "06_research/2026-07-01_know-20260701-125820.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T05:00:19.141Z",
+    "updatedAt": "2026-07-01T05:00:19.164Z",
+    "nextEpicCandidateId": "rec-knowledge-20260701-125820"
+  },
+  {
+    "id": "know-20260701-121749",
+    "sourceRunId": "20260701-121749",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: アプリ案機能 拡張実装（①〜⑤：詳細ポップアップ/決定連携/今日の判断PJ別/日次生成）",
+    "summary": "[AI一次レビュー 2026-07-01 05:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "app-proposalsを拡張。①データ拡張(市場価値/オーシャン/収益化計画/決定項目) ②詳細ポップアップ(タブ) ③決定→ゴール作成(自動実行キューに自動連携)+プロジェクト追加+方針項目を今日の判断へ ④今日の判断のprojectId別グルーピング ⑤日次1案生成(researchネタ元/冪等/factory-schedule日次フック/手動endpoint)。実装Codex・検証Claude。live end-to-end検証済。",
+      "## アプリ案機能 ①〜⑤ 実装・検証完了",
+      "### 要望→実装",
+      "①データ拡張: 候補/proposal型に 概要/市場価値/オーシャン(blue/red/unknown)+根拠/収益化計画/決定項目(decisionPoints)/createdAt。既存5件は後方互換。",
+      "②専用ページ: AppProposalCard でアプリ名+概要、詳細ボタン→モーダル(タブ: 画面・仕様 / 市場・オーシャン / 収益化)。決定/見送り/保留ボタン。"
+    ],
+    "nextActions": [
+      "検証で作成したテスト副産物(ゴール/PJ/承認3)は掃除済。生成された日次案は⑤の正当出力として残置",
+      "factory実機スケジュールで⑤日次生成フックの実発火を観測",
+      "⑤生成の質(研究ネタ→アプリ案)はv1。今日の判断で方針精査して質を上げる運用"
+    ],
+    "changedFiles": [
+      "lib/app-factory-candidates.ts: ①候補型に overview/marketValue/oceanType/oceanRationale/monetizationPlan/decisionPoints/createdAt 追加。⑤addAppFactoryCandidate 追記関数",
+      "lib/app-proposals.ts: ①新フィールドを proposal に透過+フォールバック",
+      "data/real/app-factory-candidates.json: ①既存案に記入例。⑤日次生成候補が追記される正本",
+      "components/app-proposals/AppProposalCard.tsx: ②アプリ名+概要カード/詳細モーダル(タブ:画面仕様/市場オーシャン/収益化)/決定・見送り・保留ボタン(新規)",
+      "components/app-proposals/MockPhone.tsx: ②画面イメージ表示(新規)",
+      "app/api/app-proposals/[id]/decide/route.ts: ③approve時 upsertGoal(active/autonomous)+addProject+decisionPointsをcreateApprovalで今日の判断へ。warnings返却",
+      "lib/goal-writer.ts: ③upsertGoal入力に必要フィールド対応",
+      "types/goal.ts: ③Goalフィールド調整",
+      "lib/operations-store.ts: ③createApproval に projectId 対応",
+      "lib/types/operations.ts: ③Approval に projectId? 追加",
+      "lib/command-center.ts: ④今日の判断を projectId で解決しプロジェクト別グルーピング(approval.projectId優先→epic→goal→未分類)",
+      "components/newux/InboxTabs.tsx: ④今日の判断のプロジェクト別表示UI",
+      "lib/app-proposal-generator.ts: ⑤ensureDailyAppProposal(research起点/今日分あればskip/decisionPoints seed)(新規)",
+      "lib/factory-schedule.ts: ⑤日次スケジュール入口で ensureDailyAppProposal を try/catch 起動",
+      "app/api/app-proposals/generate/route.ts: ⑤手動/テスト用 生成endpoint(新規)"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260701-121749.md",
+    "researchPath": "06_research/2026-07-01_know-20260701-121749.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T05:00:19.218Z",
+    "updatedAt": "2026-07-01T05:00:19.237Z",
+    "nextEpicCandidateId": "rec-knowledge-20260701-121749"
+  },
+  {
+    "id": "know-20260701-110450",
+    "sourceRunId": "20260701-110450",
+    "goalId": "goal-execution-review-loop",
+    "title": "Review Knowledge: Factory schedule (schedule/systemd)",
+    "summary": "[AI一次レビュー 2026-07-01 05:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Factory 起動: Review Fix 実行0・予約0・skip0・block1 / Epic 1 Run / Prompt Queue 実行0・予約0・skip0・block0 / 停止理由=max_runs_reached（schedule/systemd）",
+      "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none",
+      "[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260701-110023-448",
+      "[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260701-110450.md",
+    "researchPath": "06_research/2026-07-01_know-20260701-110450.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T05:00:19.286Z",
+    "updatedAt": "2026-07-01T05:00:19.307Z",
+    "nextEpicCandidateId": "rec-knowledge-20260701-110450"
+  },
+  {
+    "id": "know-20260629-191327",
+    "sourceRunId": "20260629-191327",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: アプリ概要承認: モック個別化+作成不要+反映可視化 / プロジェクトカード詳細遷移",
+    "summary": "[AI一次レビュー 2026-07-01 05:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "ユーザー要望に対応。(1)モック内容が全アプリ同じ→sourceProjectId別の具体画面テンプレ(将棋囲い/麻雀/ny-ai/news-app/解析)を追加し個別化、未定義は汎用フォールバック。(2)既存アプリ向けに『作成不要(not_needed)』操作を追加(decide API許可値+ボタン)。(3)反映状況が見づらい→カード上部に大きなステータスバッジ(未判断/承認/作成不要/却下/保留)、決定済はトーンダウン、先頭にステータス集計チップ、未判断を上に並べ替え。(4)プロジェクトタブ(/portfolio)のカードをタップで詳細/projects/[id]へ遷移可能に。検証=tsc0/build0/app-proposals200(アプリ別内容/作成不要/集計)・decide not_needed200・portfolio200(詳細リンク18件/遷移200)・error0。",
+      "アプリ概要承認(/app-proposals)の改善: ①モック個別化(sourceProjectId別テンプレ・将棋囲い/麻雀/ny-ai/news-app/解析、未定義は汎用) ②作成不要(not_needed)操作 ③反映可視化(バッジ+集計チップ+未判断優先並び) と、④/portfolioカードの詳細遷移。実装Codex委譲(①②③)+Claude直接(④portfolio Link)・検証/commit/POSTはClaude。commits 2980b1c(改善),6e9e245(portfolio) push済。data手編集なし。"
+    ],
+    "nextActions": [
+      "iPhone実機でアプリ別モックの中身・作成不要操作・ステータス集計・プロジェクト詳細遷移を確認"
+    ],
+    "changedFiles": [
+      "progress/lib/app-proposals.ts: projectId別の具体モック画面テンプレ追加+not_needed正規化",
+      "progress/app/api/app-proposals/[id]/decide/route.ts: decision許可値にnot_needed追加",
+      "progress/components/app-proposals/AppProposalCard.tsx: 作成不要ボタン+ステータスバッジ+決定済トーンダウン",
+      "progress/app/app-proposals/page.tsx: ステータス集計チップ+未判断優先の並び替え",
+      "progress/app/portfolio/page.tsx: プロジェクトカードを/projects/[id]詳細へのLinkに"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260629-191327.md",
+    "researchPath": "06_research/2026-07-01_know-20260629-191327.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T05:00:19.387Z",
+    "updatedAt": "2026-07-01T05:00:19.427Z",
+    "nextEpicCandidateId": "rec-knowledge-20260629-191327"
+  },
+  {
+    "id": "know-20260629-160021",
+    "sourceRunId": "20260629-160021",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-01 05:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260629-160021.md",
+    "researchPath": "06_research/2026-07-01_know-20260629-160021.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T05:00:19.476Z",
+    "updatedAt": "2026-07-01T05:00:19.496Z",
+    "nextEpicCandidateId": "rec-knowledge-20260629-160021"
+  },
+  {
+    "id": "know-20260629-152828",
+    "sourceRunId": "20260629-152828",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: ゴール承認/達成確認に横並びフィルター追加+新ページをタブに追加",
+    "summary": "[AI一次レビュー 2026-07-01 05:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "ユーザー指摘『ゴール承認のプロジェクト別グループが縦長でiPhoneで見られない/フィルター追加/他画面も横並び/新ページはタブに追加』に対応。(1)ゴール承認・達成確認タブに横スクロールのプロジェクトフィルターチップ(すべて+各プロジェクト件数)を追加し、グループは折りたたみ既定・選択プロジェクトのみ展開で縦長解消。(2)新ページ/app-proposals(アプリ承認・モック)と/project-complete(PJ完了)を下タブ(iPhone)・上タブ(PC)に追加。検証=tsc0/build0/decide両タブ200・チップ描画/home 200・両タブ描画・両ページ200。",
+      "アプリ開発フロー整理の追補。Phase1のプロジェクト別グループが全展開で縦長になりiPhoneで見られない問題に、横スクロールのプロジェクトフィルターチップ(local state・既存URLフィルタと独立)+グループ折りたたみ既定で対応(承認・達成確認の両タブ)。新ページapp-proposals/project-completeをBottomNav・TopNavに正式追加(モックへタブ直行)。実装Codex委譲(フィルター)+Claude直接(ナビ)・検証/commit/POSTはClaude。commits df4b909(フィルター),f35e51b(ナビ) push済。"
+    ],
+    "nextActions": [
+      "iPhone実機でフィルターチップの絞り込み・折りたたみ・新タブからの遷移を目視確認"
+    ],
+    "changedFiles": [
+      "progress/components/newux/InboxTabs.tsx: ゴール承認/達成確認に横並びプロジェクトフィルターチップ+グループ折りたたみ既定",
+      "progress/components/navigation/BottomNav.tsx: 下タブに「アプリ承認」「PJ完了」追加",
+      "progress/components/navigation/TopNav.tsx: 上タブnewNavItems+NEW_ROUTESに「アプリ承認」「PJ完了」追加"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260629-152828.md",
+    "researchPath": "06_research/2026-07-01_know-20260629-152828.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T05:00:19.588Z",
+    "updatedAt": "2026-07-01T05:00:19.606Z",
+    "nextEpicCandidateId": "rec-knowledge-20260629-152828"
   }
 ]

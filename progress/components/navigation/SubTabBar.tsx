@@ -8,12 +8,17 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
+// 丸ボタンだと他の操作ボタンと見分けが付かないため、下線付きの「タブ」UIにする。
+// 下端に境界線を引き、アクティブなタブだけ色付きの下線＋濃い文字で強調する。
 export default function SubTabBar({ items }: { items: SubNavItem[] }) {
   const pathname = usePathname()
 
   return (
-    <nav className="-mx-1 overflow-x-auto pb-1" aria-label="サブナビゲーション">
-      <div className="flex min-w-max gap-2 px-1">
+    <nav
+      className="-mx-1 mb-3 overflow-x-auto border-b border-gray-200 dark:border-gray-800"
+      aria-label="サブナビゲーション"
+    >
+      <div className="flex min-w-max gap-1 px-1">
         {items.map((item) => {
           const active = isActive(pathname, item.href)
           return (
@@ -21,10 +26,10 @@ export default function SubTabBar({ items }: { items: SubNavItem[] }) {
               key={item.href}
               href={item.href}
               aria-current={active ? 'page' : undefined}
-              className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-black transition-colors ${
+              className={`-mb-px shrink-0 border-b-2 px-3 py-2.5 text-sm font-bold transition-colors ${
                 active
-                  ? 'border-blue-600 bg-blue-600 text-white shadow-sm dark:border-blue-500 dark:bg-blue-500'
-                  : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400 dark:hover:border-gray-700 dark:hover:bg-gray-900 dark:hover:text-gray-200'
+                  ? 'border-blue-600 text-blue-700 dark:border-blue-400 dark:text-blue-300'
+                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-800 dark:text-gray-400 dark:hover:border-gray-700 dark:hover:text-gray-200'
               }`}
             >
               {item.label}
