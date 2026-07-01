@@ -22425,6 +22425,47 @@
         "詳細モーダル MoneyTab: 収益イメージ(RevenueImage: DL→継続→課金転換→月次収益のファネル可視化)を追加。"
       ],
       "rawReport": "## アプリ承認欄を一覧→詳細展開に\n\nユーザー要望: まず一覧で見れて、詳細押下でモック・収益イメージ等が展開される形。\n\n### 変更\n- カード: アプリ名/概要(2行)/状態・優先度・オーシャンのバッジ + 「詳細(モック・収益イメージ・仕様)を見る」ボタン + 作る/見送り/保留 に軽量化。インラインのMockPhone・InfoTile4枚・features・次アクション/工場判定ボックスを撤去。\n- 詳細モーダル SpecTab: MockPhone(◀▶画面送り)を先頭に移設。\n- 詳細モーダル MoneyTab: 収益イメージ(RevenueImage: DL→継続→課金転換→月次収益のファネル可視化)を追加。\n- 勝機/懸念/仕様は既存の詳細タブで表示継続。\n\n### 検証\nbuild OK。live: app-proposals 91KB→51KB、一覧に詳細ボタン、収益イメージがチャンク含有、エラー境界なし。\n\nmonetizationImpact: low\ntheme: [app-strategy, workflow]"
+    },
+    {
+      "runId": "20260701-170115",
+      "startedAt": "2026-07-01T08:01:15.842Z",
+      "finishedAt": "2026-07-01T08:01:15.842Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "ホームに緊急問題トップ5+自動実行ごとに記録",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "自動実行全体でいま早急対処が必要な問題を最大5件ホーム最上部に表示。検出: 自動実行OFF/キュー空/作成対象アプリ長期停止/失敗Run放置/ブロック多数/今日の判断滞留/ゴール停滞。毎回の自動実行(factory-runner)でrecordUrgentIssues()を必ず記録。",
+      "changedFiles": [
+        {
+          "file": "lib/urgent-issues.ts",
+          "change": "detectUrgentIssues()/recordUrgentIssues()新規。a〜g検出・severity順・例外時空配列・urgent-issues.json+automation-log記録"
+        },
+        {
+          "file": "lib/factory-runner.ts",
+          "change": "runFactoryでrecordUrgentIssues()をtry/catch付きで毎回実行"
+        },
+        {
+          "file": "app/page.tsx",
+          "change": "ホーム最上部に緊急問題トップ5セクション追加(high赤/medium黄・action link・0件時OK表示)"
+        },
+        {
+          "file": "lib/types/operations.ts",
+          "change": "automation log eventに urgent_issues_recorded 追加"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "manual": "OK live: ホームに『早急に対処が必要な問題』+実例『作成対象なのに…進んでいません』描画・エラー境界なし"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "ホームに緊急問題トップ5+自動実行ごとに記録 の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## ホーム緊急問題トップ5\n\nユーザー要望: progress自動実行全体で早急対処が必要な問題を最大5点ホーム表示。毎回の自動実行時に必ず記録。例=キュー空/作成対象アプリがずっと止まってる。\n\n### 実装\n- lib/urgent-issues.ts: detectUrgentIssues()(a自動実行OFF/bキュー空/c作成対象アプリ長期停止/d失敗Run放置/eブロック多数/f今日の判断滞留/gゴール停滞、severity順)/recordUrgentIssues()(urgent-issues.json+automation-log)。\n- factory-runner: runFactoryで毎回 recordUrgentIssues() を try/catch実行。\n- app/page.tsx: 最上部に緊急問題トップ5表示。\n\n### 検証\ntsc/build OK。live: ホームに『早急に対処が必要な問題』セクション+実例『<アプリ>が作成対象なのに…進んでいません』描画。エラー境界なし。\n\nmonetizationImpact: none\ntheme: [workflow]"
     }
   ]
 }

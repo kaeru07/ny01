@@ -8,6 +8,7 @@ import { buildCommandCenter, KIND_CHIP_LABEL } from '@/lib/command-center'
 import { getAutoQueueView } from '@/lib/auto-queue'
 import { computeFactoryStatus } from '@/lib/factory-status'
 import { epicPriorityLabel } from '@/lib/epic-priority-label'
+import { detectUrgentIssues } from '@/lib/urgent-issues'
 
 // 新UXのトップ = 司令塔。毎日最初に開く画面。
 // 「今日の5〜15分をどう使うか」だけが分かることを最優先にする。専門用語は出さない。
@@ -40,11 +41,29 @@ const autoQueueStatusLabel: Record<string, string> = {
   done: '完了済み',
 }
 
+const urgentIssueClass = {
+  high: {
+    row: 'border-rose-200 bg-rose-50 dark:border-rose-900/50 dark:bg-rose-950/30',
+    badge: 'bg-rose-700 text-white dark:bg-rose-500 dark:text-rose-950',
+    title: 'text-rose-950 dark:text-rose-100',
+    detail: 'text-rose-800/80 dark:text-rose-200/80',
+    button: 'bg-rose-700 text-white hover:bg-rose-800 dark:bg-rose-500 dark:text-rose-950 dark:hover:bg-rose-400',
+  },
+  medium: {
+    row: 'border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/25',
+    badge: 'bg-amber-600 text-white dark:bg-amber-400 dark:text-amber-950',
+    title: 'text-amber-950 dark:text-amber-100',
+    detail: 'text-amber-800/80 dark:text-amber-200/80',
+    button: 'bg-amber-600 text-white hover:bg-amber-700 dark:bg-amber-400 dark:text-amber-950 dark:hover:bg-amber-300',
+  },
+}
+
 export default async function CommandCenterPage() {
-  const [view, autoQueue, factoryStatus] = await Promise.all([
+  const [view, autoQueue, factoryStatus, urgentIssues] = await Promise.all([
     buildCommandCenter(),
     getAutoQueueView(),
     computeFactoryStatus(),
+    detectUrgentIssues(),
   ])
   const executionFailure =
     autoQueue.counts.executable > 0 &&
@@ -55,6 +74,51 @@ export default async function CommandCenterPage() {
 
   return (
     <div className="space-y-4 px-4 pb-5 pt-4">
+      <section className="rounded-xl border-2 border-rose-300 bg-white p-3 shadow-sm dark:border-rose-900/70 dark:bg-gray-900">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-sm font-black text-gray-950 dark:text-gray-100">🚨 早急に対処が必要な問題</h2>
+          {urgentIssues.length > 0 && (
+            <span className="rounded-full bg-rose-100 px-2 py-0.5 text-[11px] font-bold text-rose-700 dark:bg-rose-900/40 dark:text-rose-200">
+              {urgentIssues.slice(0, 5).length}件
+            </span>
+          )}
+        </div>
+        {urgentIssues.length === 0 ? (
+          <p className="mt-2 rounded-lg bg-green-50 px-3 py-2 text-xs font-semibold text-green-700 dark:bg-green-900/20 dark:text-green-300">
+            緊急の問題はありません
+          </p>
+        ) : (
+          <div className="mt-3 space-y-2">
+            {urgentIssues.slice(0, 5).map((issue) => {
+              const tone = urgentIssueClass[issue.severity]
+              return (
+                <div key={issue.id} className={`rounded-lg border px-3 py-2 ${tone.row}`}>
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className={`rounded px-1.5 py-0.5 text-[10px] font-black uppercase ${tone.badge}`}>
+                          {issue.severity}
+                        </span>
+                        <p className={`text-sm font-black leading-snug ${tone.title}`}>{issue.title}</p>
+                      </div>
+                      <p className={`mt-1 text-xs font-semibold leading-relaxed ${tone.detail}`}>{issue.detail}</p>
+                    </div>
+                    {issue.actionLabel && issue.actionHref && (
+                      <Link
+                        href={issue.actionHref}
+                        className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold ${tone.button}`}
+                      >
+                        {issue.actionLabel}
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </section>
+
       <PageGuide
         title="司令塔"
         guide="このページを見るだけで今日やることが分かります。所要時間の目安は5〜15分です。"

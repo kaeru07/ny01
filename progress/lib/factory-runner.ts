@@ -22,6 +22,7 @@ import { readGoals } from './goal-reader'
 import { writeGoals } from './goal-writer'
 import { resolveAppCwd } from './app-paths'
 import { triggerProgressSelfHealIfNeeded } from './progress-self-heal'
+import { recordUrgentIssues } from './urgent-issues'
 import { DANGER_CATEGORIES, isReviewApprovalOptions } from './inbox-labels'
 import { getAdapter } from './executors'
 import { decideCodexFallback } from './executor-fallback'
@@ -386,6 +387,11 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
   const progressCwd = resolveAppCwd('progress')
 
   const config = await getAutomationConfig()
+  try {
+    await recordUrgentIssues()
+  } catch (err) {
+    console.warn('recordUrgentIssues failed:', err)
+  }
   // 同一 Epic の深掘り回数上限。opts 明示 > config.factoryMaxPerEpic > 既定3 の優先順。
   // 1 にすると1 Run ごとに次 Epic へローテーションし、1サイクルで複数の異なるタスクを回せる。
   const maxPerEpic = Math.max(1, Math.min(opts.maxPerEpic ?? config.factoryMaxPerEpic ?? 3, 3))

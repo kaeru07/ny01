@@ -471,6 +471,7 @@ export interface AutomationLogEntry {
     | 'factory_goal_step_epic_created'
     | 'factory_goal_proposal_requested'
     | 'app_proposal_generated'
+    | 'urgent_issues_recorded'
   // --- auto_fallback 用（detection イベントでは未設定可） ---
   fallbackTriggered?: boolean
   fallbackReason?: string
