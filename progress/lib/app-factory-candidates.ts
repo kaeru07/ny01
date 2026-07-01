@@ -13,6 +13,12 @@ export interface AppFactoryDecisionPoint {
   options?: string[]
 }
 
+export interface AppFactoryMockScreen {
+  key?: string
+  name: string
+  rows: string[]
+}
+
 /** 候補キューの 1 アプリ案。 */
 export interface AppFactoryCandidate {
   id: string
@@ -33,6 +39,18 @@ export interface AppFactoryCandidate {
   oceanRationale?: string
   /** 収益化計画の詳細。 */
   monetizationPlan?: string
+  /** 勝機・勝てる要因。 */
+  winningFactors?: string[]
+  /** 懸念・リスク。 */
+  concerns?: string[]
+  /** 詳細仕様（機能・画面遷移・技術前提などの要約）。 */
+  spec?: string
+  /** 想定対象ユーザー。 */
+  targetUser?: string
+  /** 主要機能。 */
+  features?: string[]
+  /** モバイル画面案。 */
+  screens?: AppFactoryMockScreen[]
   /** 決定後に人間が方針決定すべき項目。 */
   decisionPoints?: AppFactoryDecisionPoint[]
   /** 提案作成日時。 */

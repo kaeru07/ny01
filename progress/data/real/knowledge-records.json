@@ -5714,5 +5714,329 @@
     "createdAt": "2026-07-01T05:08:04.622Z",
     "updatedAt": "2026-07-01T05:08:04.642Z",
     "nextEpicCandidateId": "rec-knowledge-20260629-110019"
+  },
+  {
+    "id": "know-20260701-160021",
+    "sourceRunId": "20260701-160021",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-01 07:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260701-160021.md",
+    "researchPath": "06_research/2026-07-01_know-20260701-160021.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T07:00:24.268Z",
+    "updatedAt": "2026-07-01T07:00:24.301Z",
+    "nextEpicCandidateId": "rec-knowledge-20260701-160021"
+  },
+  {
+    "id": "know-20260701-141833",
+    "sourceRunId": "20260701-141833",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: アプリ案モックアップを画面種別ごとに固有UIへ改善",
+    "summary": "[AI一次レビュー 2026-07-01 07:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "MockPhoneがhome/detail/create/mypage以外を全て番号リストで描き、クイズ/盤面/結果/調査が同じ見た目だった。画面のkey+名前(日本語)から種別を判定し、quiz(問題+ABCD)/board(盤面+手牌)/result(円グラフ+バー)/guide(ステップ+◀▶)/feed(タグ+記事)/form/detail/mypage/list の固有レイアウトを描くよう改善。",
+      "## モックアップUIを画面ごと固有に",
+      "### 課題",
+      "MockPhoneのScreenBodyが home/detail/create/mypage 以外を全て番号付きリストで描画。PROJECT_SCREEN_TEMPLATESのquiz/board/result/guide等が同じ見た目=ワンパターン。",
+      "### 改善"
+    ],
+    "nextActions": [
+      "アプリ案モックアップを画面種別ごとに固有UIへ改善 の結果を確認し、未達のDoneCriteriaを1つ進める"
+    ],
+    "changedFiles": [
+      "components/app-proposals/MockPhone.tsx: visualType()で種別判定し、種別ごとに固有のモックUIを描画(番号リスト一辺倒を解消)"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260701-141833.md",
+    "researchPath": "06_research/2026-07-01_know-20260701-141833.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T07:00:24.389Z",
+    "updatedAt": "2026-07-01T07:00:24.410Z",
+    "nextEpicCandidateId": "rec-knowledge-20260701-141833"
+  },
+  {
+    "id": "know-20260701-141122",
+    "sourceRunId": "20260701-141122",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: 下タブからハンバーガーに移動した3画面(todo消化/レポート/運用)を下タブに戻す",
+    "summary": "[AI一次レビュー 2026-07-01 07:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "統合で下タブ→ハンバーガーに移った todo消化(/goal-dashboard)・レポート(/report)・運用(/guide) を下タブに復活。元からハンバーガーにあった画面はそのまま。下タブ5→8。",
+      "## 下タブに3画面を復活",
+      "統合時に下タブから外れハンバーガーのみになっていた todo消化(/goal-dashboard)/レポート(/report)/運用(/guide) を下タブに戻した。元からハンバーガーにあった画面はそのまま。BottomNav 5→8タブ。",
+      "検証: build OK。live: 下タブラベル8(ホーム/今日の判断/状況/アプリ開発/自動実行/todo消化/レポート/運用)、復活3画面200。",
+      "monetizationImpact: none"
+    ],
+    "nextActions": [
+      "下タブからハンバーガーに移動した3画面(todo消化/レポート/運用)を下タブに戻す の結果を確認し、未達のDoneCriteriaを1つ進める"
+    ],
+    "changedFiles": [
+      "components/navigation/BottomNav.tsx: todo消化/レポート/運用の3タブをアイコン付きで下タブに追加(5→8タブ)"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260701-141122.md",
+    "researchPath": "06_research/2026-07-01_know-20260701-141122.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T07:00:24.460Z",
+    "updatedAt": "2026-07-01T07:00:24.480Z",
+    "nextEpicCandidateId": "rec-knowledge-20260701-141122"
+  },
+  {
+    "id": "know-20260701-140804",
+    "sourceRunId": "20260701-140804",
+    "goalId": "goal-execution-review-loop",
+    "title": "Review Knowledge: Factory schedule (schedule/systemd)",
+    "summary": "[AI一次レビュー 2026-07-01 07:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Factory 起動: Review Fix 実行0・予約0・skip0・block1 / Epic 1 Run / Prompt Queue 実行0・予約0・skip0・block0 / 停止理由=max_runs_reached（schedule/systemd）",
+      "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none",
+      "[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260701-140021-017",
+      "[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260701-140804.md",
+    "researchPath": "06_research/2026-07-01_know-20260701-140804.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T07:00:24.556Z",
+    "updatedAt": "2026-07-01T07:00:24.577Z",
+    "nextEpicCandidateId": "rec-knowledge-20260701-140804"
+  },
+  {
+    "id": "know-20260629-093418",
+    "sourceRunId": "20260629-093418",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: アプリ開発の自動実行フロー整理 - 7ステップとのギャップ分析",
+    "summary": "[AI一次レビュー 2026-07-01 07:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "ユーザー提示のアプリ開発自動実行フロー7ステップを現状progress実装と突き合わせ。新規3(アプリ概要承認ページ+モックアップ/ゴール達成内容確認欄/プロジェクト完了サマリー)、整理2(ゴール承認のプロジェクト別グループ化/NG→修正の達成確認欄接続)が必要と特定。実装着手前にモックアップの実現方法と着手順の2点をユーザー確認中。",
+      "【議論内容】progressのアプリ開発自動実行フローを、ユーザー提示の7ステップ(案調査→概要承認→詳細仕様をゴール承認→1ゴールずつ作業→達成連絡→NGなら修正概要→プロジェクト全達成で差分+候補提示)に沿って整理。【現状】app-factory-candidates(案調査・読取専用)/decide5タブ(今日の判断/ゴール承認/レビュー/Epic候補/AI保留)/proposed Goal51件(projectId付くがフラット表示)/active→auto-queue→factory-runner/reviewStatus+fixPrompt(修正する)/projectSummaries。【ギャップ】新規3=(2)アプリ概要承認ページ+画面イメージ (5)ゴール達成内容確認欄 (7)プロジェクト完了サマリー(残レビュー+現運用差分+必要候補)。整理2=(3)ゴール承認のプロジェクト別グループ化 (6)NG→修正概要を達成確認欄に接続。【選択肢】モックアップ方式: A文字ワイヤーのみ/B簡易HTMLコンポーネント生成プレビュー/C当面モックなし。着手順: 全phase一括 or 前提(承認のプロジェクト別整理+概要承認ページ)から段階。【判断保留理由】モック方式と着手順はユーザー判断のため確認中。【次反映】回答後phase1から実装、各phaseでExecutionRun+レビュー。"
+    ],
+    "nextActions": [
+      "モックアップ方式と着手順の回答後、phase1(ゴール承認のプロジェクト別グループ化+アプリ概要承認ページ)から実装"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260629-093418.md",
+    "researchPath": "06_research/2026-07-01_know-20260629-093418.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T07:00:24.629Z",
+    "updatedAt": "2026-07-01T07:00:24.657Z",
+    "nextEpicCandidateId": "rec-knowledge-20260629-093418"
+  },
+  {
+    "id": "know-20260628-230025",
+    "sourceRunId": "20260628-230025",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-01 07:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260628-230025.md",
+    "researchPath": "06_research/2026-07-01_know-20260628-230025.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T07:00:24.740Z",
+    "updatedAt": "2026-07-01T07:00:24.761Z",
+    "nextEpicCandidateId": "rec-knowledge-20260628-230025"
+  },
+  {
+    "id": "know-20260628-222810",
+    "sourceRunId": "20260628-222810",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: progress全ページの縦長レイアウトをiPhone向けにコンパクト化(横並び化)",
+    "summary": "[AI一次レビュー 2026-07-01 07:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "ユーザー指示『運用に限らず全ページに適用』に対応し、先行の/guideコンパクト設計を全41 page.tsxへ一貫適用。純表示カード/タイル/統計/凡例の縦1列→2列グリッド化・入れ子余白の平坦化・padding/text圧縮。ホーム/・queue・activity・epic([epicId])・monetization([id])・recommended-epics([id])・projects([projectId])・morning・daily・logs・usage・goal-planner等を横並び化。interactive(onClick/state/fetch/form)のロジック構造は不変でTailwind調整のみ。途中指示『legacyは対象外』に従いlegacy(home/page)の今回分は破棄(HEAD一致)。検証=tsc0/build0/pm2再起動後 静的37+動的4(epic-91/projects/monetization/recommended)全HTTP200・error0。",
+      "注意: legacy(home/page)は途中指示で対象外化しHEADへ戻した(前回920335bのlegacy/home compactionは残置)",
+      "注意: 同リポジトリの既存未コミット(lib/*・automation-config route・未追跡lib)は本作業対象外として非混入",
+      "共通コンパクト設計(space-y/padding圧縮・純表示カードのgrid-cols-2横並び・長い列挙のdetails折りたたみ)を全page.tsxへ機械的に適用。安全=onClick/useState/useEffect/fetch/form/router/API/propsは不変、変更はclassNameと純表示の並びのみ。data/に不接触。実装Codex委譲、設計/検証/安全/commit/POSTはClaude。dynamic route4種(epic-91/projects/monetization mc-anglerlog-001/recommended rec-birdlog-billing)を実IDで200確認。legacyは途中指示で対象外化(checkout HEAD)。page.tsxのみ41件をcommit(既存lib変更は非混入)。commit 7618931 push済。"
+    ],
+    "nextActions": [
+      "iPhone実機で主要ページ(ホーム/queue/activity/epic詳細/projects)を開き2列カードの横崩れ・タップ困難の有無を目視確認"
+    ],
+    "changedFiles": [
+      "progress/app/**/page.tsx (41ページ): 純表示カードの2列横並び化・余白/フォント圧縮・入れ子余白平坦化(legacy除く・ロジック不変)"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260628-222810.md",
+    "researchPath": "06_research/2026-07-01_know-20260628-222810.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T07:00:24.891Z",
+    "updatedAt": "2026-07-01T07:00:24.914Z",
+    "nextEpicCandidateId": "rec-knowledge-20260628-222810"
+  },
+  {
+    "id": "know-20260628-211508",
+    "sourceRunId": "20260628-211508",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: 運用ガイド等の縦長レイアウトをiPhone向けにコンパクト化(横並び化)",
+    "summary": "[AI一次レビュー 2026-07-01 07:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "ユーザー指摘『用語欄や使い方ページがほぼ全て縦長で見づらい/iPhone前提で改善/横並びで他ページも確認』に対応。/guideのスライド二重余白を平坦化し、用語辞典(41件)を1列→2列グリッド・凡例(LegendGrid)を2列・KPI/Roadmap/フローノード/矢印を圧縮、キューの操作/並び順を既定閉じのdetailsに。他ページ横並び監査でportfolio/revenue/goal-dashboard/legacy-homeの純表示カードを2列化・余白圧縮、automationは外側余白のみ圧縮(ロジック不変)。内容は不変・表示密度のみ向上。tsc0/build0/pm2再起動後6ページ全200・error0・用語2列/折りたたみ実描画で検証。",
+      "注意: automation/page.tsxに前回からの既存未コミット分(factoryMaxPerEpic 深掘り回数UI)を同梱してcommit",
+      "縦長の主因=Slideがchildrenをglowボックスで包み中のカードもpaddingを持つ三重余白+用語辞典41件1列+凡例1列。対策=SlideKitで余白平坦化と各プリミティブ圧縮、guideで用語2列/凡例2列/キュー詳細details化、他ページは純表示カードのみ列数増。安全=onClick/state/fetch構造は不変(diffでロジック行増減ほぼ0を確認)、data/に不接触。実装Codex委譲・設計/検証/安全/commit/POSTはClaude。pm2はnext start本番のためrestartで新ビルド反映を確認。commit 920335b push済。"
+    ],
+    "nextActions": [
+      "iPhone実機で/guide用語辞典の2列が潰れず読めるか・キュー折りたたみ開閉・他ページ2列カードの横崩れを目視確認"
+    ],
+    "changedFiles": [
+      "progress/components/guide/SlideKit.tsx: Slide二重余白平坦化・FlowNode/Legend(2列)/StatTiles/Roadmap圧縮",
+      "progress/app/guide/page.tsx: 用語辞典2列グリッド化・キュー操作/並び順をdetails折りたたみ・space-y圧縮",
+      "progress/app/automation/page.tsx: 外側余白・状態カード圧縮(ロジック不変。既存のfactoryMaxPerEpic UI同梱)",
+      "progress/app/goal-dashboard/page.tsx: 実行中ゴール一覧を2列化・余白圧縮",
+      "progress/app/portfolio/page.tsx: プロジェクトカードを2列グリッド化・圧縮",
+      "progress/app/revenue/page.tsx: Project別収益化距離を2列化・収益カード圧縮",
+      "progress/app/legacy/home/page.tsx: Factory Metrics/Goal別進捗/進行中Epic表示カードを2列化・圧縮"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260628-211508.md",
+    "researchPath": "06_research/2026-07-01_know-20260628-211508.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T07:00:24.967Z",
+    "updatedAt": "2026-07-01T07:00:24.986Z",
+    "nextEpicCandidateId": "rec-knowledge-20260628-211508"
+  },
+  {
+    "id": "know-20260628-190524",
+    "sourceRunId": "20260628-190524",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: 運用ガイド(/guide)を図ベースのスライド型(パワポ風/iPhone前提)に刷新",
+    "summary": "[AI一次レビュー 2026-07-01 07:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "前回JSON破損で中断していた『運用ページを図ベース・パワポ風・iPhone前提に』作業を再開。/guideの使い方ガイドを各セクション=1スライドの縦スクロール構成に再構成。SlideKit(6プリミティブ)とFaqAccordionを新設し、AI工場の流れを循環図・工場状態をKPIタイル・収益化をロードマップ・状態を色分け凡例として図解。文言/データ/3タブ/footerは不変。data/realには一切触れず再発防止。tsc0/build0/pm2再起動後 /guide 200・図要素実描画・エラー0で検証完了。",
+      "注意: dev配信はpm2のnext start(本番モード)のため、ビルド後はpm2 restartしないと旧ビルドを配信し続ける(今回restartで反映確認)",
+      "ユーザー指示『運用ページをもっと図でわかりやすく/文字ベースではなく図ベース/iPhone前提/パワポみたいなイメージ』の再開作業。前回はこの作業中にJSONが破損して中断していた。今回はdata/real全件の妥当性を先に確認(全件OK)した上で、表示用.tsx/コンポーネントのみに変更を限定。実装はCodex(gpt-5.x)へ委譲、設計仕様確定・検証(tsc/build/実描画)・安全判断・commit/POSTはClaude。Roadmap型unionにmilestone stateが収まることをtscで確認。pm2はnext start(本番)のため再起動で新ビルド反映を確認。"
+    ],
+    "nextActions": [
+      "iPhone実機で/guideを開き、スライドの図解が崩れず読みやすいか・FAQアコーディオン開閉・ダークモードを目視確認"
+    ],
+    "changedFiles": [
+      "progress/app/guide/page.tsx: guideタブをSlide型の図ベース構成に再構成(内容不変)",
+      "progress/components/guide/SlideKit.tsx: 新設: Slide/FlowDiagram/LoopDiagram/StatTiles/Roadmap/LegendGrid",
+      "progress/components/guide/FaqAccordion.tsx: 新設: 折りたたみFAQ(client)",
+      "progress/docs/operations/current-operating-model.md: frontmatter(updated/updateNote)+変更履歴を更新"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260628-190524.md",
+    "researchPath": "06_research/2026-07-01_know-20260628-190524.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T07:00:25.045Z",
+    "updatedAt": "2026-07-01T07:00:25.067Z",
+    "nextEpicCandidateId": "rec-knowledge-20260628-190524"
+  },
+  {
+    "id": "know-20260628-160025",
+    "sourceRunId": "20260628-160025",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-01 07:05] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260628-160025.md",
+    "researchPath": "06_research/2026-07-01_know-20260628-160025.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T07:05:27.268Z",
+    "updatedAt": "2026-07-01T07:05:27.381Z",
+    "nextEpicCandidateId": "rec-knowledge-20260628-160025"
+  },
+  {
+    "id": "know-20260628-140010",
+    "sourceRunId": "20260628-140010",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-01 07:05] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260628-140010.md",
+    "researchPath": "06_research/2026-07-01_know-20260628-140010.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T07:05:27.498Z",
+    "updatedAt": "2026-07-01T07:05:27.529Z",
+    "nextEpicCandidateId": "rec-knowledge-20260628-140010"
+  },
+  {
+    "id": "know-20260628-110001",
+    "sourceRunId": "20260628-110001",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-01 07:05] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260628-110001.md",
+    "researchPath": "06_research/2026-07-01_know-20260628-110001.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T07:05:27.625Z",
+    "updatedAt": "2026-07-01T07:05:27.647Z",
+    "nextEpicCandidateId": "rec-knowledge-20260628-110001"
+  },
+  {
+    "id": "know-20260627-230007",
+    "sourceRunId": "20260627-230007",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-01 07:05] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260627-230007.md",
+    "researchPath": "06_research/2026-07-01_know-20260627-230007.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T07:05:27.747Z",
+    "updatedAt": "2026-07-01T07:05:27.770Z",
+    "nextEpicCandidateId": "rec-knowledge-20260627-230007"
   }
 ]

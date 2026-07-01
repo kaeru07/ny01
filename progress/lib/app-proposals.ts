@@ -21,6 +21,9 @@ export interface AppProposal {
   oceanType: AppProposalOceanType
   oceanRationale?: string
   monetizationPlan?: string
+  winningFactors?: string[]
+  concerns?: string[]
+  spec?: string
   decisionPoints: AppFactoryDecisionPoint[]
   createdAt?: string
   priority: string
@@ -135,6 +138,33 @@ function buildScreens(features: string[]): MockScreen[] {
   }))
 }
 
+function normalizeStringArray(value: unknown, max = 8): string[] {
+  if (!Array.isArray(value)) return []
+  return value
+    .map((item) => (typeof item === 'string' ? item.trim() : ''))
+    .filter(Boolean)
+    .slice(0, max)
+}
+
+function normalizeScreens(value: unknown, features: string[]): MockScreen[] {
+  if (!Array.isArray(value)) return buildScreens(features)
+  const screens = value
+    .map((screen, index) => {
+      if (!screen || typeof screen !== 'object') return null
+      const source = screen as { key?: unknown; name?: unknown; rows?: unknown }
+      const name = typeof source.name === 'string' && source.name.trim() ? source.name.trim() : `画面${index + 1}`
+      const rows = normalizeStringArray(source.rows, 8)
+      return {
+        key: typeof source.key === 'string' && source.key.trim() ? source.key.trim() : `screen-${index + 1}`,
+        name,
+        rows: rows.length > 0 ? rows : rowsForScreen('detail', features),
+      }
+    })
+    .filter((screen): screen is MockScreen => Boolean(screen))
+    .slice(0, 5)
+  return screens.length > 0 ? screens : buildScreens(features)
+}
+
 function screensForProject(projectId: string | null, features: string[]): MockScreen[] {
   if (projectId && PROJECT_SCREEN_TEMPLATES[projectId]) return PROJECT_SCREEN_TEMPLATES[projectId]
   return buildScreens(features)
@@ -167,8 +197,10 @@ export async function getAppProposals(): Promise<AppProposal[]> {
   }
 
   return queue.candidates.map((candidate) => {
-    const features = deriveFeatures(candidate.purpose)
+    const candidateFeatures = normalizeStringArray(candidate.features, 6)
+    const features = candidateFeatures.length > 0 ? candidateFeatures : deriveFeatures(candidate.purpose)
     const latest = latestByTarget.get(candidate.id)
+    const targetUser = candidate.targetUser?.trim() || deriveTargetUser(candidate.purpose)
     return {
       id: candidate.id,
       projectId: candidate.sourceProjectId,
@@ -180,6 +212,9 @@ export async function getAppProposals(): Promise<AppProposal[]> {
       oceanType: candidate.oceanType ?? 'unknown',
       oceanRationale: candidate.oceanRationale,
       monetizationPlan: candidate.monetizationPlan ?? candidate.monetizationHypothesis,
+      winningFactors: normalizeStringArray(candidate.winningFactors, 8),
+      concerns: normalizeStringArray(candidate.concerns, 8),
+      spec: candidate.spec?.trim(),
       decisionPoints: candidate.decisionPoints ?? [],
       createdAt: candidate.createdAt,
       priority: candidate.priority,
@@ -187,9 +222,9 @@ export async function getAppProposals(): Promise<AppProposal[]> {
       nextAction: candidate.nextAction,
       factorySafe: candidate.factorySafe,
       factoryNote: candidate.factoryNote,
-      targetUser: deriveTargetUser(candidate.purpose),
+      targetUser,
       features,
-      screens: screensForProject(candidate.sourceProjectId, features),
+      screens: candidate.screens ? normalizeScreens(candidate.screens, features) : screensForProject(candidate.sourceProjectId, features),
       decision: latest?.decision ?? null,
       decisionNote: latest?.note,
     }

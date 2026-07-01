@@ -483,12 +483,12 @@
     ],
     "title": "朝の自動調査の形式変更。記事のようにまとめる: 次の一歩",
     "goal": "Goal「朝の自動調査の形式変更。記事のようにまとめる」の達成に向けて、次の具体的な1ステップを進める。一日1ページ、記事のように詳細にまとめるように変更する。",
-    "progress": 0,
+    "progress": 100,
     "remainingWork": [],
     "nextAction": "",
     "decisionPolicy": "autonomous",
-    "status": "active",
-    "updatedAt": "2026-06-23T23:31:21.175Z",
+    "status": "done",
+    "updatedAt": "2026-07-01T07:05:26.823Z",
     "doneCriteria": [
       "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
       "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
@@ -1211,6 +1211,31 @@
     "factoryEligible": true,
     "targetApps": [
       "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqp6f72n-nb2xn-e6hn",
+    "goalId": "goal-mqp6f72n-nb2xn",
+    "title": "朝の自動調査の形式変更。記事のようにまとめる: 次の一歩",
+    "goal": "Goal「朝の自動調査の形式変更。記事のようにまとめる」の達成に向けて、次の具体的な1ステップを進める。一日1ページ、記事のように詳細にまとめるように変更する。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-07-01T07:05:30.971Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "preferredExecutor": "claude",
+    "factoryEligible": true,
+    "targetApps": [
+      "ny01-news-app"
     ]
   }
 ]

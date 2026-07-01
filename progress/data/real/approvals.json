@@ -894,5 +894,55 @@
     "status": "pending",
     "createdRunId": "20260701-140021-017",
     "createdAt": "2026-07-01T05:08:04.030Z"
+  },
+  {
+    "approvalId": "appr-1782889527110-1",
+    "title": "Run一次レビュー: Factory(auto): 朝の自動調査の形式変更。記事のようにまとめる: 次の一歩",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: completed だが errors が 1 件記録されている（先頭: rmes/prompts/03-ai-tools.md`\n\n実施内容:\n- `2026-07-01` の実生成ファイルを確認し、`daily-market-re）。",
+    "status": "pending",
+    "createdRunId": "20260701-160026-567",
+    "createdAt": "2026-07-01T07:05:27.110Z"
+  },
+  {
+    "approvalId": "appr-1782889527911-2",
+    "title": "Run一次レビュー: Auto executor fallback smoke test",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: completed だが errors が 1 件記録されている（先頭: Reading additional input from stdin...\nOpenAI Codex v0.142.3\n--------\nworkdir: /）。",
+    "status": "pending",
+    "createdRunId": "20260627-204029-318",
+    "createdAt": "2026-07-01T07:05:27.911Z"
   }
 ]

@@ -284,6 +284,7 @@ function SpecTab({ proposal }: { proposal: AppProposal }) {
   return (
     <div className="space-y-4">
       <InfoBlock label="対象ユーザー" value={proposal.targetUser} />
+      <InfoBlock label="詳細仕様" value={proposal.spec || '未記入'} />
       <div>
         <p className="text-xs font-black text-gray-500 dark:text-gray-400">主要機能</p>
         <div className="mt-2 flex flex-wrap gap-1.5">
@@ -324,6 +325,8 @@ function MarketTab({ proposal }: { proposal: AppProposal }) {
         <span className={`mt-2 inline-flex rounded-full px-3 py-1 text-xs font-black ${tone}`}>{label}</span>
       </div>
       <InfoBlock label="判断根拠" value={proposal.oceanRationale || '未設定'} />
+      <ListBlock label="勝機" items={proposal.winningFactors ?? []} tone="green" />
+      <ListBlock label="懸念" items={proposal.concerns ?? []} tone="amber" />
     </div>
   )
 }
@@ -342,6 +345,31 @@ function InfoBlock({ label, value }: { label: string; value: string }) {
     <div>
       <p className="text-xs font-black text-gray-500 dark:text-gray-400">{label}</p>
       <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-gray-800 dark:text-gray-200">{value}</p>
+    </div>
+  )
+}
+
+function ListBlock({ label, items, tone }: { label: string; items: string[]; tone: 'green' | 'amber' }) {
+  const toneClass = {
+    green: 'border-green-200 bg-green-50 text-green-800 dark:border-green-900/60 dark:bg-green-950/20 dark:text-green-200',
+    amber: 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-200',
+  }[tone]
+  const visibleItems = items.filter((item) => item.trim())
+
+  return (
+    <div>
+      <p className="text-xs font-black text-gray-500 dark:text-gray-400">{label}</p>
+      {visibleItems.length > 0 ? (
+        <ul className="mt-2 space-y-1.5">
+          {visibleItems.map((item) => (
+            <li key={item} className={`rounded-lg border px-3 py-2 text-xs font-bold leading-relaxed ${toneClass}`}>
+              {item}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-1 text-sm leading-relaxed text-gray-800 dark:text-gray-200">未記入</p>
+      )}
     </div>
   )
 }
