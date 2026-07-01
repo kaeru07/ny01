@@ -43,7 +43,7 @@ interface QueueReorderListProps {
 const STATUS_LABEL: Record<string, string> = {
   executable: '実行可能',
   waiting_user: '判断待ち',
-  ai_hold: 'AI保留',
+  ai_hold: 'AIが後回し中',
   review_waiting: 'レビュー互換',
   blocked: 'Block',
   manual: '手動/対象外',

@@ -1,6 +1,7 @@
 export type ProgressFilterExecutor = 'unset' | 'set'
 
 export interface ProgressFilterState {
+  view?: string
   tab?: string
   goalId?: string
   projectId?: string
@@ -69,6 +70,7 @@ export function parseProgressFilters(searchParams?: SearchInput): ProgressFilter
   const executor = clean(firstValue(searchParams, 'executor'))
 
   return {
+    view: clean(firstValue(searchParams, 'view')),
     tab: normalizeTab(firstValue(searchParams, 'tab')),
     goalId: clean(firstValue(searchParams, 'goalId')),
     projectId: clean(firstValue(searchParams, 'projectId')),
@@ -117,6 +119,7 @@ export function clearFilters(current: ProgressFilterState = {}, keepKeys: Array<
 export function buildProgressFilterUrl(basePath: string, filters: ProgressFilterState): string {
   const params = new URLSearchParams()
   const tab = serializeTab(filters.tab)
+  if (filters.view) params.set('view', filters.view)
   if (tab) params.set('tab', tab)
   if (filters.goalId) params.set('goalId', filters.goalId)
   if (filters.projectId) params.set('projectId', filters.projectId)

@@ -22495,6 +22495,47 @@
         "ゴール承認に 試す系/それ以外 の内容分類タブを追加 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "## ゴール承認に試す系分類タブ\n\nユーザー要望: ゴール承認で試す系とそれ以外を分類できるタブ。\n\n### 実装\n既存は提案元(自動実行で追加/それ以外)フィルタのみ。内容ベースの分類トグルを追加:\n- isTryGoal(card): headline/question/detail/rows のテキストを /試す|試用|お試し|トライアル|検証|PoC|実験|調査|リサーチ.../ で判定。\n- goalApprovalKind 状態(all/try/other)。提案元フィルタ適用後の集合に、すべて/試す系/それ以外 のチップ行(emerald)を追加。\n- 型: InboxCardにtitle無しのため headline/rows で判定(型エラー修正)。\n\n### 検証\ntsc/build OK。live: /decide?tab=goalApproval に すべて/試す系/それ以外 チップ描画・エラーなし。\n\nmonetizationImpact: none\ntheme: [workflow]"
+    },
+    {
+      "runId": "20260701-182914",
+      "startedAt": "2026-07-01T09:29:14.694Z",
+      "finishedAt": "2026-07-01T09:29:14.694Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "自動実行キューを実行可能のみに/キュー外を別タブ化+ai_holdをAIが後回し中にリネーム",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "/queueを2タブ化。既定=自動実行キュー(executableのみ+factory状態+並べ替え)。?view=others=キュー外(判断待ち/AIが後回し中/ブロック/手動/レビュー互換)を一覧+ステータスバッジ+キュー外理由+解消導線+フィルタ。ai_holdの表示名をAIが後回し中に統一。",
+      "changedFiles": [
+        {
+          "file": "app/queue/page.tsx",
+          "change": "view切替タブ追加。自動実行キュー=executableのみ。キュー外=非executableを一覧+フィルタ。STATUS_LABEL.ai_hold=AIが後回し中"
+        },
+        {
+          "file": "lib/auto-queue.ts",
+          "change": "statusBlockedReason.ai_hold=AIが後回し中"
+        },
+        {
+          "file": "lib/progress-filters.ts",
+          "change": "ProgressFilterStateにview追加(タブ保持)"
+        },
+        {
+          "file": "components/queue/QueueReorderList.tsx",
+          "change": "自動実行キュー側のみに残す調整"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "manual": "OK live: /queue に 自動実行キュー/キュー外 タブ・AI保留表記消えAIが後回し中に・キュー外にブロック/判断待ち/後回し/手動+フィルタ・エラーなし"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "自動実行キューを実行可能のみに/キュー外を別タブ化+ai_holdをAIが後回し中にリネーム の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## 自動実行キューのタブ分割+ai_holdリネーム\n\nユーザー要望: ①ai_holdを人間語に ②キューページは実行可能のみ、キュー外(ブロック等)は別タブでフィルタ表示。\n\n### 実装\n- ①ai_hold表示名を『AIが後回し中』に統一(page STATUS_LABEL / auto-queue statusBlockedReason)。\n- ②/queue を ?view で2タブ化: 既定=自動実行キュー(executableのみ+factory状態/回復/並べ替え)、view=others=キュー外(判断待ち/AIが後回し中/ブロック/手動/レビュー互換)を一覧+ステータスバッジ+キュー外理由+解消導線+既存フィルタ。ProgressFilterStateにview追加でタブ保持。\n\n### 検証\nbuild OK。live: 両タブ描画、AI保留表記消滅→AIが後回し中、キュー外にブロック/判断待ち/後回し/手動+フィルタ、エラーなし。\n\nmonetizationImpact: none\ntheme: [workflow]"
     }
   ]
 }

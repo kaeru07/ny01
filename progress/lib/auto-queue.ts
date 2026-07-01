@@ -29,7 +29,7 @@ export function statusBlockedReason(status: WorkItemStatus): string {
   const statusLabel: Record<WorkItemStatus, string> = {
     executable: '実行可能',
     waiting_user: '人間判断待ち',
-    ai_hold: 'AI保留中',
+    ai_hold: 'AIが後回し中',
     review_waiting: 'レビュー確認状態',
     blocked: 'ブロック中',
     manual: '手動または対象外',
