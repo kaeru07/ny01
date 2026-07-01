@@ -21895,6 +21895,35 @@
         "下タブからハンバーガーに移動した3画面(todo消化/レポート/運用)を下タブに戻す の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "## 下タブに3画面を復活\n\n統合時に下タブから外れハンバーガーのみになっていた todo消化(/goal-dashboard)/レポート(/report)/運用(/guide) を下タブに戻した。元からハンバーガーにあった画面はそのまま。BottomNav 5→8タブ。\n\n検証: build OK。live: 下タブラベル8(ホーム/今日の判断/状況/アプリ開発/自動実行/todo消化/レポート/運用)、復活3画面200。\n\nmonetizationImpact: none\ntheme: [workflow]"
+    },
+    {
+      "runId": "20260701-141833",
+      "startedAt": "2026-07-01T05:18:33.793Z",
+      "finishedAt": "2026-07-01T05:18:33.793Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "アプリ案モックアップを画面種別ごとに固有UIへ改善",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "MockPhoneがhome/detail/create/mypage以外を全て番号リストで描き、クイズ/盤面/結果/調査が同じ見た目だった。画面のkey+名前(日本語)から種別を判定し、quiz(問題+ABCD)/board(盤面+手牌)/result(円グラフ+バー)/guide(ステップ+◀▶)/feed(タグ+記事)/form/detail/mypage/list の固有レイアウトを描くよう改善。",
+      "changedFiles": [
+        {
+          "file": "components/app-proposals/MockPhone.tsx",
+          "change": "visualType()で種別判定し、種別ごとに固有のモックUIを描画(番号リスト一辺倒を解消)"
+        }
+      ],
+      "checks": {
+        "typescript": "OK(build通過)",
+        "build": "OK",
+        "manual": "OK live: app-proposals 200描画・quiz/feedビジュアル確認/board・guide・result含む全種別がクライアントチャンクに含有"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "アプリ案モックアップを画面種別ごとに固有UIへ改善 の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## モックアップUIを画面ごと固有に\n\n### 課題\nMockPhoneのScreenBodyが home/detail/create/mypage 以外を全て番号付きリストで描画。PROJECT_SCREEN_TEMPLATESのquiz/board/result/guide等が同じ見た目=ワンパターン。\n\n### 改善\nvisualType(screen)で key と 名前(日本語キーワード)から種別判定し、種別固有レイアウトを追加:\n- quiz: 問題カード+ABCD選択肢グリッド\n- board: 盤面グリッド(緑)+手牌タイル列\n- result: 円形スコア+横バー\n- guide: 大ステップ+◀▶+進捗ドット\n- feed: タグチップ+記事カード\n- home: グラデーションサマリー+カード\n- form/detail/mypage/list: それぞれ固有\n\n### 検証\nbuild OK。live app-proposals 200描画、quiz(選択肢ハイライト)/feed(タグ)確認、board/guide/resultマーカーがクライアントチャンクに含有(画面送りで表示)。\n\nmonetizationImpact: low\ntheme: [app-strategy, workflow]"
     }
   ]
 }
