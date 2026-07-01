@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getAppFactoryCandidates } from '@/lib/app-factory-candidates'
 import { upsertGoal } from '@/lib/goal-writer'
-import { createApproval, recordOperationalDecision } from '@/lib/operations-store'
+import { createApproval, getPendingApprovals, recordOperationalDecision } from '@/lib/operations-store'
 import { addProject } from '@/lib/progress-writer'
 import type { CandidatePriority } from '@/lib/app-factory-candidates'
 
@@ -23,6 +23,13 @@ function impactFromPriority(priority: CandidatePriority): 'high' | 'medium' | 'l
   if (priority === 'low') return 'low'
   return 'medium'
 }
+
+// decisionPoints が空のアプリ案でも「作る」で必ず今日の判断に方針が並ぶよう、既定の方針3問をフォールバックとして使う。
+const DEFAULT_DECISION_POINTS = [
+  { key: 'platform', question: '最初に作る対象プラットフォームは？', options: ['Web', 'iOS', 'Android'] },
+  { key: 'pricing', question: '最初の課金方式は？', options: ['無料MVP', '買い切り', '月額'] },
+  { key: 'mvp', question: '最小機能セットはどこまでにする？', options: ['記録と一覧だけ', '分析まで含める', '共有まで含める'] },
+]
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   const { id } = params
@@ -73,7 +80,9 @@ export async function POST(request: Request, { params }: { params: { id: string 
         }
 
         try {
+          // 決定を2回押しても同じゴールを更新する（projectId基準の固定id）。id未指定だと毎回新規作成され二重化する。
           const goal = await upsertGoal({
+            id: `goal-app-${projectId}`,
             title: `${candidate.title}を作る`,
             summary: candidate.purpose,
             description: candidate.purpose,
@@ -89,8 +98,15 @@ export async function POST(request: Request, { params }: { params: { id: string 
           warnings.push(`goal create failed: ${error instanceof Error ? error.message : String(error)}`)
         }
 
-        for (const point of candidate.decisionPoints ?? []) {
+        const decisionPoints = (candidate.decisionPoints && candidate.decisionPoints.length > 0)
+          ? candidate.decisionPoints
+          : DEFAULT_DECISION_POINTS
+        // 決定を2回押しても同じ方針項目を重複追加しない（projectId+タイトルで既存pendingを判定）。
+        const existingApprovals = await getPendingApprovals()
+        for (const point of decisionPoints) {
           try {
+            const title = `${candidate.title}: ${point.question}`
+            if (existingApprovals.some((a) => a.projectId === projectId && a.title === title)) continue
             const options = point.options && point.options.length > 0
               ? point.options.map((option, index) => ({ key: slug(`${point.key}-${index}-${option}`), label: option }))
               : [
@@ -101,7 +117,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
             await createApproval({
               projectId,
               category: 'multi_option',
-              title: `${candidate.title}: ${point.question}`,
+              title,
               options,
               recommended: options[0]?.key ?? 'decide',
               reason: 'アプリ案決定時に方針決定が必要な項目',

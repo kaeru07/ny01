@@ -744,5 +744,80 @@
     "status": "pending",
     "createdRunId": "20260701-110023-448",
     "createdAt": "2026-07-01T02:04:49.345Z"
+  },
+  {
+    "approvalId": "appr-1782877702535-1",
+    "projectId": "ny01-mahjong-analyzer",
+    "title": "ny01/mahjong-analyzer（手牌解析）: 最初に作る対象プラットフォームは？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "platform-0-web",
+        "label": "Web"
+      },
+      {
+        "key": "platform-1-ios",
+        "label": "iOS"
+      },
+      {
+        "key": "platform-2-android",
+        "label": "Android"
+      }
+    ],
+    "recommended": "platform-0-web",
+    "reason": "アプリ案決定時に方針決定が必要な項目",
+    "status": "pending",
+    "createdAt": "2026-07-01T03:48:22.535Z"
+  },
+  {
+    "approvalId": "appr-1782877702538-2",
+    "projectId": "ny01-mahjong-analyzer",
+    "title": "ny01/mahjong-analyzer（手牌解析）: 最初の課金方式は？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "pricing-0-mvp",
+        "label": "無料MVP"
+      },
+      {
+        "key": "pricing-1",
+        "label": "買い切り"
+      },
+      {
+        "key": "pricing-2",
+        "label": "月額"
+      }
+    ],
+    "recommended": "pricing-0-mvp",
+    "reason": "アプリ案決定時に方針決定が必要な項目",
+    "status": "pending",
+    "createdAt": "2026-07-01T03:48:22.538Z"
+  },
+  {
+    "approvalId": "appr-1782877702539-3",
+    "projectId": "ny01-mahjong-analyzer",
+    "title": "ny01/mahjong-analyzer（手牌解析）: 最小機能セットはどこまでにする？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mvp-0",
+        "label": "記録と一覧だけ"
+      },
+      {
+        "key": "mvp-1",
+        "label": "分析まで含める"
+      },
+      {
+        "key": "mvp-2",
+        "label": "共有まで含める"
+      }
+    ],
+    "recommended": "mvp-0",
+    "reason": "アプリ案決定時に方針決定が必要な項目",
+    "status": "pending",
+    "createdAt": "2026-07-01T03:48:22.539Z"
   }
 ]

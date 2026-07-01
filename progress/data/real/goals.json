@@ -4268,8 +4268,29 @@
       ],
       "createdAt": "2026-06-27T02:02:34.437Z",
       "updatedAt": "2026-06-27T05:00:23.880Z"
+    },
+    {
+      "id": "goal-app-ny01-mahjong-analyzer",
+      "projectId": "ny01-mahjong-analyzer",
+      "title": "ny01/mahjong-analyzer（手牌解析）を作る",
+      "description": "手牌を入力すると有効牌・受け入れ枚数を解析するツール。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "手牌を入力すると有効牌・受け入れ枚数を解析するツール。",
+      "status": "active",
+      "priority": "low",
+      "pinnedTop": false,
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "monetizationImpact": "low",
+      "phases": [],
+      "todos": [],
+      "createdAt": "2026-07-01T03:56:44.872Z",
+      "updatedAt": "2026-07-01T03:56:44.919Z"
     }
   ],
   "mainGoalId": "goal-ai-factory-os",
-  "updatedAt": "2026-07-01T03:09:38.731Z"
+  "updatedAt": "2026-07-01T03:56:44.920Z"
 }

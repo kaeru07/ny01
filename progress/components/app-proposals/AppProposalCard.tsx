@@ -50,6 +50,7 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
   const [note, setNote] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [approvedInfo, setApprovedInfo] = useState<{ approvalCount: number } | null>(null)
   const screen = proposal.screens[screenIndex] ?? proposal.screens[0]
   const tabs = proposal.screens.map((item) => item.name)
   const status = decisionBadge[proposal.decision ?? 'undecided']
@@ -72,12 +73,15 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
           note: decision === 'approve' || decision === 'not_needed' ? undefined : note,
         }),
       })
+      const body = await res.json().catch(() => null)
       if (!res.ok) {
-        const body = await res.json().catch(() => null)
         throw new Error(body?.error ?? '保存に失敗しました')
       }
       setPendingDecision(null)
       setNote('')
+      if (decision === 'approve') {
+        setApprovedInfo({ approvalCount: typeof body?.approvalCount === 'number' ? body.approvalCount : 0 })
+      }
       router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : '保存に失敗しました')
@@ -177,6 +181,20 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
         <DecisionButton disabled={busy} label={pendingDecision === 'reject' ? '見送りを保存' : '見送り'} tone="rose" onClick={() => decide('reject')} />
         <DecisionButton disabled={busy} label={pendingDecision === 'hold' ? '保留を保存' : '保留'} tone="gray" onClick={() => decide('hold')} />
       </div>
+      {approvedInfo ? (
+        <div className="space-y-2 rounded-xl border border-green-200 bg-green-50 px-3 py-2 dark:border-green-800 dark:bg-green-900/20">
+          <p className="text-xs font-black text-green-800 dark:text-green-200">
+            作成を決定しました。ゴールを自動実行キューに追加{approvedInfo.approvalCount > 0 ? `し、方針${approvedInfo.approvalCount}件を今日の判断に追加` : ''}しました。
+          </p>
+          <button
+            type="button"
+            className="min-h-10 w-full rounded-full bg-green-600 px-3 text-xs font-black text-white hover:bg-green-700"
+            onClick={() => router.push('/decide?tab=today')}
+          >
+            今日の判断へ →
+          </button>
+        </div>
+      ) : null}
       {detailOpen ? <AppProposalDetailModal proposal={proposal} onClose={() => setDetailOpen(false)} /> : null}
     </article>
   )

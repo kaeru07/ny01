@@ -19364,6 +19364,40 @@
         "⑤生成の質(研究ネタ→アプリ案)はv1。今日の判断で方針精査して質を上げる運用"
       ],
       "rawReport": "## アプリ案機能 ①〜⑤ 実装・検証完了\n\n### 要望→実装\n①データ拡張: 候補/proposal型に 概要/市場価値/オーシャン(blue/red/unknown)+根拠/収益化計画/決定項目(decisionPoints)/createdAt。既存5件は後方互換。\n②専用ページ: AppProposalCard でアプリ名+概要、詳細ボタン→モーダル(タブ: 画面・仕様 / 市場・オーシャン / 収益化)。決定/見送り/保留ボタン。\n③決定連携(decide route): approve時に upsertGoal(status=active/decisionPolicyDefault=autonomous/riskFlagsDefault=[]) → デッドロック修正により自動実行キューに自動で乗る。addProjectでプロジェクト追加(DUPLICATE_ID安全)。decisionPointsを1件ずつ createApproval(projectId付/multi_option)で今日の判断へ。warnings収集で部分失敗も全体は落とさない。\n④今日の判断PJ別: command-center が projectId 解決(approval.projectId優先→epic→goal→未分類)しグルーピング。InboxTabsで表示。\n⑤日次1案: ensureDailyAppProposal(research起点/今日分あれば冪等skip/decisionPoints seed)。factory-schedule日次入口で try/catch 起動。手動 POST /api/app-proposals/generate。\n\n### live検証(Claude)\n- tsc OK / build OK。\n- /app-proposals 200・HTML72KB・生成案/既存案/詳細ボタン描画・エラー境界なし(白画面でない)。/decide 200。\n- ⑤ generate: 初回generated=true(research由来)、2回目generated=false(冪等)。新フィールド確認。\n- ③ approve(生成シード案でend-to-end): goalId=goal-mr1hyuju-vspto/projectId作成/approval3件/warnings空。作成ゴールが executable キューに出現(デッドロック修正と連携)。承認3件が projectId 付きで pending。\n- 検証副産物(ゴール/PJ/承認3件)は正確なID一致で掃除済。実ゴール無傷。\n\n### 注意\n- 作業ツリーにanglerlog(527MB)/_backups/tmp等の無関係物あり。commitはprogress配下の該当ファイルのみ(junk除外)。\n\nmonetizationImpact: high\ntheme: [app-strategy, monetization, workflow]\nobsidianSummary: アプリ案を見て選び決定するとゴール化→自動実行キュー連携+方針は今日の判断へ、を実装。日次1案自動生成も追加。\nobsidianSaveTarget: 05_monetization/アプリ案パイプライン.md"
+    },
+    {
+      "runId": "20260701-125820",
+      "startedAt": "2026-07-01T03:58:20.252Z",
+      "finishedAt": "2026-07-01T03:58:20.252Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "アプリ案 決定の不具合修正（今日の判断が空/ゴール二重化）＋今日の判断へボタン",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "手牌解析で作る押下→今日の判断が空だった原因はdecisionPoints 0件。空でも既定方針3問をフォールバックで今日の判断へ。さらにapprove非冪等でゴール二重化していたのをprojectId基準固定id+承認重複ガードで冪等化。作る押下後に今日の判断へ遷移ボタンを追加。",
+      "changedFiles": [
+        {
+          "file": "app/api/app-proposals/[id]/decide/route.ts",
+          "change": "decisionPoints空時のDEFAULT_DECISION_POINTSフォールバック / goal id を goal-app-<projectId> 固定で冪等化 / 承認をprojectId+title重複ガード"
+        },
+        {
+          "file": "components/app-proposals/AppProposalCard.tsx",
+          "change": "approve成功後に「今日の判断へ →」ボタン+作成結果バナー表示"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "manual": "OK live: 手牌解析approveで今日の判断3件生成/2回approveでゴール1件・承認3件のまま(冪等)/ゴールがexecutableキューに反映/今日の判断へボタンbuild含有"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "検証で出た重複ゴールは掃除済(固定id 1件に統一)",
+        "他の既存案(ny-ai-quiz/news-app)もdp0だが同フォールバックで今日の判断に方針が並ぶ"
+      ],
+      "rawReport": "## アプリ案 決定まわりの不具合修正\n\n### 事象\nユーザーが手牌解析(cand-mahjong-analyzer)で「作る」を押したが今日の判断に何も出なかった。\n\n### 原因\ncand-mahjong-analyzer は decisionPoints=0件。decide routeは decisionPoints をループして今日の判断(approval)を作るため、0件だと承認ゼロ→今日の判断に何も出ない(ゴール/プロジェクトは作成済だった)。\n加えて upsertGoal は id 照合で、decide route が id 未指定だったため approve のたびに新ゴールが作られ二重化(goal-mr1iqg08 と goal-mr1jcnlr の2件確認)。\n\n### 修正\n1. decisionPoints 空時に DEFAULT_DECISION_POINTS(プラットフォーム/課金/最小機能)をフォールバックし、必ず今日の判断に方針が並ぶ。\n2. goal id を goal-app-<projectId> の固定idにして upsert 冪等化(二重作成防止)。\n3. 承認も projectId+title で既存pending重複ガード。\n4. AppProposalCard: approve成功後に作成結果バナー+「今日の判断へ →」ボタン(/decide?tab=today)を表示。\n\n### 検証(Claude)\n- tsc OK / build OK。\n- 手牌解析 approve → 今日の判断に方針3件生成。2回approveでもゴール1件(goal-app-ny01-mahjong-analyzer)・承認3件のまま(冪等確認)。ゴールが executable キューに反映。app-proposals 200描画・ボタン文言build含有。\n- 検証で発生した重複ゴール2件は掃除し固定id1件に統一。\n\nmonetizationImpact: medium\ntheme: [app-strategy, workflow]\nobsidianSummary: アプリ案「作る」で今日の判断が空/ゴール二重化する不具合を、既定方針フォールバック+固定id冪等化+遷移ボタンで解消。"
     }
   ]
 }

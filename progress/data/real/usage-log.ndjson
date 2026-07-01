@@ -642,3 +642,12 @@
 {"at":"2026-06-30T10:15:57.925Z","type":"page_view","path":"/queue"}
 {"at":"2026-06-30T23:53:43.805Z","type":"page_view","path":"/"}
 {"at":"2026-06-30T23:54:10.108Z","type":"page_view","path":"/app-proposals"}
+{"at":"2026-07-01T03:30:05.172Z","type":"page_view","path":"/"}
+{"at":"2026-07-01T03:30:08.012Z","type":"page_view","path":"/app-proposals"}
+{"at":"2026-07-01T03:30:11.695Z","type":"page_view","path":"/portfolio"}
+{"at":"2026-07-01T03:30:17.455Z","type":"page_view","path":"/decide"}
+{"at":"2026-07-01T03:30:17.846Z","type":"page_view","path":"/portfolio"}
+{"at":"2026-07-01T03:30:24.999Z","type":"page_view","path":"/app-proposals"}
+{"at":"2026-07-01T03:31:06.228Z","type":"action","path":"/app-proposals","label":"このアプリを作る"}
+{"at":"2026-07-01T03:31:34.647Z","type":"page_view","path":"/decide"}
+{"at":"2026-07-01T03:31:36.002Z","type":"action","path":"/decide","label":"今日の判断5件"}
