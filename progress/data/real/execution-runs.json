@@ -19398,6 +19398,35 @@
         "他の既存案(ny-ai-quiz/news-app)もdp0だが同フォールバックで今日の判断に方針が並ぶ"
       ],
       "rawReport": "## アプリ案 決定まわりの不具合修正\n\n### 事象\nユーザーが手牌解析(cand-mahjong-analyzer)で「作る」を押したが今日の判断に何も出なかった。\n\n### 原因\ncand-mahjong-analyzer は decisionPoints=0件。decide routeは decisionPoints をループして今日の判断(approval)を作るため、0件だと承認ゼロ→今日の判断に何も出ない(ゴール/プロジェクトは作成済だった)。\n加えて upsertGoal は id 照合で、decide route が id 未指定だったため approve のたびに新ゴールが作られ二重化(goal-mr1iqg08 と goal-mr1jcnlr の2件確認)。\n\n### 修正\n1. decisionPoints 空時に DEFAULT_DECISION_POINTS(プラットフォーム/課金/最小機能)をフォールバックし、必ず今日の判断に方針が並ぶ。\n2. goal id を goal-app-<projectId> の固定idにして upsert 冪等化(二重作成防止)。\n3. 承認も projectId+title で既存pending重複ガード。\n4. AppProposalCard: approve成功後に作成結果バナー+「今日の判断へ →」ボタン(/decide?tab=today)を表示。\n\n### 検証(Claude)\n- tsc OK / build OK。\n- 手牌解析 approve → 今日の判断に方針3件生成。2回approveでもゴール1件(goal-app-ny01-mahjong-analyzer)・承認3件のまま(冪等確認)。ゴールが executable キューに反映。app-proposals 200描画・ボタン文言build含有。\n- 検証で発生した重複ゴール2件は掃除し固定id1件に統一。\n\nmonetizationImpact: medium\ntheme: [app-strategy, workflow]\nobsidianSummary: アプリ案「作る」で今日の判断が空/ゴール二重化する不具合を、既定方針フォールバック+固定id冪等化+遷移ボタンで解消。"
+    },
+    {
+      "runId": "20260701-132951",
+      "startedAt": "2026-07-01T04:29:51.730Z",
+      "finishedAt": "2026-07-01T04:29:51.730Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "今日の判断: 方針カードで選択肢の説明を常時表示",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "方針選択(direction)カードで question 未設定+説明が詳細トグル内に隠れ、何の選択肢か分からなかった。実際の質問をquestionに設定し、判断内容(元タイトル)+理由をrowsで常時表示するよう修正。",
+      "changedFiles": [
+        {
+          "file": "lib/command-center.ts",
+          "change": "direction承認カードに question(質問文抽出)と rows(判断内容/理由)を追加し折りたたまず常時表示"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "manual": "OK live: /decide に質問文・判断内容・理由が常時表示(手牌解析の方針3問)"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "今日の判断: 方針カードで選択肢の説明を常時表示 の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## 今日の判断 方針カードの説明を常時表示\n\n### 事象\n今日の判断にアプリ案の方針は出るが、何の選択肢か説明が見えない。\n\n### 原因\ncommand-center の方針選択(direction)カードは question 未設定、rowsは汎用警告1行のみ、実際の質問/理由(a.title/a.reason)は detail 配列にしか無くUIで「詳細を見る」トグル(default閉)の中。\n\n### 修正\ndirection分岐で questionText を title の : 以降から抽出し question に設定。rows に 判断内容(a.title)+理由(a.reason)+選ばないと を積み、常時表示。\n\n### 検証\ntsc/build OK。/decide 実描画に 判断内容/手牌解析/最初に作る対象プラットフォームは？/最初の課金方式は？ を確認。\n\nmonetizationImpact: low\ntheme: [workflow]"
     }
   ]
 }

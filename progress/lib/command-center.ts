@@ -787,13 +787,19 @@ export async function buildInbox(): Promise<InboxView> {
       })
     } else {
       // 方針選択: AIでは決められない方向性の判断
+      // 何の選択肢かが常に見えるよう、実際の質問(question)と判断内容/理由(rows)を折りたたまず表示する。
+      const questionText = a.title.includes(':') ? a.title.slice(a.title.indexOf(':') + 1).trim() : clean
+      const rows: InboxCardRow[] = [{ label: '判断内容', text: a.title }]
+      if (a.reason && a.reason.trim()) rows.push({ label: '理由', text: a.reason })
+      rows.push({ label: '選ばないと', text: 'AIはこの作業を進められず、止まったままになります。' })
       cards.push({
         id: `approval-${a.approvalId}`,
         kind: 'direction',
         ...goalForApproval(a),
         ...projectForApproval(a),
         headline: `「${shorten(subjectOf(clean))}」について判断してください`,
-        rows: [{ label: '選ばないと', text: 'AIはこの作業を進められず、止まったままになります。' }],
+        rows,
+        question: questionText,
         detail,
         actions: a.options.map((o) => ({
           label: o.label.replace(/（[^）]*）|\([^)]*\)/g, '').trim(),

@@ -651,3 +651,12 @@
 {"at":"2026-07-01T03:31:06.228Z","type":"action","path":"/app-proposals","label":"このアプリを作る"}
 {"at":"2026-07-01T03:31:34.647Z","type":"page_view","path":"/decide"}
 {"at":"2026-07-01T03:31:36.002Z","type":"action","path":"/decide","label":"今日の判断5件"}
+{"at":"2026-07-01T04:21:22.387Z","type":"page_view","path":"/"}
+{"at":"2026-07-01T04:21:28.090Z","type":"page_view","path":"/report"}
+{"at":"2026-07-01T04:21:28.708Z","type":"page_view","path":"/guide"}
+{"at":"2026-07-01T04:22:36.162Z","type":"page_view","path":"/app-proposals"}
+{"at":"2026-07-01T04:22:43.635Z","type":"action","path":"/app-proposals","label":"このアプリを作る"}
+{"at":"2026-07-01T04:22:51.036Z","type":"page_view","path":"/decide"}
+{"at":"2026-07-01T04:22:54.478Z","type":"page_view","path":"/app-proposals"}
+{"at":"2026-07-01T04:22:56.603Z","type":"page_view","path":"/decide"}
+{"at":"2026-07-01T04:24:10.320Z","type":"page_view","path":"/app-proposals"}
