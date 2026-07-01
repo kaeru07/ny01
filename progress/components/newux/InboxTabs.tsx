@@ -584,19 +584,7 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
             <p className="mt-2 text-[11px] text-gray-400">ほか{inbox.decisionTotal - inbox.decisions.length}件は明日以降に順番に出ます</p>
           )}
         </section>
-        {scopeFiltered(inbox.autoRuns, selectedGoalId, selectedProjectId).length > 0 && (
-          <section className="mt-6">
-            <div className="mb-2 flex items-baseline justify-between gap-2">
-              <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">🤖 自動実行の履歴（最近AIが自動で動いた作業）</h2>
-              <span className="text-xs text-gray-500 dark:text-gray-400">直近{scopeFiltered(inbox.autoRuns, selectedGoalId, selectedProjectId).length}件</span>
-            </div>
-            <ul className="space-y-3">
-              {scopeFiltered(inbox.autoRuns, selectedGoalId, selectedProjectId).map((card) => (
-                <InboxCardItem key={card.id} card={card} />
-              ))}
-            </ul>
-          </section>
-        )}
+        {/* 「自動実行の履歴」は 実行履歴(/logs)・状況(/activity)・レポート(/report) と重複するため今日の判断からは撤去。 */}
         </>
       )}
 

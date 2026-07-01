@@ -707,3 +707,6 @@
 {"at":"2026-07-01T07:28:05.506Z","type":"action","path":"/decide","label":"承認して追加する"}
 {"at":"2026-07-01T07:28:15.744Z","type":"action","path":"/decide","label":"承認して追加する"}
 {"at":"2026-07-01T07:28:18.935Z","type":"action","path":"/decide","label":"承認して追加する"}
+{"at":"2026-07-01T10:37:00.756Z","type":"page_view","path":"/"}
+{"at":"2026-07-01T11:05:59.602Z","type":"page_view","path":"/decide"}
+{"at":"2026-07-01T11:06:06.712Z","type":"action","path":"/decide","label":"今日の判断5件"}

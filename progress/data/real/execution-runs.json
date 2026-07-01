@@ -22577,6 +22577,39 @@
         "ブロック項目を必ず今日の判断に入れる整合性確保 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "## ブロック=今日の判断待ちの不変条件を担保\n\nユーザー指摘: ブロックは今日の判断待ちでないと異常。必ずblockになるものは今日の判断に入れる。\n\n### 監査\nblocked 1件(epic-goalstep-goal-mqvpojj2-9nbn3, 前回failedでBlock)が対応する今日の判断なし=異常を確認。\n\n### 実装\n- lib/blocked-decisions.ts ensureBlockedDecisions(): buildAutoQueue().blocked を走査、同epicIdのpending承認が無いものに multi_option Approval を作成(危険→許可/中止/保留、failed→再試行/中止/保留、汎用→対処/中止/保留)。重複防止・例外握り・blocked_decisions_ensuredログ。\n- factory-runner: recordUrgentIssues近くで毎サイクル実行。\n- POST /api/operations/ensure-blocked-decisions で即時修正可。\n\n### 検証\ntsc/build OK。live: endpoint created=1、再監査で blocked中の今日の判断なし=0。生成された今日の判断はfailed理由で再試行/中止/保留options。\n\nmonetizationImpact: none\ntheme: [workflow]"
+    },
+    {
+      "runId": "20260701-202311",
+      "startedAt": "2026-07-01T11:23:11.224Z",
+      "finishedAt": "2026-07-01T11:23:11.224Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "今日の判断から重複の自動実行履歴セクションを撤去",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "今日の判断(decisionsタブ)下部の『🤖 自動実行の履歴』は 実行履歴(/logs)・状況(/activity)・レポート(/report) と重複のため撤去。guideのFAQも実態に合わせ修正。",
+      "changedFiles": [
+        {
+          "file": "components/newux/InboxTabs.tsx",
+          "change": "decisionsタブの自動実行履歴(inbox.autoRuns)セクションを削除"
+        },
+        {
+          "file": "app/guide/page.tsx",
+          "change": "FAQ『自動で何が動いたか』を/logs・/activity参照へ更新(今日の判断下の履歴は撤去済みと明記)"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "manual": "OK live: /decide HTMLに『自動実行の履歴』0件・エラー境界なし"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "今日の判断から重複の自動実行履歴セクションを撤去 の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## 今日の判断の重複レイアウト撤去\n\nユーザー指摘: 今日の判断の下に自動実行レポート(履歴)があり他タブと重複。\n\n### 変更\n- InboxTabs decisionsタブの『🤖 自動実行の履歴』(inbox.autoRuns)セクションを削除。同内容は /logs(実行履歴)・/activity(状況)・/report・運用ページの自動実行レポートタブにあり重複だった。\n- guide FAQを実態に合わせ更新。\n\n### 検証\ntsc/build OK。live /decide HTMLで該当文言0件。\n\nmonetizationImpact: none\ntheme: [workflow]"
     }
   ]
 }
