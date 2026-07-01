@@ -678,3 +678,32 @@
 {"at":"2026-07-01T04:50:40.303Z","type":"page_view","path":"/activity"}
 {"at":"2026-07-01T04:50:41.595Z","type":"page_view","path":"/decide"}
 {"at":"2026-07-01T04:50:46.769Z","type":"page_view","path":"/"}
+{"at":"2026-07-01T07:19:30.365Z","type":"page_view","path":"/"}
+{"at":"2026-07-01T07:19:32.056Z","type":"page_view","path":"/app-proposals"}
+{"at":"2026-07-01T07:19:33.837Z","type":"page_view","path":"/app-specs"}
+{"at":"2026-07-01T07:19:42.131Z","type":"page_view","path":"/app-decisions"}
+{"at":"2026-07-01T07:19:49.299Z","type":"page_view","path":"/app-proposals"}
+{"at":"2026-07-01T07:21:37.632Z","type":"page_view","path":"/app-specs"}
+{"at":"2026-07-01T07:25:48.377Z","type":"page_view","path":"/"}
+{"at":"2026-07-01T07:26:04.638Z","type":"page_view","path":"/queue"}
+{"at":"2026-07-01T07:26:13.689Z","type":"action","path":"/queue","label":"最後尾"}
+{"at":"2026-07-01T07:26:20.851Z","type":"action","path":"/queue","label":"⠿#3グアムアプリに、イベントごとの移動経路を地図でなぞって表示できるようにする: 次の一歩レビュー未確認あり（自動実行は継続）中詳細最優先↑↓最後尾"}
+{"at":"2026-07-01T07:26:21.871Z","type":"action","path":"/queue","label":"⠿#3グアムアプリに、イベントごとの移動経路を地図でなぞって表示できるようにする: 次の一歩レビュー未確認あり（自動実行は継続）中詳細最優先↑↓最後尾"}
+{"at":"2026-07-01T07:26:21.997Z","type":"action","path":"/queue","label":"⠿#3グアムアプリに、イベントごとの移動経路を地図でなぞって表示できるようにする: 次の一歩レビュー未確認あり（自動実行は継続）中詳細最優先↑↓最後尾"}
+{"at":"2026-07-01T07:26:23.444Z","type":"action","path":"/queue","label":"詳細"}
+{"at":"2026-07-01T07:26:25.861Z","type":"page_view","path":"/epic/epic-goalstep-goal-mqq28l9d-8h86j"}
+{"at":"2026-07-01T07:26:34.826Z","type":"page_view","path":"/report"}
+{"at":"2026-07-01T07:26:37.089Z","type":"page_view","path":"/guide"}
+{"at":"2026-07-01T07:26:40.810Z","type":"page_view","path":"/queue"}
+{"at":"2026-07-01T07:26:45.102Z","type":"page_view","path":"/decide"}
+{"at":"2026-07-01T07:26:46.059Z","type":"action","path":"/decide","label":"今日の判断5件"}
+{"at":"2026-07-01T07:26:46.570Z","type":"action","path":"/decide","label":"今日の判断5件"}
+{"at":"2026-07-01T07:26:48.437Z","type":"action","path":"/decide","label":"今日の判断5件"}
+{"at":"2026-07-01T07:26:50.092Z","type":"action","path":"/decide","label":"今日の判断5件"}
+{"at":"2026-07-01T07:26:59.805Z","type":"action","path":"/decide","label":"Web"}
+{"at":"2026-07-01T07:27:08.754Z","type":"action","path":"/decide","label":"無料MVP"}
+{"at":"2026-07-01T07:27:36.627Z","type":"action","path":"/decide","label":"分析まで含める"}
+{"at":"2026-07-01T07:27:44.376Z","type":"action","path":"/decide","label":"ゴール承認51件"}
+{"at":"2026-07-01T07:28:05.506Z","type":"action","path":"/decide","label":"承認して追加する"}
+{"at":"2026-07-01T07:28:15.744Z","type":"action","path":"/decide","label":"承認して追加する"}
+{"at":"2026-07-01T07:28:18.935Z","type":"action","path":"/decide","label":"承認して追加する"}

@@ -767,8 +767,11 @@
     ],
     "recommended": "platform-0-web",
     "reason": "アプリ案決定時に方針決定が必要な項目",
-    "status": "pending",
-    "createdAt": "2026-07-01T03:48:22.535Z"
+    "status": "decided",
+    "createdAt": "2026-07-01T03:48:22.535Z",
+    "decidedOption": "platform-0-web",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-01T07:26:59.948Z"
   },
   {
     "approvalId": "appr-1782877702538-2",
@@ -792,8 +795,11 @@
     ],
     "recommended": "pricing-0-mvp",
     "reason": "アプリ案決定時に方針決定が必要な項目",
-    "status": "pending",
-    "createdAt": "2026-07-01T03:48:22.538Z"
+    "status": "decided",
+    "createdAt": "2026-07-01T03:48:22.538Z",
+    "decidedOption": "pricing-0-mvp",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-01T07:27:08.770Z"
   },
   {
     "approvalId": "appr-1782877702539-3",
@@ -817,8 +823,11 @@
     ],
     "recommended": "mvp-0",
     "reason": "アプリ案決定時に方針決定が必要な項目",
-    "status": "pending",
-    "createdAt": "2026-07-01T03:48:22.539Z"
+    "status": "decided",
+    "createdAt": "2026-07-01T03:48:22.539Z",
+    "decidedOption": "mvp-1",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-01T07:27:36.651Z"
   },
   {
     "approvalId": "appr-1782882019066-1",

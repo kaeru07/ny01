@@ -3193,13 +3193,14 @@
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: 経緯: 対話実行は待ち時間があり、その間にやりたいことが溜まる→溜めて上限回復時に実行したかった。現状: 作業予約(prompt-queue)+定時実行(11/14/16/23時)+Claude上限検知→Codex fallbackはあるが、『上限回復を検知して溜めた作業を自動再開』は未実装(Auto Resumeは部分実装)。",
-      "status": "proposed",
+      "status": "active",
       "priority": "high",
       "pinnedTop": false,
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "origin_gap",
       "proposedAt": "2026-06-21T15:53:34.302Z",
+      "approvedAt": "2026-07-01T07:28:05.608Z",
       "proposalEnables": "上限で止まっても、回復し次第ためた作業が自動で進む。待ち時間が無駄にならない。",
       "proposalPros": [
         "当初の動機を満たす",
@@ -3212,7 +3213,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-21T15:53:34.302Z",
-      "updatedAt": "2026-06-21T15:53:34.302Z"
+      "updatedAt": "2026-07-01T07:28:05.608Z"
     },
     {
       "id": "goal-mqnyuqu7-7mpo3",
@@ -3227,13 +3228,14 @@
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: 経緯: 調査は常時やってほしい。現状: 調査は自動実行(定時4回/日)の最初にdaily-ai-toolsを読むのみで『常時』ではない。",
-      "status": "proposed",
+      "status": "active",
       "priority": "medium",
       "pinnedTop": false,
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "origin_gap",
       "proposedAt": "2026-06-21T15:53:34.302Z",
+      "approvedAt": "2026-07-01T07:28:15.775Z",
       "proposalEnables": "最新ツール・市場の変化を取りこぼさず、試す候補が途切れない。",
       "proposalPros": [
         "調査の鮮度が上がる",
@@ -3246,7 +3248,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-21T15:53:34.302Z",
-      "updatedAt": "2026-06-21T15:53:34.302Z"
+      "updatedAt": "2026-07-01T07:28:15.775Z"
     },
     {
       "id": "goal-mqnyuqu7-a2pp1",
@@ -3261,13 +3263,14 @@
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: 経緯: アプリ開発は一定レベルまで指示なしで完成系を作ってから確認した方が時間効率が良い。現状: ゴール駆動の自動実行+Codex委譲はあるが『完成の定義→完成まで自走→完成したら確認依頼』が未体系化。App Store公開=完成の明示フラグも別ゴールで未実装。",
-      "status": "proposed",
+      "status": "active",
       "priority": "high",
       "pinnedTop": false,
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "origin_gap",
       "proposedAt": "2026-06-21T15:53:34.302Z",
+      "approvedAt": "2026-07-01T07:28:18.942Z",
       "proposalEnables": "アプリが指示なしで完成系まで進み、人間は完成物の確認だけすればよい(時間効率最大化)。",
       "proposalPros": [
         "人間の介入が確認だけに減る",
@@ -3280,7 +3283,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-21T15:53:34.302Z",
-      "updatedAt": "2026-06-21T15:53:34.302Z"
+      "updatedAt": "2026-07-01T07:28:18.942Z"
     },
     {
       "id": "goal-mqp5c2hm-ts4es",
@@ -4284,14 +4287,19 @@
       "status": "active",
       "priority": "low",
       "pinnedTop": false,
+      "queueControl": {
+        "manualOrder": 2,
+        "updatedBy": "user",
+        "updatedAt": "2026-07-01T07:26:14.757Z"
+      },
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "low",
       "phases": [],
       "todos": [],
       "createdAt": "2026-07-01T03:56:44.872Z",
-      "updatedAt": "2026-07-01T04:22:43.675Z"
+      "updatedAt": "2026-07-01T07:26:14.757Z"
     }
   ],
   "mainGoalId": "goal-ai-factory-os",
-  "updatedAt": "2026-07-01T07:00:26.605Z"
+  "updatedAt": "2026-07-01T07:28:18.942Z"
 }

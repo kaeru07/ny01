@@ -44,16 +44,18 @@ type PostDecision = keyof typeof postDecisions
 
 export default function AppProposalCard({ proposal }: { proposal: AppProposal }) {
   const router = useRouter()
-  const [screenIndex, setScreenIndex] = useState(0)
   const [detailOpen, setDetailOpen] = useState(false)
   const [pendingDecision, setPendingDecision] = useState<PostDecision | null>(null)
   const [note, setNote] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [approvedInfo, setApprovedInfo] = useState<{ approvalCount: number } | null>(null)
-  const screen = proposal.screens[screenIndex] ?? proposal.screens[0]
-  const tabs = proposal.screens.map((item) => item.name)
   const status = decisionBadge[proposal.decision ?? 'undecided']
+  const oceanBadge = proposal.oceanType === 'blue'
+    ? { label: 'ブルー', className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200' }
+    : proposal.oceanType === 'red'
+      ? { label: 'レッド', className: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-200' }
+      : null
 
   async function decide(decision: PostDecision) {
     if (busy) return
@@ -92,72 +94,28 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
 
   return (
     <article className={`space-y-3 rounded-2xl border p-4 shadow-sm ${status.article}`}>
-      <div className="space-y-2">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400">{proposal.projectId ?? '未分類'}</p>
-            <h2 className="text-base font-black text-gray-900 dark:text-gray-100">{proposal.name}</h2>
-            <p className="mt-1 text-xs font-semibold leading-relaxed text-gray-600 dark:text-gray-300">{proposal.overview}</p>
-          </div>
+      {/* 一覧行: アプリ名・概要・状態/優先度/オーシャンのバッジだけ。モックや詳細は「詳細」ポップアップで見る。 */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400">{proposal.projectId ?? '未分類'}</p>
+          <h2 className="truncate text-base font-black text-gray-900 dark:text-gray-100">{proposal.name}</h2>
+          <p className="mt-0.5 line-clamp-2 text-xs font-semibold leading-relaxed text-gray-600 dark:text-gray-300">{proposal.overview}</p>
         </div>
-        <div className={`rounded-xl px-3 py-2 text-sm font-black ${status.className}`}>
-          <p>{status.label}</p>
-          {proposal.decisionNote ? <p className="mt-0.5 text-[11px] font-bold opacity-80">{proposal.decisionNote}</p> : null}
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            className="min-h-9 rounded-lg border border-gray-200 px-3 text-xs font-black text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-900"
-            onClick={() => setDetailOpen(true)}
-          >
-            詳細
-          </button>
-        </div>
-        <p className="text-xs leading-relaxed text-gray-700 dark:text-gray-300">{proposal.purpose}</p>
-        <div className="grid grid-cols-2 gap-2 text-[11px]">
-          <InfoTile label="収益化仮説" value={proposal.monetizationHypothesis} />
-          <InfoTile label="対象ユーザー" value={proposal.targetUser} />
-          <InfoTile label="優先度" value={proposal.priority} />
-          <InfoTile label="状態" value={proposal.status} />
-        </div>
-        <div className="flex flex-wrap gap-1.5">
-          {proposal.features.map((feature) => (
-            <span key={feature} className="rounded-full bg-blue-50 px-2 py-1 text-[10px] font-bold text-blue-700 dark:bg-blue-900/30 dark:text-blue-200">
-              {feature}
-            </span>
-          ))}
-        </div>
-        <div className="rounded-xl bg-gray-50 p-2 text-[11px] leading-relaxed text-gray-600 dark:bg-gray-900 dark:text-gray-300">
-          <p><span className="font-bold">次のアクション:</span> {proposal.nextAction}</p>
-          <p><span className="font-bold">工場判定:</span> {proposal.factorySafe ? '安全' : '要確認'}{proposal.factoryNote ? ` / ${proposal.factoryNote}` : ''}</p>
-          {proposal.decisionNote ? <p><span className="font-bold">判断メモ:</span> {proposal.decisionNote}</p> : null}
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          <span className={`rounded-full px-2 py-0.5 text-[10px] font-black ${status.className}`}>{status.label}</span>
+          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-300">優先度 {proposal.priority}</span>
+          {oceanBadge ? <span className={`rounded-full px-2 py-0.5 text-[10px] font-black ${oceanBadge.className}`}>{oceanBadge.label}</span> : null}
         </div>
       </div>
+      {proposal.decisionNote ? <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400">メモ: {proposal.decisionNote}</p> : null}
 
-      <div className="space-y-2">
-        <MockPhone appName={proposal.name} screen={screen} tabs={tabs} />
-        <div className="flex items-center justify-center gap-2">
-          <button
-            type="button"
-            className="min-h-10 rounded-full border border-gray-200 px-3 text-xs font-bold text-gray-700 disabled:opacity-50 dark:border-gray-700 dark:text-gray-200"
-            onClick={() => setScreenIndex((current) => Math.max(0, current - 1))}
-            disabled={screenIndex === 0}
-          >
-            ◀
-          </button>
-          <span className="min-w-24 text-center text-xs font-black text-gray-700 dark:text-gray-200">
-            画面 {screenIndex + 1}/{proposal.screens.length}
-          </span>
-          <button
-            type="button"
-            className="min-h-10 rounded-full border border-gray-200 px-3 text-xs font-bold text-gray-700 disabled:opacity-50 dark:border-gray-700 dark:text-gray-200"
-            onClick={() => setScreenIndex((current) => Math.min(proposal.screens.length - 1, current + 1))}
-            disabled={screenIndex >= proposal.screens.length - 1}
-          >
-            ▶
-          </button>
-        </div>
-      </div>
+      <button
+        type="button"
+        className="min-h-11 w-full rounded-xl border border-gray-300 px-3 text-sm font-black text-gray-800 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-100 dark:hover:bg-gray-900"
+        onClick={() => setDetailOpen(true)}
+      >
+        詳細（モック・収益イメージ・仕様）を見る
+      </button>
 
       {pendingDecision ? (
         <div className="space-y-2 rounded-xl bg-amber-50 p-3 dark:bg-amber-900/20">
@@ -197,15 +155,6 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
       ) : null}
       {detailOpen ? <AppProposalDetailModal proposal={proposal} onClose={() => setDetailOpen(false)} /> : null}
     </article>
-  )
-}
-
-function InfoTile({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-lg bg-gray-50 p-2 dark:bg-gray-900">
-      <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400">{label}</p>
-      <p className="mt-1 line-clamp-3 text-[11px] font-bold leading-snug text-gray-800 dark:text-gray-200">{value}</p>
-    </div>
   )
 }
 
@@ -281,8 +230,37 @@ function AppProposalDetailModal({ proposal, onClose }: { proposal: AppProposal; 
 }
 
 function SpecTab({ proposal }: { proposal: AppProposal }) {
+  const [screenIndex, setScreenIndex] = useState(0)
+  const screen = proposal.screens[screenIndex] ?? proposal.screens[0]
+  const tabs = proposal.screens.map((item) => item.name)
   return (
     <div className="space-y-4">
+      {proposal.screens.length > 0 && screen ? (
+        <div className="space-y-2">
+          <MockPhone appName={proposal.name} screen={screen} tabs={tabs} />
+          <div className="flex items-center justify-center gap-2">
+            <button
+              type="button"
+              className="min-h-10 rounded-full border border-gray-200 px-3 text-xs font-bold text-gray-700 disabled:opacity-50 dark:border-gray-700 dark:text-gray-200"
+              onClick={() => setScreenIndex((current) => Math.max(0, current - 1))}
+              disabled={screenIndex === 0}
+            >
+              ◀
+            </button>
+            <span className="min-w-24 text-center text-xs font-black text-gray-700 dark:text-gray-200">
+              画面 {screenIndex + 1}/{proposal.screens.length}
+            </span>
+            <button
+              type="button"
+              className="min-h-10 rounded-full border border-gray-200 px-3 text-xs font-bold text-gray-700 disabled:opacity-50 dark:border-gray-700 dark:text-gray-200"
+              onClick={() => setScreenIndex((current) => Math.min(proposal.screens.length - 1, current + 1))}
+              disabled={screenIndex >= proposal.screens.length - 1}
+            >
+              ▶
+            </button>
+          </div>
+        </div>
+      ) : null}
       <InfoBlock label="対象ユーザー" value={proposal.targetUser} />
       <InfoBlock label="詳細仕様" value={proposal.spec || '未記入'} />
       <div>
@@ -334,8 +312,38 @@ function MarketTab({ proposal }: { proposal: AppProposal }) {
 function MoneyTab({ proposal }: { proposal: AppProposal }) {
   return (
     <div className="space-y-4">
+      <RevenueImage />
       <InfoBlock label="収益化計画" value={proposal.monetizationPlan || '未設定'} />
       <InfoBlock label="収益化仮説" value={proposal.monetizationHypothesis} />
+    </div>
+  )
+}
+
+// 収益イメージ（ストア公開アプリの収益ファネルの目安型）。実数値ではなく到達イメージを可視化する。
+function RevenueImage() {
+  const stages = [
+    { label: 'ストアDL', pct: 100, note: '無料DL・流入' },
+    { label: '継続利用', pct: 55, note: 'リテンション' },
+    { label: '課金転換', pct: 18, note: '有料・アプリ内課金' },
+    { label: '月次収益', pct: 10, note: '積み上げ' },
+  ]
+  return (
+    <div className="rounded-xl border border-gray-200 p-3 dark:border-gray-800">
+      <p className="text-xs font-black text-gray-500 dark:text-gray-400">収益イメージ（ファネルの目安）</p>
+      <div className="mt-3 space-y-2">
+        {stages.map((stage) => (
+          <div key={stage.label}>
+            <div className="flex justify-between text-[11px] font-bold text-gray-700 dark:text-gray-200">
+              <span>{stage.label}</span>
+              <span className="text-gray-400 dark:text-gray-500">{stage.note}</span>
+            </div>
+            <div className="mt-1 h-4 rounded-full bg-gray-100 dark:bg-gray-800">
+              <div className="h-4 rounded-full bg-gradient-to-r from-green-500 to-emerald-500" style={{ width: `${stage.pct}%` }} />
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="mt-2 text-[10px] leading-relaxed text-gray-400 dark:text-gray-500">※ 目安の型。実数値は公開後のストア・利用ログで検証。</p>
     </div>
   )
 }

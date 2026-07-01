@@ -464,7 +464,7 @@
     "nextAction": "",
     "decisionPolicy": "autonomous",
     "status": "active",
-    "updatedAt": "2026-06-23T14:00:15.949Z",
+    "updatedAt": "2026-07-01T07:26:14.742Z",
     "doneCriteria": [
       "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
       "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
@@ -473,7 +473,12 @@
     "priority": "P1",
     "riskFlags": [],
     "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
-    "factoryEligible": true
+    "factoryEligible": true,
+    "queueControl": {
+      "manualOrder": 3,
+      "updatedBy": "user",
+      "updatedAt": "2026-07-01T07:26:14.742Z"
+    }
   },
   {
     "epicId": "epic-goalstep-goal-mqp6f72n-nb2xn",
@@ -883,7 +888,7 @@
     "nextAction": "",
     "decisionPolicy": "autonomous",
     "status": "active",
-    "updatedAt": "2026-06-25T14:06:42.467Z",
+    "updatedAt": "2026-07-01T07:26:14.742Z",
     "doneCriteria": [
       "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
       "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
@@ -896,7 +901,12 @@
     "factoryEligible": true,
     "targetApps": [
       "mahjong"
-    ]
+    ],
+    "queueControl": {
+      "manualOrder": 1,
+      "updatedBy": "user",
+      "updatedAt": "2026-07-01T07:26:14.742Z"
+    }
   },
   {
     "epicId": "epic-goalstep-goal-ai-executor-ops",

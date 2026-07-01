@@ -22394,6 +22394,37 @@
         "platform既定iOS/Android・収益化ストア前提を維持(記憶: アプリ開発はストア公開限定)"
       ],
       "rawReport": "## 日次アプリ案をAI生成化(ストア公開前提)\n\n### 背景\n従来はAIニュース/Knowledge起点のテンプレで汎用「〜支援アプリ」を1件生成するだけで、ストア公開・収益化・勝機・懸念・仕様が無かった。ユーザー方針: アプリ開発はApp Store/Google Play公開のモバイルアプリ限定。日次最低1案(良ければ複数)。生成はAI本命。\n\n### 実装\n- ensureDailyAppProposal を AI生成化。executor(claude -p→codex exec, shell spawn)でストア公開前提のモバイルアプリ案を1〜3件JSON生成し、title/overview/purpose/targetUser/features/screens(モバイル)/marketValue/oceanType/oceanRationale/monetizationHypothesis/monetizationPlan(ストア課金)/winningFactors(勝機)/concerns(懸念)/spec(詳細仕様)/decisionPoints(platform iOS/Android)を埋める。research/knowledgeを種にする。\n- 失敗(CLI未起動/dry-run/timeout/parse失敗/0件)時はストア前提テンプレで最低1件保証。\n- 型に winningFactors/concerns/spec 追加。UI詳細モーダルに勝機/懸念/詳細仕様を表示。\n\n### 検証(Claude)\ntsc OK/build OK。live: /api/app-proposals/generate 実行→ automation-log mode=ai count=3 reason=codex(Claude上限→Codex fallbackで成功)。3案とも winningFactors3/concerns2/spec有/platform=iOS/Android/iPad。例 MCP Guard Pocket: oceanType=blue, monetizationPlan=App Store/Google Play買い切り+アプリ内課金。app-proposals 91KB実描画・エラー境界なし・UIチャンクに勝機/懸念/詳細仕様含有。\n\nmonetizationImpact: high\ntheme: [app-strategy, monetization, market-research]\nobsidianSummary: 日次アプリ案をAI生成化。App Store/Play公開前提でモバイルアプリ案を1〜3件、市場/勝機/懸念/仕様/収益化(ストア課金)/モック付きで生成。CLI失敗時も最低1案保証。"
+    },
+    {
+      "runId": "20260701-162915",
+      "startedAt": "2026-07-01T07:29:15.794Z",
+      "finishedAt": "2026-07-01T07:29:15.794Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "アプリ承認欄を一覧→詳細でモック/収益イメージ展開に再構成",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "アプリ案カードをインラインでモック・情報満載の重いカードから、一覧行(アプリ名/概要/状態/優先度/オーシャンバッジ+詳細ボタン)に軽量化。モック(画面送り付)と収益イメージ(収益ファネル可視化)・仕様・勝機・懸念は詳細ポップアップに集約。",
+      "changedFiles": [
+        {
+          "file": "components/app-proposals/AppProposalCard.tsx",
+          "change": "カードを一覧行化(モック/InfoTile/features/次アクション除去)。SpecTabにMockPhone+画面送り移設。MoneyTabに収益イメージ(RevenueImageファネル)追加。未使用InfoTile除去"
+        }
+      ],
+      "checks": {
+        "typescript": "OK(実コードエラーなし)",
+        "build": "OK",
+        "manual": "OK live: app-proposals 91KB→51KB軽量化・一覧に詳細ボタン・収益イメージはチャンク含有(詳細内)・エラー境界なし"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "アプリ名/概要(2行)/状態・優先度・オーシャンのバッジ + 「詳細(モック・収益イメージ・仕様)を見る」ボタン + 作る/見送り/保留 に軽量化。インラインのMockPhone・InfoTile4枚・features・次アクション/工場判定ボックスを撤去。",
+        "詳細モーダル SpecTab: MockPhone(◀▶画面送り)を先頭に移設。",
+        "詳細モーダル MoneyTab: 収益イメージ(RevenueImage: DL→継続→課金転換→月次収益のファネル可視化)を追加。"
+      ],
+      "rawReport": "## アプリ承認欄を一覧→詳細展開に\n\nユーザー要望: まず一覧で見れて、詳細押下でモック・収益イメージ等が展開される形。\n\n### 変更\n- カード: アプリ名/概要(2行)/状態・優先度・オーシャンのバッジ + 「詳細(モック・収益イメージ・仕様)を見る」ボタン + 作る/見送り/保留 に軽量化。インラインのMockPhone・InfoTile4枚・features・次アクション/工場判定ボックスを撤去。\n- 詳細モーダル SpecTab: MockPhone(◀▶画面送り)を先頭に移設。\n- 詳細モーダル MoneyTab: 収益イメージ(RevenueImage: DL→継続→課金転換→月次収益のファネル可視化)を追加。\n- 勝機/懸念/仕様は既存の詳細タブで表示継続。\n\n### 検証\nbuild OK。live: app-proposals 91KB→51KB、一覧に詳細ボタン、収益イメージがチャンク含有、エラー境界なし。\n\nmonetizationImpact: low\ntheme: [app-strategy, workflow]"
     }
   ]
 }
