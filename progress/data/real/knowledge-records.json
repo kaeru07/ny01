@@ -5006,5 +5006,330 @@
     "createdAt": "2026-06-22T14:36:47.982Z",
     "updatedAt": "2026-06-22T14:36:48.045Z",
     "nextEpicCandidateId": "rec-knowledge-20260622-232940-022"
+  },
+  {
+    "id": "know-20260701-110018",
+    "sourceRunId": "20260701-110018",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-01 02:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260701-110018.md",
+    "researchPath": "06_research/2026-07-01_know-20260701-110018.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T02:00:21.639Z",
+    "updatedAt": "2026-07-01T02:00:21.680Z",
+    "nextEpicCandidateId": "rec-knowledge-20260701-110018"
+  },
+  {
+    "id": "know-20260630-230015",
+    "sourceRunId": "20260630-230015",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-01 02:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260630-230015.md",
+    "researchPath": "06_research/2026-07-01_know-20260630-230015.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T02:00:21.759Z",
+    "updatedAt": "2026-07-01T02:00:21.779Z",
+    "nextEpicCandidateId": "rec-knowledge-20260630-230015"
+  },
+  {
+    "id": "know-20260630-201606",
+    "sourceRunId": "20260630-201606",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: 設計レビュー - 次の一歩はレビュー完了に関係なく進め、判断要のみ今日の判断で止める",
+    "summary": "[AI一次レビュー 2026-07-01 02:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "ユーザー提案(判断/方針要→今日の判断で停止、それ以外→レビュー記録のみで次の一歩継続)をレビュー。提案はシステムの元設計(ai-review分類)と一致し7-9割実装済みと判明。必要な修正は2点: (1)auto-queue-score.ts:91のreview_waiting隔離削除 (2)AI一次レビューをfactoryサイクルへ自動組込。",
+      "## 設計レビュー結論: ユーザー提案は妥当、元設計と一致",
+      "### ユーザー提案",
+      "- 後続方針に影響する判断/方針決定が必要 → 今日の判断に入れて止める",
+      "- それ以外 → レビューに回す(記録)が、レビュー完了に関係なく次の一歩を実行"
+    ],
+    "nextActions": [
+      "設計レビュー - 次の一歩はレビュー完了に関係なく進め、判断要のみ今日の判断で止める の結果を確認し、未達のDoneCriteriaを1つ進める"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260630-201606.md",
+    "researchPath": "06_research/2026-07-01_know-20260630-201606.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T02:00:21.851Z",
+    "updatedAt": "2026-07-01T02:00:21.872Z",
+    "nextEpicCandidateId": "rec-knowledge-20260630-201606"
+  },
+  {
+    "id": "know-20260630-195346",
+    "sourceRunId": "20260630-195346",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: 原因調査 - 自動実行キューが空なのにゴール/プロジェクトが完了しない",
+    "summary": "[AI一次レビュー 2026-07-01 02:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "goalstep Epicがrun完了後にreview_waitingで固定され、executable=0(キュー空)になる一方、Epicはactiveのまま閉じずGoal達成率も0%のまま。完了が反映されないデッドロックを特定。",
+      "## 調査結論: review_waiting デッドロック",
+      "### 症状",
+      "稼働API /api/auto-queue の counts: executable=0, review_waiting=22, blocked=1。実行可能候補ゼロ=キュー空に見えるが、active Goal 24件中23件が達成率<100%(大半0%)で未完了。",
+      "### 根本原因(因果連鎖)"
+    ],
+    "nextActions": [
+      "原因調査 - 自動実行キューが空なのにゴール/プロジェクトが完了しない の結果を確認し、未達のDoneCriteriaを1つ進める"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260630-195346.md",
+    "researchPath": "06_research/2026-07-01_know-20260630-195346.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T02:00:21.922Z",
+    "updatedAt": "2026-07-01T02:00:21.941Z",
+    "nextEpicCandidateId": "rec-knowledge-20260630-195346"
+  },
+  {
+    "id": "know-20260630-160010",
+    "sourceRunId": "20260630-160010",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-01 02:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260630-160010.md",
+    "researchPath": "06_research/2026-07-01_know-20260630-160010.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T02:00:22.007Z",
+    "updatedAt": "2026-07-01T02:00:22.035Z",
+    "nextEpicCandidateId": "rec-knowledge-20260630-160010"
+  },
+  {
+    "id": "know-20260630-152828",
+    "sourceRunId": "20260630-152828",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: 全ページ書き出しメールをタブ切替対応版に修正し再送",
+    "summary": "[AI一次レビュー 2026-07-01 02:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "旧エクスポートはJS全除去でタブが切り替わらず非アクティブタブ内容も欠落。各ページの全タブをサーバー側クエリ(?status=/?tab=/?period=等)で取得し全パネル埋め込み+自前vanilla-JSタブバーで切替可能に再構成。41ページ/83タブ/6.81MBを添付送信。",
+      "## 問題",
+      "旧版(export-all-pages-email.mjs)はscript全除去でReactタブ操作が無効化。さらにclient-state/URLクエリ駆動いずれのタブも非アクティブ内容がSSRに無く欠落。",
+      "## 調査",
+      "- 全ルートを健診: サーバー側は全200・参照JSチャンク欠落なし(白画面原因なし)。当初のERROR-PAGE検出はNext埋込定型文への誤検知。"
+    ],
+    "nextActions": [
+      "全ページ書き出しメールをタブ切替対応版に修正し再送 の結果を確認し、未達のDoneCriteriaを1つ進める"
+    ],
+    "changedFiles": [
+      "apps/ny01/progress/scripts/export-all-pages-email.mjs: タブ切替対応に全面改修(全タブをクエリ取得+vanilla-JSタブバー)"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260630-152828.md",
+    "researchPath": "06_research/2026-07-01_know-20260630-152828.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T02:00:22.103Z",
+    "updatedAt": "2026-07-01T02:00:22.122Z",
+    "nextEpicCandidateId": "rec-knowledge-20260630-152828"
+  },
+  {
+    "id": "know-20260630-144935",
+    "sourceRunId": "20260630-144935",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: メール動作確認→状態スナップショット送信→全ページ書き出し送信",
+    "summary": "[AI一次レビュー 2026-07-01 02:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "SMTP動作確認後、状態スナップショットと全ページ書き出しをメール送信",
+      "## 実施",
+      "1. SMTP動作確認: transporter.verify OK / テストメール accepted (toku106ma@yahoo.co.jp)。アプリパスワードはスペース込み19文字だがGmailが許容するため email-sender.ts はそのままで可。",
+      "2. 状態スナップショット: 既存(02:51生成)は古いため goals.json/automation-config/app-factory-candidates/execution-runs から最新データで再生成(13:23 JST)。HTML本文+HTML添付+Markdownで送信。obsidian-vault/00_inbox の.html/.md を更新しcommit bfa3c09 push済み。",
+      "3. 全ページ書き出し(ユーザー追加依頼「各ページ全ほしい」): headlessブラウザ無のためSSスクショ不可。起動中アプリ(3010)から全静的ルート(43)をHTML取得→共有CSSインライン化→script除去→目次付き1ファイル(3.16MB)に束ねて添付送信。41ユニークページ取得。/pending→/tasks・/operations→/automation は取得済みページへのredirectで実質網羅。動的詳細ページ([epicId]/[projectId]/[id])は代表IDが要るため除外。"
+    ],
+    "nextActions": [
+      "メール動作確認→状態スナップショット送信→全ページ書き出し送信 の結果を確認し、未達のDoneCriteriaを1つ進める"
+    ],
+    "changedFiles": [
+      "apps/ny01/progress/scripts/gen-snapshot-email.mjs: 新規: 状態スナップショット再生成+メール送信",
+      "apps/ny01/progress/scripts/export-all-pages-email.mjs: 新規: 全ページHTML取得+束ね+メール送信",
+      "obsidian-vault/00_inbox/progress-状態スナップショット.html: 最新データで再生成",
+      "obsidian-vault/00_inbox/progress-状態スナップショット.md: 最新データで再生成"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260630-144935.md",
+    "researchPath": "06_research/2026-07-01_know-20260630-144935.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T02:00:22.169Z",
+    "updatedAt": "2026-07-01T02:00:22.189Z",
+    "nextEpicCandidateId": "rec-knowledge-20260630-144935"
+  },
+  {
+    "id": "know-20260630-140012",
+    "sourceRunId": "20260630-140012",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-01 02:04] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260630-140012.md",
+    "researchPath": "06_research/2026-07-01_know-20260630-140012.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T02:04:49.528Z",
+    "updatedAt": "2026-07-01T02:04:49.692Z",
+    "nextEpicCandidateId": "rec-knowledge-20260630-140012"
+  },
+  {
+    "id": "know-20260630-120219",
+    "sourceRunId": "20260630-120219",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: 自走化ゴール達成メール送信モジュール(SMTP)実装",
+    "summary": "[AI一次レビュー 2026-07-01 02:04] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "autonomy-notification の実送信未実装を解消。nodemailerベースのSMTP送信モジュール(lib/email-sender.ts)を新規作成し、checkAutonomyCompletionAndNotify を実送信に接続。SMTP_HOST/USER/PASS が揃った時点(PASS手動追加時)で自動有効化。二重送信防止(成功時のみautonomyNotifiedAt)・noopログ運用を維持。tsc/build通過。",
+      "実装はCodex、設計/検証/安全判断/.env記入はClaude。SMTP_PASSが空の間はisSmtpConfigured()=falseでnoopログ運用が継続しattemptsを消費しない。PASS記入で実送信が1回だけ走るfootgun回避を維持。AUTONOMY_EMAIL_PROVIDER=noop明示で強制無効化も可能。monetizationImpact: none / theme: [workflow]"
+    ],
+    "nextActions": [
+      "ユーザーがGoogleアプリパスワードを .env.local の SMTP_PASS に記入",
+      "progress 再起動(pm2 restart)後、自走化ゴール達成時に実送信されることを確認"
+    ],
+    "changedFiles": [
+      "lib/email-sender.ts: 新規: isSmtpConfigured()/sendMail() を nodemailer で実装。例外はthrowせず{ok:false,error}返却",
+      "lib/autonomy-notification.ts: 実送信接続。宛先MAIL_TO優先。hasRealProvider=providerEnv!==noop && isSmtpConfigured()。成功時のみautonomyNotifiedAt、失敗はattempts++でsend_failed",
+      ".env.local.example: 旧RESEND/SMTP_URL例をSMTP_HOST/PORT/SECURE/USER/PASS/MAIL_FROM/MAIL_TOフォーマットへ差し替え",
+      ".env.local: SMTP_PASS以外のSMTP設定を記入(gitignore対象・実値はPASS未設定)",
+      "package.json: nodemailer + @types/nodemailer 追加"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260630-120219.md",
+    "researchPath": "06_research/2026-07-01_know-20260630-120219.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T02:04:49.781Z",
+    "updatedAt": "2026-07-01T02:04:49.815Z",
+    "nextEpicCandidateId": "rec-knowledge-20260630-120219"
+  },
+  {
+    "id": "know-20260630-110012",
+    "sourceRunId": "20260630-110012",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-01 02:04] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260630-110012.md",
+    "researchPath": "06_research/2026-07-01_know-20260630-110012.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T02:04:49.912Z",
+    "updatedAt": "2026-07-01T02:04:49.934Z",
+    "nextEpicCandidateId": "rec-knowledge-20260630-110012"
+  },
+  {
+    "id": "know-20260630-034035",
+    "sourceRunId": "20260630-034035",
+    "sourceEpicId": "epic-goalstep-goal-mqp6hasd-g5i9p",
+    "goalId": "goal-mqp6hasd-g5i9p",
+    "title": "Review Knowledge: progress状態スナップショット生成+Vault配置(メール送信代替)",
+    "summary": "[AI一次レビュー 2026-07-01 02:04] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "ユーザー依頼『toku106ma@yahoo.co.jpへprogress現状のスクショ/オフラインで分かるものを送って』に対応。調査の結果(1)VPSにMTA/SMTP無し(2)progressのautonomy-notificationは送信モジュール未実装(provider=noop)で実メール送信手段が現状ゼロと判明。スクショもheadlessブラウザ無し。代替として現在状態の自己完結スナップショット(HTML+Markdown:工場状態/ゴール状況/プロジェクト別達成/アプリ概要承認/最近の自動実行を人間語で)を生成し、iPhoneから届く経路=GitHub Vault(obsidian-vault)に配置・push。toku106ma宛はprogressの既存通知先(NOTIFY_EMAIL_TO既定)と確認。",
+      "注意: 実メール送信は不可(MTA/SMTP無し・アプリのメール送信未実装)。GitHub Vault経由で代替配置。実送信が必要ならSMTP/メールAPIの構成がユーザー判断で必要",
+      "メール送信依頼の対応。送信手段調査=sendmail/mail/msmtp/mutt無し・SMTP環境変数無し・autonomy-notification.tsはprovider=noopで送信未実装→実メール送信不可。スクショ=playwright無しで不可。代替=現在状態(工場/ゴール/プロジェクト達成/アプリ承認/最近の自動実行を人間語化)の自己完結HTML+MarkdownをobsidianとGitHub mirrorのvaultに配置しpush(commit 39dc553)。toku106maはprogress既存通知先と一致。実装Claude直接。data手編集なし。"
+    ],
+    "nextActions": [
+      "ユーザー: GitHubのvault/00_inbox/progress-状態スナップショット.(md/html)を確認。メール自動送信が必要ならSMTPまたはResend等のAPIキー構成を決める"
+    ],
+    "changedFiles": [
+      "obsidian-vault/00_inbox/progress-状態スナップショット.md: 新規: オフライン閲覧用の状態スナップショット(Markdown)",
+      "obsidian-vault/00_inbox/progress-状態スナップショット.html: 新規: 自己完結HTML(メール添付/ダウンロード用)"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260630-034035.md",
+    "researchPath": "06_research/2026-07-01_know-20260630-034035.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T02:04:50.008Z",
+    "updatedAt": "2026-07-01T02:04:50.028Z",
+    "nextEpicCandidateId": "rec-knowledge-20260630-034035"
+  },
+  {
+    "id": "know-20260629-232302",
+    "sourceRunId": "20260629-232302",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: 自動実行レポートを人間語の記録文に(機械トークン除去)",
+    "summary": "[AI一次レビュー 2026-07-01 02:04] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "ユーザー指摘『自動実行レポートにblock0等の機械語が出て分からない。人間語で記事/記録のように』に対応。humanizeAutoSummaryを追加し、定時実行のsummary機械文(Factory起動/block0/block1/executed=0/no_candidate等)を人間語の記録文へ変換(何も実行なし→待機/review-fix→修正候補N件確認/monetization→Vault点検/実行あり→自動でN件)。stripMachineTokensで表示用テキストから残留トークンを最終除去。詳細レポート全文(生ログ)は情報保全のため原文維持(既定非表示)。検証=tsc0/build0/report200・block0/block1=0・人間語記録文確認・error0。",
+      "注意: 『詳細レポート全文を読む』の生ログにはreview-fix由来のexecuted=/blocked=等が残るが、これは最深部の情報保全用で既定非表示。人間向け記事本文はクリーン",
+      "自動実行レポート(/report・AutoExecReport.tsx)の人間語化。定時実行のsummary自体が機械文(Factory起動: Review Fix 実行0・予約0・skip0・block1…停止理由=no_candidate)でやったことに出ていた。humanizeAutoSummaryで記録文化+stripMachineTokensで残留トークン除去。生ログ全文は維持。実装Codex委譲・検証/commit/POSTはClaude。commit e85bd94 push済。data手編集なし。"
+    ],
+    "nextActions": [
+      "iPhone実機で自動実行レポートが記録文として読めるか確認"
+    ],
+    "changedFiles": [
+      "progress/components/operations/AutoExecReport.tsx: humanizeAutoSummary+stripMachineTokensで機械サマリーを人間語記録文に変換・表示"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260629-232302.md",
+    "researchPath": "06_research/2026-07-01_know-20260629-232302.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T02:04:50.111Z",
+    "updatedAt": "2026-07-01T02:04:50.186Z",
+    "nextEpicCandidateId": "rec-knowledge-20260629-232302"
+  },
+  {
+    "id": "know-20260629-230019",
+    "sourceRunId": "20260629-230019",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-01 02:04] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260629-230019.md",
+    "researchPath": "06_research/2026-07-01_know-20260629-230019.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T02:04:50.234Z",
+    "updatedAt": "2026-07-01T02:04:50.254Z",
+    "nextEpicCandidateId": "rec-knowledge-20260629-230019"
   }
 ]

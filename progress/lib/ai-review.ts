@@ -1,6 +1,6 @@
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { updateExecutionRunFields } from '@/lib/execution-run-writer'
-import { runKnowledgeLoopForRunId } from '@/lib/knowledge-loop'
+import { generateFollowupRecommendationForRun, runKnowledgeLoopForRunId } from '@/lib/knowledge-loop'
 import { appendAutomationLog, createApproval, getPendingApprovals } from '@/lib/operations-store'
 import type { ApprovalCategory } from '@/lib/types/operations'
 import type { AiReviewResult, AiReviewVerdict, ExecutionRun, ReviewStatus } from '@/types/execution-run'
@@ -193,6 +193,18 @@ export async function runAiReviewBatch(limit = 10): Promise<AiReviewBatchResult>
       createdKnowledge = Boolean(loop?.createdKnowledge)
       createdRecommendation = Boolean(loop?.createdRecommendation)
       if (createdKnowledge) knowledgeCreated += 1
+    }
+
+    if (cls.verdict === 'partial' || cls.verdict === 'failed') {
+      // needs_followup にした Run も、その場で修正候補へ戻して Review→Next Epic ループを閉じる。
+      const followupRun: ExecutionRun = {
+        ...run,
+        reviewStatus,
+        reviewMemo,
+        aiReview,
+      }
+      const followup = await generateFollowupRecommendationForRun(followupRun)
+      createdRecommendation = Boolean(followup?.created)
     }
 
     if (cls.verdict === 'needs_human') {

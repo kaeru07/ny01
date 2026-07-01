@@ -101,13 +101,18 @@ export interface GoalsData {
 
 export interface GoalUpsertInput {
   id?: string
+  projectId?: string
   title: string
   description?: string
+  summary?: string
   metric?: string
   target?: number
   current?: number
   priority?: TaskPriority
   status?: GoalStatus
+  decisionPolicyDefault?: DecisionPolicy
+  riskFlagsDefault?: EpicRiskFlag[]
+  monetizationImpact?: MonetizationImpact
   isNorthStar?: boolean
   setAsMain?: boolean
 }

@@ -694,5 +694,55 @@
     "decidedOption": "merge_dup",
     "decidedBy": "operator",
     "decidedAt": "2026-06-22T11:45:27.199Z"
+  },
+  {
+    "approvalId": "appr-1782871221715",
+    "title": "Run一次レビュー: 自動実行 review_waiting デッドロック解消（①②③実装・検証）",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: 方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "pending",
+    "createdRunId": "20260701-085142",
+    "createdAt": "2026-07-01T02:00:21.715Z"
+  },
+  {
+    "approvalId": "appr-1782871489345",
+    "title": "Run一次レビュー: Factory(auto): Execution→Review→Next Epicループ完成: 次の一歩",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: completed だが errors が 1 件記録されている（先頭: wResult, AiReviewVerdict, ExecutionRun, ReviewStatus } from '@/types/execution-r）。",
+    "status": "pending",
+    "createdRunId": "20260701-110023-448",
+    "createdAt": "2026-07-01T02:04:49.345Z"
   }
 ]

@@ -6,8 +6,43 @@
       "id": "cand-shogi-kakoi",
       "title": "将棋 囲いトレーナー",
       "sourceProjectId": "shogi-kakoi-trainer",
+      "overview": "将棋初〜中級者向けに囲いの形と手順を短時間で反復できる学習アプリ。",
       "purpose": "将棋初〜中級者が囲い（美濃・矢倉等）の手順を反復ドリルで習得できる学習アプリ。",
       "monetizationHypothesis": "App Store 有料公開（買い切り）＋将来的に囲い追加課金。完成度85%で公開直前のため最短で収益検証できる。",
+      "marketValue": "将棋学習は動画・書籍が中心で、囲いだけを短時間ドリル化するニッチ教材には買い切り需要がある。",
+      "oceanType": "blue",
+      "oceanRationale": "将棋学習アプリは多いが、囲いの形・手順・弱点に絞ったモバイル反復トレーナーは競合が薄い。",
+      "monetizationPlan": "初期は買い切り低価格で公開し、利用継続が見えたら囲い追加パック、終盤/戦法ドリル連携、棋力別コースを追加課金にする。",
+      "decisionPoints": [
+        {
+          "key": "store",
+          "question": "最初に公開するストアは？",
+          "options": [
+            "App Store",
+            "Google Play",
+            "Web版から先に公開"
+          ]
+        },
+        {
+          "key": "pricing",
+          "question": "初期価格をどうする？",
+          "options": [
+            "買い切り低価格",
+            "無料+追加課金",
+            "無料で検証"
+          ]
+        },
+        {
+          "key": "content-scope",
+          "question": "初回リリースに含める囲い数は？",
+          "options": [
+            "主要5種",
+            "主要10種",
+            "完成済み範囲すべて"
+          ]
+        }
+      ],
+      "createdAt": "2026-06-02T00:00:00.000Z",
       "priority": "high",
       "status": "ready_to_ship",
       "nextAction": "ユーザー操作待ち: Mac で pod install → Xcode ビルド → Bundle ID 変更 → App Store 提出",
@@ -18,8 +53,34 @@
       "id": "cand-mahjong",
       "title": "麻雀アプリ（mahjong）",
       "sourceProjectId": "mahjong",
+      "overview": "ブラウザで麻雀の練習・対局体験を提供し、広告と学習コンテンツで収益化を狙うアプリ。",
       "purpose": "麻雀の対局/練習をブラウザで遊べるアプリ。deploy-ready（build 確認済み）。",
       "monetizationHypothesis": "Web 公開後に広告（AdSense）＋上達ドリルの一部を有料化。トラフィック獲得で収益仮説を検証。",
+      "marketValue": "麻雀は継続プレイ・学習需要が強く、Web公開で検索流入とSNS共有から利用者を獲得できる可能性がある。",
+      "oceanType": "red",
+      "oceanRationale": "麻雀ゲーム・学習サービスは既に多数あり競争は強い。一方で軽量Web練習や個別ドリルに絞れば差別化余地がある。",
+      "monetizationPlan": "まず無料Web公開で流入を測定し、広告を小さく導入。継続率が高い問題形式を有料ドリル、牌譜解析、ランキング機能へ拡張する。",
+      "decisionPoints": [
+        {
+          "key": "launch-channel",
+          "question": "最初の公開チャネルは？",
+          "options": [
+            "VercelでWeb公開",
+            "PWA化して配布",
+            "既存麻雀アプリ群のハブに組み込む"
+          ]
+        },
+        {
+          "key": "monetization-first",
+          "question": "初期の収益化検証は？",
+          "options": [
+            "広告",
+            "有料ドリル",
+            "まず無料で継続率測定"
+          ]
+        }
+      ],
+      "createdAt": "2026-06-02T00:00:00.000Z",
       "priority": "high",
       "status": "deploy_ready",
       "nextAction": "ユーザー操作待ち: GitHub push → Vercel デプロイ",
@@ -61,7 +122,54 @@
       "nextAction": "build 確認・手牌解析動作確認",
       "factorySafe": true,
       "factoryNote": "ローカル build/動作確認は Factory 安全範囲。"
+    },
+    {
+      "id": "daily-2026-07-01-gpt-5-3-codex",
+      "title": "GPT-5.3-Codex支援アプリ",
+      "sourceProjectId": null,
+      "overview": "research 起点のアプリ案。今日の判断で要精査。",
+      "purpose": "日々の調査(AIツール 2026-06-29)で高評価(★★★★★)。即戦力。実装・調査・テスト・資料作成まで横断できるが課金前提。 をもとに、ユーザーが具体的な判断・記録・次アクション化を行える小さなアプリを作る。",
+      "marketValue": "research 由来の需要仮説。市場規模・競合・支払い意思は今日の判断で要精査。",
+      "oceanType": "unknown",
+      "oceanRationale": "自動生成時点では競合密度を未調査。今日の判断で要精査。",
+      "monetizationHypothesis": "まず無料MVPで利用価値を確認し、継続利用が見えたら有料テンプレート、月額、広告の順に検証する。",
+      "monetizationPlan": "MVP公開後に利用ログと継続率を確認。価値が高い操作を有料枠に分離し、月額または買い切りテンプレートとして検証する。今日の判断で要精査。",
+      "priority": "medium",
+      "status": "proposed",
+      "nextAction": "今日の判断で対象プラットフォーム・課金方式・最小機能セットを決める",
+      "factorySafe": false,
+      "factoryNote": "自動生成案のため、方針決定後に Factory 対象化する。",
+      "decisionPoints": [
+        {
+          "key": "platform",
+          "question": "最初に作る対象プラットフォームは？",
+          "options": [
+            "Web",
+            "iOS",
+            "Android"
+          ]
+        },
+        {
+          "key": "pricing",
+          "question": "最初の課金方式は？",
+          "options": [
+            "無料MVP",
+            "買い切り",
+            "月額"
+          ]
+        },
+        {
+          "key": "mvp",
+          "question": "最小機能セットはどこまでにする？",
+          "options": [
+            "記録と一覧だけ",
+            "分析まで含める",
+            "共有まで含める"
+          ]
+        }
+      ],
+      "createdAt": "2026-07-01T03:09:26.206Z"
     }
   ],
-  "updatedAt": "2026-06-02T00:00:00.000Z"
+  "updatedAt": "2026-07-01T03:09:26.207Z"
 }

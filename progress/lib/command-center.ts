@@ -593,13 +593,14 @@ function themeKeyOf(rawTitle: string): string | null {
 }
 
 export async function buildInbox(): Promise<InboxView> {
-  const [approvals, epics, recommendations, runs, goalsData, autoQueue] = await Promise.all([
+  const [approvals, epics, recommendations, runs, goalsData, autoQueue, appProgress] = await Promise.all([
     readPagePendingApprovals(),
     readPageEpics(),
     readPageRecommendations(),
     readPageExecutionRuns(),
     readPageGoals(),
     getAutoQueueView(),
+    readPageAppProgress(),
   ])
   const goals = goalsData.goals.map((g) => ({ id: g.id, title: g.title }))
   const achievedGoalIds = Array.from(new Set(
@@ -616,8 +617,10 @@ export async function buildInbox(): Promise<InboxView> {
       .map((goal) => goal.id),
   ))
   const goalTitleById = new Map(goalsData.goals.map((g) => [g.id, g.title]))
+  const goalById = new Map(goalsData.goals.map((g) => [g.id, g]))
   const epicById = new Map(epics.map((epic) => [epic.epicId, epic]))
   const runById = new Map(runs.map((run) => [run.runId, run]))
+  const projectTitleById = new Map(appProgress.projects.map((project) => [project.id, project.name]))
   const unassignedGoal = { goalId: 'unassigned', goalTitle: '未紐づけ' }
   const goalMeta = (goalId?: string | null) => {
     if (!goalId) return unassignedGoal
@@ -653,15 +656,20 @@ export async function buildInbox(): Promise<InboxView> {
   const projectMeta = (app?: string | null) => {
     const key = app?.trim()
     if (!key) return unassignedProject
-    return { projectId: key, projectTitle: key }
+    return { projectId: key, projectTitle: projectTitleById.get(key) ?? key }
   }
   const projectForEpic = (epic?: (typeof epics)[number]) =>
     projectMeta(epic?.targetApps?.[0] ?? epic?.targetApp)
   const projectForRun = (run?: ExecutionRun) => (run ? projectMeta(run.targetApp) : unassignedProject)
   const projectForApproval = (approval: (typeof approvals)[number]) => {
+    if (approval.projectId) return projectMeta(approval.projectId)
     const epic = approval.epicId ? epicById.get(approval.epicId) : undefined
     const fromEpic = projectForEpic(epic)
     if (fromEpic.projectId !== 'unassigned') return fromEpic
+    if (epic?.goalId) {
+      const fromGoal = projectMeta(goalById.get(epic.goalId)?.projectId)
+      if (fromGoal.projectId !== 'unassigned') return fromGoal
+    }
     if (approval.createdRunId) return projectForRun(runById.get(approval.createdRunId))
     return unassignedProject
   }
@@ -1185,7 +1193,7 @@ export async function buildInbox(): Promise<InboxView> {
       const projectReviews = reviews.filter((card) => (card.projectId ?? 'unassigned') === projectId)
       return {
         projectId,
-        projectTitle: projectId === 'unassigned' ? '未分類' : projectId,
+        projectTitle: projectId === 'unassigned' ? '未分類' : projectTitleById.get(projectId) ?? projectId,
         today: countByProject(decisionFactors, projectId),
         reviews: projectReviews.length + countByProject(reviewedHistory, projectId),
         candidates: countByProject(candidates, projectId),

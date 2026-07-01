@@ -12,6 +12,7 @@ import { syncGoalMetricsFromFactory } from './goal-metric-sync'
 import { expireStaleRecommendations } from './recommended-epics-store'
 import { rotateExecutionRunsArchive } from './execution-run-archive'
 import { checkAutonomyCompletionAndNotify } from './autonomy-notification'
+import { ensureDailyAppProposal } from './app-proposal-generator'
 import type { ExecutionRun } from '@/types/execution-run'
 import type { FactoryRunReport } from './executors/types'
 
@@ -180,6 +181,13 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
     }
   } catch {
     // 取り込み失敗は無視して Factory 本体へ進む
+  }
+
+  // 0.1) アプリ案を1日1件まで補充する。失敗しても Factory 本体は止めない。
+  try {
+    await ensureDailyAppProposal()
+  } catch {
+    await appendAutomationLog({ event: 'factory_schedule', fallbackReason: 'daily_app_proposal_failed', detectionStatus: input.source } as never)
   }
 
   // 0.5) AI候補の棚卸し。修正依頼は候補へ戻し、古い suggested は期限切れにする。

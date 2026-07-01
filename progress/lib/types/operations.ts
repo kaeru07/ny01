@@ -220,6 +220,7 @@ export interface ApprovalOption {
 export interface Approval {
   approvalId: string
   epicId?: string
+  projectId?: string
   title: string
   priority: ApprovalPriority
   category: ApprovalCategory
@@ -469,6 +470,7 @@ export interface AutomationLogEntry {
     | 'factory_backpressure'
     | 'factory_goal_step_epic_created'
     | 'factory_goal_proposal_requested'
+    | 'app_proposal_generated'
   // --- auto_fallback 用（detection イベントでは未設定可） ---
   fallbackTriggered?: boolean
   fallbackReason?: string

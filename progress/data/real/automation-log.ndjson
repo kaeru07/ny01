@@ -245,3 +245,7 @@
 {"id":"alog-1782795615812","at":"2026-06-30T05:00:15.812Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}
 {"id":"alog-1782802815255","at":"2026-06-30T07:00:15.255Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}
 {"id":"alog-1782828019484","at":"2026-06-30T14:00:19.484Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}
+{"id":"alog-1782871222207","at":"2026-07-01T02:00:22.207Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=7 needs_human=1 partial=2 failed=0 / 残not_reviewed=204","aiReviewCounts":{"processed":10,"reviewed":7,"needsHuman":1,"partial":2,"failed":0}}
+{"id":"alog-1782871490293","at":"2026-07-01T02:04:50.293Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=6 needs_human=1 partial=3 failed=0 / 残not_reviewed=195","aiReviewCounts":{"processed":10,"reviewed":6,"needsHuman":1,"partial":3,"failed":0}}
+{"id":"alog-1782871490479","at":"2026-07-01T02:04:50.479Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782875366212","at":"2026-07-01T03:09:26.212Z","event":"app_proposal_generated","fallbackReason":"candidateId=daily-2026-07-01-gpt-5-3-codex source=research","fallbackTarget":"GPT-5.3-Codex支援アプリ"}

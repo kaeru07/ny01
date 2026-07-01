@@ -97,3 +97,4 @@
 {"time":"2026-06-21T08:57:00.578Z","project":"try-research","type":"project_added","title":"試す系 追加","detail":"status:active phase:trial"}
 {"time":"2026-06-21T09:31:20.517Z","project":"autoexec-test-proj","type":"project_added","title":"自動実行テスト用 追加","detail":"status:active phase:"}
 {"time":"2026-06-21T09:33:22.149Z","project":"autoexec-test-proj","type":"project_summary_updated","title":"自動実行テスト用 サマリー更新","detail":"nextAction → \"(テスト用・アーカイブ)\" / status: active → archived"}
+{"time":"2026-07-01T03:09:38.720Z","project":"daily-2026-07-01-gpt-5-3-codex","type":"project_added","title":"GPT-5.3-Codex支援アプリ 追加","detail":"status:active phase:計画"}

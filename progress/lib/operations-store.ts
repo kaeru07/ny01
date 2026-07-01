@@ -176,6 +176,8 @@ export async function getFactoryEligibility(epicId: string): Promise<FactoryElig
 
 // ---- Approvals ----
 
+let approvalSeq = 0
+
 export async function getApprovals(): Promise<Approval[]> {
   return readJson<Approval[]>('approvals.json', [])
 }
@@ -225,6 +227,7 @@ export async function decideApproval(
 
 export async function createApproval(input: {
   epicId?: string
+  projectId?: string
   title: string
   category: ApprovalCategory
   priority?: ApprovalPriority
@@ -235,9 +238,11 @@ export async function createApproval(input: {
 }): Promise<Approval> {
   const approvals = await getApprovals()
   const now = new Date().toISOString()
+  approvalSeq = (approvalSeq + 1) % 1000
   const approval: Approval = {
-    approvalId: `appr-${Date.now()}`,
+    approvalId: `appr-${Date.now()}-${approvalSeq}`,
     epicId: input.epicId,
+    projectId: input.projectId,
     title: input.title,
     category: input.category,
     priority: input.priority ?? 'normal',

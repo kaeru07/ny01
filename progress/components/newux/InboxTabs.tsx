@@ -150,7 +150,7 @@ function groupCardsByProject(cards: InboxCard[], projectTitleById: Map<string, s
     .sort((a, b) => {
       if (a.projectId === 'unassigned') return 1
       if (b.projectId === 'unassigned') return -1
-      return b.cards.length - a.cards.length || a.title.localeCompare(b.title, 'ja')
+      return a.title.localeCompare(b.title, 'ja')
     })
 }
 
@@ -255,6 +255,7 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
   const goalTitleById = new Map(inbox.goalSummaries.map((summary) => [summary.goalId, summary.goalTitle]))
   const projectTitleById = new Map(inbox.projectSummaries.map((summary) => [summary.projectId, summary.projectTitle]))
   const achievementProjectGroups = groupCardsByProject(filteredAchievementReviews, projectTitleById)
+  const decisionProjectGroups = groupCardsByProject(filteredDecisions, projectTitleById)
   const effectiveAchievementProject =
     achievementProject === 'all' || achievementProjectGroups.some((group) => group.projectId === achievementProject)
       ? achievementProject
@@ -530,11 +531,23 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
               )}
             </>
           ) : (
-            <ul className="space-y-3">
-              {filteredDecisions.map((card) => (
-                <InboxCardItem key={card.id} card={card} />
+            <div className="space-y-3">
+              {decisionProjectGroups.map((group) => (
+                <section key={group.projectId} className="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+                  <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-3 py-2.5 dark:border-gray-800">
+                    <h3 className="min-w-0 text-sm font-bold text-gray-900 dark:text-gray-100">{group.projectId === 'unassigned' ? 'その他' : group.title}</h3>
+                    <span className="shrink-0 rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                      {group.cards.length}件
+                    </span>
+                  </div>
+                  <ul className="space-y-3 p-3">
+                    {group.cards.map((card) => (
+                      <InboxCardItem key={card.id} card={card} />
+                    ))}
+                  </ul>
+                </section>
               ))}
-            </ul>
+            </div>
           )}
           {!selectedGoalId && inbox.decisionTotal > inbox.decisions.length && (
             <p className="mt-2 text-[11px] text-gray-400">ほか{inbox.decisionTotal - inbox.decisions.length}件は明日以降に順番に出ます</p>

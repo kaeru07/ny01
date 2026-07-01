@@ -1,5 +1,6 @@
 import { getAppFactoryCandidates } from '@/lib/app-factory-candidates'
 import { getOperationalDecisions } from '@/lib/operations-store'
+import type { AppFactoryDecisionPoint, AppProposalOceanType } from '@/lib/app-factory-candidates'
 
 export type AppProposalDecision = 'approved' | 'rejected' | 'held' | 'not_needed'
 
@@ -14,7 +15,14 @@ export interface AppProposal {
   projectId: string | null
   name: string
   purpose: string
+  overview?: string
   monetizationHypothesis: string
+  marketValue?: string
+  oceanType: AppProposalOceanType
+  oceanRationale?: string
+  monetizationPlan?: string
+  decisionPoints: AppFactoryDecisionPoint[]
+  createdAt?: string
   priority: string
   status: string
   nextAction: string
@@ -140,6 +148,10 @@ function normalizeDecision(decision: string | undefined): AppProposalDecision | 
   return null
 }
 
+function fallbackOverview(purpose: string): string {
+  return purpose.split(/[。.\n]/).map((part) => part.trim()).find(Boolean) ?? purpose
+}
+
 export async function getAppProposals(): Promise<AppProposal[]> {
   const [queue, decisions] = await Promise.all([
     getAppFactoryCandidates(),
@@ -162,7 +174,14 @@ export async function getAppProposals(): Promise<AppProposal[]> {
       projectId: candidate.sourceProjectId,
       name: candidate.title,
       purpose: candidate.purpose,
+      overview: candidate.overview?.trim() || fallbackOverview(candidate.purpose),
       monetizationHypothesis: candidate.monetizationHypothesis,
+      marketValue: candidate.marketValue,
+      oceanType: candidate.oceanType ?? 'unknown',
+      oceanRationale: candidate.oceanRationale,
+      monetizationPlan: candidate.monetizationPlan ?? candidate.monetizationHypothesis,
+      decisionPoints: candidate.decisionPoints ?? [],
+      createdAt: candidate.createdAt,
       priority: candidate.priority,
       status: candidate.status,
       nextAction: candidate.nextAction,
