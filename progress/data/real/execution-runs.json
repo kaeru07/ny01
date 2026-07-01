@@ -22536,6 +22536,47 @@
         "自動実行キューを実行可能のみに/キュー外を別タブ化+ai_holdをAIが後回し中にリネーム の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "## 自動実行キューのタブ分割+ai_holdリネーム\n\nユーザー要望: ①ai_holdを人間語に ②キューページは実行可能のみ、キュー外(ブロック等)は別タブでフィルタ表示。\n\n### 実装\n- ①ai_hold表示名を『AIが後回し中』に統一(page STATUS_LABEL / auto-queue statusBlockedReason)。\n- ②/queue を ?view で2タブ化: 既定=自動実行キュー(executableのみ+factory状態/回復/並べ替え)、view=others=キュー外(判断待ち/AIが後回し中/ブロック/手動/レビュー互換)を一覧+ステータスバッジ+キュー外理由+解消導線+既存フィルタ。ProgressFilterStateにview追加でタブ保持。\n\n### 検証\nbuild OK。live: 両タブ描画、AI保留表記消滅→AIが後回し中、キュー外にブロック/判断待ち/後回し/手動+フィルタ、エラーなし。\n\nmonetizationImpact: none\ntheme: [workflow]"
+    },
+    {
+      "runId": "20260701-185810",
+      "startedAt": "2026-07-01T09:58:10.401Z",
+      "finishedAt": "2026-07-01T09:58:10.401Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "ブロック項目を必ず今日の判断に入れる整合性確保",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "blocked項目に対応する今日の判断(pending Approval)が無い異常状態を検出(1件)。ensureBlockedDecisions()で全blockedに今日の判断を担保(理由別options: 危険/failed/汎用)。factory毎サイクル+手動endpoint。実行し滞留1件を解消、blocked中の今日の判断なし=0に。",
+      "changedFiles": [
+        {
+          "file": "lib/blocked-decisions.ts",
+          "change": "ensureBlockedDecisions()新規。blockedで今日の判断が無いものにmulti_option Approval作成(重複防止・理由別options・ログ)"
+        },
+        {
+          "file": "lib/factory-runner.ts",
+          "change": "毎サイクルでensureBlockedDecisions()を実行"
+        },
+        {
+          "file": "app/api/operations/ensure-blocked-decisions/route.ts",
+          "change": "手動即時修正endpoint(新規)"
+        },
+        {
+          "file": "lib/types/operations.ts",
+          "change": "log eventにblocked_decisions_ensured追加"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "manual": "OK live: POST /api/operations/ensure-blocked-decisions created=1/再監査 blocked1件中 今日の判断なし=0/failed理由の項目は再試行/中止/保留options"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "ブロック項目を必ず今日の判断に入れる整合性確保 の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## ブロック=今日の判断待ちの不変条件を担保\n\nユーザー指摘: ブロックは今日の判断待ちでないと異常。必ずblockになるものは今日の判断に入れる。\n\n### 監査\nblocked 1件(epic-goalstep-goal-mqvpojj2-9nbn3, 前回failedでBlock)が対応する今日の判断なし=異常を確認。\n\n### 実装\n- lib/blocked-decisions.ts ensureBlockedDecisions(): buildAutoQueue().blocked を走査、同epicIdのpending承認が無いものに multi_option Approval を作成(危険→許可/中止/保留、failed→再試行/中止/保留、汎用→対処/中止/保留)。重複防止・例外握り・blocked_decisions_ensuredログ。\n- factory-runner: recordUrgentIssues近くで毎サイクル実行。\n- POST /api/operations/ensure-blocked-decisions で即時修正可。\n\n### 検証\ntsc/build OK。live: endpoint created=1、再監査で blocked中の今日の判断なし=0。生成された今日の判断はfailed理由で再試行/中止/保留options。\n\nmonetizationImpact: none\ntheme: [workflow]"
     }
   ]
 }

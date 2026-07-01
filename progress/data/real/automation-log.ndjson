@@ -260,3 +260,4 @@
 {"id":"alog-1782889527929","at":"2026-07-01T07:05:27.929Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=4 needs_human=2 partial=4 failed=0 / 残not_reviewed=168","aiReviewCounts":{"processed":10,"reviewed":4,"needsHuman":2,"partial":4,"failed":0}}
 {"id":"alog-1782889530973","at":"2026-07-01T07:05:30.973Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqp6f72n-nb2xn-e6hn","fallbackReason":"キュー上位のGoal「朝の自動調査の形式変更。記事のようにまとめる」を進めるため、次の一歩Epic（epic-goalstep-goal-mqp6f72n-nb2xn-e6hn）を自動生成しました"}
 {"id":"alog-1782889532359","at":"2026-07-01T07:05:32.359Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782898738042","at":"2026-07-01T09:38:58.042Z","event":"blocked_decisions_ensured","fallbackReason":"created=1"}

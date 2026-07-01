@@ -472,6 +472,7 @@ export interface AutomationLogEntry {
     | 'factory_goal_proposal_requested'
     | 'app_proposal_generated'
     | 'urgent_issues_recorded'
+    | 'blocked_decisions_ensured'
   // --- auto_fallback 用（detection イベントでは未設定可） ---
   fallbackTriggered?: boolean
   fallbackReason?: string
