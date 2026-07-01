@@ -22610,6 +22610,39 @@
         "今日の判断から重複の自動実行履歴セクションを撤去 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "## 今日の判断の重複レイアウト撤去\n\nユーザー指摘: 今日の判断の下に自動実行レポート(履歴)があり他タブと重複。\n\n### 変更\n- InboxTabs decisionsタブの『🤖 自動実行の履歴』(inbox.autoRuns)セクションを削除。同内容は /logs(実行履歴)・/activity(状況)・/report・運用ページの自動実行レポートタブにあり重複だった。\n- guide FAQを実態に合わせ更新。\n\n### 検証\ntsc/build OK。live /decide HTMLで該当文言0件。\n\nmonetizationImpact: none\ntheme: [workflow]"
+    },
+    {
+      "runId": "20260701-220418",
+      "startedAt": "2026-07-01T13:04:18.833Z",
+      "finishedAt": "2026-07-01T13:04:18.833Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "重複レイアウト削除(ホーム工場状態/Project・Goal進捗, 状況の達成ゴール)+重複横断監査",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "ホームからAI工場計器盤/AI工場の状態(=/queue・/activity正本)・Project進捗(=/portfolio)・Goal進捗(=/goal-planner)を削除。状況から達成したゴール(=/project-complete)を削除。削除後の横断監査で複数ページ跨りの重複見出しは検出されず。",
+      "changedFiles": [
+        {
+          "file": "app/page.tsx",
+          "change": "AI工場計器盤/AI工場の状態/Project進捗/Goal進捗セクション削除。未使用toneClass除去。残: 緊急問題/次回自動実行予定/今日やること/修正依頼"
+        },
+        {
+          "file": "app/activity/page.tsx",
+          "change": "達成したゴールセクション削除。未使用doneGoals/inRange除去"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "manual": "OK live: ホームの4見出し0件・残すべき3見出し維持・状況の達成ゴール0件・エラーなし。横断監査で重複見出し0"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "重複レイアウト削除(ホーム工場状態/Project・Goal進捗, 状況の達成ゴール)+重複横断監査 の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## 重複レイアウト削除+横断監査(横並び調査)\n\nユーザー指定の重複を削除。横並び=重複調査の意。\n\n### 削除(表示のみ・正本は他ページ)\n- ホーム: AI工場計器盤/AI工場の状態(正本 /queue・/activity) / Project進捗(正本 /portfolio) / Goal進捗(正本 /goal-planner)\n- 状況: 達成したゴール(正本 /project-complete)\n- 未使用: toneClass / doneGoals / inRange 除去\n\n### 横断監査\napp配下主要ページのh1/h2見出しを突合。削除後、複数ページに跨る重複見出しは検出されず(先の自動実行履歴撤去と今回の削除で主要な概念重複は解消)。\n\n### 検証\nbuild OK。live: ホーム該当4見出し0・残すべき見出し維持・状況達成ゴール0・エラーなし。\n\nmonetizationImpact: none\ntheme: [workflow]"
     }
   ]
 }

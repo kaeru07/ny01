@@ -75,11 +75,6 @@ function runTime(r: ExecutionRun): number {
   return ts(r.finishedAt || r.startedAt)
 }
 
-function inRange(iso: string | undefined, start: Date, end: Date): boolean {
-  const t = ts(iso)
-  return t >= start.getTime() && t < end.getTime()
-}
-
 function durationMs(r: ExecutionRun): number {
   const start = ts(r.startedAt)
   const end = ts(r.finishedAt)
@@ -245,9 +240,6 @@ export default async function ActivityPage({ searchParams }: { searchParams?: Re
 
   const completedRuns = periodRuns.filter((r) => r.runStatus === 'completed')
   const totalDuration = periodRuns.reduce((sum, r) => sum + durationMs(r), 0)
-  const doneGoals = goalsData.goals
-    .filter((g) => g.status === 'done' && inRange(g.updatedAt, range.start, range.end))
-    .sort((a, b) => ts(b.updatedAt) - ts(a.updatedAt))
   const activeGoals = goalsData.goals
     .filter((g) => g.status === 'active')
     .map((goal) => ({ goal, achievement: goalAchievement(goal) }))
@@ -429,21 +421,6 @@ export default async function ActivityPage({ searchParams }: { searchParams?: Re
                 </li>
               )
             })}
-          </ul>
-        )}
-      </section>
-
-      <section className={card}>
-        <h2 className="text-sm font-black text-gray-900 dark:text-gray-100">達成したゴール</h2>
-        {doneGoals.length === 0 ? (
-          <p className="mt-2 text-[12px] text-gray-500 dark:text-gray-400">なし</p>
-        ) : (
-          <ul className="mt-2 grid grid-cols-2 gap-1.5">
-            {doneGoals.slice(0, 6).map((g) => (
-              <li key={g.id} className="rounded-lg bg-emerald-50 px-2.5 py-2 text-[13px] font-bold text-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-100">
-                {shorten(humanizeTitle(g.title), 34)}
-              </li>
-            ))}
           </ul>
         )}
       </section>
