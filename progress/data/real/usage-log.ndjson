@@ -710,3 +710,10 @@
 {"at":"2026-07-01T10:37:00.756Z","type":"page_view","path":"/"}
 {"at":"2026-07-01T11:05:59.602Z","type":"page_view","path":"/decide"}
 {"at":"2026-07-01T11:06:06.712Z","type":"action","path":"/decide","label":"今日の判断5件"}
+{"at":"2026-07-01T13:16:17.075Z","type":"page_view","path":"/"}
+{"at":"2026-07-01T13:16:18.598Z","type":"page_view","path":"/report"}
+{"at":"2026-07-01T13:16:21.733Z","type":"page_view","path":"/goal-dashboard"}
+{"at":"2026-07-01T13:16:26.069Z","type":"page_view","path":"/queue"}
+{"at":"2026-07-01T13:16:26.738Z","type":"page_view","path":"/app-proposals"}
+{"at":"2026-07-01T13:16:27.417Z","type":"page_view","path":"/queue"}
+{"at":"2026-07-01T13:16:43.901Z","type":"page_view","path":"/decide"}

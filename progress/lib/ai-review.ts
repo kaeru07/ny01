@@ -98,11 +98,11 @@ export function classifyRun(run: ExecutionRun): AiReviewClassification {
     return { verdict: 'needs_human', rule: 'approval_required', reason: 'stopReason=approval_required。承認待ちのまま完了扱いになっている。', approvalCategory: 'multi_option' }
   }
   if (run.errors.length > 0) {
-    return { verdict: 'needs_human', rule: 'errors_recorded', reason: `completed だが errors が ${run.errors.length} 件記録されている（先頭: ${run.errors[0].slice(0, 80)}）。`, approvalCategory: 'multi_option' }
+    return { verdict: 'partial', rule: 'errors_recorded', reason: `completed だが errors が ${run.errors.length} 件記録されている（先頭: ${run.errors[0].slice(0, 80)}）。要確認（自動実行は止めない）。` }
   }
   const ngChecks = failedChecks(run)
   if (ngChecks.length > 0) {
-    return { verdict: 'needs_human', rule: 'check_failed', reason: `completed だが checks に NG がある（${ngChecks.slice(0, 2).join(' / ')}）。`, approvalCategory: 'multi_option' }
+    return { verdict: 'partial', rule: 'check_failed', reason: `completed だが checks に NG がある（${ngChecks.slice(0, 2).join(' / ')}）。要確認（自動実行は止めない）。` }
   }
   const risk = riskHit(run)
   if (risk) {
@@ -209,19 +209,22 @@ export async function runAiReviewBatch(limit = 10): Promise<AiReviewBatchResult>
 
     if (cls.verdict === 'needs_human') {
       // 意思決定キュー（Approval）へ。同一 Run の pending が既にあれば二重登録しない。
-      const exists = pendingApprovals.some((a) => a.createdRunId === run.runId)
+      const exists = pendingApprovals.some((a) => (
+        a.createdRunId === run.runId || (Boolean(run.epicId) && a.epicId === run.epicId)
+      ))
       if (!exists) {
         await createApproval({
-          title: `Run一次レビュー: ${run.targetTodoTitle || run.runId}`,
+          epicId: run.epicId,
+          title: `判断が必要: ${run.targetTodoTitle || run.runId}`,
           category: cls.approvalCategory ?? 'multi_option',
           priority: 'normal',
           options: [
-            { key: 'mark_reviewed', label: '問題なし（reviewed にする）' },
-            { key: 'needs_followup', label: '要フォローアップ（修復・再試行候補へ）' },
-            { key: 'keep', label: '保留（現状維持）' },
+            { key: 'proceed', label: '方針を確認して進める' },
+            { key: 'cancel', label: 'この作業を中止' },
+            { key: 'hold', label: '保留' },
           ],
-          recommended: 'mark_reviewed',
-          reason: `AI一次レビュー判定: ${cls.reason}`,
+          recommended: 'proceed',
+          reason: cls.reason,
           createdRunId: run.runId,
         })
         approvalCreated = true

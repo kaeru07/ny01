@@ -22643,6 +22643,40 @@
         "重複レイアウト削除(ホーム工場状態/Project・Goal進捗, 状況の達成ゴール)+重複横断監査 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "## 重複レイアウト削除+横断監査(横並び調査)\n\nユーザー指定の重複を削除。横並び=重複調査の意。\n\n### 削除(表示のみ・正本は他ページ)\n- ホーム: AI工場計器盤/AI工場の状態(正本 /queue・/activity) / Project進捗(正本 /portfolio) / Goal進捗(正本 /goal-planner)\n- 状況: 達成したゴール(正本 /project-complete)\n- 未使用: toneClass / doneGoals / inRange 除去\n\n### 横断監査\napp配下主要ページのh1/h2見出しを突合。削除後、複数ページに跨る重複見出しは検出されず(先の自動実行履歴撤去と今回の削除で主要な概念重複は解消)。\n\n### 検証\nbuild OK。live: ホーム該当4見出し0・残すべき見出し維持・状況達成ゴール0・エラーなし。\n\nmonetizationImpact: none\ntheme: [workflow]"
+    },
+    {
+      "runId": "20260701-223436",
+      "startedAt": "2026-07-01T13:34:36.395Z",
+      "finishedAt": "2026-07-01T13:34:36.395Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "レビュー判定で自動実行を止めない/止めるのは今日の判断のみに修正",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "20件のgoalstepがreviewStatus=needs_human(errors_recorded誤検知)でwaiting_user停止し、承認もレビュー型でレビュータブ誘導だった。品質レビュー(errors/checks)はneeds_followup化して止めない。危険/要判断のみneeds_humanでepicId付き判断型Approvalとして今日の判断で停止。deriveWorkItemStatusのneeds_human直接停止を削除。結果waiting_user 20→0/executable 6→26。",
+      "changedFiles": [
+        {
+          "file": "lib/ai-review.ts",
+          "change": "classifyRun: errors_recorded/check_failedをneeds_human→partial(needs_followup,非停止)。needs_human承認にepicId付与+判断型options(進める/中止/保留)+title=判断が必要/reason=停止理由"
+        },
+        {
+          "file": "lib/auto-queue-score.ts",
+          "change": "deriveWorkItemStatusのreviewStatus===needs_human直接停止行を削除。停止はepicId付きpending承認経由に。resolutionは今日の判断誘導"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "test": "OK",
+        "manual": "OK live: waiting_user 20→0/executable 6→26/レビュー判定で停止せず/blocked1件は今日の判断保持"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "レビュー判定で自動実行を止めない/止めるのは今日の判断のみに修正 の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## レビュー判定で止めない・止めるのは今日の判断のみ\n\nユーザー指摘: キュー外がレビュー必要?で止まる。止めるなら今日の判断に理由付きで。レビュータブ由来で止めるのは運用上おかしい。\n\n### 確認\n20件がneeds_human(errors_recorded=stderr片の誤検知)でwaiting_user停止、承認はレビュー型(問題なし/要フォロー)でレビュータブ誘導。\n\n### 修正\n- ai-review classifyRun: errors_recorded/check_failed → partial(needs_followup,非停止,レビュータブで任意確認)。risk_keyword/decision_needed/approval_required/stale_running のみ needs_human。\n- needs_human承認に epicId 付与+判断型options(方針を確認して進める/中止/保留)+title 判断が必要/reason 停止理由。→今日の判断に理由付きで出て止まる。\n- auto-queue-score: reviewStatus===needs_humanの直接停止行を削除。停止はepicId付きpending承認経由(→resolutionは今日の判断)。\n\n### 検証\ntsc/build/test OK。live: waiting_user 20→0、executable 6→26(誤検知解消)、blocked1件は今日の判断保持。\n\nmonetizationImpact: none\ntheme: [workflow]"
     }
   ]
 }

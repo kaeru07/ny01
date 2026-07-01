@@ -85,7 +85,6 @@ export function deriveWorkItemStatus(epic: Epic, context: StatusContext): WorkIt
 
   const pendingApproval = context.approvals.some((approval) => approval.epicId === epic.epicId && approval.status === 'pending')
   if (pendingApproval || epic.decisionPolicy === 'approval_required') return 'waiting_user'
-  if (latestRun?.reviewStatus === 'needs_human') return 'waiting_user'
 
   if (epic.queueControl?.hold === true || epic.status === 'paused') return 'ai_hold'
   // ただのレビュー待ち(not_reviewed)/修正依頼(needs_followup)は止めない。危険・判断要のゲートを通過していれば
@@ -192,10 +191,11 @@ export function deriveResolution(
         }
       }
       if (latestRun?.reviewStatus === 'needs_human') {
+        // 止まっているものは「レビュー確認」ではなく「今日の判断」へ誘導する（停止理由は今日の判断に理由付きで存在する）。
         return {
-          how: 'AIだけでは判断できなかった作業です。Inboxのレビュータブで該当レビューを確認すると、次に進めます。',
-          actionLabel: 'Inboxでレビューする',
-          actionHref: decideHref('review', { focusRunId: latestRun.runId }),
+          how: 'AIだけでは判断できず自動実行を停止中です。今日の判断で停止理由を確認して方針を決めると、次に進めます。',
+          actionLabel: '今日の判断で決める',
+          actionHref: decideHref('today'),
         }
       }
       return {
