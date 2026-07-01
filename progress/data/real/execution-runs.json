@@ -22466,6 +22466,35 @@
         "ホームに緊急問題トップ5+自動実行ごとに記録 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "## ホーム緊急問題トップ5\n\nユーザー要望: progress自動実行全体で早急対処が必要な問題を最大5点ホーム表示。毎回の自動実行時に必ず記録。例=キュー空/作成対象アプリがずっと止まってる。\n\n### 実装\n- lib/urgent-issues.ts: detectUrgentIssues()(a自動実行OFF/bキュー空/c作成対象アプリ長期停止/d失敗Run放置/eブロック多数/f今日の判断滞留/gゴール停滞、severity順)/recordUrgentIssues()(urgent-issues.json+automation-log)。\n- factory-runner: runFactoryで毎回 recordUrgentIssues() を try/catch実行。\n- app/page.tsx: 最上部に緊急問題トップ5表示。\n\n### 検証\ntsc/build OK。live: ホームに『早急に対処が必要な問題』セクション+実例『<アプリ>が作成対象なのに…進んでいません』描画。エラー境界なし。\n\nmonetizationImpact: none\ntheme: [workflow]"
+    },
+    {
+      "runId": "20260701-170947",
+      "startedAt": "2026-07-01T08:09:47.159Z",
+      "finishedAt": "2026-07-01T08:09:47.159Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "ゴール承認に 試す系/それ以外 の内容分類タブを追加",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "ゴール承認タブ(提案ゴール)に、既存の提案元(auto/other)フィルタに加えて内容分類トグル『すべて/試す系/それ以外』を追加。試す系はタイトル等のキーワード(試す/検証/PoC/実験/調査等)で判定。試す系の実験ゴールと作る系等を分離できる。",
+      "changedFiles": [
+        {
+          "file": "components/newux/InboxTabs.tsx",
+          "change": "isTryGoal()判定+goalApprovalKind状態+試す系/それ以外/すべての内容分類チップ行を追加(提案元フィルタと併用)"
+        }
+      ],
+      "checks": {
+        "typescript": "OK(headline/rows等の正フィールドで判定・型修正済)",
+        "build": "OK",
+        "manual": "OK live: /decide?tab=goalApproval に すべて/試す系/それ以外 チップ描画・エラー境界なし"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "ゴール承認に 試す系/それ以外 の内容分類タブを追加 の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## ゴール承認に試す系分類タブ\n\nユーザー要望: ゴール承認で試す系とそれ以外を分類できるタブ。\n\n### 実装\n既存は提案元(自動実行で追加/それ以外)フィルタのみ。内容ベースの分類トグルを追加:\n- isTryGoal(card): headline/question/detail/rows のテキストを /試す|試用|お試し|トライアル|検証|PoC|実験|調査|リサーチ.../ で判定。\n- goalApprovalKind 状態(all/try/other)。提案元フィルタ適用後の集合に、すべて/試す系/それ以外 のチップ行(emerald)を追加。\n- 型: InboxCardにtitle無しのため headline/rows で判定(型エラー修正)。\n\n### 検証\ntsc/build OK。live: /decide?tab=goalApproval に すべて/試す系/それ以外 チップ描画・エラーなし。\n\nmonetizationImpact: none\ntheme: [workflow]"
     }
   ]
 }

@@ -56,6 +56,15 @@ function isAutoProposal(card: InboxCard): boolean {
   return AUTO_PROPOSAL_SOURCES.has(card.proposalSource ?? '')
 }
 
+// 「試す系」= ツール/技術を試用・検証・調査する実験的ゴール。タイトル/説明のキーワードで判定する。
+type GoalApprovalKind = 'all' | 'try' | 'other'
+const TRY_GOAL_PATTERN = /試す|ためす|試用|お試し|トライアル|検証|PoC|実験|調査|リサーチ|評価してみ|触ってみ/i
+function isTryGoal(card: InboxCard): boolean {
+  const rowsText = (card.rows ?? []).map((row) => `${row.label} ${row.text}`).join(' ')
+  const text = `${card.headline ?? ''} ${card.question ?? ''} ${(card.detail ?? []).join(' ')} ${rowsText}`
+  return TRY_GOAL_PATTERN.test(text)
+}
+
 function filterForStatus(status?: string): ReviewFilter {
   if (status === 'needs_followup') return 'followup'
   if (status === 'snoozed') return 'snoozed'
@@ -202,6 +211,7 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
   const [reviewFilter, setReviewFilter] = useState<ReviewFilter>(() => reviewFilterFromQuery(searchParams.get('reviewFilter'), searchParams.get('filter'), searchParams.get('reviewStatus')))
   const [reviewPage, setReviewPage] = useState(0)
   const [goalApprovalSource, setGoalApprovalSource] = useState<GoalApprovalSourceFilter>(() => goalApprovalSourceFromQuery(searchParams.get('goalApprovalSource')))
+  const [goalApprovalKind, setGoalApprovalKind] = useState<GoalApprovalKind>('all')
   const [goalApprovalProject, setGoalApprovalProject] = useState('all')
   const [achievementProject, setAchievementProject] = useState('all')
 
@@ -443,7 +453,15 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
           { key: 'auto', label: '自動実行で追加', count: autoGoals.length },
           { key: 'other', label: 'それ以外', count: otherGoals.length },
         ]
-        const shown = goalApprovalSource === 'other' ? otherGoals : autoGoals
+        const sourceGoals = goalApprovalSource === 'other' ? otherGoals : autoGoals
+        const tryGoals = sourceGoals.filter(isTryGoal)
+        const nonTryGoals = sourceGoals.filter((card) => !isTryGoal(card))
+        const kindTabs: Array<{ key: GoalApprovalKind; label: string; count: number }> = [
+          { key: 'all', label: 'すべて', count: sourceGoals.length },
+          { key: 'try', label: '試す系', count: tryGoals.length },
+          { key: 'other', label: 'それ以外', count: nonTryGoals.length },
+        ]
+        const shown = goalApprovalKind === 'try' ? tryGoals : goalApprovalKind === 'other' ? nonTryGoals : sourceGoals
         const groupedShown = groupCardsByProject(shown, projectTitleById)
         const effectiveGoalApprovalProject =
           goalApprovalProject === 'all' || groupedShown.some((group) => group.projectId === goalApprovalProject)
@@ -468,6 +486,19 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
                   type="button"
                   onClick={() => changeGoalApprovalSource(c.key)}
                   className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-colors ${goalApprovalSource === c.key ? 'bg-blue-600 text-white' : 'border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800'}`}
+                >
+                  {c.label} {c.count}
+                </button>
+              ))}
+            </div>
+            {/* 内容分類 サブタブ（試す系 / それ以外） */}
+            <div className="mb-3 flex flex-wrap gap-1.5">
+              {kindTabs.map((c) => (
+                <button
+                  key={c.key}
+                  type="button"
+                  onClick={() => setGoalApprovalKind(c.key)}
+                  className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-colors ${goalApprovalKind === c.key ? 'bg-emerald-600 text-white' : 'border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800'}`}
                 >
                   {c.label} {c.count}
                 </button>
