@@ -17401,7 +17401,7 @@
       "targetApp": "progress",
       "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "source": "monetization_sync",
       "trigger": "systemd",
       "summary": "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
@@ -17411,7 +17411,15 @@
       "warnings": [],
       "progressUpdated": false,
       "nextActions": [],
-      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 05:08] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T05:08:04.569Z"
+      },
+      "reviewedAt": "2026-07-01T05:08:04.569Z"
     },
     {
       "runId": "20260629-110023",
@@ -17420,7 +17428,7 @@
       "targetApp": "progress",
       "targetTodoTitle": "Factory schedule (schedule/systemd)",
       "runStatus": "partial",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "needs_followup",
       "source": "schedule",
       "trigger": "systemd",
       "factoryRun": true,
@@ -17433,7 +17441,14 @@
       "warnings": [],
       "progressUpdated": false,
       "nextActions": [],
-      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=systemd runs=0 stopped=no_candidate tagged=none\n[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none"
+      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=systemd runs=0 stopped=no_candidate tagged=none\n[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 05:08] 判定=partial 理由=runStatus=partial（未完了の検証・作業が残っている）。継続または修復候補。（rule=run_partial）",
+      "aiReview": {
+        "verdict": "partial",
+        "reason": "runStatus=partial（未完了の検証・作業が残っている）。継続または修復候補。",
+        "rule": "run_partial",
+        "reviewedAt": "2026-07-01T05:08:04.654Z"
+      }
     },
     {
       "runId": "20260629-110250",
@@ -17443,7 +17458,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "アプリ開発フロー Phase1: ゴール承認のプロジェクト別グループ化",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "summary": "アプリ開発自動実行フロー整理の前提として、/decideゴール承認タブの承認待ちゴールをprojectId別にグループ化。各プロジェクトを件数バッジ付きdetails(既定open)見出しにし、件数多い順・未分類末尾。projectSummaries→projectTitle→projectIdで名称解決。サブタブ/承認ボタン/フィルタ/他タブは不変。proposed51件はtry-research16/未分類22/company-mgmt13の3グループ。検証=tsc0/build0/decide200・error0(grouping最終確認はブラウザ)。",
       "changedFiles": [
         {
@@ -17464,7 +17479,15 @@
       "nextActions": [
         "Phase2: アプリ概要承認の専用ページ+iPhone簡易HTMLモックプレビュー"
       ],
-      "rawReport": "アプリ開発フロー7ステップ整理の段階実装Phase1。設計runId 20260629-093418。ゴール承認のプロジェクト別グループ化を実装(InboxTabs.tsxのgoalApprovalタブのみ)。実装Codex委譲・設計/検証/commit/POSTはClaude。commit a5d52d4 push済。次=Phase2(概要承認ページ+簡易HTMLモックプレビュー)。"
+      "rawReport": "アプリ開発フロー7ステップ整理の段階実装Phase1。設計runId 20260629-093418。ゴール承認のプロジェクト別グループ化を実装(InboxTabs.tsxのgoalApprovalタブのみ)。実装Codex委譲・設計/検証/commit/POSTはClaude。commit a5d52d4 push済。次=Phase2(概要承認ページ+簡易HTMLモックプレビュー)。",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 05:08] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T05:08:04.487Z"
+      },
+      "reviewedAt": "2026-07-01T05:08:04.487Z"
     },
     {
       "runId": "20260629-124303",
@@ -17474,7 +17497,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "アプリ開発フロー Phase2: アプリ概要承認ページ+iPhoneモックプレビュー",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "summary": "アプリ案の概要を承認する専用ページ/app-proposalsを新設。5件のアプリ候補の概要(目的/収益化仮説/対象/主要機能/優先度/状態)を表示し、各候補から決定的に合成した画面をiPhone枠の簡易HTMLモック(MockPhone)でプレビュー(◀画面x/n▶切替)。承認/却下/保留はPOST /api/app-proposals/[id]/decideで既存recordOperationalDecision経由でndjsonに追記。nav-menuに追加。decide API不正body→400、hold正常→ndjson記録&無破損をE2E確認。",
       "changedFiles": [
         {
@@ -17526,7 +17549,15 @@
         "Phase3: ゴール達成内容確認欄+NG→修正概要の接続",
         "Phase4: プロジェクト完了サマリー(残レビュー+現運用差分+必要候補)"
       ],
-      "rawReport": "アプリ開発フロー段階実装Phase2。設計runId 20260629-093418。モック方式=簡易HTML生成プレビュー(ユーザー選択)。/app-proposals新設、MockPhoneでiPhone枠の決定的モック、decideは既存store経由。E2E(hold)でndjson記録・無破損確認。実装Codex委譲・設計/検証/commit/POSTはClaude。commit 6f06c0c push済。次=Phase3(達成確認欄+NG接続)。"
+      "rawReport": "アプリ開発フロー段階実装Phase2。設計runId 20260629-093418。モック方式=簡易HTML生成プレビュー(ユーザー選択)。/app-proposals新設、MockPhoneでiPhone枠の決定的モック、decideは既存store経由。E2E(hold)でndjson記録・無破損確認。実装Codex委譲・設計/検証/commit/POSTはClaude。commit 6f06c0c push済。次=Phase3(達成確認欄+NG接続)。",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 05:08] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T05:08:04.393Z"
+      },
+      "reviewedAt": "2026-07-01T05:08:04.393Z"
     },
     {
       "runId": "20260629-135703",
@@ -17536,7 +17567,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "アプリ開発フロー Phase3: ゴール達成確認タブ(既存レビュー再フレーム)",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "summary": "step5『完了したら達成内容確認欄へ』を、既存レビュー機構の再フレームで実装。InboxView.achievedGoalIds(status done または current>=target)を追加し、/decideに『ゴール達成確認』タブを新設。既存レビューカードを達成ゴールに絞りゴール別グループ表示。OK=既存レビュー済み/NG=既存『修正する』(fixPrompt→次回自動実行)を流用しstep6も接続。新並行システムは作らず重複回避。検証=tsc0/build0/decide?tab=achievement 200・error0。",
       "changedFiles": [
         {
@@ -17559,7 +17590,15 @@
       "nextActions": [
         "Phase4: プロジェクト完了サマリー(全ゴール達成→残レビュー+提供差分+次の必要候補)"
       ],
-      "rawReport": "アプリ開発フロー段階実装Phase3。ユーザー選択=既存レビュー再フレーム/達成判定=完了or100%。achievedGoalIdsをInboxViewに追加、達成確認タブで完了ゴールのレビューをゴール別表示、OK/NGは既存操作流用(NG=fixPrompt→次回自動実行でstep6充足)。実装Codex委譲・設計/検証/commit/POSTはClaude。commit 910b160 push済。次=Phase4。"
+      "rawReport": "アプリ開発フロー段階実装Phase3。ユーザー選択=既存レビュー再フレーム/達成判定=完了or100%。achievedGoalIdsをInboxViewに追加、達成確認タブで完了ゴールのレビューをゴール別表示、OK/NGは既存操作流用(NG=fixPrompt→次回自動実行でstep6充足)。実装Codex委譲・設計/検証/commit/POSTはClaude。commit 910b160 push済。次=Phase4。",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 05:08] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T05:08:04.288Z"
+      },
+      "reviewedAt": "2026-07-01T05:08:04.288Z"
     },
     {
       "runId": "20260629-140023",
@@ -17568,7 +17607,7 @@
       "targetApp": "progress",
       "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "source": "monetization_sync",
       "trigger": "systemd",
       "summary": "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
@@ -17578,7 +17617,15 @@
       "warnings": [],
       "progressUpdated": false,
       "nextActions": [],
-      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 05:08] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T05:08:04.167Z"
+      },
+      "reviewedAt": "2026-07-01T05:08:04.167Z"
     },
     {
       "runId": "20260629-140028",
@@ -17587,7 +17634,7 @@
       "targetApp": "progress",
       "targetTodoTitle": "Factory schedule (schedule/systemd)",
       "runStatus": "partial",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "needs_followup",
       "source": "schedule",
       "trigger": "systemd",
       "factoryRun": true,
@@ -17600,7 +17647,14 @@
       "warnings": [],
       "progressUpdated": false,
       "nextActions": [],
-      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=systemd runs=0 stopped=no_candidate tagged=none\n[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none"
+      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=systemd runs=0 stopped=no_candidate tagged=none\n[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 05:08] 判定=partial 理由=runStatus=partial（未完了の検証・作業が残っている）。継続または修復候補。（rule=run_partial）",
+      "aiReview": {
+        "verdict": "partial",
+        "reason": "runStatus=partial（未完了の検証・作業が残っている）。継続または修復候補。",
+        "rule": "run_partial",
+        "reviewedAt": "2026-07-01T05:08:04.246Z"
+      }
     },
     {
       "runId": "20260629-141541",
@@ -17610,7 +17664,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "アプリ開発フロー Phase4: プロジェクト完了サマリー",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "summary": "step7『プロジェクトのゴール全達成→残レビュー+現運用との差分+必要候補』を読み取り専用で実装。/project-complete新設。全達成判定=非dropの紐付けゴールが1件以上かつ全done/100%。各完了プロジェクトに提供した内容(達成ゴール一覧=運用への差分)・残確認(/decide?tab=achievementリンク)・次に必要な候補(proposedゴール+recommended-epics 最大5件)を表示。現時点で全達成0件のため空状態(各プロジェクトの達成/総進捗)も実装。検証=tsc0/build0/project-complete 200・error0。これでアプリ開発フロー7ステップの段階実装(Phase1-4)が完了。",
       "changedFiles": [
         {
@@ -17640,7 +17694,15 @@
         "iPhone実機でPhase1-4(承認グループ/概要承認モック/達成確認/完了サマリー)を目視確認",
         "全達成プロジェクト発生時に完了サマリーの実カード表示を確認"
       ],
-      "rawReport": "アプリ開発フロー段階実装Phase4(最終)。設計runId 20260629-093418。全達成判定=非drop全goal done/100%。提供差分=達成ゴール一覧(解釈明示)、次候補=proposed+recommended-epics。空状態実装(現状全達成0件)。実装Codex委譲・設計/検証/commit/POSTはClaude。commit 1968f2c push済。Phase1(承認プロジェクト別 a5d52d4)/Phase2(概要承認+モック 6f06c0c)/Phase3(達成確認 910b160)/Phase4(完了サマリー 1968f2c)で7ステップ完了。"
+      "rawReport": "アプリ開発フロー段階実装Phase4(最終)。設計runId 20260629-093418。全達成判定=非drop全goal done/100%。提供差分=達成ゴール一覧(解釈明示)、次候補=proposed+recommended-epics。空状態実装(現状全達成0件)。実装Codex委譲・設計/検証/commit/POSTはClaude。commit 1968f2c push済。Phase1(承認プロジェクト別 a5d52d4)/Phase2(概要承認+モック 6f06c0c)/Phase3(達成確認 910b160)/Phase4(完了サマリー 1968f2c)で7ステップ完了。",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 05:08] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T05:08:04.031Z"
+      },
+      "reviewedAt": "2026-07-01T05:08:04.031Z"
     },
     {
       "runId": "20260629-152828",
@@ -19613,13 +19675,13 @@
     {
       "runId": "20260701-140021-017",
       "startedAt": "2026-07-01T05:00:21.017Z",
-      "finishedAt": "2026-07-01T05:00:21.017Z",
+      "finishedAt": "2026-07-01T05:08:01.428Z",
       "targetApp": "company-mgmt",
       "epicId": "epic-goalstep-goal-mqp6hasd-g5i9p",
       "targetTodoTitle": "Factory(auto): progressのホームに、近々の自動実行結果、調査結果を表示するようにする: 次の一歩",
-      "runStatus": "running",
-      "reviewStatus": "not_reviewed",
-      "source": "factory_runner",
+      "runStatus": "completed",
+      "reviewStatus": "needs_human",
+      "source": "schedule",
       "executorUsed": "codex",
       "factoryRun": true,
       "runnerMode": "auto",
@@ -19628,7 +19690,7 @@
       "dispatchPlanId": "dp-epic-goalstep-goal-mqp6hasd-g5i9p-mr1lx7qh",
       "executorCandidate": "codex",
       "promptGenerated": true,
-      "resultReturned": false,
+      "resultReturned": true,
       "runIndex": 1,
       "selection": {
         "selectedGoalKey": "goal-mqp6hasd-g5i9p",
@@ -19641,14 +19703,2106 @@
         "hasFixPrompt": false,
         "selectedAt": "2026-07-01T05:00:21.003Z"
       },
-      "summary": "AI工場が作業中です",
-      "changedFiles": [],
-      "checks": {},
-      "errors": [],
+      "summary": "## 残課題 / - モバイルレイアウトの実画面確認は未完了。 / - dev server実行環境の `NODE_ENV` 非標準値により、ローカル表示確認が壊れている可能性あり。",
+      "changedFiles": [
+        {
+          "file": "progress/components/navigation/SubTabBar.tsx",
+          "change": ""
+        },
+        {
+          "file": "progress/data/real/approvals.json",
+          "change": ""
+        },
+        {
+          "file": "progress/data/real/automation-log.ndjson",
+          "change": ""
+        },
+        {
+          "file": "progress/data/real/execution-runs.json",
+          "change": ""
+        },
+        {
+          "file": "progress/data/real/goals.json",
+          "change": ""
+        },
+        {
+          "file": "progress/data/real/knowledge-records.json",
+          "change": ""
+        },
+        {
+          "file": "progress/data/real/recommended-epics.json",
+          "change": ""
+        },
+        {
+          "file": "progress/data/real/usage-log.ndjson",
+          "change": ""
+        },
+        {
+          "file": "progress/lib/nav-menu.ts",
+          "change": ""
+        },
+        {
+          "file": "progress/components/navigation/BottomNav.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/navigation/BottomNav.tsx",
+          "change": ""
+        },
+        {
+          "file": "package.json",
+          "change": ""
+        },
+        {
+          "file": "lib/execution-run-reader.ts",
+          "change": ""
+        },
+        {
+          "file": "execution-runs.json",
+          "change": ""
+        },
+        {
+          "file": "lib/knowledge-loop.ts",
+          "change": ""
+        },
+        {
+          "file": "knowledge-records.json",
+          "change": ""
+        },
+        {
+          "file": "knowledge.researchPath",
+          "change": ""
+        },
+        {
+          "file": "knowledge.summary",
+          "change": ""
+        },
+        {
+          "file": "knowledge.learnings",
+          "change": ""
+        },
+        {
+          "file": "knowledge.nextActions",
+          "change": ""
+        },
+        {
+          "file": "knowledge.changedFiles",
+          "change": ""
+        },
+        {
+          "file": "run.runId",
+          "change": ""
+        },
+        {
+          "file": "knowledge.sourceEpicId",
+          "change": ""
+        },
+        {
+          "file": "knowledge.goalId",
+          "change": ""
+        },
+        {
+          "file": "knowledge.id",
+          "change": ""
+        },
+        {
+          "file": "r.sourceKind",
+          "change": ""
+        },
+        {
+          "file": "r.sourceRunId",
+          "change": ""
+        },
+        {
+          "file": "rec.id",
+          "change": ""
+        },
+        {
+          "file": "knowledge.updatedAt",
+          "change": ""
+        },
+        {
+          "file": "k.id",
+          "change": ""
+        },
+        {
+          "file": "k.sourceRunId",
+          "change": ""
+        },
+        {
+          "file": "r.runId",
+          "change": ""
+        },
+        {
+          "file": "knowledge.length",
+          "change": ""
+        },
+        {
+          "file": "lib/auto-resume.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/nav-menu.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/app-proposals.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/prompt-queue.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/page-data-cache.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/inbox-review-copy.ts",
+          "change": ""
+        },
+        {
+          "file": "run.startedAt",
+          "change": ""
+        },
+        {
+          "file": "run.finishedAt",
+          "change": ""
+        },
+        {
+          "file": "lib/inbox-labels.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/codex-runner.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/factory-status.ts",
+          "change": ""
+        },
+        {
+          "file": "resume.executorNote",
+          "change": ""
+        },
+        {
+          "file": "lib/usage-screens.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/auto-queue.ts",
+          "change": ""
+        },
+        {
+          "file": "core.length",
+          "change": ""
+        },
+        {
+          "file": "lib/checks-gate.test.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/execution-run-writer.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/operations-store.ts",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/vloop_queue.md",
+          "change": ""
+        },
+        {
+          "file": "lib/goal-step-epic.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/epic-contract.ts",
+          "change": ""
+        },
+        {
+          "file": "elig.cautionFlags.length",
+          "change": ""
+        },
+        {
+          "file": "lib/app-proposal-generator.ts",
+          "change": ""
+        },
+        {
+          "file": "b.updatedAt",
+          "change": ""
+        },
+        {
+          "file": "a.updatedAt",
+          "change": ""
+        },
+        {
+          "file": "lib/autonomy-anchor.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/checks-runner.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/goal-prompt.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/command-center.ts",
+          "change": ""
+        },
+        {
+          "file": "candidate.researchLogs",
+          "change": ""
+        },
+        {
+          "file": "card.actions",
+          "change": ""
+        },
+        {
+          "file": "s.isProblem",
+          "change": ""
+        },
+        {
+          "file": "r.summary",
+          "change": ""
+        },
+        {
+          "file": "lib/operating-model.ts",
+          "change": ""
+        },
+        {
+          "file": "data/real/app-factory-candidates.json",
+          "change": ""
+        },
+        {
+          "file": "data/real/prompt-queue.json",
+          "change": ""
+        },
+        {
+          "file": "lib/executor-roles.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/improvement-goals.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/queue-split.ts",
+          "change": ""
+        },
+        {
+          "file": "knowledgeWithoutNextEpic.length",
+          "change": ""
+        },
+        {
+          "file": "k.title",
+          "change": ""
+        },
+        {
+          "file": "lib/ai-review.ts",
+          "change": ""
+        },
+        {
+          "file": "data/real/work-queue.json",
+          "change": ""
+        },
+        {
+          "file": "lib/research-goals.ts",
+          "change": ""
+        },
+        {
+          "file": "raw.stars",
+          "change": ""
+        },
+        {
+          "file": "lib/types/operations.ts",
+          "change": ""
+        },
+        {
+          "file": "data/real/epics.json",
+          "change": ""
+        },
+        {
+          "file": "app/layout.tsx",
+          "change": ""
+        },
+        {
+          "file": "globals.css",
+          "change": ""
+        },
+        {
+          "file": "codemagic.yaml",
+          "change": ""
+        },
+        {
+          "file": "com.kaeru07.mahjong",
+          "change": ""
+        },
+        {
+          "file": "lib/review-fix-runner.ts",
+          "change": ""
+        },
+        {
+          "file": "executor-roles.ts",
+          "change": ""
+        },
+        {
+          "file": "data/real/project-tasks.json",
+          "change": ""
+        },
+        {
+          "file": "learningRecords.ts",
+          "change": ""
+        },
+        {
+          "file": "CLAUDE.md",
+          "change": ""
+        },
+        {
+          "file": "lib/factory-metrics.ts",
+          "change": ""
+        },
+        {
+          "file": "data/real/monetization-candidates.json",
+          "change": ""
+        },
+        {
+          "file": "06_research/local-first-app-ideas-2026-05-14.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-10_know-20260607-231654.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-10_know-20260609-230005.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-10_know-20260610-140527.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-10_know-20260611-001032.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-10_know-20260611-013300.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_ai-factory-os-v2.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260611-110003.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260608-140010.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260608-230014.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260611-140005.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-13_know-20260612-110005.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-13_know-20260612-230011.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-13_know-20260613-110006-962.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-13_auto-execution-queue-mvp-codex.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260608-093320.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260611-230004.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-140005.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-150148.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-160001.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-160139.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-160420.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-225548.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-225744.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-230015.md",
+          "change": ""
+        },
+        {
+          "file": "2026-06-13_auto-execution-queue-mvp-codex.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260611-120733.md",
+          "change": ""
+        },
+        {
+          "file": "data/real/automation-log.ndjson",
+          "change": ""
+        },
+        {
+          "file": "data/real/work-log.ndjson",
+          "change": ""
+        },
+        {
+          "file": "data/real/work-candidates.json",
+          "change": ""
+        },
+        {
+          "file": "data/real/approvals.json",
+          "change": ""
+        },
+        {
+          "file": "data/real/execution-runs.json",
+          "change": ""
+        },
+        {
+          "file": "list.cgi",
+          "change": ""
+        },
+        {
+          "file": "scc2026060712.html.gz",
+          "change": ""
+        },
+        {
+          "file": "scripts/tenhou-to-yomi.mjs",
+          "change": ""
+        },
+        {
+          "file": "news-app/scripts/auto-sync-research.sh",
+          "change": ""
+        },
+        {
+          "file": "news-app/docs/research-sync.md",
+          "change": ""
+        },
+        {
+          "file": "scripts/hermes/run-market-research.sh",
+          "change": ""
+        },
+        {
+          "file": "hermes-market-research.timer",
+          "change": ""
+        },
+        {
+          "file": "news-je90bprbv-ny1.vercel.app",
+          "change": ""
+        },
+        {
+          "file": "news-app-delta-lake.vercel.app",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-11_inbox-decision-app-v2.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-11_inbox-six-decision-types.md",
+          "change": ""
+        },
+        {
+          "file": "progress/lib/knowledge-loop.ts",
+          "change": ""
+        },
+        {
+          "file": "progress/lib/execution-run-archive.ts",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-12_ai-factory-os-review-top10.md",
+          "change": ""
+        },
+        {
+          "file": "_explore.py",
+          "change": ""
+        },
+        {
+          "file": "lib/birds.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/storage.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/location.ts",
+          "change": ""
+        },
+        {
+          "file": "app/dex/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "app/map/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/geo.ts",
+          "change": ""
+        },
+        {
+          "file": "app/stats/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/stats.ts",
+          "change": ""
+        },
+        {
+          "file": "progress/_dispatch_run_payload.json",
+          "change": ""
+        },
+        {
+          "file": "02_apps/birdlog.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-13_auto-queue-resolution-howto.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-14_prompt-queue.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-14_prompt-queue-factory-connect.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-14_review-fix-auto-priority.md",
+          "change": ""
+        },
+        {
+          "file": "buildAutoQueue.goalProgress",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-15_goalplanner-queue-integration.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-15_queue-review-pending-nonblocking.md",
+          "change": ""
+        },
+        {
+          "file": ".next/server/pages/_error.js",
+          "change": ""
+        },
+        {
+          "file": "app/prompt-queue/page.js",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-19_autoexec-report-filter-format.md",
+          "change": ""
+        },
+        {
+          "file": "app/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "app/integration-map/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "progress/types/knowledge.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/executors/shell.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/executors/claude.ts",
+          "change": ""
+        },
+        {
+          "file": "codex.ts",
+          "change": ""
+        },
+        {
+          "file": "claude.ts/codex.ts",
+          "change": ""
+        },
+        {
+          "file": "r.stdout",
+          "change": ""
+        },
+        {
+          "file": "app/goal-dashboard/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "work-queue.json",
+          "change": ""
+        },
+        {
+          "file": "app/tasks/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "app/morning/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "package.json/ios/codemagic.yaml",
+          "change": ""
+        },
+        {
+          "file": "ios/App/App.xcodeproj/xcshareddata/xcschemes/App.xcscheme",
+          "change": ""
+        },
+        {
+          "file": "ios/App/App.xcodeproj",
+          "change": ""
+        },
+        {
+          "file": "lib/goal-writer.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/goals/link-project",
+          "change": ""
+        },
+        {
+          "file": "app/project-goals/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "apps/ny01/progress/lib/research-goals.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/projects/with-goals/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/projects/import/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "app/api/auto-queue/reorder/route.ts",
+          "change": ""
+        },
+        {
+          "file": "epics.json",
+          "change": ""
+        },
+        {
+          "file": "app/queue/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "apps/ny01/progress/app/research-flow/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "app/guide/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/factory-runner.ts",
+          "change": ""
+        },
+        {
+          "file": "components/operations/AutoExecReport.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/factory-dispatch.ts",
+          "change": ""
+        },
+        {
+          "file": "auto-queue.ts",
+          "change": ""
+        },
+        {
+          "file": "factory-dispatch.ts",
+          "change": ""
+        },
+        {
+          "file": "buildAutoQueue.executable",
+          "change": ""
+        },
+        {
+          "file": "components/queue/QueueReorderList.tsx",
+          "change": ""
+        },
+        {
+          "file": "auto-queue-score.ts",
+          "change": ""
+        },
+        {
+          "file": "web/lib/guam-trip-data.ts",
+          "change": ""
+        },
+        {
+          "file": "web/components/GuamMap.tsx",
+          "change": ""
+        },
+        {
+          "file": "web/components/GuamTripApp.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/GuamMap.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/GuamTripApp.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/guam-trip-data.ts",
+          "change": ""
+        },
+        {
+          "file": "components/VpnStatusCard.tsx",
+          "change": ""
+        },
+        {
+          "file": "news-app/components/research/StructuredResearchView.tsx",
+          "change": ""
+        },
+        {
+          "file": "news-app/lib/research/parser.ts",
+          "change": ""
+        },
+        {
+          "file": "news-app/lib/research/types.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/research/types.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/research/parser.ts",
+          "change": ""
+        },
+        {
+          "file": "components/research/StructuredResearchView.tsx",
+          "change": ""
+        },
+        {
+          "file": "news-app/content/research/_template.md",
+          "change": ""
+        },
+        {
+          "file": "news-app/content/research/market-research-method.md",
+          "change": ""
+        },
+        {
+          "file": "news-app/docs/research-format.md",
+          "change": ""
+        },
+        {
+          "file": "news-app/tests/research-parser.test.ts",
+          "change": ""
+        },
+        {
+          "file": "a/news-app/content/research/_template.md",
+          "change": ""
+        },
+        {
+          "file": "content/research/_template.md",
+          "change": ""
+        },
+        {
+          "file": "content/research/market-research-method.md",
+          "change": ""
+        },
+        {
+          "file": "docs/research-format.md",
+          "change": ""
+        },
+        {
+          "file": "tests/research-parser.test.ts",
+          "change": ""
+        },
+        {
+          "file": ".eslintrc.json",
+          "change": ""
+        },
+        {
+          "file": "package-lock.json",
+          "change": ""
+        },
+        {
+          "file": "structured.articleBody",
+          "change": ""
+        },
+        {
+          "file": "14.2.3",
+          "change": ""
+        },
+        {
+          "file": "eslint@8.57.0",
+          "change": ""
+        },
+        {
+          "file": "eslint-config-next@14.2.3",
+          "change": ""
+        },
+        {
+          "file": "news-app/scripts/sync-research-content.mjs",
+          "change": ""
+        },
+        {
+          "file": "nt/research/_template.md",
+          "change": ""
+        },
+        {
+          "file": "scripts/sync-research-content.mjs",
+          "change": ""
+        },
+        {
+          "file": "market-research-method.md",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/factory-run/route.ts",
+          "change": ""
+        },
+        {
+          "file": "components/automation/FactoryRunnerPanel.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/factory-schedule.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/factory-schedule/route.ts",
+          "change": ""
+        },
+        {
+          "file": "docs/operations/current-operating-model.md",
+          "change": ""
+        },
+        {
+          "file": "current-operating-model.md",
+          "change": ""
+        },
+        {
+          "file": "progress/app/api/execution-runs/route.ts",
+          "change": ""
+        },
+        {
+          "file": "progress/lib/execution-run-next-actions.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/executors/codex.ts",
+          "change": ""
+        },
+        {
+          "file": "ExecutorResult.changedFiles",
+          "change": ""
+        },
+        {
+          "file": "data/real/_backups/execution-runs-20260623-110009.json",
+          "change": ""
+        },
+        {
+          "file": "data/real/archive/execution-runs-202606.json",
+          "change": ""
+        },
+        {
+          "file": "data/real/knowledge-records.json",
+          "change": ""
+        },
+        {
+          "file": "data/sample/execution-runs.json",
+          "change": ""
+        },
+        {
+          "file": "a/data/real/goals.json",
+          "change": ""
+        },
+        {
+          "file": "lib/monetization-store.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/goal-metric-sync.ts",
+          "change": ""
+        },
+        {
+          "file": "data/real/goals.json",
+          "change": ""
+        },
+        {
+          "file": "lib/research/vault.ts",
+          "change": ""
+        },
+        {
+          "file": "types/knowledge.ts",
+          "change": ""
+        },
+        {
+          "file": "docs/auto-execution-queue-design.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-13_auto-execution-queue-design.md",
+          "change": ""
+        },
+        {
+          "file": "types/auto-queue.ts / types/execution-run.ts / types/goal.ts / lib/types/operations.ts / lib/goal-reader.ts",
+          "change": ""
+        },
+        {
+          "file": "types/auto-queue.ts",
+          "change": ""
+        },
+        {
+          "file": "types/execution-run.ts",
+          "change": ""
+        },
+        {
+          "file": "types/goal.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/goal-reader.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/{tasks,tasks/[taskId],goals,auto-queue/control,execution-runs}/route.ts",
+          "change": ""
+        },
+        {
+          "file": "progress/lib/research-goals.ts",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-18_research-goal-proposal.md",
+          "change": ""
+        },
+        {
+          "file": "apps/ny01/progress/app/api/goals/propose-research/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/goals/propose-research/route.ts",
+          "change": ""
+        },
+        {
+          "file": "apps/ny01/progress/app/api/goals/triage-research/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/goals/triage-research/route.ts",
+          "change": ""
+        },
+        {
+          "file": "obsidian-sync-vault/06_research/2026-06-20_旧Vault運用と現ゴール運用の統合点検.md",
+          "change": ""
+        },
+        {
+          "file": "Goal.status",
+          "change": ""
+        },
+        {
+          "file": ".env.local",
+          "change": ""
+        },
+        {
+          "file": "news-app research-format一式",
+          "change": ""
+        },
+        {
+          "file": "view.goalProgress",
+          "change": ""
+        },
+        {
+          "file": "app/api/execution-runs/route.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/execution-run-next-actions.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/execution-run-archive.ts",
+          "change": ""
+        },
+        {
+          "file": "app/research-flow/page.tsx",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/execution-runs/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/goals/propose-research/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/goals/triage-research/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/research-flow/page.ts",
+          "change": ""
+        },
+        {
+          "file": "experiments/codex-sdk/review_execution_runs.py",
+          "change": ""
+        },
+        {
+          "file": "docs/execution-run-template.md",
+          "change": ""
+        },
+        {
+          "file": "news-app/content/research/daily-ai-tools/YYYY-MM-DD.md",
+          "change": ""
+        },
+        {
+          "file": "integration-map/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "app/integration-map",
+          "change": ""
+        },
+        {
+          "file": "review-fix-runner.ts",
+          "change": ""
+        },
+        {
+          "file": "operations-store.ts",
+          "change": ""
+        },
+        {
+          "file": "command-center.ts",
+          "change": ""
+        },
+        {
+          "file": "ai-review.ts",
+          "change": ""
+        },
+        {
+          "file": "04_reviews/2026-06-26-lint-gate.md",
+          "change": ""
+        },
+        {
+          "file": "opts.maxPerEpic",
+          "change": ""
+        },
+        {
+          "file": ".tmp-run.json",
+          "change": ""
+        },
+        {
+          "file": "checks-runner.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/checks-gate.ts",
+          "change": ""
+        },
+        {
+          "file": "factory-runner.ts",
+          "change": ""
+        },
+        {
+          "file": "tsconfig.json",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/automation-config/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/automation/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "transporter.verify",
+          "change": ""
+        },
+        {
+          "file": "toku106ma@yahoo.co.jp",
+          "change": ""
+        },
+        {
+          "file": "email-sender.ts",
+          "change": ""
+        },
+        {
+          "file": "3.16MB",
+          "change": ""
+        },
+        {
+          "file": "export-all-pages-email.mjs",
+          "change": ""
+        },
+        {
+          "file": "lib/progress-filters",
+          "change": ""
+        },
+        {
+          "file": "goal-step-epic.ts",
+          "change": ""
+        },
+        {
+          "file": "Goal.current",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/ai-review",
+          "change": ""
+        },
+        {
+          "file": "04_reviews/2026-06-30-auto-queue-review-waiting-deadlock.md",
+          "change": ""
+        },
+        {
+          "file": "04_reviews/2026-07-01-auto-queue-deadlock-fix.md",
+          "change": ""
+        },
+        {
+          "file": "cls.verdict",
+          "change": ""
+        },
+        {
+          "file": "data/real/recommended-epics.json",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-10_know-20260610-230007.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-10_know-20260610-230525.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-10_know-20260610-220105.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-10_know-20260610-212135.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-10_know-20260610-140007.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-10_know-20260610-123141.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-10_know-20260610-110004.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-10_know-20260610-110524.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-10_know-20260609-230524.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-10_know-20260609-212603.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260611-124611.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260611-022341.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260609-204723.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260609-140007.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260609-140524.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260611-204511.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260611-204454.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260611-194652.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260609-110008.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260609-110523.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260609-013044.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260608-235115.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260611-205105.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260611-204535.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260611-204533.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260608-230535.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260611-205155.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260611-205139.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260611-205137.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-13_know-20260613-125025.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-13_know-20260613-110004.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-13_know-20260613-110423.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-13_know-20260613-024442.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-13_know-20260613-001054.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-13_know-20260612-230527.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-13_know-20260612-140007.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-13_know-20260612-140526.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-13_know-20260612-120733.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-13_know-20260612-121255.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-13_know-20260612-110526.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-13_know-20260613-134639.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-13_know-20260613-230411.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260614-021255.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260620-160010.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260620-144248.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260620-141529.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260620-140012.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260620-140603.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260620-140003.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260620-135942.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260620-125523.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260620-125504.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260620-120636.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260620-110011.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260620-110529.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260620-092650.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260620-073504.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260619-230012.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260619-230013.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260619-225715.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260619-221926.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260619-220804.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260619-213955.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260619-160012.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260619-160015.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260619-140011.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260619-140012.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260619-125513.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260619-110012.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260619-110013.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260619-085000.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260619-084033.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260619-071433.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260619-003157.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260619-000632.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260618-230012.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260618-230013.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260618-220636.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260618-160011.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260618-160014.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260618-140004.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260618-140006.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260618-125718.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260618-110004.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260618-110006.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260618-085742.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260618-012023.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260618-005653.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260617-230001.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260617-230002.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260617-220624.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260617-160011.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260617-160012.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260617-140007.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260617-140009.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260617-134311.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260617-110008.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260617-110010.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260617-010618.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260616-230001.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260616-230522.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260616-225004.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260616-184355.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260616-160008.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260616-160532.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260616-140007.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260616-140546.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260616-110005.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260616-111039.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260616-090603.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260616-002003.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260615-230012.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260615-230014.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260615-212004.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260615-160012.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260615-160013.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260615-140005.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260615-140007.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260615-110008.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260615-110010.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260615-010322.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260614-230011.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260614-230013.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260614-160010.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260614-160013.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260614-140012.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260614-140014.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260614-132906.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260614-110322.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260614-110018.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260614-110538.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260614-105125.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260614-101321.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260614-085241.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-234811.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-230531.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-225549.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-160517.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-153617.md",
+          "change": ""
+        },
+        {
+          "file": "factory-schedule.service",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-140523.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260612-092720.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260612-085648.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260612-013213.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260612-005632.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260608-140534.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260608-110007.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260608-110521.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260608-105312.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260608-092804.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260608-004420.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260607-230016.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260607-230017.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260607-224848.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260607-190005.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260607-141704.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260607-140017.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260607-111753.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260607-110004.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260607-110005.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260606-230014.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260606-220319.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260606-211930.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-22_know-20260622-232940-022.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260701-110018.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260630-230015.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260630-201606.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260630-195346.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260630-160010.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260630-152828.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260630-144935.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260630-140012.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260630-120219.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260630-110012.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260630-034035.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260629-232302.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260629-230019.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260701-140015.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260701-125820.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260701-121749.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260701-110450.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260629-191327.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260629-160021.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260629-152828.md",
+          "change": ""
+        },
+        {
+          "file": "data/real/operational-decisions.ndjson",
+          "change": ""
+        },
+        {
+          "file": "data/real/app-progress.json",
+          "change": ""
+        },
+        {
+          "file": "data/real/app-urls.json",
+          "change": ""
+        },
+        {
+          "file": "operational-decisions.ndjson",
+          "change": ""
+        },
+        {
+          "file": "goals.json",
+          "change": ""
+        },
+        {
+          "file": "progress/components/dashboard/AiReviewPanel.tsx",
+          "change": ""
+        },
+        {
+          "file": "progress/types/execution-run.ts",
+          "change": ""
+        },
+        {
+          "file": "news-app/package.json",
+          "change": ""
+        },
+        {
+          "file": "apps/ny01/progress/docs/auto-execution-queue-design.md",
+          "change": ""
+        },
+        {
+          "file": "_error.js",
+          "change": ""
+        },
+        {
+          "file": "components/operations/SystemSpecification.tsx",
+          "change": ""
+        },
+        {
+          "file": "apps/ny01/progress/components/operations/SystemSpecification.tsx",
+          "change": ""
+        },
+        {
+          "file": "apps/ny01/progress/lib/command-center.ts",
+          "change": ""
+        },
+        {
+          "file": "apps/ny01/progress/docs/operations/current-operating-model.md",
+          "change": ""
+        },
+        {
+          "file": "progress/components/operations/AutoExecReport.tsx",
+          "change": ""
+        },
+        {
+          "file": "progress/docs/operations/current-operating-model.md",
+          "change": ""
+        },
+        {
+          "file": "nav-menu.ts",
+          "change": ""
+        },
+        {
+          "file": "data/real",
+          "change": ""
+        },
+        {
+          "file": "progress/lib/factory-runner.ts",
+          "change": ""
+        },
+        {
+          "file": "progress/app/guide/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "progress/components/newux/InboxTabs.tsx",
+          "change": ""
+        },
+        {
+          "file": "types/monetization.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/monetization-vault-sync.ts",
+          "change": ""
+        },
+        {
+          "file": "docs/factory-schedule/factory-schedule.timer",
+          "change": ""
+        },
+        {
+          "file": "gpt-5.2",
+          "change": ""
+        },
+        {
+          "file": "app/api/auto-queue/route.ts",
+          "change": ""
+        },
+        {
+          "file": "QueueActionButton.tsx",
+          "change": ""
+        },
+        {
+          "file": "progress/lib/factory-metrics.ts",
+          "change": ""
+        },
+        {
+          "file": "data/real/usage-log.ndjson",
+          "change": ""
+        },
+        {
+          "file": "vault.git",
+          "change": ""
+        },
+        {
+          "file": "data/real/codex-runs.json",
+          "change": ""
+        },
+        {
+          "file": "v0.128.0",
+          "change": ""
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "lint": "OK"
+      },
+      "errors": [
+        "n /root/company/apps/ny01/progress\n succeeded in 0ms:\nState  Recv-Q Send-Q Local Address:Port  Peer Address:PortProcess                                               \nLISTEN 0      4096      127.0.0.54:53         0.0.0.0:*    users:((\"systemd-resolve\",pid=687,fd=17))            \nLISTEN 0      4096   127.0.0.53%lo:53         0.0.0.0:*    users:((\"systemd-resolve\",pid=687,fd=15))            \nLISTEN 0      511          0.0.0.0:3010       0.0.0.0:*    users:((\"next-server (v1\",pid=984048,fd=18))    "
+      ],
       "warnings": [],
       "progressUpdated": false,
-      "nextActions": [],
-      "rawReport": "[factory-runner auto] started executor=codex"
+      "nextActions": [
+        "ブラウザ/Playwrightが使える環境で `/` をモバイル幅で目視確認する。",
+        "特に「最近の成果」「最近の調査結果」が2カラムで窮屈なら、モバイルだけ1カラム化を検討。"
+      ],
+      "rawReport": "[factory-runner auto] executor=codex\n安全判定: OK  \n実施範囲は lint/typecheck/build とホーム表示内容の確認に限定。禁止項目には触れていません。\n\n## 変更ファイル\nなし。Codexではファイル編集していません。\n\n既存の未コミット差分として `components/navigation/BottomNav.tsx` にナビ追加差分がありましたが、今回の対象外として触っていません。\n\n## 実行コマンド\n- `npm run lint`\n- `npx tsc --noEmit`\n- `npm run build`\n- `ss -ltnp`\n- `curl -s -I http://127.0.0.1:3010/`\n- `npm run dev -- -p 3011`（確認用、後で停止）\n\n## 検証結果\n- lint: 成功\n- typecheck: 成功\n- build: 成功\n- ホーム実装確認: `app/page.tsx` に以下の表示あり\n  - `次回自動実行予定`\n  - `AI工場計器盤`\n  - `最近の成果`\n  - `最近の調査結果`\n- 目視確認: 未完了\n  - `agent-browser` / Playwright / Puppeteer / Chromium が環境に無く、スクリーンショット確認不可。\n  - 既存3010サーバーはHEAD 200だがGET本文が0バイト。\n  - 確認用dev serverは `NODE_ENV` 非標準値の影響で `globals.css` parse errorになり500。\n  - `NODE_ENV`を外した再起動は `.env/.env.local` 読み込みと外部バインドのリスクで権限昇格が拒否されたため、迂回せず停止。\n\n## 次アクション\n- ブラウザ/Playwrightが使える環境で `/` をモバイル幅で目視確認する。\n- 特に「最近の成果」「最近の調査結果」が2カラムで窮屈なら、モバイルだけ1カラム化を検討。\n\n## 残課題\n- モバイルレイアウトの実画面確認は未完了。\n- dev server実行環境の `NODE_ENV` 非標準値により、ローカル表示確認が壊れている可能性あり。\n",
+      "nextActionCount": 2,
+      "doneCriteriaStatus": "continue",
+      "stopReason": "max_runs_reached",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 05:08] 判定=needs_human 理由=completed だが errors が 1 件記録されている（先頭: n /root/company/apps/ny01/progress\n succeeded in 0ms:\nState  Recv-Q Send-Q Local）。（rule=errors_recorded）",
+      "aiReview": {
+        "verdict": "needs_human",
+        "reason": "completed だが errors が 1 件記録されている（先頭: n /root/company/apps/ny01/progress\n succeeded in 0ms:\nState  Recv-Q Send-Q Local）。",
+        "rule": "errors_recorded",
+        "reviewedAt": "2026-07-01T05:08:03.999Z"
+      },
+      "trigger": "systemd"
     },
     {
       "runId": "20260701-140036",
@@ -19658,7 +21812,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "サブタブを下線タブUIへ変更 + 孤立画面(project-goals/research-flow)をナビ復活",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "summary": "サブタブが丸ボタンで他ボタンと区別しづらい問題を、下端境界線+アクティブ下線の下線タブUIに変更。統合前後の全ルート監査で孤立していた/project-goals・/research-flow(共に統合前から孤立)をnav-menuに追加。運用/todo消化/レポートはハンバーガーに存在=消失なしを確認。",
       "changedFiles": [
         {
@@ -19681,7 +21835,66 @@
       "nextActions": [
         "サブタブを下線タブUIへ変更 + 孤立画面(project-goals/research-flow)をナビ復活 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
-      "rawReport": "## サブタブUI改善 + 画面消失チェック\n\n### 変更1: サブタブを下線タブUIへ\n丸ピル(rounded-full)は他の操作ボタンと同じ見た目で分かりづらかった。下端に境界線を引き、アクティブタブのみ色付き下線(border-b-2)+濃い文字にする一般的なタブUIへ。\n\n### 変更2: 画面消失チェック(全ルート監査)\napp配下の全page.tsxを列挙し nav-menu(ハンバーガー)+下タブ5+サブタブ の到達集合と突合。\n- 統合で失われた画面: なし。運用(/guide)/todo消化(/goal-dashboard)/レポート(/report)は下タブから外れたがハンバーガーに存在。\n- 統合前から孤立していた画面: /project-goals, /research-flow(882ddb2~1時点のnav-menuにも無し)。念のためnav-menuに追加し到達可能化。\n- /operations,/pendingはリダイレクト別名(対象外)。\n\n### 検証\ntsc OK/build OK。live: /activity に border-b-2 下線タブ描画、/project-goals・/research-flow 200描画・ナビ追加、/guide ハンバーガー在。\n\nmonetizationImpact: none\ntheme: [workflow]"
+      "rawReport": "## サブタブUI改善 + 画面消失チェック\n\n### 変更1: サブタブを下線タブUIへ\n丸ピル(rounded-full)は他の操作ボタンと同じ見た目で分かりづらかった。下端に境界線を引き、アクティブタブのみ色付き下線(border-b-2)+濃い文字にする一般的なタブUIへ。\n\n### 変更2: 画面消失チェック(全ルート監査)\napp配下の全page.tsxを列挙し nav-menu(ハンバーガー)+下タブ5+サブタブ の到達集合と突合。\n- 統合で失われた画面: なし。運用(/guide)/todo消化(/goal-dashboard)/レポート(/report)は下タブから外れたがハンバーガーに存在。\n- 統合前から孤立していた画面: /project-goals, /research-flow(882ddb2~1時点のnav-menuにも無し)。念のためnav-menuに追加し到達可能化。\n- /operations,/pendingはリダイレクト別名(対象外)。\n\n### 検証\ntsc OK/build OK。live: /activity に border-b-2 下線タブ描画、/project-goals・/research-flow 200描画・ナビ追加、/guide ハンバーガー在。\n\nmonetizationImpact: none\ntheme: [workflow]",
+      "reviewMemo": "[AI一次レビュー 2026-07-01 05:08] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-01T05:08:03.590Z"
+      },
+      "reviewedAt": "2026-07-01T05:08:03.590Z"
+    },
+    {
+      "runId": "20260701-140804",
+      "startedAt": "2026-07-01T05:00:15.655Z",
+      "finishedAt": "2026-07-01T05:08:04.879Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "Factory schedule (schedule/systemd)",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "schedule",
+      "trigger": "systemd",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "stopReason": "max_runs_reached",
+      "summary": "Factory 起動: Review Fix 実行0・予約0・skip0・block1 / Epic 1 Run / Prompt Queue 実行0・予約0・skip0・block0 / 停止理由=max_runs_reached（schedule/systemd）",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260701-140021-017\n[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none"
+    },
+    {
+      "runId": "20260701-141122",
+      "startedAt": "2026-07-01T05:11:22.866Z",
+      "finishedAt": "2026-07-01T05:11:22.866Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "下タブからハンバーガーに移動した3画面(todo消化/レポート/運用)を下タブに戻す",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "統合で下タブ→ハンバーガーに移った todo消化(/goal-dashboard)・レポート(/report)・運用(/guide) を下タブに復活。元からハンバーガーにあった画面はそのまま。下タブ5→8。",
+      "changedFiles": [
+        {
+          "file": "components/navigation/BottomNav.tsx",
+          "change": "todo消化/レポート/運用の3タブをアイコン付きで下タブに追加(5→8タブ)"
+        }
+      ],
+      "checks": {
+        "typescript": "OK(build型チェック通過。tscのTS6053は.next/types古い生成物参照の誤検知)",
+        "build": "OK",
+        "manual": "OK live: 下タブ8ラベル確認/goal-dashboard・report・guide 200"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "下タブからハンバーガーに移動した3画面(todo消化/レポート/運用)を下タブに戻す の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## 下タブに3画面を復活\n\n統合時に下タブから外れハンバーガーのみになっていた todo消化(/goal-dashboard)/レポート(/report)/運用(/guide) を下タブに戻した。元からハンバーガーにあった画面はそのまま。BottomNav 5→8タブ。\n\n検証: build OK。live: 下タブラベル8(ホーム/今日の判断/状況/アプリ開発/自動実行/todo消化/レポート/運用)、復活3画面200。\n\nmonetizationImpact: none\ntheme: [workflow]"
     }
   ]
 }

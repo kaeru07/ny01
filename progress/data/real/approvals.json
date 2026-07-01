@@ -869,5 +869,30 @@
     "status": "pending",
     "createdRunId": "20260701-132951",
     "createdAt": "2026-07-01T05:00:19.095Z"
+  },
+  {
+    "approvalId": "appr-1782882484030-3",
+    "title": "Run一次レビュー: Factory(auto): progressのホームに、近々の自動実行結果、調査結果を表示するようにする: 次の一歩",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（reviewed にする）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "要フォローアップ（修復・再試行候補へ）"
+      },
+      {
+        "key": "keep",
+        "label": "保留（現状維持）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AI一次レビュー判定: completed だが errors が 1 件記録されている（先頭: n /root/company/apps/ny01/progress\n succeeded in 0ms:\nState  Recv-Q Send-Q Local）。",
+    "status": "pending",
+    "createdRunId": "20260701-140021-017",
+    "createdAt": "2026-07-01T05:08:04.030Z"
   }
 ]

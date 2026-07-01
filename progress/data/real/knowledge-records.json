@@ -5528,5 +5528,191 @@
     "createdAt": "2026-07-01T05:00:19.588Z",
     "updatedAt": "2026-07-01T05:00:19.606Z",
     "nextEpicCandidateId": "rec-knowledge-20260629-152828"
+  },
+  {
+    "id": "know-20260701-140036",
+    "sourceRunId": "20260701-140036",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: サブタブを下線タブUIへ変更 + 孤立画面(project-goals/research-flow)をナビ復活",
+    "summary": "[AI一次レビュー 2026-07-01 05:08] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "サブタブが丸ボタンで他ボタンと区別しづらい問題を、下端境界線+アクティブ下線の下線タブUIに変更。統合前後の全ルート監査で孤立していた/project-goals・/research-flow(共に統合前から孤立)をnav-menuに追加。運用/todo消化/レポートはハンバーガーに存在=消失なしを確認。",
+      "## サブタブUI改善 + 画面消失チェック",
+      "### 変更1: サブタブを下線タブUIへ",
+      "丸ピル(rounded-full)は他の操作ボタンと同じ見た目で分かりづらかった。下端に境界線を引き、アクティブタブのみ色付き下線(border-b-2)+濃い文字にする一般的なタブUIへ。",
+      "### 変更2: 画面消失チェック(全ルート監査)"
+    ],
+    "nextActions": [
+      "サブタブを下線タブUIへ変更 + 孤立画面(project-goals/research-flow)をナビ復活 の結果を確認し、未達のDoneCriteriaを1つ進める"
+    ],
+    "changedFiles": [
+      "components/navigation/SubTabBar.tsx: 丸ピル→下線タブUI(border-b-2/アクティブ色下線)に変更",
+      "lib/nav-menu.ts: 孤立していた/project-goals・/research-flowを計画・候補グループに追加"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260701-140036.md",
+    "researchPath": "06_research/2026-07-01_know-20260701-140036.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T05:08:03.812Z",
+    "updatedAt": "2026-07-01T05:08:03.988Z",
+    "nextEpicCandidateId": "rec-knowledge-20260701-140036"
+  },
+  {
+    "id": "know-20260629-141541",
+    "sourceRunId": "20260629-141541",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: アプリ開発フロー Phase4: プロジェクト完了サマリー",
+    "summary": "[AI一次レビュー 2026-07-01 05:08] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "step7『プロジェクトのゴール全達成→残レビュー+現運用との差分+必要候補』を読み取り専用で実装。/project-complete新設。全達成判定=非dropの紐付けゴールが1件以上かつ全done/100%。各完了プロジェクトに提供した内容(達成ゴール一覧=運用への差分)・残確認(/decide?tab=achievementリンク)・次に必要な候補(proposedゴール+recommended-epics 最大5件)を表示。現時点で全達成0件のため空状態(各プロジェクトの達成/総進捗)も実装。検証=tsc0/build0/project-complete 200・error0。これでアプリ開発フロー7ステップの段階実装(Phase1-4)が完了。",
+      "注意: 「現運用との差分」は『提供した達成ゴール一覧』として実装(解釈を明示)。より深い運用差分が要れば後続で精緻化",
+      "アプリ開発フロー段階実装Phase4(最終)。設計runId 20260629-093418。全達成判定=非drop全goal done/100%。提供差分=達成ゴール一覧(解釈明示)、次候補=proposed+recommended-epics。空状態実装(現状全達成0件)。実装Codex委譲・設計/検証/commit/POSTはClaude。commit 1968f2c push済。Phase1(承認プロジェクト別 a5d52d4)/Phase2(概要承認+モック 6f06c0c)/Phase3(達成確認 910b160)/Phase4(完了サマリー 1968f2c)で7ステップ完了。"
+    ],
+    "nextActions": [
+      "iPhone実機でPhase1-4(承認グループ/概要承認モック/達成確認/完了サマリー)を目視確認",
+      "全達成プロジェクト発生時に完了サマリーの実カード表示を確認"
+    ],
+    "changedFiles": [
+      "progress/lib/project-completion.ts: 新設: プロジェクト完了集計(全達成判定+次候補・読取専用)",
+      "progress/app/project-complete/page.tsx: 新設: プロジェクト完了サマリーページ+空状態",
+      "progress/lib/nav-menu.ts: 「プロジェクト完了」を判断・記録グループに追加"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260629-141541.md",
+    "researchPath": "06_research/2026-07-01_know-20260629-141541.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T05:08:04.131Z",
+    "updatedAt": "2026-07-01T05:08:04.162Z",
+    "nextEpicCandidateId": "rec-knowledge-20260629-141541"
+  },
+  {
+    "id": "know-20260629-140023",
+    "sourceRunId": "20260629-140023",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-01 05:08] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260629-140023.md",
+    "researchPath": "06_research/2026-07-01_know-20260629-140023.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T05:08:04.212Z",
+    "updatedAt": "2026-07-01T05:08:04.236Z",
+    "nextEpicCandidateId": "rec-knowledge-20260629-140023"
+  },
+  {
+    "id": "know-20260629-135703",
+    "sourceRunId": "20260629-135703",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: アプリ開発フロー Phase3: ゴール達成確認タブ(既存レビュー再フレーム)",
+    "summary": "[AI一次レビュー 2026-07-01 05:08] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "step5『完了したら達成内容確認欄へ』を、既存レビュー機構の再フレームで実装。InboxView.achievedGoalIds(status done または current>=target)を追加し、/decideに『ゴール達成確認』タブを新設。既存レビューカードを達成ゴールに絞りゴール別グループ表示。OK=既存レビュー済み/NG=既存『修正する』(fixPrompt→次回自動実行)を流用しstep6も接続。新並行システムは作らず重複回避。検証=tsc0/build0/decide?tab=achievement 200・error0。",
+      "アプリ開発フロー段階実装Phase3。ユーザー選択=既存レビュー再フレーム/達成判定=完了or100%。achievedGoalIdsをInboxViewに追加、達成確認タブで完了ゴールのレビューをゴール別表示、OK/NGは既存操作流用(NG=fixPrompt→次回自動実行でstep6充足)。実装Codex委譲・設計/検証/commit/POSTはClaude。commit 910b160 push済。次=Phase4。"
+    ],
+    "nextActions": [
+      "Phase4: プロジェクト完了サマリー(全ゴール達成→残レビュー+提供差分+次の必要候補)"
+    ],
+    "changedFiles": [
+      "progress/lib/command-center.ts: InboxViewにachievedGoalIds追加(done/100%判定)",
+      "progress/components/newux/InboxTabs.tsx: ゴール達成確認タブ追加(達成ゴールのレビューをゴール別グループ表示・既存操作流用)"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260629-135703.md",
+    "researchPath": "06_research/2026-07-01_know-20260629-135703.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T05:08:04.363Z",
+    "updatedAt": "2026-07-01T05:08:04.386Z",
+    "nextEpicCandidateId": "rec-knowledge-20260629-135703"
+  },
+  {
+    "id": "know-20260629-124303",
+    "sourceRunId": "20260629-124303",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: アプリ開発フロー Phase2: アプリ概要承認ページ+iPhoneモックプレビュー",
+    "summary": "[AI一次レビュー 2026-07-01 05:08] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "アプリ案の概要を承認する専用ページ/app-proposalsを新設。5件のアプリ候補の概要(目的/収益化仮説/対象/主要機能/優先度/状態)を表示し、各候補から決定的に合成した画面をiPhone枠の簡易HTMLモック(MockPhone)でプレビュー(◀画面x/n▶切替)。承認/却下/保留はPOST /api/app-proposals/[id]/decideで既存recordOperationalDecision経由でndjsonに追記。nav-menuに追加。decide API不正body→400、hold正常→ndjson記録&無破損をE2E確認。",
+      "注意: types/operations.ts・operations-store.tsに既存未コミットのfactoryMaxPerEpicバックエンドを同梱(追加のみ安全)",
+      "注意: automation-config routeは前回からの既存未コミットのまま(本作業対象外)",
+      "アプリ開発フロー段階実装Phase2。設計runId 20260629-093418。モック方式=簡易HTML生成プレビュー(ユーザー選択)。/app-proposals新設、MockPhoneでiPhone枠の決定的モック、decideは既存store経由。E2E(hold)でndjson記録・無破損確認。実装Codex委譲・設計/検証/commit/POSTはClaude。commit 6f06c0c push済。次=Phase3(達成確認欄+NG接続)。"
+    ],
+    "nextActions": [
+      "Phase3: ゴール達成内容確認欄+NG→修正概要の接続",
+      "Phase4: プロジェクト完了サマリー(残レビュー+現運用差分+必要候補)"
+    ],
+    "changedFiles": [
+      "progress/app/app-proposals/page.tsx: 新設: アプリ概要承認ページ",
+      "progress/components/app-proposals/MockPhone.tsx: 新設: iPhone枠簡易HTMLモック描画",
+      "progress/components/app-proposals/AppProposalCard.tsx: 新設: 概要+画面切替+承認/却下/保留UI",
+      "progress/lib/app-proposals.ts: 新設: candidates→AppProposal変換(features/screens合成+decision反映・読取専用)",
+      "progress/app/api/app-proposals/[id]/decide/route.ts: 新設: decision記録API(recordOperationalDecision経由)",
+      "progress/lib/nav-menu.ts: 「アプリ概要承認」をAI工場グループに追加",
+      "progress/lib/types/operations.ts: OperationalDecisionにtype/targetId/time/note/source追加(+既存maxPerEpic同梱)",
+      "progress/lib/operations-store.ts: recordOperationalDecisionにapp_proposalフィールド対応(+既存maxPerEpic同梱)"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260629-124303.md",
+    "researchPath": "06_research/2026-07-01_know-20260629-124303.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T05:08:04.452Z",
+    "updatedAt": "2026-07-01T05:08:04.476Z",
+    "nextEpicCandidateId": "rec-knowledge-20260629-124303"
+  },
+  {
+    "id": "know-20260629-110250",
+    "sourceRunId": "20260629-110250",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: アプリ開発フロー Phase1: ゴール承認のプロジェクト別グループ化",
+    "summary": "[AI一次レビュー 2026-07-01 05:08] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "アプリ開発自動実行フロー整理の前提として、/decideゴール承認タブの承認待ちゴールをprojectId別にグループ化。各プロジェクトを件数バッジ付きdetails(既定open)見出しにし、件数多い順・未分類末尾。projectSummaries→projectTitle→projectIdで名称解決。サブタブ/承認ボタン/フィルタ/他タブは不変。proposed51件はtry-research16/未分類22/company-mgmt13の3グループ。検証=tsc0/build0/decide200・error0(grouping最終確認はブラウザ)。",
+      "注意: grouping描画はclientコンポーネントのためcurl(SSR)では完全検証不可。build成功+データ3プロジェクト分散で論理確認",
+      "アプリ開発フロー7ステップ整理の段階実装Phase1。設計runId 20260629-093418。ゴール承認のプロジェクト別グループ化を実装(InboxTabs.tsxのgoalApprovalタブのみ)。実装Codex委譲・設計/検証/commit/POSTはClaude。commit a5d52d4 push済。次=Phase2(概要承認ページ+簡易HTMLモックプレビュー)。"
+    ],
+    "nextActions": [
+      "Phase2: アプリ概要承認の専用ページ+iPhone簡易HTMLモックプレビュー"
+    ],
+    "changedFiles": [
+      "progress/components/newux/InboxTabs.tsx: goalApprovalタブの表示をprojectId別グループ化(details見出し)"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260629-110250.md",
+    "researchPath": "06_research/2026-07-01_know-20260629-110250.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T05:08:04.543Z",
+    "updatedAt": "2026-07-01T05:08:04.564Z",
+    "nextEpicCandidateId": "rec-knowledge-20260629-110250"
+  },
+  {
+    "id": "know-20260629-110019",
+    "sourceRunId": "20260629-110019",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-01 05:08] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-01_know-20260629-110019.md",
+    "researchPath": "06_research/2026-07-01_know-20260629-110019.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-01T05:08:04.622Z",
+    "updatedAt": "2026-07-01T05:08:04.642Z",
+    "nextEpicCandidateId": "rec-knowledge-20260629-110019"
   }
 ]

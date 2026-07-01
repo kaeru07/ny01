@@ -59,6 +59,36 @@ const navItems = [
       </svg>
     ),
   },
+  {
+    href: '/goal-dashboard',
+    label: 'todo消化',
+    exact: false,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5h9M9 12h9M9 19h9M4 5l1 1 2-2M4 12l1 1 2-2M4 19l1 1 2-2" />
+      </svg>
+    ),
+  },
+  {
+    href: '/report',
+    label: 'レポート',
+    exact: false,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7 3h7l5 5v13H7zM14 3v5h5M9 13h6M9 17h6" />
+      </svg>
+    ),
+  },
+  {
+    href: '/guide',
+    label: '運用',
+    exact: false,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 5a2 2 0 012-2h13v16H6a2 2 0 00-2 2zM4 19a2 2 0 002 2h13" />
+      </svg>
+    ),
+  },
 ]
 
 interface Props {

@@ -252,3 +252,5 @@
 {"id":"alog-1782882017520","at":"2026-07-01T05:00:17.520Z","event":"factory_schedule","fallbackReason":"followupCreated=5 expiredRecommendations=0 reviewedLoopCreated=0","detectionStatus":"schedule"}
 {"id":"alog-1782882017603","at":"2026-07-01T05:00:17.603Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=0→4.8","detectionStatus":"schedule"}
 {"id":"alog-1782882019625","at":"2026-07-01T05:00:19.625Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=7 needs_human=2 partial=1 failed=0 / 残not_reviewed=191","aiReviewCounts":{"processed":10,"reviewed":7,"needsHuman":2,"partial":1,"failed":0}}
+{"id":"alog-1782882484746","at":"2026-07-01T05:08:04.746Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=7 needs_human=1 partial=2 failed=0 / 残not_reviewed=183","aiReviewCounts":{"processed":10,"reviewed":7,"needsHuman":1,"partial":2,"failed":0}}
+{"id":"alog-1782882484905","at":"2026-07-01T05:08:04.905Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}

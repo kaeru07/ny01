@@ -20969,5 +20969,445 @@
     ],
     "createdAt": "2026-07-01T05:00:19.600Z",
     "updatedAt": "2026-07-01T05:00:19.600Z"
+  },
+  {
+    "id": "rec-knowledge-20260701-140036",
+    "status": "suggested",
+    "kind": "existing_epic_next_action",
+    "title": "レビュー起点: サブタブを下線タブUIへ変更 + 孤立画面(project-goals/research-flow)をナビ復活 の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260701-140036 からKnowledge know-20260701-140036を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "none",
+    "targetApp": "progress",
+    "relatedEpicId": "epic-91",
+    "relatedVault": [
+      "20_reviews/2026-07-01_know-20260701-140036.md",
+      "06_research/2026-07-01_know-20260701-140036.md"
+    ],
+    "relatedRunIds": [
+      "20260701-140036"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "サブタブを下線タブUIへ変更 + 孤立画面(project-goals/research-flow)をナビ復活 の結果を確認し、未達のDoneCriteriaを1つ進める"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260701-140036",
+    "goalId": "goal-ai-factory-os",
+    "parentEpicId": "epic-91",
+    "sourceRunId": "20260701-140036",
+    "sourceKnowledgeId": "know-20260701-140036",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260701-140036 sourceKnowledgeId=know-20260701-140036",
+    "history": [
+      {
+        "at": "2026-07-01T05:08:03.934Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260701-140036 から自動生成"
+      }
+    ],
+    "createdAt": "2026-07-01T05:08:03.934Z",
+    "updatedAt": "2026-07-01T05:08:03.934Z"
+  },
+  {
+    "id": "rec-knowledge-20260629-141541",
+    "status": "suggested",
+    "kind": "existing_epic_next_action",
+    "title": "レビュー起点: アプリ開発フロー Phase4: プロジェクト完了サマリー の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260629-141541 からKnowledge know-20260629-141541を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "none",
+    "targetApp": "progress",
+    "relatedEpicId": "epic-91",
+    "relatedVault": [
+      "20_reviews/2026-07-01_know-20260629-141541.md",
+      "06_research/2026-07-01_know-20260629-141541.md"
+    ],
+    "relatedRunIds": [
+      "20260629-141541"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "iPhone実機でPhase1-4(承認グループ/概要承認モック/達成確認/完了サマリー)を目視確認",
+      "全達成プロジェクト発生時に完了サマリーの実カード表示を確認"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260629-141541",
+    "goalId": "goal-ai-factory-os",
+    "parentEpicId": "epic-91",
+    "sourceRunId": "20260629-141541",
+    "sourceKnowledgeId": "know-20260629-141541",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260629-141541 sourceKnowledgeId=know-20260629-141541",
+    "history": [
+      {
+        "at": "2026-07-01T05:08:04.151Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260629-141541 から自動生成"
+      }
+    ],
+    "createdAt": "2026-07-01T05:08:04.151Z",
+    "updatedAt": "2026-07-01T05:08:04.151Z"
+  },
+  {
+    "id": "rec-knowledge-20260629-140023",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "レビュー起点: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0 の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260629-140023 からKnowledge know-20260629-140023を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "medium",
+    "targetApp": "progress",
+    "relatedVault": [
+      "20_reviews/2026-07-01_know-20260629-140023.md",
+      "06_research/2026-07-01_know-20260629-140023.md"
+    ],
+    "relatedRunIds": [
+      "20260629-140023"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260629-140023",
+    "goalId": "goal-value-validation-pipeline",
+    "sourceRunId": "20260629-140023",
+    "sourceKnowledgeId": "know-20260629-140023",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260629-140023 sourceKnowledgeId=know-20260629-140023",
+    "history": [
+      {
+        "at": "2026-07-01T05:08:04.227Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260629-140023 から自動生成"
+      }
+    ],
+    "createdAt": "2026-07-01T05:08:04.227Z",
+    "updatedAt": "2026-07-01T05:08:04.227Z"
+  },
+  {
+    "id": "rec-followup-20260629-140028",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "修正依頼: Factory schedule (schedule/systemd)",
+    "reason": "修正依頼（元作業: Factory schedule (schedule/systemd) / runId 20260629-140028）をAI工場の作業候補へ戻す。 レビュー指摘: [AI一次レビュー 2026-07-01 05:08] 判定=partial 理由=runStatus=partial（未完了の検証・作業が残っている）。継続または修復候補。（rule=run_partial）",
+    "monetizationImpact": "none",
+    "targetApp": "progress",
+    "relatedRunIds": [
+      "20260629-140028"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "レビュー指摘を反映する: [AI一次レビュー 2026-07-01 05:08] 判定=partial 理由=runStatus=partial（未完了の検証・作業が残っている）。継続または修復候補。（rule=run_partial）"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_followup",
+    "sourceRef": "followup:20260629-140028",
+    "goalId": "goal-execution-review-loop",
+    "sourceRunId": "20260629-140028",
+    "followupOfRunId": "20260629-140028",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "修正依頼の閉ループで自動生成。followupOfRunId=20260629-140028",
+    "history": [
+      {
+        "at": "2026-07-01T05:08:04.281Z",
+        "action": "suggested",
+        "detail": "needs_followup run 20260629-140028 から自動生成"
+      }
+    ],
+    "createdAt": "2026-07-01T05:08:04.281Z",
+    "updatedAt": "2026-07-01T05:08:04.281Z"
+  },
+  {
+    "id": "rec-knowledge-20260629-135703",
+    "status": "suggested",
+    "kind": "existing_epic_next_action",
+    "title": "レビュー起点: アプリ開発フロー Phase3: ゴール達成確認タブ(既存レビュー再フレーム) の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260629-135703 からKnowledge know-20260629-135703を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "none",
+    "targetApp": "progress",
+    "relatedEpicId": "epic-91",
+    "relatedVault": [
+      "20_reviews/2026-07-01_know-20260629-135703.md",
+      "06_research/2026-07-01_know-20260629-135703.md"
+    ],
+    "relatedRunIds": [
+      "20260629-135703"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "Phase4: プロジェクト完了サマリー(全ゴール達成→残レビュー+提供差分+次の必要候補)"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260629-135703",
+    "goalId": "goal-ai-factory-os",
+    "parentEpicId": "epic-91",
+    "sourceRunId": "20260629-135703",
+    "sourceKnowledgeId": "know-20260629-135703",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260629-135703 sourceKnowledgeId=know-20260629-135703",
+    "history": [
+      {
+        "at": "2026-07-01T05:08:04.377Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260629-135703 から自動生成"
+      }
+    ],
+    "createdAt": "2026-07-01T05:08:04.377Z",
+    "updatedAt": "2026-07-01T05:08:04.377Z"
+  },
+  {
+    "id": "rec-knowledge-20260629-124303",
+    "status": "suggested",
+    "kind": "existing_epic_next_action",
+    "title": "レビュー起点: アプリ開発フロー Phase2: アプリ概要承認ページ+iPhoneモックプレビュー の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260629-124303 からKnowledge know-20260629-124303を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "none",
+    "targetApp": "progress",
+    "relatedEpicId": "epic-91",
+    "relatedVault": [
+      "20_reviews/2026-07-01_know-20260629-124303.md",
+      "06_research/2026-07-01_know-20260629-124303.md"
+    ],
+    "relatedRunIds": [
+      "20260629-124303"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "Phase3: ゴール達成内容確認欄+NG→修正概要の接続",
+      "Phase4: プロジェクト完了サマリー(残レビュー+現運用差分+必要候補)"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260629-124303",
+    "goalId": "goal-ai-factory-os",
+    "parentEpicId": "epic-91",
+    "sourceRunId": "20260629-124303",
+    "sourceKnowledgeId": "know-20260629-124303",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260629-124303 sourceKnowledgeId=know-20260629-124303",
+    "history": [
+      {
+        "at": "2026-07-01T05:08:04.464Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260629-124303 から自動生成"
+      }
+    ],
+    "createdAt": "2026-07-01T05:08:04.464Z",
+    "updatedAt": "2026-07-01T05:08:04.464Z"
+  },
+  {
+    "id": "rec-knowledge-20260629-110250",
+    "status": "suggested",
+    "kind": "existing_epic_next_action",
+    "title": "レビュー起点: アプリ開発フロー Phase1: ゴール承認のプロジェクト別グループ化 の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260629-110250 からKnowledge know-20260629-110250を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "none",
+    "targetApp": "progress",
+    "relatedEpicId": "epic-91",
+    "relatedVault": [
+      "20_reviews/2026-07-01_know-20260629-110250.md",
+      "06_research/2026-07-01_know-20260629-110250.md"
+    ],
+    "relatedRunIds": [
+      "20260629-110250"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "Phase2: アプリ概要承認の専用ページ+iPhone簡易HTMLモックプレビュー"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260629-110250",
+    "goalId": "goal-ai-factory-os",
+    "parentEpicId": "epic-91",
+    "sourceRunId": "20260629-110250",
+    "sourceKnowledgeId": "know-20260629-110250",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260629-110250 sourceKnowledgeId=know-20260629-110250",
+    "history": [
+      {
+        "at": "2026-07-01T05:08:04.556Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260629-110250 から自動生成"
+      }
+    ],
+    "createdAt": "2026-07-01T05:08:04.556Z",
+    "updatedAt": "2026-07-01T05:08:04.556Z"
+  },
+  {
+    "id": "rec-knowledge-20260629-110019",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "レビュー起点: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0 の次Epic候補",
+    "reason": "reviewed ExecutionRun 20260629-110019 からKnowledge know-20260629-110019を生成。レビューで得た学びを次の作業候補へ変換する。",
+    "monetizationImpact": "medium",
+    "targetApp": "progress",
+    "relatedVault": [
+      "20_reviews/2026-07-01_know-20260629-110019.md",
+      "06_research/2026-07-01_know-20260629-110019.md"
+    ],
+    "relatedRunIds": [
+      "20260629-110019"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_knowledge",
+    "sourceRef": "know-20260629-110019",
+    "goalId": "goal-value-validation-pipeline",
+    "sourceRunId": "20260629-110019",
+    "sourceKnowledgeId": "know-20260629-110019",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "Review→Knowledge→Next Epic ループで自動生成。sourceRunId=20260629-110019 sourceKnowledgeId=know-20260629-110019",
+    "history": [
+      {
+        "at": "2026-07-01T05:08:04.633Z",
+        "action": "suggested",
+        "detail": "reviewed run 20260629-110019 から自動生成"
+      }
+    ],
+    "createdAt": "2026-07-01T05:08:04.633Z",
+    "updatedAt": "2026-07-01T05:08:04.633Z"
+  },
+  {
+    "id": "rec-followup-20260629-110023",
+    "status": "suggested",
+    "kind": "new_epic",
+    "title": "修正依頼: Factory schedule (schedule/systemd)",
+    "reason": "修正依頼（元作業: Factory schedule (schedule/systemd) / runId 20260629-110023）をAI工場の作業候補へ戻す。 レビュー指摘: [AI一次レビュー 2026-07-01 05:08] 判定=partial 理由=runStatus=partial（未完了の検証・作業が残っている）。継続または修復候補。（rule=run_partial）",
+    "monetizationImpact": "none",
+    "targetApp": "progress",
+    "relatedRunIds": [
+      "20260629-110023"
+    ],
+    "priority": "P1",
+    "doneCriteria": [
+      "レビュー指摘を反映する: [AI一次レビュー 2026-07-01 05:08] 判定=partial 理由=runStatus=partial（未完了の検証・作業が残っている）。継続または修復候補。（rule=run_partial）"
+    ],
+    "decisionPolicy": "autonomous",
+    "riskFlags": [],
+    "preferredExecutor": "claude",
+    "fallbackExecutor": "codex",
+    "sourceKind": "review_followup",
+    "sourceRef": "followup:20260629-110023",
+    "goalId": "goal-execution-review-loop",
+    "sourceRunId": "20260629-110023",
+    "followupOfRunId": "20260629-110023",
+    "duplicate": {
+      "duplicate": false
+    },
+    "factoryEligiblePreview": {
+      "eligible": true,
+      "reasons": [],
+      "classification": "auto",
+      "factoryManaged": true
+    },
+    "notes": "修正依頼の閉ループで自動生成。followupOfRunId=20260629-110023",
+    "history": [
+      {
+        "at": "2026-07-01T05:08:04.721Z",
+        "action": "suggested",
+        "detail": "needs_followup run 20260629-110023 から自動生成"
+      }
+    ],
+    "createdAt": "2026-07-01T05:08:04.721Z",
+    "updatedAt": "2026-07-01T05:08:04.721Z"
   }
 ]
