@@ -20,12 +20,12 @@ export interface NavGroup {
 
 export const NAV_GROUPS: NavGroup[] = [
   {
-    title: 'メイン（下タブ先頭）',
+    title: 'メイン（下タブ）',
     links: [
       { href: '/', label: 'ホーム（司令塔）', note: '全体の状況・次回自動実行予定・今日やること' },
       { href: '/decide', label: '今日の判断（Inbox）', note: '工場が止まる原因だけを判断する箱。毎日ここだけ見ればOK' },
-      { href: '/portfolio', label: 'Project（案件ポートフォリオ）', note: '案件ごとの進捗・状態' },
-      { href: '/goal-planner', label: '目標（Goal）', note: '目標とtodoの作成・編集・並び替え（管理）' },
+      { href: '/activity', label: '状況', note: '自動実行の消化サマリー。PJ完了・プロジェクト状況は内蔵サブタブから確認' },
+      { href: '/app-proposals', label: 'アプリ開発', note: '新アプリ案・既存アプリ仕様承認・承認履歴を内蔵サブタブで確認' },
       { href: '/queue', label: '自動実行（キュー）', note: 'AIが次に何をやるか・実行順・pin/保留/対象外の操作（実行）' },
     ],
   },
@@ -49,6 +49,8 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/automation', label: '自動化設定', note: 'AI工場のON/OFF・実行者の切替' },
       { href: '/factory/candidates', label: '工場候補', note: '自動実行の候補一覧' },
       { href: '/app-proposals', label: 'アプリ概要承認', note: 'アプリ案の概要+画面イメージ(モック)を確認して承認/却下/保留' },
+      { href: '/app-specs', label: '既存アプリ仕様承認', note: '既存/開発中アプリの画面・機能仕様を確認して承認/保留' },
+      { href: '/app-decisions', label: 'アプリ承認・方針決定歴', note: 'アプリ承認と仕様承認、方針決定の時系列ログ' },
       { href: '/ai-drive', label: 'AI自走', note: '自走モードの管理' },
       { href: '/codex', label: 'Codex', note: 'もう1つのAI実行者の管理' },
     ],
@@ -59,6 +61,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/approvals', label: '承認待ち', note: '旧承認画面（新UIではInboxに統合）' },
       { href: '/decisions', label: '決定事項', note: '過去の判断の記録（Decision Log）' },
       { href: '/project-complete', label: 'プロジェクト完了', note: '全ゴール達成プロジェクトの提供内容・残確認・次候補のまとめ' },
+      { href: '/report', label: 'レポート', note: '実行履歴・作業レポート' },
       { href: '/inbox', label: '旧受信箱', note: 'Vault連携の受信箱' },
     ],
   },
@@ -68,6 +71,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/guide?tab=research', label: '毎朝の調査のしくみ(図解)', note: '毎朝の調査→試す候補の自動提案→承認→自動実行 の流れを図で説明' },
       { href: '/projects/import', label: 'プロジェクト＋ゴール追加(JSON)', note: 'プロジェクトとゴールを手動でまとめて追加。ゴールは自動実行対象になりキューで優先調整可' },
       { href: '/integration-map', label: '対応表（旧Vault→今のゴール運用）', note: '一時ページ。旧Vault運用と今のゴール運用の対応表＋統合の進め方①〜⑥' },
+      { href: '/goal-planner', label: '目標（Goal）', note: '目標とtodoの作成・編集・並び替え（管理）' },
       { href: '/portfolio?tab=goals', label: 'プロジェクト×ゴール進捗', note: 'プロジェクト別にゴールと達成率を一覧。アプリはApp Store公開仕様で「完成」表示・未紐付けゴールも警告' },
       { href: '/goal-dashboard', label: 'ゴール×todo消化状況', note: '各ゴール配下のtodoが完了/未完了/止まっているかと達成率を一覧（閲覧専用）' },
       { href: '/recommended-epics', label: 'おすすめ次作業（推薦Epic）', note: 'AI提案の作業候補の全件管理' },

@@ -1,6 +1,8 @@
 import Link from 'next/link'
+import SubTabBar from '@/components/navigation/SubTabBar'
 import PageGuide from '@/components/newux/PageGuide'
 import { buildInbox } from '@/lib/command-center'
+import { STATUS_SUBTABS } from '@/lib/nav-groups'
 import { getProjectCompletionView, type ProjectCompletion } from '@/lib/project-completion'
 
 export const dynamic = 'force-dynamic'
@@ -20,6 +22,7 @@ export default async function ProjectCompletePage() {
         title="プロジェクト完了サマリー"
         guide="プロジェクトのゴールが全て達成されたら、提供した内容・残っている確認・次に必要な候補をまとめます。"
       />
+      <SubTabBar items={STATUS_SUBTABS} />
 
       {view.completions.length === 0 ? (
         <EmptyState progress={view.progress} />

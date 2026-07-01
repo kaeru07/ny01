@@ -1,11 +1,13 @@
 export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
+import SubTabBar from '@/components/navigation/SubTabBar'
 import PageGuide from '@/components/newux/PageGuide'
 import FilterBar from '@/components/newux/FilterBar'
 import FilterChips from '@/components/newux/FilterChips'
 import ProjectGoalsView from '@/components/projects/ProjectGoalsView'
 import { buildProjectPortfolio } from '@/lib/command-center'
+import { STATUS_SUBTABS } from '@/lib/nav-groups'
 import { buildProgressFilterUrl, parseProgressFilters, updateFilterParam } from '@/lib/progress-filters'
 
 // Projects = いま動いているプロジェクトの一覧。状態 / 次の作業 / 最終更新 / 収益化状況。
@@ -48,6 +50,7 @@ export default async function PortfolioPage({ searchParams }: { searchParams?: R
     return (
       <div className="space-y-4 px-4 pb-5 pt-4">
         <PageGuide title="Projects" guide="進行中プロジェクトの状況を確認します。「あなたの作業待ち」のものから手を付けるのがおすすめです。" />
+        <SubTabBar items={STATUS_SUBTABS} />
         <ProjectTabBar active="goals" />
         <ProjectGoalsView />
       </div>
@@ -67,6 +70,7 @@ export default async function PortfolioPage({ searchParams }: { searchParams?: R
   return (
     <div className="space-y-4 px-4 pb-5 pt-4">
       <PageGuide title="Projects" guide="進行中プロジェクトの状況を確認します。「あなたの作業待ち」のものから手を付けるのがおすすめです。" />
+      <SubTabBar items={STATUS_SUBTABS} />
       <ProjectTabBar active="projects" />
 
       <section className="space-y-2">

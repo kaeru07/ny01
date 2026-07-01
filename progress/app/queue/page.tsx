@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 import Link from 'next/link'
+import SubTabBar from '@/components/navigation/SubTabBar'
 import { getAutoQueueView } from '@/lib/auto-queue'
 import { computeFactoryStatus } from '@/lib/factory-status'
 import FilterBar from '@/components/newux/FilterBar'
@@ -10,6 +11,7 @@ import { QueueReorderList } from '@/components/queue/QueueReorderList'
 import QueueActionButton from './QueueActionButton'
 import { buildProgressFilterUrl, parseProgressFilters, updateFilterParam, type ProgressFilterState } from '@/lib/progress-filters'
 import { epicPriorityLabel } from '@/lib/epic-priority-label'
+import { AUTO_EXECUTION_SUBTABS } from '@/lib/nav-groups'
 import type { AutoQueueItem, WorkItemStatus } from '@/types/auto-queue'
 
 const STATUS_LABEL: Record<WorkItemStatus, string> = {
@@ -228,6 +230,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
             Goal: <span className="font-bold">{goalProgress?.title ?? goalId}</span> のキューだけを表示中
           </div>
         )}
+        <SubTabBar items={AUTO_EXECUTION_SUBTABS} />
         {/* 自動実行ハブの関連導線 */}
         <div className="flex flex-wrap gap-2">
           <Link href="/prompt-queue" className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">

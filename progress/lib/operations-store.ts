@@ -278,7 +278,7 @@ export async function recordOperationalDecision(input: {
   runId?: string
   goalId?: string
   approvalId?: string
-  source?: 'human' | 'ai' | 'app-proposals-page'
+  source?: 'human' | 'ai' | 'app-proposals-page' | 'app-specs-page'
 }): Promise<OperationalDecision> {
   decisionSeq = (decisionSeq + 1) % 1000
   const now = new Date().toISOString()

@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
+import SubTabBar from '@/components/navigation/SubTabBar'
 import { readAppProgress } from '@/lib/progress-reader'
 import { readGoals, findMainGoal, calcGoalProgress } from '@/lib/goal-reader'
 import { listInboxItems } from '@/lib/inbox-reader'
@@ -9,6 +10,7 @@ import FilterChips from '@/components/newux/FilterChips'
 import GoalPlannerForm from '@/components/goals/GoalPlannerForm'
 import GoalListItem from '@/components/goals/GoalListItem'
 import GoalTodoAddForm from '@/components/goals/GoalTodoAddForm'
+import { AUTO_EXECUTION_SUBTABS } from '@/lib/nav-groups'
 import { buildProgressFilterUrl, parseProgressFilters, updateFilterParam } from '@/lib/progress-filters'
 import type { Goal } from '@/types/goal'
 
@@ -62,6 +64,7 @@ export default async function GoalPlannerPage({ searchParams }: { searchParams?:
           </Link>
         </div>
       </header>
+      <SubTabBar items={AUTO_EXECUTION_SUBTABS} />
 
       {mainGoal && (
         <section className="space-y-2 rounded-2xl border border-blue-100 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">

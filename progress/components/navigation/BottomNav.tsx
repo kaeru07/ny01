@@ -2,10 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-
-// 新UXのボトムナビ（横スクロール）。先頭5つ＝主要タブ（ホーム / ToDo / Project / 目標 / 自動実行）はアイコン付き。
-// それ以降は moreItems の全主要画面をテキストタブで列挙し「下タブにない主要画面」を無くす（2026-06-14 ユーザー指示）。
-// リンクで飛べる画面は全て下タブから直接到達できる。
+import { APP_DEVELOPMENT_PATHS, AUTO_EXECUTION_PATHS, STATUS_PATHS } from '@/lib/nav-groups'
 
 const navItems = [
   {
@@ -20,7 +17,7 @@ const navItems = [
   },
   {
     href: '/decide',
-    label: 'ToDo',
+    label: '今日の判断',
     exact: false,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
@@ -29,42 +26,21 @@ const navItems = [
     ),
   },
   {
-    href: '/portfolio',
-    label: 'Project',
+    href: '/activity',
+    label: '状況',
     exact: false,
+    activePaths: STATUS_PATHS,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16v13H4zM9 7V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-      </svg>
-    ),
-  },
-  {
-    href: '/goal-planner',
-    label: '目標',
-    exact: false,
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
-        <circle cx="12" cy="12" r="9" strokeLinecap="round" strokeLinejoin="round" />
-        <circle cx="12" cy="12" r="4.5" strokeLinecap="round" strokeLinejoin="round" />
-        <circle cx="12" cy="12" r="0.6" fill="currentColor" stroke="none" />
-      </svg>
-    ),
-  },
-  {
-    href: '/goal-dashboard',
-    label: 'todo消化',
-    exact: false,
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5a2 2 0 012-2h2a2 2 0 012 2M8 12l2 2 4-4" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-8" />
       </svg>
     ),
   },
   {
     href: '/app-proposals',
-    label: 'アプリ承認',
+    label: 'アプリ開発',
     exact: false,
+    activePaths: APP_DEVELOPMENT_PATHS,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
         <rect x="7" y="3" width="10" height="18" rx="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -73,62 +49,17 @@ const navItems = [
     ),
   },
   {
-    href: '/project-complete',
-    label: 'PJ完了',
-    exact: false,
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
-        <circle cx="12" cy="12" r="9" strokeLinecap="round" strokeLinejoin="round" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M8 12l3 3 5-6" />
-      </svg>
-    ),
-  },
-  {
     href: '/queue',
     label: '自動実行',
     exact: false,
+    activePaths: AUTO_EXECUTION_PATHS,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
         <path strokeLinecap="round" strokeLinejoin="round" d="M13 3L4 14h7l-1 7 9-11h-7l1-7z" />
       </svg>
     ),
   },
-  {
-    href: '/activity',
-    label: '状況',
-    exact: false,
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-8" />
-      </svg>
-    ),
-  },
-  {
-    href: '/report',
-    label: 'レポート',
-    exact: false,
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4 5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M13 3v6h6M8 13h8M8 17h5" />
-      </svg>
-    ),
-  },
-  {
-    href: '/guide',
-    label: '運用',
-    exact: false,
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4 5a2 2 0 012-2h9l5 5v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M14 3v5h5M8 13h8M8 17h6" />
-      </svg>
-    ),
-  },
 ]
-
-// 下タブは主要7タブ（合計7）。それ以外の全画面は右上の ☰ メニュー（HamburgerMenu）から辿る。
-// 以前の moreItems（横スクロールの全画面列挙）は ☰ に集約したため廃止（2026-06-19 ユーザー指示）。
 
 interface Props {
   logBadge?: number
@@ -137,22 +68,26 @@ interface Props {
 export default function BottomNav({ logBadge = 0 }: Props) {
   const pathname = usePathname()
 
-  function active(href: string, exact = false): boolean {
+  function matchesPath(href: string): boolean {
     if (href === '/') return pathname === '/'
-    if (exact) return pathname === href
     return pathname === href || pathname.startsWith(href + '/')
+  }
+
+  function active(item: (typeof navItems)[number]): boolean {
+    if (item.activePaths) return item.activePaths.some(matchesPath)
+    if (item.exact) return pathname === item.href
+    return matchesPath(item.href)
   }
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur border-t border-gray-200 dark:border-gray-700 safe-area-pb md:hidden">
-      {/* 主要7タブを均等配置。その他の画面は右上 ☰ メニューから。 */}
       <div className="flex items-stretch">
         {navItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
             className={`flex-1 min-w-0 flex flex-col items-center justify-center py-2 gap-0.5 text-xs transition-colors ${
-              active(item.href, item.exact)
+              active(item)
                 ? 'text-blue-500 dark:text-blue-400'
                 : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
             }`}
@@ -165,7 +100,7 @@ export default function BottomNav({ logBadge = 0 }: Props) {
                 </span>
               )}
             </div>
-            <span className="font-medium leading-none">{item.label}</span>
+            <span className="text-center font-medium leading-none">{item.label}</span>
           </Link>
         ))}
       </div>

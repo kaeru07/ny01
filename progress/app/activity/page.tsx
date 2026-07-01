@@ -1,9 +1,11 @@
 export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
+import SubTabBar from '@/components/navigation/SubTabBar'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { goalAchievement, readGoals } from '@/lib/goal-reader'
 import { humanizeTitle, shorten, subjectOf } from '@/lib/humanize'
+import { STATUS_SUBTABS } from '@/lib/nav-groups'
 import { getEpics } from '@/lib/operations-store'
 import type { ExecutionRun } from '@/types/execution-run'
 import type { Goal } from '@/types/goal'
@@ -279,6 +281,9 @@ export default async function ActivityPage({ searchParams }: { searchParams?: Re
           <Link href="/report" className="shrink-0 text-[12px] font-bold text-blue-700 underline-offset-2 hover:underline dark:text-blue-300">
             詳細ログを見る →
           </Link>
+        </div>
+        <div className="mt-3">
+          <SubTabBar items={STATUS_SUBTABS} />
         </div>
         <div className="mt-3 grid grid-cols-3 gap-1.5 rounded-lg bg-gray-100 p-1 dark:bg-gray-950/60">
           {periodOptions.map((opt) => (
