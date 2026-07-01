@@ -1,7 +1,7 @@
 import { getEpics, createEpic } from '@/lib/operations-store'
 import { readGoals, rankGoals, goalRankOf, goalAchievement } from '@/lib/goal-reader'
 import { dangerRiskFlags } from '@/lib/auto-queue-score'
-import type { Goal } from '@/types/goal'
+import type { Goal, GoalTodo } from '@/types/goal'
 import type { EpicPriority } from '@/lib/types/operations'
 
 /** 「open（まだ閉じていない）」とみなす Epic ステータス。これらが goalId に紐づいていれば作業中とみなす。 */
@@ -11,6 +11,18 @@ function priorityOfGoal(goal: Goal): EpicPriority {
   if (goal.priority === 'high') return 'P0'
   if (goal.priority === 'low') return 'P2'
   return 'P1'
+}
+
+function priorityOfTodo(todo: GoalTodo, goal: Goal): EpicPriority {
+  if (todo.priority === 'high') return 'P0'
+  if (todo.priority === 'medium') return 'P1'
+  if (todo.priority === 'low') return 'P2'
+  return priorityOfGoal(goal)
+}
+
+function sourceTodoForGoal(goal: Goal, sourceTodoId?: string): GoalTodo | undefined {
+  if (!sourceTodoId) return undefined
+  return goal.todos.find((todo) => todo.id === sourceTodoId)
 }
 
 /** Factory が自動で達成を目指してよい Goal か（active・未達成・安全＝承認/手動/危険でない）。 */
@@ -54,24 +66,42 @@ export async function ensureNextGoalStepEpic(targetGoalId?: string, sourceTodoId
           .sort((a, b) => goalRankOf(rank, a.id) - goalRankOf(rank, b.id))[0]
       })()
   if (!target) return { created: false }
+  const sourceTodo = sourceTodoForGoal(target, sourceTodoId)
+  const title = sourceTodo
+    ? `${target.title}: ${sourceTodo.title}`
+    : `${target.title}: 次の一歩`
+  const goalText = sourceTodo
+    ? [
+        `Goal「${target.title}」配下ToDo「${sourceTodo.title}」を実行する。`,
+        sourceTodo.nextAction ? `次のアクション: ${sourceTodo.nextAction}` : '',
+        sourceTodo.taskPrompt ? `作業指示: ${sourceTodo.taskPrompt}` : '',
+        target.summary ? `Goal概要: ${target.summary}` : '',
+      ].filter(Boolean).join('\n')
+    : `Goal「${target.title}」の達成に向けて、次の具体的な1ステップを進める。${target.summary ?? ''}`.trim()
+  const doneCriteria = sourceTodo?.doneCriteria.length
+    ? sourceTodo.doneCriteria
+    : [
+        'このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する',
+        '定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する',
+        'ExecutionRunに結果を記録し、Goalの達成度を前進させる',
+      ]
 
   const epic = await createEpic({
     epicId: `epic-goalstep-${target.id}`,
     goalId: target.id,
-    title: `${target.title}: 次の一歩`,
-    goal: `Goal「${target.title}」の達成に向けて、次の具体的な1ステップを進める。${target.summary ?? ''}`.trim(),
-    decisionPolicy: target.decisionPolicyDefault ?? 'autonomous',
-    doneCriteria: [
-      'このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する',
-      '定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する',
-      'ExecutionRunに結果を記録し、Goalの達成度を前進させる',
-    ],
-    priority: priorityOfGoal(target),
-    riskFlags: target.riskFlagsDefault ?? [],
+    title,
+    goal: goalText,
+    decisionPolicy: sourceTodo?.decisionPolicy ?? target.decisionPolicyDefault ?? 'autonomous',
+    doneCriteria,
+    priority: sourceTodo ? priorityOfTodo(sourceTodo, target) : priorityOfGoal(target),
+    riskFlags: sourceTodo?.riskFlags ?? target.riskFlagsDefault ?? [],
     factoryEligible: true,
     targetApp: target.projectId,
     relatedTodoIds: sourceTodoId ? [sourceTodoId] : undefined,
-    notes: 'todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。',
+    preferredExecutor: sourceTodo?.role === 'codex' ? 'codex' : 'claude',
+    notes: sourceTodo
+      ? `GoalTodoから自動生成した「次の一歩」Epic（todoId=${sourceTodo.id}）。完了後はGoalTodoの消化状況に反映する。${sourceTodo.memo ? `\nTodoメモ: ${sourceTodo.memo}` : ''}`
+      : 'todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。',
   })
   return { created: true, epicId: epic.epicId, goalId: target.id, goalTitle: target.title }
 }

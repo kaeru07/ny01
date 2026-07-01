@@ -140,3 +140,108 @@
 {"id":"alog-1782136811822","at":"2026-06-22T14:00:11.822Z","event":"factory_schedule","fallbackReason":"rate_limited_no_codex","detectionStatus":"schedule"}
 {"id":"alog-1782138444419","at":"2026-06-22T14:27:24.419Z","event":"factory_dispatch","dispatchPlanId":"dp-epic-goalstep-goal-execution-review-loop-mqpb7sdq","epicId":"epic-goalstep-goal-execution-review-loop","executorCandidate":"codex","promptType":"codex_handoff"}
 {"id":"alog-1782138573850","at":"2026-06-22T14:29:33.850Z","event":"factory_dispatch","dispatchPlanId":"dp-epic-goalstep-goal-execution-review-loop-mqpbak93","epicId":"epic-goalstep-goal-execution-review-loop","executorCandidate":"codex","promptType":"codex_handoff"}
+{"id":"alog-1782180009911","at":"2026-06-23T02:00:09.911Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=64.2→63","detectionStatus":"schedule"}
+{"id":"alog-1782180009949","at":"2026-06-23T02:00:09.949Z","event":"factory_schedule","fallbackReason":"executionRunsArchived=68 active=235 archive=archive/execution-runs-202606.json","detectionStatus":"schedule"}
+{"id":"alog-1782180010114","at":"2026-06-23T02:00:10.114Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqp6hasd-g5i9p","fallbackReason":"キュー上位のGoal「progressのホームに、近々の自動実行結果、調査結果を表示するようにする」を進めるため、次の一歩Epic（epic-goalstep-goal-mqp6hasd-g5i9p）を自動生成しました"}
+{"id":"alog-1782180209475","at":"2026-06-23T02:03:29.475Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782186690188","at":"2026-06-23T03:51:30.188Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqp5djzt-ekz87","fallbackReason":"キュー上位のGoal「自動実行キューに最優先、最後尾ボタンを追加」を進めるため、次の一歩Epic（epic-goalstep-goal-mqp5djzt-ekz87）を自動生成しました"}
+{"id":"alog-1782190811229","at":"2026-06-23T05:00:11.229Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=63→50.8","detectionStatus":"schedule"}
+{"id":"alog-1782191156013","at":"2026-06-23T05:05:56.013Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782198008329","at":"2026-06-23T07:00:08.329Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=50.8→50.2","detectionStatus":"schedule"}
+{"id":"alog-1782198096039","at":"2026-06-23T07:01:36.039Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782223215632","at":"2026-06-23T14:00:15.632Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=50.2→48.8","detectionStatus":"schedule"}
+{"id":"alog-1782223215953","at":"2026-06-23T14:00:15.953Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqq28l9d-8h86j","fallbackReason":"キュー上位のGoal「グアムアプリに、イベントごとの移動経路を地図でなぞって表示できるようにする」を進めるため、次の一歩Epic（epic-goalstep-goal-mqq28l9d-8h86j）を自動生成しました"}
+{"id":"alog-1782223576602","at":"2026-06-23T14:06:16.602Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782257481182","at":"2026-06-23T23:31:21.183Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqp6f72n-nb2xn","fallbackReason":"キュー上位のGoal「朝の自動調査の形式変更。記事のようにまとめる」を進めるため、次の一歩Epic（epic-goalstep-goal-mqp6f72n-nb2xn）を自動生成しました"}
+{"id":"alog-1782260476650","at":"2026-06-24T00:21:16.650Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqp5c2hm-ts4es","fallbackReason":"キュー上位のGoal「自動実行の最大件数の制御をなくす。」を進めるため、次の一歩Epic（epic-goalstep-goal-mqp5c2hm-ts4es）を自動生成しました"}
+{"id":"alog-1782260754451","at":"2026-06-24T00:25:54.451Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqluko5l-5xhb4","fallbackReason":"キュー上位のGoal「/guideのFAQ・運用ページの鮮度を点検する仕組みを作る」を進めるため、次の一歩Epic（epic-goalstep-goal-mqluko5l-5xhb4）を自動生成しました"}
+{"id":"alog-1782261035062","at":"2026-06-24T00:30:35.062Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqkyq2jm-fgvzp","fallbackReason":"キュー上位のGoal「progressアプリの縦長レイアウトを改善する」を進めるため、次の一歩Epic（epic-goalstep-goal-mqkyq2jm-fgvzp）を自動生成しました"}
+{"id":"alog-1782266409804","at":"2026-06-24T02:00:09.804Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=48.8→46.8","detectionStatus":"schedule"}
+{"id":"alog-1782266410517","at":"2026-06-24T02:00:10.517Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqluko5g-rt044","fallbackReason":"キュー上位のGoal「自動実行RunのnextActionsを必ず埋める」を進めるため、次の一歩Epic（epic-goalstep-goal-mqluko5g-rt044）を自動生成しました"}
+{"id":"alog-1782266638316","at":"2026-06-24T02:03:58.316Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782277215240","at":"2026-06-24T05:00:15.240Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=46.8→46.2","detectionStatus":"schedule"}
+{"id":"alog-1782277215997","at":"2026-06-24T05:00:15.997Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqluko5f-wbefy","fallbackReason":"キュー上位のGoal「自動実行RunにchangedFilesを確実に記録する」を進めるため、次の一歩Epic（epic-goalstep-goal-mqluko5f-wbefy）を自動生成しました"}
+{"id":"alog-1782277470928","at":"2026-06-24T05:04:30.928Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782284404788","at":"2026-06-24T07:00:04.788Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=46.2→45.6","detectionStatus":"schedule"}
+{"id":"alog-1782284405909","at":"2026-06-24T07:00:05.909Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-value-validation-pipeline","fallbackReason":"キュー上位のGoal「価値検証パイプライン構築」を進めるため、次の一歩Epic（epic-goalstep-goal-value-validation-pipeline）を自動生成しました"}
+{"id":"alog-1782284665379","at":"2026-06-24T07:04:25.379Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqlxglt5-yirib","fallbackReason":"キュー上位のGoal「①旧Vaultと今のゴール運用を見比べて、まとめ方を決める」を進めるため、次の一歩Epic（epic-goalstep-goal-mqlxglt5-yirib）を自動生成しました"}
+{"id":"alog-1782284878406","at":"2026-06-24T07:07:58.406Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqluko5i-3e5nq","fallbackReason":"キュー上位のGoal「主要画面のiPhone表示を一通り点検・改善する」を進めるため、次の一歩Epic（epic-goalstep-goal-mqluko5i-3e5nq）を自動生成しました"}
+{"id":"alog-1782285204099","at":"2026-06-24T07:13:24.099Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782309617213","at":"2026-06-24T14:00:17.213Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=45.6→44.6 goal-value-validation-pipeline=5→3","detectionStatus":"schedule"}
+{"id":"alog-1782309618246","at":"2026-06-24T14:00:18.246Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqlxglt7-ujmny","fallbackReason":"キュー上位のGoal「②収益化の候補(麻雀公開など)を今のゴールに移す」を進めるため、次の一歩Epic（epic-goalstep-goal-mqlxglt7-ujmny）を自動生成しました"}
+{"id":"alog-1782309942386","at":"2026-06-24T14:05:42.386Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782352812269","at":"2026-06-25T02:00:12.269Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=44.6→43.6","detectionStatus":"schedule"}
+{"id":"alog-1782352813368","at":"2026-06-25T02:00:13.368Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqlxgluj-ot173","fallbackReason":"キュー上位のGoal「③やることリストと自動実行の順番をprogressにまとめる」を進めるため、次の一歩Epic（epic-goalstep-goal-mqlxgluj-ot173）を自動生成しました"}
+{"id":"alog-1782353032363","at":"2026-06-25T02:03:52.363Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782363613157","at":"2026-06-25T05:00:13.157Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=43.6→43.2","detectionStatus":"schedule"}
+{"id":"alog-1782363614368","at":"2026-06-25T05:00:14.368Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqluko5k-q6n7p","fallbackReason":"キュー上位のGoal「ゴール達成率ダッシュボードを作る」を進めるため、次の一歩Epic（epic-goalstep-goal-mqluko5k-q6n7p）を自動生成しました"}
+{"id":"alog-1782363907404","at":"2026-06-25T05:05:07.404Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqluko5l-ixkhf","fallbackReason":"キュー上位のGoal「work-queue/work-candidates等の互換データを段階的に廃止する」を進めるため、次の一歩Epic（epic-goalstep-goal-mqluko5l-ixkhf）を自動生成しました"}
+{"id":"alog-1782363908033","at":"2026-06-25T05:05:08.033Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782370812368","at":"2026-06-25T07:00:12.368Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=43.2→42.6","detectionStatus":"schedule"}
+{"id":"alog-1782370813738","at":"2026-06-25T07:00:13.738Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqlxgluk-4aamd","fallbackReason":"キュー上位のGoal「⑤旧vloopの扱いを決める(やめる/progressに寄せる)」を進めるため、次の一歩Epic（epic-goalstep-goal-mqlxgluk-4aamd）を自動生成しました"}
+{"id":"alog-1782371289640","at":"2026-06-25T07:08:09.640Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqncv7tw-ni5xi","fallbackReason":"キュー上位のGoal「自動実行の実装をCodex優先化してClaude消費を抑える(安全ゲート維持)」を進めるため、次の一歩Epic（epic-goalstep-goal-mqncv7tw-ni5xi）を自動生成しました"}
+{"id":"alog-1782371290386","at":"2026-06-25T07:08:10.386Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782396011447","at":"2026-06-25T14:00:11.447Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=42.6→41.7","detectionStatus":"schedule"}
+{"id":"alog-1782396012880","at":"2026-06-25T14:00:12.880Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqncrvrf-b5er4","fallbackReason":"キュー上位のGoal「運用上あると便利な機能を定期提案する仕組みを作る」を進めるため、次の一歩Epic（epic-goalstep-goal-mqncrvrf-b5er4）を自動生成しました"}
+{"id":"alog-1782396402469","at":"2026-06-25T14:06:42.469Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqqmhcb9-jndlz","fallbackReason":"キュー上位のGoal「testflightでのui修正」を進めるため、次の一歩Epic（epic-goalstep-goal-mqqmhcb9-jndlz）を自動生成しました"}
+{"id":"alog-1782396403324","at":"2026-06-25T14:06:43.324Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782439206217","at":"2026-06-26T02:00:06.217Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=41.7→40.6","detectionStatus":"schedule"}
+{"id":"alog-1782439206271","at":"2026-06-26T02:00:06.271Z","event":"factory_schedule","fallbackReason":"executionRunsArchived=63 active=240 archive=archive/execution-runs-202606.json","detectionStatus":"schedule"}
+{"id":"alog-1782439207571","at":"2026-06-26T02:00:07.571Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-ai-executor-ops","fallbackReason":"キュー上位のGoal「AI実行者の役割分担と安全運用」を進めるため、次の一歩Epic（epic-goalstep-goal-ai-executor-ops）を自動生成しました"}
+{"id":"alog-1782439672976","at":"2026-06-26T02:07:52.976Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqrj2bqc-arqe7","fallbackReason":"キュー上位のGoal「自動実行のEpic/ゴールが完了しても閉じない問題を直す」を進めるため、次の一歩Epic（epic-goalstep-goal-mqrj2bqc-arqe7）を自動生成しました"}
+{"id":"alog-1782439673755","at":"2026-06-26T02:07:53.755Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782450020386","at":"2026-06-26T05:00:20.386Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=40.6→24.6","detectionStatus":"schedule"}
+{"id":"alog-1782450021819","at":"2026-06-26T05:00:21.819Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqrj2c77-xsurg","fallbackReason":"キュー上位のGoal「lint NGのrunを完了扱いにしない(lintゲート追加)」を進めるため、次の一歩Epic（epic-goalstep-goal-mqrj2c77-xsurg）を自動生成しました"}
+{"id":"alog-1782450517774","at":"2026-06-26T05:08:37.774Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqrj2cbk-rkmyt","fallbackReason":"キュー上位のGoal「「自動実行の最大件数の制御をなくす」の実装を意図通りに見直す」を進めるため、次の一歩Epic（epic-goalstep-goal-mqrj2cbk-rkmyt）を自動生成しました"}
+{"id":"alog-1782450518571","at":"2026-06-26T05:08:38.571Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782457220167","at":"2026-06-26T07:00:20.167Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=24.6→24.2","detectionStatus":"schedule"}
+{"id":"alog-1782457221610","at":"2026-06-26T07:00:21.610Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqrj2cd0-orern","fallbackReason":"キュー上位のGoal「maxPerEpicの深掘り挙動を調整可能にする」を進めるため、次の一歩Epic（epic-goalstep-goal-mqrj2cd0-orern）を自動生成しました"}
+{"id":"alog-1782457601368","at":"2026-06-26T07:06:41.368Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqlxgluk-kajmg","fallbackReason":"キュー上位のGoal「④承認の入口(ChatGPTレビューとゴール承認)の役割を整理して重複をなくす」を進めるため、次の一歩Epic（epic-goalstep-goal-mqlxgluk-kajmg）を自動生成しました"}
+{"id":"alog-1782457602424","at":"2026-06-26T07:06:42.424Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782482410706","at":"2026-06-26T14:00:10.706Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=24.2→23.8","detectionStatus":"schedule"}
+{"id":"alog-1782482412275","at":"2026-06-26T14:00:12.275Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqrj2c77-xsurg-07ox","fallbackReason":"キュー上位のGoal「lint NGのrunを完了扱いにしない(lintゲート追加)」を進めるため、次の一歩Epic（epic-goalstep-goal-mqrj2c77-xsurg-07ox）を自動生成しました"}
+{"id":"alog-1782482912966","at":"2026-06-26T14:08:32.966Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqrj2c77-xsurg-ay11","fallbackReason":"キュー上位のGoal「lint NGのrunを完了扱いにしない(lintゲート追加)」を進めるため、次の一歩Epic（epic-goalstep-goal-mqrj2c77-xsurg-ay11）を自動生成しました"}
+{"id":"alog-1782482913893","at":"2026-06-26T14:08:33.893Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782524209849","at":"2026-06-27T01:36:49.849Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=23.8→23.3","detectionStatus":"boot"}
+{"id":"alog-1782524211609","at":"2026-06-27T01:36:51.609Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqrj2cd0-orern-w49j","fallbackReason":"キュー上位のGoal「maxPerEpicの深掘り挙動を調整可能にする」を進めるため、次の一歩Epic（epic-goalstep-goal-mqrj2cd0-orern-w49j）を自動生成しました"}
+{"id":"alog-1782524604000","at":"2026-06-27T01:43:24.000Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqrj2cd0-orern-4j18","fallbackReason":"キュー上位のGoal「maxPerEpicの深掘り挙動を調整可能にする」を進めるため、次の一歩Epic（epic-goalstep-goal-mqrj2cd0-orern-4j18）を自動生成しました"}
+{"id":"alog-1782524604966","at":"2026-06-27T01:43:24.966Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"boot"}
+{"id":"alog-1782525608301","at":"2026-06-27T02:00:08.301Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=23.3→23","detectionStatus":"schedule"}
+{"id":"alog-1782525610119","at":"2026-06-27T02:00:10.119Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqvpojj2-9nbn3","fallbackReason":"キュー上位のGoal「今日の判断には明確な方針決定の選択肢を表示するようにする」を進めるため、次の一歩Epic（epic-goalstep-goal-mqvpojj2-9nbn3）を自動生成しました"}
+{"id":"alog-1782525703298","at":"2026-06-27T02:01:43.298Z","event":"factory_schedule","fallbackReason":"run_failed","detectionStatus":"schedule"}
+{"id":"alog-1782536420956","at":"2026-06-27T05:00:20.956Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=23→22.7","detectionStatus":"schedule"}
+{"id":"alog-1782536422715","at":"2026-06-27T05:00:22.715Z","event":"factory_goal_step_epic_created","epicId":"epic-goalstep-goal-mqvpt6w4-ml6hk","fallbackReason":"キュー上位のGoal「今日の判断で、判断をしたものが自動実行キューに加わることを確認する。」を進めるため、次の一歩Epic（epic-goalstep-goal-mqvpt6w4-ml6hk）を自動生成しました"}
+{"id":"alog-1782536444716","at":"2026-06-27T05:00:44.716Z","event":"factory_schedule","fallbackReason":"run_failed","detectionStatus":"schedule"}
+{"id":"alog-1782543617911","at":"2026-06-27T07:00:17.911Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=22.7→22.5","detectionStatus":"schedule"}
+{"id":"alog-1782543619910","at":"2026-06-27T07:00:19.910Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}
+{"id":"alog-1782560175646","at":"2026-06-27T11:36:15.646Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=22.5→22.3","detectionStatus":"schedule"}
+{"id":"alog-1782560177666","at":"2026-06-27T11:36:17.666Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}
+{"id":"alog-1782560208558","at":"2026-06-27T11:36:48.558Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=22.3→22.1","detectionStatus":"schedule"}
+{"id":"alog-1782560217426","at":"2026-06-27T11:36:57.426Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}
+{"id":"alog-1782560281945","at":"2026-06-27T11:38:01.945Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=22.1→21.9","detectionStatus":"schedule"}
+{"id":"alog-1782560291390","at":"2026-06-27T11:38:11.390Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}
+{"id":"alog-1782560410410","at":"2026-06-27T11:40:10.410Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=21.9→21.7","detectionStatus":"schedule"}
+{"id":"alog-1782560429481","at":"2026-06-27T11:40:29.481Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}
+{"id":"alog-1782568809602","at":"2026-06-27T14:00:09.602Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=21.7→21.4","detectionStatus":"schedule"}
+{"id":"alog-1782568811730","at":"2026-06-27T14:00:11.730Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}
+{"id":"alog-1782612003620","at":"2026-06-28T02:00:03.620Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=21.4→21.3","detectionStatus":"schedule"}
+{"id":"alog-1782612005849","at":"2026-06-28T02:00:05.849Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}
+{"id":"alog-1782622812042","at":"2026-06-28T05:00:12.042Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=21.3→21.1","detectionStatus":"schedule"}
+{"id":"alog-1782622814045","at":"2026-06-28T05:00:14.045Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}
+{"id":"alog-1782630027114","at":"2026-06-28T07:00:27.114Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=21.1→21","detectionStatus":"schedule"}
+{"id":"alog-1782630029174","at":"2026-06-28T07:00:29.174Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}
+{"id":"alog-1782655227253","at":"2026-06-28T14:00:27.253Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=21→20.6","detectionStatus":"schedule"}
+{"id":"alog-1782655229495","at":"2026-06-28T14:00:29.495Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}
+{"id":"alog-1782698420696","at":"2026-06-29T02:00:20.696Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=20.6→20.4","detectionStatus":"schedule"}
+{"id":"alog-1782698423205","at":"2026-06-29T02:00:23.205Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}
+{"id":"alog-1782709225166","at":"2026-06-29T05:00:25.166Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=20.4→20.1","detectionStatus":"schedule"}
+{"id":"alog-1782709228168","at":"2026-06-29T05:00:28.168Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}
+{"id":"alog-1782716423328","at":"2026-06-29T07:00:23.328Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=20.1→19.8","detectionStatus":"schedule"}
+{"id":"alog-1782716423406","at":"2026-06-29T07:00:23.406Z","event":"factory_schedule","fallbackReason":"executionRunsArchived=60 active=243 archive=archive/execution-runs-202606.json","detectionStatus":"schedule"}
+{"id":"alog-1782716425839","at":"2026-06-29T07:00:25.839Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}
+{"id":"alog-1782741621475","at":"2026-06-29T14:00:21.475Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=19.8→0","detectionStatus":"schedule"}
+{"id":"alog-1782741623615","at":"2026-06-29T14:00:23.615Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}
+{"id":"alog-1782784816294","at":"2026-06-30T02:00:16.294Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}
+{"id":"alog-1782795615812","at":"2026-06-30T05:00:15.812Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}
+{"id":"alog-1782802815255","at":"2026-06-30T07:00:15.255Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}
+{"id":"alog-1782828019484","at":"2026-06-30T14:00:19.484Z","event":"factory_schedule","fallbackReason":"no_candidate","detectionStatus":"schedule"}

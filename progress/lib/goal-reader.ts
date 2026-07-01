@@ -21,6 +21,7 @@ export function normalizeGoal(raw: Partial<Goal> & Record<string, unknown>): Goa
     title,
     description: typeof raw.description === 'string' ? raw.description : summary,
     metric: typeof raw.metric === 'string' ? raw.metric : 'progress',
+    metricDirection: raw.metricDirection === 'down' ? 'down' : raw.metricDirection === 'up' ? 'up' : undefined,
     target: normalizeNumber(raw.target, 100),
     current: normalizeNumber(raw.current, typeof raw.target === 'number' ? 0 : 0),
     metricSyncedAt: typeof raw.metricSyncedAt === 'string' ? raw.metricSyncedAt : undefined,
@@ -107,7 +108,14 @@ export function findNorthStarGoal(data: GoalsData): Goal | undefined {
 
 export function goalAchievement(goal: Goal): number {
   if (typeof goal.target === 'number' && goal.target > 0) {
-    return Math.max(0, Math.min(100, Math.round(((goal.current ?? 0) / goal.target) * 100)))
+    const current = goal.current ?? 0
+    // 'down'(小さいほど良い): current<=target で100%。target を超えるほど低下する（target/current）。
+    // 既定 'up'(大きいほど良い): current/target。
+    if (goal.metricDirection === 'down') {
+      if (current <= goal.target) return 100
+      return Math.max(0, Math.min(100, Math.round((goal.target / current) * 100)))
+    }
+    return Math.max(0, Math.min(100, Math.round((current / goal.target) * 100)))
   }
   return calcGoalProgress(goal).ratio
 }

@@ -381,7 +381,7 @@
     "nextAction": "",
     "decisionPolicy": "autonomous",
     "status": "active",
-    "updatedAt": "2026-06-22T12:15:06.006Z",
+    "updatedAt": "2026-06-23T03:33:57.693Z",
     "doneCriteria": [
       "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
       "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
@@ -392,10 +392,825 @@
     "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
     "factoryEligible": true,
     "queueControl": {
-      "manualOrder": 12,
+      "manualOrder": 13,
       "updatedBy": "user",
-      "updatedAt": "2026-06-22T12:15:06.006Z",
+      "updatedAt": "2026-06-23T03:33:57.693Z",
       "pinnedTop": false
     }
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqp6hasd-g5i9p",
+    "goalId": "goal-mqp6hasd-g5i9p",
+    "title": "progressのホームに、近々の自動実行結果、調査結果を表示するようにする: 次の一歩",
+    "goal": "Goal「progressのホームに、近々の自動実行結果、調査結果を表示するようにする」の達成に向けて、次の具体的な1ステップを進める。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-23T03:33:57.693Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ],
+    "queueControl": {
+      "manualOrder": 23,
+      "updatedBy": "user",
+      "updatedAt": "2026-06-23T03:33:57.693Z"
+    }
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqp5djzt-ekz87",
+    "goalId": "goal-mqp5djzt-ekz87",
+    "title": "自動実行キューに最優先、最後尾ボタンを追加: 次の一歩",
+    "goal": "Goal「自動実行キューに最優先、最後尾ボタンを追加」の達成に向けて、次の具体的な1ステップを進める。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-23T03:51:30.184Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqq28l9d-8h86j",
+    "goalId": "goal-mqq28l9d-8h86j",
+    "relatedTodoIds": [
+      "gtodo-mqq28l9d-8ievn"
+    ],
+    "title": "グアムアプリに、イベントごとの移動経路を地図でなぞって表示できるようにする: 次の一歩",
+    "goal": "Goal「グアムアプリに、イベントごとの移動経路を地図でなぞって表示できるようにする」の達成に向けて、次の具体的な1ステップを進める。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-23T14:00:15.949Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "factoryEligible": true
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqp6f72n-nb2xn",
+    "goalId": "goal-mqp6f72n-nb2xn",
+    "relatedTodoIds": [
+      "gtodo-mqp6f72x-6nck0"
+    ],
+    "title": "朝の自動調査の形式変更。記事のようにまとめる: 次の一歩",
+    "goal": "Goal「朝の自動調査の形式変更。記事のようにまとめる」の達成に向けて、次の具体的な1ステップを進める。一日1ページ、記事のように詳細にまとめるように変更する。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-23T23:31:21.175Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "factoryEligible": true,
+    "targetApps": [
+      "ny01-news-app"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqp5c2hm-ts4es",
+    "goalId": "goal-mqp5c2hm-ts4es",
+    "relatedTodoIds": [
+      "gtodo-mqp5c2hm-wifws"
+    ],
+    "title": "自動実行の最大件数の制御をなくす。: 次の一歩",
+    "goal": "Goal「自動実行の最大件数の制御をなくす。」の達成に向けて、次の具体的な1ステップを進める。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-24T00:21:16.637Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqluko5l-5xhb4",
+    "goalId": "goal-mqluko5l-5xhb4",
+    "title": "/guideのFAQ・運用ページの鮮度を点検する仕組みを作る: 次の一歩",
+    "goal": "Goal「/guideのFAQ・運用ページの鮮度を点検する仕組みを作る」の達成に向けて、次の具体的な1ステップを進める。current-operating-model.mdのupdatedが古い/実装と乖離していないかを検知し、更新を促す。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-24T00:25:54.444Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P2",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqkyq2jm-fgvzp",
+    "goalId": "goal-mqkyq2jm-fgvzp",
+    "title": "progressアプリの縦長レイアウトを改善する: 次の一歩",
+    "goal": "Goal「progressアプリの縦長レイアウトを改善する」の達成に向けて、次の具体的な1ステップを進める。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-24T00:30:35.061Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqluko5g-rt044",
+    "goalId": "goal-mqluko5g-rt044",
+    "title": "自動実行RunのnextActionsを必ず埋める: 次の一歩",
+    "goal": "Goal「自動実行RunのnextActionsを必ず埋める」の達成に向けて、次の具体的な1ステップを進める。nextActionsが1/74しか入っていない。実行後に『次にやること』を必ず1つ以上記録する。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-24T02:00:10.515Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqluko5f-wbefy",
+    "goalId": "goal-mqluko5f-wbefy",
+    "title": "自動実行RunにchangedFilesを確実に記録する: 次の一歩",
+    "goal": "Goal「自動実行RunにchangedFilesを確実に記録する」の達成に向けて、次の具体的な1ステップを進める。自動実行74件中10件しか変更ファイルが記録されておらず、レポートで何をしたか追えない。executor結果から変更ファイルを確実に拾う。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-24T05:00:15.993Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P0",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-value-validation-pipeline",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "価値検証パイプライン構築: 次の一歩",
+    "goal": "Goal「価値検証パイプライン構築」の達成に向けて、次の具体的な1ステップを進める。調査・アプリ開発・教材化・収益化候補をAI工場内で継続的に検証し、次の収益候補や転職価値につなげる。",
+    "progress": 100,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "done",
+    "updatedAt": "2026-06-24T07:04:24.617Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P0",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqlxglt5-yirib",
+    "goalId": "goal-mqlxglt5-yirib",
+    "title": "①旧Vaultと今のゴール運用を見比べて、まとめ方を決める: 次の一歩",
+    "goal": "Goal「①旧Vaultと今のゴール運用を見比べて、まとめ方を決める」の達成に向けて、次の具体的な1ステップを進める。旧Vault(candidate/vloop/Epic A-D/ChatGPT承認/案件別ToDo・進捗・完了ログ)と現progressゴール運用の概念対応表を確定し、各概念の正本寄せ先を決める。点検済み(06_research/2026-06-20_旧Vault運用と現ゴール運用の統合点検)。",
+    "progress": 100,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "done",
+    "updatedAt": "2026-06-24T07:07:57.467Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P0",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqluko5i-3e5nq",
+    "goalId": "goal-mqluko5i-3e5nq",
+    "title": "主要画面のiPhone表示を一通り点検・改善する: 次の一歩",
+    "goal": "Goal「主要画面のiPhone表示を一通り点検・改善する」の達成に向けて、次の具体的な1ステップを進める。司令塔/ToDo/Project/目標/自動実行/運用/承認の各画面で、折り返し・タップ領域・横スクロールの破綻が無いか点検する。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-24T07:07:58.404Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqlxglt7-ujmny",
+    "goalId": "goal-mqlxglt7-ujmny",
+    "title": "②収益化の候補(麻雀公開など)を今のゴールに移す: 次の一歩",
+    "goal": "Goal「②収益化の候補(麻雀公開など)を今のゴールに移す」の達成に向けて、次の具体的な1ステップを進める。Vaultにある収益化の候補を、状態を引き継いで今のゴール(progress)として登録し、Vault側の詳細はリンク参照に切り替える。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-24T14:00:18.238Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqlxgluj-ot173",
+    "goalId": "goal-mqlxgluj-ot173",
+    "title": "③やることリストと自動実行の順番をprogressにまとめる: 次の一歩",
+    "goal": "Goal「③やることリストと自動実行の順番をprogressにまとめる」の達成に向けて、次の具体的な1ステップを進める。Vaultのやることリスト・実行待ち一覧を、progressのゴール内ToDoと自動実行キューにまとめ、見る場所を1か所にする。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-25T02:00:13.366Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqluko5k-q6n7p",
+    "goalId": "goal-mqluko5k-q6n7p",
+    "title": "ゴール達成率ダッシュボードを作る: 次の一歩",
+    "goal": "Goal「ゴール達成率ダッシュボードを作る」の達成に向けて、次の具体的な1ステップを進める。active/done/dropped/proposedの内訳と、目標ごとの達成率(current/target)を俯瞰できる画面を作る。",
+    "progress": 100,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "done",
+    "updatedAt": "2026-06-25T05:05:06.442Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P2",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "preferredExecutor": "claude",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqluko5l-ixkhf",
+    "goalId": "goal-mqluko5l-ixkhf",
+    "title": "work-queue/work-candidates等の互換データを段階的に廃止する: 次の一歩",
+    "goal": "Goal「work-queue/work-candidates等の互換データを段階的に廃止する」の達成に向けて、次の具体的な1ステップを進める。非正本の旧データ・旧画面(/legacy/queue等)の依存を棚卸しし、安全に縮小する。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-25T05:05:07.402Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P2",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "preferredExecutor": "claude",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqlxgluk-4aamd",
+    "goalId": "goal-mqlxgluk-4aamd",
+    "title": "⑤旧vloopの扱いを決める(やめる/progressに寄せる): 次の一歩",
+    "goal": "Goal「⑤旧vloopの扱いを決める(やめる/progressに寄せる)」の達成に向けて、次の具体的な1ステップを進める。旧vloop(まとめてVaultのToDoを処理する仕組み)を、progressの自動実行で置き換えられるか確かめ、やめるか寄せるかを決める。",
+    "progress": 100,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "done",
+    "updatedAt": "2026-06-25T07:08:08.636Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P2",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "preferredExecutor": "claude",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqncv7tw-ni5xi",
+    "goalId": "goal-mqncv7tw-ni5xi",
+    "title": "自動実行の実装をCodex優先化してClaude消費を抑える(安全ゲート維持): 次の一歩",
+    "goal": "Goal「自動実行の実装をCodex優先化してClaude消費を抑える(安全ゲート維持)」の達成に向けて、次の具体的な1ステップを進める。factory-runnerの実装系タスクをCodex優先で実行し、Claudeは判断/レビュー/検証/安全判断に寄せる。課金/本番/認証/破壊/外部公開の安全ゲートは維持。Claudeの使用量上限による停止を減らす。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-25T07:08:09.638Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "preferredExecutor": "claude",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqncrvrf-b5er4",
+    "goalId": "goal-mqncrvrf-b5er4",
+    "title": "運用上あると便利な機能を定期提案する仕組みを作る: 次の一歩",
+    "goal": "Goal「運用上あると便利な機能を定期提案する仕組みを作る」の達成に向けて、次の具体的な1ステップを進める。使用状況・作業履歴から運用改善・便利機能を自動抽出しゴール承認へ提案する。",
+    "progress": 100,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "done",
+    "updatedAt": "2026-06-25T14:06:41.526Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P2",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "preferredExecutor": "claude",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqqmhcb9-jndlz",
+    "goalId": "goal-mqqmhcb9-jndlz",
+    "relatedTodoIds": [
+      "gtodo-mqqmhcb9-rl8a9"
+    ],
+    "title": "testflightでのui修正: testflightでのui修正",
+    "goal": "Goal「testflightでのui修正」配下ToDo「testflightでのui修正」を実行する。\n次のアクション: 📋 コピペ用\n\nTestFlightで「麻雀読みトレーニング」を実機インストールして動作確認できました。\nただし、iPhone実機で致命的なUI崩れがあります。\n\n## 状況\n\n- Codemagic / TestFlight配信は成功\n- iPhone実機で起動確認済み\n- 画面: クイズ画面「待ち選択」\n- 重大なUI問題:\n  - 画面上部がiOSのステータスバー / Dynamic Island / safe areaに食い込んでいる\n  - 上部の進捗バーと「1/10」が画面最上部で切れている\n  - ページタイトル「待ち選択」が上に寄りすぎている\n  - iOS Capacitor環境で safe-area-inset-top / safe-area-inset-bottom を考慮できていない\n  - 下部もホームインジケータ分の余白不足がないか確認してほしい\n\n## 目的\n\niPhone / TestFlight / Capacitor環境で、画面がステータスバーやホームインジケータに被らないようにUIを修正してください。\n\n最優先は、iOS実機で以下が起きないことです。\n\n- 上部UIが切れない\n- 進捗バーがステータスバーに被らない\n- ページタイトルが見切れない\n- 下部コンテンツがホームインジケータに隠れない\n- スクロール時にも重要なボタン・説明文が読める\n\n## 対象\n\nGitHub:\nkaeru07/mahjong\n\n作業ブランチ:\nios-codemagic-test\n\n対象アプリ:\n麻雀読みトレーニング\n\nBundle ID:\ncom.kaeru07.mahjong\n\n## 重要ルール\n\n- Bundle IDは変更しない\n- Codemagic設定の ASC_API_KEY / IOS_DISTRIBUTION_CERTIFICATE / IOS_APP_STORE_PROFILE は変更しない\n- Apple ID / .p8 / 証明書 / 秘密鍵などの秘密情報は要求しない\n- App Store Connect / Codemagicの秘密設定には触らない\n- 今回はUI修正のみ\n- 問題データや正誤ロジックは勝手に変更しない\n\n## 修正してほしいこと\n\n### 1. iOS safe area 対応\n\nグローバルCSSまたはアプリのルートレイアウトで、iOS safe areaを考慮してください。\n\n具体的には以下を検討してください。\n\n- `env(safe-area-inset-top)`\n- `env(safe-area-inset-bottom)`\n- `padding-top`\n- `padding-bottom`\n- `min-height: 100dvh`\n- `viewport-fit=cover` が必要か確認\n- Capacitor環境でStatusBarがoverlayしている可能性の確認\n\n必要なら `app/layout.tsx`、`globals.css`、主要ページコンテナを修正してください。\n\n### 2. クイズ画面上部の余白修正\n\nクイズ画面で、上部の進捗バー・問題番号・タイトルがステータスバーに被らないようにしてください。\n\n確認ポイント:\n\n- 進捗バーが最上部で切れない\n- `1/10` が安全に表示される\n- 「待ち選択」が十分下に表示される\n- iPhone縦画面で自然に見える\n\n### 3. 下部余白・スクロール確認\n\n回答後の解説エリアが長くなるため、下部に十分な余白を確保してください。\n\n確認ポイント:\n\n- 解説文の最下部がホームインジケータに隠れない\n- スクロールで最後まで読める\n- 選択肢ボタンや結果カードが途中で不自然に切れない\n\n### 4. モバイルUI全体確認\n\n以下の画面でiPhone幅を想定して確認してください。\n\n- ホーム\n- 問題画面\n- 回答後の正誤表示\n- 結果画面\n\n## 検証\n\nConoHa/Linux上でできる範囲で以下を実行してください。\n\n- npm install または npm ci\n- npm run build\n- npx cap sync ios\n- git diff確認\n- 変更ファイル確認\n\n可能なら、ブラウザのモバイル幅で見た目も確認してください。\n\n## Codemagic注意\n\n過去に以下で詰まったため、今回も絶対に壊さないでください。\n\n- codemagic.yaml はブランチ直下に置く\n- App Store Connect integration 名は `ASC_API_KEY`\n- 証明書参照名は `IOS_DISTRIBUTION_CERTIFICATE`\n- Provisioning Profile参照名は `IOS_APP_STORE_PROFILE`\n- Bundle IDは `com.kaeru07.mahjong`\n- TestFlight目的なのでApp Store審査提出はしない\n\n## 完了後\n\n修正後、以下を実施してください。\n\n- 変更をcommit\n- `ios-codemagic-test` ブランチへpush\n- CodemagicでRebuildすればよい状態にする\n\n## 最終報告フォーマット\n\n## 原因\n## 修正内容\n## 変更ファイル\n## 実行した確認コマンド\n## iPhone実機で次に確認すべきポイント\n## CodemagicでRebuildしてよいか\n作業指示: 📋 コピペ用\n\nTestFlightで「麻雀読みトレーニング」を実機インストールして動作確認できました。\nただし、iPhone実機で致命的なUI崩れがあります。\n\n## 状況\n\n- Codemagic / TestFlight配信は成功\n- iPhone実機で起動確認済み\n- 画面: クイズ画面「待ち選択」\n- 重大なUI問題:\n  - 画面上部がiOSのステータスバー / Dynamic Island / safe areaに食い込んでいる\n  - 上部の進捗バーと「1/10」が画面最上部で切れている\n  - ページタイトル「待ち選択」が上に寄りすぎている\n  - iOS Capacitor環境で safe-area-inset-top / safe-area-inset-bottom を考慮できていない\n  - 下部もホームインジケータ分の余白不足がないか確認してほしい\n\n## 目的\n\niPhone / TestFlight / Capacitor環境で、画面がステータスバーやホームインジケータに被らないようにUIを修正してください。\n\n最優先は、iOS実機で以下が起きないことです。\n\n- 上部UIが切れない\n- 進捗バーがステータスバーに被らない\n- ページタイトルが見切れない\n- 下部コンテンツがホームインジケータに隠れない\n- スクロール時にも重要なボタン・説明文が読める\n\n## 対象\n\nGitHub:\nkaeru07/mahjong\n\n作業ブランチ:\nios-codemagic-test\n\n対象アプリ:\n麻雀読みトレーニング\n\nBundle ID:\ncom.kaeru07.mahjong\n\n## 重要ルール\n\n- Bundle IDは変更しない\n- Codemagic設定の ASC_API_KEY / IOS_DISTRIBUTION_CERTIFICATE / IOS_APP_STORE_PROFILE は変更しない\n- Apple ID / .p8 / 証明書 / 秘密鍵などの秘密情報は要求しない\n- App Store Connect / Codemagicの秘密設定には触らない\n- 今回はUI修正のみ\n- 問題データや正誤ロジックは勝手に変更しない\n\n## 修正してほしいこと\n\n### 1. iOS safe area 対応\n\nグローバルCSSまたはアプリのルートレイアウトで、iOS safe areaを考慮してください。\n\n具体的には以下を検討してください。\n\n- `env(safe-area-inset-top)`\n- `env(safe-area-inset-bottom)`\n- `padding-top`\n- `padding-bottom`\n- `min-height: 100dvh`\n- `viewport-fit=cover` が必要か確認\n- Capacitor環境でStatusBarがoverlayしている可能性の確認\n\n必要なら `app/layout.tsx`、`globals.css`、主要ページコンテナを修正してください。\n\n### 2. クイズ画面上部の余白修正\n\nクイズ画面で、上部の進捗バー・問題番号・タイトルがステータスバーに被らないようにしてください。\n\n確認ポイント:\n\n- 進捗バーが最上部で切れない\n- `1/10` が安全に表示される\n- 「待ち選択」が十分下に表示される\n- iPhone縦画面で自然に見える\n\n### 3. 下部余白・スクロール確認\n\n回答後の解説エリアが長くなるため、下部に十分な余白を確保してください。\n\n確認ポイント:\n\n- 解説文の最下部がホームインジケータに隠れない\n- スクロールで最後まで読める\n- 選択肢ボタンや結果カードが途中で不自然に切れない\n\n### 4. モバイルUI全体確認\n\n以下の画面でiPhone幅を想定して確認してください。\n\n- ホーム\n- 問題画面\n- 回答後の正誤表示\n- 結果画面\n\n## 検証\n\nConoHa/Linux上でできる範囲で以下を実行してください。\n\n- npm install または npm ci\n- npm run build\n- npx cap sync ios\n- git diff確認\n- 変更ファイル確認\n\n可能なら、ブラウザのモバイル幅で見た目も確認してください。\n\n## Codemagic注意\n\n過去に以下で詰まったため、今回も絶対に壊さないでください。\n\n- codemagic.yaml はブランチ直下に置く\n- App Store Connect integration 名は `ASC_API_KEY`\n- 証明書参照名は `IOS_DISTRIBUTION_CERTIFICATE`\n- Provisioning Profile参照名は `IOS_APP_STORE_PROFILE`\n- Bundle IDは `com.kaeru07.mahjong`\n- TestFlight目的なのでApp Store審査提出はしない\n\n## 完了後\n\n修正後、以下を実施してください。\n\n- 変更をcommit\n- `ios-codemagic-test` ブランチへpush\n- CodemagicでRebuildすればよい状態にする\n\n## 最終報告フォーマット\n\n## 原因\n## 修正内容\n## 変更ファイル\n## 実行した確認コマンド\n## iPhone実機で次に確認すべきポイント\n## CodemagicでRebuildしてよいか\nGoal概要: 📋 コピペ用\n\nTestFlightで「麻雀読みトレーニング」を実機インストールして動作確認できました。\nただし、iPhone実機で致命的なUI崩れがあります。\n\n## 状況\n\n- Codemagic / TestFlight配信は成功\n- iPhone実機で起動確認済み\n- 画面: クイズ画面「待ち選択」\n- 重大なUI問題:\n  - 画面上部がiOSのステータスバー / Dynamic Island / safe areaに食い込んでいる\n  - 上部の進捗バーと「1/10」が画面最上部で切れている\n  - ページタイトル「待ち選択」が上に寄りすぎている\n  - iOS Capacitor環境で safe-area-inset-top / safe-area-inset-bottom を考慮できていない\n  - 下部もホームインジケータ分の余白不足がないか確認してほしい\n\n## 目的\n\niPhone / TestFlight / Capacitor環境で、画面がステータスバーやホームインジケータに被らないようにUIを修正してください。\n\n最優先は、iOS実機で以下が起きないことです。\n\n- 上部UIが切れない\n- 進捗バーがステータスバーに被らない\n- ページタイトルが見切れない\n- 下部コンテンツがホームインジケータに隠れない\n- スクロール時にも重要なボタン・説明文が読める\n\n## 対象\n\nGitHub:\nkaeru07/mahjong\n\n作業ブランチ:\nios-codemagic-test\n\n対象アプリ:\n麻雀読みトレーニング\n\nBundle ID:\ncom.kaeru07.mahjong\n\n## 重要ルール\n\n- Bundle IDは変更しない\n- Codemagic設定の ASC_API_KEY / IOS_DISTRIBUTION_CERTIFICATE / IOS_APP_STORE_PROFILE は変更しない\n- Apple ID / .p8 / 証明書 / 秘密鍵などの秘密情報は要求しない\n- App Store Connect / Codemagicの秘密設定には触らない\n- 今回はUI修正のみ\n- 問題データや正誤ロジックは勝手に変更しない\n\n## 修正してほしいこと\n\n### 1. iOS safe area 対応\n\nグローバルCSSまたはアプリのルートレイアウトで、iOS safe areaを考慮してください。\n\n具体的には以下を検討してください。\n\n- `env(safe-area-inset-top)`\n- `env(safe-area-inset-bottom)`\n- `padding-top`\n- `padding-bottom`\n- `min-height: 100dvh`\n- `viewport-fit=cover` が必要か確認\n- Capacitor環境でStatusBarがoverlayしている可能性の確認\n\n必要なら `app/layout.tsx`、`globals.css`、主要ページコンテナを修正してください。\n\n### 2. クイズ画面上部の余白修正\n\nクイズ画面で、上部の進捗バー・問題番号・タイトルがステータスバーに被らないようにしてください。\n\n確認ポイント:\n\n- 進捗バーが最上部で切れない\n- `1/10` が安全に表示される\n- 「待ち選択」が十分下に表示される\n- iPhone縦画面で自然に見える\n\n### 3. 下部余白・スクロール確認\n\n回答後の解説エリアが長くなるため、下部に十分な余白を確保してください。\n\n確認ポイント:\n\n- 解説文の最下部がホームインジケータに隠れない\n- スクロールで最後まで読める\n- 選択肢ボタンや結果カードが途中で不自然に切れない\n\n### 4. モバイルUI全体確認\n\n以下の画面でiPhone幅を想定して確認してください。\n\n- ホーム\n- 問題画面\n- 回答後の正誤表示\n- 結果画面\n\n## 検証\n\nConoHa/Linux上でできる範囲で以下を実行してください。\n\n- npm install または npm ci\n- npm run build\n- npx cap sync ios\n- git diff確認\n- 変更ファイル確認\n\n可能なら、ブラウザのモバイル幅で見た目も確認してください。\n\n## Codemagic注意\n\n過去に以下で詰まったため、今回も絶対に壊さないでください。\n\n- codemagic.yaml はブランチ直下に置く\n- App Store Connect integration 名は `ASC_API_KEY`\n- 証明書参照名は `IOS_DISTRIBUTION_CERTIFICATE`\n- Provisioning Profile参照名は `IOS_APP_STORE_PROFILE`\n- Bundle IDは `com.kaeru07.mahjong`\n- TestFlight目的なのでApp Store審査提出はしない\n\n## 完了後\n\n修正後、以下を実施してください。\n\n- 変更をcommit\n- `ios-codemagic-test` ブランチへpush\n- CodemagicでRebuildすればよい状態にする\n\n## 最終報告フォーマット\n\n## 原因\n## 修正内容\n## 変更ファイル\n## 実行した確認コマンド\n## iPhone実機で次に確認すべきポイント\n## CodemagicでRebuildしてよいか",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-25T14:06:42.467Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "GoalTodoから自動生成した「次の一歩」Epic（todoId=gtodo-mqqmhcb9-rl8a9）。完了後はGoalTodoの消化状況に反映する。",
+    "preferredExecutor": "claude",
+    "factoryEligible": true,
+    "targetApps": [
+      "mahjong"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-ai-executor-ops",
+    "goalId": "goal-ai-executor-ops",
+    "title": "AI実行者の役割分担と安全運用: 次の一歩",
+    "goal": "Goal「AI実行者の役割分担と安全運用」の達成に向けて、次の具体的な1ステップを進める。Codex、Claude Code、ChatGPT、Fable/Opusの役割を固定し、危険操作は承認キューへ回す安全な実行体制を作る。",
+    "progress": 100,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "done",
+    "updatedAt": "2026-06-26T02:07:51.949Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P0",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "preferredExecutor": "claude",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqrj2bqc-arqe7",
+    "goalId": "goal-mqrj2bqc-arqe7",
+    "relatedTodoIds": [
+      "gtodo-mqrj2bqf-x6tpe"
+    ],
+    "title": "自動実行のEpic/ゴールが完了しても閉じない問題を直す: 自動実行のEpic/ゴールが完了しても閉じない問題を直す",
+    "goal": "Goal「自動実行のEpic/ゴールが完了しても閉じない問題を直す」配下ToDo「自動実行のEpic/ゴールが完了しても閉じない問題を直す」を実行する。\n次のアクション: doneCriteriaが常に2/3(continue)でepicがdoneにならず、完了済み作業がreview_waitingに滞留する。レビュー(問題なし)→epic done→goal完了伝播 の経路、または完了判定の改善を実装し、終わった作業が溜まり続けないようにする。\n作業指示: doneCriteriaが常に2/3(continue)でepicがdoneにならず、完了済み作業がreview_waitingに滞留する。レビュー(問題なし)→epic done→goal完了伝播 の経路、または完了判定の改善を実装し、終わった作業が溜まり続けないようにする。\nGoal概要: doneCriteriaが常に2/3(continue)でepicがdoneにならず、完了済み作業がreview_waitingに滞留する。レビュー(問題なし)→epic done→goal完了伝播 の経路、または完了判定の改善を実装し、終わった作業が溜まり続けないようにする。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-26T02:07:52.971Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P0",
+    "riskFlags": [],
+    "notes": "GoalTodoから自動生成した「次の一歩」Epic（todoId=gtodo-mqrj2bqf-x6tpe）。完了後はGoalTodoの消化状況に反映する。",
+    "preferredExecutor": "claude",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqrj2c77-xsurg",
+    "goalId": "goal-mqrj2c77-xsurg",
+    "relatedTodoIds": [
+      "gtodo-mqrj2c77-t18jj"
+    ],
+    "title": "lint NGのrunを完了扱いにしない(lintゲート追加): lint NGのrunを完了扱いにしない(lintゲート追加)",
+    "goal": "Goal「lint NGのrunを完了扱いにしない(lintゲート追加)」配下ToDo「lint NGのrunを完了扱いにしない(lintゲート追加)」を実行する。\n次のアクション: factory実行でlintがNGでもrunStatus=completedで次に進む。lint NG時はreview_waitingや要修正にする等のゲートを追加し、品質を落とさないようにする。\n作業指示: factory実行でlintがNGでもrunStatus=completedで次に進む。lint NG時はreview_waitingや要修正にする等のゲートを追加し、品質を落とさないようにする。\nGoal概要: factory実行でlintがNGでもrunStatus=completedで次に進む。lint NG時はreview_waitingや要修正にする等のゲートを追加し、品質を落とさないようにする。",
+    "progress": 100,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "done",
+    "updatedAt": "2026-06-26T05:08:36.654Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "GoalTodoから自動生成した「次の一歩」Epic（todoId=gtodo-mqrj2c77-t18jj）。完了後はGoalTodoの消化状況に反映する。",
+    "preferredExecutor": "claude",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqrj2cbk-rkmyt",
+    "goalId": "goal-mqrj2cbk-rkmyt",
+    "relatedTodoIds": [
+      "gtodo-mqrj2cbk-q37fi"
+    ],
+    "title": "「自動実行の最大件数の制御をなくす」の実装を意図通りに見直す: 「自動実行の最大件数の制御をなくす」の実装を意図通りに見直す",
+    "goal": "Goal「「自動実行の最大件数の制御をなくす」の実装を意図通りに見直す」配下ToDo「「自動実行の最大件数の制御をなくす」の実装を意図通りに見直す」を実行する。\n次のアクション: codexの実装がmaxRuns=3固定化+外部入力無視になっており意図と異なる可能性。本来の意図(cap撤廃 or 設定可能化)を確認し、未コミットのfactory-runner.ts変更を破棄または修正する。\n作業指示: codexの実装がmaxRuns=3固定化+外部入力無視になっており意図と異なる可能性。本来の意図(cap撤廃 or 設定可能化)を確認し、未コミットのfactory-runner.ts変更を破棄または修正する。\nGoal概要: codexの実装がmaxRuns=3固定化+外部入力無視になっており意図と異なる可能性。本来の意図(cap撤廃 or 設定可能化)を確認し、未コミットのfactory-runner.ts変更を破棄または修正する。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-26T05:08:37.760Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "GoalTodoから自動生成した「次の一歩」Epic（todoId=gtodo-mqrj2cbk-q37fi）。完了後はGoalTodoの消化状況に反映する。",
+    "preferredExecutor": "claude",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqrj2cd0-orern",
+    "goalId": "goal-mqrj2cd0-orern",
+    "relatedTodoIds": [
+      "gtodo-mqrj2cd0-ldll0"
+    ],
+    "title": "maxPerEpicの深掘り挙動を調整可能にする: maxPerEpicの深掘り挙動を調整可能にする",
+    "goal": "Goal「maxPerEpicの深掘り挙動を調整可能にする」配下ToDo「maxPerEpicの深掘り挙動を調整可能にする」を実行する。\n次のアクション: maxPerEpic既定3だと1 epicを3回深掘りする。1サイクルで複数の異なるタスクを回せるよう、挙動を調整・設定可能にする。\n作業指示: maxPerEpic既定3だと1 epicを3回深掘りする。1サイクルで複数の異なるタスクを回せるよう、挙動を調整・設定可能にする。\nGoal概要: maxPerEpic既定3だと1 epicを3回深掘りする。1サイクルで複数の異なるタスクを回せるよう、挙動を調整・設定可能にする。",
+    "progress": 100,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "done",
+    "updatedAt": "2026-06-26T07:06:40.201Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P2",
+    "riskFlags": [],
+    "notes": "GoalTodoから自動生成した「次の一歩」Epic（todoId=gtodo-mqrj2cd0-ldll0）。完了後はGoalTodoの消化状況に反映する。",
+    "preferredExecutor": "claude",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqlxgluk-kajmg",
+    "goalId": "goal-mqlxgluk-kajmg",
+    "title": "④承認の入口(ChatGPTレビューとゴール承認)の役割を整理して重複をなくす: 次の一歩",
+    "goal": "Goal「④承認の入口(ChatGPTレビューとゴール承認)の役割を整理して重複をなくす」の達成に向けて、次の具体的な1ステップを進める。VaultのChatGPT承認待ちと、progressのゴール承認・レビューキューの役割を決め、同じ判断を2か所でしないようにする。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-26T07:06:41.366Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "preferredExecutor": "claude",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqrj2c77-xsurg-07ox",
+    "goalId": "goal-mqrj2c77-xsurg",
+    "title": "lint NGのrunを完了扱いにしない(lintゲート追加): 次の一歩",
+    "goal": "Goal「lint NGのrunを完了扱いにしない(lintゲート追加)」の達成に向けて、次の具体的な1ステップを進める。factory実行でlintがNGでもrunStatus=completedで次に進む。lint NG時はreview_waitingや要修正にする等のゲートを追加し、品質を落とさないようにする。",
+    "progress": 100,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "done",
+    "updatedAt": "2026-06-26T14:08:31.966Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "preferredExecutor": "claude",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqrj2c77-xsurg-ay11",
+    "goalId": "goal-mqrj2c77-xsurg",
+    "title": "lint NGのrunを完了扱いにしない(lintゲート追加): 次の一歩",
+    "goal": "Goal「lint NGのrunを完了扱いにしない(lintゲート追加)」の達成に向けて、次の具体的な1ステップを進める。factory実行でlintがNGでもrunStatus=completedで次に進む。lint NG時はreview_waitingや要修正にする等のゲートを追加し、品質を落とさないようにする。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-26T14:08:32.965Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "preferredExecutor": "claude",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqrj2cd0-orern-w49j",
+    "goalId": "goal-mqrj2cd0-orern",
+    "title": "maxPerEpicの深掘り挙動を調整可能にする: 次の一歩",
+    "goal": "Goal「maxPerEpicの深掘り挙動を調整可能にする」の達成に向けて、次の具体的な1ステップを進める。maxPerEpic既定3だと1 epicを3回深掘りする。1サイクルで複数の異なるタスクを回せるよう、挙動を調整・設定可能にする。",
+    "progress": 100,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "done",
+    "updatedAt": "2026-06-27T01:43:22.634Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P2",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "preferredExecutor": "claude",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqrj2cd0-orern-4j18",
+    "goalId": "goal-mqrj2cd0-orern",
+    "title": "maxPerEpicの深掘り挙動を調整可能にする: 次の一歩",
+    "goal": "Goal「maxPerEpicの深掘り挙動を調整可能にする」の達成に向けて、次の具体的な1ステップを進める。maxPerEpic既定3だと1 epicを3回深掘りする。1サイクルで複数の異なるタスクを回せるよう、挙動を調整・設定可能にする。",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-27T01:43:23.996Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P2",
+    "riskFlags": [],
+    "notes": "todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。",
+    "preferredExecutor": "claude",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqvpojj2-9nbn3",
+    "goalId": "goal-mqvpojj2-9nbn3",
+    "relatedTodoIds": [
+      "gtodo-mqvpojj2-laj4b"
+    ],
+    "title": "今日の判断には明確な方針決定の選択肢を表示するようにする: 今日の判断には明確な方針決定の選択肢を表示するようにする",
+    "goal": "Goal「今日の判断には明確な方針決定の選択肢を表示するようにする」配下ToDo「今日の判断には明確な方針決定の選択肢を表示するようにする」を実行する。\n次のアクション: 今日の判断に確認するなど曖昧な表現のものがあるから、ルールとして〇〇するなど選択肢を示して選ぶことができるようにする．\n作業指示: 今日の判断に確認するなど曖昧な表現のものがあるから、ルールとして〇〇するなど選択肢を示して選ぶことができるようにする．\nGoal概要: 今日の判断に確認するなど曖昧な表現のものがあるから、ルールとして〇〇するなど選択肢を示して選ぶことができるようにする．",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-27T02:00:10.117Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "GoalTodoから自動生成した「次の一歩」Epic（todoId=gtodo-mqvpojj2-laj4b）。完了後はGoalTodoの消化状況に反映する。",
+    "preferredExecutor": "claude",
+    "factoryEligible": true
+  },
+  {
+    "epicId": "epic-goalstep-goal-mqvpt6w4-ml6hk",
+    "goalId": "goal-mqvpt6w4-ml6hk",
+    "relatedTodoIds": [
+      "gtodo-mqvpt6w7-lx8j2"
+    ],
+    "title": "今日の判断で、判断をしたものが自動実行キューに加わることを確認する。: 今日の判断で、判断をしたものが自動実行キューに加わることを確認する。",
+    "goal": "Goal「今日の判断で、判断をしたものが自動実行キューに加わることを確認する。」配下ToDo「今日の判断で、判断をしたものが自動実行キューに加わることを確認する。」を実行する。\n次のアクション: 運用の確認がしたい\n作業指示: 運用の確認がしたい\nGoal概要: 運用の確認がしたい",
+    "progress": 0,
+    "remainingWork": [],
+    "nextAction": "",
+    "decisionPolicy": "autonomous",
+    "status": "active",
+    "updatedAt": "2026-06-27T05:00:22.714Z",
+    "doneCriteria": [
+      "このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する",
+      "定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する",
+      "ExecutionRunに結果を記録し、Goalの達成度を前進させる"
+    ],
+    "priority": "P1",
+    "riskFlags": [],
+    "notes": "GoalTodoから自動生成した「次の一歩」Epic（todoId=gtodo-mqvpt6w7-lx8j2）。完了後はGoalTodoの消化状況に反映する。",
+    "preferredExecutor": "claude",
+    "factoryEligible": true,
+    "targetApps": [
+      "company-mgmt"
+    ]
   }
 ]

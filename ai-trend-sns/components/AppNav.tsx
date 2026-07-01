@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import HelpButton from './HelpButton'
 
 const links = [
   { href: '/', label: 'Dashboard' },
@@ -16,17 +17,20 @@ export default function AppNav() {
           <p className="text-sm font-semibold text-slate-500">AI Trend SNS Studio</p>
           <h1 className="truncate text-lg font-bold text-ink">AIトレンドSNS運用</h1>
         </Link>
-        <nav className="flex gap-1 overflow-x-auto">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="flex-shrink-0 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-ink"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+        <div className="flex items-center gap-2">
+          <nav className="flex gap-1 overflow-x-auto">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="flex-shrink-0 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-ink"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+          <HelpButton />
+        </div>
       </div>
     </header>
   )

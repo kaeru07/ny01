@@ -17,6 +17,11 @@ interface RiskRule {
   category: ApprovalCategory
 }
 
+interface DecisionRule {
+  pattern: RegExp
+  label: string
+}
+
 // 危険キーワード判定は targetTodoTitle / summary / warnings / stopReason のみ走査する。
 // rawReport は議論・引用で危険語が頻出し誤検知が多いため対象外。
 const RISK_RULES: RiskRule[] = [
@@ -25,6 +30,16 @@ const RISK_RULES: RiskRule[] = [
   { pattern: /認証|oauth|credential|secret|api[_-]?key|トークン漏|パスワード/i, label: '認証・秘密情報関連', category: 'secret' },
   { pattern: /本番db|production\s*db|migration|スキーマ変更|drop\s+table|truncate/i, label: '本番DB・スキーマ関連', category: 'production_risk' },
   { pattern: /rm\s+-rf|force\s*push|履歴改変|データ初期化|全削除/i, label: '破壊的操作関連', category: 'destructive' },
+]
+
+const DECISION_RULES: DecisionRule[] = [
+  { pattern: /方針(を)?(判断|決定|選択)/, label: '方針判断' },
+  { pattern: /複数(の)?案/, label: '複数案' },
+  { pattern: /どちら(を|に)(する|選)/, label: '選択判断' },
+  { pattern: /要(方針|判断)/, label: '方針・判断要' },
+  { pattern: /選択肢/, label: '選択肢' },
+  { pattern: /トレードオフ/, label: 'トレードオフ' },
+  { pattern: /方針(未定|が必要)/, label: '方針未定' },
 ]
 
 const NG_CHECK_PATTERN = /\b(ng|fail|failed|error)\b|エラー|失敗|✗/i
@@ -40,6 +55,19 @@ export interface AiReviewClassification {
 function riskHit(run: ExecutionRun): RiskRule | null {
   const text = [run.targetTodoTitle, run.summary, run.stopReason ?? '', ...run.warnings].join(' ')
   for (const rule of RISK_RULES) {
+    if (rule.pattern.test(text)) return rule
+  }
+  return null
+}
+
+function decisionHit(run: ExecutionRun): DecisionRule | null {
+  const text = [
+    run.summary,
+    run.nextActions.join(' '),
+    run.stopReason ?? '',
+    ...run.warnings,
+  ].join(' ')
+  for (const rule of DECISION_RULES) {
     if (rule.pattern.test(text)) return rule
   }
   return null
@@ -79,6 +107,11 @@ export function classifyRun(run: ExecutionRun): AiReviewClassification {
   const risk = riskHit(run)
   if (risk) {
     return { verdict: 'needs_human', rule: 'risk_keyword', reason: `${risk.label}の作業（危険キーワード検知）。人間の確認を推奨。`, approvalCategory: risk.category }
+  }
+  // 作業AIが summary/nextActions にこれらの語を書けば、意図的に今日の判断へ上げられる。
+  const decision = decisionHit(run)
+  if (decision) {
+    return { verdict: 'needs_human', rule: 'decision_needed', reason: '方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。', approvalCategory: 'multi_option' }
   }
   return { verdict: 'reviewed', rule: 'clean_completed', reason: 'completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。' }
 }

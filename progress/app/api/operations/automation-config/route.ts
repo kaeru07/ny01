@@ -22,6 +22,11 @@ export async function POST(request: Request) {
   if (typeof body.autoResume === 'boolean') patch.autoResume = body.autoResume
   if (typeof body.autoFallback === 'boolean') patch.autoFallback = body.autoFallback
   if (typeof body.factoryEnabled === 'boolean') patch.factoryEnabled = body.factoryEnabled
+  // 深掘り回数（同一Epicを1起動内で何Run回すか）。store 側で 1〜3 にクランプされるが、
+  // 数値以外は無視して既定維持。これを受けないと UI/外部から調整できず default 3 に固定される。
+  if (typeof body.factoryMaxPerEpic === 'number' && Number.isFinite(body.factoryMaxPerEpic)) {
+    patch.factoryMaxPerEpic = body.factoryMaxPerEpic
+  }
   const updated = await updateAutomationConfig(patch)
   return NextResponse.json(updated)
 }

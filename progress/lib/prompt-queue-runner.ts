@@ -3,7 +3,9 @@ import { addExecutionRun } from '@/lib/execution-run-writer'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { buildPromptQueueView, updatePromptQueueItem } from '@/lib/prompt-queue'
 import { getAdapter } from '@/lib/executors'
+import { decideCodexFallback } from '@/lib/executor-fallback'
 import type { ExecutorResult, FactoryRunMode } from '@/lib/executors/types'
+import type { ExecutorChoice } from '@/lib/types/operations'
 import type { ExecutionRun } from '@/types/execution-run'
 import type { PromptQueueCandidate } from '@/types/prompt-queue'
 
@@ -95,6 +97,8 @@ async function recordPromptQueueRun(args: {
   mode: FactoryRunMode
   prompt: string
   result: ExecutorResult
+  executor: ExecutorChoice
+  fallbackReason?: string
 }): Promise<string> {
   const runId = await generateUniqueRunId()
   const now = new Date().toISOString()
@@ -113,15 +117,16 @@ async function recordPromptQueueRun(args: {
     runStatus: runStatusMap[args.result.status],
     reviewStatus: 'not_reviewed',
     source: 'prompt_queue',
-    executorUsed: 'claude',
+    executorUsed: args.executor,
     factoryRun: true,
     runnerMode: args.mode,
     factoryDispatch: true,
     dispatchMode: args.mode === 'auto' ? 'auto' : 'manual_copy',
     dispatchPlanId: `prompt-queue:${args.item.id}`,
-    executorCandidate: 'claude',
+    executorCandidate: args.executor,
     promptGenerated: true,
     resultReturned: args.mode === 'auto',
+    fallbackReason: args.fallbackReason,
     promptUsed: args.prompt,
     summary: args.result.resultSummary,
     changedFiles: args.result.changedFiles.map((file) => ({ file, change: '' })),
@@ -130,7 +135,7 @@ async function recordPromptQueueRun(args: {
     warnings: [],
     progressUpdated: false,
     nextActions: args.result.nextActions,
-    rawReport: `[prompt-queue ${args.mode}] item=${args.item.id}\n${args.result.stdout || args.result.resultSummary}`,
+    rawReport: `[prompt-queue ${args.mode}] item=${args.item.id} executor=${args.executor}\n${args.result.stdout || args.result.resultSummary}`,
   }
   await addExecutionRun(run)
   return runId
@@ -184,7 +189,7 @@ export async function runPromptQueueDispatch(opts: PromptQueueDispatchOptions = 
 
     if (mode !== 'auto' || !opts.confirm) {
       const result = dryRunResult()
-      const runId = await recordPromptQueueRun({ item, mode, prompt, result })
+      const runId = await recordPromptQueueRun({ item, mode, prompt, result, executor: 'manual' })
       await updatePromptQueueItem(item.id, {
         status: 'reserved',
         executionRunId: runId,
@@ -196,14 +201,34 @@ export async function runPromptQueueDispatch(opts: PromptQueueDispatchOptions = 
     }
 
     try {
-      const result = await getAdapter('claude').run({
+      let executor: ExecutorChoice = 'claude'
+      let fallbackReason: string | undefined
+      let result = await getAdapter(executor).run({
         epicId: `prompt-queue:${item.id}`,
         prompt,
         cwd: opts.cwd,
         dryRun: false,
         safetyText: `${item.title} ${item.prompt}`,
       })
-      const runId = await recordPromptQueueRun({ item, mode, prompt, result })
+      const fallback = decideCodexFallback({
+        attemptedExecutor: executor,
+        result,
+        autoFallback: config.autoFallback,
+        executorMode: config.executorMode,
+        canRunOnCodex: true,
+      })
+      if (fallback.shouldFallback) {
+        result = await getAdapter('codex').run({
+          epicId: `prompt-queue:${item.id}`,
+          prompt,
+          cwd: opts.cwd,
+          dryRun: false,
+          safetyText: `${item.title} ${item.prompt}`,
+        })
+        executor = 'codex'
+        fallbackReason = fallback.reason
+      }
+      const runId = await recordPromptQueueRun({ item, mode, prompt, result, executor, fallbackReason })
       if (result.status === 'completed' || result.status === 'partial') {
         await updatePromptQueueItem(item.id, {
           status: 'completed',

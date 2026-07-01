@@ -1,5 +1,9 @@
 import { runCommand } from './executors/shell'
 
+// lint ゲートの純関数は依存ゼロの checks-gate.ts に分離し、ここから再エクスポートする
+// （既存 import 元 factory-runner.ts は './checks-runner' のまま無改変で動く）。
+export { NG_CHECK_PATTERN, failingChecks, gateRunStatusByChecks } from './checks-gate'
+
 // Level1（機械判定）: build / typecheck / lint を実行して OK/NG を返す。
 // 結果は ExecutionRun.checks に構造化保存する（新正本は作らない）。executor 非依存。
 

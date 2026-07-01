@@ -88,7 +88,6 @@ export function deriveWorkItemStatus(epic: Epic, context: StatusContext): WorkIt
   if (latestRun?.reviewStatus === 'needs_human') return 'waiting_user'
 
   if (epic.queueControl?.hold === true || epic.status === 'paused') return 'ai_hold'
-  if (epic.epicId.startsWith('epic-goalstep-') && latestRun?.runStatus === 'completed') return 'review_waiting'
   // ただのレビュー待ち(not_reviewed)/修正依頼(needs_followup)は止めない。危険・判断要のゲートを通過していれば
   // factoryEligible に従って executable とする。fixRequested/reviewPending は toEpicItem 側で
   // status==='executable' のときフラグ付与＆boostする。

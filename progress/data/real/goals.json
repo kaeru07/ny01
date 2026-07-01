@@ -29,8 +29,8 @@
       "description": "Codex/Claudeの実行結果を完了報告で終わらせず、Review、Knowledge、Next Epic候補生成までつなげる。",
       "metric": "closed_loop_rate",
       "target": 80,
-      "current": 64.2,
-      "metricSyncedAt": "2026-06-22T14:00:05.096Z",
+      "current": 0,
+      "metricSyncedAt": "2026-06-30T14:00:16.968Z",
       "isNorthStar": false,
       "summary": "Codex/Claudeの実行結果を完了報告で終わらせず、Review、Knowledge、Next Epic候補生成までつなげる。",
       "status": "active",
@@ -43,7 +43,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-11T00:00:00.000Z",
-      "updatedAt": "2026-06-22T14:29:40.047Z"
+      "updatedAt": "2026-06-29T14:00:21.469Z"
     },
     {
       "id": "goal-ai-executor-ops",
@@ -52,23 +52,25 @@
       "description": "Codex、Claude Code、ChatGPT、Fable/Opusの役割を固定し、危険操作は承認キューへ回す安全な実行体制を作る。",
       "metric": "safe_execution_rate",
       "target": 90,
-      "current": 30,
+      "current": 90,
       "isNorthStar": false,
       "summary": "Codex、Claude Code、ChatGPT、Fable/Opusの役割を固定し、危険操作は承認キューへ回す安全な実行体制を作る。",
-      "status": "active",
+      "status": "done",
       "priority": "high",
       "pinnedTop": false,
       "queueControl": {
-        "manualOrder": 9,
+        "manualOrder": 8,
         "updatedBy": "user",
-        "updatedAt": "2026-06-22T12:15:06.076Z"
+        "updatedAt": "2026-06-24T15:54:58.211Z"
       },
+      "lastSelectedRunId": "20260626-110008-354",
+      "lastSelectedAt": "2026-06-26T02:00:08.342Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-11T00:00:00.000Z",
-      "updatedAt": "2026-06-22T12:15:06.076Z"
+      "updatedAt": "2026-06-26T02:07:51.993Z"
     },
     {
       "id": "goal-value-validation-pipeline",
@@ -77,23 +79,26 @@
       "description": "調査・アプリ開発・教材化・収益化候補をAI工場内で継続的に検証し、次の収益候補や転職価値につなげる。",
       "metric": "validated_project_count",
       "target": 5,
-      "current": 0,
+      "current": 3,
+      "metricSyncedAt": "2026-06-30T14:00:16.968Z",
       "isNorthStar": false,
       "summary": "調査・アプリ開発・教材化・収益化候補をAI工場内で継続的に検証し、次の収益候補や転職価値につなげる。",
-      "status": "active",
+      "status": "done",
       "priority": "high",
       "pinnedTop": false,
       "queueControl": {
-        "manualOrder": 10,
+        "manualOrder": 7,
         "updatedBy": "user",
-        "updatedAt": "2026-06-22T12:15:06.081Z"
+        "updatedAt": "2026-06-23T16:04:09.731Z"
       },
+      "lastSelectedRunId": "20260624-160006-385",
+      "lastSelectedAt": "2026-06-24T07:00:06.375Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-11T00:00:00.000Z",
-      "updatedAt": "2026-06-22T12:15:06.081Z"
+      "updatedAt": "2026-06-24T14:00:17.205Z"
     },
     {
       "id": "goal-mqjnjhf0-6f75h",
@@ -190,16 +195,18 @@
       "priority": "medium",
       "pinnedTop": false,
       "queueControl": {
-        "manualOrder": 5,
+        "manualOrder": 4,
         "updatedBy": "user",
-        "updatedAt": "2026-06-22T12:15:06.058Z"
+        "updatedAt": "2026-06-23T16:04:09.713Z"
       },
+      "lastSelectedRunId": "20260624-093035-518",
+      "lastSelectedAt": "2026-06-24T00:30:35.507Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-19T13:26:37.666Z",
-      "updatedAt": "2026-06-22T12:15:06.058Z"
+      "updatedAt": "2026-06-24T00:30:35.538Z"
     },
     {
       "id": "goal-mqlsxkwd-470tt",
@@ -1704,9 +1711,11 @@
         "hold": false,
         "excludedByUser": false,
         "updatedBy": "user",
-        "updatedAt": "2026-06-22T12:15:06.070Z",
-        "manualOrder": 8
+        "updatedAt": "2026-06-23T16:04:09.724Z",
+        "manualOrder": 6
       },
+      "lastSelectedRunId": "20260624-140016-425",
+      "lastSelectedAt": "2026-06-24T05:00:16.404Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "app_improvement",
@@ -1723,7 +1732,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-20T04:18:13.405Z",
-      "updatedAt": "2026-06-22T12:15:06.070Z"
+      "updatedAt": "2026-06-24T05:00:16.442Z"
     },
     {
       "id": "goal-mqluko5g-il7nz",
@@ -1773,10 +1782,12 @@
       "priority": "medium",
       "pinnedTop": false,
       "queueControl": {
-        "manualOrder": 6,
+        "manualOrder": 5,
         "updatedBy": "user",
-        "updatedAt": "2026-06-22T12:15:06.064Z"
+        "updatedAt": "2026-06-23T16:04:09.720Z"
       },
+      "lastSelectedRunId": "20260624-110010-958",
+      "lastSelectedAt": "2026-06-24T02:00:10.948Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "app_improvement",
@@ -1790,7 +1801,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-20T04:18:13.405Z",
-      "updatedAt": "2026-06-22T12:15:06.064Z"
+      "updatedAt": "2026-06-24T02:00:10.979Z"
     },
     {
       "id": "goal-mqluko5g-f6c7f",
@@ -2019,10 +2030,12 @@
       "priority": "medium",
       "pinnedTop": false,
       "queueControl": {
-        "manualOrder": 13,
+        "manualOrder": 9,
         "updatedBy": "user",
-        "updatedAt": "2026-06-22T12:15:06.089Z"
+        "updatedAt": "2026-06-23T16:04:09.741Z"
       },
+      "lastSelectedRunId": "20260624-160758-989",
+      "lastSelectedAt": "2026-06-24T07:07:58.977Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "app_improvement",
@@ -2038,7 +2051,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-20T04:18:13.405Z",
-      "updatedAt": "2026-06-22T12:15:06.089Z"
+      "updatedAt": "2026-06-24T07:07:59.009Z"
     },
     {
       "id": "goal-mqluko5i-ppywk",
@@ -2254,20 +2267,22 @@
       "description": "active/done/dropped/proposedの内訳と、目標ごとの達成率(current/target)を俯瞰できる画面を作る。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "active/done/dropped/proposedの内訳と、目標ごとの達成率(current/target)を俯瞰できる画面を作る。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: ゴールが増え、全体像の把握が難しくなっている。",
-      "status": "active",
+      "status": "done",
       "priority": "low",
       "pinnedTop": false,
       "queueControl": {
-        "manualOrder": 17,
+        "manualOrder": 2,
         "updatedBy": "user",
-        "updatedAt": "2026-06-22T12:15:06.107Z"
+        "updatedAt": "2026-06-24T15:54:58.190Z"
       },
+      "lastSelectedRunId": "20260625-140015-104",
+      "lastSelectedAt": "2026-06-25T05:00:15.080Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "app_improvement",
@@ -2281,7 +2296,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-20T04:18:13.405Z",
-      "updatedAt": "2026-06-22T12:15:06.107Z"
+      "updatedAt": "2026-06-25T05:05:06.457Z"
     },
     {
       "id": "goal-mqluko5k-zvsza",
@@ -2329,10 +2344,12 @@
       "priority": "low",
       "pinnedTop": false,
       "queueControl": {
-        "manualOrder": 4,
+        "manualOrder": 3,
         "updatedBy": "user",
-        "updatedAt": "2026-06-22T12:15:06.049Z"
+        "updatedAt": "2026-06-23T16:04:09.706Z"
       },
+      "lastSelectedRunId": "20260624-092554-859",
+      "lastSelectedAt": "2026-06-24T00:25:54.846Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "app_improvement",
@@ -2346,7 +2363,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-20T04:18:13.405Z",
-      "updatedAt": "2026-06-22T12:15:06.049Z"
+      "updatedAt": "2026-06-24T00:25:54.879Z"
     },
     {
       "id": "goal-mqluko5l-8jznd",
@@ -2510,9 +2527,9 @@
       "priority": "low",
       "pinnedTop": false,
       "queueControl": {
-        "manualOrder": 18,
+        "manualOrder": 3,
         "updatedBy": "user",
-        "updatedAt": "2026-06-22T12:15:06.115Z"
+        "updatedAt": "2026-06-24T15:54:58.194Z"
       },
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
@@ -2529,7 +2546,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-20T04:18:13.405Z",
-      "updatedAt": "2026-06-22T12:15:06.115Z"
+      "updatedAt": "2026-06-24T15:54:58.194Z"
     },
     {
       "id": "goal-mqlxglt5-yirib",
@@ -2538,20 +2555,22 @@
       "description": "旧Vault(candidate/vloop/Epic A-D/ChatGPT承認/案件別ToDo・進捗・完了ログ)と現progressゴール運用の概念対応表を確定し、各概念の正本寄せ先を決める。点検済み(06_research/2026-06-20_旧Vault運用と現ゴール運用の統合点検)。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "旧Vault(candidate/vloop/Epic A-D/ChatGPT承認/案件別ToDo・進捗・完了ログ)と現progressゴール運用の概念対応表を確定し、各概念の正本寄せ先を決める。点検済み(06_research/2026-06-20_旧Vault運用と現ゴール運用の統合点検)。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: 『候補→承認→キュー→実行→完了→進捗』の運用ループが2系統(Vault/progress)に重複。まず対応表で正本を確定しないと以降の移行が場当たりになる。",
-      "status": "active",
+      "status": "done",
       "priority": "high",
       "pinnedTop": false,
       "queueControl": {
-        "manualOrder": 11,
+        "manualOrder": 8,
         "updatedBy": "user",
-        "updatedAt": "2026-06-22T12:15:06.085Z"
+        "updatedAt": "2026-06-23T16:04:09.736Z"
       },
+      "lastSelectedRunId": "20260624-160425-871",
+      "lastSelectedAt": "2026-06-24T07:04:25.860Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "app_improvement",
@@ -2569,7 +2588,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-20T05:39:02.618Z",
-      "updatedAt": "2026-06-22T12:15:06.085Z"
+      "updatedAt": "2026-06-24T07:07:57.511Z"
     },
     {
       "id": "goal-mqlxglt7-ujmny",
@@ -2588,10 +2607,12 @@
       "priority": "medium",
       "pinnedTop": false,
       "queueControl": {
-        "manualOrder": 14,
+        "manualOrder": 10,
         "updatedBy": "user",
-        "updatedAt": "2026-06-22T12:15:06.094Z"
+        "updatedAt": "2026-06-23T16:04:09.747Z"
       },
+      "lastSelectedRunId": "20260624-230018-748",
+      "lastSelectedAt": "2026-06-24T14:00:18.737Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "app_improvement",
@@ -2610,7 +2631,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-20T05:39:02.618Z",
-      "updatedAt": "2026-06-22T12:15:06.094Z"
+      "updatedAt": "2026-06-24T14:00:18.767Z"
     },
     {
       "id": "goal-mqlxgluj-ot173",
@@ -2629,10 +2650,12 @@
       "priority": "medium",
       "pinnedTop": false,
       "queueControl": {
-        "manualOrder": 15,
+        "manualOrder": 1,
         "updatedBy": "user",
-        "updatedAt": "2026-06-22T12:15:06.099Z"
+        "updatedAt": "2026-06-24T15:54:58.182Z"
       },
+      "lastSelectedRunId": "20260625-110013-933",
+      "lastSelectedAt": "2026-06-25T02:00:13.921Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "app_improvement",
@@ -2651,7 +2674,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-20T05:39:02.618Z",
-      "updatedAt": "2026-06-22T12:15:06.099Z"
+      "updatedAt": "2026-06-25T02:00:13.954Z"
     },
     {
       "id": "goal-mqlxgluk-kajmg",
@@ -2670,9 +2693,9 @@
       "priority": "medium",
       "pinnedTop": false,
       "queueControl": {
-        "manualOrder": 16,
+        "manualOrder": 13,
         "updatedBy": "user",
-        "updatedAt": "2026-06-22T12:15:06.103Z"
+        "updatedAt": "2026-06-24T15:54:58.216Z"
       },
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
@@ -2692,7 +2715,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-20T05:39:02.618Z",
-      "updatedAt": "2026-06-22T12:15:06.103Z"
+      "updatedAt": "2026-06-24T15:54:58.216Z"
     },
     {
       "id": "goal-mqlxgluk-4aamd",
@@ -2701,20 +2724,22 @@
       "description": "旧vloop(まとめてVaultのToDoを処理する仕組み)を、progressの自動実行で置き換えられるか確かめ、やめるか寄せるかを決める。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "旧vloop(まとめてVaultのToDoを処理する仕組み)を、progressの自動実行で置き換えられるか確かめ、やめるか寄せるかを決める。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: 実行エンジンがvloopとfactory-runnerで二系統。Epic完了優先の思想はfactory-runner側にも近い機能がある。",
-      "status": "active",
+      "status": "done",
       "priority": "low",
       "pinnedTop": false,
       "queueControl": {
-        "manualOrder": 19,
+        "manualOrder": 4,
         "updatedBy": "user",
-        "updatedAt": "2026-06-22T12:15:06.120Z"
+        "updatedAt": "2026-06-24T15:54:58.199Z"
       },
+      "lastSelectedRunId": "20260625-160014-476",
+      "lastSelectedAt": "2026-06-25T07:00:14.463Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "app_improvement",
@@ -2733,7 +2758,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-20T05:39:02.618Z",
-      "updatedAt": "2026-06-22T12:15:06.120Z"
+      "updatedAt": "2026-06-25T07:08:08.646Z"
     },
     {
       "id": "goal-mqlxgluk-70fuj",
@@ -2972,20 +2997,22 @@
       "description": "使用状況・作業履歴から運用改善・便利機能を自動抽出しゴール承認へ提案する。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "使用状況・作業履歴から運用改善・便利機能を自動抽出しゴール承認へ提案する。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: ユーザー要望: 運用上あった方が便利なものも追加してほしい。",
-      "status": "active",
+      "status": "done",
       "priority": "low",
       "pinnedTop": false,
       "queueControl": {
-        "manualOrder": 21,
+        "manualOrder": 6,
         "updatedBy": "user",
-        "updatedAt": "2026-06-22T12:15:06.129Z"
+        "updatedAt": "2026-06-24T15:54:58.207Z"
       },
+      "lastSelectedRunId": "20260625-230013-668",
+      "lastSelectedAt": "2026-06-25T14:00:13.653Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "vision_followup",
@@ -3001,7 +3028,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-21T05:35:29.162Z",
-      "updatedAt": "2026-06-22T12:15:06.129Z"
+      "updatedAt": "2026-06-25T14:06:41.541Z"
     },
     {
       "id": "goal-mqncv7tw-ni5xi",
@@ -3020,9 +3047,9 @@
       "priority": "medium",
       "pinnedTop": false,
       "queueControl": {
-        "manualOrder": 20,
+        "manualOrder": 5,
         "updatedBy": "user",
-        "updatedAt": "2026-06-22T12:15:06.124Z"
+        "updatedAt": "2026-06-24T15:54:58.203Z"
       },
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
@@ -3041,7 +3068,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-21T05:38:04.771Z",
-      "updatedAt": "2026-06-22T12:15:06.124Z"
+      "updatedAt": "2026-06-24T15:54:58.203Z"
     },
     {
       "id": "goal-mqnl772j-2aehq",
@@ -3270,6 +3297,8 @@
       "status": "active",
       "priority": "medium",
       "pinnedTop": false,
+      "lastSelectedRunId": "20260624-092117-004",
+      "lastSelectedAt": "2026-06-24T00:21:16.992Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [
@@ -3300,16 +3329,16 @@
           "status": "pending",
           "dependsOn": [],
           "createdAt": "2026-06-22T11:42:46.419Z",
-          "updatedAt": "2026-06-22T12:15:06.026Z",
+          "updatedAt": "2026-06-23T16:04:09.685Z",
           "queueControl": {
-            "manualOrder": 2,
+            "manualOrder": 1,
             "updatedBy": "user",
-            "updatedAt": "2026-06-22T12:15:06.026Z"
+            "updatedAt": "2026-06-23T16:04:09.685Z"
           }
         }
       ],
       "createdAt": "2026-06-22T11:42:46.419Z",
-      "updatedAt": "2026-06-22T12:15:06.026Z"
+      "updatedAt": "2026-06-24T00:21:17.034Z"
     },
     {
       "id": "goal-mqp5djzt-ekz87",
@@ -3326,6 +3355,8 @@
       "status": "active",
       "priority": "medium",
       "pinnedTop": false,
+      "lastSelectedRunId": "20260623-160008-996",
+      "lastSelectedAt": "2026-06-23T07:00:08.987Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [
@@ -3353,19 +3384,20 @@
           "decisionPolicy": "autonomous",
           "riskFlags": [],
           "source": "manual_todo",
-          "status": "pending",
+          "status": "done",
           "dependsOn": [],
           "createdAt": "2026-06-22T11:43:55.755Z",
-          "updatedAt": "2026-06-22T12:15:06.042Z",
+          "updatedAt": "2026-06-23T13:12:15.896Z",
           "queueControl": {
-            "manualOrder": 7,
+            "manualOrder": 4,
             "updatedBy": "user",
-            "updatedAt": "2026-06-22T12:15:06.042Z"
+            "updatedAt": "2026-06-23T08:17:36.373Z",
+            "pinnedTop": false
           }
         }
       ],
       "createdAt": "2026-06-22T11:43:55.755Z",
-      "updatedAt": "2026-06-22T12:15:06.042Z"
+      "updatedAt": "2026-06-23T13:12:15.896Z"
     },
     {
       "id": "goal-mqp6f72n-nb2xn",
@@ -3382,6 +3414,8 @@
       "status": "active",
       "priority": "medium",
       "pinnedTop": false,
+      "lastSelectedRunId": "20260624-084459-442",
+      "lastSelectedAt": "2026-06-23T23:44:59.429Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [
@@ -3412,16 +3446,18 @@
           "status": "pending",
           "dependsOn": [],
           "createdAt": "2026-06-22T12:13:11.527Z",
-          "updatedAt": "2026-06-22T12:15:06.034Z",
+          "updatedAt": "2026-06-23T23:29:39.570Z",
           "queueControl": {
-            "manualOrder": 3,
+            "manualOrder": 2,
             "updatedBy": "user",
-            "updatedAt": "2026-06-22T12:15:06.034Z"
+            "updatedAt": "2026-06-23T23:29:39.570Z",
+            "pinnedTop": true,
+            "pinnedAt": "2026-06-23T23:29:39.564Z"
           }
         }
       ],
       "createdAt": "2026-06-22T12:13:11.527Z",
-      "updatedAt": "2026-06-22T12:15:06.034Z"
+      "updatedAt": "2026-06-23T23:44:59.612Z"
     },
     {
       "id": "goal-mqp6hasd-g5i9p",
@@ -3438,6 +3474,8 @@
       "status": "active",
       "priority": "medium",
       "pinnedTop": false,
+      "lastSelectedRunId": "20260623-110010-282",
+      "lastSelectedAt": "2026-06-23T02:00:10.271Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [
@@ -3465,21 +3503,773 @@
           "decisionPolicy": "autonomous",
           "riskFlags": [],
           "source": "manual_todo",
-          "status": "pending",
+          "status": "done",
           "dependsOn": [],
           "createdAt": "2026-06-22T12:14:49.458Z",
-          "updatedAt": "2026-06-22T12:15:06.009Z",
+          "updatedAt": "2026-06-23T13:12:16.163Z",
           "queueControl": {
-            "manualOrder": 1,
+            "manualOrder": 2,
             "updatedBy": "user",
-            "updatedAt": "2026-06-22T12:15:06.009Z"
+            "updatedAt": "2026-06-23T03:33:57.701Z"
           }
         }
       ],
       "createdAt": "2026-06-22T12:14:49.458Z",
-      "updatedAt": "2026-06-22T12:15:06.009Z"
+      "updatedAt": "2026-06-23T13:12:16.163Z"
+    },
+    {
+      "id": "goal-mqq28l9d-8h86j",
+      "title": "グアムアプリに、イベントごとの移動経路を地図でなぞって表示できるようにする",
+      "description": "",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "status": "active",
+      "priority": "medium",
+      "pinnedTop": false,
+      "lastSelectedRunId": "20260623-230016-158",
+      "lastSelectedAt": "2026-06-23T14:00:16.146Z",
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-mqq28l9d-rqr5f",
+          "title": "初期フェーズ",
+          "summary": "グアムアプリに、イベントごとの移動経路を地図でなぞって表示できるようにする",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-mqq28l9d-8ievn",
+          "goalId": "goal-mqq28l9d-8h86j",
+          "phaseId": "phase-mqq28l9d-rqr5f",
+          "title": "グアムアプリに、イベントごとの移動経路を地図でなぞって表示できるようにする",
+          "role": "claude",
+          "order": 0,
+          "priority": "medium",
+          "nextAction": "グアムアプリに、イベントごとの移動経路を地図でなぞって表示できるようにする",
+          "doneCriteria": [],
+          "taskPrompt": "",
+          "memo": "",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-06-23T03:03:51.451Z",
+          "updatedAt": "2026-06-23T03:33:57.697Z",
+          "queueControl": {
+            "manualOrder": 1,
+            "updatedBy": "user",
+            "updatedAt": "2026-06-23T03:33:57.697Z"
+          }
+        }
+      ],
+      "createdAt": "2026-06-23T03:03:51.451Z",
+      "updatedAt": "2026-06-23T14:00:16.177Z"
+    },
+    {
+      "id": "goal-mqqmhcb9-jndlz",
+      "projectId": "mahjong",
+      "title": "testflightでのui修正",
+      "description": "📋 コピペ用\n\nTestFlightで「麻雀読みトレーニング」を実機インストールして動作確認できました。\nただし、iPhone実機で致命的なUI崩れがあります。\n\n## 状況\n\n- Codemagic / TestFlight配信は成功\n- iPhone実機で起動確認済み\n- 画面: クイズ画面「待ち選択」\n- 重大なUI問題:\n  - 画面上部がiOSのステータスバー / Dynamic Island / safe areaに食い込んでいる\n  - 上部の進捗バーと「1/10」が画面最上部で切れている\n  - ページタイトル「待ち選択」が上に寄りすぎている\n  - iOS Capacitor環境で safe-area-inset-top / safe-area-inset-bottom を考慮できていない\n  - 下部もホームインジケータ分の余白不足がないか確認してほしい\n\n## 目的\n\niPhone / TestFlight / Capacitor環境で、画面がステータスバーやホームインジケータに被らないようにUIを修正してください。\n\n最優先は、iOS実機で以下が起きないことです。\n\n- 上部UIが切れない\n- 進捗バーがステータスバーに被らない\n- ページタイトルが見切れない\n- 下部コンテンツがホームインジケータに隠れない\n- スクロール時にも重要なボタン・説明文が読める\n\n## 対象\n\nGitHub:\nkaeru07/mahjong\n\n作業ブランチ:\nios-codemagic-test\n\n対象アプリ:\n麻雀読みトレーニング\n\nBundle ID:\ncom.kaeru07.mahjong\n\n## 重要ルール\n\n- Bundle IDは変更しない\n- Codemagic設定の ASC_API_KEY / IOS_DISTRIBUTION_CERTIFICATE / IOS_APP_STORE_PROFILE は変更しない\n- Apple ID / .p8 / 証明書 / 秘密鍵などの秘密情報は要求しない\n- App Store Connect / Codemagicの秘密設定には触らない\n- 今回はUI修正のみ\n- 問題データや正誤ロジックは勝手に変更しない\n\n## 修正してほしいこと\n\n### 1. iOS safe area 対応\n\nグローバルCSSまたはアプリのルートレイアウトで、iOS safe areaを考慮してください。\n\n具体的には以下を検討してください。\n\n- `env(safe-area-inset-top)`\n- `env(safe-area-inset-bottom)`\n- `padding-top`\n- `padding-bottom`\n- `min-height: 100dvh`\n- `viewport-fit=cover` が必要か確認\n- Capacitor環境でStatusBarがoverlayしている可能性の確認\n\n必要なら `app/layout.tsx`、`globals.css`、主要ページコンテナを修正してください。\n\n### 2. クイズ画面上部の余白修正\n\nクイズ画面で、上部の進捗バー・問題番号・タイトルがステータスバーに被らないようにしてください。\n\n確認ポイント:\n\n- 進捗バーが最上部で切れない\n- `1/10` が安全に表示される\n- 「待ち選択」が十分下に表示される\n- iPhone縦画面で自然に見える\n\n### 3. 下部余白・スクロール確認\n\n回答後の解説エリアが長くなるため、下部に十分な余白を確保してください。\n\n確認ポイント:\n\n- 解説文の最下部がホームインジケータに隠れない\n- スクロールで最後まで読める\n- 選択肢ボタンや結果カードが途中で不自然に切れない\n\n### 4. モバイルUI全体確認\n\n以下の画面でiPhone幅を想定して確認してください。\n\n- ホーム\n- 問題画面\n- 回答後の正誤表示\n- 結果画面\n\n## 検証\n\nConoHa/Linux上でできる範囲で以下を実行してください。\n\n- npm install または npm ci\n- npm run build\n- npx cap sync ios\n- git diff確認\n- 変更ファイル確認\n\n可能なら、ブラウザのモバイル幅で見た目も確認してください。\n\n## Codemagic注意\n\n過去に以下で詰まったため、今回も絶対に壊さないでください。\n\n- codemagic.yaml はブランチ直下に置く\n- App Store Connect integration 名は `ASC_API_KEY`\n- 証明書参照名は `IOS_DISTRIBUTION_CERTIFICATE`\n- Provisioning Profile参照名は `IOS_APP_STORE_PROFILE`\n- Bundle IDは `com.kaeru07.mahjong`\n- TestFlight目的なのでApp Store審査提出はしない\n\n## 完了後\n\n修正後、以下を実施してください。\n\n- 変更をcommit\n- `ios-codemagic-test` ブランチへpush\n- CodemagicでRebuildすればよい状態にする\n\n## 最終報告フォーマット\n\n## 原因\n## 修正内容\n## 変更ファイル\n## 実行した確認コマンド\n## iPhone実機で次に確認すべきポイント\n## CodemagicでRebuildしてよいか",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "📋 コピペ用\n\nTestFlightで「麻雀読みトレーニング」を実機インストールして動作確認できました。\nただし、iPhone実機で致命的なUI崩れがあります。\n\n## 状況\n\n- Codemagic / TestFlight配信は成功\n- iPhone実機で起動確認済み\n- 画面: クイズ画面「待ち選択」\n- 重大なUI問題:\n  - 画面上部がiOSのステータスバー / Dynamic Island / safe areaに食い込んでいる\n  - 上部の進捗バーと「1/10」が画面最上部で切れている\n  - ページタイトル「待ち選択」が上に寄りすぎている\n  - iOS Capacitor環境で safe-area-inset-top / safe-area-inset-bottom を考慮できていない\n  - 下部もホームインジケータ分の余白不足がないか確認してほしい\n\n## 目的\n\niPhone / TestFlight / Capacitor環境で、画面がステータスバーやホームインジケータに被らないようにUIを修正してください。\n\n最優先は、iOS実機で以下が起きないことです。\n\n- 上部UIが切れない\n- 進捗バーがステータスバーに被らない\n- ページタイトルが見切れない\n- 下部コンテンツがホームインジケータに隠れない\n- スクロール時にも重要なボタン・説明文が読める\n\n## 対象\n\nGitHub:\nkaeru07/mahjong\n\n作業ブランチ:\nios-codemagic-test\n\n対象アプリ:\n麻雀読みトレーニング\n\nBundle ID:\ncom.kaeru07.mahjong\n\n## 重要ルール\n\n- Bundle IDは変更しない\n- Codemagic設定の ASC_API_KEY / IOS_DISTRIBUTION_CERTIFICATE / IOS_APP_STORE_PROFILE は変更しない\n- Apple ID / .p8 / 証明書 / 秘密鍵などの秘密情報は要求しない\n- App Store Connect / Codemagicの秘密設定には触らない\n- 今回はUI修正のみ\n- 問題データや正誤ロジックは勝手に変更しない\n\n## 修正してほしいこと\n\n### 1. iOS safe area 対応\n\nグローバルCSSまたはアプリのルートレイアウトで、iOS safe areaを考慮してください。\n\n具体的には以下を検討してください。\n\n- `env(safe-area-inset-top)`\n- `env(safe-area-inset-bottom)`\n- `padding-top`\n- `padding-bottom`\n- `min-height: 100dvh`\n- `viewport-fit=cover` が必要か確認\n- Capacitor環境でStatusBarがoverlayしている可能性の確認\n\n必要なら `app/layout.tsx`、`globals.css`、主要ページコンテナを修正してください。\n\n### 2. クイズ画面上部の余白修正\n\nクイズ画面で、上部の進捗バー・問題番号・タイトルがステータスバーに被らないようにしてください。\n\n確認ポイント:\n\n- 進捗バーが最上部で切れない\n- `1/10` が安全に表示される\n- 「待ち選択」が十分下に表示される\n- iPhone縦画面で自然に見える\n\n### 3. 下部余白・スクロール確認\n\n回答後の解説エリアが長くなるため、下部に十分な余白を確保してください。\n\n確認ポイント:\n\n- 解説文の最下部がホームインジケータに隠れない\n- スクロールで最後まで読める\n- 選択肢ボタンや結果カードが途中で不自然に切れない\n\n### 4. モバイルUI全体確認\n\n以下の画面でiPhone幅を想定して確認してください。\n\n- ホーム\n- 問題画面\n- 回答後の正誤表示\n- 結果画面\n\n## 検証\n\nConoHa/Linux上でできる範囲で以下を実行してください。\n\n- npm install または npm ci\n- npm run build\n- npx cap sync ios\n- git diff確認\n- 変更ファイル確認\n\n可能なら、ブラウザのモバイル幅で見た目も確認してください。\n\n## Codemagic注意\n\n過去に以下で詰まったため、今回も絶対に壊さないでください。\n\n- codemagic.yaml はブランチ直下に置く\n- App Store Connect integration 名は `ASC_API_KEY`\n- 証明書参照名は `IOS_DISTRIBUTION_CERTIFICATE`\n- Provisioning Profile参照名は `IOS_APP_STORE_PROFILE`\n- Bundle IDは `com.kaeru07.mahjong`\n- TestFlight目的なのでApp Store審査提出はしない\n\n## 完了後\n\n修正後、以下を実施してください。\n\n- 変更をcommit\n- `ios-codemagic-test` ブランチへpush\n- CodemagicでRebuildすればよい状態にする\n\n## 最終報告フォーマット\n\n## 原因\n## 修正内容\n## 変更ファイル\n## 実行した確認コマンド\n## iPhone実機で次に確認すべきポイント\n## CodemagicでRebuildしてよいか",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "status": "active",
+      "priority": "medium",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-mqqmhcb9-ca8fj",
+          "title": "初期フェーズ",
+          "summary": "📋 コピペ用\n\nTestFlightで「麻雀読みトレーニング」を実機インストールして動作確認できました。\nただし、iPhone実機で致命的なUI崩れがあります。\n\n## 状況\n\n- Codemagic / TestFlight配信は成功\n- iPhone実機で起動確認済み\n- 画面: クイズ画面「待ち選択」\n- 重大なUI問題:\n  - 画面上部がiOSのステータスバー / Dynamic Island / safe areaに食い込んでいる\n  - 上部の進捗バーと「1/10」が画面最上部で切れている\n  - ページタイトル「待ち選択」が上に寄りすぎている\n  - iOS Capacitor環境で safe-area-inset-top / safe-area-inset-bottom を考慮できていない\n  - 下部もホームインジケータ分の余白不足がないか確認してほしい\n\n## 目的\n\niPhone / TestFlight / Capacitor環境で、画面がステータスバーやホームインジケータに被らないようにUIを修正してください。\n\n最優先は、iOS実機で以下が起きないことです。\n\n- 上部UIが切れない\n- 進捗バーがステータスバーに被らない\n- ページタイトルが見切れない\n- 下部コンテンツがホームインジケータに隠れない\n- スクロール時にも重要なボタン・説明文が読める\n\n## 対象\n\nGitHub:\nkaeru07/mahjong\n\n作業ブランチ:\nios-codemagic-test\n\n対象アプリ:\n麻雀読みトレーニング\n\nBundle ID:\ncom.kaeru07.mahjong\n\n## 重要ルール\n\n- Bundle IDは変更しない\n- Codemagic設定の ASC_API_KEY / IOS_DISTRIBUTION_CERTIFICATE / IOS_APP_STORE_PROFILE は変更しない\n- Apple ID / .p8 / 証明書 / 秘密鍵などの秘密情報は要求しない\n- App Store Connect / Codemagicの秘密設定には触らない\n- 今回はUI修正のみ\n- 問題データや正誤ロジックは勝手に変更しない\n\n## 修正してほしいこと\n\n### 1. iOS safe area 対応\n\nグローバルCSSまたはアプリのルートレイアウトで、iOS safe areaを考慮してください。\n\n具体的には以下を検討してください。\n\n- `env(safe-area-inset-top)`\n- `env(safe-area-inset-bottom)`\n- `padding-top`\n- `padding-bottom`\n- `min-height: 100dvh`\n- `viewport-fit=cover` が必要か確認\n- Capacitor環境でStatusBarがoverlayしている可能性の確認\n\n必要なら `app/layout.tsx`、`globals.css`、主要ページコンテナを修正してください。\n\n### 2. クイズ画面上部の余白修正\n\nクイズ画面で、上部の進捗バー・問題番号・タイトルがステータスバーに被らないようにしてください。\n\n確認ポイント:\n\n- 進捗バーが最上部で切れない\n- `1/10` が安全に表示される\n- 「待ち選択」が十分下に表示される\n- iPhone縦画面で自然に見える\n\n### 3. 下部余白・スクロール確認\n\n回答後の解説エリアが長くなるため、下部に十分な余白を確保してください。\n\n確認ポイント:\n\n- 解説文の最下部がホームインジケータに隠れない\n- スクロールで最後まで読める\n- 選択肢ボタンや結果カードが途中で不自然に切れない\n\n### 4. モバイルUI全体確認\n\n以下の画面でiPhone幅を想定して確認してください。\n\n- ホーム\n- 問題画面\n- 回答後の正誤表示\n- 結果画面\n\n## 検証\n\nConoHa/Linux上でできる範囲で以下を実行してください。\n\n- npm install または npm ci\n- npm run build\n- npx cap sync ios\n- git diff確認\n- 変更ファイル確認\n\n可能なら、ブラウザのモバイル幅で見た目も確認してください。\n\n## Codemagic注意\n\n過去に以下で詰まったため、今回も絶対に壊さないでください。\n\n- codemagic.yaml はブランチ直下に置く\n- App Store Connect integration 名は `ASC_API_KEY`\n- 証明書参照名は `IOS_DISTRIBUTION_CERTIFICATE`\n- Provisioning Profile参照名は `IOS_APP_STORE_PROFILE`\n- Bundle IDは `com.kaeru07.mahjong`\n- TestFlight目的なのでApp Store審査提出はしない\n\n## 完了後\n\n修正後、以下を実施してください。\n\n- 変更をcommit\n- `ios-codemagic-test` ブランチへpush\n- CodemagicでRebuildすればよい状態にする\n\n## 最終報告フォーマット\n\n## 原因\n## 修正内容\n## 変更ファイル\n## 実行した確認コマンド\n## iPhone実機で次に確認すべきポイント\n## CodemagicでRebuildしてよいか",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-mqqmhcb9-rl8a9",
+          "goalId": "goal-mqqmhcb9-jndlz",
+          "phaseId": "phase-mqqmhcb9-ca8fj",
+          "title": "testflightでのui修正",
+          "role": "claude",
+          "order": 0,
+          "priority": "medium",
+          "nextAction": "📋 コピペ用\n\nTestFlightで「麻雀読みトレーニング」を実機インストールして動作確認できました。\nただし、iPhone実機で致命的なUI崩れがあります。\n\n## 状況\n\n- Codemagic / TestFlight配信は成功\n- iPhone実機で起動確認済み\n- 画面: クイズ画面「待ち選択」\n- 重大なUI問題:\n  - 画面上部がiOSのステータスバー / Dynamic Island / safe areaに食い込んでいる\n  - 上部の進捗バーと「1/10」が画面最上部で切れている\n  - ページタイトル「待ち選択」が上に寄りすぎている\n  - iOS Capacitor環境で safe-area-inset-top / safe-area-inset-bottom を考慮できていない\n  - 下部もホームインジケータ分の余白不足がないか確認してほしい\n\n## 目的\n\niPhone / TestFlight / Capacitor環境で、画面がステータスバーやホームインジケータに被らないようにUIを修正してください。\n\n最優先は、iOS実機で以下が起きないことです。\n\n- 上部UIが切れない\n- 進捗バーがステータスバーに被らない\n- ページタイトルが見切れない\n- 下部コンテンツがホームインジケータに隠れない\n- スクロール時にも重要なボタン・説明文が読める\n\n## 対象\n\nGitHub:\nkaeru07/mahjong\n\n作業ブランチ:\nios-codemagic-test\n\n対象アプリ:\n麻雀読みトレーニング\n\nBundle ID:\ncom.kaeru07.mahjong\n\n## 重要ルール\n\n- Bundle IDは変更しない\n- Codemagic設定の ASC_API_KEY / IOS_DISTRIBUTION_CERTIFICATE / IOS_APP_STORE_PROFILE は変更しない\n- Apple ID / .p8 / 証明書 / 秘密鍵などの秘密情報は要求しない\n- App Store Connect / Codemagicの秘密設定には触らない\n- 今回はUI修正のみ\n- 問題データや正誤ロジックは勝手に変更しない\n\n## 修正してほしいこと\n\n### 1. iOS safe area 対応\n\nグローバルCSSまたはアプリのルートレイアウトで、iOS safe areaを考慮してください。\n\n具体的には以下を検討してください。\n\n- `env(safe-area-inset-top)`\n- `env(safe-area-inset-bottom)`\n- `padding-top`\n- `padding-bottom`\n- `min-height: 100dvh`\n- `viewport-fit=cover` が必要か確認\n- Capacitor環境でStatusBarがoverlayしている可能性の確認\n\n必要なら `app/layout.tsx`、`globals.css`、主要ページコンテナを修正してください。\n\n### 2. クイズ画面上部の余白修正\n\nクイズ画面で、上部の進捗バー・問題番号・タイトルがステータスバーに被らないようにしてください。\n\n確認ポイント:\n\n- 進捗バーが最上部で切れない\n- `1/10` が安全に表示される\n- 「待ち選択」が十分下に表示される\n- iPhone縦画面で自然に見える\n\n### 3. 下部余白・スクロール確認\n\n回答後の解説エリアが長くなるため、下部に十分な余白を確保してください。\n\n確認ポイント:\n\n- 解説文の最下部がホームインジケータに隠れない\n- スクロールで最後まで読める\n- 選択肢ボタンや結果カードが途中で不自然に切れない\n\n### 4. モバイルUI全体確認\n\n以下の画面でiPhone幅を想定して確認してください。\n\n- ホーム\n- 問題画面\n- 回答後の正誤表示\n- 結果画面\n\n## 検証\n\nConoHa/Linux上でできる範囲で以下を実行してください。\n\n- npm install または npm ci\n- npm run build\n- npx cap sync ios\n- git diff確認\n- 変更ファイル確認\n\n可能なら、ブラウザのモバイル幅で見た目も確認してください。\n\n## Codemagic注意\n\n過去に以下で詰まったため、今回も絶対に壊さないでください。\n\n- codemagic.yaml はブランチ直下に置く\n- App Store Connect integration 名は `ASC_API_KEY`\n- 証明書参照名は `IOS_DISTRIBUTION_CERTIFICATE`\n- Provisioning Profile参照名は `IOS_APP_STORE_PROFILE`\n- Bundle IDは `com.kaeru07.mahjong`\n- TestFlight目的なのでApp Store審査提出はしない\n\n## 完了後\n\n修正後、以下を実施してください。\n\n- 変更をcommit\n- `ios-codemagic-test` ブランチへpush\n- CodemagicでRebuildすればよい状態にする\n\n## 最終報告フォーマット\n\n## 原因\n## 修正内容\n## 変更ファイル\n## 実行した確認コマンド\n## iPhone実機で次に確認すべきポイント\n## CodemagicでRebuildしてよいか",
+          "doneCriteria": [],
+          "taskPrompt": "📋 コピペ用\n\nTestFlightで「麻雀読みトレーニング」を実機インストールして動作確認できました。\nただし、iPhone実機で致命的なUI崩れがあります。\n\n## 状況\n\n- Codemagic / TestFlight配信は成功\n- iPhone実機で起動確認済み\n- 画面: クイズ画面「待ち選択」\n- 重大なUI問題:\n  - 画面上部がiOSのステータスバー / Dynamic Island / safe areaに食い込んでいる\n  - 上部の進捗バーと「1/10」が画面最上部で切れている\n  - ページタイトル「待ち選択」が上に寄りすぎている\n  - iOS Capacitor環境で safe-area-inset-top / safe-area-inset-bottom を考慮できていない\n  - 下部もホームインジケータ分の余白不足がないか確認してほしい\n\n## 目的\n\niPhone / TestFlight / Capacitor環境で、画面がステータスバーやホームインジケータに被らないようにUIを修正してください。\n\n最優先は、iOS実機で以下が起きないことです。\n\n- 上部UIが切れない\n- 進捗バーがステータスバーに被らない\n- ページタイトルが見切れない\n- 下部コンテンツがホームインジケータに隠れない\n- スクロール時にも重要なボタン・説明文が読める\n\n## 対象\n\nGitHub:\nkaeru07/mahjong\n\n作業ブランチ:\nios-codemagic-test\n\n対象アプリ:\n麻雀読みトレーニング\n\nBundle ID:\ncom.kaeru07.mahjong\n\n## 重要ルール\n\n- Bundle IDは変更しない\n- Codemagic設定の ASC_API_KEY / IOS_DISTRIBUTION_CERTIFICATE / IOS_APP_STORE_PROFILE は変更しない\n- Apple ID / .p8 / 証明書 / 秘密鍵などの秘密情報は要求しない\n- App Store Connect / Codemagicの秘密設定には触らない\n- 今回はUI修正のみ\n- 問題データや正誤ロジックは勝手に変更しない\n\n## 修正してほしいこと\n\n### 1. iOS safe area 対応\n\nグローバルCSSまたはアプリのルートレイアウトで、iOS safe areaを考慮してください。\n\n具体的には以下を検討してください。\n\n- `env(safe-area-inset-top)`\n- `env(safe-area-inset-bottom)`\n- `padding-top`\n- `padding-bottom`\n- `min-height: 100dvh`\n- `viewport-fit=cover` が必要か確認\n- Capacitor環境でStatusBarがoverlayしている可能性の確認\n\n必要なら `app/layout.tsx`、`globals.css`、主要ページコンテナを修正してください。\n\n### 2. クイズ画面上部の余白修正\n\nクイズ画面で、上部の進捗バー・問題番号・タイトルがステータスバーに被らないようにしてください。\n\n確認ポイント:\n\n- 進捗バーが最上部で切れない\n- `1/10` が安全に表示される\n- 「待ち選択」が十分下に表示される\n- iPhone縦画面で自然に見える\n\n### 3. 下部余白・スクロール確認\n\n回答後の解説エリアが長くなるため、下部に十分な余白を確保してください。\n\n確認ポイント:\n\n- 解説文の最下部がホームインジケータに隠れない\n- スクロールで最後まで読める\n- 選択肢ボタンや結果カードが途中で不自然に切れない\n\n### 4. モバイルUI全体確認\n\n以下の画面でiPhone幅を想定して確認してください。\n\n- ホーム\n- 問題画面\n- 回答後の正誤表示\n- 結果画面\n\n## 検証\n\nConoHa/Linux上でできる範囲で以下を実行してください。\n\n- npm install または npm ci\n- npm run build\n- npx cap sync ios\n- git diff確認\n- 変更ファイル確認\n\n可能なら、ブラウザのモバイル幅で見た目も確認してください。\n\n## Codemagic注意\n\n過去に以下で詰まったため、今回も絶対に壊さないでください。\n\n- codemagic.yaml はブランチ直下に置く\n- App Store Connect integration 名は `ASC_API_KEY`\n- 証明書参照名は `IOS_DISTRIBUTION_CERTIFICATE`\n- Provisioning Profile参照名は `IOS_APP_STORE_PROFILE`\n- Bundle IDは `com.kaeru07.mahjong`\n- TestFlight目的なのでApp Store審査提出はしない\n\n## 完了後\n\n修正後、以下を実施してください。\n\n- 変更をcommit\n- `ios-codemagic-test` ブランチへpush\n- CodemagicでRebuildすればよい状態にする\n\n## 最終報告フォーマット\n\n## 原因\n## 修正内容\n## 変更ファイル\n## 実行した確認コマンド\n## iPhone実機で次に確認すべきポイント\n## CodemagicでRebuildしてよいか",
+          "memo": "",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-06-23T12:30:32.077Z",
+          "updatedAt": "2026-06-24T15:54:58.104Z",
+          "queueControl": {
+            "manualOrder": 7,
+            "updatedBy": "user",
+            "updatedAt": "2026-06-24T15:54:58.104Z"
+          }
+        }
+      ],
+      "createdAt": "2026-06-23T12:30:32.077Z",
+      "updatedAt": "2026-06-24T15:54:58.104Z"
+    },
+    {
+      "id": "goal-mqrj2bqc-arqe7",
+      "projectId": "company-mgmt",
+      "title": "自動実行のEpic/ゴールが完了しても閉じない問題を直す",
+      "description": "doneCriteriaが常に2/3(continue)でepicがdoneにならず、完了済み作業がreview_waitingに滞留する。レビュー(問題なし)→epic done→goal完了伝播 の経路、または完了判定の改善を実装し、終わった作業が溜まり続けないようにする。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "doneCriteriaが常に2/3(continue)でepicがdoneにならず、完了済み作業がreview_waitingに滞留する。レビュー(問題なし)→epic done→goal完了伝播 の経路、または完了判定の改善を実装し、終わった作業が溜まり続けないようにする。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "status": "active",
+      "priority": "high",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-mqrj2bqd-v2ajy",
+          "title": "初期フェーズ",
+          "summary": "doneCriteriaが常に2/3(continue)でepicがdoneにならず、完了済み作業がreview_waitingに滞留する。レビュー(問題なし)→epic done→goal完了伝播 の経路、または完了判定の改善を実装し、終わった作業が溜まり続けないようにする。",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-mqrj2bqf-x6tpe",
+          "goalId": "goal-mqrj2bqc-arqe7",
+          "phaseId": "phase-mqrj2bqd-v2ajy",
+          "title": "自動実行のEpic/ゴールが完了しても閉じない問題を直す",
+          "role": "claude",
+          "order": 0,
+          "priority": "high",
+          "nextAction": "doneCriteriaが常に2/3(continue)でepicがdoneにならず、完了済み作業がreview_waitingに滞留する。レビュー(問題なし)→epic done→goal完了伝播 の経路、または完了判定の改善を実装し、終わった作業が溜まり続けないようにする。",
+          "doneCriteria": [],
+          "taskPrompt": "doneCriteriaが常に2/3(continue)でepicがdoneにならず、完了済み作業がreview_waitingに滞留する。レビュー(問題なし)→epic done→goal完了伝播 の経路、または完了判定の改善を実装し、終わった作業が溜まり続けないようにする。",
+          "memo": "",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-06-24T03:42:38.244Z",
+          "updatedAt": "2026-06-24T15:54:58.119Z",
+          "queueControl": {
+            "manualOrder": 9,
+            "updatedBy": "user",
+            "updatedAt": "2026-06-24T15:54:58.119Z"
+          }
+        }
+      ],
+      "createdAt": "2026-06-24T03:42:38.244Z",
+      "updatedAt": "2026-06-24T15:54:58.119Z"
+    },
+    {
+      "id": "goal-mqrj2c77-xsurg",
+      "projectId": "company-mgmt",
+      "title": "lint NGのrunを完了扱いにしない(lintゲート追加)",
+      "description": "factory実行でlintがNGでもrunStatus=completedで次に進む。lint NG時はreview_waitingや要修正にする等のゲートを追加し、品質を落とさないようにする。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "factory実行でlintがNGでもrunStatus=completedで次に進む。lint NG時はreview_waitingや要修正にする等のゲートを追加し、品質を落とさないようにする。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "status": "active",
+      "priority": "medium",
+      "pinnedTop": false,
+      "lastSelectedRunId": "20260626-230013-175",
+      "lastSelectedAt": "2026-06-26T14:00:13.162Z",
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-mqrj2c77-b23ay",
+          "title": "初期フェーズ",
+          "summary": "factory実行でlintがNGでもrunStatus=completedで次に進む。lint NG時はreview_waitingや要修正にする等のゲートを追加し、品質を落とさないようにする。",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-mqrj2c77-t18jj",
+          "goalId": "goal-mqrj2c77-xsurg",
+          "phaseId": "phase-mqrj2c77-b23ay",
+          "title": "lint NGのrunを完了扱いにしない(lintゲート追加)",
+          "role": "claude",
+          "order": 0,
+          "priority": "medium",
+          "nextAction": "factory実行でlintがNGでもrunStatus=completedで次に進む。lint NG時はreview_waitingや要修正にする等のゲートを追加し、品質を落とさないようにする。",
+          "doneCriteria": [],
+          "taskPrompt": "factory実行でlintがNGでもrunStatus=completedで次に進む。lint NG時はreview_waitingや要修正にする等のゲートを追加し、品質を落とさないようにする。",
+          "memo": "",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-06-24T03:42:39.351Z",
+          "updatedAt": "2026-06-24T15:54:58.127Z",
+          "queueControl": {
+            "manualOrder": 10,
+            "updatedBy": "user",
+            "updatedAt": "2026-06-24T15:54:58.127Z"
+          }
+        }
+      ],
+      "createdAt": "2026-06-24T03:42:39.351Z",
+      "updatedAt": "2026-06-26T14:00:13.199Z"
+    },
+    {
+      "id": "goal-mqrj2cbk-rkmyt",
+      "projectId": "company-mgmt",
+      "title": "「自動実行の最大件数の制御をなくす」の実装を意図通りに見直す",
+      "description": "codexの実装がmaxRuns=3固定化+外部入力無視になっており意図と異なる可能性。本来の意図(cap撤廃 or 設定可能化)を確認し、未コミットのfactory-runner.ts変更を破棄または修正する。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "codexの実装がmaxRuns=3固定化+外部入力無視になっており意図と異なる可能性。本来の意図(cap撤廃 or 設定可能化)を確認し、未コミットのfactory-runner.ts変更を破棄または修正する。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "status": "active",
+      "priority": "medium",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-mqrj2cbk-7cfps",
+          "title": "初期フェーズ",
+          "summary": "codexの実装がmaxRuns=3固定化+外部入力無視になっており意図と異なる可能性。本来の意図(cap撤廃 or 設定可能化)を確認し、未コミットのfactory-runner.ts変更を破棄または修正する。",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-mqrj2cbk-q37fi",
+          "goalId": "goal-mqrj2cbk-rkmyt",
+          "phaseId": "phase-mqrj2cbk-7cfps",
+          "title": "「自動実行の最大件数の制御をなくす」の実装を意図通りに見直す",
+          "role": "claude",
+          "order": 0,
+          "priority": "medium",
+          "nextAction": "codexの実装がmaxRuns=3固定化+外部入力無視になっており意図と異なる可能性。本来の意図(cap撤廃 or 設定可能化)を確認し、未コミットのfactory-runner.ts変更を破棄または修正する。",
+          "doneCriteria": [],
+          "taskPrompt": "codexの実装がmaxRuns=3固定化+外部入力無視になっており意図と異なる可能性。本来の意図(cap撤廃 or 設定可能化)を確認し、未コミットのfactory-runner.ts変更を破棄または修正する。",
+          "memo": "",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-06-24T03:42:39.576Z",
+          "updatedAt": "2026-06-24T15:54:58.137Z",
+          "queueControl": {
+            "manualOrder": 11,
+            "updatedBy": "user",
+            "updatedAt": "2026-06-24T15:54:58.137Z"
+          }
+        }
+      ],
+      "createdAt": "2026-06-24T03:42:39.576Z",
+      "updatedAt": "2026-06-24T15:54:58.137Z"
+    },
+    {
+      "id": "goal-mqrj2cd0-orern",
+      "projectId": "company-mgmt",
+      "title": "maxPerEpicの深掘り挙動を調整可能にする",
+      "description": "maxPerEpic既定3だと1 epicを3回深掘りする。1サイクルで複数の異なるタスクを回せるよう、挙動を調整・設定可能にする。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "maxPerEpic既定3だと1 epicを3回深掘りする。1サイクルで複数の異なるタスクを回せるよう、挙動を調整・設定可能にする。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "status": "active",
+      "priority": "low",
+      "pinnedTop": false,
+      "lastSelectedRunId": "20260627-103652-609",
+      "lastSelectedAt": "2026-06-27T01:36:52.594Z",
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-mqrj2cd0-gfjo6",
+          "title": "初期フェーズ",
+          "summary": "maxPerEpic既定3だと1 epicを3回深掘りする。1サイクルで複数の異なるタスクを回せるよう、挙動を調整・設定可能にする。",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-mqrj2cd0-ldll0",
+          "goalId": "goal-mqrj2cd0-orern",
+          "phaseId": "phase-mqrj2cd0-gfjo6",
+          "title": "maxPerEpicの深掘り挙動を調整可能にする",
+          "role": "claude",
+          "order": 0,
+          "priority": "low",
+          "nextAction": "maxPerEpic既定3だと1 epicを3回深掘りする。1サイクルで複数の異なるタスクを回せるよう、挙動を調整・設定可能にする。",
+          "doneCriteria": [],
+          "taskPrompt": "maxPerEpic既定3だと1 epicを3回深掘りする。1サイクルで複数の異なるタスクを回せるよう、挙動を調整・設定可能にする。",
+          "memo": "",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-06-24T03:42:39.624Z",
+          "updatedAt": "2026-06-24T15:54:58.174Z",
+          "queueControl": {
+            "manualOrder": 12,
+            "updatedBy": "user",
+            "updatedAt": "2026-06-24T15:54:58.174Z"
+          }
+        }
+      ],
+      "createdAt": "2026-06-24T03:42:39.624Z",
+      "updatedAt": "2026-06-27T01:36:52.639Z"
+    },
+    {
+      "id": "goal-mqueb7b0-y9ty9",
+      "projectId": "company-mgmt",
+      "title": "[運用改善] レビュー滞留(未レビュー多数)を解消する仕組み",
+      "description": "未レビューのExecutionRunが大量に滞留(直近80件中79件未レビュー)し、レビューが事実上回っていない。安全なものはAIが自動でreviewed化し、人間判断が要るものだけ今日の判断に残す自動レビュー/一括整理の仕組みを作る。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "未レビューのExecutionRunが大量に滞留(直近80件中79件未レビュー)し、レビューが事実上回っていない。安全なものはAIが自動でreviewed化し、人間判断が要るものだけ今日の判断に残す自動レビュー/一括整理の仕組みを作る。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "status": "proposed",
+      "priority": "high",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-mqueb7b0-dfu4g",
+          "title": "初期フェーズ",
+          "summary": "未レビューのExecutionRunが大量に滞留(直近80件中79件未レビュー)し、レビューが事実上回っていない。安全なものはAIが自動でreviewed化し、人間判断が要るものだけ今日の判断に残す自動レビュー/一括整理の仕組みを作る。",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-mqueb7b0-8shlc",
+          "goalId": "goal-mqueb7b0-y9ty9",
+          "phaseId": "phase-mqueb7b0-dfu4g",
+          "title": "[運用改善] レビュー滞留(未レビュー多数)を解消する仕組み",
+          "role": "claude",
+          "order": 0,
+          "priority": "high",
+          "nextAction": "未レビューのExecutionRunが大量に滞留(直近80件中79件未レビュー)し、レビューが事実上回っていない。安全なものはAIが自動でreviewed化し、人間判断が要るものだけ今日の判断に残す自動レビュー/一括整理の仕組みを作る。",
+          "doneCriteria": [],
+          "taskPrompt": "未レビューのExecutionRunが大量に滞留(直近80件中79件未レビュー)し、レビューが事実上回っていない。安全なものはAIが自動でreviewed化し、人間判断が要るものだけ今日の判断に残す自動レビュー/一括整理の仕組みを作る。",
+          "memo": "",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-06-26T03:52:53.322Z",
+          "updatedAt": "2026-06-26T03:52:53.322Z"
+        }
+      ],
+      "createdAt": "2026-06-26T03:52:53.322Z",
+      "updatedAt": "2026-06-26T03:52:53.322Z"
+    },
+    {
+      "id": "goal-mqv6ei9w-nv34g",
+      "projectId": "company-mgmt",
+      "title": "[運用改善] 放置されたproposed/pausedゴールの自動整理",
+      "description": "proposed45件/paused45件が放置され埋もれている。一定期間(例30日)動かないproposed/pausedを期限切れ→AI保留やdropへ自動移行、または重要なら再提案する自動整理の仕組みを作り、ゴール承認が大量に埋もれないようにする。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "proposed45件/paused45件が放置され埋もれている。一定期間(例30日)動かないproposed/pausedを期限切れ→AI保留やdropへ自動移行、または重要なら再提案する自動整理の仕組みを作り、ゴール承認が大量に埋もれないようにする。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "status": "proposed",
+      "priority": "high",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-mqv6ei9w-qbgwi",
+          "title": "初期フェーズ",
+          "summary": "proposed45件/paused45件が放置され埋もれている。一定期間(例30日)動かないproposed/pausedを期限切れ→AI保留やdropへ自動移行、または重要なら再提案する自動整理の仕組みを作り、ゴール承認が大量に埋もれないようにする。",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-mqv6ei9w-ugrxq",
+          "goalId": "goal-mqv6ei9w-nv34g",
+          "phaseId": "phase-mqv6ei9w-qbgwi",
+          "title": "[運用改善] 放置されたproposed/pausedゴールの自動整理",
+          "role": "claude",
+          "order": 0,
+          "priority": "high",
+          "nextAction": "proposed45件/paused45件が放置され埋もれている。一定期間(例30日)動かないproposed/pausedを期限切れ→AI保留やdropへ自動移行、または重要なら再提案する自動整理の仕組みを作り、ゴール承認が大量に埋もれないようにする。",
+          "doneCriteria": [],
+          "taskPrompt": "proposed45件/paused45件が放置され埋もれている。一定期間(例30日)動かないproposed/pausedを期限切れ→AI保留やdropへ自動移行、または重要なら再提案する自動整理の仕組みを作り、ゴール承認が大量に埋もれないようにする。",
+          "memo": "",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-06-26T16:59:16.752Z",
+          "updatedAt": "2026-06-26T16:59:16.752Z"
+        }
+      ],
+      "createdAt": "2026-06-26T16:59:16.752Z",
+      "updatedAt": "2026-06-26T16:59:16.752Z"
+    },
+    {
+      "id": "goal-mqv6eie3-mywj2",
+      "projectId": "company-mgmt",
+      "title": "[運用改善] 失敗した自動実行の再拾い上げ/リトライ運用",
+      "description": "failedで止まった自動実行が放置される。失敗を検知して、安全なら自動リトライ、危険/原因不明なら修正タスク化して今日の判断に出す、再拾い上げの仕組みを作る。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "failedで止まった自動実行が放置される。失敗を検知して、安全なら自動リトライ、危険/原因不明なら修正タスク化して今日の判断に出す、再拾い上げの仕組みを作る。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "status": "proposed",
+      "priority": "medium",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-mqv6eie3-gonzt",
+          "title": "初期フェーズ",
+          "summary": "failedで止まった自動実行が放置される。失敗を検知して、安全なら自動リトライ、危険/原因不明なら修正タスク化して今日の判断に出す、再拾い上げの仕組みを作る。",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-mqv6eie3-fh352",
+          "goalId": "goal-mqv6eie3-mywj2",
+          "phaseId": "phase-mqv6eie3-gonzt",
+          "title": "[運用改善] 失敗した自動実行の再拾い上げ/リトライ運用",
+          "role": "claude",
+          "order": 0,
+          "priority": "medium",
+          "nextAction": "failedで止まった自動実行が放置される。失敗を検知して、安全なら自動リトライ、危険/原因不明なら修正タスク化して今日の判断に出す、再拾い上げの仕組みを作る。",
+          "doneCriteria": [],
+          "taskPrompt": "failedで止まった自動実行が放置される。失敗を検知して、安全なら自動リトライ、危険/原因不明なら修正タスク化して今日の判断に出す、再拾い上げの仕組みを作る。",
+          "memo": "",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-06-26T16:59:17.012Z",
+          "updatedAt": "2026-06-26T16:59:17.012Z"
+        }
+      ],
+      "createdAt": "2026-06-26T16:59:17.012Z",
+      "updatedAt": "2026-06-26T16:59:17.012Z"
+    },
+    {
+      "id": "goal-mqv6eifj-rj8s3",
+      "projectId": "company-mgmt",
+      "title": "[運用改善] goal未設定で止まっている作業を今日の判断に出す",
+      "description": "goal未設定のEpic/作業はbackpressureでログに残るだけで埋もれ、工場が止まる。goal紐付け待ちを今日の判断(direction)に出し、ユーザーがアプリで紐付け判断できるようにして滞りを解消する。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "goal未設定のEpic/作業はbackpressureでログに残るだけで埋もれ、工場が止まる。goal紐付け待ちを今日の判断(direction)に出し、ユーザーがアプリで紐付け判断できるようにして滞りを解消する。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "status": "proposed",
+      "priority": "high",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-mqv6eifj-cc0q8",
+          "title": "初期フェーズ",
+          "summary": "goal未設定のEpic/作業はbackpressureでログに残るだけで埋もれ、工場が止まる。goal紐付け待ちを今日の判断(direction)に出し、ユーザーがアプリで紐付け判断できるようにして滞りを解消する。",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-mqv6eifj-udun6",
+          "goalId": "goal-mqv6eifj-rj8s3",
+          "phaseId": "phase-mqv6eifj-cc0q8",
+          "title": "[運用改善] goal未設定で止まっている作業を今日の判断に出す",
+          "role": "claude",
+          "order": 0,
+          "priority": "high",
+          "nextAction": "goal未設定のEpic/作業はbackpressureでログに残るだけで埋もれ、工場が止まる。goal紐付け待ちを今日の判断(direction)に出し、ユーザーがアプリで紐付け判断できるようにして滞りを解消する。",
+          "doneCriteria": [],
+          "taskPrompt": "goal未設定のEpic/作業はbackpressureでログに残るだけで埋もれ、工場が止まる。goal紐付け待ちを今日の判断(direction)に出し、ユーザーがアプリで紐付け判断できるようにして滞りを解消する。",
+          "memo": "",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-06-26T16:59:17.064Z",
+          "updatedAt": "2026-06-26T16:59:17.064Z"
+        }
+      ],
+      "createdAt": "2026-06-26T16:59:17.064Z",
+      "updatedAt": "2026-06-26T16:59:17.064Z"
+    },
+    {
+      "id": "goal-mqv6eigp-e420f",
+      "projectId": "company-mgmt",
+      "title": "[運用改善] ユーザーが今すぐ自動実行できる導線を用意",
+      "description": "自動実行はスケジュール(11/14/16/23時)頼みで、ユーザーが手動で安全に1サイクル回す導線がdev-mode限定。通常ユーザーがアプリから今すぐ自動実行を起動できる安全なボタン/運用を用意する。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "自動実行はスケジュール(11/14/16/23時)頼みで、ユーザーが手動で安全に1サイクル回す導線がdev-mode限定。通常ユーザーがアプリから今すぐ自動実行を起動できる安全なボタン/運用を用意する。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "status": "proposed",
+      "priority": "medium",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-mqv6eigp-n92es",
+          "title": "初期フェーズ",
+          "summary": "自動実行はスケジュール(11/14/16/23時)頼みで、ユーザーが手動で安全に1サイクル回す導線がdev-mode限定。通常ユーザーがアプリから今すぐ自動実行を起動できる安全なボタン/運用を用意する。",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-mqv6eigp-9e2jo",
+          "goalId": "goal-mqv6eigp-e420f",
+          "phaseId": "phase-mqv6eigp-n92es",
+          "title": "[運用改善] ユーザーが今すぐ自動実行できる導線を用意",
+          "role": "claude",
+          "order": 0,
+          "priority": "medium",
+          "nextAction": "自動実行はスケジュール(11/14/16/23時)頼みで、ユーザーが手動で安全に1サイクル回す導線がdev-mode限定。通常ユーザーがアプリから今すぐ自動実行を起動できる安全なボタン/運用を用意する。",
+          "doneCriteria": [],
+          "taskPrompt": "自動実行はスケジュール(11/14/16/23時)頼みで、ユーザーが手動で安全に1サイクル回す導線がdev-mode限定。通常ユーザーがアプリから今すぐ自動実行を起動できる安全なボタン/運用を用意する。",
+          "memo": "",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-06-26T16:59:17.106Z",
+          "updatedAt": "2026-06-26T16:59:17.106Z"
+        }
+      ],
+      "createdAt": "2026-06-26T16:59:17.106Z",
+      "updatedAt": "2026-06-26T16:59:17.106Z"
+    },
+    {
+      "id": "goal-mqv6eihx-6r7to",
+      "projectId": "company-mgmt",
+      "title": "[運用改善] 空振り(成果物変化なし)の再実行を自動停止",
+      "description": "DoneCriteria未達でcontinueし続け、changedFiles空(空振り)の再実行が繰り返される。連続空振りを検知して自動でreview_waiting/停止し、人間判断にエスカレして、同じ作業の無限やり直しとexecutor浪費を止める。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "DoneCriteria未達でcontinueし続け、changedFiles空(空振り)の再実行が繰り返される。連続空振りを検知して自動でreview_waiting/停止し、人間判断にエスカレして、同じ作業の無限やり直しとexecutor浪費を止める。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "status": "proposed",
+      "priority": "medium",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-mqv6eihx-k1s7g",
+          "title": "初期フェーズ",
+          "summary": "DoneCriteria未達でcontinueし続け、changedFiles空(空振り)の再実行が繰り返される。連続空振りを検知して自動でreview_waiting/停止し、人間判断にエスカレして、同じ作業の無限やり直しとexecutor浪費を止める。",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-mqv6eihx-qxitk",
+          "goalId": "goal-mqv6eihx-6r7to",
+          "phaseId": "phase-mqv6eihx-k1s7g",
+          "title": "[運用改善] 空振り(成果物変化なし)の再実行を自動停止",
+          "role": "claude",
+          "order": 0,
+          "priority": "medium",
+          "nextAction": "DoneCriteria未達でcontinueし続け、changedFiles空(空振り)の再実行が繰り返される。連続空振りを検知して自動でreview_waiting/停止し、人間判断にエスカレして、同じ作業の無限やり直しとexecutor浪費を止める。",
+          "doneCriteria": [],
+          "taskPrompt": "DoneCriteria未達でcontinueし続け、changedFiles空(空振り)の再実行が繰り返される。連続空振りを検知して自動でreview_waiting/停止し、人間判断にエスカレして、同じ作業の無限やり直しとexecutor浪費を止める。",
+          "memo": "",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-06-26T16:59:17.147Z",
+          "updatedAt": "2026-06-26T16:59:17.147Z"
+        }
+      ],
+      "createdAt": "2026-06-26T16:59:17.147Z",
+      "updatedAt": "2026-06-26T16:59:17.147Z"
+    },
+    {
+      "id": "goal-mqvpojj2-9nbn3",
+      "title": "今日の判断には明確な方針決定の選択肢を表示するようにする",
+      "description": "今日の判断に確認するなど曖昧な表現のものがあるから、ルールとして〇〇するなど選択肢を示して選ぶことができるようにする．",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "今日の判断に確認するなど曖昧な表現のものがあるから、ルールとして〇〇するなど選択肢を示して選ぶことができるようにする．",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "status": "active",
+      "priority": "medium",
+      "pinnedTop": false,
+      "lastSelectedRunId": "20260627-110011-112",
+      "lastSelectedAt": "2026-06-27T02:00:11.097Z",
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-mqvpojj2-m270w",
+          "title": "初期フェーズ",
+          "summary": "今日の判断に確認するなど曖昧な表現のものがあるから、ルールとして〇〇するなど選択肢を示して選ぶことができるようにする．",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-mqvpojj2-laj4b",
+          "goalId": "goal-mqvpojj2-9nbn3",
+          "phaseId": "phase-mqvpojj2-m270w",
+          "title": "今日の判断には明確な方針決定の選択肢を表示するようにする",
+          "role": "claude",
+          "order": 0,
+          "priority": "medium",
+          "nextAction": "今日の判断に確認するなど曖昧な表現のものがあるから、ルールとして〇〇するなど選択肢を示して選ぶことができるようにする．",
+          "doneCriteria": [],
+          "taskPrompt": "今日の判断に確認するなど曖昧な表現のものがあるから、ルールとして〇〇するなど選択肢を示して選ぶことができるようにする．",
+          "memo": "",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-06-27T01:58:57.748Z",
+          "updatedAt": "2026-06-27T01:58:57.748Z"
+        }
+      ],
+      "createdAt": "2026-06-27T01:58:57.748Z",
+      "updatedAt": "2026-06-27T02:00:11.146Z"
+    },
+    {
+      "id": "goal-mqvpt6w4-ml6hk",
+      "projectId": "company-mgmt",
+      "title": "今日の判断で、判断をしたものが自動実行キューに加わることを確認する。",
+      "description": "運用の確認がしたい",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "運用の確認がしたい",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "status": "active",
+      "priority": "medium",
+      "pinnedTop": false,
+      "lastSelectedRunId": "20260627-140023-848",
+      "lastSelectedAt": "2026-06-27T05:00:23.835Z",
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-mqvpt6w4-3ons5",
+          "title": "初期フェーズ",
+          "summary": "運用の確認がしたい",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-mqvpt6w7-lx8j2",
+          "goalId": "goal-mqvpt6w4-ml6hk",
+          "phaseId": "phase-mqvpt6w4-3ons5",
+          "title": "今日の判断で、判断をしたものが自動実行キューに加わることを確認する。",
+          "role": "claude",
+          "order": 0,
+          "priority": "medium",
+          "nextAction": "運用の確認がしたい",
+          "doneCriteria": [],
+          "taskPrompt": "運用の確認がしたい",
+          "memo": "",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-06-27T02:02:34.437Z",
+          "updatedAt": "2026-06-27T02:02:34.437Z"
+        }
+      ],
+      "createdAt": "2026-06-27T02:02:34.437Z",
+      "updatedAt": "2026-06-27T05:00:23.880Z"
     }
   ],
   "mainGoalId": "goal-ai-factory-os",
-  "updatedAt": "2026-06-22T14:29:40.047Z"
+  "updatedAt": "2026-06-30T14:00:16.969Z"
 }
