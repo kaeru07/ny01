@@ -27974,6 +27974,34 @@
         "P0-3危険伝播+P1-1必須/任意判断の実装 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "## P0-3+P1-1 実装(実装Codex/検証Claude)\n\n機能1: アプリ案の危険要素(riskFlags)をGoal riskFlagsDefaultへ伝播。危険付きは既存ゲート(blocked→今日の判断)が作動。UI: 一覧⚠危険要素あり/詳細に赤バッジ。\n機能2: 判断の必須/任意。必須(required)未回答の間はgoalをqueueControl.hold(AIが後回し中)にし自動作成を開始しない。全必須回答でapproval-effectsが自動解除。既定はplatformのみ必須。\n検証: tsc/build/test OK、live描画・文言含有確認。\n\nmonetizationImpact: medium\ntheme: [workflow, app-strategy]"
+    },
+    {
+      "runId": "20260702-213956",
+      "startedAt": "2026-07-02T12:39:56.658Z",
+      "finishedAt": "2026-07-02T12:39:56.658Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "残タスク6件を自動実行キューに追加(Opusバッチ用の記録)",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "後でまとめて実装する残タスクを忘れないよう、goal-opus-*の6ゴール(active)として登録し自動実行キューに投入。①仕様方針の漏れなし判断化(high) ②設計一覧ページ(high) ③進行状態バッジ ④モーダル項目追加 ⑤運用明文化(Fableレビュー=案B/完了の正本=doneCriteria/今日の判断3種のみ) ⑥日々の調査仕様レビュー。メモリにも記録。",
+      "changedFiles": [
+        {
+          "file": "data/real/goals.json",
+          "change": "goal-opus-* 6ゴール追加(active/autonomous/リスクなし)"
+        }
+      ],
+      "checks": {
+        "manual": "OK live: auto-queue executable=33、goal-opus-6件が#9,#10,#26-29で候補入り"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "次回自動実行またはOpusセッションでgoal-opus-*から着手",
+        "Fableレビュー=案B等の運用明文化はgoal-opus-doc-formalizeで実施"
+      ],
+      "rawReport": "## 残タスクのキュー投入\n\nユーザー指示: 実装は後でまとめてOpusで。忘れないように+自動実行キューに追加。\n\n登録(全てactive/autonomous/company-mgmt):\n- goal-opus-spec-decisions(high): アプリ案OK後の詳細仕様方針を漏れなく今日の判断へ\n- goal-opus-app-designs(high): 設計一覧ページ(/app-designs)\n- goal-opus-pipeline-badges: 決定済みタブ進行バッジ\n- goal-opus-modal-fields: モーダルにMVP範囲/難易度/外部API/初期Goal案\n- goal-opus-doc-formalize: 運用明文化(レビュー=案B/完了正本=doneCriteria/今日の判断3種)\n- goal-opus-research-review: 日々の調査の仕様レビュー\n\nキュー確認: 6件がexecutable入り(#9/#10/#26-29)。メモリ project_pending_opus_batch にも同内容を記録済み(完了済み項目一覧付き)。\n\nmonetizationImpact: low\ntheme: [workflow]"
     }
   ]
 }
