@@ -1,4 +1,4 @@
-import { appendAutomationLog, getEpic, updateEpic } from '@/lib/operations-store'
+import { appendAutomationLog, getEpic, getPendingApprovals, updateEpic } from '@/lib/operations-store'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { updateExecutionRunFields } from '@/lib/execution-run-writer'
 import { propagateEpicDoneToGoal } from '@/lib/factory-runner'
@@ -44,24 +44,58 @@ async function pauseGoal(goalId: string): Promise<boolean> {
   return true
 }
 
+async function releaseGoalHoldForProject(projectId: string): Promise<string> {
+  const pendingRequired = (await getPendingApprovals()).some((item) => (
+    item.projectId === projectId
+    && item.requiredForExecution === true
+    && item.status === 'pending'
+  ))
+  if (pendingRequired) return 'none'
+
+  const data = await readGoals()
+  const goalIndex = data.goals.findIndex((goal) => goal.id === `goal-app-${projectId}`)
+  const fallbackIndex = data.goals.findIndex((goal) => goal.projectId === projectId && goal.status === 'active')
+  const targetIndex = goalIndex >= 0 ? goalIndex : fallbackIndex
+  if (targetIndex === -1) return 'none'
+
+  const goal = data.goals[targetIndex]
+  if (goal.queueControl?.hold !== true) return 'none'
+  data.goals[targetIndex] = {
+    ...goal,
+    queueControl: {
+      ...goal.queueControl,
+      hold: false,
+      updatedBy: 'user',
+      updatedAt: new Date().toISOString(),
+    },
+    updatedAt: new Date().toISOString(),
+  }
+  await writeGoals(data)
+  return 'required_answered_release'
+}
+
 async function applyApprovalEffectInner(approval: Approval, decidedOption: string): Promise<string> {
-  if (!approval.epicId) return 'none'
+  const releaseApplied = approval.requiredForExecution && approval.projectId
+    ? await releaseGoalHoldForProject(approval.projectId)
+    : 'none'
+  if (!approval.epicId) return releaseApplied
   const epic = await getEpic(approval.epicId)
-  if (!epic) return 'none:epic_not_found'
+  if (!epic) return releaseApplied !== 'none' ? releaseApplied : 'none:epic_not_found'
 
   if (decidedOption === 'mark_done') {
     await updateEpic(epic.epicId, { status: 'done', progress: 100 })
     await propagateEpicDoneToGoal(epic.epicId, epic.goalId)
-    return 'epic_done'
+    return releaseApplied !== 'none' ? `epic_done+${releaseApplied}` : 'epic_done'
   }
 
   if (decidedOption === 'cancel') {
     await updateEpic(epic.epicId, { status: 'dropped' })
     if (epic.epicId.startsWith('epic-goalstep-') && epic.goalId) {
       const paused = await pauseGoal(epic.goalId)
-      return paused ? 'epic_dropped_goal_paused' : 'epic_dropped'
+      const dropped = paused ? 'epic_dropped_goal_paused' : 'epic_dropped'
+      return releaseApplied !== 'none' ? `${dropped}+${releaseApplied}` : dropped
     }
-    return 'epic_dropped'
+    return releaseApplied !== 'none' ? `epic_dropped+${releaseApplied}` : 'epic_dropped'
   }
 
   if (decidedOption === 'hold' || decidedOption === 'later' || decidedOption === 'keep') {
@@ -73,17 +107,23 @@ async function applyApprovalEffectInner(approval: Approval, decidedOption: strin
         updatedAt: new Date().toISOString(),
       },
     })
-    return 'epic_hold'
+    return releaseApplied !== 'none' ? `epic_hold+${releaseApplied}` : 'epic_hold'
   }
 
-  if (decidedOption === 'retry') return markRetryApproved(epic.epicId, false)
-  if (decidedOption === 'investigate') return markRetryApproved(epic.epicId, true)
+  if (decidedOption === 'retry') {
+    const retry = await markRetryApproved(epic.epicId, false)
+    return releaseApplied !== 'none' ? `${retry}+${releaseApplied}` : retry
+  }
+  if (decidedOption === 'investigate') {
+    const investigate = await markRetryApproved(epic.epicId, true)
+    return releaseApplied !== 'none' ? `${investigate}+${releaseApplied}` : investigate
+  }
 
   if (decidedOption === 'proceed' || decidedOption === 'resolve' || decidedOption === 'allow') {
-    return 'none'
+    return releaseApplied
   }
 
-  return 'none'
+  return releaseApplied
 }
 
 export async function applyApprovalEffect(approval: Approval, decidedOption: string): Promise<{ applied: string }> {

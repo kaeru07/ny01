@@ -27912,6 +27912,68 @@
       "progressUpdated": false,
       "nextActions": [],
       "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260702-160023-412\n[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none"
+    },
+    {
+      "runId": "20260702-212421",
+      "startedAt": "2026-07-02T12:24:21.507Z",
+      "finishedAt": "2026-07-02T12:24:21.507Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "P0-3危険伝播+P1-1必須/任意判断の実装",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "①アプリ案riskFlags(課金/認証/外部公開等)を型/AI生成/approve伝播/UI(⚠バッジ)に追加、Goalに伝播し既存危険ゲートが作動 ②decisionPoints.required+Approval.requiredForExecution追加。必須判断pending中はgoalをhold(AIが後回し中)、全必須回答でrequired_answered_release自動解除。今日の判断に必須ラベル表示。",
+      "changedFiles": [
+        {
+          "file": "lib/app-factory-candidates.ts",
+          "change": "riskFlags/decisionPoints.required追加"
+        },
+        {
+          "file": "lib/app-proposal-generator.ts",
+          "change": "AI生成にriskFlags/required出力指示+既知値検証"
+        },
+        {
+          "file": "app/api/app-proposals/[id]/decide/route.ts",
+          "change": "riskFlagsDefault伝播+required承認生成+goal hold+requiredCount返却"
+        },
+        {
+          "file": "lib/approval-effects.ts",
+          "change": "全必須回答でgoal hold解除(required_answered_release)"
+        },
+        {
+          "file": "lib/command-center.ts",
+          "change": "必須判断に説明行"
+        },
+        {
+          "file": "components/app-proposals/AppProposalCard.tsx",
+          "change": "危険要素バッジ(一覧⚠+詳細)"
+        },
+        {
+          "file": "lib/goal-writer.ts",
+          "change": "upsertGoalでqueueControl透過(脱落防止)"
+        },
+        {
+          "file": "lib/types/operations.ts",
+          "change": "requiredForExecution追加"
+        },
+        {
+          "file": "lib/operations-store.ts",
+          "change": "createApproval透過"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "test": "OK",
+        "manual": "OK live: 両ページ200・危険/必須UI文言build含有"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "P0-3危険伝播+P1-1必須/任意判断の実装 の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## P0-3+P1-1 実装(実装Codex/検証Claude)\n\n機能1: アプリ案の危険要素(riskFlags)をGoal riskFlagsDefaultへ伝播。危険付きは既存ゲート(blocked→今日の判断)が作動。UI: 一覧⚠危険要素あり/詳細に赤バッジ。\n機能2: 判断の必須/任意。必須(required)未回答の間はgoalをqueueControl.hold(AIが後回し中)にし自動作成を開始しない。全必須回答でapproval-effectsが自動解除。既定はplatformのみ必須。\n検証: tsc/build/test OK、live描画・文言含有確認。\n\nmonetizationImpact: medium\ntheme: [workflow, app-strategy]"
     }
   ]
 }

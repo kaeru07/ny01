@@ -1,4 +1,5 @@
 import { readJson, writeJson } from './store'
+import type { EpicRiskFlag } from '@/lib/types/operations'
 
 // app-factory-candidates: アプリ開発工場（epic-a5r7n4）の候補キュー読み取り専用ビュー。
 // 各アプリ案の 目的 / 収益化仮説 / 優先度 / 次アクション を一覧で確認できるようにする。
@@ -11,6 +12,7 @@ export interface AppFactoryDecisionPoint {
   key: string
   question: string
   options?: string[]
+  required?: boolean
 }
 
 export interface AppFactoryMockScreen {
@@ -43,6 +45,8 @@ export interface AppFactoryCandidate {
   winningFactors?: string[]
   /** 懸念・リスク。 */
   concerns?: string[]
+  /** Factory/Goal に伝播する危険シグナル。 */
+  riskFlags?: EpicRiskFlag[]
   /** 詳細仕様（機能・画面遷移・技術前提などの要約）。 */
   spec?: string
   /** 想定対象ユーザー。 */

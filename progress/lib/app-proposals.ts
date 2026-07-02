@@ -1,6 +1,7 @@
 import { getAppFactoryCandidates } from '@/lib/app-factory-candidates'
 import { getOperationalDecisions } from '@/lib/operations-store'
 import type { AppFactoryDecisionPoint, AppProposalOceanType } from '@/lib/app-factory-candidates'
+import type { EpicRiskFlag } from '@/lib/types/operations'
 
 export type AppProposalDecision = 'approved' | 'rejected' | 'held' | 'not_needed'
 
@@ -23,6 +24,7 @@ export interface AppProposal {
   monetizationPlan?: string
   winningFactors?: string[]
   concerns?: string[]
+  riskFlags?: EpicRiskFlag[]
   spec?: string
   decisionPoints: AppFactoryDecisionPoint[]
   createdAt?: string
@@ -214,6 +216,7 @@ export async function getAppProposals(): Promise<AppProposal[]> {
       monetizationPlan: candidate.monetizationPlan ?? candidate.monetizationHypothesis,
       winningFactors: normalizeStringArray(candidate.winningFactors, 8),
       concerns: normalizeStringArray(candidate.concerns, 8),
+      riskFlags: candidate.riskFlags ?? [],
       spec: candidate.spec?.trim(),
       decisionPoints: candidate.decisionPoints ?? [],
       createdAt: candidate.createdAt,

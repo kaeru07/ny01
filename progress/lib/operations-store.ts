@@ -287,6 +287,7 @@ export async function updatePendingApproval(
     options?: Approval['options']
     recommended?: string
     reason?: string
+    requiredForExecution?: boolean
   },
 ): Promise<Approval | null> {
   const approvals = await getApprovals()
@@ -299,6 +300,7 @@ export async function updatePendingApproval(
     options: input.options ?? approvals[idx].options,
     recommended: input.recommended ?? approvals[idx].recommended,
     reason: input.reason ?? approvals[idx].reason,
+    requiredForExecution: input.requiredForExecution ?? approvals[idx].requiredForExecution,
   }
   approvals[idx] = updated
   await writeJson('approvals.json', approvals)
@@ -314,6 +316,7 @@ export async function createApproval(input: {
   options: Approval['options']
   recommended: string
   reason: string
+  requiredForExecution?: boolean
   createdRunId?: string
 }): Promise<Approval> {
   const approvals = await getApprovals()
@@ -329,6 +332,7 @@ export async function createApproval(input: {
     options: input.options,
     recommended: input.recommended,
     reason: input.reason,
+    requiredForExecution: input.requiredForExecution,
     status: 'pending',
     createdRunId: input.createdRunId,
     createdAt: now,

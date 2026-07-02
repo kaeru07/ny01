@@ -3,6 +3,7 @@ import { appendAutomationLog } from '@/lib/operations-store'
 import { buildResearchGoalCandidates } from '@/lib/research-goals'
 import { getKnowledgeRecords } from '@/lib/knowledge-loop'
 import { runCommand } from '@/lib/executors/shell'
+import type { EpicRiskFlag } from '@/lib/types/operations'
 
 export interface DailyAppProposalResult {
   generated: boolean
@@ -26,6 +27,7 @@ interface AiDecisionPoint {
   key: string
   question: string
   options?: string[]
+  required?: boolean
 }
 
 interface AiStoreAppProposal {
@@ -42,12 +44,14 @@ interface AiStoreAppProposal {
   monetizationPlan: string
   winningFactors: string[]
   concerns: string[]
+  riskFlags: EpicRiskFlag[]
   spec: string
   decisionPoints: AiDecisionPoint[]
 }
 
 const AI_TIMEOUT_MS = 90_000
 const MAX_AI_PROPOSALS = 3
+const VALID_RISK_FLAGS: EpicRiskFlag[] = ['billing', 'production_db', 'auth_secret', 'deploy', 'migration', 'destructive', 'external_publish']
 
 function todayJst(date = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', {
@@ -86,6 +90,11 @@ function stringList(value: unknown, fallback: string[], max = 8): string[] {
 
 function normalizeOceanType(value: unknown): AppProposalOceanType {
   return value === 'blue' || value === 'red' ? value : 'unknown'
+}
+
+function normalizeRiskFlags(value: unknown): EpicRiskFlag[] {
+  if (!Array.isArray(value)) return []
+  return Array.from(new Set(value.filter((item): item is EpicRiskFlag => VALID_RISK_FLAGS.includes(item as EpicRiskFlag))))
 }
 
 async function collectSeeds(): Promise<ProposalSeed[]> {
@@ -151,10 +160,11 @@ function buildAiPrompt(seeds: ProposalSeed[]): string {
       monetizationPlan: 'ストア課金前提: 買い切り/サブスク/アプリ内課金/広告のどれで検証するか',
       winningFactors: ['勝機1', '勝機2', '勝機3'],
       concerns: ['懸念1', '懸念2'],
+      riskFlags: ['billing', 'external_publish'],
       spec: '詳細仕様。機能、画面遷移、データ、通知、オフライン、技術前提などの要約。',
       decisionPoints: [
-        { key: 'platform', question: '最初に公開するストア対象は？', options: ['iOS', 'Android', 'iOS + Android', 'iPad対応'] },
-        { key: 'pricing', question: '最初の課金方式は？', options: ['買い切り', '月額サブスク', 'アプリ内課金', '広告 + 課金解除'] },
+        { key: 'platform', question: '最初に公開するストア対象は？', options: ['iOS', 'Android', 'iOS + Android', 'iPad対応'], required: true },
+        { key: 'pricing', question: '最初の課金方式は？', options: ['買い切り', '月額サブスク', 'アプリ内課金', '広告 + 課金解除'], required: false },
       ],
     }], null, 2),
     '',
@@ -162,7 +172,9 @@ function buildAiPrompt(seeds: ProposalSeed[]): string {
     '- screens はモバイル画面を4〜5枚にする。',
     "- oceanType は 'blue' または 'red' のみ。",
     '- monetizationPlan は必ず App Store / Google Play の課金・広告モデルにする。',
+    '- riskFlags は該当する危険要素を配列で入れる。billing=課金 / auth_secret=認証情報 / external_publish=外部公開 / production_db=本番DB / destructive=破壊的 / migration=スキーマ変更。無ければ空配列。',
     '- decisionPoints の platform 選択肢に Web を入れない。',
+    '- decisionPoints は、作る前に必ず人間の回答が要る判断だけ required:true にする。任意の判断は required:false または省略。',
     '',
     '直近の種:',
     JSON.stringify(seedBlock, null, 2),
@@ -222,11 +234,11 @@ function normalizeDecisionPoints(value: unknown): AiDecisionPoint[] {
   const points: AiDecisionPoint[] = []
   for (const point of value) {
     if (!point || typeof point !== 'object') continue
-    const source = point as { key?: unknown; question?: unknown; options?: unknown }
+    const source = point as { key?: unknown; question?: unknown; options?: unknown; required?: unknown }
     const key = compactText(source.key, '', 40)
     const question = compactText(source.question, '', 120)
     if (!key || !question) continue
-    points.push({ key, question, options: stringList(source.options, [], 6) })
+    points.push({ key, question, options: stringList(source.options, [], 6), required: source.required === true })
     if (points.length >= 6) break
   }
   return points
@@ -262,10 +274,11 @@ function normalizeAiProposal(value: unknown): AiStoreAppProposal | null {
     monetizationPlan: compactText(source.monetizationPlan, 'App Store / Google Play の買い切り、サブスク、アプリ内課金、広告のいずれかで検証する。', 700),
     winningFactors: stringList(source.winningFactors, ['今日の判断で要精査'], 8),
     concerns: stringList(source.concerns, ['今日の判断で要精査'], 8),
+    riskFlags: normalizeRiskFlags(source.riskFlags),
     spec: compactText(source.spec, '詳細仕様は今日の判断で要精査。モバイル画面、通知、データ保存、ストア課金を前提に詰める。', 1200),
     decisionPoints: decisionPoints.length > 0 ? decisionPoints : [
-      { key: 'platform', question: '最初に公開するストア対象は？', options: ['iOS', 'Android', 'iOS + Android', 'iPad対応'] },
-      { key: 'pricing', question: '最初の課金方式は？', options: ['買い切り', '月額サブスク', 'アプリ内課金', '広告 + 課金解除'] },
+      { key: 'platform', question: '最初に公開するストア対象は？', options: ['iOS', 'Android', 'iOS + Android', 'iPad対応'], required: true },
+      { key: 'pricing', question: '最初の課金方式は？', options: ['買い切り', '月額サブスク', 'アプリ内課金', '広告 + 課金解除'], required: false },
     ],
   }
 }
@@ -337,6 +350,7 @@ function toCandidate(proposal: AiStoreAppProposal, index: number, now: string): 
     monetizationPlan: proposal.monetizationPlan,
     winningFactors: proposal.winningFactors,
     concerns: proposal.concerns,
+    riskFlags: proposal.riskFlags,
     spec: proposal.spec,
     priority: priorityForProposal(proposal),
     status: 'proposed',
@@ -372,11 +386,12 @@ function fallbackProposal(seed: ProposalSeed): AiStoreAppProposal {
     monetizationPlan: 'App Store / Google Play のアプリ内課金を前提に、無料枠 + 月額サブスクを第一候補、必要に応じて買い切り解除または広告 + 課金解除を検証する。',
     winningFactors: ['今日の判断で要精査', 'iOS / Android の日常利用導線に載せられる可能性', 'ストアレビュー不満から差別化余地を探せる'],
     concerns: ['今日の判断で要精査', 'ストア競合・審査リスク・継続率が未検証', '課金価値が弱い場合は広告依存になりやすい'],
+    riskFlags: [],
     spec: '詳細仕様は今日の判断で要精査。iOS / Android 対応、ローカル保存 + 任意クラウド同期、プッシュ通知、App Store / Google Play のアプリ内課金、ストア審査に通るデータ・プライバシー表示を前提にMVPを定義する。',
     decisionPoints: [
-      { key: 'platform', question: '最初に公開するストア対象は？', options: ['iOS', 'Android', 'iOS + Android', 'iPad対応'] },
-      { key: 'pricing', question: '最初の課金方式は？', options: ['無料 + 月額サブスク', '買い切り', 'アプリ内課金', '広告 + 課金解除'] },
-      { key: 'mvp', question: '最小機能セットはどこまでにする？', options: ['記録と一覧だけ', '通知まで含める', '分析まで含める'] },
+      { key: 'platform', question: '最初に公開するストア対象は？', options: ['iOS', 'Android', 'iOS + Android', 'iPad対応'], required: true },
+      { key: 'pricing', question: '最初の課金方式は？', options: ['無料 + 月額サブスク', '買い切り', 'アプリ内課金', '広告 + 課金解除'], required: false },
+      { key: 'mvp', question: '最小機能セットはどこまでにする？', options: ['記録と一覧だけ', '通知まで含める', '分析まで含める'], required: false },
     ],
   }
 }

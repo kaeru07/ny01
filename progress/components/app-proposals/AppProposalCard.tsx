@@ -40,6 +40,16 @@ const postDecisions = {
   hold: '保留',
 } as const
 
+const riskFlagLabels = {
+  billing: '課金',
+  production_db: '本番DB',
+  auth_secret: '認証情報',
+  external_publish: '外部公開',
+  destructive: '破壊的操作',
+  migration: 'スキーマ変更',
+  deploy: 'デプロイ',
+} as const
+
 type PostDecision = keyof typeof postDecisions
 
 export default function AppProposalCard({ proposal }: { proposal: AppProposal }) {
@@ -49,8 +59,9 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
   const [note, setNote] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [approvedInfo, setApprovedInfo] = useState<{ approvalCount: number } | null>(null)
+  const [approvedInfo, setApprovedInfo] = useState<{ approvalCount: number; requiredCount: number } | null>(null)
   const status = decisionBadge[proposal.decision ?? 'undecided']
+  const riskFlags = proposal.riskFlags ?? []
   const oceanBadge = proposal.oceanType === 'blue'
     ? { label: 'ブルー', className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200' }
     : proposal.oceanType === 'red'
@@ -84,7 +95,10 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
       setPendingDecision(null)
       setNote('')
       if (decision === 'approve') {
-        setApprovedInfo({ approvalCount: typeof body?.approvalCount === 'number' ? body.approvalCount : 0 })
+        setApprovedInfo({
+          approvalCount: typeof body?.approvalCount === 'number' ? body.approvalCount : 0,
+          requiredCount: typeof body?.requiredCount === 'number' ? body.requiredCount : 0,
+        })
       }
       router.refresh()
     } catch (err) {
@@ -107,6 +121,9 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
           <span className={`rounded-full px-2 py-0.5 text-[10px] font-black ${status.className}`}>{status.label}</span>
           <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-300">優先度 {proposal.priority}</span>
           {oceanBadge ? <span className={`rounded-full px-2 py-0.5 text-[10px] font-black ${oceanBadge.className}`}>{oceanBadge.label}</span> : null}
+          {riskFlags.length > 0 ? (
+            <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-black text-red-700 dark:bg-red-900/30 dark:text-red-200">⚠危険要素あり</span>
+          ) : null}
         </div>
       </div>
       {proposal.decisionNote ? <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400">メモ: {proposal.decisionNote}</p> : null}
@@ -151,6 +168,7 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
         <div className="space-y-2 rounded-xl border border-green-200 bg-green-50 px-3 py-2 dark:border-green-800 dark:bg-green-900/20">
           <p className="text-xs font-black text-green-800 dark:text-green-200">
             作成を決定しました。ゴールを自動実行キューに追加{approvedInfo.approvalCount > 0 ? `し、方針${approvedInfo.approvalCount}件を今日の判断に追加` : ''}しました。
+            {approvedInfo.requiredCount > 0 ? ` 必須判断${approvedInfo.requiredCount}件の回答まで自動作成は保留されます。` : ''}
           </p>
           <button
             type="button"
@@ -271,6 +289,7 @@ function SpecTab({ proposal }: { proposal: AppProposal }) {
       ) : null}
       <InfoBlock label="対象ユーザー" value={proposal.targetUser} />
       <InfoBlock label="詳細仕様" value={proposal.spec || '未記入'} />
+      <RiskFlagsBlock proposal={proposal} />
       <div>
         <p className="text-xs font-black text-gray-500 dark:text-gray-400">主要機能</p>
         <div className="mt-2 flex flex-wrap gap-1.5">
@@ -306,6 +325,7 @@ function MarketTab({ proposal }: { proposal: AppProposal }) {
   return (
     <div className="space-y-4">
       <InfoBlock label="市場価値" value={proposal.marketValue || '未設定'} />
+      <RiskFlagsBlock proposal={proposal} />
       <div>
         <p className="text-xs font-black text-gray-500 dark:text-gray-400">オーシャン判定</p>
         <span className={`mt-2 inline-flex rounded-full px-3 py-1 text-xs font-black ${tone}`}>{label}</span>
@@ -313,6 +333,23 @@ function MarketTab({ proposal }: { proposal: AppProposal }) {
       <InfoBlock label="判断根拠" value={proposal.oceanRationale || '未設定'} />
       <ListBlock label="勝機" items={proposal.winningFactors ?? []} tone="green" />
       <ListBlock label="懸念" items={proposal.concerns ?? []} tone="amber" />
+    </div>
+  )
+}
+
+function RiskFlagsBlock({ proposal }: { proposal: AppProposal }) {
+  const flags = proposal.riskFlags ?? []
+  if (flags.length === 0) return null
+  return (
+    <div>
+      <p className="text-xs font-black text-gray-500 dark:text-gray-400">危険要素</p>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {flags.map((flag) => (
+          <span key={flag} className="rounded-full border border-red-200 bg-red-50 px-2 py-1 text-[11px] font-black text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-200">
+            {riskFlagLabels[flag] ?? flag}
+          </span>
+        ))}
+      </div>
     </div>
   )
 }

@@ -393,6 +393,7 @@ export async function upsertGoal(input: GoalUpsertInput): Promise<Goal> {
     priority: pickPriority(input.priority, previous?.priority ?? 'medium'),
     priorityBoost: previous?.priorityBoost,
     pinnedTop: previous?.pinnedTop,
+    queueControl: previous?.queueControl,
     decisionPolicyDefault: input.decisionPolicyDefault ? pickDecisionPolicy(input.decisionPolicyDefault, previous?.decisionPolicyDefault ?? 'autonomous') : previous?.decisionPolicyDefault,
     riskFlagsDefault: input.riskFlagsDefault ? pickRiskFlags(input.riskFlagsDefault) : previous?.riskFlagsDefault,
     notes: previous?.notes,

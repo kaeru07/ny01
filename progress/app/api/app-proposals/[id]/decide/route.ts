@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getAppFactoryCandidates } from '@/lib/app-factory-candidates'
-import { upsertGoal } from '@/lib/goal-writer'
+import { readGoals } from '@/lib/goal-reader'
+import { upsertGoal, writeGoals } from '@/lib/goal-writer'
 import { createApproval, getPendingApprovals, recordOperationalDecision } from '@/lib/operations-store'
 import { addProject } from '@/lib/progress-writer'
 import type { CandidatePriority } from '@/lib/app-factory-candidates'
@@ -26,10 +27,31 @@ function impactFromPriority(priority: CandidatePriority): 'high' | 'medium' | 'l
 
 // decisionPoints が空のアプリ案でも「作る」で必ず今日の判断に方針が並ぶよう、既定の方針3問をフォールバックとして使う。
 const DEFAULT_DECISION_POINTS = [
-  { key: 'platform', question: '最初に作る対象プラットフォームは？', options: ['Web', 'iOS', 'Android'] },
-  { key: 'pricing', question: '最初の課金方式は？', options: ['無料MVP', '買い切り', '月額'] },
-  { key: 'mvp', question: '最小機能セットはどこまでにする？', options: ['記録と一覧だけ', '分析まで含める', '共有まで含める'] },
+  { key: 'platform', question: '最初に作る対象プラットフォームは？', options: ['iOS', 'Android', 'iOS + Android'], required: true },
+  { key: 'pricing', question: '最初の課金方式は？', options: ['無料MVP', '買い切り', '月額'], required: false },
+  { key: 'mvp', question: '最小機能セットはどこまでにする？', options: ['記録と一覧だけ', '分析まで含める', '共有まで含める'], required: false },
 ]
+
+async function setGoalHoldForProject(projectId: string, hold: boolean): Promise<boolean> {
+  const data = await readGoals()
+  const goalIndex = data.goals.findIndex((goal) => goal.id === `goal-app-${projectId}`)
+  const fallbackIndex = data.goals.findIndex((goal) => goal.projectId === projectId && goal.status === 'active')
+  const targetIndex = goalIndex >= 0 ? goalIndex : fallbackIndex
+  if (targetIndex === -1) return false
+  const now = new Date().toISOString()
+  data.goals[targetIndex] = {
+    ...data.goals[targetIndex],
+    queueControl: {
+      ...data.goals[targetIndex].queueControl,
+      hold,
+      updatedBy: 'user',
+      updatedAt: now,
+    },
+    updatedAt: now,
+  }
+  await writeGoals(data)
+  return true
+}
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
   const { id } = params
@@ -55,6 +77,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     let goalId: string | undefined
     let projectId: string | undefined
     let approvalCount = 0
+    let requiredCount = 0
     const warnings: string[] = []
 
     if (payload.decision === 'approve') {
@@ -89,7 +112,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
             projectId,
             status: 'active',
             decisionPolicyDefault: 'autonomous',
-            riskFlagsDefault: [],
+            riskFlagsDefault: candidate.riskFlags ?? [],
             priority: candidate.priority,
             monetizationImpact: impactFromPriority(candidate.priority),
           })
@@ -106,7 +129,11 @@ export async function POST(request: Request, { params }: { params: { id: string 
         for (const point of decisionPoints) {
           try {
             const title = `${candidate.title}: ${point.question}`
-            if (existingApprovals.some((a) => a.projectId === projectId && a.title === title)) continue
+            const existing = existingApprovals.find((a) => a.projectId === projectId && a.title === title)
+            if (existing) {
+              if (point.required === true && existing.requiredForExecution) requiredCount += 1
+              continue
+            }
             const options = point.options && point.options.length > 0
               ? point.options.map((option, index) => ({ key: slug(`${point.key}-${index}-${option}`), label: option }))
               : [
@@ -121,11 +148,17 @@ export async function POST(request: Request, { params }: { params: { id: string 
               options,
               recommended: options[0]?.key ?? 'decide',
               reason: 'アプリ案決定時に方針決定が必要な項目',
+              requiredForExecution: point.required === true,
             })
             approvalCount += 1
+            if (point.required === true) requiredCount += 1
           } catch (error) {
             warnings.push(`approval create failed (${point.key}): ${error instanceof Error ? error.message : String(error)}`)
           }
+        }
+        if (projectId && requiredCount > 0) {
+          const held = await setGoalHoldForProject(projectId, true)
+          if (!held) warnings.push(`goal hold failed: ${projectId}`)
         }
       }
     }
@@ -139,7 +172,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
       note,
       source: 'app-proposals-page',
     })
-    return NextResponse.json({ success: true, goalId, projectId, approvalCount, warnings })
+    return NextResponse.json({ success: true, goalId, projectId, approvalCount, requiredCount, warnings })
   } catch (error) {
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : 'failed to record decision' },

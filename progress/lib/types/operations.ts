@@ -227,6 +227,7 @@ export interface Approval {
   options: ApprovalOption[]
   recommended: string
   reason: string
+  requiredForExecution?: boolean
   status: 'pending' | 'decided' | 'expired'
   decidedOption?: string
   decidedBy?: string
