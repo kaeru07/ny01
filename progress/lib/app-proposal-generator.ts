@@ -1,4 +1,4 @@
-import { addAppFactoryCandidate, getAppFactoryCandidates, type AppFactoryCandidate, type AppProposalOceanType } from '@/lib/app-factory-candidates'
+import { addAppFactoryCandidate, getAppFactoryCandidates, type AppFactoryCandidate, type AppProposalDifficulty, type AppProposalOceanType } from '@/lib/app-factory-candidates'
 import { appendAutomationLog } from '@/lib/operations-store'
 import { buildResearchGoalCandidates } from '@/lib/research-goals'
 import { getKnowledgeRecords } from '@/lib/knowledge-loop'
@@ -47,6 +47,10 @@ interface AiStoreAppProposal {
   riskFlags: EpicRiskFlag[]
   spec: string
   decisionPoints: AiDecisionPoint[]
+  mvpScope?: string
+  difficulty?: AppProposalDifficulty
+  externalApis?: string[]
+  initialGoalDraft?: string
 }
 
 const AI_TIMEOUT_MS = 90_000
@@ -90,6 +94,10 @@ function stringList(value: unknown, fallback: string[], max = 8): string[] {
 
 function normalizeOceanType(value: unknown): AppProposalOceanType {
   return value === 'blue' || value === 'red' ? value : 'unknown'
+}
+
+function normalizeDifficulty(value: unknown): AppProposalDifficulty | undefined {
+  return value === 'low' || value === 'medium' || value === 'high' ? value : undefined
 }
 
 function normalizeRiskFlags(value: unknown): EpicRiskFlag[] {
@@ -162,9 +170,19 @@ function buildAiPrompt(seeds: ProposalSeed[]): string {
       concerns: ['懸念1', '懸念2'],
       riskFlags: ['billing', 'external_publish'],
       spec: '詳細仕様。機能、画面遷移、データ、通知、オフライン、技術前提などの要約。',
+      mvpScope: '最初のストア審査に出せるMVP範囲。画面、必須機能、後回し機能を1〜3文で書く。',
+      difficulty: 'medium',
+      externalApis: ['RevenueCat', 'Firebase', 'MapKit'],
+      initialGoalDraft: 'Codexが最初に作るべきGoal案。初期画面、データモデル、最小保存/課金スタブなどを1〜3文で書く。',
       decisionPoints: [
         { key: 'platform', question: '最初に公開するストア対象は？', options: ['iOS', 'Android', 'iOS + Android', 'iPad対応'], required: true },
         { key: 'pricing', question: '最初の課金方式は？', options: ['買い切り', '月額サブスク', 'アプリ内課金', '広告 + 課金解除'], required: false },
+        { key: 'mvp_scope', question: 'MVPの最小機能セットはどこまでにする？', options: ['記録と一覧だけ', '通知まで含める', '分析まで含める'], required: true },
+        { key: 'data_storage', question: 'データ保存先は？', options: ['端末内のみ', 'クラウド同期あり', '端末内 + 手動バックアップ'], required: true },
+        { key: 'auth', question: '認証を入れる？', options: ['認証なし', 'Apple/Googleログイン', 'メールログイン'], required: true },
+        { key: 'offline', question: 'オフライン対応は必要？', options: ['必須', '一部対応', '不要'], required: false },
+        { key: 'privacy', question: '収集する個人情報とプライバシー方針は？', options: ['個人情報なし', 'メールのみ', '利用ログを収集', '位置情報を収集'], required: true },
+        { key: 'region_language', question: '公開時の対象地域・言語は？', options: ['日本語/日本', '英語/グローバル', '日英対応'], required: false },
       ],
     }], null, 2),
     '',
@@ -172,9 +190,16 @@ function buildAiPrompt(seeds: ProposalSeed[]): string {
     '- screens はモバイル画面を4〜5枚にする。',
     "- oceanType は 'blue' または 'red' のみ。",
     '- monetizationPlan は必ず App Store / Google Play の課金・広告モデルにする。',
+    "- difficulty は 'low' / 'medium' / 'high' のみ。",
+    '- externalApis は RevenueCat, Firebase, MapKit, CloudKit, Supabase など必要な外部サービス/API名を配列で入れる。無ければ空配列。',
+    '- mvpScope は最初のストア審査に出せるMVP範囲を1〜3文で書く。',
+    '- initialGoalDraft はCodexへ渡す「最初に何を作るか」の初期Goal案を1〜3文で書く。',
     '- riskFlags は該当する危険要素を配列で入れる。billing=課金 / auth_secret=認証情報 / external_publish=外部公開 / production_db=本番DB / destructive=破壊的 / migration=スキーマ変更。無ければ空配列。',
     '- decisionPoints の platform 選択肢に Web を入れない。',
-    '- decisionPoints は、作る前に必ず人間の回答が要る判断だけ required:true にする。任意の判断は required:false または省略。',
+    '- decisionPoints は上限8件。作る前に決めるべき方針を漏れなく列挙する。',
+    '- decisionPoints は最低限、該当するカテゴリを適切に required 設定して含める: platform(必須), 課金方式, 最小機能セット, データ保存先(端末内 or クラウド), 認証の有無, オフライン対応の要否, 収集する個人情報とプライバシー方針, 公開時の対象地域・言語, 通知の有無。',
+    '- 認証情報を扱う、課金する、外部公開する、個人情報を扱う判断は required:true 寄りにする。',
+    '- decisionPoints の各項目は {key, question, options(2〜4), required} 形式。required は作る前に必ず人間の回答が要る判断だけ true。',
     '',
     '直近の種:',
     JSON.stringify(seedBlock, null, 2),
@@ -238,8 +263,9 @@ function normalizeDecisionPoints(value: unknown): AiDecisionPoint[] {
     const key = compactText(source.key, '', 40)
     const question = compactText(source.question, '', 120)
     if (!key || !question) continue
-    points.push({ key, question, options: stringList(source.options, [], 6), required: source.required === true })
-    if (points.length >= 6) break
+    const options = stringList(source.options, [], 4)
+    points.push({ key, question, options: options.length >= 2 ? options : [], required: source.required === true })
+    if (points.length >= 8) break
   }
   return points
 }
@@ -276,9 +302,16 @@ function normalizeAiProposal(value: unknown): AiStoreAppProposal | null {
     concerns: stringList(source.concerns, ['今日の判断で要精査'], 8),
     riskFlags: normalizeRiskFlags(source.riskFlags),
     spec: compactText(source.spec, '詳細仕様は今日の判断で要精査。モバイル画面、通知、データ保存、ストア課金を前提に詰める。', 1200),
+    mvpScope: typeof source.mvpScope === 'string' && source.mvpScope.trim() ? compactText(source.mvpScope, '', 500) : undefined,
+    difficulty: normalizeDifficulty(source.difficulty),
+    externalApis: stringList(source.externalApis, [], 8),
+    initialGoalDraft: typeof source.initialGoalDraft === 'string' && source.initialGoalDraft.trim() ? compactText(source.initialGoalDraft, '', 600) : undefined,
     decisionPoints: decisionPoints.length > 0 ? decisionPoints : [
       { key: 'platform', question: '最初に公開するストア対象は？', options: ['iOS', 'Android', 'iOS + Android', 'iPad対応'], required: true },
       { key: 'pricing', question: '最初の課金方式は？', options: ['買い切り', '月額サブスク', 'アプリ内課金', '広告 + 課金解除'], required: false },
+      { key: 'data_storage', question: 'データ保存先は？', options: ['端末内のみ', 'クラウド同期あり', '端末内 + 手動バックアップ'], required: true },
+      { key: 'auth', question: '認証を入れる？', options: ['認証なし', 'Apple/Googleログイン', 'メールログイン'], required: true },
+      { key: 'privacy', question: '収集する個人情報とプライバシー方針は？', options: ['個人情報なし', 'メールのみ', '利用ログを収集', '位置情報を収集'], required: true },
     ],
   }
 }
@@ -352,6 +385,10 @@ function toCandidate(proposal: AiStoreAppProposal, index: number, now: string): 
     concerns: proposal.concerns,
     riskFlags: proposal.riskFlags,
     spec: proposal.spec,
+    mvpScope: proposal.mvpScope,
+    difficulty: proposal.difficulty,
+    externalApis: proposal.externalApis,
+    initialGoalDraft: proposal.initialGoalDraft,
     priority: priorityForProposal(proposal),
     status: 'proposed',
     nextAction: 'ストア公開対象、課金方式、MVP機能、審査リスクを今日の判断で決める',

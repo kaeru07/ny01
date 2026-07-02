@@ -1325,9 +1325,12 @@
     ],
     "recommended": "proceed",
     "reason": "課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260626-110008-354",
-    "createdAt": "2026-07-02T07:00:21.731Z"
+    "createdAt": "2026-07-02T07:00:21.731Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-02T14:00:15.034Z"
   },
   {
     "approvalId": "appr-1782975622021-5",
@@ -1351,8 +1354,37 @@
     ],
     "recommended": "proceed",
     "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260625-235232",
-    "createdAt": "2026-07-02T07:00:22.021Z"
+    "createdAt": "2026-07-02T07:00:22.021Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-02T14:00:15.041Z"
+  },
+  {
+    "approvalId": "appr-1783000816739-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: P0-3危険伝播+P1-1必須/任意判断の実装",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "pending",
+    "createdRunId": "20260702-212421",
+    "createdAt": "2026-07-02T14:00:16.739Z"
   }
 ]

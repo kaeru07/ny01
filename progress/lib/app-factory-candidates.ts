@@ -7,6 +7,7 @@ import type { EpicRiskFlag } from '@/lib/types/operations'
 
 export type CandidatePriority = 'high' | 'medium' | 'low'
 export type AppProposalOceanType = 'blue' | 'red' | 'unknown'
+export type AppProposalDifficulty = 'low' | 'medium' | 'high'
 
 export interface AppFactoryDecisionPoint {
   key: string
@@ -57,6 +58,14 @@ export interface AppFactoryCandidate {
   screens?: AppFactoryMockScreen[]
   /** 決定後に人間が方針決定すべき項目。 */
   decisionPoints?: AppFactoryDecisionPoint[]
+  /** MVP範囲。 */
+  mvpScope?: string
+  /** 開発難易度。 */
+  difficulty?: AppProposalDifficulty
+  /** 必要な外部サービス/API。 */
+  externalApis?: string[]
+  /** Codexへ渡す初期Goal案。 */
+  initialGoalDraft?: string
   /** 提案作成日時。 */
   createdAt?: string
   /** 優先度。 */

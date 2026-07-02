@@ -31439,6 +31439,117 @@
         "UI配置整理レビュー(使用実データ基準)+確定仕様をキュー投入 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "## UI整理レビュー→キュー投入\n\n実測(直近14日): queue169/decide142/home123/goal-planner64/guide60/app-proposals50/portfolio40/goal-dashboard18/report16/activity13/project-complete7/app-specs4/app-decisions1/integration-map2。\n\n発見: ①状況タブのタップ先activityが実使用の1/3(portfolioが主) ②下タブ並び頻度ズレ ③todo消化/レポートは低頻度だが前回ユーザーが下タブ復帰を明示→削除せず後方維持 ④アプリ開発サブタブ後ろ2つ死に→統合し将来の設計一覧枠に ⑤decide内部タブ過多(AI保留=キュー外重複/Epic候補低頻度)→6→4 ⑥死にページはアーカイブ節隔離。\n\n確定仕様を goal-opus-ui-reorg summaryに全文保存しキュー#31へ。オプション(下タブ6化)はユーザー判断事項として仕様に併記のみ。\n\nmonetizationImpact: none\ntheme: [workflow]"
+    },
+    {
+      "runId": "20260703-084034",
+      "startedAt": "2026-07-02T23:40:34.662Z",
+      "finishedAt": "2026-07-02T23:40:34.662Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "アプリ案: 実装計画フィールド+仕様方針網羅+進行バッジ+設計一覧ページ",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "Opusバッチ4ゴール消化(実装Codex/検証Claude)。①modal-fields: mvpScope/difficulty/externalApis/initialGoalDraftを型/AI生成/詳細モーダル実装計画タブに追加 ②spec-decisions: AI生成decisionPointsを網羅化(保存先/認証/オフライン/個人情報/地域言語/通知等)+decide空フォールバック拡充 ③pipeline-badges: 決定済みタブにqueued/held/in_progress/blocked/completed状態バッジ(goal-app状態から導出) ④app-designs: /app-designs新設(承認済みアプリの仕様/画面/決定済み方針/未回答方針を集約・アプリ開発サブタブ追加)。",
+      "changedFiles": [
+        {
+          "file": "lib/app-factory-candidates.ts",
+          "change": "mvpScope/difficulty/externalApis/initialGoalDraft追加"
+        },
+        {
+          "file": "lib/app-proposals.ts",
+          "change": "新フィールド透過+pipelineStatus型"
+        },
+        {
+          "file": "lib/app-proposal-generator.ts",
+          "change": "AI生成に実装計画+網羅decisionPoints"
+        },
+        {
+          "file": "components/app-proposals/AppProposalCard.tsx",
+          "change": "実装計画タブ+進行バッジ"
+        },
+        {
+          "file": "app/api/app-proposals/[id]/decide/route.ts",
+          "change": "DEFAULT_DECISION_POINTS拡充"
+        },
+        {
+          "file": "app/app-proposals/page.tsx",
+          "change": "pipelineStatus算出"
+        },
+        {
+          "file": "lib/nav-groups.ts",
+          "change": "設計一覧サブタブ追加"
+        },
+        {
+          "file": "app/app-designs/page.tsx",
+          "change": "設計一覧ページ新設"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "test": "OK",
+        "manual": "OK live: 全ページ200/実装計画・設計一覧・キュー投入済み・未回答 build含有/app-designs実描画"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "アプリ案: 実装計画フィールド+仕様方針網羅+進行バッジ+設計一覧ページ の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "Opusバッチ4件消化。tsc/build/test OK。live検証済。goal-opus-modal-fields/spec-decisions/pipeline-badges/app-designs 完了。"
+    },
+    {
+      "runId": "20260703-084034",
+      "startedAt": "2026-07-02T23:40:34.908Z",
+      "finishedAt": "2026-07-02T23:40:34.908Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "運用3原則をguide FAQ(3問追加)とdocs/operations/current-operating-model.md(最上位ルール節+frontmatter updated=2026-07-03)に明文化。①完了の正本=doneCriteria機械判定(レビューは完了条件でない) ②Fableレビュー=案B(機械チェック常時+深いレビューは指示時のみ) ③今日の判断は危険/方針選択/手詰まり確認の3種のみ・品質レビューでは止めない。",
+      "changedFiles": [
+        {
+          "file": "app/guide/page.tsx",
+          "change": "FAQ3問追加(今日の判断の中身/完了の決まり方/失敗の扱い)"
+        },
+        {
+          "file": "docs/operations/current-operating-model.md",
+          "change": "運用3原則を最上位ルールとして明文化+frontmatter更新"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "manual": "OK live: FAQ3問描画/最終更新2026-07-03"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種) の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "goal-opus-doc-formalize完了。運用ドキュメントセット(guide+operating-model)更新。"
+    },
+    {
+      "runId": "20260703-084035",
+      "startedAt": "2026-07-02T23:40:35.176Z",
+      "finishedAt": "2026-07-02T23:40:35.176Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "日々の調査の仕様レビュー(research-review)",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "news-app日次調査のレビュー。結論: コンテンツ品質は高い(daily-market-research=今日の結論/記事本文/注目ジャンル/競合アプリ/ユーザー不満/収益化ヒント、daily-ai-news=個人開発への影響度付き。ストア公開・個人開発・収益化視点で具体的・網羅的で大事なニュースは拾えている)。重大な穴1件: アプリ案生成の種がresearch-goals CATEGORIES=[daily-ai-tools]の星評価のみで、最有用のmarket-research/ai-newsが案生成に届いていない→follow-up goal(goal-opus-research-seed-expand)としてキュー投入。",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "日々の調査の仕様レビュー(research-review) の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## 日々の調査 仕様レビュー\n\n### 調査コンテンツ評価: 良好\n- daily-market-research(2026-07-03実物): 今日の結論/記事本文(800字超)/注目ジャンル(ストア発見面・外部課金)/競合アプリ/ユーザー不満(未確認は明記)/収益化ヒント。個人開発・ストア公開・収益化視点で具体的。大事なニュース(CMA外部決済/Google Play会話検索/AIショートドラマ/エージェント)は網羅。\n- daily-ai-news: 各ニュースに個人開発への影響度(高/中)付き。Sonnet5/GPT-5.6/ADK2.0等を適切に要約。\n- 記事本文セクション必須化も機能。fallback互換あり。\n\n### 穴: 案生成への接続\n- app-proposal-generator の種は buildResearchGoalCandidates → research-goals CATEGORIES=[daily-ai-tools] のみ(parseValueRatingsが星評価前提)。\n- 最も案の種になるべき daily-market-research(注目ジャンル/収益化ヒント) と daily-ai-news(高影響) が案生成に流れていない。\n- 修正案(goal-opus-research-seed-expandでキュー化): generatorのseedに最新market-research注目ジャンル/収益化ヒント+ai-news高影響を渡す軽reader追加。星評価パーサは不変。\n\n### 判定\n調査コンテンツ=十分。案生成への連携=要改善(follow-up化済)。\n\nmonetizationImpact: medium\ntheme: [market-research, workflow, app-strategy]"
     }
   ]
 }

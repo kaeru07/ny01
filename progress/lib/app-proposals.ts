@@ -1,9 +1,10 @@
 import { getAppFactoryCandidates } from '@/lib/app-factory-candidates'
 import { getOperationalDecisions } from '@/lib/operations-store'
-import type { AppFactoryDecisionPoint, AppProposalOceanType } from '@/lib/app-factory-candidates'
+import type { AppFactoryDecisionPoint, AppProposalDifficulty, AppProposalOceanType } from '@/lib/app-factory-candidates'
 import type { EpicRiskFlag } from '@/lib/types/operations'
 
 export type AppProposalDecision = 'approved' | 'rejected' | 'held' | 'not_needed'
+export type AppProposalPipelineStatus = 'queued' | 'held' | 'in_progress' | 'blocked' | 'completed'
 
 export interface MockScreen {
   key: string
@@ -27,6 +28,10 @@ export interface AppProposal {
   riskFlags?: EpicRiskFlag[]
   spec?: string
   decisionPoints: AppFactoryDecisionPoint[]
+  mvpScope?: string
+  difficulty?: AppProposalDifficulty
+  externalApis?: string[]
+  initialGoalDraft?: string
   createdAt?: string
   priority: string
   status: string
@@ -38,6 +43,7 @@ export interface AppProposal {
   screens: MockScreen[]
   decision?: AppProposalDecision | null
   decisionNote?: string
+  pipelineStatus?: AppProposalPipelineStatus
 }
 
 const DEFAULT_SCREEN_NAMES = [
@@ -180,6 +186,10 @@ function normalizeDecision(decision: string | undefined): AppProposalDecision | 
   return null
 }
 
+function normalizeDifficulty(value: unknown): AppProposalDifficulty | undefined {
+  return value === 'low' || value === 'medium' || value === 'high' ? value : undefined
+}
+
 function fallbackOverview(purpose: string): string {
   return purpose.split(/[。.\n]/).map((part) => part.trim()).find(Boolean) ?? purpose
 }
@@ -219,6 +229,10 @@ export async function getAppProposals(): Promise<AppProposal[]> {
       riskFlags: candidate.riskFlags ?? [],
       spec: candidate.spec?.trim(),
       decisionPoints: candidate.decisionPoints ?? [],
+      mvpScope: candidate.mvpScope?.trim() || undefined,
+      difficulty: normalizeDifficulty(candidate.difficulty),
+      externalApis: normalizeStringArray(candidate.externalApis, 8),
+      initialGoalDraft: candidate.initialGoalDraft?.trim() || undefined,
       createdAt: candidate.createdAt,
       priority: candidate.priority,
       status: candidate.status,

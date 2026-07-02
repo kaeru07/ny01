@@ -25,11 +25,13 @@ function impactFromPriority(priority: CandidatePriority): 'high' | 'medium' | 'l
   return 'medium'
 }
 
-// decisionPoints が空のアプリ案でも「作る」で必ず今日の判断に方針が並ぶよう、既定の方針3問をフォールバックとして使う。
+// decisionPoints が空のアプリ案でも「作る」で必ず今日の判断に方針が並ぶよう、代表的な作成前方針をフォールバックとして使う。
 const DEFAULT_DECISION_POINTS = [
-  { key: 'platform', question: '最初に作る対象プラットフォームは？', options: ['iOS', 'Android', 'iOS + Android'], required: true },
-  { key: 'pricing', question: '最初の課金方式は？', options: ['無料MVP', '買い切り', '月額'], required: false },
-  { key: 'mvp', question: '最小機能セットはどこまでにする？', options: ['記録と一覧だけ', '分析まで含める', '共有まで含める'], required: false },
+  { key: 'platform', question: '最初に公開するストア対象は？', options: ['iOS', 'Android', 'iOS + Android', 'iPad対応'], required: true },
+  { key: 'data_storage', question: 'データ保存先は？', options: ['端末内のみ', 'クラウド同期あり', '端末内 + 手動バックアップ'], required: true },
+  { key: 'auth', question: '認証を入れる？', options: ['認証なし', 'Apple/Googleログイン', 'メールログイン'], required: true },
+  { key: 'pricing', question: '最初の課金方式は？', options: ['無料MVP', '買い切り', '月額サブスク', '広告 + 課金解除'], required: false },
+  { key: 'mvp_scope', question: 'MVP範囲はどこまでにする？', options: ['記録と一覧だけ', '通知まで含める', '分析まで含める', '課金導線まで含める'], required: false },
 ]
 
 async function setGoalHoldForProject(projectId: string, hold: boolean): Promise<boolean> {

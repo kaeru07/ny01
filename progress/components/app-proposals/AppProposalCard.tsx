@@ -50,6 +50,35 @@ const riskFlagLabels = {
   deploy: 'デプロイ',
 } as const
 
+const pipelineStatusBadge = {
+  queued: {
+    label: 'キュー投入済み',
+    className: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200',
+  },
+  held: {
+    label: '必須判断待ち',
+    className: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200',
+  },
+  in_progress: {
+    label: '作成中',
+    className: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200',
+  },
+  blocked: {
+    label: '停止中',
+    className: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-200',
+  },
+  completed: {
+    label: '完成',
+    className: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-200',
+  },
+} as const
+
+const difficultyBadge = {
+  low: { label: '低', className: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-200' },
+  medium: { label: '中', className: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200' },
+  high: { label: '高', className: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-200' },
+} as const
+
 type PostDecision = keyof typeof postDecisions
 
 export default function AppProposalCard({ proposal }: { proposal: AppProposal }) {
@@ -69,6 +98,9 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
       : null
   // 承認/却下/作成不要は「決定済み」。決定ボタン(作る/見送り/保留)は出さない（保留・未判断のみ操作可）。
   const isFinalized = proposal.decision === 'approved' || proposal.decision === 'rejected' || proposal.decision === 'not_needed'
+  const pipelineBadge = proposal.decision === 'approved' && proposal.pipelineStatus
+    ? pipelineStatusBadge[proposal.pipelineStatus]
+    : null
 
   async function decide(decision: PostDecision) {
     if (busy) return
@@ -121,6 +153,7 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
           <span className={`rounded-full px-2 py-0.5 text-[10px] font-black ${status.className}`}>{status.label}</span>
           <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-300">優先度 {proposal.priority}</span>
           {oceanBadge ? <span className={`rounded-full px-2 py-0.5 text-[10px] font-black ${oceanBadge.className}`}>{oceanBadge.label}</span> : null}
+          {pipelineBadge ? <span className={`rounded-full px-2 py-0.5 text-[10px] font-black ${pipelineBadge.className}`}>{pipelineBadge.label}</span> : null}
           {riskFlags.length > 0 ? (
             <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-black text-red-700 dark:bg-red-900/30 dark:text-red-200">⚠危険要素あり</span>
           ) : null}
@@ -205,11 +238,12 @@ function DecisionButton({ disabled, label, tone, onClick }: { disabled: boolean;
 }
 
 function AppProposalDetailModal({ proposal, onClose }: { proposal: AppProposal; onClose: () => void }) {
-  const [tab, setTab] = useState<'spec' | 'market' | 'money'>('spec')
+  const [tab, setTab] = useState<'spec' | 'market' | 'money' | 'plan'>('spec')
   const tabs = [
     { key: 'spec' as const, label: '画面・仕様' },
     { key: 'market' as const, label: '市場・オーシャン' },
     { key: 'money' as const, label: '収益化' },
+    { key: 'plan' as const, label: '実装計画' },
   ]
 
   return (
@@ -229,12 +263,12 @@ function AppProposalDetailModal({ proposal, onClose }: { proposal: AppProposal; 
             閉じる
           </button>
         </div>
-        <div className="flex gap-1 border-b border-gray-100 bg-gray-50 p-1 dark:border-gray-800 dark:bg-gray-900">
+        <div className="flex gap-1 overflow-x-auto border-b border-gray-100 bg-gray-50 p-1 dark:border-gray-800 dark:bg-gray-900">
           {tabs.map((item) => (
             <button
               key={item.key}
               type="button"
-              className={`min-h-9 flex-1 rounded-lg px-2 text-xs font-black ${
+              className={`min-h-9 shrink-0 rounded-lg px-3 text-xs font-black sm:flex-1 ${
                 tab === item.key
                   ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-100'
                   : 'text-gray-500 dark:text-gray-400'
@@ -249,6 +283,7 @@ function AppProposalDetailModal({ proposal, onClose }: { proposal: AppProposal; 
           {tab === 'spec' ? <SpecTab proposal={proposal} /> : null}
           {tab === 'market' ? <MarketTab proposal={proposal} /> : null}
           {tab === 'money' ? <MoneyTab proposal={proposal} /> : null}
+          {tab === 'plan' ? <PlanTab proposal={proposal} /> : null}
         </div>
       </div>
     </div>
@@ -360,6 +395,41 @@ function MoneyTab({ proposal }: { proposal: AppProposal }) {
       <RevenueImage />
       <InfoBlock label="収益化計画" value={proposal.monetizationPlan || '未設定'} />
       <InfoBlock label="収益化仮説" value={proposal.monetizationHypothesis} />
+    </div>
+  )
+}
+
+function PlanTab({ proposal }: { proposal: AppProposal }) {
+  const apis = (proposal.externalApis ?? []).filter((api) => api.trim())
+  const difficulty = proposal.difficulty ? difficultyBadge[proposal.difficulty] : null
+  const hasContent = Boolean(proposal.mvpScope || difficulty || apis.length > 0 || proposal.initialGoalDraft)
+
+  if (!hasContent) {
+    return <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">未設定</p>
+  }
+
+  return (
+    <div className="space-y-4">
+      {proposal.mvpScope ? <InfoBlock label="MVP範囲" value={proposal.mvpScope} /> : null}
+      {difficulty ? (
+        <div>
+          <p className="text-xs font-black text-gray-500 dark:text-gray-400">開発難易度</p>
+          <span className={`mt-2 inline-flex rounded-full px-3 py-1 text-xs font-black ${difficulty.className}`}>{difficulty.label}</span>
+        </div>
+      ) : null}
+      {apis.length > 0 ? (
+        <div>
+          <p className="text-xs font-black text-gray-500 dark:text-gray-400">必要な外部サービス・API</p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {apis.map((api) => (
+              <span key={api} className="rounded-full bg-gray-100 px-2 py-1 text-[11px] font-bold text-gray-700 dark:bg-gray-800 dark:text-gray-200">
+                {api}
+              </span>
+            ))}
+          </div>
+        </div>
+      ) : null}
+      {proposal.initialGoalDraft ? <InfoBlock label="Codexへの初期Goal案" value={proposal.initialGoalDraft} /> : null}
     </div>
   )
 }

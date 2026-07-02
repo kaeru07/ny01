@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-02T07:00:20.087Z",
+  "generatedAt": "2026-07-02T14:00:14.968Z",
   "issues": [
     {
       "id": "app-stalled-goal-app-shogi-kakoi-trainer",
@@ -24,14 +24,6 @@
       "detail": "直近3日以内の成功Runがありません。進捗が0%のままです。現在の進捗は 0% です。",
       "actionLabel": "ゴールを確認",
       "actionHref": "/goal-planner?goalId=goal-app-ny01-mahjong-analyzer"
-    },
-    {
-      "id": "stale-goals",
-      "severity": "medium",
-      "title": "1件のゴールが1週間以上停滞",
-      "detail": "ゴール更新または関連Runから7日以上動きがありません。",
-      "actionLabel": "ゴールを確認",
-      "actionHref": "/goal-planner"
     },
     {
       "id": "pending-approvals",

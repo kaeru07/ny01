@@ -4325,12 +4325,12 @@
       "description": "アプリ案承認後、詳細仕様を固める段階で決めるべき方針(画面構成/データ保存先/認証有無/オフライン対応/課金タイミング等)を漏れなく今日の判断に追加。AI生成でdecisionPointsを網羅列挙+仕様確定ステップでの判断追加。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "アプリ案承認後、詳細仕様を固める段階で決めるべき方針(画面構成/データ保存先/認証有無/オフライン対応/課金タイミング等)を漏れなく今日の判断に追加。AI生成でdecisionPointsを網羅列挙+仕様確定ステップでの判断追加。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
-      "status": "active",
+      "status": "done",
       "priority": "high",
       "pinnedTop": false,
       "autonomyNotifyAttempts": 0,
@@ -4338,7 +4338,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-07-02T12:36:35.106Z",
-      "updatedAt": "2026-07-02T12:36:35.106Z"
+      "updatedAt": "2026-07-02T23:39:43.728Z"
     },
     {
       "id": "goal-opus-app-designs",
@@ -4347,12 +4347,12 @@
       "description": "作成決定済みアプリごとに 仕様(spec)/画面/決定済み方針(decided回答)/未回答方針(今日の判断リンク) を一覧表示する /app-designs を新設し、アプリ開発サブタブに追加。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "作成決定済みアプリごとに 仕様(spec)/画面/決定済み方針(decided回答)/未回答方針(今日の判断リンク) を一覧表示する /app-designs を新設し、アプリ開発サブタブに追加。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
-      "status": "active",
+      "status": "done",
       "priority": "high",
       "pinnedTop": false,
       "autonomyNotifyAttempts": 0,
@@ -4360,7 +4360,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-07-02T12:36:35.451Z",
-      "updatedAt": "2026-07-02T12:36:35.451Z"
+      "updatedAt": "2026-07-02T23:39:43.728Z"
     },
     {
       "id": "goal-opus-pipeline-badges",
@@ -4369,12 +4369,12 @@
       "description": "Queue投入済み→作成中→完了 をgoal-app-<projectId>のゴール/キュー実状態から導出しバッジ表示。candidateへprojectId/goalId書き戻し。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "Queue投入済み→作成中→完了 をgoal-app-<projectId>のゴール/キュー実状態から導出しバッジ表示。candidateへprojectId/goalId書き戻し。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
-      "status": "active",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
       "autonomyNotifyAttempts": 0,
@@ -4382,7 +4382,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-07-02T12:36:35.538Z",
-      "updatedAt": "2026-07-02T12:36:35.538Z"
+      "updatedAt": "2026-07-02T23:39:43.728Z"
     },
     {
       "id": "goal-opus-modal-fields",
@@ -4391,12 +4391,12 @@
       "description": "型+AI生成+詳細モーダル表示。ストア公開前提。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "型+AI生成+詳細モーダル表示。ストア公開前提。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
-      "status": "active",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
       "autonomyNotifyAttempts": 0,
@@ -4404,7 +4404,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-07-02T12:36:35.579Z",
-      "updatedAt": "2026-07-02T12:36:35.579Z"
+      "updatedAt": "2026-07-02T23:39:43.728Z"
     },
     {
       "id": "goal-opus-doc-formalize",
@@ -4413,12 +4413,12 @@
       "description": "guide FAQ+docs/operations/current-operating-model.md に反映(4点セットルール順守)。①レビューは機械チェック+人間任意が正式 ②完了の正本はdoneCriteria判定 ③今日の判断に入るのは危険/方針選択/手詰まり確認のみ。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "guide FAQ+docs/operations/current-operating-model.md に反映(4点セットルール順守)。①レビューは機械チェック+人間任意が正式 ②完了の正本はdoneCriteria判定 ③今日の判断に入るのは危険/方針選択/手詰まり確認のみ。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
-      "status": "active",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
       "autonomyNotifyAttempts": 0,
@@ -4426,7 +4426,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-07-02T12:36:35.645Z",
-      "updatedAt": "2026-07-02T12:36:35.645Z"
+      "updatedAt": "2026-07-02T23:39:43.728Z"
     },
     {
       "id": "goal-opus-research-review",
@@ -4435,12 +4435,12 @@
       "description": "news-app日次調査の情報が本当に必要な内容になっているか、重要ニュースが漏れなく伝わるか、アプリ案生成の種として十分かをレビューし改善案を出す(実装でなくレビュー)。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "news-app日次調査の情報が本当に必要な内容になっているか、重要ニュースが漏れなく伝わるか、アプリ案生成の種として十分かをレビューし改善案を出す(実装でなくレビュー)。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
-      "status": "active",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
       "autonomyNotifyAttempts": 0,
@@ -4448,7 +4448,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-07-02T12:36:35.696Z",
-      "updatedAt": "2026-07-02T12:36:35.696Z"
+      "updatedAt": "2026-07-02T23:39:43.728Z"
     },
     {
       "id": "goal-opus-skills-mvp",
@@ -4482,6 +4482,28 @@
       "current": 0,
       "isNorthStar": false,
       "summary": "【確定仕様・使用実測(14日: queue169/decide142/home123/goal-planner64/guide60/app-proposals50/portfolio40/goal-dashboard18/report16/activity13/app-specs4/app-decisions1)基準】\n1. 下タブは8個維持で並びを使用頻度順に: ホーム→今日の判断→自動実行→アプリ開発→状況→todo消化→レポート→運用 (BottomNav)。\n2. 状況タブのタップ先を/portfolioに変更(実測でactivityの3倍使用)。状況サブタブ順: プロジェクト状況→自動実行状況(activity)→PJ完了。active判定パスは維持。\n3. 今日の判断の内部タブ6→4: 今日の判断/ゴール承認/達成確認/レビュー。AI保留タブ削除(キュー外/queue?view=othersへ誘導リンクに)。Epic候補タブ削除(ハンバーガーの推薦Epic/recommended-epicsへ誘導)。既存フィルタURL互換は維持(tab=aiHold等が来たら誘導表示)。\n4. app-specs+app-decisionsを1ページ「仕様承認・履歴」に統合(タブ2つを1画面に。既存URLはリダイレクト)。アプリ開発サブタブ: 新アプリ案/決定済み・作成中/設計一覧(goal-opus-app-designs実装後)/仕様承認・履歴。\n5. 死にページ隔離: nav-menuに「アーカイブ(ほぼ使わない)」グループを新設し integration-map/app-urls/legacy/morning/daily 等を移動(削除はしない・到達性維持)。\n【オプション(ユーザー判断・実装しない)】下タブ6化(todo消化/レポートを状況サブタブへ)。前回ユーザーが8タブへ戻すよう指示した経緯があるため既定は8維持。\n検証: 全ページ200実描画/BottomNavラベル順/サブタブactive/リダイレクト動作/tsc/build。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "status": "active",
+      "priority": "medium",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [],
+      "todos": [],
+      "createdAt": "2026-07-02T14:41:16.581Z",
+      "updatedAt": "2026-07-02T14:41:16.581Z"
+    },
+    {
+      "id": "goal-opus-research-seed-expand",
+      "projectId": "company-mgmt",
+      "title": "アプリ案生成の種を market-research/ai-news まで拡張する",
+      "description": "【research-reviewの発見】調査コンテンツ(daily-market-research=注目ジャンル/競合/収益化ヒント、daily-ai-news=個人開発への影響度)は高品質でストア・個人開発視点。しかしアプリ案生成の種は research-goals.ts CATEGORIES=[daily-ai-tools]のみ(星評価パーサ前提)で、最も有用なmarket-research/ai-newsが案生成に届いていない。修正: app-proposal-generator.ts の pickSeed/AI生成プロンプトに、最新 daily-market-research の 注目ジャンル・収益化ヒント と daily-ai-news の高影響ニュースを seed context として渡す(news-app/content/research を読む軽いreader追加。星評価パーサは触らない)。これで日次アプリ案が実際の市場観測に基づく。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "【research-reviewの発見】調査コンテンツ(daily-market-research=注目ジャンル/競合/収益化ヒント、daily-ai-news=個人開発への影響度)は高品質でストア・個人開発視点。しかしアプリ案生成の種は research-goals.ts CATEGORIES=[daily-ai-tools]のみ(星評価パーサ前提)で、最も有用なmarket-research/ai-newsが案生成に届いていない。修正: app-proposal-generator.ts の pickSeed/AI生成プロンプトに、最新 daily-market-research の 注目ジャンル・収益化ヒント と daily-ai-news の高影響ニュースを seed context として渡す(news-app/content/research を読む軽いreader追加。星評価パーサは触らない)。これで日次アプリ案が実際の市場観測に基づく。",
       "status": "active",
       "priority": "medium",
       "decisionPolicyDefault": "autonomous",
@@ -4489,10 +4511,10 @@
       "monetizationImpact": "none",
       "phases": [],
       "todos": [],
-      "createdAt": "2026-07-02T14:41:16.581Z",
-      "updatedAt": "2026-07-02T14:41:16.581Z"
+      "createdAt": "2026-07-02T23:39:25.344Z",
+      "updatedAt": "2026-07-02T23:39:25.344Z"
     }
   ],
   "mainGoalId": "goal-ai-factory-os",
-  "updatedAt": "2026-07-02T14:41:16.581Z"
+  "updatedAt": "2026-07-02T23:39:25.345Z"
 }
