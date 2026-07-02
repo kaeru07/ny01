@@ -1065,5 +1065,155 @@
     "status": "pending",
     "createdRunId": "20260627-103652-609",
     "createdAt": "2026-07-02T02:06:29.201Z"
+  },
+  {
+    "approvalId": "appr-1782961878098-2",
+    "projectId": "ny01-mahjong-analyzer",
+    "title": "ny01/mahjong-analyzer（手牌解析）: 最初に作る対象プラットフォームは？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "platform-0-web",
+        "label": "Web"
+      },
+      {
+        "key": "platform-1-ios",
+        "label": "iOS"
+      },
+      {
+        "key": "platform-2-android",
+        "label": "Android"
+      }
+    ],
+    "recommended": "platform-0-web",
+    "reason": "アプリ案決定時に方針決定が必要な項目",
+    "status": "pending",
+    "createdAt": "2026-07-02T03:11:18.098Z"
+  },
+  {
+    "approvalId": "appr-1782961878105-3",
+    "projectId": "ny01-mahjong-analyzer",
+    "title": "ny01/mahjong-analyzer（手牌解析）: 最初の課金方式は？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "pricing-0-mvp",
+        "label": "無料MVP"
+      },
+      {
+        "key": "pricing-1",
+        "label": "買い切り"
+      },
+      {
+        "key": "pricing-2",
+        "label": "月額"
+      }
+    ],
+    "recommended": "pricing-0-mvp",
+    "reason": "アプリ案決定時に方針決定が必要な項目",
+    "status": "pending",
+    "createdAt": "2026-07-02T03:11:18.105Z"
+  },
+  {
+    "approvalId": "appr-1782961878110-4",
+    "projectId": "ny01-mahjong-analyzer",
+    "title": "ny01/mahjong-analyzer（手牌解析）: 最小機能セットはどこまでにする？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mvp-0",
+        "label": "記録と一覧だけ"
+      },
+      {
+        "key": "mvp-1",
+        "label": "分析まで含める"
+      },
+      {
+        "key": "mvp-2",
+        "label": "共有まで含める"
+      }
+    ],
+    "recommended": "mvp-0",
+    "reason": "アプリ案決定時に方針決定が必要な項目",
+    "status": "pending",
+    "createdAt": "2026-07-02T03:11:18.110Z"
+  },
+  {
+    "approvalId": "appr-1782961968383-5",
+    "projectId": "shogi-kakoi-trainer",
+    "title": "将棋 囲いトレーナー: 最初に公開するストアは？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "store-0-app-store",
+        "label": "App Store"
+      },
+      {
+        "key": "store-1-google-play",
+        "label": "Google Play"
+      },
+      {
+        "key": "store-2-web",
+        "label": "Web版から先に公開"
+      }
+    ],
+    "recommended": "store-0-app-store",
+    "reason": "アプリ案決定時に方針決定が必要な項目",
+    "status": "pending",
+    "createdAt": "2026-07-02T03:12:48.383Z"
+  },
+  {
+    "approvalId": "appr-1782961968706-6",
+    "projectId": "shogi-kakoi-trainer",
+    "title": "将棋 囲いトレーナー: 初期価格をどうする？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "pricing-0",
+        "label": "買い切り低価格"
+      },
+      {
+        "key": "pricing-1",
+        "label": "無料+追加課金"
+      },
+      {
+        "key": "pricing-2",
+        "label": "無料で検証"
+      }
+    ],
+    "recommended": "pricing-0",
+    "reason": "アプリ案決定時に方針決定が必要な項目",
+    "status": "pending",
+    "createdAt": "2026-07-02T03:12:48.706Z"
+  },
+  {
+    "approvalId": "appr-1782961968723-7",
+    "projectId": "shogi-kakoi-trainer",
+    "title": "将棋 囲いトレーナー: 初回リリースに含める囲い数は？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "content-scope-0-5",
+        "label": "主要5種"
+      },
+      {
+        "key": "content-scope-1-10",
+        "label": "主要10種"
+      },
+      {
+        "key": "content-scope-2",
+        "label": "完成済み範囲すべて"
+      }
+    ],
+    "recommended": "content-scope-0-5",
+    "reason": "アプリ案決定時に方針決定が必要な項目",
+    "status": "pending",
+    "createdAt": "2026-07-02T03:12:48.723Z"
   }
 ]

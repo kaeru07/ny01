@@ -727,3 +727,13 @@
 {"at":"2026-07-01T23:59:27.951Z","type":"page_view","path":"/queue"}
 {"at":"2026-07-01T23:59:51.210Z","type":"page_view","path":"/epic/epic-goalstep-goal-mqvpojj2-9nbn3"}
 {"at":"2026-07-01T23:59:56.920Z","type":"page_view","path":"/queue"}
+{"at":"2026-07-02T03:05:30.779Z","type":"page_view","path":"/"}
+{"at":"2026-07-02T03:05:58.797Z","type":"page_view","path":"/decide"}
+{"at":"2026-07-02T03:08:33.237Z","type":"page_view","path":"/app-proposals"}
+{"at":"2026-07-02T03:08:43.310Z","type":"action","path":"/app-proposals","label":"詳細（モック・収益イメージ・仕様）を見る"}
+{"at":"2026-07-02T03:08:46.904Z","type":"action","path":"/app-proposals","label":"▶"}
+{"at":"2026-07-02T03:08:48.602Z","type":"action","path":"/app-proposals","label":"▶"}
+{"at":"2026-07-02T03:08:49.212Z","type":"action","path":"/app-proposals","label":"▶"}
+{"at":"2026-07-02T03:10:37.450Z","type":"action","path":"/app-proposals","label":"閉じる"}
+{"at":"2026-07-02T03:11:17.842Z","type":"action","path":"/app-proposals","label":"このアプリを作る"}
+{"at":"2026-07-02T03:12:46.699Z","type":"action","path":"/app-proposals","label":"このアプリを作る"}

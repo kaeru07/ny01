@@ -120,7 +120,9 @@ const VERDICT_TO_REVIEW_STATUS: Record<AiReviewVerdict, ReviewStatus> = {
   reviewed: 'reviewed',
   needs_human: 'needs_human',
   partial: 'needs_followup',
-  failed: 'needs_followup',
+  // 失敗Runは「レビュー」に入れて止めない。停止/再実行はキュー側(失敗→blocked→今日の判断、または一時的原因は再キュー)で扱うため、
+  // レビュー対象からは外す（reviewed 扱いにしてレビュータブに出さない）。
+  failed: 'reviewed',
 }
 
 export interface AiReviewRunResult {
@@ -180,7 +182,7 @@ export async function runAiReviewBatch(limit = 10): Promise<AiReviewBatchResult>
       reviewStatus,
       reviewMemo,
       aiReview,
-      reviewedAt: cls.verdict === 'reviewed' ? at : run.reviewedAt,
+      reviewedAt: (cls.verdict === 'reviewed' || cls.verdict === 'failed') ? at : run.reviewedAt,
     })
 
     let createdKnowledge = false
@@ -195,8 +197,8 @@ export async function runAiReviewBatch(limit = 10): Promise<AiReviewBatchResult>
       if (createdKnowledge) knowledgeCreated += 1
     }
 
-    if (cls.verdict === 'partial' || cls.verdict === 'failed') {
-      // needs_followup にした Run も、その場で修正候補へ戻して Review→Next Epic ループを閉じる。
+    if (cls.verdict === 'partial') {
+      // partial(未完了)のみ修正候補へ。failed(失敗)はレビューに入れず、キュー側(blocked→今日の判断 / 一時的は再キュー)で扱う。
       const followupRun: ExecutionRun = {
         ...run,
         reviewStatus,

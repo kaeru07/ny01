@@ -4289,19 +4289,34 @@
       "status": "active",
       "priority": "low",
       "pinnedTop": false,
-      "queueControl": {
-        "manualOrder": 2,
-        "updatedBy": "user",
-        "updatedAt": "2026-07-01T07:26:14.757Z"
-      },
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "low",
       "phases": [],
       "todos": [],
       "createdAt": "2026-07-01T03:56:44.872Z",
-      "updatedAt": "2026-07-01T07:26:14.757Z"
+      "updatedAt": "2026-07-02T03:11:18.080Z"
+    },
+    {
+      "id": "goal-app-shogi-kakoi-trainer",
+      "projectId": "shogi-kakoi-trainer",
+      "title": "将棋 囲いトレーナーを作る",
+      "description": "将棋初〜中級者が囲い（美濃・矢倉等）の手順を反復ドリルで習得できる学習アプリ。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "将棋初〜中級者が囲い（美濃・矢倉等）の手順を反復ドリルで習得できる学習アプリ。",
+      "status": "active",
+      "priority": "high",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "monetizationImpact": "high",
+      "phases": [],
+      "todos": [],
+      "createdAt": "2026-07-02T03:12:47.792Z",
+      "updatedAt": "2026-07-02T03:12:47.792Z"
     }
   ],
   "mainGoalId": "goal-ai-factory-os",
-  "updatedAt": "2026-07-02T02:01:34.556Z"
+  "updatedAt": "2026-07-02T03:12:47.795Z"
 }
