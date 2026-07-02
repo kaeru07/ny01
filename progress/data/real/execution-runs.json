@@ -1720,7 +1720,7 @@
         "BottomNav主要タブへ昇格するか検討(現状Legacyナビ)"
       ],
       "rawReport": "Codex実装→Fableレビュー(reviewer)。tsc0/lint0/build成功を独立再実行。e2e: フォーム4項目のみ(実行対象AI/優先度なし)、import promptQueue/todos両形式・goal→goalProgress正規化・priority/assignee/preferredExecutor無視(警告)・title/prompt無しエラー・project不一致は未紐付け警告、次回やる候補3件が理由付き(Goal進捗が未完了のため等)、snoozeで候補除外(3→2)、DELETE→archived(物理削除なし)、既存/queue/decide/tasks-import回帰なしを確認。テストデータはprompt-queue.jsonを空に戻して消去。minor: promptQueueとtodosを同一payloadに両方入れるとpromptQueueのみ処理(実運用は片方)。\n\nmonetizationImpact: low\ntheme: [workflow, prompt-template]\nobsidianSummary: Prompt Queue(作業プロンプト貯蔵庫)新設。入力4項目(タスク名/プロンプト/Project/Goal進捗)、実行対象AI・優先度非表示、GoalとGoal進捗統一、JSON取り込み(goal→goalProgress正規化)、未完了は次回やる候補に理由付きで表示。\nobsidianSaveTarget: 20_reviews/2026-06-14_prompt-queue.md",
-      "reviewMemo": "修正指示: # 修正依頼 / 次Epic\n# Goal Plannerと自動実行キューを同じ文脈に統合する\n\n## 背景\n\n現状の ny01/progress では、Goal Planner と 自動実行キュー が別物のように見えている。\n\nユーザーのイメージでは、\n\n- Goal Planner は Goal進捗の入力・管理画面\n- 自動実行キュー は そのGoal進捗に紐づく実際の作業キュー表示\n\nであり、3・4枚目のキュー内容が、1・2枚目のGoal Plannerとも連動して見える状態を期待している。\n\nしかし現状は、\n\n- Goal Planner 側では「現在のメイン目標」「登録済みの目標」「phases / todos / 進捗 0%」などの旧画面寄りUIが見えている\n- 自動実行キュー側では、review待ち、pin、候補外理由、Project progress、Goalラベルなど、別系統の実運用情報が見えている\n\nこのため、\n「Goal Plannerで登録・管理しているもの」と\n「自動実行キューで実際に処理されるもの」が\n同じ世界に見えず、連動していないのが問題。\n\n---\n\n## 目的\n\nGoal Planner と 自動実行キューを、同じ作業文脈・同じデータ文脈に統合する。\n\nユーザーが期待しているのは以下。\n\n1. Goal Planner の内容が、自動実行キューの内容と連動している\n2. Goal Planner のカードを見れば、そのGoal進捗に紐づくキュー状況が分かる\n3. 自動実行キューは Goal Planner の実行詳細ビューとして見える\n4. Goal Planner と キューで別々の概念や別正本が見えない\n5. 古いUI由来のズレを減らす\n\n---\n\n## 問題認識\n\n今回のズレは、単なる表示崩れではなく、設計上のズレとして扱うこと。\n\n仮説として以下を確認してほしい。\n\n- Goal Planner が goals / phases / todos の旧系データを見ている\n- 自動実行キューが Epic / Queue / Review / Project progress 系の別データを見ている\n- Goal Planner の「登録済み目標」が、自動実行キューの実際の候補や状態と連動していない\n- Goal Planner のカードが空集計（0/0/0）になりやすく、実運用上の状態を反映できていない\n- role選択や旧JSON前提など、今の運用思想とズレたUIが残っている\n\n---\n\n## やりたい状態\n\n### Goal Planner\n\nGoal Planner は「Goal進捗の入力・俯瞰画面」とする。\n\n各Goal進捗カードには、最低限以下を表示する。\n\n- Goal進捗タイトル\n- 紐づくProject\n- 全体進捗\n- 次回自動実行候補数\n- 実行可能数\n- 判断待ち数\n- レビュー待ち数\n- 候補外数\n- 最新作業\n- 次にやるべきこと\n- 自動実行キューを見る導線\n- ToDoを見る導線\n- Prompt Queueを見る導線（必要なら）\n\nつまり、今の「phases / todos / 進捗 0%」だけではなく、\n3・4枚目のキューで見えている内容の要約が Goal Planner にも見えるようにする。\n\n### 自動実行キュー\n\n自動実行キューは「Goal進捗に紐づく実行詳細ビュー」とする。\n\n- Goal Planner のカードをタップすると、そのGoal進捗に紐づくキューへ遷移できる\n- キュー側では、候補理由・候補外理由・review待ち・pin・実行可否など詳細を見る\n- Goal Planner で見えていた数値と整合する\n\n---\n\n## 重要な設計方針\n\n### 1. Goal と Goal進捗は分けない\n\n引き続き、Goal と Goal進捗は分けすぎず、goalProgress として扱う。\n\n### 2. Goal Planner と 自動実行キューの正本を揃える\n\n別々の正本や別々の集計ロジックを持たせないこと。\n\n理想:\n- Goal Planner は same-source の要約ビュー\n- 自動実行キュー は same-source の詳細ビュー\n\n### 3. 旧UI由来の不要要素を整理する\n\n以下が今の運用に不要・またはズレているなら整理対象にする。\n\n- role選択（人間 / Claude / Codex）\n- 旧phases/todos前提だけの表示\n- Goal Planner上の空カード\n- 旧画面からしか意味がない入力項目\n\n### 4. 下タブ構成と役割を明確にする\n\n現状の下タブ:\n- ホーム\n- ToDo\n- Project\n- 目標\n- 自動実行\n\nこの構成なら、\n- 目標 = Goal Planner（入力・俯瞰）\n- 自動実行 = 実行詳細\nという役割分担を明確にすること。\n\n---\n\n## 調査してほしいこと\n\n### データ面\n\n- Goal Planner は何を正本にしているか\n- 自動実行キューは何を正本にしているか\n- Project progress はどこから来ているか\n- review待ち / 判断待ち / 候補外 はどのデータから導出しているか\n- Goal Planner 側でも同じ集計が可能か\n- 旧 goals / phases / todos モデルが残っているか\n- Prompt Queue と Goal Planner の関係は何か\n\n### UI面\n\n- Goal Planner のカードに何を出すべきか\n- 0件表示になる理由\n- Goal Planner と キューでラベルや用語がズレていないか\n- 下タブ「目標」から見える情報量が足りているか\n- 「自動実行」タブに飛ばないと状況が分からない状態になっていないか\n\n---\n\n## 実装してほしいこと\n\n### Phase 1: 現状棚卸し\n\n- Goal Planner のデータ源を調査\n- 自動実行キューのデータ源を調査\n- 両者のズレを整理\n- 旧モデル / 旧画面依存を洗い出す\n\n### Phase 2: 表示統合\n\nGoal Planner のGoal進捗カードに、\n自動実行キューの集計結果を要約表示する。\n\n最低限表示:\n- 次回候補数\n- 実行可能数\n- 判断待ち数\n- レビュー待ち数\n- 候補外数\n- 最新作業\n- 次アクション\n\n### Phase 3: 導線統合\n\n- Goal Planner の各カードから、そのGoal進捗で絞り込まれた自動実行キューへ遷移できるようにする\n- 必要なら ToDo / Prompt Queue にも遷移できるようにする\n\n### Phase 4: 旧UI整理\n\n- role選択など、今の運用思想とズレるものを整理する\n- 不要なら非表示または撤去する\n- ただし既存機能を壊さないこと\n\n---\n\n## 変更OK範囲\n\n- Goal Planner 関連画面\n- 自動実行キュー画面\n- Goal進捗カードUI\n- 集計ロジック\n- Goal進捗→キュー導線\n- 旧UIの軽微な整理\n- 必要なドキュメント更新\n\n---\n\n## 変更禁止範囲\n\n- 既存データの削除\n- Queue / Project / ToDo / Inbox の破壊的変更\n- GoalとGoal進捗を再度分離すること\n- 実行対象AIや優先度を新入力必須に戻すこと\n- 旧画面機能を確認なしで削除すること\n\n---\n\n## 検証条件\n\n必須で確認すること。\n\n- TypeScriptエラー 0\n- lint成功\n- build成功\n- Goal Planner のカード内容が自動実行キューと整合する\n- Goal Planner で見える件数と、キューで見える件数が大きくズレない\n- Goal Planner から該当Goal進捗のキューへ遷移できる\n- iPhone表示で崩れない\n- 旧画面由来のrole選択などが残る場合、その理由を説明する\n- 既存の ToDo / Project / Inbox / Review / Prompt Queue を壊していない\n\n---\n\n## 最終報告フォーマット\n\n### 実装概要\n- Goal Planner と 自動実行キューのズレ原因\n- 今回どう揃えたか\n\n### データ源整理\n- Goal Planner が見ているデータ\n- 自動実行キューが見ているデータ\n- 統合後の正本と集計方法\n\n### 変更ファイル一覧\n- ファイルパス\n- 変更内容\n\n### UI変更点\n- Goal Planner カードで何が見えるようになったか\n- 自動実行キューとの導線がどうなったか\n- 整理した旧UI要素\n\n### 検証結果\n- TypeScript\n- lint\n- build\n- iPhone表示\n- Goal Planner と キューの整合性確認\n\n### 残課題\n- まだ残る旧UI\n- 今後さらに統合すべき箇所\n- 次にやるべきこと\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。",
+      "reviewMemo": "修正指示: # 修正依頼 / 次Epic\n# Goal Plannerと自動実行キューを同じ文脈に統合する\n\n## 背景\n\n現状の ny01/progress では、Goal Planner と 自動実行キュー が別物のように見えている。\n\nユーザーのイメージでは、\n\n- Goal Planner は Goal進捗の入力・管理画面\n- 自動実行キュー は そのGoal進捗に紐づく実際の作業キュー表示\n\nであり、3・4枚目のキュー内容が、1・2枚目のGoal Plannerとも連動して見える状態を期待している。\n\nしかし現状は、\n\n- Goal Planner 側では「現在のメイン目標」「登録済みの目標」「phases / todos / 進捗 0%」などの旧画面寄りUIが見えている\n- 自動実行キュー側では、review待ち、pin、候補外理由、Project progress、Goalラベルなど、別系統の実運用情報が見えている\n\nこのため、\n「Goal Plannerで登録・管理しているもの」と\n「自動実行キューで実際に処理されるもの」が\n同じ世界に見えず、連動していないのが問題。\n\n---\n\n## 目的\n\nGoal Planner と 自動実行キューを、同じ作業文脈・同じデータ文脈に統合する。\n\nユーザーが期待しているのは以下。\n\n1. Goal Planner の内容が、自動実行キューの内容と連動している\n2. Goal Planner のカードを見れば、そのGoal進捗に紐づくキュー状況が分かる\n3. 自動実行キューは Goal Planner の実行詳細ビューとして見える\n4. Goal Planner と キューで別々の概念や別正本が見えない\n5. 古いUI由来のズレを減らす\n\n---\n\n## 問題認識\n\n今回のズレは、単なる表示崩れではなく、設計上のズレとして扱うこと。\n\n仮説として以下を確認してほしい。\n\n- Goal Planner が goals / phases / todos の旧系データを見ている\n- 自動実行キューが Epic / Queue / Review / Project progress 系の別データを見ている\n- Goal Planner の「登録済み目標」が、自動実行キューの実際の候補や状態と連動していない\n- Goal Planner のカードが空集計（0/0/0）になりやすく、実運用上の状態を反映できていない\n- role選択や旧JSON前提など、今の運用思想とズレたUIが残っている\n\n---\n\n## やりたい状態\n\n### Goal Planner\n\nGoal Planner は「Goal進捗の入力・俯瞰画面」とする。\n\n各Goal進捗カードには、最低限以下を表示する。\n\n- Goal進捗タイトル\n- 紐づくProject\n- 全体進捗\n- 次回自動実行候補数\n- 実行可能数\n- 判断待ち数\n- レビュー待ち数\n- 候補外数\n- 最新作業\n- 次にやるべきこと\n- 自動実行キューを見る導線\n- ToDoを見る導線\n- Prompt Queueを見る導線（必要なら）\n\nつまり、今の「phases / todos / 進捗 0%」だけではなく、\n3・4枚目のキューで見えている内容の要約が Goal Planner にも見えるようにする。\n\n### 自動実行キュー\n\n自動実行キューは「Goal進捗に紐づく実行詳細ビュー」とする。\n\n- Goal Planner のカードをタップすると、そのGoal進捗に紐づくキューへ遷移できる\n- キュー側では、候補理由・候補外理由・review待ち・pin・実行可否など詳細を見る\n- Goal Planner で見えていた数値と整合する\n\n---\n\n## 重要な設計方針\n\n### 1. Goal と Goal進捗は分けない\n\n引き続き、Goal と Goal進捗は分けすぎず、goalProgress として扱う。\n\n### 2. Goal Planner と 自動実行キューの正本を揃える\n\n別々の正本や別々の集計ロジックを持たせないこと。\n\n理想:\n- Goal Planner は same-source の要約ビュー\n- 自動実行キュー は same-source の詳細ビュー\n\n### 3. 旧UI由来の不要要素を整理する\n\n以下が今の運用に不要・またはズレているなら整理対象にする。\n\n- role選択（人間 / Claude / Codex）\n- 旧phases/todos前提だけの表示\n- Goal Planner上の空カード\n- 旧画面からしか意味がない入力項目\n\n### 4. 下タブ構成と役割を明確にする\n\n現状の下タブ:\n- ホーム\n- ToDo\n- Project\n- 目標\n- 自動実行\n\nこの構成なら、\n- 目標 = Goal Planner（入力・俯瞰）\n- 自動実行 = 実行詳細\nという役割分担を明確にすること。\n\n---\n\n## 調査してほしいこと\n\n### データ面\n\n- Goal Planner は何を正本にしているか\n- 自動実行キューは何を正本にしているか\n- Project progress はどこから来ているか\n- review待ち / 判断待ち / 候補外 はどのデータから導出しているか\n- Goal Planner 側でも同じ集計が可能か\n- 旧 goals / phases / todos モデルが残っているか\n- Prompt Queue と Goal Planner の関係は何か\n\n### UI面\n\n- Goal Planner のカードに何を出すべきか\n- 0件表示になる理由\n- Goal Planner と キューでラベルや用語がズレていないか\n- 下タブ「目標」から見える情報量が足りているか\n- 「自動実行」タブに飛ばないと状況が分からない状態になっていないか\n\n---\n\n## 実装してほしいこと\n\n### Phase 1: 現状棚卸し\n\n- Goal Planner のデータ源を調査\n- 自動実行キューのデータ源を調査\n- 両者のズレを整理\n- 旧モデル / 旧画面依存を洗い出す\n\n### Phase 2: 表示統合\n\nGoal Planner のGoal進捗カードに、\n自動実行キューの集計結果を要約表示する。\n\n最低限表示:\n- 次回候補数\n- 実行可能数\n- 判断待ち数\n- レビュー待ち数\n- 候補外数\n- 最新作業\n- 次アクション\n\n### Phase 3: 導線統合\n\n- Goal Planner の各カードから、そのGoal進捗で絞り込まれた自動実行キューへ遷移できるようにする\n- 必要なら ToDo / Prompt Queue にも遷移できるようにする\n\n### Phase 4: 旧UI整理\n\n- role選択など、今の運用思想とズレるものを整理する\n- 不要なら非表示または撤去する\n- ただし既存機能を壊さないこと\n\n---\n\n## 変更OK範囲\n\n- Goal Planner 関連画面\n- 自動実行キュー画面\n- Goal進捗カードUI\n- 集計ロジック\n- Goal進捗→キュー導線\n- 旧UIの軽微な整理\n- 必要なドキュメント更新\n\n---\n\n## 変更禁止範囲\n\n- 既存データの削除\n- Queue / Project / ToDo / Inbox の破壊的変更\n- GoalとGoal進捗を再度分離すること\n- 実行対象AIや優先度を新入力必須に戻すこと\n- 旧画面機能を確認なしで削除すること\n\n---\n\n## 検証条件\n\n必須で確認すること。\n\n- TypeScriptエラー 0\n- lint成功\n- build成功\n- Goal Planner のカード内容が自動実行キューと整合する\n- Goal Planner で見える件数と、キューで見える件数が大きくズレない\n- Goal Planner から該当Goal進捗のキューへ遷移できる\n- iPhone表示で崩れない\n- 旧画面由来のrole選択などが残る場合、その理由を説明する\n- 既存の ToDo / Project / Inbox / Review / Prompt Queue を壊していない\n\n---\n\n## 最終報告フォーマット\n\n### 実装概要\n- Goal Planner と 自動実行キューのズレ原因\n- 今回どう揃えたか\n\n### データ源整理\n- Goal Planner が見ているデータ\n- 自動実行キューが見ているデータ\n- 統合後の正本と集計方法\n\n### 変更ファイル一覧\n- ファイルパス\n- 変更内容\n\n### UI変更点\n- Goal Planner カードで何が見えるようになったか\n- 自動実行キューとの導線がどうなったか\n- 整理した旧UI要素\n\n### 検証結果\n- TypeScript\n- lint\n- build\n- iPhone表示\n- Goal Planner と キューの整合性確認\n\n### 残課題\n- まだ残る旧UI\n- 今後さらに統合すべき箇所\n- 次にやるべきこと\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。\n危険シグナル「削除」を含むため自動実行不可。危険シグナルのため自動実行不可・人手対応してください。",
       "fixPrompt": "# 修正依頼 / 次Epic\n# Goal Plannerと自動実行キューを同じ文脈に統合する\n\n## 背景\n\n現状の ny01/progress では、Goal Planner と 自動実行キュー が別物のように見えている。\n\nユーザーのイメージでは、\n\n- Goal Planner は Goal進捗の入力・管理画面\n- 自動実行キュー は そのGoal進捗に紐づく実際の作業キュー表示\n\nであり、3・4枚目のキュー内容が、1・2枚目のGoal Plannerとも連動して見える状態を期待している。\n\nしかし現状は、\n\n- Goal Planner 側では「現在のメイン目標」「登録済みの目標」「phases / todos / 進捗 0%」などの旧画面寄りUIが見えている\n- 自動実行キュー側では、review待ち、pin、候補外理由、Project progress、Goalラベルなど、別系統の実運用情報が見えている\n\nこのため、\n「Goal Plannerで登録・管理しているもの」と\n「自動実行キューで実際に処理されるもの」が\n同じ世界に見えず、連動していないのが問題。\n\n---\n\n## 目的\n\nGoal Planner と 自動実行キューを、同じ作業文脈・同じデータ文脈に統合する。\n\nユーザーが期待しているのは以下。\n\n1. Goal Planner の内容が、自動実行キューの内容と連動している\n2. Goal Planner のカードを見れば、そのGoal進捗に紐づくキュー状況が分かる\n3. 自動実行キューは Goal Planner の実行詳細ビューとして見える\n4. Goal Planner と キューで別々の概念や別正本が見えない\n5. 古いUI由来のズレを減らす\n\n---\n\n## 問題認識\n\n今回のズレは、単なる表示崩れではなく、設計上のズレとして扱うこと。\n\n仮説として以下を確認してほしい。\n\n- Goal Planner が goals / phases / todos の旧系データを見ている\n- 自動実行キューが Epic / Queue / Review / Project progress 系の別データを見ている\n- Goal Planner の「登録済み目標」が、自動実行キューの実際の候補や状態と連動していない\n- Goal Planner のカードが空集計（0/0/0）になりやすく、実運用上の状態を反映できていない\n- role選択や旧JSON前提など、今の運用思想とズレたUIが残っている\n\n---\n\n## やりたい状態\n\n### Goal Planner\n\nGoal Planner は「Goal進捗の入力・俯瞰画面」とする。\n\n各Goal進捗カードには、最低限以下を表示する。\n\n- Goal進捗タイトル\n- 紐づくProject\n- 全体進捗\n- 次回自動実行候補数\n- 実行可能数\n- 判断待ち数\n- レビュー待ち数\n- 候補外数\n- 最新作業\n- 次にやるべきこと\n- 自動実行キューを見る導線\n- ToDoを見る導線\n- Prompt Queueを見る導線（必要なら）\n\nつまり、今の「phases / todos / 進捗 0%」だけではなく、\n3・4枚目のキューで見えている内容の要約が Goal Planner にも見えるようにする。\n\n### 自動実行キュー\n\n自動実行キューは「Goal進捗に紐づく実行詳細ビュー」とする。\n\n- Goal Planner のカードをタップすると、そのGoal進捗に紐づくキューへ遷移できる\n- キュー側では、候補理由・候補外理由・review待ち・pin・実行可否など詳細を見る\n- Goal Planner で見えていた数値と整合する\n\n---\n\n## 重要な設計方針\n\n### 1. Goal と Goal進捗は分けない\n\n引き続き、Goal と Goal進捗は分けすぎず、goalProgress として扱う。\n\n### 2. Goal Planner と 自動実行キューの正本を揃える\n\n別々の正本や別々の集計ロジックを持たせないこと。\n\n理想:\n- Goal Planner は same-source の要約ビュー\n- 自動実行キュー は same-source の詳細ビュー\n\n### 3. 旧UI由来の不要要素を整理する\n\n以下が今の運用に不要・またはズレているなら整理対象にする。\n\n- role選択（人間 / Claude / Codex）\n- 旧phases/todos前提だけの表示\n- Goal Planner上の空カード\n- 旧画面からしか意味がない入力項目\n\n### 4. 下タブ構成と役割を明確にする\n\n現状の下タブ:\n- ホーム\n- ToDo\n- Project\n- 目標\n- 自動実行\n\nこの構成なら、\n- 目標 = Goal Planner（入力・俯瞰）\n- 自動実行 = 実行詳細\nという役割分担を明確にすること。\n\n---\n\n## 調査してほしいこと\n\n### データ面\n\n- Goal Planner は何を正本にしているか\n- 自動実行キューは何を正本にしているか\n- Project progress はどこから来ているか\n- review待ち / 判断待ち / 候補外 はどのデータから導出しているか\n- Goal Planner 側でも同じ集計が可能か\n- 旧 goals / phases / todos モデルが残っているか\n- Prompt Queue と Goal Planner の関係は何か\n\n### UI面\n\n- Goal Planner のカードに何を出すべきか\n- 0件表示になる理由\n- Goal Planner と キューでラベルや用語がズレていないか\n- 下タブ「目標」から見える情報量が足りているか\n- 「自動実行」タブに飛ばないと状況が分からない状態になっていないか\n\n---\n\n## 実装してほしいこと\n\n### Phase 1: 現状棚卸し\n\n- Goal Planner のデータ源を調査\n- 自動実行キューのデータ源を調査\n- 両者のズレを整理\n- 旧モデル / 旧画面依存を洗い出す\n\n### Phase 2: 表示統合\n\nGoal Planner のGoal進捗カードに、\n自動実行キューの集計結果を要約表示する。\n\n最低限表示:\n- 次回候補数\n- 実行可能数\n- 判断待ち数\n- レビュー待ち数\n- 候補外数\n- 最新作業\n- 次アクション\n\n### Phase 3: 導線統合\n\n- Goal Planner の各カードから、そのGoal進捗で絞り込まれた自動実行キューへ遷移できるようにする\n- 必要なら ToDo / Prompt Queue にも遷移できるようにする\n\n### Phase 4: 旧UI整理\n\n- role選択など、今の運用思想とズレるものを整理する\n- 不要なら非表示または撤去する\n- ただし既存機能を壊さないこと\n\n---\n\n## 変更OK範囲\n\n- Goal Planner 関連画面\n- 自動実行キュー画面\n- Goal進捗カードUI\n- 集計ロジック\n- Goal進捗→キュー導線\n- 旧UIの軽微な整理\n- 必要なドキュメント更新\n\n---\n\n## 変更禁止範囲\n\n- 既存データの削除\n- Queue / Project / ToDo / Inbox の破壊的変更\n- GoalとGoal進捗を再度分離すること\n- 実行対象AIや優先度を新入力必須に戻すこと\n- 旧画面機能を確認なしで削除すること\n\n---\n\n## 検証条件\n\n必須で確認すること。\n\n- TypeScriptエラー 0\n- lint成功\n- build成功\n- Goal Planner のカード内容が自動実行キューと整合する\n- Goal Planner で見える件数と、キューで見える件数が大きくズレない\n- Goal Planner から該当Goal進捗のキューへ遷移できる\n- iPhone表示で崩れない\n- 旧画面由来のrole選択などが残る場合、その理由を説明する\n- 既存の ToDo / Project / Inbox / Review / Prompt Queue を壊していない\n\n---\n\n## 最終報告フォーマット\n\n### 実装概要\n- Goal Planner と 自動実行キューのズレ原因\n- 今回どう揃えたか\n\n### データ源整理\n- Goal Planner が見ているデータ\n- 自動実行キューが見ているデータ\n- 統合後の正本と集計方法\n\n### 変更ファイル一覧\n- ファイルパス\n- 変更内容\n\n### UI変更点\n- Goal Planner カードで何が見えるようになったか\n- 自動実行キューとの導線がどうなったか\n- 整理した旧UI要素\n\n### 検証結果\n- TypeScript\n- lint\n- build\n- iPhone表示\n- Goal Planner と キューの整合性確認\n\n### 残課題\n- まだ残る旧UI\n- 今後さらに統合すべき箇所\n- 次にやるべきこと",
       "fixRequestedAt": "2026-06-14T04:16:42.356Z",
       "fixRequestedBy": "human"
@@ -8340,7 +8340,7 @@
       "epicId": "epic-goalstep-goal-mqlxglt7-ujmny",
       "targetTodoTitle": "Factory(auto): ②収益化の候補(麻雀公開など)を今のゴールに移す: 次の一歩",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "needs_followup",
       "source": "schedule",
       "executorUsed": "codex",
       "factoryRun": true,
@@ -11310,7 +11310,14 @@
       "nextActionCount": 1,
       "doneCriteriaStatus": "continue",
       "stopReason": "max_runs_reached",
-      "trigger": "systemd"
+      "trigger": "systemd",
+      "reviewMemo": "[AI一次レビュー 2026-07-02 14:01] 判定=partial 理由=completed だが errors が 1 件記録されている（先頭: tization'\n+\n+const PHASE_ID = 'phase-monetization-candidates'\n+\n+const STATUS_TO）。要確認（自動実行は止めない）。（rule=errors_recorded）",
+      "aiReview": {
+        "verdict": "partial",
+        "reason": "completed だが errors が 1 件記録されている（先頭: tization'\n+\n+const PHASE_ID = 'phase-monetization-candidates'\n+\n+const STATUS_TO）。要確認（自動実行は止めない）。",
+        "rule": "errors_recorded",
+        "reviewedAt": "2026-07-02T14:01:56.945Z"
+      }
     },
     {
       "runId": "20260624-230542",
@@ -11342,7 +11349,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "画面の役割分離(管理/実行/閲覧)＋ゴール×todo消化を/goal-dashboardに集約",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "summary": "目標タブと自動実行キューの進捗/todo表示重複を解消。役割で3分割し、ゴール×todo消化状況の閲覧を既存/goal-dashboardに集約(新ページ乱立を避ける設計判断)。/queueからtodoチェックリスト撤去、/goal-plannerからキュー要約撤去。commit 55afcc4 pushed。",
       "changedFiles": [
         {
@@ -11382,7 +11389,15 @@
         "ユーザーはブラウザをハードリロードして新IAを確認",
         "必要なら/goal-dashboardのナビ昇格(下タブ化)を検討"
       ],
-      "rawReport": "設計判断: ユーザー指摘の『目標タブと自動実行キューの進捗表示が重複』に対し役割分離(管理=/goal-planner / 実行=/queue / 閲覧=/goal-dashboard)。新規ページを作ると逆に重複が増えるため、既存の読み取り専用ページ/goal-dashboard(達成率俯瞰)を『ゴール×todo消化状況』に拡張して閲覧を集約(=ユーザーの『別で作って』を満たしつつ重複削減)。実装はCodex委譲(7ファイル)、私が設計(集約先判断)・検証。\n\n変更: /goal-dashboard=active Goal配下todoを完了(✓取消線)/進行中/未完了/⚠止まっている(stuck=未完了かつexecutable work item無し)で表示+N/M完了+stuck件数。/queue=todoチェックリスト(a5faa51分)とreadGoals撤去し実行制御専念。/goal-planner=キュー要約撤去しCRUD専念+/goal-dashboard導線。nav-menu/guide/current-operating-model更新。\n\n検証: tsc/lint/build OK。原子的build+restart(直近の.next競合事故を踏まえ)後、/goal-dashboard・/queue・/goal-planner 全てHTTP200/チャンク欠落0/エラー無し。goal-dashboardに止まって12件表示、queueからGoal配下todo撤去(0件)を実描画確認。commit 55afcc4 pushed(local==origin)。\n\nmonetizationImpact: low / theme: workflow"
+      "rawReport": "設計判断: ユーザー指摘の『目標タブと自動実行キューの進捗表示が重複』に対し役割分離(管理=/goal-planner / 実行=/queue / 閲覧=/goal-dashboard)。新規ページを作ると逆に重複が増えるため、既存の読み取り専用ページ/goal-dashboard(達成率俯瞰)を『ゴール×todo消化状況』に拡張して閲覧を集約(=ユーザーの『別で作って』を満たしつつ重複削減)。実装はCodex委譲(7ファイル)、私が設計(集約先判断)・検証。\n\n変更: /goal-dashboard=active Goal配下todoを完了(✓取消線)/進行中/未完了/⚠止まっている(stuck=未完了かつexecutable work item無し)で表示+N/M完了+stuck件数。/queue=todoチェックリスト(a5faa51分)とreadGoals撤去し実行制御専念。/goal-planner=キュー要約撤去しCRUD専念+/goal-dashboard導線。nav-menu/guide/current-operating-model更新。\n\n検証: tsc/lint/build OK。原子的build+restart(直近の.next競合事故を踏まえ)後、/goal-dashboard・/queue・/goal-planner 全てHTTP200/チャンク欠落0/エラー無し。goal-dashboardに止まって12件表示、queueからGoal配下todo撤去(0件)を実描画確認。commit 55afcc4 pushed(local==origin)。\n\nmonetizationImpact: low / theme: workflow",
+      "reviewMemo": "[AI一次レビュー 2026-07-02 14:01] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-02T14:01:56.860Z"
+      },
+      "reviewedAt": "2026-07-02T14:01:56.860Z"
     },
     {
       "runId": "20260625-091843",
@@ -11392,7 +11407,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "ホーム自動実行キュー下の「Goal別進捗」欄を撤去(役割分離の修正)",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "summary": "前回は撤去対象を取り違え(/queue内todoチェックリストを消した)。正しくは司令塔ホームの『次回自動実行予定』(自動実行キュー)直下の『Goal別進捗』欄が目標タブと重複→これを撤去し/goal-dashboard導線に置換。commit 2188362 pushed。",
       "changedFiles": [
         {
@@ -11412,7 +11427,15 @@
         "ホーム下部のもう1つの『Goal進捗』欄(view.goalProgress)も/goal-dashboardと重複→撤去要否をユーザー確認",
         "ユーザーはハードリロードで確認"
       ],
-      "rawReport": "ユーザー指摘『別ページにしてほしいのは自動実行ページのキューの下の欄。消えてないよ』を受け、前回の取り違え(削除したのは/queueのGoal配下todoチェックリスト)を修正。正しい対象=app/page.tsx 行215の『Goal別進捗』欄(司令塔ホームの『次回自動実行予定』=自動実行キュー直下、autoQueue.goalProgress top3のdone/total+進捗バー)で、目標タブ/goal-dashboardと重複。これを撤去し『ゴール別の進捗・配下todoの消化状況を見る →』(/goal-dashboard)リンクに置換。検証: tsc/lint/build OK、原子的build+restart後ホームHTTP200/チャンク欠落0/Goal別進捗0件/導線リンク表示を実描画確認。commit 2188362 pushed(local==origin)。\n\n補足: ホーム下部に別の『Goal進捗』欄(app/page.tsx 行~413, view.goalProgress)も存在し/goal-dashboardと重複。今回指摘の『キューの下』とは別位置のため未撤去。要否確認中。\n\nmonetizationImpact: low / theme: workflow"
+      "rawReport": "ユーザー指摘『別ページにしてほしいのは自動実行ページのキューの下の欄。消えてないよ』を受け、前回の取り違え(削除したのは/queueのGoal配下todoチェックリスト)を修正。正しい対象=app/page.tsx 行215の『Goal別進捗』欄(司令塔ホームの『次回自動実行予定』=自動実行キュー直下、autoQueue.goalProgress top3のdone/total+進捗バー)で、目標タブ/goal-dashboardと重複。これを撤去し『ゴール別の進捗・配下todoの消化状況を見る →』(/goal-dashboard)リンクに置換。検証: tsc/lint/build OK、原子的build+restart後ホームHTTP200/チャンク欠落0/Goal別進捗0件/導線リンク表示を実描画確認。commit 2188362 pushed(local==origin)。\n\n補足: ホーム下部に別の『Goal進捗』欄(app/page.tsx 行~413, view.goalProgress)も存在し/goal-dashboardと重複。今回指摘の『キューの下』とは別位置のため未撤去。要否確認中。\n\nmonetizationImpact: low / theme: workflow",
+      "reviewMemo": "[AI一次レビュー 2026-07-02 14:01] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-02T14:01:56.794Z"
+      },
+      "reviewedAt": "2026-07-02T14:01:56.794Z"
     },
     {
       "runId": "20260625-092625",
@@ -11422,7 +11445,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "ナビに「todo消化」(/goal-dashboard)タブを追加して可視化",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "summary": "『ページが追加されてない』指摘に対応。ゴール×todo消化ページは既存/goal-dashboardを拡張したため☰メニューにしか無く新規ページに見えなかった。下タブ(BottomNav 7番目)+上タブ(TopNav新UI)に『todo消化』タブを追加し直接到達可能に。commit 311eb92 pushed。",
       "changedFiles": [
         {
@@ -11445,7 +11468,15 @@
       "nextActions": [
         "ユーザーはハードリロードで『todo消化』タブを確認"
       ],
-      "rawReport": "ユーザー『ページが追加されてない』。原因=ゴール×todo消化を新規routeでなく既存/goal-dashboard拡張で実装したため、ナビ上は☰メニュー内のみで新ページに見えなかった。対応: BottomNavに7番目タブ『todo消化』(/goal-dashboard, clipboard-checkアイコン)を目標と自動実行の間に追加、TopNav新UIにも『todo消化』を司令塔/キューの次に追加しNEW_ROUTESへ登録、コメントの6タブ→7タブ更新。検証: tsc/lint/build OK、restart後home実HTMLに『todo消化』4箇所(上下ナビ)表示・/goal-dashboard HTTP200。commit 311eb92 pushed(local==origin)。\n\nmonetizationImpact: low / theme: workflow"
+      "rawReport": "ユーザー『ページが追加されてない』。原因=ゴール×todo消化を新規routeでなく既存/goal-dashboard拡張で実装したため、ナビ上は☰メニュー内のみで新ページに見えなかった。対応: BottomNavに7番目タブ『todo消化』(/goal-dashboard, clipboard-checkアイコン)を目標と自動実行の間に追加、TopNav新UIにも『todo消化』を司令塔/キューの次に追加しNEW_ROUTESへ登録、コメントの6タブ→7タブ更新。検証: tsc/lint/build OK、restart後home実HTMLに『todo消化』4箇所(上下ナビ)表示・/goal-dashboard HTTP200。commit 311eb92 pushed(local==origin)。\n\nmonetizationImpact: low / theme: workflow",
+      "reviewMemo": "[AI一次レビュー 2026-07-02 14:01] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-02T14:01:56.704Z"
+      },
+      "reviewedAt": "2026-07-02T14:01:56.704Z"
     },
     {
       "runId": "20260625-110010",
@@ -11454,7 +11485,7 @@
       "targetApp": "progress",
       "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "source": "monetization_sync",
       "trigger": "systemd",
       "summary": "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
@@ -11464,7 +11495,15 @@
       "warnings": [],
       "progressUpdated": false,
       "nextActions": [],
-      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。",
+      "reviewMemo": "[AI一次レビュー 2026-07-02 14:01] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-02T14:01:56.571Z"
+      },
+      "reviewedAt": "2026-07-02T14:01:56.571Z"
     },
     {
       "runId": "20260625-110013-933",
@@ -11474,7 +11513,7 @@
       "epicId": "epic-goalstep-goal-mqlxgluj-ot173",
       "targetTodoTitle": "Factory(auto): ③やることリストと自動実行の順番をprogressにまとめる: 次の一歩",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "needs_followup",
       "source": "schedule",
       "executorUsed": "codex",
       "factoryRun": true,
@@ -15052,7 +15091,14 @@
       "nextActionCount": 1,
       "doneCriteriaStatus": "continue",
       "stopReason": "max_runs_reached",
-      "trigger": "systemd"
+      "trigger": "systemd",
+      "reviewMemo": "[AI一次レビュー 2026-07-02 14:01] 判定=partial 理由=completed だが errors が 1 件記録されている（先頭: になっていることをExecutionRunで確認する。\n\n残課題:\n- 既存の未関連変更が作業前から複数ありましたが、触っていません。\n- 今回は最小1ファイル）。要確認（自動実行は止めない）。（rule=errors_recorded）",
+      "aiReview": {
+        "verdict": "partial",
+        "reason": "completed だが errors が 1 件記録されている（先頭: になっていることをExecutionRunで確認する。\n\n残課題:\n- 既存の未関連変更が作業前から複数ありましたが、触っていません。\n- 今回は最小1ファイル）。要確認（自動実行は止めない）。",
+        "rule": "errors_recorded",
+        "reviewedAt": "2026-07-02T14:01:56.499Z"
+      }
     },
     {
       "runId": "20260625-110352",
@@ -15061,7 +15107,7 @@
       "targetApp": "progress",
       "targetTodoTitle": "Factory schedule (schedule/systemd)",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "source": "schedule",
       "trigger": "systemd",
       "factoryRun": true,
@@ -15074,7 +15120,15 @@
       "warnings": [],
       "progressUpdated": false,
       "nextActions": [],
-      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260625-110013-933\n[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none"
+      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260625-110013-933\n[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none",
+      "reviewMemo": "[AI一次レビュー 2026-07-02 14:01] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-02T14:01:56.637Z"
+      },
+      "reviewedAt": "2026-07-02T14:01:56.637Z"
     },
     {
       "runId": "20260625-140011",
@@ -15083,7 +15137,7 @@
       "targetApp": "progress",
       "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "source": "monetization_sync",
       "trigger": "systemd",
       "summary": "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
@@ -15093,7 +15147,15 @@
       "warnings": [],
       "progressUpdated": false,
       "nextActions": [],
-      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。",
+      "reviewMemo": "[AI一次レビュー 2026-07-02 14:01] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-02T14:01:56.336Z"
+      },
+      "reviewedAt": "2026-07-02T14:01:56.336Z"
     },
     {
       "runId": "20260625-140015-104",
@@ -15103,7 +15165,7 @@
       "epicId": "epic-goalstep-goal-mqluko5k-q6n7p",
       "targetTodoTitle": "Factory(auto): ゴール達成率ダッシュボードを作る: 次の一歩",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "source": "schedule",
       "executorUsed": "claude",
       "factoryRun": true,
@@ -15154,7 +15216,15 @@
       "nextActionCount": 4,
       "doneCriteriaStatus": "done",
       "stopReason": "max_runs_reached",
-      "trigger": "systemd"
+      "trigger": "systemd",
+      "reviewMemo": "[AI一次レビュー 2026-07-02 14:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-02T14:00:17.052Z"
+      },
+      "reviewedAt": "2026-07-02T14:00:17.052Z"
     },
     {
       "runId": "20260625-140430",
@@ -15164,7 +15234,7 @@
       "epicId": "epic-goalstep-goal-mqluko5k-q6n7p",
       "targetTodoTitle": "ゴール達成率ダッシュボード: 達成率の方向(metricDirection)対応バグ修正",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "executorUsed": "claude",
       "factoryDispatch": true,
       "dispatchMode": "manual_copy",
@@ -15196,7 +15266,15 @@
         "down方向ゴールの達成率表示(60/15 25%)が直感とずれないか、ラベル文言をUIで補足するか検討",
         "goal-planner/編集UIから metricDirection を設定できるようにするか検討"
       ],
-      "rawReport": "Factory Dispatch: Goal『ゴール達成率ダッシュボードを作る』。\n\n調査: /goal-dashboard は既に存在し、状態内訳(active/done/dropped/proposed/...)と実行中ゴールの達成率(current/target)・todo消化を表示済み。ただし goalAchievement() が常に current/target で計算するため、daily_decision_minutes(target15/current60, 小さいほど良い=北極星 goal-ai-factory-os)が min(100, 60/15*100)=100% と誤表示され、最も重要なゴールが『達成済み』に見える不具合を発見。\n\n実装(最小1ステップ, 3ファイル): 1) types/goal.ts に metricDirection up|down を追加(Goal/GoalUpsertInput) 2) lib/goal-reader.ts normalizeGoal で metricDirection を保持(writeGoalsで消えないように)、goalAchievement で down方向は current<=target→100%、超過時 target/current で算出 3) data/real/goals.json の goal-ai-factory-os に metricDirection down 設定。結果: 北極星ゴールの達成率が 100% → 25%(15/60) に是正。他ゴール(closed_loop_rate等, up既定)は無変更。\n\n検証: npx tsc --noEmit パス / npm run build パス(/goal-dashboard 含む全ルートビルド成功)。\n\n安全判定: decisionPolicy=autonomous, riskFlags なし。禁止事項(課金/本番DB/secret/外部公開/destructive)に該当なし。data/real/goals.json は1フィールド追加のみで破壊的変更なし。"
+      "rawReport": "Factory Dispatch: Goal『ゴール達成率ダッシュボードを作る』。\n\n調査: /goal-dashboard は既に存在し、状態内訳(active/done/dropped/proposed/...)と実行中ゴールの達成率(current/target)・todo消化を表示済み。ただし goalAchievement() が常に current/target で計算するため、daily_decision_minutes(target15/current60, 小さいほど良い=北極星 goal-ai-factory-os)が min(100, 60/15*100)=100% と誤表示され、最も重要なゴールが『達成済み』に見える不具合を発見。\n\n実装(最小1ステップ, 3ファイル): 1) types/goal.ts に metricDirection up|down を追加(Goal/GoalUpsertInput) 2) lib/goal-reader.ts normalizeGoal で metricDirection を保持(writeGoalsで消えないように)、goalAchievement で down方向は current<=target→100%、超過時 target/current で算出 3) data/real/goals.json の goal-ai-factory-os に metricDirection down 設定。結果: 北極星ゴールの達成率が 100% → 25%(15/60) に是正。他ゴール(closed_loop_rate等, up既定)は無変更。\n\n検証: npx tsc --noEmit パス / npm run build パス(/goal-dashboard 含む全ルートビルド成功)。\n\n安全判定: decisionPolicy=autonomous, riskFlags なし。禁止事項(課金/本番DB/secret/外部公開/destructive)に該当なし。data/real/goals.json は1フィールド追加のみで破壊的変更なし。",
+      "reviewMemo": "[AI一次レビュー 2026-07-02 14:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-02T14:00:16.967Z"
+      },
+      "reviewedAt": "2026-07-02T14:00:16.967Z"
     },
     {
       "runId": "20260625-140508",
@@ -15205,7 +15283,7 @@
       "targetApp": "progress",
       "targetTodoTitle": "Factory schedule (schedule/systemd)",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "source": "schedule",
       "trigger": "systemd",
       "factoryRun": true,
@@ -15218,7 +15296,15 @@
       "warnings": [],
       "progressUpdated": false,
       "nextActions": [],
-      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260625-140015-104\n[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none"
+      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260625-140015-104\n[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none",
+      "reviewMemo": "[AI一次レビュー 2026-07-02 14:01] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-02T14:01:56.434Z"
+      },
+      "reviewedAt": "2026-07-02T14:01:56.434Z"
     },
     {
       "runId": "20260625-160010",
@@ -15227,7 +15313,7 @@
       "targetApp": "progress",
       "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "source": "monetization_sync",
       "trigger": "systemd",
       "summary": "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
@@ -15237,7 +15323,15 @@
       "warnings": [],
       "progressUpdated": false,
       "nextActions": [],
-      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。",
+      "reviewMemo": "[AI一次レビュー 2026-07-02 14:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-02T14:00:16.818Z"
+      },
+      "reviewedAt": "2026-07-02T14:00:16.818Z"
     },
     {
       "runId": "20260625-160014-476",
@@ -15351,7 +15445,7 @@
       "targetApp": "progress",
       "targetTodoTitle": "Factory schedule (schedule/systemd)",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "source": "schedule",
       "trigger": "systemd",
       "factoryRun": true,
@@ -15364,7 +15458,15 @@
       "warnings": [],
       "progressUpdated": false,
       "nextActions": [],
-      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260625-160014-476\n[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none"
+      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260625-160014-476\n[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none",
+      "reviewMemo": "[AI一次レビュー 2026-07-02 14:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-02T14:00:16.892Z"
+      },
+      "reviewedAt": "2026-07-02T14:00:16.892Z"
     },
     {
       "runId": "20260625-213310",
@@ -27898,7 +28000,7 @@
       "targetApp": "progress",
       "targetTodoTitle": "Factory schedule (schedule/systemd)",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "source": "schedule",
       "trigger": "systemd",
       "factoryRun": true,
@@ -27911,7 +28013,15 @@
       "warnings": [],
       "progressUpdated": false,
       "nextActions": [],
-      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260702-160023-412\n[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none"
+      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260702-160023-412\n[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none",
+      "reviewMemo": "[AI一次レビュー 2026-07-02 14:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-02T14:00:16.741Z"
+      },
+      "reviewedAt": "2026-07-02T14:00:16.741Z"
     },
     {
       "runId": "20260702-212421",
@@ -27921,7 +28031,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "P0-3危険伝播+P1-1必須/任意判断の実装",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "needs_human",
       "summary": "①アプリ案riskFlags(課金/認証/外部公開等)を型/AI生成/approve伝播/UI(⚠バッジ)に追加、Goalに伝播し既存危険ゲートが作動 ②decisionPoints.required+Approval.requiredForExecution追加。必須判断pending中はgoalをhold(AIが後回し中)、全必須回答でrequired_answered_release自動解除。今日の判断に必須ラベル表示。",
       "changedFiles": [
         {
@@ -27973,7 +28083,14 @@
       "nextActions": [
         "P0-3危険伝播+P1-1必須/任意判断の実装 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
-      "rawReport": "## P0-3+P1-1 実装(実装Codex/検証Claude)\n\n機能1: アプリ案の危険要素(riskFlags)をGoal riskFlagsDefaultへ伝播。危険付きは既存ゲート(blocked→今日の判断)が作動。UI: 一覧⚠危険要素あり/詳細に赤バッジ。\n機能2: 判断の必須/任意。必須(required)未回答の間はgoalをqueueControl.hold(AIが後回し中)にし自動作成を開始しない。全必須回答でapproval-effectsが自動解除。既定はplatformのみ必須。\n検証: tsc/build/test OK、live描画・文言含有確認。\n\nmonetizationImpact: medium\ntheme: [workflow, app-strategy]"
+      "rawReport": "## P0-3+P1-1 実装(実装Codex/検証Claude)\n\n機能1: アプリ案の危険要素(riskFlags)をGoal riskFlagsDefaultへ伝播。危険付きは既存ゲート(blocked→今日の判断)が作動。UI: 一覧⚠危険要素あり/詳細に赤バッジ。\n機能2: 判断の必須/任意。必須(required)未回答の間はgoalをqueueControl.hold(AIが後回し中)にし自動作成を開始しない。全必須回答でapproval-effectsが自動解除。既定はplatformのみ必須。\n検証: tsc/build/test OK、live描画・文言含有確認。\n\nmonetizationImpact: medium\ntheme: [workflow, app-strategy]",
+      "reviewMemo": "[AI一次レビュー 2026-07-02 14:00] 判定=needs_human 理由=課金関連の作業（危険キーワード検知）。人間の確認を推奨。（rule=risk_keyword）",
+      "aiReview": {
+        "verdict": "needs_human",
+        "reason": "課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
+        "rule": "risk_keyword",
+        "reviewedAt": "2026-07-02T14:00:16.692Z"
+      }
     },
     {
       "runId": "20260702-213956",
@@ -27983,7 +28100,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "残タスク6件を自動実行キューに追加(Opusバッチ用の記録)",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "summary": "後でまとめて実装する残タスクを忘れないよう、goal-opus-*の6ゴール(active)として登録し自動実行キューに投入。①仕様方針の漏れなし判断化(high) ②設計一覧ページ(high) ③進行状態バッジ ④モーダル項目追加 ⑤運用明文化(Fableレビュー=案B/完了の正本=doneCriteria/今日の判断3種のみ) ⑥日々の調査仕様レビュー。メモリにも記録。",
       "changedFiles": [
         {
@@ -28001,7 +28118,15 @@
         "次回自動実行またはOpusセッションでgoal-opus-*から着手",
         "Fableレビュー=案B等の運用明文化はgoal-opus-doc-formalizeで実施"
       ],
-      "rawReport": "## 残タスクのキュー投入\n\nユーザー指示: 実装は後でまとめてOpusで。忘れないように+自動実行キューに追加。\n\n登録(全てactive/autonomous/company-mgmt):\n- goal-opus-spec-decisions(high): アプリ案OK後の詳細仕様方針を漏れなく今日の判断へ\n- goal-opus-app-designs(high): 設計一覧ページ(/app-designs)\n- goal-opus-pipeline-badges: 決定済みタブ進行バッジ\n- goal-opus-modal-fields: モーダルにMVP範囲/難易度/外部API/初期Goal案\n- goal-opus-doc-formalize: 運用明文化(レビュー=案B/完了正本=doneCriteria/今日の判断3種)\n- goal-opus-research-review: 日々の調査の仕様レビュー\n\nキュー確認: 6件がexecutable入り(#9/#10/#26-29)。メモリ project_pending_opus_batch にも同内容を記録済み(完了済み項目一覧付き)。\n\nmonetizationImpact: low\ntheme: [workflow]"
+      "rawReport": "## 残タスクのキュー投入\n\nユーザー指示: 実装は後でまとめてOpusで。忘れないように+自動実行キューに追加。\n\n登録(全てactive/autonomous/company-mgmt):\n- goal-opus-spec-decisions(high): アプリ案OK後の詳細仕様方針を漏れなく今日の判断へ\n- goal-opus-app-designs(high): 設計一覧ページ(/app-designs)\n- goal-opus-pipeline-badges: 決定済みタブ進行バッジ\n- goal-opus-modal-fields: モーダルにMVP範囲/難易度/外部API/初期Goal案\n- goal-opus-doc-formalize: 運用明文化(レビュー=案B/完了正本=doneCriteria/今日の判断3種)\n- goal-opus-research-review: 日々の調査の仕様レビュー\n\nキュー確認: 6件がexecutable入り(#9/#10/#26-29)。メモリ project_pending_opus_batch にも同内容を記録済み(完了済み項目一覧付き)。\n\nmonetizationImpact: low\ntheme: [workflow]",
+      "reviewMemo": "[AI一次レビュー 2026-07-02 14:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-02T14:00:16.620Z"
+      },
+      "reviewedAt": "2026-07-02T14:00:16.620Z"
     },
     {
       "runId": "20260702-214750",
@@ -28011,7 +28136,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "設計レビュー - Skills日次アップデート運用",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "summary": "Skills継続改善運用の設計レビュー。判定=後回し(段階導入)。重要事実: progressにSkill実体/SkillRun/管理タブは現状ゼロ(全grep無し)=ゼロから新設計。MVP=Skill実体+ExecutionRun紐付け+品質集計+ルールベース改善候補+今日の判断承認でSkillVersion反映。数字は自動・中身は承認の一線。日次はfactory-scheduleフック。ユーザー検討事項6点を提示(実装・キュー投入は指示どおり未実施)。",
       "changedFiles": [],
       "checks": {},
@@ -28021,7 +28146,15 @@
       "nextActions": [
         "設計レビュー - Skills日次アップデート運用 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
-      "rawReport": "## Skills日次アップデート設計レビュー\n\n### 何を議論したか\nSkillsを日々の実行結果(close_ok/needs_fix/failed)から継続改善する運用/画面/データ設計の要否と範囲。\n\n### 重要事実\nprogressにskill関連のコード/データ/タブは一切存在しない(lib/app/components/types/data全grepヒット0)。既存SkillRunとの重複懸念は無い=ゼロから設計。\n\n### 判定と理由\n後回し(段階導入)。前提(Skill実体)未実装のため日々更新機構が先行すると空回り。ただし現行自動実行は実行ノウハウが蓄積されない構造で、Skills化の必要性は本物。既存基盤(approvals+approval-effects+決定事項注入+factory日次フック+urgent-issues)がそのまま再利用可能。\n\n### 主要設計\n- MVP: skills.json実体/ExecutionRunにskillId+skillVersion(独立SkillRunテーブルは作らない)/品質集計(使用回数・close_ok率・needs_fix率・failed率・最終使用)/ルールベース候補生成(上限3件日+pending上限で停止)/今日の判断承認→approval-effects skill_applyでSkillVersion作成+反映/rollbackはデータのみUI後回し。\n- 自動更新可否: 集計値・候補生成・検知=自動可 / 本文・promptTemplate・riskFlags・入出力・優先順位・無効化=ユーザー承認必須。\n- 日次: factory-scheduleフック(ensureDailyAppProposal同列)。Queueアイテム化しない。Usage統合しない。重大のみurgent-issues。\n- ユーザー提案の SkillVersion/SkillImprovementCandidate 型はほぼそのまま採用可。\n\n### 判断保留(ユーザー検討事項6点)\n①Skill定義スコープ(推奨A=実行プロンプトテンプレ/手順書) ②初期Skill3-5個の種 ③紐付け方式(推奨=実行時明示) ④承認場所(推奨=riskFlags付きのみ今日の判断) ⑤着手時期(推奨=goal-opus-*の後) ⑥MVP範囲承認。\n\n### 次に反映\n回答後にCodexタスクT1(実体+Store)/T2(Run紐付け)/T3(管理タブ)/T4(日次メンテ)/T5(承認反映)をキュー投入。メモリproject_pending_opus_batchに項目8として記録済み。\n\nmonetizationImpact: low\ntheme: [workflow, prompt-template]\nobsidianSummary: Skills日次改善は後回し判定(段階導入)。Skill実体ゼロが判明。MVP範囲と自動/承認の線引きを確定し検討事項6点をユーザーへ。"
+      "rawReport": "## Skills日次アップデート設計レビュー\n\n### 何を議論したか\nSkillsを日々の実行結果(close_ok/needs_fix/failed)から継続改善する運用/画面/データ設計の要否と範囲。\n\n### 重要事実\nprogressにskill関連のコード/データ/タブは一切存在しない(lib/app/components/types/data全grepヒット0)。既存SkillRunとの重複懸念は無い=ゼロから設計。\n\n### 判定と理由\n後回し(段階導入)。前提(Skill実体)未実装のため日々更新機構が先行すると空回り。ただし現行自動実行は実行ノウハウが蓄積されない構造で、Skills化の必要性は本物。既存基盤(approvals+approval-effects+決定事項注入+factory日次フック+urgent-issues)がそのまま再利用可能。\n\n### 主要設計\n- MVP: skills.json実体/ExecutionRunにskillId+skillVersion(独立SkillRunテーブルは作らない)/品質集計(使用回数・close_ok率・needs_fix率・failed率・最終使用)/ルールベース候補生成(上限3件日+pending上限で停止)/今日の判断承認→approval-effects skill_applyでSkillVersion作成+反映/rollbackはデータのみUI後回し。\n- 自動更新可否: 集計値・候補生成・検知=自動可 / 本文・promptTemplate・riskFlags・入出力・優先順位・無効化=ユーザー承認必須。\n- 日次: factory-scheduleフック(ensureDailyAppProposal同列)。Queueアイテム化しない。Usage統合しない。重大のみurgent-issues。\n- ユーザー提案の SkillVersion/SkillImprovementCandidate 型はほぼそのまま採用可。\n\n### 判断保留(ユーザー検討事項6点)\n①Skill定義スコープ(推奨A=実行プロンプトテンプレ/手順書) ②初期Skill3-5個の種 ③紐付け方式(推奨=実行時明示) ④承認場所(推奨=riskFlags付きのみ今日の判断) ⑤着手時期(推奨=goal-opus-*の後) ⑥MVP範囲承認。\n\n### 次に反映\n回答後にCodexタスクT1(実体+Store)/T2(Run紐付け)/T3(管理タブ)/T4(日次メンテ)/T5(承認反映)をキュー投入。メモリproject_pending_opus_batchに項目8として記録済み。\n\nmonetizationImpact: low\ntheme: [workflow, prompt-template]\nobsidianSummary: Skills日次改善は後回し判定(段階導入)。Skill実体ゼロが判明。MVP範囲と自動/承認の線引きを確定し検討事項6点をユーザーへ。",
+      "reviewMemo": "[AI一次レビュー 2026-07-02 14:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-02T14:00:16.537Z"
+      },
+      "reviewedAt": "2026-07-02T14:00:16.537Z"
     },
     {
       "runId": "20260702-215157",
@@ -28031,7 +28164,7 @@
       "epicId": "epic-91",
       "targetTodoTitle": "Skills MVP確定仕様を自動実行キューに投入",
       "runStatus": "completed",
-      "reviewStatus": "not_reviewed",
+      "reviewStatus": "reviewed",
       "summary": "Skills日次アップデート機構MVPの確定仕様(T1実体+Store/T2 ExecutionRun紐付け/T3管理タブ/T4日次メンテfactory-scheduleフック/T5承認反映skill_apply、数字は自動・中身は承認、後回し範囲明記)を goal-opus-skills-mvp としてキュー投入(#30)。仕様全文はゴールsummaryに保存し後で確実に実装可能に。",
       "changedFiles": [
         {
@@ -28048,7 +28181,3264 @@
       "nextActions": [
         "Skills MVP確定仕様を自動実行キューに投入 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
-      "rawReport": "## Skills MVP仕様のキュー投入\n\n設計レビューで固まった仕様を goal-opus-skills-mvp のsummaryに全文埋め込み、activeゴールとしてキュー投入。実装時はsummaryがそのままCodexへの仕様書になる。検討事項6点は推奨値で確定(スコープA=実行プロンプトテンプレ/実行時明示紐付け/riskFlags付きのみ今日の判断/着手はgoal-opus-*の後/MVP範囲=T1-T5/自動と承認の線引き)。メモリ項目8も投入済みに更新。\n\nmonetizationImpact: low\ntheme: [workflow, prompt-template]"
+      "rawReport": "## Skills MVP仕様のキュー投入\n\n設計レビューで固まった仕様を goal-opus-skills-mvp のsummaryに全文埋め込み、activeゴールとしてキュー投入。実装時はsummaryがそのままCodexへの仕様書になる。検討事項6点は推奨値で確定(スコープA=実行プロンプトテンプレ/実行時明示紐付け/riskFlags付きのみ今日の判断/着手はgoal-opus-*の後/MVP範囲=T1-T5/自動と承認の線引き)。メモリ項目8も投入済みに更新。\n\nmonetizationImpact: low\ntheme: [workflow, prompt-template]",
+      "reviewMemo": "[AI一次レビュー 2026-07-02 14:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-02T14:00:16.430Z"
+      },
+      "reviewedAt": "2026-07-02T14:00:16.430Z"
+    },
+    {
+      "runId": "20260702-230013",
+      "startedAt": "2026-07-02T14:00:13.234Z",
+      "finishedAt": "2026-07-02T14:00:13.974Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "収益化候補 定期取り込み（Vault→Hub） 追加0/更新2",
+      "runStatus": "completed",
+      "reviewStatus": "reviewed",
+      "source": "monetization_sync",
+      "trigger": "systemd",
+      "summary": "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 2 件 / skip 10 件",
+      "changedFiles": [
+        {
+          "file": "data/real/monetization-candidates.json",
+          "change": "追加0/更新2"
+        }
+      ],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[釣果ログ AnglerLog, 野鳥観察ノート BirdLog] skipped=10. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。",
+      "reviewMemo": "[AI一次レビュー 2026-07-02 14:00] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+      "aiReview": {
+        "verdict": "reviewed",
+        "reason": "completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。",
+        "rule": "clean_completed",
+        "reviewedAt": "2026-07-02T14:00:16.342Z"
+      },
+      "reviewedAt": "2026-07-02T14:00:16.342Z"
+    },
+    {
+      "runId": "20260702-230018-561",
+      "startedAt": "2026-07-02T14:00:18.561Z",
+      "finishedAt": "2026-07-02T14:01:56.045Z",
+      "targetApp": "progress",
+      "epicId": "epic-goalstep-goal-mqq28l9d-8h86j",
+      "targetTodoTitle": "Factory(auto): グアムアプリに、イベントごとの移動経路を地図でなぞって表示できるようにする: 次の一歩",
+      "runStatus": "completed",
+      "reviewStatus": "needs_followup",
+      "source": "schedule",
+      "executorUsed": "codex",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "factoryDispatch": true,
+      "dispatchMode": "auto",
+      "dispatchPlanId": "dp-epic-goalstep-goal-mqq28l9d-8h86j-mr3knggz",
+      "executorCandidate": "codex",
+      "promptGenerated": true,
+      "resultReturned": true,
+      "runIndex": 1,
+      "selection": {
+        "selectedGoalKey": "goal-mqq28l9d-8h86j",
+        "selectedGoalTitle": "グアムアプリに、イベントごとの移動経路を地図でなぞって表示できるようにする",
+        "selectedWorkItemId": "epic:epic-goalstep-goal-mqq28l9d-8h86j",
+        "selectedReason": "P1 / 契約OK / 安全に dispatch 可能（codex）",
+        "priority": "P1",
+        "decisionPolicy": "autonomous",
+        "riskFlags": [],
+        "hasFixPrompt": false,
+        "selectedAt": "2026-07-02T14:00:18.533Z"
+      },
+      "summary": "残課題: / - 現在の経路線は地点間の直線で、道路経路ではない。 / - 他の日程へのイベント経路データ追加は未着手。",
+      "changedFiles": [
+        {
+          "file": "GuamTripApp.tsx",
+          "change": ""
+        },
+        {
+          "file": "GuamMap.tsx",
+          "change": ""
+        },
+        {
+          "file": "guam-trip-data.ts",
+          "change": ""
+        },
+        {
+          "file": "components/GuamTripApp.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/GuamMap.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/guam-trip-data.ts",
+          "change": ""
+        },
+        {
+          "file": "v0.142.5",
+          "change": ""
+        },
+        {
+          "file": "data/real/epics.json",
+          "change": ""
+        },
+        {
+          "file": "lib/recommended-epics-store.ts",
+          "change": ""
+        },
+        {
+          "file": "rec.history",
+          "change": ""
+        },
+        {
+          "file": "lib/factory-outlook.ts",
+          "change": ""
+        },
+        {
+          "file": "<path>",
+          "change": ""
+        },
+        {
+          "file": "components/queue/PromptCopy.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/goal-writer.ts",
+          "change": ""
+        },
+        {
+          "file": "goals.json",
+          "change": ""
+        },
+        {
+          "file": "data.goals",
+          "change": ""
+        },
+        {
+          "file": "g.id",
+          "change": ""
+        },
+        {
+          "file": "g.status",
+          "change": ""
+        },
+        {
+          "file": "input.priority",
+          "change": ""
+        },
+        {
+          "file": "input.status",
+          "change": ""
+        },
+        {
+          "file": "phase.id",
+          "change": ""
+        },
+        {
+          "file": "todo.priority",
+          "change": ""
+        },
+        {
+          "file": "project-tasks.json",
+          "change": ""
+        },
+        {
+          "file": "components/queue/QueueControls.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/autonomy-notification.ts",
+          "change": ""
+        },
+        {
+          "file": "args.checks",
+          "change": ""
+        },
+        {
+          "file": "components/queue/QueueReorderList.tsx",
+          "change": ""
+        },
+        {
+          "file": "item.workItemId",
+          "change": ""
+        },
+        {
+          "file": "components/queue/QueueCard.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/queue/HandoffEditor.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/data-health.ts",
+          "change": ""
+        },
+        {
+          "file": "e.epicId",
+          "change": ""
+        },
+        {
+          "file": "lib/project-completion.ts",
+          "change": ""
+        },
+        {
+          "file": "components/operations/AutoExecReport.tsx",
+          "change": ""
+        },
+        {
+          "file": "r.targetApp",
+          "change": ""
+        },
+        {
+          "file": "filtered.length",
+          "change": ""
+        },
+        {
+          "file": "r.errors",
+          "change": ""
+        },
+        {
+          "file": "r.warnings",
+          "change": ""
+        },
+        {
+          "file": "sentences.length",
+          "change": ""
+        },
+        {
+          "file": "components/operations/ResearchSpecification.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/goal-proposal.ts",
+          "change": ""
+        },
+        {
+          "file": "g.title",
+          "change": ""
+        },
+        {
+          "file": "lib/monetization-store.ts",
+          "change": ""
+        },
+        {
+          "file": "e.targetApps",
+          "change": ""
+        },
+        {
+          "file": "components/operations/SystemSpecification.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/done-criteria.ts",
+          "change": ""
+        },
+        {
+          "file": "r.changedFiles",
+          "change": ""
+        },
+        {
+          "file": "f.file",
+          "change": ""
+        },
+        {
+          "file": "r.summary",
+          "change": ""
+        },
+        {
+          "file": "r.rawReport",
+          "change": ""
+        },
+        {
+          "file": "lib/review-copy.ts",
+          "change": ""
+        },
+        {
+          "file": "ng.length",
+          "change": ""
+        },
+        {
+          "file": "items.length",
+          "change": ""
+        },
+        {
+          "file": "a.title",
+          "change": ""
+        },
+        {
+          "file": "fixRequests.items.length",
+          "change": ""
+        },
+        {
+          "file": "run.startedAt",
+          "change": ""
+        },
+        {
+          "file": "components/verify-todos/VerifyTodosBoard.tsx",
+          "change": ""
+        },
+        {
+          "file": "e.target.value",
+          "change": ""
+        },
+        {
+          "file": "t.appName",
+          "change": ""
+        },
+        {
+          "file": "t.epicName",
+          "change": ""
+        },
+        {
+          "file": "lib/prompt-queue-runner.ts",
+          "change": ""
+        },
+        {
+          "file": "run.runId",
+          "change": ""
+        },
+        {
+          "file": "components/dashboard/StatsBar.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/progress-reader.ts",
+          "change": ""
+        },
+        {
+          "file": "data/sample",
+          "change": ""
+        },
+        {
+          "file": "app-progress.json",
+          "change": ""
+        },
+        {
+          "file": "work-log.ndjson",
+          "change": ""
+        },
+        {
+          "file": "overall-progress.md",
+          "change": ""
+        },
+        {
+          "file": "components/dashboard/AiReviewPanel.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/app-urls.ts",
+          "change": ""
+        },
+        {
+          "file": "x.access",
+          "change": ""
+        },
+        {
+          "file": "x.url",
+          "change": ""
+        },
+        {
+          "file": "lib/factory-dispatch.ts",
+          "change": ""
+        },
+        {
+          "file": "plan.doneCriteria.length",
+          "change": ""
+        },
+        {
+          "file": "plan.nextActions.length",
+          "change": ""
+        },
+        {
+          "file": "lib/usage-store.ts",
+          "change": ""
+        },
+        {
+          "file": "input.path",
+          "change": ""
+        },
+        {
+          "file": "e.path",
+          "change": ""
+        },
+        {
+          "file": "v.count",
+          "change": ""
+        },
+        {
+          "file": "v.lastAt",
+          "change": ""
+        },
+        {
+          "file": "e.at",
+          "change": ""
+        },
+        {
+          "file": "cur.path",
+          "change": ""
+        },
+        {
+          "file": "v.path",
+          "change": ""
+        },
+        {
+          "file": "s.href",
+          "change": ""
+        },
+        {
+          "file": "s.label",
+          "change": ""
+        },
+        {
+          "file": "events.length",
+          "change": ""
+        },
+        {
+          "file": "components/dashboard/FactoryActions.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/dashboard/NextActions.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/dashboard/RecentLogs.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/blocked-decisions.ts",
+          "change": ""
+        },
+        {
+          "file": "item.sourceId",
+          "change": ""
+        },
+        {
+          "file": "approval.epicId",
+          "change": ""
+        },
+        {
+          "file": "components/dashboard/GoalSummaryCard.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/dashboard/ProjectCards.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/auto-queue-score.ts",
+          "change": ""
+        },
+        {
+          "file": "epic.targetApps",
+          "change": ""
+        },
+        {
+          "file": "components/goals/GoalPlannerForm.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/goals/GoalTodoAddForm.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/goals/GoalListItem.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/knowledge-loop.ts",
+          "change": ""
+        },
+        {
+          "file": "decision-log.md",
+          "change": ""
+        },
+        {
+          "file": "run.warnings.length",
+          "change": ""
+        },
+        {
+          "file": "knowledge.researchPath",
+          "change": ""
+        },
+        {
+          "file": "run.errors",
+          "change": ""
+        },
+        {
+          "file": "f.change",
+          "change": ""
+        },
+        {
+          "file": "k.sourceRunId",
+          "change": ""
+        },
+        {
+          "file": "m.id",
+          "change": ""
+        },
+        {
+          "file": "r.sourceRunId",
+          "change": ""
+        },
+        {
+          "file": "lib/auto-resume.ts",
+          "change": ""
+        },
+        {
+          "file": "safe.length",
+          "change": ""
+        },
+        {
+          "file": "c.title",
+          "change": ""
+        },
+        {
+          "file": "components/projects/ProjectGoalsView.tsx",
+          "change": ""
+        },
+        {
+          "file": "p.id",
+          "change": ""
+        },
+        {
+          "file": "lib/nav-menu.ts",
+          "change": ""
+        },
+        {
+          "file": "components/projects/ProjectCard.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/app-proposals.ts",
+          "change": ""
+        },
+        {
+          "file": "components/projects/ExcludeToggle.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/projects/BlockersEditor.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/page-data-cache.ts",
+          "change": ""
+        },
+        {
+          "file": "components/projects/ProjectCreateForm.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/projects/ProjectSummaryEditor.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/codex-run-storage.ts",
+          "change": ""
+        },
+        {
+          "file": "components/app-urls/AppUrlsBoard.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/factory-status.ts",
+          "change": ""
+        },
+        {
+          "file": "b.reason",
+          "change": ""
+        },
+        {
+          "file": "components/ai-drive/MainGoalCard.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/session-reader.ts",
+          "change": ""
+        },
+        {
+          "file": "work-candidates.json",
+          "change": ""
+        },
+        {
+          "file": "work-queue.json",
+          "change": ""
+        },
+        {
+          "file": "today-session.json",
+          "change": ""
+        },
+        {
+          "file": "components/ai-drive/VaultPreview.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/ai-drive/Header.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/ai-drive/PromptCopyButtons.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/auto-queue.ts",
+          "change": ""
+        },
+        {
+          "file": "goal.status",
+          "change": ""
+        },
+        {
+          "file": "item.lastRunAt",
+          "change": ""
+        },
+        {
+          "file": "item.updatedAt",
+          "change": ""
+        },
+        {
+          "file": "item.goalId",
+          "change": ""
+        },
+        {
+          "file": "components/ai-drive/ReviewLinkPanel.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/ai-drive/StageFlow.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/ai-drive/HumanApprovalGates.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/ai-drive/GoalListCards.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/execution-run-writer.ts",
+          "change": ""
+        },
+        {
+          "file": "execution-runs.json",
+          "change": ""
+        },
+        {
+          "file": "components/monetization/ApprovalActions.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/goal-step-epic.ts",
+          "change": ""
+        },
+        {
+          "file": "e.status",
+          "change": ""
+        },
+        {
+          "file": "e.goalId",
+          "change": ""
+        },
+        {
+          "file": "components/monetization/AddCandidateButton.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/monetization/MonetizationList.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/epic-contract.ts",
+          "change": ""
+        },
+        {
+          "file": "components/ThemeProvider.tsx",
+          "change": ""
+        },
+        {
+          "file": "12H3m15.364-6.364l-.707.707M6.343",
+          "change": ""
+        },
+        {
+          "file": "17.657l-.707.707M17.657",
+          "change": ""
+        },
+        {
+          "file": "17.657l-.707-.707M6.343",
+          "change": ""
+        },
+        {
+          "file": "6.343l-.707-.707M16",
+          "change": ""
+        },
+        {
+          "file": "M20.354",
+          "change": ""
+        },
+        {
+          "file": "15.354A9",
+          "change": ""
+        },
+        {
+          "file": "018.646",
+          "change": ""
+        },
+        {
+          "file": "3.646",
+          "change": ""
+        },
+        {
+          "file": "9.003",
+          "change": ""
+        },
+        {
+          "file": "21a9.003",
+          "change": ""
+        },
+        {
+          "file": "008.354-5.646z",
+          "change": ""
+        },
+        {
+          "file": "lib/monetization-goal-migration.ts",
+          "change": ""
+        },
+        {
+          "file": "source.type",
+          "change": ""
+        },
+        {
+          "file": "candidate.status",
+          "change": ""
+        },
+        {
+          "file": "components/inbox/InboxCard.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/radar/RadarBoard.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/morning/RefreshCandidatesButton.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/morning/MorningChecklist.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/epic/EpicCreateForm.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/epic/EpicJsonImport.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/command-center.ts",
+          "change": ""
+        },
+        {
+          "file": "p.projectId",
+          "change": ""
+        },
+        {
+          "file": "r.finishedAt",
+          "change": ""
+        },
+        {
+          "file": "r.startedAt",
+          "change": ""
+        },
+        {
+          "file": "candidate.researchLogs",
+          "change": ""
+        },
+        {
+          "file": "item.date",
+          "change": ""
+        },
+        {
+          "file": "c.kind",
+          "change": ""
+        },
+        {
+          "file": "c.headline",
+          "change": ""
+        },
+        {
+          "file": "goal.id",
+          "change": ""
+        },
+        {
+          "file": "a.createdRunId",
+          "change": ""
+        },
+        {
+          "file": "card.goalId",
+          "change": ""
+        },
+        {
+          "file": "card.projectId",
+          "change": ""
+        },
+        {
+          "file": "components/epic/FactoryGuideModal.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/operating-model.ts",
+          "change": ""
+        },
+        {
+          "file": "current-operating-model.md",
+          "change": ""
+        },
+        {
+          "file": "components/epic/InlineApprovalPanel.tsx",
+          "change": ""
+        },
+        {
+          "file": "router.refresh",
+          "change": ""
+        },
+        {
+          "file": "lib/session-writer.ts",
+          "change": ""
+        },
+        {
+          "file": "p.excluded",
+          "change": ""
+        },
+        {
+          "file": "i.id",
+          "change": ""
+        },
+        {
+          "file": "components/HelpModal.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/newux/FilterBar.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/executor-roles.ts",
+          "change": ""
+        },
+        {
+          "file": "components/newux/AiCheckButton.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/improvement-goals.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/decision-context.ts",
+          "change": ""
+        },
+        {
+          "file": "run.epicId",
+          "change": ""
+        },
+        {
+          "file": "epic.epicId",
+          "change": ""
+        },
+        {
+          "file": "components/newux/FilterChips.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/queue-split.ts",
+          "change": ""
+        },
+        {
+          "file": "e.title",
+          "change": ""
+        },
+        {
+          "file": "k.title",
+          "change": ""
+        },
+        {
+          "file": "lib/ai-review.ts",
+          "change": ""
+        },
+        {
+          "file": "components/newux/InboxTabs.tsx",
+          "change": ""
+        },
+        {
+          "file": "card.rows",
+          "change": ""
+        },
+        {
+          "file": "summary.goalId",
+          "change": ""
+        },
+        {
+          "file": "summary.goalTitle",
+          "change": ""
+        },
+        {
+          "file": "f.key",
+          "change": ""
+        },
+        {
+          "file": "f.count",
+          "change": ""
+        },
+        {
+          "file": "lib/research-goals.ts",
+          "change": ""
+        },
+        {
+          "file": "file.path",
+          "change": ""
+        },
+        {
+          "file": "components/newux/InboxActions.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/logs/ExecutionRunList.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/logs/ProjectFilterSelect.tsx",
+          "change": ""
+        },
+        {
+          "file": "M5.23",
+          "change": ""
+        },
+        {
+          "file": "7.21a.75.75",
+          "change": ""
+        },
+        {
+          "file": "011.06.02L10",
+          "change": ""
+        },
+        {
+          "file": "11.168l3.71-3.938a.75.75",
+          "change": ""
+        },
+        {
+          "file": "111.08",
+          "change": ""
+        },
+        {
+          "file": "1.04l-4.25",
+          "change": ""
+        },
+        {
+          "file": "4.5a.75.75",
+          "change": ""
+        },
+        {
+          "file": "01-1.08",
+          "change": ""
+        },
+        {
+          "file": "0l-4.25-4.5a.75.75",
+          "change": ""
+        },
+        {
+          "file": "01.02-1.06z",
+          "change": ""
+        },
+        {
+          "file": "components/logs/RegisterTemplate.tsx",
+          "change": ""
+        },
+        {
+          "file": "app/path/to/changed-file.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/review-fix-runner.ts",
+          "change": ""
+        },
+        {
+          "file": "components/logs/LogList.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/factory-metrics.ts",
+          "change": ""
+        },
+        {
+          "file": "a.category",
+          "change": ""
+        },
+        {
+          "file": "o.label",
+          "change": ""
+        },
+        {
+          "file": "lib/monetization-vault-sync.ts",
+          "change": ""
+        },
+        {
+          "file": "c.sourceRefs",
+          "change": ""
+        },
+        {
+          "file": "r.path",
+          "change": ""
+        },
+        {
+          "file": "ef.path",
+          "change": ""
+        },
+        {
+          "file": "components/logs/ExecutionRunCard.tsx",
+          "change": ""
+        },
+        {
+          "file": "run.checks",
+          "change": ""
+        },
+        {
+          "file": "lib/factory-dashboard.ts",
+          "change": ""
+        },
+        {
+          "file": "packet.doneCriteria.length",
+          "change": ""
+        },
+        {
+          "file": "packet.blockers.length",
+          "change": ""
+        },
+        {
+          "file": "epic.title",
+          "change": ""
+        },
+        {
+          "file": "warning.scope",
+          "change": ""
+        },
+        {
+          "file": "run.summary",
+          "change": ""
+        },
+        {
+          "file": "lib/claude-limit-detector.ts",
+          "change": ""
+        },
+        {
+          "file": "s.f",
+          "change": ""
+        },
+        {
+          "file": "components/prompt-queue/PromptQueueBoard.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/navigation/HamburgerMenu.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/factory-runner.ts",
+          "change": ""
+        },
+        {
+          "file": "r.runId",
+          "change": ""
+        },
+        {
+          "file": "s.epicId",
+          "change": ""
+        },
+        {
+          "file": "lib/progress-transform.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/radar.ts",
+          "change": ""
+        },
+        {
+          "file": "i.taskTitle",
+          "change": ""
+        },
+        {
+          "file": "components/navigation/SubTabBar.tsx",
+          "change": ""
+        },
+        {
+          "file": "item.href",
+          "change": ""
+        },
+        {
+          "file": "lib/urgent-issues.ts",
+          "change": ""
+        },
+        {
+          "file": "todo.id",
+          "change": ""
+        },
+        {
+          "file": "issue.title",
+          "change": ""
+        },
+        {
+          "file": "components/navigation/TopNav.tsx",
+          "change": ""
+        },
+        {
+          "file": "item.exact",
+          "change": ""
+        },
+        {
+          "file": "components/navigation/BottomNav.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/progress-self-heal.ts",
+          "change": ""
+        },
+        {
+          "file": "components/guide/FaqAccordion.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/nav-groups.ts",
+          "change": ""
+        },
+        {
+          "file": "components/guide/SlideKit.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/progress-writer.ts",
+          "change": ""
+        },
+        {
+          "file": "t.title",
+          "change": ""
+        },
+        {
+          "file": "components/usage/UsageTracker.tsx",
+          "change": ""
+        },
+        {
+          "file": "lastPath.current",
+          "change": ""
+        },
+        {
+          "file": "window.location.pathname",
+          "change": ""
+        },
+        {
+          "file": "components/tasks/TaskAddForm.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/decision-context.test.ts",
+          "change": ""
+        },
+        {
+          "file": "components/tasks/TodoManager.tsx",
+          "change": ""
+        },
+        {
+          "file": "res.ok",
+          "change": ""
+        },
+        {
+          "file": "components/tasks/TaskList.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/tasks/TaskStatusControl.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/executors/shell.ts",
+          "change": ""
+        },
+        {
+          "file": "components/tasks/JsonImportManager.tsx",
+          "change": ""
+        },
+        {
+          "file": "t.status",
+          "change": ""
+        },
+        {
+          "file": "t.targetPath",
+          "change": ""
+        },
+        {
+          "file": "i.targetApp",
+          "change": ""
+        },
+        {
+          "file": "i.index",
+          "change": ""
+        },
+        {
+          "file": "phase.title",
+          "change": ""
+        },
+        {
+          "file": "lib/goal-reader.ts",
+          "change": ""
+        },
+        {
+          "file": "parsed.goals",
+          "change": ""
+        },
+        {
+          "file": "components/recommended/RecActions.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/factory-schedule.ts",
+          "change": ""
+        },
+        {
+          "file": "step.runId",
+          "change": ""
+        },
+        {
+          "file": "components/recommended/RecommendationList.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/execution-run-reader.ts",
+          "change": ""
+        },
+        {
+          "file": "components/recommended/GenerateButton.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/app-proposals/MockPhone.tsx",
+          "change": ""
+        },
+        {
+          "file": "h-1.5",
+          "change": ""
+        },
+        {
+          "file": "w-1.5",
+          "change": ""
+        },
+        {
+          "file": "lib/inbox-reader.ts",
+          "change": ""
+        },
+        {
+          "file": "e.name",
+          "change": ""
+        },
+        {
+          "file": "lib/prompt-queue.ts",
+          "change": ""
+        },
+        {
+          "file": "components/app-proposals/AppProposalCard.tsx",
+          "change": ""
+        },
+        {
+          "file": "item.name",
+          "change": ""
+        },
+        {
+          "file": "components/app-proposals/AppSpecDecisionCard.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/inbox-review-copy.ts",
+          "change": ""
+        },
+        {
+          "file": "cleaned.length",
+          "change": ""
+        },
+        {
+          "file": "card.sourceRunId",
+          "change": ""
+        },
+        {
+          "file": "components/codex/AutoFallbackPanel.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/factory-schedule-status.ts",
+          "change": ""
+        },
+        {
+          "file": "components/codex/CodexRunList.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/store.ts",
+          "change": ""
+        },
+        {
+          "file": "components/codex/CodexTrigger.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/usage-screens.ts",
+          "change": ""
+        },
+        {
+          "file": "components/codex/CodexReportForm.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/pending/BulkApproveButton.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/pending/PendingFilters.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/pending/CandidateCard.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/pending/FallbackTaskCard.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/operations-store.ts",
+          "change": ""
+        },
+        {
+          "file": "run.nextActions",
+          "change": ""
+        },
+        {
+          "file": "latestRun.checks",
+          "change": ""
+        },
+        {
+          "file": "decisions.length",
+          "change": ""
+        },
+        {
+          "file": "approvals.length",
+          "change": ""
+        },
+        {
+          "file": "dispatchNextActions.length",
+          "change": ""
+        },
+        {
+          "file": "s.source",
+          "change": ""
+        },
+        {
+          "file": "b.kind",
+          "change": ""
+        },
+        {
+          "file": "lib/app-proposal-generator.ts",
+          "change": ""
+        },
+        {
+          "file": "data/real/recommended-epics.json",
+          "change": ""
+        },
+        {
+          "file": "command-center.ts",
+          "change": ""
+        },
+        {
+          "file": "ai-review.ts",
+          "change": ""
+        },
+        {
+          "file": "data/real/app-progress.json",
+          "change": ""
+        },
+        {
+          "file": "data/real/app-urls.json",
+          "change": ""
+        },
+        {
+          "file": "data/real/_backups/execution-runs-20260702-140027.json",
+          "change": ""
+        },
+        {
+          "file": "progress/app/api/operations/review-copy/route.ts",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-13_progress-review-copy-impl.md",
+          "change": ""
+        },
+        {
+          "file": "lib/birds.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/storage.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/location.ts",
+          "change": ""
+        },
+        {
+          "file": "app/dex/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "app/map/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/geo.ts",
+          "change": ""
+        },
+        {
+          "file": "app/stats/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/stats.ts",
+          "change": ""
+        },
+        {
+          "file": "progress/_dispatch_run_payload.json",
+          "change": ""
+        },
+        {
+          "file": "02_apps/birdlog.md",
+          "change": ""
+        },
+        {
+          "file": "app/api/auto-queue/control/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/prompt-queue/route.ts / [id]/route.ts / import/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/prompt-queue/route.ts",
+          "change": ""
+        },
+        {
+          "file": "import/route.ts",
+          "change": ""
+        },
+        {
+          "file": "apps/ny01/progress/app/api/goals/enrich-proposals/route.ts",
+          "change": ""
+        },
+        {
+          "file": "apps/ny01/progress/app/integration-map/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "app/integration-map/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "app/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "codemagic.yaml",
+          "change": ""
+        },
+        {
+          "file": "com.kaeru07.mahjong",
+          "change": ""
+        },
+        {
+          "file": "ios/App/App.xcodeproj",
+          "change": ""
+        },
+        {
+          "file": "BoardView.tsx/AGENTS.md/CLAUDE.md",
+          "change": ""
+        },
+        {
+          "file": "app/tasks/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "app/morning/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "apps/ny01/progress/app/api/goals/link-project/route.ts",
+          "change": ""
+        },
+        {
+          "file": "progress/app/api/auto-queue/control/route.ts",
+          "change": ""
+        },
+        {
+          "file": "apps/ny01/progress/app/api/auto-queue/control/route.ts",
+          "change": ""
+        },
+        {
+          "file": "apps/ny01/progress/app/api/projects/with-goals/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/projects/with-goals/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/projects/import/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "apps/ny01/progress/app/api/auto-queue/reorder/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/auto-queue/reorder/route.ts",
+          "change": ""
+        },
+        {
+          "file": "epics.json",
+          "change": ""
+        },
+        {
+          "file": "app/queue/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "a//tmp/guam-route-step/components/GuamTripApp.tsx",
+          "change": ""
+        },
+        {
+          "file": "web/lib/guam-trip-data.ts",
+          "change": ""
+        },
+        {
+          "file": "web/components/GuamMap.tsx",
+          "change": ""
+        },
+        {
+          "file": "web/components/GuamTripApp.tsx",
+          "change": ""
+        },
+        {
+          "file": "components/VpnStatusCard.tsx",
+          "change": ""
+        },
+        {
+          "file": "progress/lib/app-paths.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/factory-schedule/route.ts",
+          "change": ""
+        },
+        {
+          "file": "progress/app/api/operations/factory-run/route.ts",
+          "change": ""
+        },
+        {
+          "file": "a/app/api/operations/factory-run/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/factory-run/route.ts",
+          "change": ""
+        },
+        {
+          "file": "components/automation/FactoryRunnerPanel.tsx",
+          "change": ""
+        },
+        {
+          "file": "progress/app/api/execution-runs/route.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/executors/codex.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/executors/claude.ts",
+          "change": ""
+        },
+        {
+          "file": "ExecutorResult.changedFiles",
+          "change": ""
+        },
+        {
+          "file": "progress/app/api/operations/metrics/route.ts",
+          "change": ""
+        },
+        {
+          "file": "progress/app/integration-map/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "progress/app/api/goals/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/goals/[goalId]/priority/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/auto-queue/route.ts / control/route.ts / app/api/goals/[goalId]/priority/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/auto-queue/route.ts",
+          "change": ""
+        },
+        {
+          "file": "control/route.ts",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-14_progress-route-audit.md",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/goal-ai-factory-os-next-run-selection-test/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/{tasks,tasks/[taskId],goals,auto-queue/control,execution-runs}/route.ts",
+          "change": ""
+        },
+        {
+          "file": "progress/app/api/goals/propose/route.ts",
+          "change": ""
+        },
+        {
+          "file": "progress/app/api/goals/[goalId]/approve/route.ts",
+          "change": ""
+        },
+        {
+          "file": "apps/ny01/progress/app/api/goals/propose-research/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/goals/propose-research/route.ts",
+          "change": ""
+        },
+        {
+          "file": "apps/ny01/progress/app/api/goals/triage-research/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/goals/triage-research/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/goals/enrich-proposals/route.ts",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-11_ai-factory-goal-mapping-report.md",
+          "change": ""
+        },
+        {
+          "file": "2026-06-11_ai-factory-goal-mapping-report.md",
+          "change": ""
+        },
+        {
+          "file": "progress/app/api/operations/epics/route.ts",
+          "change": ""
+        },
+        {
+          "file": "a/app/integration-map/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "b/app/integration-map/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "Goal.status",
+          "change": ""
+        },
+        {
+          "file": ".env.local",
+          "change": ""
+        },
+        {
+          "file": "parsedURL.pathname",
+          "change": ""
+        },
+        {
+          "file": "info.pathname",
+          "change": ""
+        },
+        {
+          "file": "result.pathname",
+          "change": ""
+        },
+        {
+          "file": "this.pathname",
+          "change": ""
+        },
+        {
+          "file": "parsedDestination.pathname",
+          "change": ""
+        },
+        {
+          "file": "match.pathname",
+          "change": ""
+        },
+        {
+          "file": "definition.pathname",
+          "change": ""
+        },
+        {
+          "file": "this.definition.pathname",
+          "change": ""
+        },
+        {
+          "file": "options.i18n.pathname",
+          "change": ""
+        },
+        {
+          "file": "matcher.definition.pathname",
+          "change": ""
+        },
+        {
+          "file": "analysis.pathname",
+          "change": ""
+        },
+        {
+          "file": "pathname.length",
+          "change": ""
+        },
+        {
+          "file": "parsedUrl.pathname",
+          "change": ""
+        },
+        {
+          "file": "parsed.pathname",
+          "change": ""
+        },
+        {
+          "file": "localePathResult.pathname",
+          "change": ""
+        },
+        {
+          "file": "url.pathname",
+          "change": ""
+        },
+        {
+          "file": "pathnameInfo.pathname",
+          "change": ""
+        },
+        {
+          "file": "pathnameInfo.basePath",
+          "change": ""
+        },
+        {
+          "file": "match.definition.pathname",
+          "change": ""
+        },
+        {
+          "file": "localeAnalysisResult.pathname",
+          "change": ""
+        },
+        {
+          "file": "pathnameInfo.locale",
+          "change": ""
+        },
+        {
+          "file": "parsedMatchedPath.pathname",
+          "change": ""
+        },
+        {
+          "file": "invokePathnameInfo.pathname",
+          "change": ""
+        },
+        {
+          "file": "normalizeResult.pathname",
+          "change": ""
+        },
+        {
+          "file": "_this_getPrerenderManifest_dynamicRoutes_pathname.fallback",
+          "change": ""
+        },
+        {
+          "file": "pathsResult.staticPaths",
+          "change": ""
+        },
+        {
+          "file": "pathsResult.fallbackMode",
+          "change": ""
+        },
+        {
+          "file": "components.routeModule",
+          "change": ""
+        },
+        {
+          "file": "routeModule.definition.kind",
+          "change": ""
+        },
+        {
+          "file": "ctx.pathname",
+          "change": ""
+        },
+        {
+          "file": "result.components.routeModule",
+          "change": ""
+        },
+        {
+          "file": "result.components.routeModule.definition",
+          "change": ""
+        },
+        {
+          "file": "fallbackComponents.routeModule.definition",
+          "change": ""
+        },
+        {
+          "file": "destLocalePathResult.pathname",
+          "change": ""
+        },
+        {
+          "file": "route.statusCode",
+          "change": ""
+        },
+        {
+          "file": "route.permanent",
+          "change": ""
+        },
+        {
+          "file": "context.routeKind",
+          "change": ""
+        },
+        {
+          "file": "module.routeModule",
+          "change": ""
+        },
+        {
+          "file": "route.has",
+          "change": ""
+        },
+        {
+          "file": "_route_has_.key",
+          "change": ""
+        },
+        {
+          "file": "info.paths.length",
+          "change": ""
+        },
+        {
+          "file": "middlewareInfo.paths",
+          "change": ""
+        },
+        {
+          "file": "edgeInfo.paths",
+          "change": ""
+        },
+        {
+          "file": "app/api/execution-runs/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/queue/add-from-task/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/queue/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/queue/reorder/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/epics/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/approvals/generate/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/approvals/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/metrics/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/factory-candidates/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/auto-resume/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/factory-overview/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/verify-todos/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/goals/propose/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/goals/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/goals/sync-metrics/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/goals/main/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/goals/sync/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/goals/link-project/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/monetization/sync/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/inbox/import/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/prompt-queue/import/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/candidates/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/codex/runs/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/codex/status/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/inbox/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/inbox/review-copy/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/monetization/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/ai-review/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/auto-fallback/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/autoexec/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/automation/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/automation-config/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/automation-log/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/claude-limit/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/codex-prompt/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/decisions/context/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/done-criteria/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/factory-dispatch/route.ts",
+          "change": ""
+        },
+        {
+          "file": "lib/app-paths.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/factory-status/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/handoff/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/health/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/loop-health/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/next-actions/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/review-copy/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/projects/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/recommended-epics/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/recommended-epics/bulk-status/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/session/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/tasks/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/usage/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/vault-inbox/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/auto-queue/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/auto-queue/control/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/auto-queue/reorder/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/candidates/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/codex/runs/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/codex/status/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/execution-runs/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/goals/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/goals/enrich-proposals/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/goals/link-project/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/goals/main/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/goals/propose/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/goals/propose-research/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/goals/sync/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/goals/sync-metrics/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/goals/triage-research/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/inbox/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/inbox/import/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/inbox/review-copy/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/monetization/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/monetization/sync/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/ai-review/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/approvals/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/approvals/generate/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/auto-fallback/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/auto-resume/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/autoexec/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/automation/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/automation-config/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/automation-log/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/claude-limit/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/codex-prompt/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/decisions/context/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/done-criteria/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/epics/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/factory-candidates/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/factory-dispatch/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/factory-overview/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/factory-run/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/factory-schedule/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/factory-status/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/goal-ai-factory-os-next-run-selection-test/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/handoff/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/health/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/loop-health/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/metrics/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/next-actions/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/review-copy/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/projects/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/projects/with-goals/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/prompt-queue/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/prompt-queue/import/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/queue/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/queue/add-from-task/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/queue/reorder/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/recommended-epics/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/recommended-epics/bulk-status/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/session/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/tasks/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/usage/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/vault-inbox/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/verify-todos/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/integration-map/page.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/tasks/[taskId]/route.ts",
+          "change": ""
+        },
+        {
+          "file": "integration-map/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "app/integration-map",
+          "change": ""
+        },
+        {
+          "file": "bySource.usage",
+          "change": ""
+        },
+        {
+          "file": "ScreenUsage.path",
+          "change": ""
+        },
+        {
+          "file": "usage-log.ndjson",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-25_usage-signal-goal-proposal.md",
+          "change": ""
+        },
+        {
+          "file": "review-fix-runner.ts",
+          "change": ""
+        },
+        {
+          "file": "operations-store.ts",
+          "change": ""
+        },
+        {
+          "file": "progress/app/api/operations/automation-config/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/automation/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "guide/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "gpt-5.x",
+          "change": ""
+        },
+        {
+          "file": "progress/app/api/app-proposals/[id]/decide/route.ts",
+          "change": ""
+        },
+        {
+          "file": "progress/app/api/operations/approvals/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/app-proposals/[id]/decide/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/app-proposals/generate/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/app-specs/[id]/decide/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/operations/ensure-blocked-decisions/route.ts",
+          "change": ""
+        },
+        {
+          "file": "04_reviews/2026-07-02-progress-operation-review.md",
+          "change": ""
+        },
+        {
+          "file": "data/real/knowledge-records.json",
+          "change": ""
+        },
+        {
+          "file": "progress/app/api/operations/ai-review/route.ts",
+          "change": ""
+        },
+        {
+          "file": "progress/app/api/usage/route.ts",
+          "change": ""
+        },
+        {
+          "file": "progress/components/guide/SlideKit.tsx",
+          "change": ""
+        },
+        {
+          "file": "data/real/usage-log.ndjson",
+          "change": ""
+        },
+        {
+          "file": "data/real/_backups/execution-runs-20260626-110006.json",
+          "change": ""
+        },
+        {
+          "file": "app/api/inbox/review-copy/[id]/route.ts",
+          "change": ""
+        },
+        {
+          "file": "app/api/execution-runs/[runId]/route.ts",
+          "change": ""
+        },
+        {
+          "file": "14.2.5",
+          "change": ""
+        },
+        {
+          "file": "6.77kB",
+          "change": ""
+        },
+        {
+          "file": "4.36kB",
+          "change": ""
+        },
+        {
+          "file": "4.22kB",
+          "change": ""
+        },
+        {
+          "file": "4.46kB",
+          "change": ""
+        },
+        {
+          "file": "app/verify-todos/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "lib/verify-todos.ts",
+          "change": ""
+        },
+        {
+          "file": "3.42",
+          "change": ""
+        },
+        {
+          "file": "90.7",
+          "change": ""
+        },
+        {
+          "file": "data/real/_backups/execution-runs-20260623-110009.json",
+          "change": ""
+        },
+        {
+          "file": "app/app-urls/page.tsx",
+          "change": ""
+        },
+        {
+          "file": "2.78kB",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-08_app-urls-iphone-view.md",
+          "change": ""
+        },
+        {
+          "file": "160.x",
+          "change": ""
+        },
+        {
+          "file": "2.8kB",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-09_app-urls-vps-public-url.md",
+          "change": ""
+        },
+        {
+          "file": "lib/research/vault.ts",
+          "change": ""
+        },
+        {
+          "file": "vault.ts",
+          "change": ""
+        },
+        {
+          "file": "summary.ts",
+          "change": ""
+        },
+        {
+          "file": "scripts/sync-research-content.mjs",
+          "change": ""
+        },
+        {
+          "file": "package.json",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-09_news-app-vault-sync-fix.md",
+          "change": ""
+        },
+        {
+          "file": "progress/app/api/app-urls/[appId]/route.ts",
+          "change": ""
+        },
+        {
+          "file": "4.03kB",
+          "change": ""
+        },
+        {
+          "file": "lib/url-normalize.ts",
+          "change": ""
+        },
+        {
+          "file": "AppUrlsBoard.tsx",
+          "change": ""
+        },
+        {
+          "file": "url-normalize.ts",
+          "change": ""
+        },
+        {
+          "file": "app-urls.ts",
+          "change": ""
+        },
+        {
+          "file": "160.251.143.146",
+          "change": ""
+        },
+        {
+          "file": "progress/app/api/execution-runs/[runId]/route.ts",
+          "change": ""
+        },
+        {
+          "file": "progress/app/api/recommended-epics/[id]/route.ts",
+          "change": ""
+        },
+        {
+          "file": "progress/app/api/recommended-epics/[id]/approve/route.ts",
+          "change": ""
+        },
+        {
+          "file": "types/knowledge.ts",
+          "change": ""
+        },
+        {
+          "file": "_explore.py",
+          "change": ""
+        },
+        {
+          "file": "_scan.py",
+          "change": ""
+        },
+        {
+          "file": "factory-p2-marker.txt",
+          "change": ""
+        },
+        {
+          "file": "apps/ny01/CLAUDE.local.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-11_progress-newux-resume.md",
+          "change": ""
+        },
+        {
+          "file": "data/real/execution-runs.json",
+          "change": ""
+        },
+        {
+          "file": "api/operations/autoexec/route.ts",
+          "change": ""
+        },
+        {
+          "file": "obj.path",
+          "change": ""
+        },
+        {
+          "file": "body.path",
+          "change": ""
+        },
+        {
+          "file": "p.route",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/app-proposals/generate/route.ts",
+          "change": ""
+        },
+        {
+          "file": ".next/types/app/api/operations/ensure-blocked-decisions/route.ts",
+          "change": ""
+        },
+        {
+          "file": "path.sep",
+          "change": ""
+        },
+        {
+          "file": "path.resolve",
+          "change": ""
+        },
+        {
+          "file": "path.length",
+          "change": ""
+        },
+        {
+          "file": "array.prototype.flatmap",
+          "change": ""
+        },
+        {
+          "file": "@types/array.prototype.flatmap",
+          "change": ""
+        },
+        {
+          "file": "fs.realpath",
+          "change": ""
+        },
+        {
+          "file": "fs.realpathSync",
+          "change": ""
+        },
+        {
+          "file": "result.map",
+          "change": ""
+        },
+        {
+          "file": "fs.realpath/fs.realpathSync",
+          "change": ""
+        },
+        {
+          "file": "this.mapOpts",
+          "change": ""
+        },
+        {
+          "file": "opts.map",
+          "change": ""
+        },
+        {
+          "file": "this.mapOpts.absolute",
+          "change": ""
+        },
+        {
+          "file": "this.mapOpts.annotation",
+          "change": ""
+        },
+        {
+          "file": "this.map",
+          "change": ""
+        },
+        {
+          "file": "mapping.generated.line",
+          "change": ""
+        },
+        {
+          "file": "mapping.generated.column",
+          "change": ""
+        },
+        {
+          "file": "mapping.source",
+          "change": ""
+        },
+        {
+          "file": "mapping.original.line",
+          "change": ""
+        },
+        {
+          "file": "mapping.original.column",
+          "change": ""
+        },
+        {
+          "file": "this.mapOpts.inline",
+          "change": ""
+        },
+        {
+          "file": "this.opts.map",
+          "change": ""
+        },
+        {
+          "file": "node.source.input.map",
+          "change": ""
+        },
+        {
+          "file": "input.map",
+          "change": ""
+        },
+        {
+          "file": "this.mapOpts.from",
+          "change": ""
+        },
+        {
+          "file": "map.absolute",
+          "change": ""
+        },
+        {
+          "file": "pathModule.normalize",
+          "change": ""
+        },
+        {
+          "file": "previous-map.js",
+          "change": ""
+        },
+        {
+          "file": "map.text",
+          "change": ""
+        },
+        {
+          "file": "this.map.file",
+          "change": ""
+        },
+        {
+          "file": "this.map.root",
+          "change": ""
+        },
+        {
+          "file": "this.map.mapFile",
+          "change": ""
+        },
+        {
+          "file": "json.map",
+          "change": ""
+        },
+        {
+          "file": "this.result.map",
+          "change": ""
+        },
+        {
+          "file": "map.css",
+          "change": ""
+        },
+        {
+          "file": "path.isAbsolute",
+          "change": ""
+        },
+        {
+          "file": "paths.length",
+          "change": ""
+        },
+        {
+          "file": "opts.fs.realpath",
+          "change": ""
+        },
+        {
+          "file": "opts.fs.realpathSync",
+          "change": ""
+        },
+        {
+          "file": "inputHydrated.map",
+          "change": ""
+        },
+        {
+          "file": "root.input.map",
+          "change": ""
+        },
+        {
+          "file": "css.map",
+          "change": ""
+        },
+        {
+          "file": "opts.map.inline",
+          "change": ""
+        },
+        {
+          "file": "opts.map.prev",
+          "change": ""
+        },
+        {
+          "file": "rootSource.input.map",
+          "change": ""
+        },
+        {
+          "file": "visit.events",
+          "change": ""
+        },
+        {
+          "file": "nativeFs.realpath",
+          "change": ""
+        },
+        {
+          "file": "nativeFs.realpathSync",
+          "change": ""
+        },
+        {
+          "file": "path.normalize",
+          "change": ""
+        },
+        {
+          "file": "src/api/functions/join-path.ts",
+          "change": ""
+        },
+        {
+          "file": "path.relative",
+          "change": ""
+        },
+        {
+          "file": "path.dirname",
+          "change": ""
+        },
+        {
+          "file": "state.paths",
+          "change": ""
+        },
+        {
+          "file": "this.state.paths",
+          "change": ""
+        },
+        {
+          "file": "path.basename",
+          "change": ""
+        },
+        {
+          "file": "this.mapFile",
+          "change": ""
+        },
+        {
+          "file": "map.mappings",
+          "change": ""
+        },
+        {
+          "file": "map.sections",
+          "change": ""
+        },
+        {
+          "file": "options.fastpaths",
+          "change": ""
+        },
+        {
+          "file": "opts.fastpaths",
+          "change": ""
+        },
+        {
+          "file": "lib/map-generator",
+          "change": ""
+        },
+        {
+          "file": "lib/map-generator.js",
+          "change": ""
+        },
+        {
+          "file": "lib/previous-map",
+          "change": ""
+        },
+        {
+          "file": "lib/previous-map.js",
+          "change": ""
+        },
+        {
+          "file": "data.map",
+          "change": ""
+        },
+        {
+          "file": "path-utils.js",
+          "change": ""
+        },
+        {
+          "file": "node_path_1.default.sep",
+          "change": ""
+        },
+        {
+          "file": "path-utils.d.ts",
+          "change": ""
+        },
+        {
+          "file": "pathExists.sync",
+          "change": ""
+        },
+        {
+          "file": "ctx.map",
+          "change": ""
+        },
+        {
+          "file": "path/to/dest.css",
+          "change": ""
+        },
+        {
+          "file": "path/to/src.css",
+          "change": ""
+        },
+        {
+          "file": "result.filepath",
+          "change": ""
+        },
+        {
+          "file": "data/real/_backups/execution-runs-20260629-160023.json",
+          "change": ""
+        },
+        {
+          "file": "data/sample/execution-runs.json",
+          "change": ""
+        },
+        {
+          "file": "05_monetization/収益化候補一覧.md",
+          "change": ""
+        },
+        {
+          "file": "data/real/monetization-candidates.json",
+          "change": ""
+        },
+        {
+          "file": "06_research/local-first-app-ideas-2026-05-14.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-02_market-discovery-cycle2.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-03_monetization-hub.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-03_recommended-epics.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/_review_queue.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-04_monetization-vault-sync.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-08_progress-factory-eligibility-fix.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-08_progress-factory-fix-deploy-to-prod.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-10_know-20260607-231654.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-10_know-20260609-230005.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-10_know-20260610-140527.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-10_know-20260611-001032.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-10_know-20260611-013300.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_ai-factory-os-v2.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-10_know-20260607-231654.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-10_know-20260609-230005.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-10_know-20260610-140527.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-10_know-20260611-001032.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-10_know-20260611-013300.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-11_ai-factory-os-v2-ops-review.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260611-110003.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-11_know-20260611-110003.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260608-140010.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260608-230014.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260611-140005.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-11_know-20260608-140010.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-11_know-20260608-230014.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-11_know-20260611-140005.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-12_ai-factory-os-design-review.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-12_exclude-premature-human-tasks.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-12_ai-factory-os-review-top10.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-13_know-20260612-110005.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-13_know-20260612-230011.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-13_know-20260613-110006-962.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-13_know-20260612-110005.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-13_know-20260612-230011.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-13_know-20260613-110006-962.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-13_auto-execution-queue-mvp-codex.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-13_auto-queue-pin-reflect-fix.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-13_monetization-daily-ingestion.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260608-093320.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260611-230004.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-140005.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-150148.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-160001.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-160139.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-160420.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-225548.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-225744.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-20_know-20260613-230015.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260628-222810.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-01_know-20260701-230006.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-02_know-20260702-110009.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-02_know-20260702-140025.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-07-02_know-20260702-160018.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-02_new-app-epic-discovery.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-04_factory-scope-rule.md",
+          "change": ""
+        },
+        {
+          "file": "06_research/2026-06-11_know-20260611-120733.md",
+          "change": ""
+        },
+        {
+          "file": "20_reviews/2026-06-11_know-20260611-120733.md",
+          "change": ""
+        },
+        {
+          "file": "data/real/overall-progress.md",
+          "change": ""
+        },
+        {
+          "file": "data/real/archive/execution-runs-202606.json",
+          "change": ""
+        },
+        {
+          "file": "data/real/work-queue.json",
+          "change": ""
+        },
+        {
+          "file": "data/real/work-candidates.json",
+          "change": ""
+        },
+        {
+          "file": "data/real/project-tasks.json",
+          "change": ""
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "lint": "OK"
+      },
+      "errors": [
+        "r-xr-x  8 root root  4096 Jun 12 11:04 birdlog\ndrwxr-xr-x  7 root root  4096 Apr 25 20:43 claude-dev-studio\ndrwxr-xr-x  7 root root  4096 Apr 25 10:33 mahjong-analyzer\ndrwxr-xr-x 11 root root  4096 Apr 25 10:31 mahjong-quiz\ndrwxr-xr-x  6 root root  4096 Apr 25 10:36 mahjong-trainer\ndrwxr-xr-x 16 root root  4096 Jun 24 08:37 news-app\ndrwxr-xr-x 16 root root  4096 Jul  2 17:02 progress\n\n succeeded in 265ms:\n./.next/types/app/integration-map/page.ts\n./.next/server/app/integration-map/page.js\n./.nex"
+      ],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "Guamアプリの実ファイルがある正しいリポジトリ/作業ディレクトリを指定する。",
+        "もしくは `GuamTripApp.tsx`、`GuamMap.tsx`、`guam-trip-data.ts` をこのワークスペースに反映してから再実行する。"
+      ],
+      "rawReport": "[factory-runner auto] executor=codex\nblocked\n\n変更ファイル: なし\n\n安全判定: OK  \n理由: 方針決定済みのUI/データ追加系で、課金・本番DB・secret・destructive操作・pm2等には該当しない。\n\n実行コマンド:\n- `git status --short`\n- `rg -n \"route|path|Guam|guam|map|polyline|coordinates|events\" components lib data -S`\n- `find .. -path '*/node_modules' -prune -o -iname '*guam*' -print`\n- `find /root/company/apps/ny01 -maxdepth 4 ... GuamTripApp.tsx / GuamMap.tsx / guam-trip-data.ts`\n- `git ls-files | rg -i 'guam|GuamTrip|GuamMap|trip-data'`\n- `git log --all --name-only ... | rg -i 'guam|GuamTrip|GuamMap|trip-data'`\n\n検証結果:\n- 対象として引き継がれた `components/GuamTripApp.tsx`、`components/GuamMap.tsx`、`lib/guam-trip-data.ts` が現在の `/root/company/apps/ny01/progress` および `/root/company/apps/ny01` 配下に存在しない。\n- Git管理下・Git履歴にも Guam 関連ファイル名は見つからなかった。\n- そのため、道路沿いルート拡張や他日程のイベント経路データ追加を安全に実装できない。\n- 変更がないため `lint / typecheck / build` は未実行。\n\n次アクション:\n- Guamアプリの実ファイルがある正しいリポジトリ/作業ディレクトリを指定する。\n- もしくは `GuamTripApp.tsx`、`GuamMap.tsx`、`guam-trip-data.ts` をこのワークスペースに反映してから再実行する。\n\n残課題:\n- 現在の経路線は地点間の直線で、道路経路ではない。\n- 他の日程へのイベント経路データ追加は未着手。\n",
+      "nextActionCount": 2,
+      "doneCriteriaStatus": "continue",
+      "stopReason": "max_runs_reached",
+      "reviewMemo": "[AI一次レビュー 2026-07-02 14:01] 判定=partial 理由=completed だが errors が 1 件記録されている（先頭: r-xr-x  8 root root  4096 Jun 12 11:04 birdlog\ndrwxr-xr-x  7 root root  4096 Apr）。要確認（自動実行は止めない）。（rule=errors_recorded）",
+      "aiReview": {
+        "verdict": "partial",
+        "reason": "completed だが errors が 1 件記録されている（先頭: r-xr-x  8 root root  4096 Jun 12 11:04 birdlog\ndrwxr-xr-x  7 root root  4096 Apr）。要確認（自動実行は止めない）。",
+        "rule": "errors_recorded",
+        "reviewedAt": "2026-07-02T14:01:56.254Z"
+      },
+      "trigger": "systemd"
+    },
+    {
+      "runId": "20260702-230157",
+      "startedAt": "2026-07-02T14:00:13.233Z",
+      "finishedAt": "2026-07-02T14:01:57.148Z",
+      "targetApp": "progress",
+      "targetTodoTitle": "Factory schedule (schedule/systemd)",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "source": "schedule",
+      "trigger": "systemd",
+      "factoryRun": true,
+      "runnerMode": "auto",
+      "stopReason": "max_runs_reached",
+      "summary": "Factory 起動: Review Fix 実行0・予約0・skip0・block1 / Epic 1 Run / Prompt Queue 実行0・予約0・skip0・block0 / 停止理由=max_runs_reached（schedule/systemd）",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [],
+      "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260702-230018-561\n[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none"
+    },
+    {
+      "runId": "20260702-235647",
+      "startedAt": "2026-07-02T14:56:47.640Z",
+      "finishedAt": "2026-07-02T14:56:47.640Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "UI配置整理レビュー(使用実データ基準)+確定仕様をキュー投入",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "usage-log実測(14日)でUIレビュー。発見: 状況タブの顔がactivity(13回)なのに実際はportfolio(40回)が主/下タブ並びが頻度とズレ(queue1位が5番目)/アプリ開発サブタブ後ろ2つ死に(4回・1回)/今日の判断タブ6個過多(AI保留はキュー外と重複)/死にページ残骸。確定仕様(8タブ維持頻度順/状況→portfolio/decideタブ6→4/specs+decisions統合/アーカイブ節)を goal-opus-ui-reorg #31 でキュー投入。下タブ6化はオプション明記のみ。",
+      "changedFiles": [
+        {
+          "file": "data/real/goals.json",
+          "change": "goal-opus-ui-reorg追加(仕様全文入り)"
+        }
+      ],
+      "checks": {
+        "manual": "OK live: #31でexecutable反映(総数35)"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "UI配置整理レビュー(使用実データ基準)+確定仕様をキュー投入 の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## UI整理レビュー→キュー投入\n\n実測(直近14日): queue169/decide142/home123/goal-planner64/guide60/app-proposals50/portfolio40/goal-dashboard18/report16/activity13/project-complete7/app-specs4/app-decisions1/integration-map2。\n\n発見: ①状況タブのタップ先activityが実使用の1/3(portfolioが主) ②下タブ並び頻度ズレ ③todo消化/レポートは低頻度だが前回ユーザーが下タブ復帰を明示→削除せず後方維持 ④アプリ開発サブタブ後ろ2つ死に→統合し将来の設計一覧枠に ⑤decide内部タブ過多(AI保留=キュー外重複/Epic候補低頻度)→6→4 ⑥死にページはアーカイブ節隔離。\n\n確定仕様を goal-opus-ui-reorg summaryに全文保存しキュー#31へ。オプション(下タブ6化)はユーザー判断事項として仕様に併記のみ。\n\nmonetizationImpact: none\ntheme: [workflow]"
     }
   ]
 }
