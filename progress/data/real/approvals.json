@@ -976,8 +976,11 @@
     ],
     "recommended": "retry",
     "reason": "前回実行がfailedのためBlock",
-    "status": "pending",
-    "createdAt": "2026-07-01T09:38:58.039Z"
+    "status": "decided",
+    "createdAt": "2026-07-01T09:38:58.039Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-02T00:22:50.349Z"
   },
   {
     "approvalId": "appr-1782914409774-1",
@@ -1001,9 +1004,12 @@
     ],
     "recommended": "proceed",
     "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260701-223436",
-    "createdAt": "2026-07-01T14:00:09.774Z"
+    "createdAt": "2026-07-01T14:00:09.774Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-02T00:22:50.353Z"
   },
   {
     "approvalId": "appr-1782914410374-2",
@@ -1027,8 +1033,37 @@
     ],
     "recommended": "proceed",
     "reason": "課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260701-161604",
-    "createdAt": "2026-07-01T14:00:10.374Z"
+    "createdAt": "2026-07-01T14:00:10.374Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-02T00:22:50.355Z"
+  },
+  {
+    "approvalId": "appr-1782957989201-1",
+    "epicId": "epic-goalstep-goal-mqrj2cd0-orern-w49j",
+    "title": "判断が必要: Factory(auto): maxPerEpicの深掘り挙動を調整可能にする: 次の一歩",
+    "category": "external_publish",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "公開・デプロイ関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "pending",
+    "createdRunId": "20260627-103652-609",
+    "createdAt": "2026-07-02T02:06:29.201Z"
   }
 ]

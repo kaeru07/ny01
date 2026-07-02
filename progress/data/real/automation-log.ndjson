@@ -268,3 +268,12 @@
 {"id":"alog-1782914410389","at":"2026-07-01T14:00:10.389Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=8 needs_human=2 partial=0 failed=0 / 残not_reviewed=169","aiReviewCounts":{"processed":10,"reviewed":8,"needsHuman":2,"partial":0,"failed":0}}
 {"id":"alog-1782915064718","at":"2026-07-01T14:11:04.718Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=6 needs_human=0 partial=2 failed=2 / 残not_reviewed=161","aiReviewCounts":{"processed":10,"reviewed":6,"needsHuman":0,"partial":2,"failed":2}}
 {"id":"alog-1782915064909","at":"2026-07-01T14:11:04.909Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1782951770356","at":"2026-07-02T00:22:50.356Z","event":"blocked_decisions_ensured","fallbackReason":"created=0 closed=3"}
+{"id":"alog-1782957610556","at":"2026-07-02T02:00:10.556Z","event":"monetization_sync","fallbackReason":"added=0 updated=2","detectionStatus":"schedule"}
+{"id":"alog-1782957689244","at":"2026-07-02T02:01:29.244Z","event":"app_proposal_generated","fallbackReason":"mode=ai count=2 reason=claude","fallbackTarget":"daily-2026-07-02-1-pocketagent-ai,daily-2026-07-02-2-shiplog"}
+{"id":"alog-1782957690892","at":"2026-07-02T02:01:30.892Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=13.8→18.4","detectionStatus":"schedule"}
+{"id":"alog-1782957691125","at":"2026-07-02T02:01:31.125Z","event":"urgent_issues_recorded","fallbackReason":"count=5 『/guideのFAQ・運用ページの鮮度を点検する仕組み』が作成対象なのに1日進んでいません, 『ny01/mahjong-analyzer（手牌解析）』が作成対象なのに1日進んでいません, 失敗した作業が6件、未対応です, 1件のゴールが1週間以上停滞, 今日の判断が26件たまっています"}
+{"id":"alog-1782957691177","at":"2026-07-02T02:01:31.177Z","event":"blocked_decisions_ensured","fallbackReason":"created=0 closed=0"}
+{"id":"alog-1782957693154","at":"2026-07-02T02:01:33.154Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=6 needs_human=0 partial=3 failed=1 / 残not_reviewed=154","aiReviewCounts":{"processed":10,"reviewed":6,"needsHuman":0,"partial":3,"failed":1}}
+{"id":"alog-1782957989379","at":"2026-07-02T02:06:29.379Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=7 needs_human=1 partial=1 failed=1 / 残not_reviewed=146","aiReviewCounts":{"processed":10,"reviewed":7,"needsHuman":1,"partial":1,"failed":1}}
+{"id":"alog-1782957989557","at":"2026-07-02T02:06:29.557Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}

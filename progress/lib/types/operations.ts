@@ -253,7 +253,7 @@ export interface OperationalDecision {
   runId?: string
   goalId?: string
   /** 判断主体または記録元。human=UI操作 / ai=AI一次レビュー等の自動判断。 */
-  source?: 'human' | 'ai' | 'app-proposals-page' | 'app-specs-page'
+  source?: 'human' | 'ai' | 'system' | 'app-proposals-page' | 'app-specs-page'
 }
 
 export interface ExecutorSummary {

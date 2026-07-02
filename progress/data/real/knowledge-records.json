@@ -6414,5 +6414,330 @@
     "createdAt": "2026-07-01T14:11:04.680Z",
     "updatedAt": "2026-07-01T14:11:04.700Z",
     "nextEpicCandidateId": "rec-knowledge-20260627-203647"
+  },
+  {
+    "id": "know-20260702-110009",
+    "sourceRunId": "20260702-110009",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新2",
+    "summary": "[AI一次レビュー 2026-07-02 02:01] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 2 件 / skip 10 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[釣果ログ AnglerLog, 野鳥観察ノート BirdLog] skipped=10. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [
+      "data/real/monetization-candidates.json: 追加0/更新2"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-02_know-20260702-110009.md",
+    "researchPath": "06_research/2026-07-02_know-20260702-110009.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-02T02:01:32.470Z",
+    "updatedAt": "2026-07-02T02:01:32.529Z",
+    "nextEpicCandidateId": "rec-knowledge-20260702-110009"
+  },
+  {
+    "id": "know-20260702-085231",
+    "sourceRunId": "20260702-085231",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: 自動実行キュータブの重複詳細カードをキュー外専用に移動",
+    "summary": "[AI一次レビュー 2026-07-02 02:01] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "自動実行キュータブが並び替えリスト(QueueReorderList)の下に同じexecutable項目をGoal別・理由付き詳細カードで再表示していた重複を解消。詳細カード(status/理由/resolution/pin/hold/exclude制御)はview===others(キュー外)専用にし、自動実行キュータブは並び替えリストのみに。",
+      "## 自動実行キュータブの重複レイアウト解消",
+      "ユーザー指摘: 並び替えできるものの下に別レイアウト(Goal別・理由付き詳細カード)がある=同じキュー項目の重複。",
+      "### 原因",
+      "view=queue で QueueReorderList(並び替え) と goalGroups詳細カード の両方が executable を表示していた。"
+    ],
+    "nextActions": [
+      "自動実行キュータブの重複詳細カードをキュー外専用に移動 の結果を確認し、未達のDoneCriteriaを1つ進める"
+    ],
+    "changedFiles": [
+      "app/queue/page.tsx: goalGroups詳細カードのternaryをview===others限定に(items>0時)。自動実行キュー(view=queue)はQueueReorderListのみ表示"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-02_know-20260702-085231.md",
+    "researchPath": "06_research/2026-07-02_know-20260702-085231.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-02T02:01:32.599Z",
+    "updatedAt": "2026-07-02T02:01:32.623Z",
+    "nextEpicCandidateId": "rec-knowledge-20260702-085231"
+  },
+  {
+    "id": "know-20260701-231104",
+    "sourceRunId": "20260701-231104",
+    "goalId": "goal-execution-review-loop",
+    "title": "Review Knowledge: Factory schedule (schedule/systemd)",
+    "summary": "[AI一次レビュー 2026-07-02 02:01] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Factory 起動: Review Fix 実行0・予約0・skip0・block1 / Epic 1 Run / Prompt Queue 実行0・予約0・skip0・block0 / 停止理由=max_runs_reached（schedule/systemd）",
+      "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none",
+      "[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260701-230011-632",
+      "[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-02_know-20260701-231104.md",
+    "researchPath": "06_research/2026-07-02_know-20260701-231104.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-02T02:01:32.670Z",
+    "updatedAt": "2026-07-02T02:01:32.695Z",
+    "nextEpicCandidateId": "rec-knowledge-20260701-231104"
+  },
+  {
+    "id": "know-20260627-203614",
+    "sourceRunId": "20260627-203614",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-02 02:01] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=schedule trigger=cron scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-02_know-20260627-203614.md",
+    "researchPath": "06_research/2026-07-02_know-20260627-203614.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-02T02:01:32.806Z",
+    "updatedAt": "2026-07-02T02:01:32.831Z",
+    "nextEpicCandidateId": "rec-knowledge-20260627-203614"
+  },
+  {
+    "id": "know-20260627-160016",
+    "sourceRunId": "20260627-160016",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-02 02:01] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-02_know-20260627-160016.md",
+    "researchPath": "06_research/2026-07-02_know-20260627-160016.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-02T02:01:32.915Z",
+    "updatedAt": "2026-07-02T02:01:32.945Z",
+    "nextEpicCandidateId": "rec-knowledge-20260627-160016"
+  },
+  {
+    "id": "know-20260627-140019",
+    "sourceRunId": "20260627-140019",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-02 02:01] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-02_know-20260627-140019.md",
+    "researchPath": "06_research/2026-07-02_know-20260627-140019.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-02T02:01:33.114Z",
+    "updatedAt": "2026-07-02T02:01:33.135Z",
+    "nextEpicCandidateId": "rec-knowledge-20260627-140019"
+  },
+  {
+    "id": "know-20260702-110551",
+    "sourceRunId": "20260702-110551",
+    "sourceEpicId": "epic-goalstep-goal-mqqmhcb9-jndlz",
+    "goalId": "goal-mqqmhcb9-jndlz",
+    "title": "Review Knowledge: testflightでのui修正",
+    "summary": "[AI一次レビュー 2026-07-02 02:06] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "iOS safe-area修正(ebba607)の成果物検証を実施。クリーンなnext buildが成功し、出力アセットに env(safe-area-inset-*) padding と viewport-fit=cover が含まれることを確認。ソース変更なし・push済み。残りはCodemagic Rebuild+実機確認(人手)。",
+      "注意: tsc --noEmit は .next/dev の古いキャッシュ(存在しないapp/yomi/*参照)でエラーになるが、next build内部のTS検証はpass。実害なし。",
+      "注意: npx cap sync ios はNode22+CocoaPods(macOS)必須のためローカル未実行。従来通りCodemagic側(node22 macOS)に委譲。",
+      "## 原因",
+      "iOS Capacitor(WKWebView)は viewport-fit=cover 未指定だと env(safe-area-inset-*) が0を返し、WebViewがステータスバー/Dynamic Island/ホームインジケータ下まで全面描画されるため上部UI(進捗バー・1/10・待ち選択タイトル)が切れ、下部がホームインジケータに隠れていた。",
+      "## 修正内容(前回 ebba607 で実装済み・本runで検証)",
+      "- app/layout.tsx: viewport に viewport-fit=cover を追加(env()を実機で有効化)"
+    ],
+    "nextActions": [
+      "Codemagicで ios-codemagic-test を Rebuild",
+      "実機TestFlightで上部(進捗バー/1-10/待ち選択)と下部(解説/ホームインジケータ)の被り解消を確認",
+      "Dynamic Island機種(iPhone 15 Pro等)と非ノッチ/ホームインジケータ機種の両方で確認"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-02_know-20260702-110551.md",
+    "researchPath": "06_research/2026-07-02_know-20260702-110551.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-02T02:06:28.456Z",
+    "updatedAt": "2026-07-02T02:06:28.519Z",
+    "nextEpicCandidateId": "rec-knowledge-20260702-110551"
+  },
+  {
+    "id": "know-20260627-140044",
+    "sourceRunId": "20260627-140044",
+    "goalId": "goal-execution-review-loop",
+    "title": "Review Knowledge: Factory schedule (schedule/systemd)",
+    "summary": "[AI一次レビュー 2026-07-02 02:06] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Factory 起動: Review Fix 実行0・予約0・skip0・block1 / Epic 1 Run / Prompt Queue 実行0・予約0・skip0・block0 / 停止理由=run_failed（schedule/systemd）",
+      "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none",
+      "[factory-schedule] source=schedule trigger=systemd runs=1 stopped=run_failed tagged=20260627-140023-848",
+      "[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-02_know-20260627-140044.md",
+    "researchPath": "06_research/2026-07-02_know-20260627-140044.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-02T02:06:28.771Z",
+    "updatedAt": "2026-07-02T02:06:28.795Z",
+    "nextEpicCandidateId": "rec-knowledge-20260627-140044"
+  },
+  {
+    "id": "know-20260627-110006",
+    "sourceRunId": "20260627-110006",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-02 02:06] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-02_know-20260627-110006.md",
+    "researchPath": "06_research/2026-07-02_know-20260627-110006.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-02T02:06:28.889Z",
+    "updatedAt": "2026-07-02T02:06:28.928Z",
+    "nextEpicCandidateId": "rec-knowledge-20260627-110006"
+  },
+  {
+    "id": "know-20260627-110143",
+    "sourceRunId": "20260627-110143",
+    "goalId": "goal-execution-review-loop",
+    "title": "Review Knowledge: Factory schedule (schedule/systemd)",
+    "summary": "[AI一次レビュー 2026-07-02 02:06] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Factory 起動: Review Fix 実行0・予約0・skip0・block1 / Epic 1 Run / Prompt Queue 実行0・予約0・skip0・block0 / 停止理由=run_failed（schedule/systemd）",
+      "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none",
+      "[factory-schedule] source=schedule trigger=systemd runs=1 stopped=run_failed tagged=20260627-110011-112",
+      "[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-02_know-20260627-110143.md",
+    "researchPath": "06_research/2026-07-02_know-20260627-110143.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-02T02:06:29.001Z",
+    "updatedAt": "2026-07-02T02:06:29.034Z",
+    "nextEpicCandidateId": "rec-knowledge-20260627-110143"
+  },
+  {
+    "id": "know-20260627-104233",
+    "sourceRunId": "20260627-104233",
+    "sourceEpicId": "epic-goalstep-goal-mqrj2cd0-orern-w49j",
+    "goalId": "goal-mqrj2cd0-orern",
+    "title": "Review Knowledge: maxPerEpic 深掘り回数をAPI/UIから調整可能にする",
+    "summary": "[AI一次レビュー 2026-07-02 02:06] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "factoryMaxPerEpic(深掘り回数1〜3)をautomation-config POST APIとAutomation画面のセグメントUIから設定可能にした。従来はconfig値をrunnerが読みstoreが永続化するのにPOST APIが当該フィールドを握りつぶしておりdefault3固定だった。",
+      "## Goal",
+      "maxPerEpicの深掘り挙動を調整可能にする。",
+      "## 定義した1ステップ",
+      "factoryMaxPerEpic(同一Epicを1起動内で何Run深掘りするか, 1〜3)を、アプリ内から実際に設定できるようにする。"
+    ],
+    "nextActions": [
+      "doc-set(guide/page.tsx・command-center TERMS・operating-model)へ深掘り回数設定の説明追記（UI露出に伴う運用ドキュメント同期・別ステップ）",
+      "pm2再起動で本番ビルドにルート変更を反映（ユーザー判断）"
+    ],
+    "changedFiles": [
+      "app/api/operations/automation-config/route.ts: POSTでfactoryMaxPerEpic(数値)を受理しpatchへ反映（非数値は無視・store側で1〜3クランプ）",
+      "app/automation/page.tsx: Executorセクションに『1サイクルの深掘り回数』1/2/3セグメントボタンを追加しpatchConfigで保存"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-02_know-20260627-104233.md",
+    "researchPath": "06_research/2026-07-02_know-20260627-104233.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-02T02:06:29.108Z",
+    "updatedAt": "2026-07-02T02:06:29.138Z",
+    "nextEpicCandidateId": "rec-knowledge-20260627-104233"
+  },
+  {
+    "id": "know-20260627-103648",
+    "sourceRunId": "20260627-103648",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+    "summary": "[AI一次レビュー 2026-07-02 02:06] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 0 件 / skip 12 件",
+      "[monetization-sync] source=boot trigger=startup scanned=401 added=[] updated=[] skipped=12. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-02_know-20260627-103648.md",
+    "researchPath": "06_research/2026-07-02_know-20260627-103648.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-02T02:06:29.252Z",
+    "updatedAt": "2026-07-02T02:06:29.280Z",
+    "nextEpicCandidateId": "rec-knowledge-20260627-103648"
+  },
+  {
+    "id": "know-20260627-104324",
+    "sourceRunId": "20260627-104324",
+    "goalId": "goal-execution-review-loop",
+    "title": "Review Knowledge: Factory schedule (boot/startup)",
+    "summary": "[AI一次レビュー 2026-07-02 02:06] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Factory 起動: Review Fix 実行0・予約0・skip0・block1 / Epic 1 Run / Prompt Queue 実行0・予約0・skip0・block0 / 停止理由=max_runs_reached（boot/startup）",
+      "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none",
+      "[factory-schedule] source=boot trigger=startup runs=1 stopped=max_runs_reached tagged=20260627-103652-609",
+      "[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-02_know-20260627-104324.md",
+    "researchPath": "06_research/2026-07-02_know-20260627-104324.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-02T02:06:29.334Z",
+    "updatedAt": "2026-07-02T02:06:29.357Z",
+    "nextEpicCandidateId": "rec-knowledge-20260627-104324"
   }
 ]

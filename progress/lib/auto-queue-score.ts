@@ -16,6 +16,7 @@ const DANGER_RISK_FLAGS = new Set<EpicRiskFlag>([
 
 const PRIORITY_SCORE: Record<EpicPriority, number> = { P0: 900, P1: 600, P2: 300 }
 const GOAL_PRIORITY_BOOST: Record<string, 0 | 1 | 2> = { high: 2, medium: 1, low: 0 }
+const RETRYABLE_FAILURE_PATTERN = /rate.?limit|weekly limit|usage limit|上限|too many requests|claude_rate_limited|codex_rate|429|quota|temporar|一時的/
 
 export interface StatusContext {
   runs: ExecutionRun[]
@@ -76,12 +77,19 @@ export function hasReviewPendingForEpic(epic: Pick<Epic, 'epicId' | 'latestRunId
   return latestRun?.runStatus !== 'failed' && (latestRun?.reviewStatus === 'not_reviewed' || latestRun?.reviewStatus === 'copied')
 }
 
+export function isRetryableFailure(run: ExecutionRun): boolean {
+  if (run.runStatus !== 'failed') return false
+  const text = `${run.summary} ${run.stopReason ?? ''} ${(run.errors || []).join(' ')}`.toLowerCase()
+  return RETRYABLE_FAILURE_PATTERN.test(text)
+}
+
 export function deriveWorkItemStatus(epic: Epic, context: StatusContext): WorkItemStatus {
   if (epic.status === 'done' || epic.status === 'merged') return 'done'
   if (epic.decisionPolicy === 'manual' || epic.factoryEligible === false) return 'manual'
   const dangerous = hasDangerRisk(epic.riskFlags)
   const latestRun = latestRunForEpic(epic, context.runs)
-  if (dangerous || latestRun?.runStatus === 'failed' || (epic.blockers ?? []).length > 0 || epic.status === 'blocked') return 'blocked'
+  if (dangerous || (epic.blockers ?? []).length > 0 || epic.status === 'blocked') return 'blocked'
+  if (latestRun?.runStatus === 'failed' && !isRetryableFailure(latestRun)) return 'blocked'
 
   const pendingApproval = context.approvals.some((approval) => approval.epicId === epic.epicId && approval.status === 'pending')
   if (pendingApproval || epic.decisionPolicy === 'approval_required') return 'waiting_user'

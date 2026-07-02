@@ -195,7 +195,7 @@ export async function decideApproval(
   decidedBy = 'operator',
 ): Promise<Approval | null> {
   const approvals = await getApprovals()
-  const idx = approvals.findIndex((a) => a.approvalId === approvalId)
+  const idx = approvals.findIndex((a) => a.approvalId === approvalId && a.status === 'pending')
   if (idx === -1) return null
 
   const now = new Date().toISOString()
@@ -223,6 +223,69 @@ export async function decideApproval(
   await appendNdjson('operational-decisions.ndjson', decision)
 
   return decided
+}
+
+export async function closeApproval(
+  approvalId: string,
+  note: string,
+  decidedOption = 'auto_closed',
+  decidedBy = 'system',
+): Promise<Approval | null> {
+  const approvals = await getApprovals()
+  const idx = approvals.findIndex((a) => a.approvalId === approvalId)
+  if (idx === -1) return null
+
+  const now = new Date().toISOString()
+  const closed: Approval = {
+    ...approvals[idx],
+    status: 'decided',
+    decidedOption,
+    decidedBy,
+    decidedAt: now,
+  }
+  approvals[idx] = closed
+  await writeJson('approvals.json', approvals)
+
+  const decision: OperationalDecision = {
+    decisionId: `dec-${Date.now()}`,
+    epicId: closed.epicId,
+    topic: closed.title,
+    decision: decidedOption,
+    note,
+    approvalId: closed.approvalId,
+    decidedAt: now,
+    action: 'approval_decided',
+    runId: closed.createdRunId,
+    source: 'system',
+  }
+  await appendNdjson('operational-decisions.ndjson', decision)
+
+  return closed
+}
+
+export async function updatePendingApproval(
+  approvalId: string,
+  input: {
+    title?: string
+    options?: Approval['options']
+    recommended?: string
+    reason?: string
+  },
+): Promise<Approval | null> {
+  const approvals = await getApprovals()
+  const idx = approvals.findIndex((a) => a.approvalId === approvalId && a.status === 'pending')
+  if (idx === -1) return null
+
+  const updated: Approval = {
+    ...approvals[idx],
+    title: input.title ?? approvals[idx].title,
+    options: input.options ?? approvals[idx].options,
+    recommended: input.recommended ?? approvals[idx].recommended,
+    reason: input.reason ?? approvals[idx].reason,
+  }
+  approvals[idx] = updated
+  await writeJson('approvals.json', approvals)
+  return updated
 }
 
 export async function createApproval(input: {
