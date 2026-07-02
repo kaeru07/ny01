@@ -12,3 +12,6 @@ _*.mjs
 _dispatch_*.json
 *-marker.txt
 .factory-probe
+progress/data/real/_backups/
+progress/data/real/archive/
+progress/.tmp-run.json
