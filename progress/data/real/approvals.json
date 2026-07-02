@@ -1062,9 +1062,12 @@
     ],
     "recommended": "proceed",
     "reason": "公開・デプロイ関連の作業（危険キーワード検知）。人間の確認を推奨。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260627-103652-609",
-    "createdAt": "2026-07-02T02:06:29.201Z"
+    "createdAt": "2026-07-02T02:06:29.201Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-02T05:00:28.163Z"
   },
   {
     "approvalId": "appr-1782961878098-2",
@@ -1215,5 +1218,141 @@
     "reason": "アプリ案決定時に方針決定が必要な項目",
     "status": "pending",
     "createdAt": "2026-07-02T03:12:48.723Z"
+  },
+  {
+    "approvalId": "appr-1782968429376-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用設計レビュー - 理想運用(appIdea→Project→Goal→Queue→判断→Codex→レビュー)との差分",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260702-124620",
+    "createdAt": "2026-07-02T05:00:29.376Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-02T07:00:20.156Z"
+  },
+  {
+    "approvalId": "appr-1782968429504-2",
+    "epicId": "epic-91",
+    "title": "判断が必要: failed→Blockを原因別分岐(一時的=再キュー/実エラー・不明=今日の判断)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260702-112559",
+    "createdAt": "2026-07-02T05:00:29.504Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-02T07:00:20.161Z"
+  },
+  {
+    "approvalId": "appr-1782968808249-3",
+    "epicId": "epic-goalstep-goal-mqqmhcb9-jndlz",
+    "title": "ゴール手詰まり/完了確認: testflightでのui修正: testflightでのui修正",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_done",
+        "label": "このゴールは完了にする"
+      },
+      {
+        "key": "continue",
+        "label": "続行する（まだやることがある）"
+      },
+      {
+        "key": "hold",
+        "label": "保留する"
+      }
+    ],
+    "recommended": "mark_done",
+    "reason": "同一ゴールの「次の一歩」が3回連続で変更ゼロ。実質完了か手詰まりの可能性。今日の判断で方針を決めてください。",
+    "status": "pending",
+    "createdRunId": "20260702-140031-071",
+    "createdAt": "2026-07-02T05:06:48.249Z"
+  },
+  {
+    "approvalId": "appr-1782975621731-4",
+    "epicId": "epic-goalstep-goal-ai-executor-ops",
+    "title": "判断が必要: Factory(auto): AI実行者の役割分担と安全運用: 次の一歩",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "pending",
+    "createdRunId": "20260626-110008-354",
+    "createdAt": "2026-07-02T07:00:21.731Z"
+  },
+  {
+    "approvalId": "appr-1782975622021-5",
+    "epicId": "epic-91",
+    "title": "判断が必要: 原因調査: 判断がアプリ内で回らない(needs_human承認がレビューに埋もれる)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "pending",
+    "createdRunId": "20260625-235232",
+    "createdAt": "2026-07-02T07:00:22.021Z"
   }
 ]

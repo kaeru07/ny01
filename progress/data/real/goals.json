@@ -29,8 +29,8 @@
       "description": "Codex/Claudeの実行結果を完了報告で終わらせず、Review、Knowledge、Next Epic候補生成までつなげる。",
       "metric": "closed_loop_rate",
       "target": 80,
-      "current": 18.4,
-      "metricSyncedAt": "2026-07-02T02:01:30.886Z",
+      "current": 11.5,
+      "metricSyncedAt": "2026-07-02T07:00:19.907Z",
       "isNorthStar": false,
       "summary": "Codex/Claudeの実行結果を完了報告で終わらせず、Review、Knowledge、Next Epic候補生成までつなげる。",
       "status": "active",
@@ -43,7 +43,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-11T00:00:00.000Z",
-      "updatedAt": "2026-07-02T02:01:30.886Z"
+      "updatedAt": "2026-07-02T07:00:19.907Z"
     },
     {
       "id": "goal-ai-executor-ops",
@@ -80,7 +80,7 @@
       "metric": "validated_project_count",
       "target": 5,
       "current": 3,
-      "metricSyncedAt": "2026-07-02T02:01:30.886Z",
+      "metricSyncedAt": "2026-07-02T07:00:19.907Z",
       "isNorthStar": false,
       "summary": "調査・アプリ開発・教材化・収益化候補をAI工場内で継続的に検証し、次の収益候補や転職価値につなげる。",
       "status": "done",
@@ -3534,8 +3534,8 @@
       "status": "active",
       "priority": "medium",
       "pinnedTop": false,
-      "lastSelectedRunId": "20260623-230016-158",
-      "lastSelectedAt": "2026-06-23T14:00:16.146Z",
+      "lastSelectedRunId": "20260702-160023-412",
+      "lastSelectedAt": "2026-07-02T07:00:23.400Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [
@@ -3575,7 +3575,7 @@
         }
       ],
       "createdAt": "2026-06-23T03:03:51.451Z",
-      "updatedAt": "2026-06-23T14:00:16.177Z"
+      "updatedAt": "2026-07-02T07:00:23.437Z"
     },
     {
       "id": "goal-mqqmhcb9-jndlz",
@@ -3592,8 +3592,8 @@
       "status": "active",
       "priority": "medium",
       "pinnedTop": false,
-      "lastSelectedRunId": "20260702-110134-524",
-      "lastSelectedAt": "2026-07-02T02:01:34.508Z",
+      "lastSelectedRunId": "20260702-140031-071",
+      "lastSelectedAt": "2026-07-02T05:00:31.056Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [
@@ -3633,7 +3633,7 @@
         }
       ],
       "createdAt": "2026-06-23T12:30:32.077Z",
-      "updatedAt": "2026-07-02T02:01:34.556Z"
+      "updatedAt": "2026-07-02T05:00:31.100Z"
     },
     {
       "id": "goal-mqrj2bqc-arqe7",
@@ -4306,10 +4306,12 @@
       "current": 0,
       "isNorthStar": false,
       "summary": "将棋初〜中級者が囲い（美濃・矢倉等）の手順を反復ドリルで習得できる学習アプリ。",
-      "status": "active",
-      "priority": "high",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
+      "status": "active",
+      "priority": "high",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
       "monetizationImpact": "high",
       "phases": [],
       "todos": [],
@@ -4318,5 +4320,5 @@
     }
   ],
   "mainGoalId": "goal-ai-factory-os",
-  "updatedAt": "2026-07-02T03:12:47.795Z"
+  "updatedAt": "2026-07-02T07:00:23.437Z"
 }

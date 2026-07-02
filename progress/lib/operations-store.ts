@@ -27,6 +27,8 @@ import type {
   FactoryEligibility,
 } from './types/operations'
 import { evaluateFactoryEligibility, buildExecutionGuard } from './epic-contract'
+import { buildDecisionContext as buildApprovalDecisionContext } from './decision-context'
+import { readGoals } from './goal-reader'
 import type { WorkQueueData } from '@/types/session'
 import type { AppProgress, ProjectTasksData, Task, TaskPriority } from '@/types/progress'
 import type { ExecutionRunsData, ExecutionRun } from '@/types/execution-run'
@@ -221,6 +223,21 @@ export async function decideApproval(
     source: 'human',
   }
   await appendNdjson('operational-decisions.ndjson', decision)
+
+  if (decided.epicId) {
+    try {
+      const label = decided.options.find((option) => option.key === decidedOption)?.label ?? decidedOption
+      const noteLine = `[今日の判断 ${now.slice(0, 10)}] ${decided.title} → ${label}`
+      const epic = await getEpic(decided.epicId)
+      if (epic) {
+        await updateEpic(decided.epicId, {
+          notes: epic.notes ? `${epic.notes}\n${noteLine}` : noteLine,
+        })
+      }
+    } catch {
+      // 判断確定を優先し、Epic notes 追記失敗では止めない。
+    }
+  }
 
   return decided
 }
@@ -889,6 +906,10 @@ export async function generateCodexPrompt(epicId?: string): Promise<CodexPrompt>
       : []
   const changedFiles = (latestRun?.changedFiles ?? []).map((f) => f.file).slice(0, 8)
   const targetApp = epic?.targetApps?.[0] ?? latestRun?.targetApp
+  const goalProjectId = epic?.goalId ? (await readGoals()).goals.find((goal) => goal.id === epic.goalId)?.projectId : undefined
+  const decisionContext = epic
+    ? await buildApprovalDecisionContext({ epicId: epic.epicId, goalId: epic.goalId, targetApp }, goalProjectId)
+    : ''
 
   const lines: string[] = []
   lines.push('あなたはCodexです。以下はProgress（AI工場の管制塔）からの引き継ぎです。Claudeが上限で停止したため続きをお願いします。')
@@ -924,6 +945,10 @@ export async function generateCodexPrompt(epicId?: string): Promise<CodexPrompt>
   lines.push('[5] 次にやること（安全判定OKのものだけ）')
   lines.push(dispatchNextActions.length > 0 ? dispatchNextActions.map((action) => `- ${action}`).join('\n') : '- なし')
   lines.push('')
+  if (decisionContext) {
+    lines.push(decisionContext)
+    lines.push('')
+  }
   lines.push('[6] 進め方')
   lines.push('- 安全判定OKの作業だけ実行する')
   lines.push('- build / lint / typecheck まで検証を通す')

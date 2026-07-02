@@ -1,6 +1,6 @@
 import fs from 'fs/promises'
 import path from 'path'
-import { getDataPath } from '@/lib/progress-reader'
+import { getDataPath } from './progress-reader'
 
 // data/real（PROGRESS_DATA_PATH）配下の JSON / NDJSON を読み書きする汎用ヘルパー。
 // operations-store などの新規ストアはこの薄いラッパー経由で永続化を行う。

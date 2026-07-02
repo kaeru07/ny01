@@ -3,6 +3,7 @@ import { getPendingApprovals, decideApproval } from '@/lib/operations-store'
 import { updateReviewStatus } from '@/lib/execution-run-writer'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { runKnowledgeLoopForReviewedRun } from '@/lib/knowledge-loop'
+import { applyApprovalEffect } from '@/lib/approval-effects'
 
 export async function GET() {
   const approvals = await getPendingApprovals()
@@ -41,5 +42,7 @@ export async function POST(request: Request) {
     }
   }
 
-  return NextResponse.json({ success: true, approval: decided })
+  const effect = await applyApprovalEffect(decided, decidedOption)
+
+  return NextResponse.json({ success: true, approval: decided, applied: effect.applied })
 }

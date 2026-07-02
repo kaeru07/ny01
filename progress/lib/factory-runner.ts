@@ -169,7 +169,7 @@ async function detectGoalstepStaleNoChange(args: {
   return true
 }
 
-async function propagateEpicDoneToGoal(epicId: string, goalId?: string): Promise<void> {
+export async function propagateEpicDoneToGoal(epicId: string, goalId?: string): Promise<void> {
   if (!goalId) return
   const [epics, goalsData] = await Promise.all([getEpics(), readGoals()])
   const goal = goalsData.goals.find((g) => g.id === goalId)

@@ -1,6 +1,6 @@
 import fs from 'fs/promises'
 import path from 'path'
-import { getDataPath } from '@/lib/progress-reader'
+import { getDataPath } from './progress-reader'
 import type { ExecutionRun, ExecutionRunsData, ChangedFile } from '@/types/execution-run'
 
 function normalizeChangedFile(f: unknown): ChangedFile {

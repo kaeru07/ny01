@@ -1,9 +1,9 @@
-import type { Approval, Epic, EpicPriority, EpicRiskFlag } from '@/lib/types/operations'
+import type { Approval, Epic, EpicPriority, EpicRiskFlag } from './types/operations'
 import type { ExecutionRun } from '@/types/execution-run'
 import type { Goal } from '@/types/goal'
 import type { QueueControl, QueueResolution, WorkItemStatus } from '@/types/auto-queue'
-import { AUTONOMY_ANCHOR_SCORE_BOOST, REVIEW_FIX_SCORE_BOOST } from '@/lib/autonomy-anchor'
-import { epicPriorityLabel } from '@/lib/epic-priority-label'
+import { AUTONOMY_ANCHOR_SCORE_BOOST, REVIEW_FIX_SCORE_BOOST } from './autonomy-anchor'
+import { epicPriorityLabel } from './epic-priority-label'
 
 const DANGER_RISK_FLAGS = new Set<EpicRiskFlag>([
   'billing',
@@ -16,7 +16,7 @@ const DANGER_RISK_FLAGS = new Set<EpicRiskFlag>([
 
 const PRIORITY_SCORE: Record<EpicPriority, number> = { P0: 900, P1: 600, P2: 300 }
 const GOAL_PRIORITY_BOOST: Record<string, 0 | 1 | 2> = { high: 2, medium: 1, low: 0 }
-const RETRYABLE_FAILURE_PATTERN = /rate.?limit|weekly limit|usage limit|上限|too many requests|claude_rate_limited|codex_rate|429|quota|temporar|一時的/
+const RETRYABLE_FAILURE_PATTERN = /rate.?limit|weekly limit|usage limit|上限|too many requests|claude_rate_limited|codex_rate|retry_approved|429|quota|temporar|一時的/
 
 export interface StatusContext {
   runs: ExecutionRun[]

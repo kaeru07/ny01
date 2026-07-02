@@ -8,6 +8,7 @@ import {
   getPendingApprovals,
 } from './operations-store'
 import { buildExecutionGuard } from './epic-contract'
+import { buildDecisionContext } from './decision-context'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { readGoals, rankGoals, goalRankOf } from '@/lib/goal-reader'
 import { computeQueueScore, deriveWorkItemStatus, hasFixRequestedForEpic, latestRunForEpic } from '@/lib/auto-queue-score'
@@ -243,6 +244,11 @@ export async function generateClaudeFactoryPrompt(epicId: string): Promise<Codex
   const plan = await buildDispatchPlan(epicId)
   if (!plan) return null
   const { epic, latestRun, recentDecisions } = detail
+  const goalProjectId = epic.goalId ? (await readGoals()).goals.find((goal) => goal.id === epic.goalId)?.projectId : undefined
+  const decisionContext = await buildDecisionContext(
+    { epicId: epic.epicId, goalId: epic.goalId, targetApp: epic.targetApps?.[0] },
+    goalProjectId,
+  )
 
   const lines: string[] = []
   lines.push('あなたは Claude です。以下は Progress（AI工場の管制塔）からの Factory Dispatch です。指定 Epic の作業を進めてください。')
@@ -256,6 +262,10 @@ export async function generateClaudeFactoryPrompt(epicId: string): Promise<Codex
   lines.push('[2] Epic Goal')
   lines.push(epic.goal)
   lines.push('')
+  if (decisionContext) {
+    lines.push(decisionContext)
+    lines.push('')
+  }
   lines.push('[3] DoneCriteria（すべて満たすこと）')
   lines.push(plan.doneCriteria.length > 0 ? plan.doneCriteria.map((c) => `- ${c}`).join('\n') : '- （未設定）')
   lines.push('')
