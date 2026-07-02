@@ -56,6 +56,8 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
     : proposal.oceanType === 'red'
       ? { label: 'レッド', className: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-200' }
       : null
+  // 承認/却下/作成不要は「決定済み」。決定ボタン(作る/見送り/保留)は出さない（保留・未判断のみ操作可）。
+  const isFinalized = proposal.decision === 'approved' || proposal.decision === 'rejected' || proposal.decision === 'not_needed'
 
   async function decide(decision: PostDecision) {
     if (busy) return
@@ -134,11 +136,17 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
 
       {error ? <p className="rounded-lg bg-red-50 px-3 py-2 text-xs font-bold text-red-700 dark:bg-red-900/20 dark:text-red-200">{error}</p> : null}
 
-      <div className="grid grid-cols-2 gap-2">
-        <DecisionButton disabled={busy} label="このアプリを作る" tone="green" onClick={() => decide('approve')} />
-        <DecisionButton disabled={busy} label={pendingDecision === 'reject' ? '見送りを保存' : '見送り'} tone="rose" onClick={() => decide('reject')} />
-        <DecisionButton disabled={busy} label={pendingDecision === 'hold' ? '保留を保存' : '保留'} tone="gray" onClick={() => decide('hold')} />
-      </div>
+      {isFinalized ? (
+        <div className="rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-xs font-bold text-gray-600 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300">
+          {proposal.decision === 'approved' ? '✅ 作成決定済み（自動実行で開発中）' : proposal.decision === 'rejected' ? '却下済み' : '作成不要と判断済み'}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-2">
+          <DecisionButton disabled={busy} label="このアプリを作る" tone="green" onClick={() => decide('approve')} />
+          <DecisionButton disabled={busy} label={pendingDecision === 'reject' ? '見送りを保存' : '見送り'} tone="rose" onClick={() => decide('reject')} />
+          <DecisionButton disabled={busy} label={pendingDecision === 'hold' ? '保留を保存' : '保留'} tone="gray" onClick={() => decide('hold')} />
+        </div>
+      )}
       {approvedInfo ? (
         <div className="space-y-2 rounded-xl border border-green-200 bg-green-50 px-3 py-2 dark:border-green-800 dark:bg-green-900/20">
           <p className="text-xs font-black text-green-800 dark:text-green-200">

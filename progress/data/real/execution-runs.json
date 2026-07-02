@@ -24417,6 +24417,39 @@
         "失敗runをレビューに入れて止めるのを廃止(キュー側で扱う) の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "## 失敗runをレビューで止めない\n\nユーザー要望(絶対): 失敗runの結果をレビューに入れて止めない。止めるなら今日の判断で原因明記+選択肢。再実行でよいなら再キュー。\n\n### 原因\nai-review が run_failed → verdict failed → needs_followup(レビュー/要修正)に入れ、followup候補も生成していた。\n\n### 修正\n- VERDICT_TO_REVIEW_STATUS.failed を reviewed に(レビュータブに出さない)。followup候補生成は partial のみ。\n- 失敗の停止/再実行はキュー側で一元化: 前回コミットの failed→blocked→今日の判断(明確な選択肢) / 一時的原因(レート上限等)→再キュー。\n- 既存 failed 6件(needs_followup/not_reviewed)を reviewed へ是正。\n\n### 検証\ntsc/build/test OK。live: failedかつreview対象=0。\n\nmonetizationImpact: none\ntheme: [workflow]"
+    },
+    {
+      "runId": "20260702-123335",
+      "startedAt": "2026-07-02T03:33:35.451Z",
+      "finishedAt": "2026-07-02T03:33:35.451Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "アプリ承認: 決定済みは作るボタン非表示+初期表示から別タブへ",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "承認済みなのに『このアプリを作る』ボタンが出ていた不具合を修正(決定済み=承認/却下/作成不要は決定ボタン非表示・『作成決定済み(開発中)』表示)。さらに決定済み(作成中)を初期表示(承認待ち)から外し『決定済み・作成中』タブへ分離。",
+      "changedFiles": [
+        {
+          "file": "components/app-proposals/AppProposalCard.tsx",
+          "change": "isFinalized(承認/却下/作成不要)時は決定ボタングリッドを隠し状態表示に。承認は『作成決定済み(開発中)』"
+        },
+        {
+          "file": "app/app-proposals/page.tsx",
+          "change": "承認待ち(未判断+保留)を既定表示、決定済み(作成中/却下/作成不要)は?view=decidedの別タブへ。viewタブ追加"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "manual": "OK live: 承認待ちタブ=作るボタン有/作成決定済み0、決定済みタブ=作るボタン0/作成決定済み表示、タブ描画OK、エラーなし"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "アプリ承認: 決定済みは作るボタン非表示+初期表示から別タブへ の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## アプリ承認: 決定済みの扱い修正\n\nユーザー指摘: ①承認済みなのに作るボタンがある(みす) ②作ってるやつは初期表示から別タブへ。\n\n### 修正\n- AppProposalCard: isFinalized(approved/rejected/not_needed)は決定ボタン非表示。承認は『✅作成決定済み(自動実行で開発中)』表示。保留/未判断のみ操作可。\n- app-proposals: 既定=承認待ち(未判断+保留)。決定済み(作成中/却下/作成不要)は『決定済み・作成中』タブ(?view=decided)へ分離し初期表示に出さない。\n\n### 検証\ntsc/build OK。live: 承認待ち=作るボタン有・作成決定済み0、決定済みタブ=作るボタン0・作成決定済み表示、タブ描画OK。\n\nmonetizationImpact: none\ntheme: [app-strategy, workflow]"
     }
   ]
 }
