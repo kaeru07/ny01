@@ -740,3 +740,10 @@
 {"at":"2026-07-02T03:35:05.693Z","type":"page_view","path":"/"}
 {"at":"2026-07-02T12:38:52.135Z","type":"page_view","path":"/"}
 {"at":"2026-07-02T12:38:54.426Z","type":"page_view","path":"/app-proposals"}
+{"at":"2026-07-02T12:40:09.606Z","type":"action","path":"/app-proposals","label":"詳細（モック・収益イメージ・仕様）を見る"}
+{"at":"2026-07-02T12:40:15.936Z","type":"action","path":"/app-proposals","label":"市場・オーシャン"}
+{"at":"2026-07-02T12:40:17.671Z","type":"action","path":"/app-proposals","label":"画面・仕様"}
+{"at":"2026-07-02T12:40:18.485Z","type":"action","path":"/app-proposals","label":"市場・オーシャン"}
+{"at":"2026-07-02T12:40:28.279Z","type":"action","path":"/app-proposals","label":"収益化"}
+{"at":"2026-07-02T12:40:32.976Z","type":"action","path":"/app-proposals","label":"市場・オーシャン"}
+{"at":"2026-07-02T12:40:33.697Z","type":"action","path":"/app-proposals","label":"画面・仕様"}

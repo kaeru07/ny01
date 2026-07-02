@@ -4438,6 +4438,28 @@
       "current": 0,
       "isNorthStar": false,
       "summary": "news-app日次調査の情報が本当に必要な内容になっているか、重要ニュースが漏れなく伝わるか、アプリ案生成の種として十分かをレビューし改善案を出す(実装でなくレビュー)。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "status": "active",
+      "priority": "medium",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [],
+      "todos": [],
+      "createdAt": "2026-07-02T12:36:35.696Z",
+      "updatedAt": "2026-07-02T12:36:35.696Z"
+    },
+    {
+      "id": "goal-opus-skills-mvp",
+      "projectId": "company-mgmt",
+      "title": "Skills日次アップデート機構MVPを実装する",
+      "description": "【確定仕様】Skill=自動実行の実行プロンプトテンプレ/手順書(定義スコープA)。数字は自動・中身は承認が原則。goal-opus-*(仕様方針判断化/設計一覧等)の後に着手。\nT1: Skill実体+Store — data/real/skills.json(id/name/promptTemplate/procedure/inputs/outputs/riskFlags/version/enabled)+skill-versions.json(SkillVersion: id/skillId/version/changeSummary/changeReason/sourceReviewId/sourceSkillRunId/createdAt)。reader/writer。初期Skillは手動3-5個(候補: progress機能追加手順/ストア向けアプリ雛形/research取り込み/yomi取り込み)。\nT2: SkillRun紐付け — ExecutionRunに skillId/skillVersion を任意フィールド追加。factory実行時に明示記録(事後推定はしない)。独立SkillRunテーブルは作らない。\nT3: Skills管理タブ — アプリ開発 or 運用配下に skills 画面。Skill一覧+品質集計表(使用回数/close_ok率/needs_fix率/failed率/最終使用日/未使用・高失敗率ハイライト)+改善候補一覧(反映/あとで/却下)。\nT4: 日次メンテ — lib/skill-maintenance.ts。前日SkillRun集計→問題Skill抽出(failed率閾値/needs_fix連続/30日未使用/無効Skill紐付き検査)→改善候補生成(skill-improvement-candidates.json、上限3件/日・skillId重複排除・pending上限3で生成停止)。factory-scheduleフックで起動(ensureDailyAppProposal同列・Queueアイテム化しない)。重大(失敗率50%超)のみurgent-issues連携。\nT5: 承認反映 — riskFlags付きSkillの改善候補のみ今日の判断(multi_option)へ。approval-effectsに skill_apply 追加: 承認時にSkillVersion作成→Skill本文反映→appendAutomationLogに記録。差分はreason内に含める。自動でSkill本文/promptTemplate/riskFlags/入出力/優先順位/enabledを書き換えることは絶対禁止(集計値・候補生成・検知のみ自動)。\n後回し(実装しない): AI自動書き換え/重複統合/高度スコアリング/rollback UI(データ上のversion保持のみ)/マーケット連携。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "【確定仕様】Skill=自動実行の実行プロンプトテンプレ/手順書(定義スコープA)。数字は自動・中身は承認が原則。goal-opus-*(仕様方針判断化/設計一覧等)の後に着手。\nT1: Skill実体+Store — data/real/skills.json(id/name/promptTemplate/procedure/inputs/outputs/riskFlags/version/enabled)+skill-versions.json(SkillVersion: id/skillId/version/changeSummary/changeReason/sourceReviewId/sourceSkillRunId/createdAt)。reader/writer。初期Skillは手動3-5個(候補: progress機能追加手順/ストア向けアプリ雛形/research取り込み/yomi取り込み)。\nT2: SkillRun紐付け — ExecutionRunに skillId/skillVersion を任意フィールド追加。factory実行時に明示記録(事後推定はしない)。独立SkillRunテーブルは作らない。\nT3: Skills管理タブ — アプリ開発 or 運用配下に skills 画面。Skill一覧+品質集計表(使用回数/close_ok率/needs_fix率/failed率/最終使用日/未使用・高失敗率ハイライト)+改善候補一覧(反映/あとで/却下)。\nT4: 日次メンテ — lib/skill-maintenance.ts。前日SkillRun集計→問題Skill抽出(failed率閾値/needs_fix連続/30日未使用/無効Skill紐付き検査)→改善候補生成(skill-improvement-candidates.json、上限3件/日・skillId重複排除・pending上限3で生成停止)。factory-scheduleフックで起動(ensureDailyAppProposal同列・Queueアイテム化しない)。重大(失敗率50%超)のみurgent-issues連携。\nT5: 承認反映 — riskFlags付きSkillの改善候補のみ今日の判断(multi_option)へ。approval-effectsに skill_apply 追加: 承認時にSkillVersion作成→Skill本文反映→appendAutomationLogに記録。差分はreason内に含める。自動でSkill本文/promptTemplate/riskFlags/入出力/優先順位/enabledを書き換えることは絶対禁止(集計値・候補生成・検知のみ自動)。\n後回し(実装しない): AI自動書き換え/重複統合/高度スコアリング/rollback UI(データ上のversion保持のみ)/マーケット連携。",
       "status": "active",
       "priority": "medium",
       "decisionPolicyDefault": "autonomous",
@@ -4445,10 +4467,10 @@
       "monetizationImpact": "none",
       "phases": [],
       "todos": [],
-      "createdAt": "2026-07-02T12:36:35.696Z",
-      "updatedAt": "2026-07-02T12:36:35.696Z"
+      "createdAt": "2026-07-02T12:48:55.937Z",
+      "updatedAt": "2026-07-02T12:48:55.937Z"
     }
   ],
   "mainGoalId": "goal-ai-factory-os",
-  "updatedAt": "2026-07-02T12:36:35.696Z"
+  "updatedAt": "2026-07-02T12:48:55.940Z"
 }

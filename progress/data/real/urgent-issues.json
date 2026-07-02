@@ -1,0 +1,45 @@
+{
+  "generatedAt": "2026-07-02T07:00:20.087Z",
+  "issues": [
+    {
+      "id": "app-stalled-goal-app-shogi-kakoi-trainer",
+      "severity": "high",
+      "title": "『将棋 囲いトレーナー』が作成対象なのに0日進んでいません",
+      "detail": "直近3日以内の成功Runがありません。進捗が0%のままです。現在の進捗は 0% です。",
+      "actionLabel": "ゴールを確認",
+      "actionHref": "/goal-planner?goalId=goal-app-shogi-kakoi-trainer"
+    },
+    {
+      "id": "app-stalled-goal-mqluko5l-5xhb4",
+      "severity": "high",
+      "title": "『/guideのFAQ・運用ページの鮮度を点検する仕組み』が作成対象なのに1日進んでいません",
+      "detail": "進捗が0%のままです。現在の進捗は 0% です。",
+      "actionLabel": "ゴールを確認",
+      "actionHref": "/goal-planner?goalId=goal-mqluko5l-5xhb4"
+    },
+    {
+      "id": "app-stalled-goal-app-ny01-mahjong-analyzer",
+      "severity": "high",
+      "title": "『ny01/mahjong-analyzer（手牌解析）』が作成対象なのに1日進んでいません",
+      "detail": "直近3日以内の成功Runがありません。進捗が0%のままです。現在の進捗は 0% です。",
+      "actionLabel": "ゴールを確認",
+      "actionHref": "/goal-planner?goalId=goal-app-ny01-mahjong-analyzer"
+    },
+    {
+      "id": "stale-goals",
+      "severity": "medium",
+      "title": "1件のゴールが1週間以上停滞",
+      "detail": "ゴール更新または関連Runから7日以上動きがありません。",
+      "actionLabel": "ゴールを確認",
+      "actionHref": "/goal-planner"
+    },
+    {
+      "id": "pending-approvals",
+      "severity": "medium",
+      "title": "今日の判断が35件たまっています",
+      "detail": "承認待ちが多く、次の自動実行や方針決定が詰まりやすい状態です。",
+      "actionLabel": "今日の判断",
+      "actionHref": "/decide?tab=today"
+    }
+  ]
+}
