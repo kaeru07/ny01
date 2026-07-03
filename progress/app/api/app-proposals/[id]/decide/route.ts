@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getAppFactoryCandidates } from '@/lib/app-factory-candidates'
+import { ensureAppWorkspace, type AppWorkspaceResult } from '@/lib/app-workspace'
 import { readGoals } from '@/lib/goal-reader'
 import { upsertGoal, writeGoals } from '@/lib/goal-writer'
 import { createApproval, getPendingApprovals, recordOperationalDecision } from '@/lib/operations-store'
@@ -88,6 +89,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     let projectId: string | undefined
     let approvalCount = 0
     let requiredCount = 0
+    let workspace: AppWorkspaceResult | null | undefined
     const warnings: string[] = []
 
     if (payload.decision === 'approve') {
@@ -110,6 +112,13 @@ export async function POST(request: Request, { params }: { params: { id: string 
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error)
           if (!message.includes('DUPLICATE_ID')) warnings.push(`project create failed: ${message}`)
+        }
+
+        try {
+          workspace = await ensureAppWorkspace(projectId, candidate.title)
+          if (!workspace) warnings.push(`workspace create skipped: invalid projectId ${projectId}`)
+        } catch (error) {
+          warnings.push(`workspace create failed: ${error instanceof Error ? error.message : String(error)}`)
         }
 
         try {
@@ -182,7 +191,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
       note,
       source: 'app-proposals-page',
     })
-    return NextResponse.json({ success: true, goalId, projectId, approvalCount, requiredCount, warnings })
+    return NextResponse.json({ success: true, goalId, projectId, workspace, approvalCount, requiredCount, warnings })
   } catch (error) {
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : 'failed to record decision' },

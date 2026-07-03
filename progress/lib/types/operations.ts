@@ -480,6 +480,7 @@ export interface AutomationLogEntry {
     | 'skill_maintenance'
     | 'skill_enabled'
     | 'skill_disabled'
+    | 'app_workspace_created'
   // --- auto_fallback 用（detection イベントでは未設定可） ---
   fallbackTriggered?: boolean
   fallbackReason?: string

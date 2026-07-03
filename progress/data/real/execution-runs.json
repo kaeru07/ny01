@@ -34256,6 +34256,52 @@
         "Skill推奨実行者(実装=Codex標準)+Skillなし実行カバレッジ可視化 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "## Skills継続改善(第2弾)\n\nA: 標準運用(実装=Codex)がfactoryのepic生成既定(claude固定)に反映されていなかった逆転を是正。Skill=作業種類が最適実行者を持ち、新規step epicから効く。danger/requiresClaude/canRunOnCodexの安全判定は不変。Claude上限への耐性も向上。\nB: 「未分類が多い種類から次のSkillを足す」方針の判断材料(Skillなし実行のapp別件数)を/skillsに常設。\n\n見送り(候補として記録): doneCriteriaの既定文が汎用的でcontinueループの一因になっている件は、機械判定への影響が読みにくいため今回は変更せず。数日分のSkill別成績を見てから判断。\n\nmonetizationImpact: low\ntheme: [workflow]"
+    },
+    {
+      "runId": "20260704-011238",
+      "startedAt": "2026-07-03T16:12:38.836Z",
+      "finishedAt": "2026-07-03T16:12:38.836Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "レビュー+修正: 自動実行だけでApp Store提出品質まで行けるか",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "レビューで致命ギャップ発見: resolveAppCwdが固定マップで新規アプリはrepo未登録→factory即停止=新規アプリは自動で一切作れなかった。修正: 承認時ワークスペース自動作成(apps/generated/<projectId>+README+git init・push無し)+動的cwd解決(generated限定+サニタイズ)。救済APIで既存承認済み2アプリ(shogi-kakoi/mahjong-analyzer)のワークスペース作成済み。これで承認→自動作成の物理経路が開通。物理制約(iOSネイティブビルド/実機/提出)は正直に区分し、Web・Expo JS層まで自動+提出のみ人間の設計を確定。",
+      "changedFiles": [
+        {
+          "file": "lib/app-paths.ts",
+          "change": "GENERATED_APPS_ROOT+動的解決(generated限定・サニタイズ)"
+        },
+        {
+          "file": "lib/app-workspace.ts",
+          "change": "ensureAppWorkspace(mkdir/README/git initローカルのみ)"
+        },
+        {
+          "file": "app/api/app-proposals/[id]/decide/route.ts",
+          "change": "approve時にワークスペース作成"
+        },
+        {
+          "file": "app/api/app-proposals/ensure-workspaces/route.ts",
+          "change": "既存承認済み救済API"
+        },
+        {
+          "file": "lib/app-paths.test.ts",
+          "change": "動的解決/サニタイズテスト"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "test": "OK 31/31",
+        "manual": "OK live: 救済APIで2ワークスペース作成/cwd解決4パターン(既知/新規/不正/未作成)全正解"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "レビュー+修正: 自動実行だけでApp Store提出品質まで行けるか の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## 自動実行だけでストア提出品質まで行けるかレビュー\n\n### 致命(修正済): 新規アプリの実行場所が無い\nresolveAppCwd固定マップ→未知projectId=null→factory-runner:582でrepo未登録停止。承認してもキューに乗るだけで最初の一歩で停止していた。修正で承認→apps/generated/<projectId>自動作成→factory実行可能に。動的解決はgenerated配下限定+[a-z0-9-]サニタイズで誤repo実行防止は維持。\n\n### 自動で行ける(仕組み完備)\n承認→ワークスペース→キュー→Skill v3(4フェーズ手順)注入→決定事項注入→実装→doneCriteria機械判定(L1-L3)→手詰まりは今日の判断→素材案・審査メタデータ準備まで。\n\n### 自動では行けない(物理制約・正直に)\n①iOSネイティブビルド: Linux VPSにXcode無し。Expo採用ならJS層まで自動、ネイティブビルドはEAS(アカウント/課金=承認必須)かユーザーMac ②実機確認・スクショ実物 ③課金sandbox・Developer アカウント・提出操作(external_publish=承認必須6点)。\n\n### 結論\n提出直前まで自動はWeb/Expo JS層で成立。ネイティブ最終ビルド+提出はユーザー操作という到達点を運用として確定。\n\nmonetizationImpact: high\ntheme: [app-strategy, workflow]"
     }
   ]
 }

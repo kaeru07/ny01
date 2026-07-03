@@ -329,3 +329,5 @@
 {"id":"alog-1783087220987","at":"2026-07-03T14:00:20.987Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=9 needs_human=1 partial=0 failed=0 / 残not_reviewed=76","aiReviewCounts":{"processed":10,"reviewed":9,"needsHuman":1,"partial":0,"failed":0}}
 {"id":"alog-1783087523439","at":"2026-07-03T14:05:23.439Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=6 needs_human=1 partial=3 failed=0 / 残not_reviewed=69","aiReviewCounts":{"processed":10,"reviewed":6,"needsHuman":1,"partial":3,"failed":0}}
 {"id":"alog-1783087523704","at":"2026-07-03T14:05:23.704Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1783095095903","at":"2026-07-03T16:11:35.903Z","event":"app_workspace_created","fallbackReason":"shogi-kakoi-trainer at /root/company/apps/generated/shogi-kakoi-trainer"}
+{"id":"alog-1783095095920","at":"2026-07-03T16:11:35.920Z","event":"app_workspace_created","fallbackReason":"ny01-mahjong-analyzer at /root/company/apps/generated/ny01-mahjong-analyzer"}
