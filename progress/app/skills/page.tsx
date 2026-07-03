@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import SubTabBar from '@/components/navigation/SubTabBar'
+import Link from 'next/link'
 import CandidateActionButton from './CandidateActionButton'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { AUTO_EXECUTION_SUBTABS } from '@/lib/nav-groups'
@@ -97,7 +98,11 @@ export default async function SkillsPage() {
                 const m = metrics.get(skill.id)
                 return (
                   <tr key={skill.id}>
-                    <td className="px-3 py-2 font-medium text-gray-900 dark:text-gray-100">{skill.name}</td>
+                    <td className="px-3 py-2 font-medium text-gray-900 dark:text-gray-100">
+                      <Link href={`/skills/${encodeURIComponent(skill.id)}`} className="text-blue-700 hover:underline dark:text-blue-300">
+                        {skill.name}
+                      </Link>
+                    </td>
                     <td className="px-3 py-2 text-gray-600 dark:text-gray-300">v{skill.version}</td>
                     <td className="px-3 py-2 text-gray-600 dark:text-gray-300">{skill.enabled ? 'true' : 'false'}</td>
                     <td className="px-3 py-2 text-gray-600 dark:text-gray-300">{skill.riskFlags.length > 0 ? `⚠ ${skill.riskFlags.join(', ')}` : '-'}</td>

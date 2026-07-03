@@ -134,6 +134,7 @@ export function validateEpicContract(raw: unknown): EpicValidationResult {
 
   const normalized: EpicContractInput = {
     goalId: (o.goalId as string).trim(),
+    skillId: isNonEmptyString(o.skillId) ? (o.skillId as string).trim() : undefined,
     title: (o.title as string).trim(),
     goal: (o.goal as string).trim(),
     doneCriteria,

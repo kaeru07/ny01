@@ -32439,6 +32439,76 @@
         "直近実行日のrunsから noop(機械定型/変更ゼロ)を除外し、できるようになったこと(completed+changedFiles>0のsummaryを人間語1行整形・app別・重複統合)/進んだゴール(goal別run数・達成🎉)/問題と対処(failed→一時的なら自動再実行・それ以外は今日の判断に出ています)/次にやること(キュー上位3)/1行総括(成果ゼロの日は正直に仕込み中心と表示・水増し禁止)。空セクション非表示。従来詳細は折りたたみ温存。"
       ],
       "rawReport": "## 自動実行レポート再設計\n\n### 分かりにくさの原因(特定)\n機械ログ直訳の羅列(修正候補を1件確認し0件を自動で処理/considered=1 executed=0)・同一定型文の繰り返し・truncated生テキスト・開発者項目(変更ファイル/実行コマンド)が前面・全体総括ゼロ。\n\n### 再設計\nreport-digest: 直近実行日のrunsから noop(機械定型/変更ゼロ)を除外し、できるようになったこと(completed+changedFiles>0のsummaryを人間語1行整形・app別・重複統合)/進んだゴール(goal別run数・達成🎉)/問題と対処(failed→一時的なら自動再実行・それ以外は今日の判断に出ています)/次にやること(キュー上位3)/1行総括(成果ゼロの日は正直に仕込み中心と表示・水増し禁止)。空セクション非表示。従来詳細は折りたたみ温存。\n\n### 検証\ntsc/build OK・test25/25。live: 構造/人間語headline/機械語漏れゼロ/Skillsタブ(queue・skills)確認。\n\nmonetizationImpact: none\ntheme: [workflow]"
+    },
+    {
+      "runId": "20260703-224809",
+      "startedAt": "2026-07-03T13:48:09.541Z",
+      "finishedAt": "2026-07-03T13:48:09.541Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "Skillsを実行に効く仕組みへ拡張(注入ループ+詳細ページ)",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "Skillsの決定的な穴(runに記録するだけで実行プロンプトに手順が入らない=実行品質に影響ゼロ)を解消。①skill-select一元化(epic.skillId優先→goal-app→progress/company-mgmt→research、disabled除外) ②Epic.skillId紐付け(ensureNextGoalStepEpicで自動セット) ③実行プロンプトにSkill手順注入(claude/codex両方、決定事項の近く) ④/skills/[id]詳細ページ(本文/version別成績/使用履歴20件/バージョン履歴/改善候補/有効無効切替) ⑤FAQ+運用モデル追記。レビューで選択条件が実態(company-mgmt/targetApp未設定)に合わず選ばれない問題を検出し拡張、実epicで注入確認。",
+      "changedFiles": [
+        {
+          "file": "lib/skill-select.ts",
+          "change": "選択一元化+実態に合わせた判定拡張(company-mgmt/未設定goalstep→progress-feature)"
+        },
+        {
+          "file": "lib/types/operations.ts",
+          "change": "Epic.skillId追加"
+        },
+        {
+          "file": "lib/goal-step-epic.ts",
+          "change": "step epic生成時にskillId自動セット"
+        },
+        {
+          "file": "lib/operations-store.ts",
+          "change": "generateCodexPromptにSkill手順注入"
+        },
+        {
+          "file": "lib/factory-dispatch.ts",
+          "change": "Claude実行プロンプトにSkill手順注入"
+        },
+        {
+          "file": "lib/factory-runner.ts",
+          "change": "skillId記録をskill-select経由に"
+        },
+        {
+          "file": "app/skills/[skillId]/page.tsx",
+          "change": "Skill詳細ページ新規"
+        },
+        {
+          "file": "app/api/skills/[skillId]/route.ts",
+          "change": "有効/無効API"
+        },
+        {
+          "file": "app/guide/page.tsx",
+          "change": "FAQ『Skillって何？どう効く？』"
+        },
+        {
+          "file": "docs/operations/current-operating-model.md",
+          "change": "Skill注入ループ追記"
+        },
+        {
+          "file": "lib/skill-select.test.ts",
+          "change": "優先順/disabled除外テスト"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "test": "OK 27/27",
+        "manual": "OK live: 実epicのcodexプロンプトに『実行手順(Skill: progress機能追加手順 v1)』注入確認/詳細ページ200(本文・使用履歴・バージョン履歴・無効化)/選択ロジック単体確認"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "Skillsを実行に効く仕組みへ拡張(注入ループ+詳細ページ) の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## Skillsを実行に効く仕組みへ\n\n### 穴(確認済み)\nSkillはrunにskillId記録のみで、procedure/promptTemplateが実行プロンプトに未注入=品質に影響しないただのラベルだった。さらにレビューで、選択条件が実態と不一致(実epicはtargetApp=company-mgmt/未設定でprogress判定に入らず、Skillがほぼ選ばれない)を検出。\n\n### 実装(閉ループ)\nEpic生成時にSkill紐付け→実行プロンプトに『## 実行手順(Skill: name vN)』注入(claude/codex両方)→結果がSkill別・version別成績に蓄積→改善承認でversion up→次回実行から新手順。選択判定を実態に拡張(progress/company-mgmt/未設定goalstep→progress-feature)。詳細ページ(/skills/[id])で本文・version別成績・使用履歴・改善候補・有効無効を1画面管理。\n\n### 検証\ntsc/build OK・test27/27。実epic(epic-goalstep-goal-execution-review-loop)のプロンプトに手順注入をlive確認。\n\nmonetizationImpact: low\ntheme: [workflow, prompt-template]"
     }
   ]
 }

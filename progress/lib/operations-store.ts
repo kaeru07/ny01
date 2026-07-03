@@ -29,6 +29,7 @@ import type {
 import { evaluateFactoryEligibility, buildExecutionGuard } from './epic-contract'
 import { buildDecisionContext as buildApprovalDecisionContext } from './decision-context'
 import { readGoals } from './goal-reader'
+import { selectSkillForEpic, skillPromptBlock } from './skill-select'
 import type { WorkQueueData } from '@/types/session'
 import type { AppProgress, ProjectTasksData, Task, TaskPriority } from '@/types/progress'
 import type { ExecutionRunsData, ExecutionRun } from '@/types/execution-run'
@@ -143,6 +144,7 @@ export async function createEpic(input: EpicContractInput & { epicId?: string })
   const epic: Epic = {
     epicId,
     goalId: input.goalId,
+    skillId: input.skillId,
     relatedTodoIds: input.relatedTodoIds,
     title: input.title,
     goal: input.goal,
@@ -914,6 +916,7 @@ export async function generateCodexPrompt(epicId?: string): Promise<CodexPrompt>
   const decisionContext = epic
     ? await buildApprovalDecisionContext({ epicId: epic.epicId, goalId: epic.goalId, targetApp }, goalProjectId)
     : ''
+  const skillSelection = epic ? await selectSkillForEpic(epic) : null
 
   const lines: string[] = []
   lines.push('あなたはCodexです。以下はProgress（AI工場の管制塔）からの引き継ぎです。Claudeが上限で停止したため続きをお願いします。')
@@ -929,6 +932,11 @@ export async function generateCodexPrompt(epicId?: string): Promise<CodexPrompt>
   lines.push('[3] 決定事項（これに反する作業はしない）')
   lines.push(decisions.length > 0 ? decisions.slice(-5).map((d) => `- ${d.topic} → ${d.decision}`).join('\n') : '- なし')
   lines.push('')
+  const skillLines = skillPromptBlock(skillSelection)
+  if (skillLines.length > 0) {
+    lines.push(...skillLines)
+    lines.push('')
+  }
   lines.push('[4] 承認待ち（これには触らない。未承認の作業はしない）')
   lines.push(approvals.length > 0 ? approvals.map((a) => `- ${a.title}（${a.priority}）`).join('\n') : '- なし')
   lines.push('')

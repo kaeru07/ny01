@@ -1,6 +1,6 @@
 ---
 updated: 2026-07-03
-updateNote: 運用3原則を明文化（①完了の正本=doneCriteria機械判定 ②レビューは完了条件でない・Fableレビューは指示時のみ ③今日の判断は危険/方針選択/手詰まり確認の3種のみ・品質レビューでは止めない）。
+updateNote: Skill注入ループを追加（作業種別ごとにSkillを選び、実行AIへの指示に手順を注入。結果はSkill別に集計し、改善候補は人間承認後のみ本文へ反映）。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -18,6 +18,14 @@ updateNote: 運用3原則を明文化（①完了の正本=doneCriteria機械判
 2. **Fableレビュー＝案B（機械チェック＋人間の任意レビューが正式運用）**。毎回のLLMレビューは自動では回さない。tsc/build/lint/危険語の機械チェックが常時の品質ゲート。深い設計レビュー（Fableレビュー）は**ユーザーが「レビューして」と指示したときだけ**実行する。これによりレビュー待ちで自動実行全体が止まらない。
 
 3. **「今日の判断」に入るのは3種類だけ**。①危険な操作（billing/production_db/auth_secret/external_publish/destructive/migration 等の riskFlags）②方針を選ぶ判断（複数案からの人間選択・アプリ作成前の必須方針）③手詰まり／完了の確認（前回failedで止まった作業の再試行/中止/保留、達成ゴールの完了確認）。**品質レビュー（needs_followup等）は今日の判断に入れず、自動実行も止めない**（レビュータブで任意確認）。失敗runもレビューには入れず、原因別に「一時的→再キュー / 実エラー・不明→今日の判断」で扱う。
+
+
+## 2026-07-03: Skill注入ループ
+
+- Skillは単なる記録ラベルではなく、自動実行の実行手順書として使う。Epicに紐付いたSkill、goal-app系、progress作業、research/調査系の順にSkillを選び、enabled=falseのSkillは使わない。
+- Codex引き継ぎプロンプトとClaude Factoryプロンプトの「決定事項」付近に、選ばれたSkillのprocedure / promptTemplateを「実行手順」ブロックとして注入する。Skillが無い、または読み取りに失敗した場合は従来どおり注入なしで実行を止めない。
+- ExecutionRunには注入に使ったSkillと同じskillId / skillVersionを記録する。結果はSkill別に使用回数、close_ok率、needs_fix率、failed率、バージョン別失敗率として集計する。
+- Skill本文の自動書き換えは禁止のまま維持する。改善候補は自動生成・集計するが、本文更新はユーザー承認または人間操作のときだけ行う。
 
 
 ## 2026-06-20: factoryRunState 廃止とRunner責務分離

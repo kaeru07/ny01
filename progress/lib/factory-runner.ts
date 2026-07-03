@@ -28,7 +28,7 @@ import { DANGER_CATEGORIES, isReviewApprovalOptions } from './inbox-labels'
 import { getAdapter } from './executors'
 import { decideCodexFallback } from './executor-fallback'
 import { runChecks, failingChecks, gateRunStatusByChecks } from './checks-runner'
-import { readSkills } from './skill-store'
+import { selectSkillForEpic } from './skill-select'
 import type { ChecksRunResult } from './checks-runner'
 import { getDoneCriteriaForEpic } from './done-criteria'
 import type { FactoryRunMode, FactoryRunReport, FactoryRunStep, ExecutorResult } from './executors/types'
@@ -98,15 +98,12 @@ function selectionFromPlan(plan: FactoryDispatchPlan): ExecutionRun['selection']
 
 async function resolveSkillForRun(args: { epicId: string; targetApp: string }): Promise<Pick<ExecutionRun, 'skillId' | 'skillVersion'>> {
   try {
-    const skillId = args.epicId.startsWith('epic-goalstep-goal-app-')
-      ? 'skill-store-app-scaffold'
-      : args.targetApp === 'progress'
-        ? 'skill-progress-feature'
-        : undefined
-    if (!skillId) return {}
-    const skill = (await readSkills()).find((item) => item.id === skillId)
-    if (!skill) return {}
-    return { skillId: skill.id, skillVersion: skill.version }
+    const epic = (await getEpics()).find((item) => item.epicId === args.epicId)
+    const selected = await selectSkillForEpic(epic
+      ? { ...epic, targetApp: epic.targetApp ?? args.targetApp, targetApps: epic.targetApps ?? [args.targetApp] }
+      : { epicId: args.epicId, targetApp: args.targetApp })
+    if (!selected) return {}
+    return { skillId: selected.skill.id, skillVersion: selected.version }
   } catch (err) {
     console.warn('skill mapping failed:', err)
     return {}

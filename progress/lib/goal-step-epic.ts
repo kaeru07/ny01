@@ -1,6 +1,7 @@
 import { getEpics, createEpic } from '@/lib/operations-store'
 import { readGoals, rankGoals, goalRankOf, goalAchievement } from '@/lib/goal-reader'
 import { dangerRiskFlags } from '@/lib/auto-queue-score'
+import { selectSkillForEpic } from '@/lib/skill-select'
 import type { Goal, GoalTodo } from '@/types/goal'
 import type { EpicPriority } from '@/lib/types/operations'
 
@@ -86,9 +87,17 @@ export async function ensureNextGoalStepEpic(targetGoalId?: string, sourceTodoId
         'ExecutionRunに結果を記録し、Goalの達成度を前進させる',
       ]
 
+  const skill = await selectSkillForEpic({
+    epicId: `epic-goalstep-${target.id}`,
+    goalId: target.id,
+    targetApp: target.projectId,
+    title,
+    goal: goalText,
+  })
   const epic = await createEpic({
     epicId: `epic-goalstep-${target.id}`,
     goalId: target.id,
+    skillId: skill?.skill.id,
     title,
     goal: goalText,
     decisionPolicy: sourceTodo?.decisionPolicy ?? target.decisionPolicyDefault ?? 'autonomous',

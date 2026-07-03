@@ -38,6 +38,7 @@ export type ExecutorType = 'claude' | 'codex' | 'manual' | 'other'
 export interface Epic {
   epicId: string
   goalId?: string
+  skillId?: string
   githubIssue?: number
   title: string
   goal: string
@@ -79,6 +80,7 @@ export interface Epic {
 /** Epic 作成/インポートの入力契約（バリデーション前の生入力に近い形）。 */
 export interface EpicContractInput {
   goalId?: string
+  skillId?: string
   relatedTodoIds?: string[]
   title: string
   goal: string
@@ -476,6 +478,8 @@ export interface AutomationLogEntry {
     | 'blocked_decisions_ensured'
     | 'approval_effect_applied'
     | 'skill_maintenance'
+    | 'skill_enabled'
+    | 'skill_disabled'
   // --- auto_fallback 用（detection イベントでは未設定可） ---
   fallbackTriggered?: boolean
   fallbackReason?: string
@@ -505,6 +509,7 @@ export interface AutomationLogEntry {
   // --- factory_backpressure 用 ---
   notReviewedCount?: number
   backpressureAction?: 'slow_down' | 'pause'
+  skillId?: string
 }
 
 // ---- Auto Resume（Claude 上限後に安全作業だけ自動継続）----
