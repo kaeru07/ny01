@@ -31550,6 +31550,43 @@
         "日々の調査の仕様レビュー(research-review) の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "## 日々の調査 仕様レビュー\n\n### 調査コンテンツ評価: 良好\n- daily-market-research(2026-07-03実物): 今日の結論/記事本文(800字超)/注目ジャンル(ストア発見面・外部課金)/競合アプリ/ユーザー不満(未確認は明記)/収益化ヒント。個人開発・ストア公開・収益化視点で具体的。大事なニュース(CMA外部決済/Google Play会話検索/AIショートドラマ/エージェント)は網羅。\n- daily-ai-news: 各ニュースに個人開発への影響度(高/中)付き。Sonnet5/GPT-5.6/ADK2.0等を適切に要約。\n- 記事本文セクション必須化も機能。fallback互換あり。\n\n### 穴: 案生成への接続\n- app-proposal-generator の種は buildResearchGoalCandidates → research-goals CATEGORIES=[daily-ai-tools] のみ(parseValueRatingsが星評価前提)。\n- 最も案の種になるべき daily-market-research(注目ジャンル/収益化ヒント) と daily-ai-news(高影響) が案生成に流れていない。\n- 修正案(goal-opus-research-seed-expandでキュー化): generatorのseedに最新market-research注目ジャンル/収益化ヒント+ai-news高影響を渡す軽reader追加。星評価パーサは不変。\n\n### 判定\n調査コンテンツ=十分。案生成への連携=要改善(follow-up化済)。\n\nmonetizationImpact: medium\ntheme: [market-research, workflow, app-strategy]"
+    },
+    {
+      "runId": "20260703-091838",
+      "startedAt": "2026-07-03T00:18:38.786Z",
+      "finishedAt": "2026-07-03T00:18:38.786Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "Fableレビュー: Opusバッチ6件の検収(needs_fix 1件検出→修正済み→close_ok)",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "Opusバッチ6件をFableレビュー。申し送り3点を検証: ①設計一覧の情報設計=良(決定済み/未回答方針・必須バッジ・auto_closed除外・誘導リンク) ②進行バッジ導出=実態一致(手牌解析: goal active+executable+run無→キュー投入済み) ③運用3原則と実装の矛盾なし。needs_fix 1件: 設計一覧でattachPipelineStatuses未適用によりバッジが一切表示されない(app-proposalsページローカル実装のため)→lib/app-pipeline-status.tsへ共通化し両ページで使用、修正・検証済み。総合判定: close_ok(修正適用後)。",
+      "changedFiles": [
+        {
+          "file": "lib/app-pipeline-status.ts",
+          "change": "attachPipelineStatuses/derivePipelineStatusをlibへ共通化(新規)"
+        },
+        {
+          "file": "app/app-proposals/page.tsx",
+          "change": "ローカル実装を共通libへ差し替え"
+        },
+        {
+          "file": "app/app-designs/page.tsx",
+          "change": "attachPipelineStatuses適用(バッジ欠落修正)"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "manual": "OK live: 設計一覧にキュー投入済みバッジ描画/決定済みタブ回帰なし/エラーなし"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "Fableレビュー: Opusバッチ6件の検収(needs_fix 1件検出→修正済み→close_ok) の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## Fableレビュー(Opusバッチ検収)\n\n### 申し送り3点の検証\n1. /app-designs 情報設計: 承認済み2件(手牌解析/将棋囲い)表示。仕様/画面(折りたたみ)/決定済み方針(auto_closed除外✓)/未回答方針(必須バッジ+今日の判断誘導✓)。構成は良。\n2. pipeline-badges 導出: 手牌解析=goal active+queue executable+run無 → queued(キュー投入済み)で実態一致。in_progress判定がepic done含むのは次の一歩の合間も作成中扱いで妥当。\n3. 運用3原則vs実装: 矛盾なし(failed→reviewed/errors・checks→partial非停止/needs_human4ルール/doneCriteria完了正本/LLMレビュー非自動)。\n\n### 検出・修正\n- needs_fix F1: app-designsがattachPipelineStatuses(app-proposalsページローカル)を呼ばずpipelineStatus未付与→バッジ全欠落。当初検証の「完成3」は画面名「完成図」の誤検知で実際は0表示だった。lib/app-pipeline-status.tsへ移動し両ページ共有で修正。live: 設計一覧にキュー投入済みバッジ描画・決定済みタブ回帰なし。\n- F2疑義(決定済み方針1件)はgrep行数カウントの誤解で問題なし(HTML1行)。\n\n### 判定\nclose_ok(F1修正適用後)。残キュー: skills-mvp/ui-reorg/research-seed-expand。\n\nmonetizationImpact: low\ntheme: [workflow]"
     }
   ]
 }

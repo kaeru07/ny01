@@ -2,6 +2,7 @@ import Link from 'next/link'
 import SubTabBar from '@/components/navigation/SubTabBar'
 import PageGuide from '@/components/newux/PageGuide'
 import { getAppProposals, type AppProposal, type AppProposalPipelineStatus } from '@/lib/app-proposals'
+import { attachPipelineStatuses } from '@/lib/app-pipeline-status'
 import { APP_DEVELOPMENT_SUBTABS } from '@/lib/nav-groups'
 import { getApprovals } from '@/lib/operations-store'
 import type { Approval } from '@/lib/types/operations'
@@ -169,7 +170,8 @@ function PendingApprovalsSection({ approvals, projectId }: { approvals: Approval
 }
 
 export default async function AppDesignsPage() {
-  const [proposals, approvals] = await Promise.all([getAppProposals(), getApprovals()])
+  const [rawProposals, approvals] = await Promise.all([getAppProposals(), getApprovals()])
+  const proposals = await attachPipelineStatuses(rawProposals)
   const apps = proposals
     .filter((proposal) => proposal.decision === 'approved')
     .sort((a, b) => a.name.localeCompare(b.name, 'ja'))
