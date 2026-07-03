@@ -32393,6 +32393,52 @@
         "Skills日次アップデート機構MVP実装(goal-opus-skills-mvp) の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "実装Codex/検証Claude。数字は自動・中身は承認の原則実装。"
+    },
+    {
+      "runId": "20260703-221804",
+      "startedAt": "2026-07-03T13:18:04.397Z",
+      "finishedAt": "2026-07-03T13:18:04.397Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "自動実行レポートを人間向けダイジェストに再設計+Skillsをサブタブ追加",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "レポートが機械ログ直訳(considered=/0件処理/切れた生テキスト)で状況把握できない問題を再設計。/report最上部に自動実行ダイジェスト: 1行総括→✨できるようになったこと(noop除外・人間語整形・app別)→📈進んだゴール→⚠️問題と対処(原因別の対処明記)→⏭次にやること→件数。空セクション非表示・水増しなし(成果ゼロの日は仕込み中心と正直表示)。従来の1run=1記事は折りたたみで温存。Skillsを自動実行サブタブ(自動実行/ゴール/Skills)に追加。",
+      "changedFiles": [
+        {
+          "file": "lib/report-digest.ts",
+          "change": "buildReportDigest新規(noop判定/成果整形/進捗/問題対処/次キュー。純関数分離)"
+        },
+        {
+          "file": "app/report/page.tsx",
+          "change": "最上部ダイジェスト+従来表示をdetails折りたたみ"
+        },
+        {
+          "file": "lib/report-digest.test.ts",
+          "change": "noop除外・整形テスト"
+        },
+        {
+          "file": "lib/nav-groups.ts",
+          "change": "AUTO_EXECUTION_SUBTABSにSkills追加"
+        },
+        {
+          "file": "app/skills/page.tsx",
+          "change": "SubTabBar追加"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "test": "OK 25/25",
+        "manual": "OK live: ダイジェスト構造描画/headline人間語/ダイジェスト部に機械語ゼロ/問題なし日は問題セクション非表示/queue・skills両方にSkillsタブ"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "直近実行日のrunsから noop(機械定型/変更ゼロ)を除外し、できるようになったこと(completed+changedFiles>0のsummaryを人間語1行整形・app別・重複統合)/進んだゴール(goal別run数・達成🎉)/問題と対処(failed→一時的なら自動再実行・それ以外は今日の判断に出ています)/次にやること(キュー上位3)/1行総括(成果ゼロの日は正直に仕込み中心と表示・水増し禁止)。空セクション非表示。従来詳細は折りたたみ温存。"
+      ],
+      "rawReport": "## 自動実行レポート再設計\n\n### 分かりにくさの原因(特定)\n機械ログ直訳の羅列(修正候補を1件確認し0件を自動で処理/considered=1 executed=0)・同一定型文の繰り返し・truncated生テキスト・開発者項目(変更ファイル/実行コマンド)が前面・全体総括ゼロ。\n\n### 再設計\nreport-digest: 直近実行日のrunsから noop(機械定型/変更ゼロ)を除外し、できるようになったこと(completed+changedFiles>0のsummaryを人間語1行整形・app別・重複統合)/進んだゴール(goal別run数・達成🎉)/問題と対処(failed→一時的なら自動再実行・それ以外は今日の判断に出ています)/次にやること(キュー上位3)/1行総括(成果ゼロの日は正直に仕込み中心と表示・水増し禁止)。空セクション非表示。従来詳細は折りたたみ温存。\n\n### 検証\ntsc/build OK・test25/25。live: 構造/人間語headline/機械語漏れゼロ/Skillsタブ(queue・skills)確認。\n\nmonetizationImpact: none\ntheme: [workflow]"
     }
   ]
 }

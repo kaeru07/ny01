@@ -749,3 +749,11 @@
 {"at":"2026-07-02T12:40:33.697Z","type":"action","path":"/app-proposals","label":"画面・仕様"}
 {"at":"2026-07-02T23:22:58.384Z","type":"page_view","path":"/"}
 {"at":"2026-07-03T00:12:38.131Z","type":"page_view","path":"/"}
+{"at":"2026-07-03T13:02:05.812Z","type":"page_view","path":"/"}
+{"at":"2026-07-03T13:02:11.159Z","type":"page_view","path":"/decide"}
+{"at":"2026-07-03T13:02:14.893Z","type":"page_view","path":"/queue"}
+{"at":"2026-07-03T13:02:17.177Z","type":"page_view","path":"/app-proposals"}
+{"at":"2026-07-03T13:02:19.532Z","type":"page_view","path":"/portfolio"}
+{"at":"2026-07-03T13:02:20.557Z","type":"page_view","path":"/goal-dashboard"}
+{"at":"2026-07-03T13:02:21.227Z","type":"page_view","path":"/portfolio"}
+{"at":"2026-07-03T13:02:24.060Z","type":"page_view","path":"/report"}
