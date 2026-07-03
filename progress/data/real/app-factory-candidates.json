@@ -603,7 +603,131 @@
         }
       ],
       "createdAt": "2026-07-02T02:00:13.087Z"
+    },
+    {
+      "id": "daily-2026-07-03-1-ai",
+      "title": "AI生成ショートドラマ / 制作費を抑えながらコイン課金・広告視モバイル",
+      "sourceProjectId": null,
+      "overview": "市場観測 起点のストア公開前提モバイルアプリ案。今日の判断で要精査。",
+      "purpose": "日々の調査(AIツール 2026-07-03)で高評価(★★★★★)。即試したい。個人開発サービスをAI Agent対応にする導線として収益化に近い。 をもとに、iOS / Android ユーザーが日常的に記録・判断・次アクション化できるストア公開アプリを作る。今日の市場観測「AI生成ショートドラマ / 制作費を抑えながらコイン課金・広告視聴へ接続しやすい / TikTok、YouTube Shorts、Shortical」も踏まえる。",
+      "targetUser": "App Store / Google Play で課題解決アプリを探す iOS / Android ユーザー",
+      "features": [
+        "クイック記録",
+        "一覧と検索",
+        "判断メモ",
+        "リマインダー",
+        "課金プラン管理"
+      ],
+      "screens": [
+        {
+          "key": "screen-1",
+          "name": "ホーム",
+          "rows": [
+            "今日のサマリー",
+            "未処理の記録",
+            "次のおすすめ",
+            "プレミアム導線"
+          ]
+        },
+        {
+          "key": "screen-2",
+          "name": "記録",
+          "rows": [
+            "入力フォーム",
+            "テンプレート選択",
+            "保存前チェック",
+            "通知設定"
+          ]
+        },
+        {
+          "key": "screen-3",
+          "name": "一覧",
+          "rows": [
+            "履歴カード",
+            "検索",
+            "タグ絞り込み",
+            "重要度バッジ"
+          ]
+        },
+        {
+          "key": "screen-4",
+          "name": "詳細",
+          "rows": [
+            "要約",
+            "判断メモ",
+            "次アクション",
+            "共有"
+          ]
+        },
+        {
+          "key": "screen-5",
+          "name": "設定",
+          "rows": [
+            "iOS / Android 通知",
+            "サブスク状態",
+            "データ管理",
+            "ストアレビュー導線"
+          ]
+        }
+      ],
+      "marketValue": "注目ジャンル「AI生成ショートドラマ / 制作費を抑えながらコイン課金・広告視」の需要仮説。App Store / Google Play で類似カテゴリ、検索語、価格帯、レビュー不満、支払い意思を今日の判断で要精査。",
+      "oceanType": "unknown",
+      "oceanRationale": "ストア競合密度、レビュー不満、差別化可能なワークフローは未調査。今日の判断で要精査。",
+      "monetizationHypothesis": "無料インストールで利用開始し、継続利用・通知・テンプレート・分析の価値に対してストア課金する仮説。",
+      "monetizationPlan": "App Store / Google Play のアプリ内課金を前提に、無料枠 + 月額サブスクを第一候補、必要に応じて買い切り解除または広告 + 課金解除を検証する。",
+      "winningFactors": [
+        "今日の判断で要精査",
+        "iOS / Android の日常利用導線に載せられる可能性",
+        "ストアレビュー不満から差別化余地を探せる"
+      ],
+      "concerns": [
+        "今日の判断で要精査",
+        "ストア競合・審査リスク・継続率が未検証",
+        "課金価値が弱い場合は広告依存になりやすい"
+      ],
+      "riskFlags": [],
+      "spec": "詳細仕様は今日の判断で要精査。iOS / Android 対応、ローカル保存 + 任意クラウド同期、プッシュ通知、App Store / Google Play のアプリ内課金、ストア審査に通るデータ・プライバシー表示を前提にMVPを定義する。",
+      "priority": "medium",
+      "status": "proposed",
+      "nextAction": "ストア公開対象、課金方式、MVP機能、審査リスクを今日の判断で決める",
+      "factorySafe": false,
+      "factoryNote": "App Store / Google Play 公開前提の自動生成案。方針決定とストア審査観点の確認後に Factory 対象化する。",
+      "decisionPoints": [
+        {
+          "key": "platform",
+          "question": "最初に公開するストア対象は？",
+          "options": [
+            "iOS",
+            "Android",
+            "iOS + Android",
+            "iPad対応"
+          ],
+          "required": true
+        },
+        {
+          "key": "pricing",
+          "question": "最初の課金方式は？",
+          "options": [
+            "無料 + 月額サブスク",
+            "買い切り",
+            "アプリ内課金",
+            "広告 + 課金解除"
+          ],
+          "required": false
+        },
+        {
+          "key": "mvp",
+          "question": "最小機能セットはどこまでにする？",
+          "options": [
+            "記録と一覧だけ",
+            "通知まで含める",
+            "分析まで含める"
+          ],
+          "required": false
+        }
+      ],
+      "createdAt": "2026-07-03T05:00:23.545Z"
     }
   ],
-  "updatedAt": "2026-07-02T02:01:29.242Z"
+  "updatedAt": "2026-07-03T05:03:24.483Z"
 }

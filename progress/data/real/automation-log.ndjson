@@ -302,3 +302,22 @@
 {"id":"alog-1783000817130","at":"2026-07-02T14:00:17.130Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=9 needs_human=1 partial=0 failed=0 / 残not_reviewed=111","aiReviewCounts":{"processed":10,"reviewed":9,"needsHuman":1,"partial":0,"failed":0}}
 {"id":"alog-1783000917015","at":"2026-07-02T14:01:57.015Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=7 needs_human=0 partial=3 failed=0 / 残not_reviewed=102","aiReviewCounts":{"processed":10,"reviewed":7,"needsHuman":0,"partial":3,"failed":0}}
 {"id":"alog-1783000917185","at":"2026-07-02T14:01:57.185Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1783048123786","at":"2026-07-03T03:08:43.786Z","event":"skill_maintenance","fallbackReason":"candidates=3"}
+{"id":"alog-1783054823377","at":"2026-07-03T05:00:23.377Z","event":"monetization_sync","fallbackReason":"added=0 updated=2","detectionStatus":"schedule"}
+{"id":"alog-1783055004498","at":"2026-07-03T05:03:24.498Z","event":"app_proposal_generated","fallbackReason":"mode=fallback count=1 seed=market-research,ai-news,research,knowledge reason=claude:timeout, codex:timeout","fallbackTarget":"daily-2026-07-03-1-ai"}
+{"id":"alog-1783055004574","at":"2026-07-03T05:03:24.574Z","event":"skill_maintenance","fallbackReason":"candidates=0"}
+{"id":"alog-1783055005757","at":"2026-07-03T05:03:25.757Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=17.9→23.6","detectionStatus":"schedule"}
+{"id":"alog-1783055006141","at":"2026-07-03T05:03:26.141Z","event":"urgent_issues_recorded","fallbackReason":"count=4 『将棋 囲いトレーナー』が作成対象なのに1日進んでいません, 『/guideのFAQ・運用ページの鮮度を点検する仕組み』が作成対象なのに2日進んでいません, 『ny01/mahjong-analyzer（手牌解析）』が作成対象なのに2日進んでいません, 今日の判断が34件たまっています"}
+{"id":"alog-1783055006251","at":"2026-07-03T05:03:26.251Z","event":"blocked_decisions_ensured","fallbackReason":"created=0 closed=1"}
+{"id":"alog-1783055008377","at":"2026-07-03T05:03:28.377Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=7 needs_human=3 partial=0 failed=0 / 残not_reviewed=100","aiReviewCounts":{"processed":10,"reviewed":7,"needsHuman":3,"partial":0,"failed":0}}
+{"id":"alog-1783055280374","at":"2026-07-03T05:08:00.374Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=4 needs_human=1 partial=5 failed=0 / 残not_reviewed=92","aiReviewCounts":{"processed":10,"reviewed":4,"needsHuman":1,"partial":5,"failed":0}}
+{"id":"alog-1783055280580","at":"2026-07-03T05:08:00.580Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1783062025565","at":"2026-07-03T07:00:25.565Z","event":"monetization_sync","fallbackReason":"added=0 updated=2","detectionStatus":"schedule"}
+{"id":"alog-1783062025807","at":"2026-07-03T07:00:25.807Z","event":"skill_maintenance","fallbackReason":"candidates=0"}
+{"id":"alog-1783062026945","at":"2026-07-03T07:00:26.945Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=23.6→27.5","detectionStatus":"schedule"}
+{"id":"alog-1783062027170","at":"2026-07-03T07:00:27.170Z","event":"urgent_issues_recorded","fallbackReason":"count=4 『将棋 囲いトレーナー』が作成対象なのに1日進んでいません, 『/guideのFAQ・運用ページの鮮度を点検する仕組み』が作成対象なのに2日進んでいません, 『ny01/mahjong-analyzer（手牌解析）』が作成対象なのに2日進んでいません, 今日の判断が36件たまっています"}
+{"id":"alog-1783062027244","at":"2026-07-03T07:00:27.244Z","event":"blocked_decisions_ensured","fallbackReason":"created=0 closed=3"}
+{"id":"alog-1783062029412","at":"2026-07-03T07:00:29.412Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=6 needs_human=1 partial=3 failed=0 / 残not_reviewed=85","aiReviewCounts":{"processed":10,"reviewed":6,"needsHuman":1,"partial":3,"failed":0}}
+{"id":"alog-1783062268471","at":"2026-07-03T07:04:28.471Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=3 needs_human=1 partial=6 failed=0 / 残not_reviewed=77","aiReviewCounts":{"processed":10,"reviewed":3,"needsHuman":1,"partial":6,"failed":0}}
+{"id":"alog-1783062268668","at":"2026-07-03T07:04:28.668Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1783081126192","at":"2026-07-03T12:18:46.192Z","event":"skill_maintenance","fallbackReason":"candidates=0"}

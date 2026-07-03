@@ -4,6 +4,7 @@ import { updateExecutionRunFields } from '@/lib/execution-run-writer'
 import { propagateEpicDoneToGoal } from '@/lib/factory-runner'
 import { readGoals } from '@/lib/goal-reader'
 import { writeGoals } from '@/lib/goal-writer'
+import { applySkillImprovement } from '@/lib/skill-apply'
 import type { Approval } from '@/lib/types/operations'
 import type { ExecutionRun } from '@/types/execution-run'
 
@@ -75,6 +76,17 @@ async function releaseGoalHoldForProject(projectId: string): Promise<string> {
 }
 
 async function applyApprovalEffectInner(approval: Approval, decidedOption: string): Promise<string> {
+  if (approval.projectId === 'skills') {
+    const selectedLabel = approval.options.find((option) => option.key === decidedOption)?.label ?? decidedOption
+    const shouldApply = decidedOption === 'apply' || decidedOption === 'approve' || selectedLabel.includes('反映する')
+    if (!shouldApply) return decidedOption === 'reject' || selectedLabel.includes('却下') ? 'skill_rejected' : 'skill_hold'
+    const candidateId = approval.reason.match(/candidate:([A-Za-z0-9._:-]+)/)?.[1]
+      ?? approval.title.match(/candidate:([A-Za-z0-9._:-]+)/)?.[1]
+    if (!candidateId) return 'skill_apply:none:candidate_not_found'
+    const result = await applySkillImprovement(candidateId)
+    return result.applied ? `skill_apply:${candidateId}` : `skill_apply:none:${result.reason}`
+  }
+
   const releaseApplied = approval.requiredForExecution && approval.projectId
     ? await releaseGoalHoldForProject(approval.projectId)
     : 'none'

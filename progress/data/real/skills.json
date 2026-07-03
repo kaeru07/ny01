@@ -1,0 +1,44 @@
+{
+  "skills": [
+    {
+      "id": "skill-progress-feature",
+      "name": "progress機能追加手順",
+      "description": "progressアプリに機能を追加するときの標準手順",
+      "procedure": "仕様確認→lib実装→UI→tsc/build/test→live検証→POST",
+      "inputs": [],
+      "outputs": [],
+      "riskFlags": [],
+      "version": 1,
+      "enabled": true,
+      "createdAt": "2026-07-03T00:00:00.000Z",
+      "updatedAt": "2026-07-03T00:00:00.000Z"
+    },
+    {
+      "id": "skill-store-app-scaffold",
+      "name": "ストア公開前提モバイルアプリの初期構築手順",
+      "description": "iOS/Androidでストア公開する前提のモバイルアプリMVPを初期構築する手順",
+      "procedure": "iOS/Android前提を確認→課金設計を決める→MVP範囲を絞る→初期画面とデータモデルを作る→ストア提出に必要な不足を洗い出す",
+      "inputs": [],
+      "outputs": [],
+      "riskFlags": [],
+      "version": 1,
+      "enabled": true,
+      "createdAt": "2026-07-03T00:00:00.000Z",
+      "updatedAt": "2026-07-03T00:00:00.000Z"
+    },
+    {
+      "id": "skill-research-ingest",
+      "name": "research取り込み・構造化手順",
+      "description": "research結果をprogressの候補・ゴールへつなげやすい形に構造化する手順",
+      "procedure": "入力元を確認→重要事実を抽出→候補/リスク/次アクションへ分解→重複を確認→progressへ記録する",
+      "inputs": [],
+      "outputs": [],
+      "riskFlags": [],
+      "version": 1,
+      "enabled": true,
+      "createdAt": "2026-07-03T00:00:00.000Z",
+      "updatedAt": "2026-07-03T00:00:00.000Z"
+    }
+  ],
+  "updatedAt": "2026-07-03T00:00:00.000Z"
+}

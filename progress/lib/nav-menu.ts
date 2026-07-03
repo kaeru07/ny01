@@ -24,9 +24,9 @@ export const NAV_GROUPS: NavGroup[] = [
     links: [
       { href: '/', label: 'ホーム（司令塔）', note: '全体の状況・次回自動実行予定・今日やること' },
       { href: '/decide', label: '今日の判断（Inbox）', note: '工場が止まる原因だけを判断する箱。毎日ここだけ見ればOK' },
-      { href: '/activity', label: '状況', note: '自動実行の消化サマリー。PJ完了・プロジェクト状況は内蔵サブタブから確認' },
-      { href: '/app-proposals', label: 'アプリ開発', note: '新アプリ案・既存アプリ仕様承認・承認履歴を内蔵サブタブで確認' },
       { href: '/queue', label: '自動実行（キュー）', note: 'AIが次に何をやるか・実行順・pin/保留/対象外の操作（実行）' },
+      { href: '/app-proposals', label: 'アプリ開発', note: '新アプリ案・設計一覧・仕様承認・履歴を内蔵サブタブで確認' },
+      { href: '/portfolio', label: '状況', note: 'プロジェクト状況。自動実行状況・PJ完了は内蔵サブタブから確認' },
     ],
   },
   {
@@ -49,8 +49,8 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/automation', label: '自動化設定', note: 'AI工場のON/OFF・実行者の切替' },
       { href: '/factory/candidates', label: '工場候補', note: '自動実行の候補一覧' },
       { href: '/app-proposals', label: 'アプリ概要承認', note: 'アプリ案の概要+画面イメージ(モック)を確認して承認/却下/保留' },
-      { href: '/app-specs', label: '既存アプリ仕様承認', note: '既存/開発中アプリの画面・機能仕様を確認して承認/保留' },
-      { href: '/app-decisions', label: 'アプリ承認・方針決定歴', note: 'アプリ承認と仕様承認、方針決定の時系列ログ' },
+      { href: '/app-specs', label: '仕様承認・履歴', note: '既存/開発中アプリの画面・機能仕様承認と承認・方針決定の履歴' },
+      { href: '/skills', label: 'Skills管理', note: '実行手順(Skill)の品質集計・改善候補・更新履歴' },
       { href: '/ai-drive', label: 'AI自走', note: '自走モードの管理' },
       { href: '/codex', label: 'Codex', note: 'もう1つのAI実行者の管理' },
     ],
@@ -70,7 +70,6 @@ export const NAV_GROUPS: NavGroup[] = [
     links: [
       { href: '/guide?tab=research', label: '毎朝の調査のしくみ(図解)', note: '毎朝の調査→試す候補の自動提案→承認→自動実行 の流れを図で説明' },
       { href: '/projects/import', label: 'プロジェクト＋ゴール追加(JSON)', note: 'プロジェクトとゴールを手動でまとめて追加。ゴールは自動実行対象になりキューで優先調整可' },
-      { href: '/integration-map', label: '対応表（旧Vault→今のゴール運用）', note: '一時ページ。旧Vault運用と今のゴール運用の対応表＋統合の進め方①〜⑥' },
       { href: '/goal-planner', label: '目標（Goal）', note: '目標とtodoの作成・編集・並び替え（管理）' },
       { href: '/portfolio?tab=goals', label: 'プロジェクト×ゴール進捗', note: 'プロジェクト別にゴールと達成率を一覧。アプリはApp Store公開仕様で「完成」表示・未紐付けゴールも警告' },
       { href: '/project-goals', label: 'プロジェクト×ゴール一覧', note: 'プロジェクトとゴールの対応一覧（旧導線復活・孤立防止）' },
@@ -80,12 +79,13 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/monetization', label: '収益化候補管理', note: 'アプリ候補のスコア・詳細管理' },
       { href: '/radar', label: '案件レーダー', note: '案件の状態マップ' },
       { href: '/projects', label: '案件一覧', note: '全案件（休止中含む）の管理' },
-      { href: '/app-urls', label: 'アプリURL', note: '各アプリのURL一覧' },
     ],
   },
   {
-    title: '全体管理・旧画面',
+    title: 'アーカイブ（ほぼ使わない）',
     links: [
+      { href: '/integration-map', label: '対応表（旧Vault→今のゴール運用）', note: '一時ページ。旧Vault運用と今のゴール運用の対応表＋統合の進め方①〜⑥' },
+      { href: '/app-urls', label: 'アプリURL', note: '各アプリのURL一覧' },
       { href: '/morning', label: '朝会', note: '朝のブリーフィング画面' },
       { href: '/daily', label: '日別', note: '日別の作業まとめ' },
       { href: '/legacy/home', label: '旧ダッシュボード', note: '以前のトップ画面（全部入り）' },

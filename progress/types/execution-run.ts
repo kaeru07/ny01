@@ -52,6 +52,8 @@ export interface ExecutionRun {
   targetApp: string
   /** 任意。executor が Epic に紐付く Run を POST するとき指定する。未指定 Run は targetApp / targetTodoId でフォールバック結合する。 */
   epicId?: string
+  skillId?: string
+  skillVersion?: number
   targetTodoId?: string
   targetTodoTitle: string
   runStatus: RunStatus

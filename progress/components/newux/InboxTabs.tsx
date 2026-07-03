@@ -12,14 +12,14 @@ import InboxCardItem from './InboxActions'
 import AiCheckButton from './AiCheckButton'
 import InboxReviewCopyButton from './InboxReviewCopyButton'
 
-// Inbox の4区分（今日の判断 / レビュー / Epic候補 / AI保留）をタブで切り替える。
+// Inbox の4区分（今日の判断 / ゴール承認 / 達成確認 / レビュー）をタブで切り替える。
 // URLクエリを初期状態へ反映し、トップの「Inboxでレビューする」から該当レビューへ直接移動できるようにする。
 
-const SECTION_DISPLAY_LIMIT = 5
 // レビューが大量でも「隠れている」印象を出さないため、全件を明示ページングで見せる。
 const REVIEW_PAGE_SIZE = 50
 
 type TabKey = 'decisions' | 'goalApproval' | 'achievement' | 'reviews' | 'candidates' | 'aiHold'
+type VisibleTabKey = Exclude<TabKey, 'candidates' | 'aiHold'>
 type ReviewFilter = 'unconfirmed' | 'followup' | 'snoozed' | 'reviewed'
 type GoalApprovalSourceFilter = 'auto' | 'other'
 
@@ -30,7 +30,7 @@ interface Props {
 }
 
 function tabFromQuery(value: string | null): TabKey {
-  if (value === 'review') return 'reviews'
+  if (value === 'review' || value === 'reviews') return 'reviews'
   if (value === 'goalApproval') return 'goalApproval'
   if (value === 'achievement') return 'achievement'
   if (value === 'candidates') return 'candidates'
@@ -250,7 +250,7 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
     router.replace(buildProgressFilterUrl('/decide', updateFilterParam(parseProgressFilters(searchParams), patch)), { scroll: false })
   }
 
-  function changeTab(key: TabKey) {
+  function changeTab(key: VisibleTabKey) {
     setTab(key)
     navigateFilters({ tab: key })
   }
@@ -259,7 +259,6 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
   const filteredProposedGoals = filterCards(scopeFiltered(inbox.proposedGoals, selectedGoalId, selectedProjectId), progressFilters)
   const filteredReviews = filterCards(scopeFiltered(inbox.reviews, selectedGoalId, selectedProjectId), progressFilters, { reviewOnly: true })
   const filteredReviewedHistory = filterCards(scopeFiltered(inbox.reviewedHistory, selectedGoalId, selectedProjectId), progressFilters, { reviewOnly: true })
-  const filteredCandidates = filterCards(scopeFiltered(inbox.candidates, selectedGoalId, selectedProjectId), progressFilters)
   const achievedGoalIdSet = new Set(inbox.achievedGoalIds)
   const filteredAchievementReviews = filteredReviews.filter((card) => Boolean(card.goalId && achievedGoalIdSet.has(card.goalId)))
   const goalTitleById = new Map(inbox.goalSummaries.map((summary) => [summary.goalId, summary.goalTitle]))
@@ -326,14 +325,11 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
   }
 
   const reviewTotal = filteredReviews.length + filteredReviewedHistory.length
-  const aiHoldCount = selectedGoalId ? (selectedGoalSummary?.aiHold ?? 0) : inbox.aiHoldCount
-  const tabs: Array<{ key: TabKey; label: string; count: number; alert: boolean }> = [
+  const tabs: Array<{ key: VisibleTabKey; label: string; count: number; alert: boolean }> = [
     { key: 'decisions', label: '今日の判断', count: filteredDecisions.length, alert: filteredDecisions.length > 0 },
     { key: 'goalApproval', label: 'ゴール承認', count: filteredProposedGoals.length, alert: filteredProposedGoals.length > 0 },
     { key: 'achievement', label: '達成確認', count: filteredAchievementReviews.length, alert: filteredAchievementReviews.length > 0 },
     { key: 'reviews', label: 'レビュー', count: reviewTotal, alert: false },
-    { key: 'candidates', label: 'Epic候補', count: filteredCandidates.length, alert: false },
-    { key: 'aiHold', label: 'AI保留', count: aiHoldCount, alert: false },
   ]
 
   const tabCounts = {
@@ -341,8 +337,6 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
     goalApproval: filteredProposedGoals.length,
     achievement: filteredAchievementReviews.length,
     reviews: reviewTotal,
-    candidates: filteredCandidates.length,
-    aiHold: aiHoldCount,
   }
   const executableCount = selectedGoalId ? selectedAutoItems.filter((item) => item.status === 'executable').length : autoQueue.counts.executable
   const blockedCount = selectedGoalId ? selectedAutoItems.filter((item) => item.status === 'blocked').length : autoQueue.counts.blocked
@@ -388,8 +382,6 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
             <span>レビュー {tabCounts.reviews}</span>
             <span>要修正 {selectedGoalSummary?.followup ?? followupReviews.length}</span>
             <span>あとで {selectedGoalSummary?.snoozed ?? snoozedReviews.length}</span>
-            <span>AI保留 {tabCounts.aiHold}</span>
-            <span>Epic候補 {tabCounts.candidates}</span>
             <span>実行可能 {executableCount}</span>
             <span>ブロック {blockedCount}</span>
           </div>
@@ -407,8 +399,6 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
             { key: 'review', label: 'レビュー', patch: { tab: 'reviews' }, active: progressFilters.tab === 'reviews' },
             { key: 'followup', label: '要修正', patch: { tab: 'reviews', reviewStatus: 'needs_followup' }, active: progressFilters.tab === 'reviews' && progressFilters.reviewStatus === 'needs_followup' },
             { key: 'fixPrompt', label: 'fixPromptあり', patch: { tab: 'reviews', fixPrompt: true }, active: progressFilters.fixPrompt === true },
-            { key: 'candidates', label: 'Epic候補', patch: { tab: 'candidates' }, active: progressFilters.tab === 'candidates' },
-            { key: 'aiHold', label: 'AI保留', patch: { tab: 'aiHold' }, active: progressFilters.tab === 'aiHold' },
           ]}
           selectFilters={[
             { key: 'goalId', label: 'Goal', placeholder: 'すべてのGoal', options: inbox.goalSummaries.map((summary) => ({ value: summary.goalId, label: summary.goalTitle })) },
@@ -750,53 +740,29 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
         </section>
       )}
 
-      {/* ③ Epic候補（放置可能） */}
+      {/* 旧URL互換: Epic候補はおすすめ次作業へ移動 */}
       {tab === 'candidates' && (
-        <section className="mt-4">
-          <p className="mb-2 text-[11px] text-gray-400">放置可能です。気が向いたときに「進める/やめる」を選んでください。</p>
-          {filteredCandidates.length === 0 ? (
-            <>
-              <p className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-center text-xs text-gray-400 dark:border-gray-800 dark:bg-gray-900">
-                いま提案できる候補はありません。
-              </p>
-              <EmptyGuidance currentLabel="Epic候補" />
-            </>
-          ) : (
-            <>
-              <ul className="space-y-3">
-                {filteredCandidates.slice(0, SECTION_DISPLAY_LIMIT).map((card) => (
-                  <InboxCardItem key={card.id} card={card} />
-                ))}
-              </ul>
-              {filteredCandidates.length > SECTION_DISPLAY_LIMIT && (
-                <p className="mt-2 text-[11px] text-gray-400">ほか{filteredCandidates.length - SECTION_DISPLAY_LIMIT}件。処理すると次が出ます</p>
-              )}
-            </>
-          )}
+        <section className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-900/50 dark:bg-blue-900/15">
+          <h2 className="text-sm font-bold text-blue-900 dark:text-blue-100">この一覧は移動しました</h2>
+          <p className="mt-1 text-xs leading-relaxed text-blue-800 dark:text-blue-200">
+            Epic候補は「おすすめ次作業（推薦Epic）」で確認できます。
+          </p>
+          <Link href="/recommended-epics" className="mt-3 inline-flex rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-700">
+            おすすめ次作業を開く
+          </Link>
         </section>
       )}
 
-      {/* ④ AI保留（件数のみ） */}
+      {/* 旧URL互換: AI保留は自動実行のその他ビューへ移動 */}
       {tab === 'aiHold' && (
-        <section className="mt-4 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-          <div className="text-center">
-            <p className="text-3xl font-bold text-gray-400 dark:text-gray-500">{aiHoldCount}件</p>
-            <p className="mt-1 text-xs text-gray-400">AIが整理中です（あなたの判断は不要）</p>
-          </div>
-          {!selectedGoalId && inbox.aiHoldBreakdown.length > 0 && (
-            <dl className="mt-4 space-y-2">
-              {inbox.aiHoldBreakdown.map((item) => (
-                <div key={item.label} className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800/50">
-                  <dt className="text-xs font-semibold text-gray-700 dark:text-gray-200">{item.label}</dt>
-                  <dd className="text-sm font-bold text-gray-900 dark:text-gray-100">{item.count}件</dd>
-                </div>
-              ))}
-            </dl>
-          )}
-          {aiHoldCount === 0 && <EmptyGuidance currentLabel="AI保留" />}
-          <p className="mt-3 text-[11px] leading-relaxed text-gray-400">
-            重複候補・定期実行・次作業候補・自動レビュー待ちなどをAIが分類して預かっています。必要になれば順番に今日の判断へ出ます。
+        <section className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-900/50 dark:bg-blue-900/15">
+          <h2 className="text-sm font-bold text-blue-900 dark:text-blue-100">この一覧は移動しました</h2>
+          <p className="mt-1 text-xs leading-relaxed text-blue-800 dark:text-blue-200">
+            AI保留は「自動実行」のその他ビューで確認できます。
           </p>
+          <Link href="/queue?view=others" className="mt-3 inline-flex rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-700">
+            自動実行のその他を開く
+          </Link>
         </section>
       )}
     </div>

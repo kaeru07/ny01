@@ -1,6 +1,7 @@
 import { addAppFactoryCandidate, getAppFactoryCandidates, type AppFactoryCandidate, type AppProposalDifficulty, type AppProposalOceanType } from '@/lib/app-factory-candidates'
 import { appendAutomationLog } from '@/lib/operations-store'
 import { buildResearchGoalCandidates } from '@/lib/research-goals'
+import { readAiNewsSeed, readMarketResearchSeed, type AiNewsSeed, type MarketResearchSeed } from '@/lib/research-seed-reader'
 import { getKnowledgeRecords } from '@/lib/knowledge-loop'
 import { runCommand } from '@/lib/executors/shell'
 import type { EpicRiskFlag } from '@/lib/types/operations'
@@ -16,6 +17,11 @@ interface ProposalSeed {
   title: string
   summary: string
   source: string
+}
+
+interface MarketObservationSeed {
+  market: MarketResearchSeed | null
+  aiNews: AiNewsSeed | null
 }
 
 interface AiScreen {
@@ -134,7 +140,42 @@ async function collectSeeds(): Promise<ProposalSeed[]> {
   }]
 }
 
-function buildAiPrompt(seeds: ProposalSeed[]): string {
+async function collectMarketObservationSeed(): Promise<MarketObservationSeed> {
+  const [market, aiNews] = await Promise.all([
+    readMarketResearchSeed().catch(() => null),
+    readAiNewsSeed().catch(() => null),
+  ])
+  return { market, aiNews }
+}
+
+function marketObservationSources(observation?: MarketObservationSeed): string[] {
+  if (!observation) return []
+  return [
+    observation.market ? 'market-research' : '',
+    observation.aiNews ? 'ai-news' : '',
+  ].filter(Boolean)
+}
+
+function buildMarketObservationBlock(observation?: MarketObservationSeed): string[] {
+  if (!observation?.market && !observation?.aiNews) return []
+  const lines = [
+    '## 市場観測(今日の調査より)',
+    'この市場観測に基づき、App Store / Google Play で公開・DL・収益化が狙えるモバイルアプリ案を作ってください。既存seedは補助情報として使ってください。',
+  ]
+  if (observation.market) {
+    lines.push(`注目ジャンル (${observation.market.date}):`)
+    lines.push(...(observation.market.genres.length > 0 ? observation.market.genres : ['該当セクションなし']).map((item) => `- ${item}`))
+    lines.push(`収益化ヒント (${observation.market.date}):`)
+    lines.push(...(observation.market.monetizationHints.length > 0 ? observation.market.monetizationHints : ['該当セクションなし']).map((item) => `- ${item}`))
+  }
+  if (observation.aiNews) {
+    lines.push(`重要ニュース(高影響) (${observation.aiNews.date}):`)
+    lines.push(...(observation.aiNews.highlights.length > 0 ? observation.aiNews.highlights : ['高影響ニュースなし']).map((item) => `- ${item}`))
+  }
+  return lines
+}
+
+function buildAiPrompt(seeds: ProposalSeed[], observation?: MarketObservationSeed): string {
   const seedBlock = seeds.map((seed, index) => ({
     index: index + 1,
     source: seed.source,
@@ -146,7 +187,11 @@ function buildAiPrompt(seeds: ProposalSeed[]): string {
     'App Store / Google Play で公開・ダウンロード・収益化できるモバイルアプリ案を1〜3件出してください。',
     'Webアプリを主軸にしないでください。既定プラットフォームは iOS / Android です。',
     '直近の research / knowledge を種として、ストア公開前提の具体的な勝ち筋・市場・仕様に落とし込んでください。',
+    ...(observation?.market || observation?.aiNews
+      ? ['市場観測を主たる種として扱い、注目ジャンル、収益化ヒント、個人開発への影響度が高いニュースからアプリ案の需要・課金価値・差別化を組み立ててください。']
+      : []),
     '各案は単なる「支援アプリ」ではなく、ユーザーがストアで探してインストールする理由が明確なものにしてください。',
+    ...buildMarketObservationBlock(observation),
     '必ず次のJSON配列だけを返してください。前後に説明文、Markdown、コードフェンスを付けないでください。',
     '',
     JSON.stringify([{
@@ -399,14 +444,17 @@ function toCandidate(proposal: AiStoreAppProposal, index: number, now: string): 
   }
 }
 
-function fallbackProposal(seed: ProposalSeed): AiStoreAppProposal {
+function fallbackProposal(seed: ProposalSeed, observation?: MarketObservationSeed): AiStoreAppProposal {
+  const genre = observation?.market?.genres[0]
+  const genreLabel = genre ? compactText(genre.replace(/^[・\-\s]+/, '').replace(/[。．.].*$/, '').replace(/[:：].*$/, ''), '', 32) : ''
   const baseTitle = seed.title.replace(/を(試す|調査する)$/, '').trim() || seed.title
-  const title = `${baseTitle}モバイル`
+  const title = `${genreLabel || baseTitle}モバイル`
   const summary = seed.summary.slice(0, 180)
+  const marketNote = genre ? `今日の市場観測「${genre.slice(0, 140)}」も踏まえる。` : ''
   return {
     title,
-    overview: `${seed.source} 起点のストア公開前提モバイルアプリ案。今日の判断で要精査。`,
-    purpose: `${summary} をもとに、iOS / Android ユーザーが日常的に記録・判断・次アクション化できるストア公開アプリを作る。`,
+    overview: `${genreLabel ? '市場観測' : seed.source} 起点のストア公開前提モバイルアプリ案。今日の判断で要精査。`,
+    purpose: `${summary} をもとに、iOS / Android ユーザーが日常的に記録・判断・次アクション化できるストア公開アプリを作る。${marketNote}`,
     targetUser: 'App Store / Google Play で課題解決アプリを探す iOS / Android ユーザー',
     features: ['クイック記録', '一覧と検索', '判断メモ', 'リマインダー', '課金プラン管理'],
     screens: [
@@ -416,7 +464,7 @@ function fallbackProposal(seed: ProposalSeed): AiStoreAppProposal {
       { name: '詳細', rows: ['要約', '判断メモ', '次アクション', '共有'] },
       { name: '設定', rows: ['iOS / Android 通知', 'サブスク状態', 'データ管理', 'ストアレビュー導線'] },
     ],
-    marketValue: `${seed.source} 由来の需要仮説。App Store / Google Play で類似カテゴリ、検索語、価格帯、レビュー不満、支払い意思を今日の判断で要精査。`,
+    marketValue: `${genreLabel ? `注目ジャンル「${genreLabel}」` : `${seed.source} 由来`}の需要仮説。App Store / Google Play で類似カテゴリ、検索語、価格帯、レビュー不満、支払い意思を今日の判断で要精査。`,
     oceanType: 'unknown',
     oceanRationale: 'ストア競合密度、レビュー不満、差別化可能なワークフローは未調査。今日の判断で要精査。',
     monetizationHypothesis: '無料インストールで利用開始し、継続利用・通知・テンプレート・分析の価値に対してストア課金する仮説。',
@@ -433,13 +481,13 @@ function fallbackProposal(seed: ProposalSeed): AiStoreAppProposal {
   }
 }
 
-export async function generateStoreAppProposalsViaAI(seeds: ProposalSeed[]): Promise<{ proposals: AiStoreAppProposal[]; mode: 'ai' | 'fallback'; reason: string }> {
-  const prompt = buildAiPrompt(seeds)
+export async function generateStoreAppProposalsViaAI(seeds: ProposalSeed[], observation?: MarketObservationSeed): Promise<{ proposals: AiStoreAppProposal[]; mode: 'ai' | 'fallback'; reason: string }> {
+  const prompt = buildAiPrompt(seeds, observation)
   const ai = await runProposalCli(prompt)
   if (ai.source === 'ai' && ai.proposals.length > 0) {
     return { proposals: ai.proposals, mode: 'ai', reason: ai.reason }
   }
-  return { proposals: [fallbackProposal(seeds[0])], mode: 'fallback', reason: ai.reason }
+  return { proposals: [fallbackProposal(seeds[0], observation)], mode: 'fallback', reason: ai.reason }
 }
 
 export async function ensureDailyAppProposal(): Promise<DailyAppProposalResult> {
@@ -455,19 +503,24 @@ export async function ensureDailyAppProposal(): Promise<DailyAppProposalResult> 
   }
 
   const seeds = await collectSeeds()
+  const observation = await collectMarketObservationSeed()
+  const seedSources = [
+    ...marketObservationSources(observation),
+    ...Array.from(new Set(seeds.map((seed) => seed.source))),
+  ]
   const now = new Date().toISOString()
-  const generated = await generateStoreAppProposalsViaAI(seeds)
+  const generated = await generateStoreAppProposalsViaAI(seeds, observation)
   const candidates = generated.proposals.slice(0, MAX_AI_PROPOSALS).map((proposal, index) => toCandidate(proposal, index, now))
 
   const candidateIds: string[] = []
-  for (const candidate of candidates.length > 0 ? candidates : [toCandidate(fallbackProposal(seeds[0]), 0, now)]) {
+  for (const candidate of candidates.length > 0 ? candidates : [toCandidate(fallbackProposal(seeds[0], observation), 0, now)]) {
     await addAppFactoryCandidate(candidate)
     candidateIds.push(candidate.id)
   }
 
   await appendAutomationLog({
     event: 'app_proposal_generated',
-    fallbackReason: `mode=${generated.mode} count=${candidateIds.length} reason=${generated.reason}`,
+    fallbackReason: `mode=${generated.mode} count=${candidateIds.length} seed=${seedSources.join(',') || 'none'} reason=${generated.reason}`,
     fallbackTarget: candidateIds.join(','),
   })
 

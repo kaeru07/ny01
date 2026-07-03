@@ -1383,8 +1383,124 @@
     ],
     "recommended": "proceed",
     "reason": "課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260702-212421",
-    "createdAt": "2026-07-02T14:00:16.739Z"
+    "createdAt": "2026-07-02T14:00:16.739Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-03T05:03:26.232Z"
+  },
+  {
+    "approvalId": "appr-1783055007871-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 日々の調査の仕様レビュー(research-review)",
+    "category": "external_publish",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "公開・デプロイ関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "decided",
+    "createdRunId": "20260703-084035",
+    "createdAt": "2026-07-03T05:03:27.871Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-03T07:00:27.236Z"
+  },
+  {
+    "approvalId": "appr-1783055007901-2",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-03T05:03:27.901Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-03T07:00:27.240Z"
+  },
+  {
+    "approvalId": "appr-1783055007949-3",
+    "epicId": "epic-91",
+    "title": "判断が必要: アプリ案: 実装計画フィールド+仕様方針網羅+進行バッジ+設計一覧ページ",
+    "category": "secret",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "認証・秘密情報関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-03T05:03:27.949Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-03T07:00:27.243Z"
+  },
+  {
+    "approvalId": "appr-1783062028884-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "pending",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-03T07:00:28.884Z"
   }
 ]

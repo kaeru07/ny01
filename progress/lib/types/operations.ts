@@ -475,6 +475,7 @@ export interface AutomationLogEntry {
     | 'urgent_issues_recorded'
     | 'blocked_decisions_ensured'
     | 'approval_effect_applied'
+    | 'skill_maintenance'
   // --- auto_fallback 用（detection イベントでは未設定可） ---
   fallbackTriggered?: boolean
   fallbackReason?: string

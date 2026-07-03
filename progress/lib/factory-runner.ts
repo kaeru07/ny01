@@ -28,6 +28,7 @@ import { DANGER_CATEGORIES, isReviewApprovalOptions } from './inbox-labels'
 import { getAdapter } from './executors'
 import { decideCodexFallback } from './executor-fallback'
 import { runChecks, failingChecks, gateRunStatusByChecks } from './checks-runner'
+import { readSkills } from './skill-store'
 import type { ChecksRunResult } from './checks-runner'
 import { getDoneCriteriaForEpic } from './done-criteria'
 import type { FactoryRunMode, FactoryRunReport, FactoryRunStep, ExecutorResult } from './executors/types'
@@ -92,6 +93,23 @@ function selectionFromPlan(plan: FactoryDispatchPlan): ExecutionRun['selection']
     riskFlags: plan.riskFlags,
     hasFixPrompt: plan.hasFixPrompt === true,
     selectedAt,
+  }
+}
+
+async function resolveSkillForRun(args: { epicId: string; targetApp: string }): Promise<Pick<ExecutionRun, 'skillId' | 'skillVersion'>> {
+  try {
+    const skillId = args.epicId.startsWith('epic-goalstep-goal-app-')
+      ? 'skill-store-app-scaffold'
+      : args.targetApp === 'progress'
+        ? 'skill-progress-feature'
+        : undefined
+    if (!skillId) return {}
+    const skill = (await readSkills()).find((item) => item.id === skillId)
+    if (!skill) return {}
+    return { skillId: skill.id, skillVersion: skill.version }
+  } catch (err) {
+    console.warn('skill mapping failed:', err)
+    return {}
   }
 }
 
@@ -236,12 +254,14 @@ async function recordRun(args: {
     targetTodoTitle: args.title,
     errors,
   })
+  const skillFields = await resolveSkillForRun({ epicId: args.epicId, targetApp: args.targetApp })
   const run: ExecutionRun = {
     runId,
     startedAt: now,
     finishedAt: now,
     targetApp: args.targetApp,
     epicId: args.epicId,
+    ...skillFields,
     targetTodoTitle: args.title,
     runStatus: gatedRunStatus,
     reviewStatus: 'not_reviewed',
@@ -288,12 +308,14 @@ async function startRunningRun(args: {
 }): Promise<string> {
   const runId = await generateUniqueRunId()
   const now = new Date().toISOString()
+  const skillFields = await resolveSkillForRun({ epicId: args.epicId, targetApp: args.targetApp })
   const run: ExecutionRun = {
     runId,
     startedAt: now,
     finishedAt: now,
     targetApp: args.targetApp,
     epicId: args.epicId,
+    ...skillFields,
     targetTodoTitle: args.title,
     runStatus: 'running',
     reviewStatus: 'not_reviewed',

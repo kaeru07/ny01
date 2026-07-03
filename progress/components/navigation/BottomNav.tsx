@@ -26,13 +26,13 @@ const navItems = [
     ),
   },
   {
-    href: '/activity',
-    label: '状況',
+    href: '/queue',
+    label: '自動実行',
     exact: false,
-    activePaths: STATUS_PATHS,
+    activePaths: AUTO_EXECUTION_PATHS,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-8" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 3L4 14h7l-1 7 9-11h-7l1-7z" />
       </svg>
     ),
   },
@@ -49,13 +49,13 @@ const navItems = [
     ),
   },
   {
-    href: '/queue',
-    label: '自動実行',
+    href: '/portfolio',
+    label: '状況',
     exact: false,
-    activePaths: AUTO_EXECUTION_PATHS,
+    activePaths: STATUS_PATHS,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M13 3L4 14h7l-1 7 9-11h-7l1-7z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-8" />
       </svg>
     ),
   },

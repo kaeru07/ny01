@@ -4,16 +4,15 @@ export interface SubNavItem {
 }
 
 export const STATUS_SUBTABS: SubNavItem[] = [
-  { label: '状況', href: '/activity' },
-  { label: 'PJ完了', href: '/project-complete' },
   { label: 'プロジェクト状況', href: '/portfolio' },
+  { label: '自動実行状況', href: '/activity' },
+  { label: 'PJ完了', href: '/project-complete' },
 ]
 
 export const APP_DEVELOPMENT_SUBTABS: SubNavItem[] = [
   { label: '新アプリ案', href: '/app-proposals' },
-  { label: '既存アプリ仕様承認', href: '/app-specs' },
   { label: '設計一覧', href: '/app-designs' },
-  { label: '承認・方針決定歴', href: '/app-decisions' },
+  { label: '仕様承認・履歴', href: '/app-specs' },
 ]
 
 export const AUTO_EXECUTION_SUBTABS: SubNavItem[] = [
@@ -22,5 +21,5 @@ export const AUTO_EXECUTION_SUBTABS: SubNavItem[] = [
 ]
 
 export const STATUS_PATHS = STATUS_SUBTABS.map((item) => item.href)
-export const APP_DEVELOPMENT_PATHS = APP_DEVELOPMENT_SUBTABS.map((item) => item.href)
+export const APP_DEVELOPMENT_PATHS = [...APP_DEVELOPMENT_SUBTABS.map((item) => item.href), '/app-decisions']
 export const AUTO_EXECUTION_PATHS = AUTO_EXECUTION_SUBTABS.map((item) => item.href)
