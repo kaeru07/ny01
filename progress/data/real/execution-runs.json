@@ -34202,6 +34202,60 @@
         "自動実行の改善効果が大きいSkillを模索・追加(5 Skill体制) の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "## 自動実行に効くSkill体制(5件)\n\n### 効かせる失敗パターン(実データ由来)\na) errors誤検知(stderr断片)→v2手順で『errorsには実エラーのみ』を全Skillに明記\nb) 変更ゼロ空回りrun→progress-feature v2『今回のrunで着地させる変更を1つ決める。変更ゼロで終えない』\nc) 白画面見逃し→『実描画(HTTP200+主要文言)まで確認。curl200だけで完了にしない』\nd) fix対応場当たり→skill-fix-followup(fixRequested時に最優先選択)\ne) 非progressアプリでprogress前提コマンドを使う事故→skill-app-change(アプリ固有の検証手段を最初に確認)\nf) 必須判断未回答で勝手に進む→scaffold v2『未回答の必須判断があれば進めず明記』\n\n### 検証\ntsc/build OK・test29/29。選択5パターン全正解・記録と注入のcontext一致・SkillVersion履歴あり。\n\nmonetizationImpact: medium\ntheme: [workflow, prompt-template]"
+    },
+    {
+      "runId": "20260704-002359",
+      "startedAt": "2026-07-03T15:23:59.033Z",
+      "finishedAt": "2026-07-03T15:23:59.033Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "Skill推奨実行者(実装=Codex標準)+Skillなし実行カバレッジ可視化",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "継続改善2件。A: Skillに preferredExecutor を追加し全5Skillをcodex推奨に設定、step epic生成の実行者既定を sourceTodo指定→Skill推奨→claude の順へ(ユーザー標準運用『実装はCodex・検証/安全判断はClaude』をfactoryに反映。安全ゲートは不変)。B: /skillsに『Skillなしで実行された作業』(直近30日・targetApp別)を追加し、次のSkill追加候補がデータで見えるように。",
+      "changedFiles": [
+        {
+          "file": "lib/types/skill.ts",
+          "change": "preferredExecutor追加"
+        },
+        {
+          "file": "lib/skill-store.ts",
+          "change": "normalize透過"
+        },
+        {
+          "file": "data/real/skills.json",
+          "change": "5Skillにcodex推奨"
+        },
+        {
+          "file": "lib/goal-step-epic.ts",
+          "change": "実行者既定: todo指定→Skill推奨→claude"
+        },
+        {
+          "file": "app/skills/page.tsx",
+          "change": "推奨実行者バッジ+Skillなし実行カバレッジ"
+        },
+        {
+          "file": "app/skills/[skillId]/page.tsx",
+          "change": "詳細に実行者バッジ"
+        },
+        {
+          "file": "lib/skill-store.test.ts",
+          "change": "normalize脱落防止"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "test": "OK 29/29",
+        "manual": "OK live: /skillsにバッジ+カバレッジ描画/skills.json全5件codex/goal-step-epic新ロジック確認"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "Skill推奨実行者(実装=Codex標準)+Skillなし実行カバレッジ可視化 の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## Skills継続改善(第2弾)\n\nA: 標準運用(実装=Codex)がfactoryのepic生成既定(claude固定)に反映されていなかった逆転を是正。Skill=作業種類が最適実行者を持ち、新規step epicから効く。danger/requiresClaude/canRunOnCodexの安全判定は不変。Claude上限への耐性も向上。\nB: 「未分類が多い種類から次のSkillを足す」方針の判断材料(Skillなし実行のapp別件数)を/skillsに常設。\n\n見送り(候補として記録): doneCriteriaの既定文が汎用的でcontinueループの一因になっている件は、機械判定への影響が読みにくいため今回は変更せず。数日分のSkill別成績を見てから判断。\n\nmonetizationImpact: low\ntheme: [workflow]"
     }
   ]
 }

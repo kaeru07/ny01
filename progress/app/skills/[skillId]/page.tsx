@@ -29,6 +29,18 @@ function fmtRate(value: number | undefined): string {
   return typeof value === 'number' ? `${Math.round(value * 100)}%` : '-'
 }
 
+function executorBadgeClass(executor?: 'claude' | 'codex'): string {
+  if (executor === 'codex') return 'bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-200'
+  if (executor === 'claude') return 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-200'
+  return 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-300'
+}
+
+function executorLabel(executor?: 'claude' | 'codex'): string {
+  if (executor === 'codex') return 'Codex推奨'
+  if (executor === 'claude') return 'Claude推奨'
+  return '推奨未設定'
+}
+
 function runStatusLabel(status: ExecutionRun['runStatus']): string {
   if (status === 'completed') return '完了'
   if (status === 'failed') return '失敗'
@@ -104,6 +116,9 @@ export default async function SkillDetailPage({ params }: Params) {
             <span className="rounded-full bg-gray-100 px-2 py-1 font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-200">v{skill.version}</span>
             <span className={`rounded-full px-2 py-1 font-semibold ${skill.enabled ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-200' : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-300'}`}>
               {skill.enabled ? '有効' : '無効'}
+            </span>
+            <span className={`rounded-full px-2 py-1 font-semibold ${executorBadgeClass(skill.preferredExecutor)}`}>
+              {executorLabel(skill.preferredExecutor)}
             </span>
             {skill.riskFlags.length > 0 && <span className="text-amber-600">⚠ {skill.riskFlags.join(', ')}</span>}
           </div>

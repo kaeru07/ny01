@@ -41,6 +41,9 @@ function normalizeSkill(raw: unknown): Skill | null {
     description: typeof obj.description === 'string' ? obj.description : undefined,
     promptTemplate: typeof obj.promptTemplate === 'string' ? obj.promptTemplate : undefined,
     procedure: typeof obj.procedure === 'string' ? obj.procedure : undefined,
+    preferredExecutor: obj.preferredExecutor === 'claude' || obj.preferredExecutor === 'codex'
+      ? obj.preferredExecutor
+      : undefined,
     inputs: asStringArray(obj.inputs),
     outputs: asStringArray(obj.outputs),
     riskFlags: asRiskFlags(obj.riskFlags),

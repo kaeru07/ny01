@@ -16,6 +16,11 @@ interface SkillMetrics {
   lastUsed?: string
 }
 
+interface NoSkillCoverageItem {
+  targetApp: string
+  count: number
+}
+
 function fmtDate(value?: string): string {
   if (!value) return '-'
   const date = new Date(value)
@@ -30,6 +35,18 @@ function fmtRate(value?: number): string {
 function runTime(run: ExecutionRun): number {
   const value = Date.parse(run.finishedAt || run.startedAt)
   return Number.isFinite(value) ? value : 0
+}
+
+function executorBadgeClass(executor?: 'claude' | 'codex'): string {
+  if (executor === 'codex') return 'bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-200'
+  if (executor === 'claude') return 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-200'
+  return 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-300'
+}
+
+function executorLabel(executor?: 'claude' | 'codex'): string {
+  if (executor === 'codex') return 'Codex推奨'
+  if (executor === 'claude') return 'Claude推奨'
+  return '推奨未設定'
 }
 
 function computeMetrics(runs: ExecutionRun[]): Map<string, SkillMetrics> {
@@ -55,6 +72,26 @@ function computeMetrics(runs: ExecutionRun[]): Map<string, SkillMetrics> {
   return metrics
 }
 
+function computeNoSkillCoverage(runs: ExecutionRun[], now = new Date()): { total: number; items: NoSkillCoverageItem[] } {
+  const cutoff = now.getTime() - 30 * 24 * 60 * 60 * 1000
+  const byTargetApp = new Map<string, number>()
+  for (const run of runs) {
+    if (run.skillId) continue
+    const time = runTime(run)
+    if (time < cutoff) continue
+    const targetApp = run.targetApp?.trim() || 'targetApp未設定'
+    byTargetApp.set(targetApp, (byTargetApp.get(targetApp) ?? 0) + 1)
+  }
+  const items = Array.from(byTargetApp.entries())
+    .map(([targetApp, count]) => ({ targetApp, count }))
+    .sort((a, b) => b.count - a.count || a.targetApp.localeCompare(b.targetApp))
+    .slice(0, 8)
+  return {
+    total: Array.from(byTargetApp.values()).reduce((sum, count) => sum + count, 0),
+    items,
+  }
+}
+
 export default async function SkillsPage() {
   const [skills, runs, candidates, versions] = await Promise.all([
     readSkills(),
@@ -63,6 +100,7 @@ export default async function SkillsPage() {
     readSkillVersions(),
   ])
   const metrics = computeMetrics(runs)
+  const noSkillCoverage = computeNoSkillCoverage(runs)
   const pendingCandidates = candidates.filter((candidate) => candidate.status === 'pending')
   const sortedVersions = [...versions].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
 
@@ -84,6 +122,7 @@ export default async function SkillsPage() {
               <tr>
                 <th className="px-3 py-2 text-left">name</th>
                 <th className="px-3 py-2 text-left">version</th>
+                <th className="px-3 py-2 text-left">推奨実行者</th>
                 <th className="px-3 py-2 text-left">enabled</th>
                 <th className="px-3 py-2 text-left">riskFlags</th>
                 <th className="px-3 py-2 text-right">使用回数</th>
@@ -104,6 +143,11 @@ export default async function SkillsPage() {
                       </Link>
                     </td>
                     <td className="px-3 py-2 text-gray-600 dark:text-gray-300">v{skill.version}</td>
+                    <td className="px-3 py-2">
+                      <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${executorBadgeClass(skill.preferredExecutor)}`}>
+                        {executorLabel(skill.preferredExecutor)}
+                      </span>
+                    </td>
                     <td className="px-3 py-2 text-gray-600 dark:text-gray-300">{skill.enabled ? 'true' : 'false'}</td>
                     <td className="px-3 py-2 text-gray-600 dark:text-gray-300">{skill.riskFlags.length > 0 ? `⚠ ${skill.riskFlags.join(', ')}` : '-'}</td>
                     <td className="px-3 py-2 text-right text-gray-600 dark:text-gray-300">{m?.usage ?? 0}</td>
@@ -116,6 +160,40 @@ export default async function SkillsPage() {
               })}
             </tbody>
           </table>
+        </div>
+      </section>
+
+      <section className="mb-6">
+        <h2 className="mb-2 text-sm font-semibold text-gray-800 dark:text-gray-100">Skillなしで実行された作業</h2>
+        <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900">
+          {noSkillCoverage.total === 0 ? (
+            <p className="text-sm text-gray-500">すべての実行にSkillが適用されています。</p>
+          ) : (
+            <>
+              <div className="mb-2 text-sm text-gray-700 dark:text-gray-300">直近30日: 計{noSkillCoverage.total}件</div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-700">
+                  <thead className="bg-gray-50 text-xs text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                    <tr>
+                      <th className="px-3 py-2 text-left">targetApp</th>
+                      <th className="px-3 py-2 text-right">件数</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                    {noSkillCoverage.items.map((item) => (
+                      <tr key={item.targetApp}>
+                        <td className="px-3 py-2 font-medium text-gray-900 dark:text-gray-100">{item.targetApp}</td>
+                        <td className="px-3 py-2 text-right text-gray-600 dark:text-gray-300">{item.count}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+          <p className="mt-3 text-xs text-gray-500">
+            件数が多い作業種類は、新しいSkillを追加する候補です（追加は3条件: 選択経路を書ける/実行が集まる/具体的手順を書ける）。
+          </p>
         </div>
       </section>
 

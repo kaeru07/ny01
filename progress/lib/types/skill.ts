@@ -6,6 +6,7 @@ export interface Skill {
   description?: string
   promptTemplate?: string
   procedure?: string
+  preferredExecutor?: 'claude' | 'codex'
   inputs: string[]
   outputs: string[]
   riskFlags: EpicRiskFlag[]

@@ -5,66 +5,71 @@
       "name": "progress機能追加手順",
       "description": "progressアプリに機能を追加するときの標準手順",
       "procedure": "1. 仕様と完了条件(doneCriteria)を確認し、今回のrunで着地させる変更を1つ決める（変更ゼロで終えない。進められない場合は理由と必要な判断をsummaryに明記して終了する）\n2. lib→UIの順で最小差分で実装する（無関係ファイルに触らない）\n3. 検証: npx tsc --noEmit / npm run build / 関連テスト。UI変更時はページの実描画（HTTP 200＋主要文言の存在）まで確認する（curl 200だけで完了にしない）\n4. 報告: summaryは人間語1〜2文（何ができるようになったか）。errorsには実際のエラーだけを入れる（stderrのコード断片やパスを入れない）。changedFilesを漏れなく記録し、nextActionsは次のrunがそのまま実行できる具体文にする",
+      "preferredExecutor": "codex",
       "inputs": [],
       "outputs": [],
       "riskFlags": [],
       "version": 2,
       "enabled": true,
       "createdAt": "2026-07-03T00:00:00.000Z",
-      "updatedAt": "2026-07-03T03:00:00.000Z"
+      "updatedAt": "2026-07-03T15:06:40.000Z"
     },
     {
       "id": "skill-store-app-scaffold",
       "name": "ストア公開前提モバイルアプリの初期構築手順",
       "description": "iOS/Androidでストア公開する前提のモバイルアプリMVPを初期構築する手順",
       "procedure": "1. ストア公開前提(iOS/Android)を確認し、今日の判断の決定事項（プラットフォーム/課金/MVP範囲）に必ず従う。未回答の必須判断があれば実装を進めず、その旨をsummaryに明記する\n2. MVP範囲だけを作る（機能を足しすぎない）。データモデル→主要画面→動作確認の順\n3. 課金・認証・外部公開に触れる実装はriskFlagsを立てて承認に回す（勝手に進めない）\n4. 検証: build/lint/型＋主要画面の実描画。報告はsummary人間語／errorsは実エラーのみ／changedFiles漏れなく／nextActionsは具体文",
+      "preferredExecutor": "codex",
       "inputs": [],
       "outputs": [],
       "riskFlags": [],
       "version": 2,
       "enabled": true,
       "createdAt": "2026-07-03T00:00:00.000Z",
-      "updatedAt": "2026-07-03T03:00:00.000Z"
+      "updatedAt": "2026-07-03T15:06:40.000Z"
     },
     {
       "id": "skill-research-ingest",
       "name": "research取り込み・構造化手順",
       "description": "research結果をprogressの候補・ゴールへつなげやすい形に構造化する手順",
       "procedure": "1. 入力元（research/牌譜/ニュース）と正本フォーマット仕様を確認し、それに従って構造化する\n2. 重要事実・候補・リスク・次アクションに分解し、既存データと重複を突合してから追加する\n3. 低品質・規約リスクのあるデータは取り込まず隔離し、理由を記録する\n4. 検証: 取り込み後の件数確認・検証スクリプト実行。報告はsummary人間語／errorsは実エラーのみ",
+      "preferredExecutor": "codex",
       "inputs": [],
       "outputs": [],
       "riskFlags": [],
       "version": 2,
       "enabled": true,
       "createdAt": "2026-07-03T00:00:00.000Z",
-      "updatedAt": "2026-07-03T03:00:00.000Z"
+      "updatedAt": "2026-07-03T15:06:40.000Z"
     },
     {
       "id": "skill-fix-followup",
       "name": "要修正・失敗の修正対応手順",
       "description": "前回の失敗・修正依頼(fixPrompt)を確実に閉じるための手順",
       "procedure": "1. 元の失敗run/fixPromptを読み、症状と期待動作を特定する（推測で直さない）\n2. 再現確認→原因特定→最小差分で修正する（場当たりの握りつぶし禁止。原因不明なら調査結果をsummaryに書き、判断が必要と明記して終了）\n3. 回帰確認: 元の症状が消えたこと＋既存テスト/build が通ることの両方を確認する\n4. 報告: 何が原因で何を直したかをsummaryに人間語で書く。同じ失敗の再発防止策（テスト追加・手順改善）をnextActionsに1つ入れる",
+      "preferredExecutor": "codex",
       "inputs": [],
       "outputs": [],
       "riskFlags": [],
       "version": 1,
       "enabled": true,
       "createdAt": "2026-07-03T03:00:00.000Z",
-      "updatedAt": "2026-07-03T03:00:00.000Z"
+      "updatedAt": "2026-07-03T15:06:40.000Z"
     },
     {
       "id": "skill-app-change",
       "name": "progress以外の既存アプリ改修手順",
       "description": "mahjong/news-app等、progress以外の既存アプリを安全に改修する手順",
       "procedure": "1. 対象アプリのビルド/検証手段を確認する（package.json/README。progressと同じコマンド体系を前提にしない）\n2. 既存の書き方・構成に合わせて最小差分で実装する（無関係ファイルに触らない）\n3. 検証: そのアプリのtsc/build/lint＋実挙動（画面があればHTTP応答だけでなく主要文言の実描画まで）。検証手段が無い場合はその旨を報告に明記\n4. 報告: summaryは人間語で「何ができるようになったか」。errorsには実際のエラーだけ（コード断片・パスを入れない）。changedFilesを漏れなく記録し、nextActionsは次のrunがそのまま実行できる具体文にする",
+      "preferredExecutor": "codex",
       "inputs": [],
       "outputs": [],
       "riskFlags": [],
       "version": 1,
       "enabled": true,
       "createdAt": "2026-07-03T03:00:00.000Z",
-      "updatedAt": "2026-07-03T03:00:00.000Z"
+      "updatedAt": "2026-07-03T15:06:40.000Z"
     }
   ],
-  "updatedAt": "2026-07-03T03:00:00.000Z"
+  "updatedAt": "2026-07-03T15:06:40.000Z"
 }

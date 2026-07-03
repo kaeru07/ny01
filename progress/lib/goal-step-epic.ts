@@ -107,7 +107,7 @@ export async function ensureNextGoalStepEpic(targetGoalId?: string, sourceTodoId
     factoryEligible: true,
     targetApp: target.projectId,
     relatedTodoIds: sourceTodoId ? [sourceTodoId] : undefined,
-    preferredExecutor: sourceTodo?.role === 'codex' ? 'codex' : 'claude',
+    preferredExecutor: sourceTodo?.role === 'codex' ? 'codex' : skill?.skill.preferredExecutor ?? 'claude',
     notes: sourceTodo
       ? `GoalTodoから自動生成した「次の一歩」Epic（todoId=${sourceTodo.id}）。完了後はGoalTodoの消化状況に反映する。${sourceTodo.memo ? `\nTodoメモ: ${sourceTodo.memo}` : ''}`
       : 'todo/epicの無い未達成Goalから自動生成した「次の一歩」Epic（ensureNextGoalStepEpic）。完了後もGoal未達成なら次のstep-epicが作られる。',
