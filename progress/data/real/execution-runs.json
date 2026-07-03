@@ -34302,6 +34302,44 @@
         "レビュー+修正: 自動実行だけでApp Store提出品質まで行けるか の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "## 自動実行だけでストア提出品質まで行けるかレビュー\n\n### 致命(修正済): 新規アプリの実行場所が無い\nresolveAppCwd固定マップ→未知projectId=null→factory-runner:582でrepo未登録停止。承認してもキューに乗るだけで最初の一歩で停止していた。修正で承認→apps/generated/<projectId>自動作成→factory実行可能に。動的解決はgenerated配下限定+[a-z0-9-]サニタイズで誤repo実行防止は維持。\n\n### 自動で行ける(仕組み完備)\n承認→ワークスペース→キュー→Skill v3(4フェーズ手順)注入→決定事項注入→実装→doneCriteria機械判定(L1-L3)→手詰まりは今日の判断→素材案・審査メタデータ準備まで。\n\n### 自動では行けない(物理制約・正直に)\n①iOSネイティブビルド: Linux VPSにXcode無し。Expo採用ならJS層まで自動、ネイティブビルドはEAS(アカウント/課金=承認必須)かユーザーMac ②実機確認・スクショ実物 ③課金sandbox・Developer アカウント・提出操作(external_publish=承認必須6点)。\n\n### 結論\n提出直前まで自動はWeb/Expo JS層で成立。ネイティブ最終ビルド+提出はユーザー操作という到達点を運用として確定。\n\nmonetizationImpact: high\ntheme: [app-strategy, workflow]"
+    },
+    {
+      "runId": "20260704-012804",
+      "startedAt": "2026-07-03T16:28:04.780Z",
+      "finishedAt": "2026-07-03T16:28:04.780Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "シミュレーションレビュー: 1からのアプリ自動作成で何ができるか+欠陥修正3件",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "Codemagic引き渡しを到達点に再設定しシミュレーション。致命欠陥3件を発見し即修正: ①checksがprogress前提(npx tsc/next lint固定)で新規アプリ誤NG→永久partial化→実態対応(package.json/tsconfig/scripts見て実行可能なチェックのみ) ②goal-app-*が1エピック完了で自動的にゴール完成扱い→自動クローズ禁止(完了は人間確認経由のみ) ③技術スタック判断が存在せず成果物の形が不定→framework必須判断追加(Expo/RN CLI/Next.js。Flutterは環境に無く除外)。残ギャップ(codemagic.yaml生成/GitHub push運用/アイコン実物/APIキー人間作業カード)はgoal-opus-codemagic-handoffでキュー投入。",
+      "changedFiles": [
+        {
+          "file": "lib/factory-runner.ts",
+          "change": "propagateEpicDoneToGoal: goal-app-*は自動クローズしない(完了は人間確認経由)"
+        },
+        {
+          "file": "lib/checks-runner.ts",
+          "change": "アプリ実態対応(scaffold前は空/lint・buildはscript存在時のみ/tscはtsconfig存在時のみ)"
+        },
+        {
+          "file": "app/api/app-proposals/[id]/decide/route.ts",
+          "change": "framework必須判断追加(Codemagic前提)"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "test": "OK 31/31",
+        "manual": "OK: 空ワークスペースでchecks={}(誤NGなし)確認"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "シミュレーションレビュー: 1からのアプリ自動作成で何ができるか+欠陥修正3件 の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## 1からのアプリ自動作成シミュレーション\n\n### 到達点再設定\nビルド・提出はユーザーがCodemagicで実施。自動の目標=Codemagicに渡せる完全なリポジトリ。\n\n### 発見し修正した欠陥\n1. checks誤NG死: runChecksがnpx tsc/next lint固定。scaffold前の空dirやExpoアプリでNG→lintゲートでcompleted→partial格下げ→needs_followupループ。→実態対応で解消。\n2. 早すぎる完成: propagateEpicDoneToGoalが単一goalstep epic完了でgoal done+current=target。4フェーズ開発が1run目のdoneCriteria通過(bigram曖昧一致)で完成宣言される構造欠陥。→goal-app-*は自動クローズ禁止、完了は手詰まり確認mark_done/達成確認の人間経由のみ。\n3. スタック未決定: 何で作るかの判断が無くrunごとに成果物の形が揺れるリスク+Flutterは環境に無い。→framework必須判断(Expo/RN CLI/Next.js)追加。\n\n### 人間判断の過不足評価\n必須: platform/技術スタック(新)/データ保存/認証。任意: 課金/MVP範囲。完成検収は人間必須化(修正2)。少なすぎた: リポジトリ公開先/APIキー提供(→handoffゴールで対応予定)。過剰な点はなし。\n\nmonetizationImpact: high\ntheme: [app-strategy, workflow]"
     }
   ]
 }

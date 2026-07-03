@@ -37,6 +37,8 @@ function appendStoreSubmissionQualityBar(text: string): string {
 // decisionPoints が空のアプリ案でも「作る」で必ず今日の判断に方針が並ぶよう、代表的な作成前方針をフォールバックとして使う。
 const DEFAULT_DECISION_POINTS = [
   { key: 'platform', question: '最初に公開するストア対象は？', options: ['iOS', 'Android', 'iOS + Android', 'iPad対応'], required: true },
+  // 技術スタックは成果物の形とCodemagicビルド設定を決める最重要判断。Flutterはこの実行環境に無いため選択肢に含めない。
+  { key: 'framework', question: '技術スタックは？（ビルドはCodemagic前提）', options: ['Expo (React Native)', 'React Native CLI', 'Next.js (Web/PWA)'], required: true },
   { key: 'data_storage', question: 'データ保存先は？', options: ['端末内のみ', 'クラウド同期あり', '端末内 + 手動バックアップ'], required: true },
   { key: 'auth', question: '認証を入れる？', options: ['認証なし', 'Apple/Googleログイン', 'メールログイン'], required: true },
   { key: 'pricing', question: '最初の課金方式は？', options: ['無料MVP', '買い切り', '月額サブスク', '広告 + 課金解除'], required: false },

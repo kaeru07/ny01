@@ -4515,8 +4515,28 @@
       "todos": [],
       "createdAt": "2026-07-02T23:39:25.344Z",
       "updatedAt": "2026-07-03T12:19:23.710Z"
+    },
+    {
+      "id": "goal-opus-codemagic-handoff",
+      "projectId": "company-mgmt",
+      "title": "生成アプリをCodemagicに渡せる状態にする仕組み",
+      "description": "【確定仕様】到達点=Codemagicでビルドできる完全なリポジトリ。1) skill-store-app-scaffoldの公開準備フェーズに codemagic.yaml 生成(選択スタックに応じたExpo/RN CLI/Next.jsテンプレ)+app.json/アイコン・スプラッシュのプレースホルダ画像生成(単色+頭文字でよい)を含める(Skill v4として履歴付き更新) 2) 生成アプリのGitHub push運用: ユーザー判断が必要(どのアカウント/リポジトリ名/公開・非公開)→承認時の今日の判断に「リポジトリ作成の方針」質問を追加し、回答後にgh repo create+push(認証は既存gh)。未回答の間はローカルgitのみ 3) 外部APIキーが必要になったら user_work(人間作業)カードを今日の判断に出す仕組み(executorがsummaryに「APIキー必要」と書いたらai-reviewが検知して人間作業カード生成)。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "【確定仕様】到達点=Codemagicでビルドできる完全なリポジトリ。1) skill-store-app-scaffoldの公開準備フェーズに codemagic.yaml 生成(選択スタックに応じたExpo/RN CLI/Next.jsテンプレ)+app.json/アイコン・スプラッシュのプレースホルダ画像生成(単色+頭文字でよい)を含める(Skill v4として履歴付き更新) 2) 生成アプリのGitHub push運用: ユーザー判断が必要(どのアカウント/リポジトリ名/公開・非公開)→承認時の今日の判断に「リポジトリ作成の方針」質問を追加し、回答後にgh repo create+push(認証は既存gh)。未回答の間はローカルgitのみ 3) 外部APIキーが必要になったら user_work(人間作業)カードを今日の判断に出す仕組み(executorがsummaryに「APIキー必要」と書いたらai-reviewが検知して人間作業カード生成)。",
+      "status": "active",
+      "priority": "high",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "monetizationImpact": "none",
+      "phases": [],
+      "todos": [],
+      "createdAt": "2026-07-03T16:28:04.667Z",
+      "updatedAt": "2026-07-03T16:28:04.667Z"
     }
   ],
   "mainGoalId": "goal-ai-factory-os",
-  "updatedAt": "2026-07-03T14:00:22.610Z"
+  "updatedAt": "2026-07-03T16:28:04.667Z"
 }

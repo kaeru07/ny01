@@ -193,6 +193,10 @@ async function detectGoalstepStaleNoChange(args: {
 
 export async function propagateEpicDoneToGoal(epicId: string, goalId?: string): Promise<void> {
   if (!goalId) return
+  // アプリ作成ゴール(goal-app-*)は1つの「次の一歩」Epic完了で閉じない。
+  // 4フェーズ(基盤→機能完成→品質仕上げ→公開準備)を次のstep epicで継続し、
+  // 完了は人間の確認(手詰まり確認のmark_done / 達成確認)経由でのみ行う。
+  if (goalId.startsWith('goal-app-')) return
   const [epics, goalsData] = await Promise.all([getEpics(), readGoals()])
   const goal = goalsData.goals.find((g) => g.id === goalId)
   if (!goal || goal.status !== 'active') return
