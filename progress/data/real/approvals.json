@@ -1499,8 +1499,37 @@
     ],
     "recommended": "proceed",
     "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-03T07:00:28.884Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-03T14:00:18.736Z"
+  },
+  {
+    "approvalId": "appr-1783087220799-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
     "status": "pending",
     "createdRunId": "20260703-084034",
-    "createdAt": "2026-07-03T07:00:28.884Z"
+    "createdAt": "2026-07-03T14:00:20.799Z"
   }
 ]

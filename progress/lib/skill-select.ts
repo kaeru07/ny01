@@ -11,6 +11,10 @@ export interface SkillSelectableEpic {
   goal?: string
 }
 
+export interface SkillSelectContext {
+  fixRequested?: boolean
+}
+
 function includesProgress(epic: SkillSelectableEpic): boolean {
   const values = [epic.targetApp, ...(epic.targetApps ?? [])]
   // progress改善ゴールは company-mgmt プロジェクト配下が実態（targetApp未設定も多い）。
@@ -28,8 +32,16 @@ function isResearchEpic(epic: SkillSelectableEpic): boolean {
   return text.includes('research') || text.includes('調査')
 }
 
+function hasNonProgressTargetApp(epic: SkillSelectableEpic): boolean {
+  const values = [epic.targetApp, ...(epic.targetApps ?? [])]
+    .map((value) => value?.trim().toLowerCase())
+    .filter((value): value is string => Boolean(value))
+  return values.length > 0 && values.some((value) => value !== 'progress' && value !== 'company-mgmt')
+}
+
 export async function selectSkillForEpic(
   epic: SkillSelectableEpic,
+  context: SkillSelectContext = {},
 ): Promise<{ skill: Skill; version: number } | null> {
   try {
     const skills = await readSkills()
@@ -37,13 +49,17 @@ export async function selectSkillForEpic(
     const selectedId =
       epic.skillId && enabled.has(epic.skillId)
         ? epic.skillId
-        : epic.goalId?.startsWith('goal-app-')
-          ? 'skill-store-app-scaffold'
-          : includesProgress(epic)
-            ? 'skill-progress-feature'
-            : isResearchEpic(epic)
-              ? 'skill-research-ingest'
-              : undefined
+        : context.fixRequested === true
+          ? 'skill-fix-followup'
+          : epic.goalId?.startsWith('goal-app-')
+            ? 'skill-store-app-scaffold'
+            : includesProgress(epic)
+              ? 'skill-progress-feature'
+              : isResearchEpic(epic)
+                ? 'skill-research-ingest'
+                : hasNonProgressTargetApp(epic)
+                  ? 'skill-app-change'
+                  : undefined
     if (!selectedId) return null
     const skill = enabled.get(selectedId)
     return skill ? { skill, version: skill.version } : null

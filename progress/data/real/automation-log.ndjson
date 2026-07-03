@@ -321,3 +321,11 @@
 {"id":"alog-1783062268471","at":"2026-07-03T07:04:28.471Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=3 needs_human=1 partial=6 failed=0 / 残not_reviewed=77","aiReviewCounts":{"processed":10,"reviewed":3,"needsHuman":1,"partial":6,"failed":0}}
 {"id":"alog-1783062268668","at":"2026-07-03T07:04:28.668Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
 {"id":"alog-1783081126192","at":"2026-07-03T12:18:46.192Z","event":"skill_maintenance","fallbackReason":"candidates=0"}
+{"id":"alog-1783087216755","at":"2026-07-03T14:00:16.755Z","event":"monetization_sync","fallbackReason":"added=0 updated=2","detectionStatus":"schedule"}
+{"id":"alog-1783087217024","at":"2026-07-03T14:00:17.024Z","event":"skill_maintenance","fallbackReason":"candidates=0"}
+{"id":"alog-1783087218449","at":"2026-07-03T14:00:18.449Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=27.5→30","detectionStatus":"schedule"}
+{"id":"alog-1783087218669","at":"2026-07-03T14:00:18.669Z","event":"urgent_issues_recorded","fallbackReason":"count=4 『将棋 囲いトレーナー』が作成対象なのに1日進んでいません, 『/guideのFAQ・運用ページの鮮度を点検する仕組み』が作成対象なのに2日進んでいません, 『ny01/mahjong-analyzer（手牌解析）』が作成対象なのに2日進んでいません, 今日の判断が34件たまっています"}
+{"id":"alog-1783087218741","at":"2026-07-03T14:00:18.741Z","event":"blocked_decisions_ensured","fallbackReason":"created=0 closed=1"}
+{"id":"alog-1783087220987","at":"2026-07-03T14:00:20.987Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=9 needs_human=1 partial=0 failed=0 / 残not_reviewed=76","aiReviewCounts":{"processed":10,"reviewed":9,"needsHuman":1,"partial":0,"failed":0}}
+{"id":"alog-1783087523439","at":"2026-07-03T14:05:23.439Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=6 needs_human=1 partial=3 failed=0 / 残not_reviewed=69","aiReviewCounts":{"processed":10,"reviewed":6,"needsHuman":1,"partial":3,"failed":0}}
+{"id":"alog-1783087523704","at":"2026-07-03T14:05:23.704Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}

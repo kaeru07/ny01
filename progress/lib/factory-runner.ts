@@ -29,6 +29,7 @@ import { getAdapter } from './executors'
 import { decideCodexFallback } from './executor-fallback'
 import { runChecks, failingChecks, gateRunStatusByChecks } from './checks-runner'
 import { selectSkillForEpic } from './skill-select'
+import { hasFixRequestedForEpic } from './auto-queue-score'
 import type { ChecksRunResult } from './checks-runner'
 import { getDoneCriteriaForEpic } from './done-criteria'
 import type { FactoryRunMode, FactoryRunReport, FactoryRunStep, ExecutorResult } from './executors/types'
@@ -98,10 +99,16 @@ function selectionFromPlan(plan: FactoryDispatchPlan): ExecutionRun['selection']
 
 async function resolveSkillForRun(args: { epicId: string; targetApp: string }): Promise<Pick<ExecutionRun, 'skillId' | 'skillVersion'>> {
   try {
-    const epic = (await getEpics()).find((item) => item.epicId === args.epicId)
-    const selected = await selectSkillForEpic(epic
+    const [epic, runs] = await Promise.all([
+      getEpics().then((epics) => epics.find((item) => item.epicId === args.epicId)),
+      readExecutionRuns(),
+    ])
+    const selectableEpic = epic
       ? { ...epic, targetApp: epic.targetApp ?? args.targetApp, targetApps: epic.targetApps ?? [args.targetApp] }
-      : { epicId: args.epicId, targetApp: args.targetApp })
+      : { epicId: args.epicId, targetApp: args.targetApp }
+    const selected = await selectSkillForEpic(selectableEpic, {
+      fixRequested: hasFixRequestedForEpic(selectableEpic, runs),
+    })
     if (!selected) return {}
     return { skillId: selected.skill.id, skillVersion: selected.version }
   } catch (err) {

@@ -67,3 +67,39 @@ test('selectSkillForEpic: disabled の Skill は返さない', async () => {
 
   assert.equal(selected, null)
 })
+
+test('selectSkillForEpic: fixRequested は通常選択より優先される', async () => {
+  const selected = await withDataDir({
+    'skills.json': {
+      skills: [
+        skill('skill-progress-feature', true, 2),
+        skill('skill-fix-followup', true, 1),
+      ],
+      updatedAt: '2026-07-03T00:00:00.000Z',
+    },
+  }, () => selectSkillForEpic({
+    epicId: 'epic-progress',
+    targetApp: 'progress',
+  }, { fixRequested: true }))
+
+  assert.equal(selected?.skill.id, 'skill-fix-followup')
+  assert.equal(selected?.version, 1)
+})
+
+test('selectSkillForEpic: 非progress対象アプリは app-change を返す', async () => {
+  const selected = await withDataDir({
+    'skills.json': {
+      skills: [
+        skill('skill-progress-feature', true, 2),
+        skill('skill-app-change', true, 1),
+      ],
+      updatedAt: '2026-07-03T00:00:00.000Z',
+    },
+  }, () => selectSkillForEpic({
+    epicId: 'epic-news-app',
+    targetApps: ['news-app'],
+  }))
+
+  assert.equal(selected?.skill.id, 'skill-app-change')
+  assert.equal(selected?.version, 1)
+})

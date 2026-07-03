@@ -1,1 +1,56 @@
-[]
+[
+  {
+    "id": "skill-progress-feature-v1-20260703-seed",
+    "skillId": "skill-progress-feature",
+    "version": 1,
+    "procedure": "仕様確認→lib実装→UI→tsc/build/test→live検証→POST",
+    "changeSummary": "初期seed手順の履歴化",
+    "changeReason": "v2強化前の既存Skill本文を保持",
+    "createdAt": "2026-07-03T00:00:00.000Z"
+  },
+  {
+    "id": "skill-progress-feature-v2-20260703-strengthen",
+    "skillId": "skill-progress-feature",
+    "version": 2,
+    "procedure": "1. 仕様と完了条件(doneCriteria)を確認し、今回のrunで着地させる変更を1つ決める（変更ゼロで終えない。進められない場合は理由と必要な判断をsummaryに明記して終了する）\n2. lib→UIの順で最小差分で実装する（無関係ファイルに触らない）\n3. 検証: npx tsc --noEmit / npm run build / 関連テスト。UI変更時はページの実描画（HTTP 200＋主要文言の存在）まで確認する（curl 200だけで完了にしない）\n4. 報告: summaryは人間語1〜2文（何ができるようになったか）。errorsには実際のエラーだけを入れる（stderrのコード断片やパスを入れない）。changedFilesを漏れなく記録し、nextActionsは次のrunがそのまま実行できる具体文にする",
+    "changeSummary": "報告品質、実描画検証、空回り禁止を手順へ明文化",
+    "changeReason": "ユーザー指示による初期手順強化: 報告品質/実描画検証/空回り禁止(2026-07-03)",
+    "createdAt": "2026-07-03T03:00:00.000Z"
+  },
+  {
+    "id": "skill-store-app-scaffold-v1-20260703-seed",
+    "skillId": "skill-store-app-scaffold",
+    "version": 1,
+    "procedure": "iOS/Android前提を確認→課金設計を決める→MVP範囲を絞る→初期画面とデータモデルを作る→ストア提出に必要な不足を洗い出す",
+    "changeSummary": "初期seed手順の履歴化",
+    "changeReason": "v2強化前の既存Skill本文を保持",
+    "createdAt": "2026-07-03T00:00:00.000Z"
+  },
+  {
+    "id": "skill-store-app-scaffold-v2-20260703-strengthen",
+    "skillId": "skill-store-app-scaffold",
+    "version": 2,
+    "procedure": "1. ストア公開前提(iOS/Android)を確認し、今日の判断の決定事項（プラットフォーム/課金/MVP範囲）に必ず従う。未回答の必須判断があれば実装を進めず、その旨をsummaryに明記する\n2. MVP範囲だけを作る（機能を足しすぎない）。データモデル→主要画面→動作確認の順\n3. 課金・認証・外部公開に触れる実装はriskFlagsを立てて承認に回す（勝手に進めない）\n4. 検証: build/lint/型＋主要画面の実描画。報告はsummary人間語／errorsは実エラーのみ／changedFiles漏れなく／nextActionsは具体文",
+    "changeSummary": "報告品質、実描画検証、空回り禁止を手順へ明文化",
+    "changeReason": "ユーザー指示による初期手順強化: 報告品質/実描画検証/空回り禁止(2026-07-03)",
+    "createdAt": "2026-07-03T03:00:00.000Z"
+  },
+  {
+    "id": "skill-research-ingest-v1-20260703-seed",
+    "skillId": "skill-research-ingest",
+    "version": 1,
+    "procedure": "入力元を確認→重要事実を抽出→候補/リスク/次アクションへ分解→重複を確認→progressへ記録する",
+    "changeSummary": "初期seed手順の履歴化",
+    "changeReason": "v2強化前の既存Skill本文を保持",
+    "createdAt": "2026-07-03T00:00:00.000Z"
+  },
+  {
+    "id": "skill-research-ingest-v2-20260703-strengthen",
+    "skillId": "skill-research-ingest",
+    "version": 2,
+    "procedure": "1. 入力元（research/牌譜/ニュース）と正本フォーマット仕様を確認し、それに従って構造化する\n2. 重要事実・候補・リスク・次アクションに分解し、既存データと重複を突合してから追加する\n3. 低品質・規約リスクのあるデータは取り込まず隔離し、理由を記録する\n4. 検証: 取り込み後の件数確認・検証スクリプト実行。報告はsummary人間語／errorsは実エラーのみ",
+    "changeSummary": "報告品質、実描画検証、空回り禁止を手順へ明文化",
+    "changeReason": "ユーザー指示による初期手順強化: 報告品質/実描画検証/空回り禁止(2026-07-03)",
+    "createdAt": "2026-07-03T03:00:00.000Z"
+  }
+]

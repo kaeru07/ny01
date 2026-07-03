@@ -250,7 +250,10 @@ export async function generateClaudeFactoryPrompt(epicId: string): Promise<Codex
     { epicId: epic.epicId, goalId: epic.goalId, targetApp: epic.targetApps?.[0] },
     goalProjectId,
   )
-  const skillSelection = await selectSkillForEpic(epic)
+  const runs = await readExecutionRuns()
+  const skillSelection = await selectSkillForEpic(epic, {
+    fixRequested: hasFixRequestedForEpic(epic, runs),
+  })
 
   const lines: string[] = []
   lines.push('あなたは Claude です。以下は Progress（AI工場の管制塔）からの Factory Dispatch です。指定 Epic の作業を進めてください。')
