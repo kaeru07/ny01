@@ -34340,6 +34340,60 @@
         "シミュレーションレビュー: 1からのアプリ自動作成で何ができるか+欠陥修正3件 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "## 1からのアプリ自動作成シミュレーション\n\n### 到達点再設定\nビルド・提出はユーザーがCodemagicで実施。自動の目標=Codemagicに渡せる完全なリポジトリ。\n\n### 発見し修正した欠陥\n1. checks誤NG死: runChecksがnpx tsc/next lint固定。scaffold前の空dirやExpoアプリでNG→lintゲートでcompleted→partial格下げ→needs_followupループ。→実態対応で解消。\n2. 早すぎる完成: propagateEpicDoneToGoalが単一goalstep epic完了でgoal done+current=target。4フェーズ開発が1run目のdoneCriteria通過(bigram曖昧一致)で完成宣言される構造欠陥。→goal-app-*は自動クローズ禁止、完了は手詰まり確認mark_done/達成確認の人間経由のみ。\n3. スタック未決定: 何で作るかの判断が無くrunごとに成果物の形が揺れるリスク+Flutterは環境に無い。→framework必須判断(Expo/RN CLI/Next.js)追加。\n\n### 人間判断の過不足評価\n必須: platform/技術スタック(新)/データ保存/認証。任意: 課金/MVP範囲。完成検収は人間必須化(修正2)。少なすぎた: リポジトリ公開先/APIキー提供(→handoffゴールで対応予定)。過剰な点はなし。\n\nmonetizationImpact: high\ntheme: [app-strategy, workflow]"
+    },
+    {
+      "runId": "20260704-083106",
+      "startedAt": "2026-07-03T23:31:06.230Z",
+      "finishedAt": "2026-07-03T23:31:06.230Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "アプリ自動作成ループの品質・意図整合チェック+欠陥2件修正",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "案→承認→ゴール→実行→次ゴールのループを意図整合・品質の観点で監査。致命2件を即修正: D1 approve時のnoteが破棄され意図を書く場所が無かった→承認を2段階化し意図・要望メモをGoal.notesへ保存 D2 承認済み仕様(spec/画面/MVP範囲/初期計画)が実行プロンプトに未注入でビルダーがゴール1行だけで作る構造だった→buildAppIntentContextでアプリ仕様ブロックをclaude/codex両プロンプトにSkill直前注入。残4改善(フェーズ方向性確認/生成への承認却下フィードバック/WIP制限2件/テスト実行チェック)はgoal-opus-app-loop-qualityでキュー投入。",
+      "changedFiles": [
+        {
+          "file": "components/app-proposals/AppProposalCard.tsx",
+          "change": "approve2段階化+意図・要望メモ"
+        },
+        {
+          "file": "app/api/app-proposals/[id]/decide/route.ts",
+          "change": "approve noteをGoal.notesへ"
+        },
+        {
+          "file": "lib/goal-writer.ts",
+          "change": "GoalUpsertInput.notes追加(input優先・空は温存)"
+        },
+        {
+          "file": "lib/app-intent-context.ts",
+          "change": "承認済みアプリ仕様ブロック生成(新規・2000字上限)"
+        },
+        {
+          "file": "lib/operations-store.ts",
+          "change": "codexプロンプトへ仕様注入"
+        },
+        {
+          "file": "lib/factory-dispatch.ts",
+          "change": "claudeプロンプトへ仕様注入"
+        },
+        {
+          "file": "lib/app-intent-context.test.ts",
+          "change": "テスト"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "test": "OK 34/34",
+        "manual": "OK: goal-app仕様ブロック注入/非アプリgoal空/意図メモUI build含有"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "アプリ自動作成ループの品質・意図整合チェック+欠陥2件修正 の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## ループ監査(意図整合・品質)\n\n### 修正済み欠陥\nD1: 承認時note破棄(意図入力経路ゼロ)→2段階承認+Goal.notes保存+プロンプト注入。\nD2(最重要): 承認したspec/screens/mvpScope/initialGoalDraftがビルダーに届かず、ゴール1行+Skill手順だけで実装される=設計乖離が構造的に発生→アプリ仕様ブロックを両executor promptへ注入。\n\n### 残改善(キュー投入済み goal-opus-app-loop-quality)\nD3: フェーズ①完了時の非ブロッキング方向性確認(早期の意図ズレ検出。自動実行は止めない) D4: 日次生成へ承認/却下履歴+却下noteをフィードバック(ユーザーの好みに収束) D5: WIP制限(同時作成2件推奨・3件目は今日の判断) D6: checksにtestスクリプト実行+Skill v4でテスト作成明記。\n\n### 総評\nループ骨格は健全(決定注入/Skill注入/危険ゲート/手詰まりブレーキ/完成の人間検収)。意図の入口(D1)と設計の伝達(D2)が欠けていたが解消。残4件で「好みに収束する生成」と「早期軌道修正」が閉じる。\n\nmonetizationImpact: high\ntheme: [app-strategy, workflow]"
     }
   ]
 }

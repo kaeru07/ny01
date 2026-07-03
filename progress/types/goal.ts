@@ -112,6 +112,7 @@ export interface GoalUpsertInput {
   status?: GoalStatus
   decisionPolicyDefault?: DecisionPolicy
   riskFlagsDefault?: EpicRiskFlag[]
+  notes?: string
   monetizationImpact?: MonetizationImpact
   isNorthStar?: boolean
   setAsMain?: boolean

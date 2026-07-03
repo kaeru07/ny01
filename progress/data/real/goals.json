@@ -4526,17 +4526,39 @@
       "current": 0,
       "isNorthStar": false,
       "summary": "【確定仕様】到達点=Codemagicでビルドできる完全なリポジトリ。1) skill-store-app-scaffoldの公開準備フェーズに codemagic.yaml 生成(選択スタックに応じたExpo/RN CLI/Next.jsテンプレ)+app.json/アイコン・スプラッシュのプレースホルダ画像生成(単色+頭文字でよい)を含める(Skill v4として履歴付き更新) 2) 生成アプリのGitHub push運用: ユーザー判断が必要(どのアカウント/リポジトリ名/公開・非公開)→承認時の今日の判断に「リポジトリ作成の方針」質問を追加し、回答後にgh repo create+push(認証は既存gh)。未回答の間はローカルgitのみ 3) 外部APIキーが必要になったら user_work(人間作業)カードを今日の判断に出す仕組み(executorがsummaryに「APIキー必要」と書いたらai-reviewが検知して人間作業カード生成)。",
-      "status": "active",
-      "priority": "high",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
+      "status": "active",
+      "priority": "high",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [],
       "todos": [],
       "createdAt": "2026-07-03T16:28:04.667Z",
       "updatedAt": "2026-07-03T16:28:04.667Z"
+    },
+    {
+      "id": "goal-opus-app-loop-quality",
+      "projectId": "company-mgmt",
+      "title": "アプリ自動作成ループの品質・意図整合の強化(残4件)",
+      "description": "【確定仕様】1) フェーズ方向性確認: goal-appのstep epic完了時(特にフェーズ①基盤完了)に非ブロッキングの方向性確認カードをレビュータブに出す(画面構成/主要フローの要約つき。自動実行は止めない。ユーザーが違うと思えば修正するでfixPrompt) 2) 生成への意図フィードバック: 日次アプリ案生成プロンプトに過去の承認/却下履歴(operational-decisionsのapp_proposal)と却下noteを渡し「却下された系統を避け承認された系統に寄せる」 3) WIP制限: 作成中(approved)アプリが2件以上あるとき、新規approveのゴールは自動的にqueueControl.hold+今日の判断に「同時作成は2件までを推奨。3件目を今始めるか」の判断を出す 4) テスト実行: checks-runnerでpackage.jsonにtestスクリプトがあれば npm test -- --watchAll=false 相当を実行しchecks.testに記録。skill-store-app-scaffold手順(v4)に「主要ロジックのテストを作る」を明記(SkillVersion履歴付き)。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "【確定仕様】1) フェーズ方向性確認: goal-appのstep epic完了時(特にフェーズ①基盤完了)に非ブロッキングの方向性確認カードをレビュータブに出す(画面構成/主要フローの要約つき。自動実行は止めない。ユーザーが違うと思えば修正するでfixPrompt) 2) 生成への意図フィードバック: 日次アプリ案生成プロンプトに過去の承認/却下履歴(operational-decisionsのapp_proposal)と却下noteを渡し「却下された系統を避け承認された系統に寄せる」 3) WIP制限: 作成中(approved)アプリが2件以上あるとき、新規approveのゴールは自動的にqueueControl.hold+今日の判断に「同時作成は2件までを推奨。3件目を今始めるか」の判断を出す 4) テスト実行: checks-runnerでpackage.jsonにtestスクリプトがあれば npm test -- --watchAll=false 相当を実行しchecks.testに記録。skill-store-app-scaffold手順(v4)に「主要ロジックのテストを作る」を明記(SkillVersion履歴付き)。",
+      "status": "active",
+      "priority": "medium",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "monetizationImpact": "none",
+      "phases": [],
+      "todos": [],
+      "createdAt": "2026-07-03T23:31:06.011Z",
+      "updatedAt": "2026-07-03T23:31:06.011Z"
     }
   ],
   "mainGoalId": "goal-ai-factory-os",
-  "updatedAt": "2026-07-03T16:28:04.667Z"
+  "updatedAt": "2026-07-03T23:31:06.057Z"
 }

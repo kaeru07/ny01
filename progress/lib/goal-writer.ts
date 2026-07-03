@@ -396,7 +396,7 @@ export async function upsertGoal(input: GoalUpsertInput): Promise<Goal> {
     queueControl: previous?.queueControl,
     decisionPolicyDefault: input.decisionPolicyDefault ? pickDecisionPolicy(input.decisionPolicyDefault, previous?.decisionPolicyDefault ?? 'autonomous') : previous?.decisionPolicyDefault,
     riskFlagsDefault: input.riskFlagsDefault ? pickRiskFlags(input.riskFlagsDefault) : previous?.riskFlagsDefault,
-    notes: previous?.notes,
+    notes: input.notes !== undefined ? pickString(input.notes, previous?.notes ?? '') || undefined : previous?.notes,
     proposalSource: previous?.proposalSource,
     proposedAt: status === 'proposed' ? (previous?.proposedAt ?? now) : previous?.proposedAt,
     approvedAt: previous?.approvedAt,

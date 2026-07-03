@@ -31,6 +31,7 @@ import { buildDecisionContext as buildApprovalDecisionContext } from './decision
 import { readGoals } from './goal-reader'
 import { selectSkillForEpic, skillPromptBlock } from './skill-select'
 import { hasFixRequestedForEpic } from './auto-queue-score'
+import { buildAppIntentContext } from './app-intent-context'
 import type { WorkQueueData } from '@/types/session'
 import type { AppProgress, ProjectTasksData, Task, TaskPriority } from '@/types/progress'
 import type { ExecutionRunsData, ExecutionRun } from '@/types/execution-run'
@@ -920,6 +921,7 @@ export async function generateCodexPrompt(epicId?: string): Promise<CodexPrompt>
   const skillSelection = epic
     ? await selectSkillForEpic(epic, { fixRequested: hasFixRequestedForEpic(epic, runsData.runs) })
     : null
+  const appIntentContext = epic?.goalId ? await buildAppIntentContext(epic.goalId) : ''
 
   const lines: string[] = []
   lines.push('あなたはCodexです。以下はProgress（AI工場の管制塔）からの引き継ぎです。Claudeが上限で停止したため続きをお願いします。')
@@ -935,6 +937,10 @@ export async function generateCodexPrompt(epicId?: string): Promise<CodexPrompt>
   lines.push('[3] 決定事項（これに反する作業はしない）')
   lines.push(decisions.length > 0 ? decisions.slice(-5).map((d) => `- ${d.topic} → ${d.decision}`).join('\n') : '- なし')
   lines.push('')
+  if (appIntentContext) {
+    lines.push(appIntentContext)
+    lines.push('')
+  }
   const skillLines = skillPromptBlock(skillSelection)
   if (skillLines.length > 0) {
     lines.push(...skillLines)

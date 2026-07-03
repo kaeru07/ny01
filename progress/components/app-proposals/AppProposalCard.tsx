@@ -104,7 +104,7 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
 
   async function decide(decision: PostDecision) {
     if (busy) return
-    if ((decision === 'reject' || decision === 'hold') && pendingDecision !== decision) {
+    if ((decision === 'approve' || decision === 'reject' || decision === 'hold') && pendingDecision !== decision) {
       setPendingDecision(decision)
       setError(null)
       return
@@ -117,7 +117,7 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           decision,
-          note: decision === 'approve' || decision === 'not_needed' ? undefined : note,
+          note: decision === 'not_needed' ? undefined : note,
         }),
       })
       const body = await res.json().catch(() => null)
@@ -172,14 +172,14 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
       {pendingDecision ? (
         <div className="space-y-2 rounded-xl bg-amber-50 p-3 dark:bg-amber-900/20">
           <label className="block text-xs font-bold text-amber-900 dark:text-amber-100" htmlFor={`note-${proposal.id}`}>
-            {postDecisions[pendingDecision]}メモ（任意）
+            {pendingDecision === 'approve' ? '意図・要望メモ（任意）' : `${postDecisions[pendingDecision]}メモ（任意）`}
           </label>
           <textarea
             id={`note-${proposal.id}`}
             className="min-h-20 w-full rounded-lg border border-amber-200 bg-white p-2 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-amber-300 dark:border-amber-800 dark:bg-gray-950 dark:text-gray-100"
             value={note}
             onChange={(event) => setNote(event.target.value)}
-            placeholder="理由や補足があれば入力"
+            placeholder={pendingDecision === 'approve' ? '例: シンプル操作重視 / 広告なし / 通勤中に片手で使う 等' : '理由や補足があれば入力'}
           />
         </div>
       ) : null}
@@ -192,7 +192,7 @@ export default function AppProposalCard({ proposal }: { proposal: AppProposal })
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-2">
-          <DecisionButton disabled={busy} label="このアプリを作る" tone="green" onClick={() => decide('approve')} />
+          <DecisionButton disabled={busy} label={pendingDecision === 'approve' ? '作成を決定' : 'このアプリを作る'} tone="green" onClick={() => decide('approve')} />
           <DecisionButton disabled={busy} label={pendingDecision === 'reject' ? '見送りを保存' : '見送り'} tone="rose" onClick={() => decide('reject')} />
           <DecisionButton disabled={busy} label={pendingDecision === 'hold' ? '保留を保存' : '保留'} tone="gray" onClick={() => decide('hold')} />
         </div>

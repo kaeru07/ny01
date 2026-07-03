@@ -136,6 +136,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
             riskFlagsDefault: candidate.riskFlags ?? [],
             priority: candidate.priority,
             monetizationImpact: impactFromPriority(candidate.priority),
+            notes: note || undefined,
           })
           goalId = goal.id
         } catch (error) {
