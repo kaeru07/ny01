@@ -26,6 +26,21 @@ function sourceTodoForGoal(goal: Goal, sourceTodoId?: string): GoalTodo | undefi
   return goal.todos.find((todo) => todo.id === sourceTodoId)
 }
 
+function defaultDoneCriteriaForGoal(goal: Goal): string[] {
+  if (goal.id.startsWith('goal-app-')) {
+    return [
+      '現在フェーズ(基盤/機能完成/品質仕上げ/公開準備)を特定し、そのフェーズの具体的な変更を1つ以上実装する',
+      'tsc/build/lint と主要フローの実描画・実操作確認まで検証を通す',
+      'summaryに現在フェーズと出来るようになったことを人間語で記録し、公開準備完了時は提出待ちであることを明記する',
+    ]
+  }
+  return [
+    'このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する',
+    '定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する',
+    'ExecutionRunに結果を記録し、Goalの達成度を前進させる',
+  ]
+}
+
 /** Factory が自動で達成を目指してよい Goal か（active・未達成・安全＝承認/手動/危険でない）。 */
 export function isAutoAdvanceGoal(goal: Goal): boolean {
   if (goal.status !== 'active') return false
@@ -81,11 +96,7 @@ export async function ensureNextGoalStepEpic(targetGoalId?: string, sourceTodoId
     : `Goal「${target.title}」の達成に向けて、次の具体的な1ステップを進める。${target.summary ?? ''}`.trim()
   const doneCriteria = sourceTodo?.doneCriteria.length
     ? sourceTodo.doneCriteria
-    : [
-        'このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する',
-        '定義したステップを実装・実行し、該当する検証（tsc / build / 動作確認など）まで完了する',
-        'ExecutionRunに結果を記録し、Goalの達成度を前進させる',
-      ]
+    : defaultDoneCriteriaForGoal(target)
 
   const skill = await selectSkillForEpic({
     epicId: `epic-goalstep-${target.id}`,

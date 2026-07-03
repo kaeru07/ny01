@@ -25,6 +25,14 @@ function impactFromPriority(priority: CandidatePriority): 'high' | 'medium' | 'l
   return 'medium'
 }
 
+const STORE_SUBMISSION_QUALITY_BAR = '完成条件: App Store/Google Playに提出できる品質（MVP全フロー完動・クラッシュゼロ・エラー/空状態処理・ストア素材と審査メタデータの準備まで）。提出・公開操作のみユーザーが行う。'
+
+function appendStoreSubmissionQualityBar(text: string): string {
+  const base = text.trim()
+  if (base.includes(STORE_SUBMISSION_QUALITY_BAR)) return base
+  return [base, STORE_SUBMISSION_QUALITY_BAR].filter(Boolean).join('\n\n')
+}
+
 // decisionPoints が空のアプリ案でも「作る」で必ず今日の判断に方針が並ぶよう、代表的な作成前方針をフォールバックとして使う。
 const DEFAULT_DECISION_POINTS = [
   { key: 'platform', question: '最初に公開するストア対象は？', options: ['iOS', 'Android', 'iOS + Android', 'iPad対応'], required: true },
@@ -109,8 +117,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
           const goal = await upsertGoal({
             id: `goal-app-${projectId}`,
             title: `${candidate.title}を作る`,
-            summary: candidate.purpose,
-            description: candidate.purpose,
+            summary: appendStoreSubmissionQualityBar(candidate.purpose),
+            description: appendStoreSubmissionQualityBar(candidate.purpose),
             projectId,
             status: 'active',
             decisionPolicyDefault: 'autonomous',
