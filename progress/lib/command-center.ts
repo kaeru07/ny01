@@ -1136,9 +1136,9 @@ export async function buildInbox(): Promise<InboxView> {
       }
     : null
   const candidates = cards.filter((c) => c.kind === 'permission')
-  // 今日の判断は上限 TODAY_LIMIT 件。単純な danger 優先 slice だと、危険レビューが多いとき
-  // 方針選択(direction)・AIエスカレ・人間作業(human_task)が枠を取れず埋もれる。カテゴリ間でラウンドロビンし、
-  // 各種別が最低1枠は出るようにする（danger→direction→escalatedReview→human_task の順は維持）。
+  // 今日の判断は全量表示（上限カットしない。件数=実際の判断待ち総数。ユーザー指示 2026-07-04）。
+  // 並びはカテゴリ間ラウンドロビンを維持し、危険レビューが多くても方針選択・AIエスカレ・人間作業が埋もれないようにする
+  // （danger→direction→escalatedReview→human_task の順で交互に取り出す）。
   const decisions = (() => {
     const humanTaskFactors = [
       ...stopFactors.filter((c) => c.kind === 'human_task'),
@@ -1152,7 +1152,7 @@ export async function buildInbox(): Promise<InboxView> {
     ]
     const picked: InboxCard[] = []
     let qi = 0
-    while (picked.length < TODAY_LIMIT && queues.some((q) => q.length > 0)) {
+    while (queues.some((q) => q.length > 0)) {
       const next = queues[qi % queues.length].shift()
       if (next) picked.push(next)
       qi += 1

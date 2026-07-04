@@ -160,9 +160,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: 公開・デプロイ関連の作業（危険キーワード検知）。人間の確認を推奨。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260608-184752",
-    "createdAt": "2026-06-11T11:52:00.389Z"
+    "createdAt": "2026-06-11T11:52:00.389Z",
+    "decidedOption": "mark_reviewed",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-04T05:09:18.402Z"
   },
   {
     "approvalId": "appr-1781178720398",
@@ -1116,8 +1119,11 @@
     ],
     "recommended": "pricing-0-mvp",
     "reason": "アプリ案決定時に方針決定が必要な項目",
-    "status": "pending",
-    "createdAt": "2026-07-02T03:11:18.105Z"
+    "status": "decided",
+    "createdAt": "2026-07-02T03:11:18.105Z",
+    "decidedOption": "pricing-0-mvp",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-04T05:09:24.063Z"
   },
   {
     "approvalId": "appr-1782961878110-4",
@@ -1528,9 +1534,12 @@
     ],
     "recommended": "proceed",
     "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260703-084034",
-    "createdAt": "2026-07-03T14:00:20.799Z"
+    "createdAt": "2026-07-03T14:00:20.799Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T05:03:15.106Z"
   },
   {
     "approvalId": "appr-1783128753992-1",
@@ -1777,5 +1786,31 @@
     "requiredForExecution": true,
     "status": "pending",
     "createdAt": "2026-07-04T01:32:34.046Z"
+  },
+  {
+    "approvalId": "appr-1783141396799-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 判断要求プロトコル実装(実行中の分岐を選択式で今日の判断へ)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "pending",
+    "createdRunId": "20260704-110515",
+    "createdAt": "2026-07-04T05:03:16.799Z"
   }
 ]

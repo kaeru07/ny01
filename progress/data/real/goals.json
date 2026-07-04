@@ -29,8 +29,8 @@
       "description": "Codex/Claudeの実行結果を完了報告で終わらせず、Review、Knowledge、Next Epic候補生成までつなげる。",
       "metric": "closed_loop_rate",
       "target": 80,
-      "current": 30,
-      "metricSyncedAt": "2026-07-03T14:00:18.441Z",
+      "current": 33.5,
+      "metricSyncedAt": "2026-07-04T05:03:14.738Z",
       "isNorthStar": false,
       "summary": "Codex/Claudeの実行結果を完了報告で終わらせず、Review、Knowledge、Next Epic候補生成までつなげる。",
       "status": "active",
@@ -43,7 +43,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-11T00:00:00.000Z",
-      "updatedAt": "2026-07-03T14:00:18.441Z"
+      "updatedAt": "2026-07-04T05:03:14.738Z"
     },
     {
       "id": "goal-ai-executor-ops",
@@ -80,7 +80,7 @@
       "metric": "validated_project_count",
       "target": 5,
       "current": 3,
-      "metricSyncedAt": "2026-07-03T14:00:18.441Z",
+      "metricSyncedAt": "2026-07-04T05:03:14.738Z",
       "isNorthStar": false,
       "summary": "調査・アプリ開発・教材化・収益化候補をAI工場内で継続的に検証し、次の収益候補や転職価値につなげる。",
       "status": "done",
@@ -3534,8 +3534,8 @@
       "status": "active",
       "priority": "medium",
       "pinnedTop": false,
-      "lastSelectedRunId": "20260703-230022-567",
-      "lastSelectedAt": "2026-07-03T14:00:22.548Z",
+      "lastSelectedRunId": "20260704-140319-116",
+      "lastSelectedAt": "2026-07-04T05:03:19.089Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [
@@ -3575,7 +3575,7 @@
         }
       ],
       "createdAt": "2026-06-23T03:03:51.451Z",
-      "updatedAt": "2026-07-03T14:00:22.610Z"
+      "updatedAt": "2026-07-04T05:03:19.181Z"
     },
     {
       "id": "goal-mqqmhcb9-jndlz",
@@ -4558,11 +4558,12 @@
       "current": 0,
       "isNorthStar": false,
       "summary": "【設計原則(ユーザー確定)】具体的指示を文字で打つのは最小化。今日の判断をタップでこなすだけで確実に良いアプリができる=AIが選択肢を用意する側に回る。\n【実装】Q1) skill-store-app-scaffold v4: 手順に「体験が分かれる箇所(デザイントーン/画面構成/機能の絞り方等)は自分で決めず、具体的な2-4択(推奨付き)を今日の判断に上げる。回答までは推奨案で仮実装して進む(止まらない)」を明記(SkillVersion履歴付き)。既存のdecision_needed→判断カード→回答注入の経路をそのまま使う。 Q2) フェーズ①基盤完了時の方向性確認カードを今日の判断へ: 選択式(このまま/画面構成を変える/機能を減らす/デザイン方向を変える)+任意の自由記述。非ブロッキング(放置=このまま)。回答はfixPrompt経路で次回最優先反映。 Q3) プレビュー導線(見るだけ): Next.js Web系は自動ポート起動URL、Expo系はexpo export web出力かスクショをapps/generated/<id>/preview/に置き、設計一覧+方向性確認カードに表示。 Q4) 好み学習: 承認/却下タップ履歴+却下noteを日次案生成プロンプトへ(打たなくても案が好みに収束)。\n【残】WIP制限(作成中2件推奨・3件目は今日の判断)/checksにtestスクリプト実行/テスト作成をSkillに明記。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
       "status": "active",
       "priority": "high",
       "pinnedTop": false,
-      "decisionPolicyDefault": "autonomous",
-      "riskFlagsDefault": [],
+      "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [],
       "todos": [],
@@ -4593,5 +4594,5 @@
     }
   ],
   "mainGoalId": "goal-ai-factory-os",
-  "updatedAt": "2026-07-04T01:42:11.456Z"
+  "updatedAt": "2026-07-04T05:03:19.181Z"
 }

@@ -9072,5 +9072,404 @@
     "createdAt": "2026-07-03T14:05:23.402Z",
     "updatedAt": "2026-07-03T14:05:23.415Z",
     "nextEpicCandidateId": "rec-knowledge-20260623-140009"
+  },
+  {
+    "id": "know-20260703-211923",
+    "sourceRunId": "20260703-211923",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: UI配置整理の実装(goal-opus-ui-reorg)",
+    "summary": "[AI一次レビュー 2026-07-03 14:05] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "下タブ8を頻度順(ホーム/今日の判断/自動実行/アプリ開発/状況/todo消化/レポート/運用)に並び替え、状況タップ先を/portfolioへ。今日の判断内部タブ6→4(candidates/aiHoldは移動案内+誘導リンクの互換表示)。app-specs+app-decisionsを仕様承認・履歴に統合(/app-decisionsは307リダイレクト)。nav-menuにアーカイブ節新設し死にページ隔離。",
+      "実装Codex/検証Claude。live全確認。"
+    ],
+    "nextActions": [
+      "UI配置整理の実装(goal-opus-ui-reorg) の結果を確認し、未達のDoneCriteriaを1つ進める"
+    ],
+    "changedFiles": [
+      "components/navigation/BottomNav.tsx: 8タブ頻度順+状況→/portfolio",
+      "lib/nav-groups.ts: 状況/アプリ開発サブタブ再構成",
+      "lib/nav-menu.ts: メイン5表記更新+アーカイブ節",
+      "components/newux/InboxTabs.tsx: タブ4化+互換案内",
+      "app/app-specs/page.tsx: 仕様承認・履歴に統合",
+      "app/app-decisions/page.tsx: redirect化"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-04_know-20260703-211923.md",
+    "researchPath": "06_research/2026-07-04_know-20260703-211923.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-04T05:03:13.189Z",
+    "updatedAt": "2026-07-04T05:03:13.252Z",
+    "nextEpicCandidateId": "rec-knowledge-20260703-211923"
+  },
+  {
+    "id": "know-20260704-140010",
+    "sourceRunId": "20260704-140010",
+    "goalId": "goal-value-validation-pipeline",
+    "title": "Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新2",
+    "summary": "[AI一次レビュー 2026-07-04 05:03] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Vault走査 401 ファイル / 新規追加 0 件 / 既存追記 2 件 / skip 10 件",
+      "[monetization-sync] source=schedule trigger=systemd scanned=401 added=[] updated=[釣果ログ AnglerLog, 野鳥観察ノート BirdLog] skipped=10. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [
+      "data/real/monetization-candidates.json: 追加0/更新2"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-04_know-20260704-140010.md",
+    "researchPath": "06_research/2026-07-04_know-20260704-140010.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-04T05:03:16.710Z",
+    "updatedAt": "2026-07-04T05:03:16.727Z",
+    "nextEpicCandidateId": "rec-knowledge-20260704-140010"
+  },
+  {
+    "id": "know-20260704-103531",
+    "sourceRunId": "20260704-103531",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: 最終レビュー: コア必須判断の補完漏れ修正+仕様管理ページの結論",
+    "summary": "[AI一次レビュー 2026-07-04 05:03] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "再監査で実害のある穴1件を発見・修正: 案が自前decisionPointsを持つと既定のコア必須判断(platform/framework/data_storage/auth)が使われず、承認済み2アプリが技術スタック未回答のままビルド開始予定だった。→コア必須判断をキー単位で補完するようdecide route修正+承認済み2アプリを冪等再approveでバックフィル(両者に技術スタック質問追加・回答までgoal hold)。仕様まとめページは既存の/app-designsが該当、編集機能のみ不足→goal-opus-spec-editでキュー化。これ以上の必須修正はなし(残はキュー3件の拡張のみ)。",
+      "## 最終監査",
+      "### 発見・修正",
+      "必須コア判断の補完漏れ: decisionPoints空のときだけDEFAULTを使う実装で、自前dpを持つ案はframework等が聞かれない。承認済みの手牌解析(dp0→旧DEFAULT3問時代に承認)と将棋囲い(自前dp3)はスタック未決のままビルド開始予定だった。修正+冪等再approveでバックフィル(approvals+5/+4、required=4、hold=true)。",
+      "### 仕様管理ページの結論"
+    ],
+    "nextActions": [
+      "最終レビュー: コア必須判断の補完漏れ修正+仕様管理ページの結論 の結果を確認し、未達のDoneCriteriaを1つ進める"
+    ],
+    "changedFiles": [
+      "app/api/app-proposals/[id]/decide/route.ts: コア必須判断(required)をdecisionPointsにキー単位で補完"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-04_know-20260704-103531.md",
+    "researchPath": "06_research/2026-07-04_know-20260704-103531.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-04T05:03:17.021Z",
+    "updatedAt": "2026-07-04T05:03:17.034Z",
+    "nextEpicCandidateId": "rec-knowledge-20260704-103531"
+  },
+  {
+    "id": "know-20260704-083106",
+    "sourceRunId": "20260704-083106",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: アプリ自動作成ループの品質・意図整合チェック+欠陥2件修正",
+    "summary": "[AI一次レビュー 2026-07-04 05:03] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "案→承認→ゴール→実行→次ゴールのループを意図整合・品質の観点で監査。致命2件を即修正: D1 approve時のnoteが破棄され意図を書く場所が無かった→承認を2段階化し意図・要望メモをGoal.notesへ保存 D2 承認済み仕様(spec/画面/MVP範囲/初期計画)が実行プロンプトに未注入でビルダーがゴール1行だけで作る構造だった→buildAppIntentContextでアプリ仕様ブロックをclaude/codex両プロンプトにSkill直前注入。残4改善(フェーズ方向性確認/生成への承認却下フィードバック/WIP制限2件/テスト実行チェック)はgoal-opus-app-loop-qualityでキュー投入。",
+      "## ループ監査(意図整合・品質)",
+      "### 修正済み欠陥",
+      "D1: 承認時note破棄(意図入力経路ゼロ)→2段階承認+Goal.notes保存+プロンプト注入。",
+      "D2(最重要): 承認したspec/screens/mvpScope/initialGoalDraftがビルダーに届かず、ゴール1行+Skill手順だけで実装される=設計乖離が構造的に発生→アプリ仕様ブロックを両executor promptへ注入。"
+    ],
+    "nextActions": [
+      "アプリ自動作成ループの品質・意図整合チェック+欠陥2件修正 の結果を確認し、未達のDoneCriteriaを1つ進める"
+    ],
+    "changedFiles": [
+      "components/app-proposals/AppProposalCard.tsx: approve2段階化+意図・要望メモ",
+      "app/api/app-proposals/[id]/decide/route.ts: approve noteをGoal.notesへ",
+      "lib/goal-writer.ts: GoalUpsertInput.notes追加(input優先・空は温存)",
+      "lib/app-intent-context.ts: 承認済みアプリ仕様ブロック生成(新規・2000字上限)",
+      "lib/operations-store.ts: codexプロンプトへ仕様注入",
+      "lib/factory-dispatch.ts: claudeプロンプトへ仕様注入",
+      "lib/app-intent-context.test.ts: テスト"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-04_know-20260704-083106.md",
+    "researchPath": "06_research/2026-07-04_know-20260704-083106.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-04T05:03:17.116Z",
+    "updatedAt": "2026-07-04T05:03:17.131Z",
+    "nextEpicCandidateId": "rec-knowledge-20260704-083106"
+  },
+  {
+    "id": "know-20260704-012804",
+    "sourceRunId": "20260704-012804",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: シミュレーションレビュー: 1からのアプリ自動作成で何ができるか+欠陥修正3件",
+    "summary": "[AI一次レビュー 2026-07-04 05:03] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Codemagic引き渡しを到達点に再設定しシミュレーション。致命欠陥3件を発見し即修正: ①checksがprogress前提(npx tsc/next lint固定)で新規アプリ誤NG→永久partial化→実態対応(package.json/tsconfig/scripts見て実行可能なチェックのみ) ②goal-app-*が1エピック完了で自動的にゴール完成扱い→自動クローズ禁止(完了は人間確認経由のみ) ③技術スタック判断が存在せず成果物の形が不定→framework必須判断追加(Expo/RN CLI/Next.js。Flutterは環境に無く除外)。残ギャップ(codemagic.yaml生成/GitHub push運用/アイコン実物/APIキー人間作業カード)はgoal-opus-codemagic-handoffでキュー投入。",
+      "## 1からのアプリ自動作成シミュレーション",
+      "### 到達点再設定",
+      "ビルド・提出はユーザーがCodemagicで実施。自動の目標=Codemagicに渡せる完全なリポジトリ。",
+      "### 発見し修正した欠陥"
+    ],
+    "nextActions": [
+      "シミュレーションレビュー: 1からのアプリ自動作成で何ができるか+欠陥修正3件 の結果を確認し、未達のDoneCriteriaを1つ進める"
+    ],
+    "changedFiles": [
+      "lib/factory-runner.ts: propagateEpicDoneToGoal: goal-app-*は自動クローズしない(完了は人間確認経由)",
+      "lib/checks-runner.ts: アプリ実態対応(scaffold前は空/lint・buildはscript存在時のみ/tscはtsconfig存在時のみ)",
+      "app/api/app-proposals/[id]/decide/route.ts: framework必須判断追加(Codemagic前提)"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-04_know-20260704-012804.md",
+    "researchPath": "06_research/2026-07-04_know-20260704-012804.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-04T05:03:17.198Z",
+    "updatedAt": "2026-07-04T05:03:17.209Z",
+    "nextEpicCandidateId": "rec-knowledge-20260704-012804"
+  },
+  {
+    "id": "know-20260704-011238",
+    "sourceRunId": "20260704-011238",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: レビュー+修正: 自動実行だけでApp Store提出品質まで行けるか",
+    "summary": "[AI一次レビュー 2026-07-04 05:03] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "レビューで致命ギャップ発見: resolveAppCwdが固定マップで新規アプリはrepo未登録→factory即停止=新規アプリは自動で一切作れなかった。修正: 承認時ワークスペース自動作成(apps/generated/<projectId>+README+git init・push無し)+動的cwd解決(generated限定+サニタイズ)。救済APIで既存承認済み2アプリ(shogi-kakoi/mahjong-analyzer)のワークスペース作成済み。これで承認→自動作成の物理経路が開通。物理制約(iOSネイティブビルド/実機/提出)は正直に区分し、Web・Expo JS層まで自動+提出のみ人間の設計を確定。",
+      "## 自動実行だけでストア提出品質まで行けるかレビュー",
+      "### 致命(修正済): 新規アプリの実行場所が無い",
+      "resolveAppCwd固定マップ→未知projectId=null→factory-runner:582でrepo未登録停止。承認してもキューに乗るだけで最初の一歩で停止していた。修正で承認→apps/generated/<projectId>自動作成→factory実行可能に。動的解決はgenerated配下限定+[a-z0-9-]サニタイズで誤repo実行防止は維持。",
+      "### 自動で行ける(仕組み完備)"
+    ],
+    "nextActions": [
+      "レビュー+修正: 自動実行だけでApp Store提出品質まで行けるか の結果を確認し、未達のDoneCriteriaを1つ進める"
+    ],
+    "changedFiles": [
+      "lib/app-paths.ts: GENERATED_APPS_ROOT+動的解決(generated限定・サニタイズ)",
+      "lib/app-workspace.ts: ensureAppWorkspace(mkdir/README/git initローカルのみ)",
+      "app/api/app-proposals/[id]/decide/route.ts: approve時にワークスペース作成",
+      "app/api/app-proposals/ensure-workspaces/route.ts: 既存承認済み救済API",
+      "lib/app-paths.test.ts: 動的解決/サニタイズテスト"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-04_know-20260704-011238.md",
+    "researchPath": "06_research/2026-07-04_know-20260704-011238.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-04T05:03:17.319Z",
+    "updatedAt": "2026-07-04T05:03:17.328Z",
+    "nextEpicCandidateId": "rec-knowledge-20260704-011238"
+  },
+  {
+    "id": "know-20260704-002359",
+    "sourceRunId": "20260704-002359",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: Skill推奨実行者(実装=Codex標準)+Skillなし実行カバレッジ可視化",
+    "summary": "[AI一次レビュー 2026-07-04 05:03] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "継続改善2件。A: Skillに preferredExecutor を追加し全5Skillをcodex推奨に設定、step epic生成の実行者既定を sourceTodo指定→Skill推奨→claude の順へ(ユーザー標準運用『実装はCodex・検証/安全判断はClaude』をfactoryに反映。安全ゲートは不変)。B: /skillsに『Skillなしで実行された作業』(直近30日・targetApp別)を追加し、次のSkill追加候補がデータで見えるように。",
+      "## Skills継続改善(第2弾)",
+      "A: 標準運用(実装=Codex)がfactoryのepic生成既定(claude固定)に反映されていなかった逆転を是正。Skill=作業種類が最適実行者を持ち、新規step epicから効く。danger/requiresClaude/canRunOnCodexの安全判定は不変。Claude上限への耐性も向上。",
+      "B: 「未分類が多い種類から次のSkillを足す」方針の判断材料(Skillなし実行のapp別件数)を/skillsに常設。",
+      "見送り(候補として記録): doneCriteriaの既定文が汎用的でcontinueループの一因になっている件は、機械判定への影響が読みにくいため今回は変更せず。数日分のSkill別成績を見てから判断。"
+    ],
+    "nextActions": [
+      "Skill推奨実行者(実装=Codex標準)+Skillなし実行カバレッジ可視化 の結果を確認し、未達のDoneCriteriaを1つ進める"
+    ],
+    "changedFiles": [
+      "lib/types/skill.ts: preferredExecutor追加",
+      "lib/skill-store.ts: normalize透過",
+      "data/real/skills.json: 5Skillにcodex推奨",
+      "lib/goal-step-epic.ts: 実行者既定: todo指定→Skill推奨→claude",
+      "app/skills/page.tsx: 推奨実行者バッジ+Skillなし実行カバレッジ",
+      "app/skills/[skillId]/page.tsx: 詳細に実行者バッジ",
+      "lib/skill-store.test.ts: normalize脱落防止"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-04_know-20260704-002359.md",
+    "researchPath": "06_research/2026-07-04_know-20260704-002359.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-04T05:03:17.429Z",
+    "updatedAt": "2026-07-04T05:03:17.453Z",
+    "nextEpicCandidateId": "rec-knowledge-20260704-002359"
+  },
+  {
+    "id": "know-20260704-000321",
+    "sourceRunId": "20260704-000321",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: 自動実行の改善効果が大きいSkillを模索・追加(5 Skill体制)",
+    "summary": "[AI一次レビュー 2026-07-04 05:08] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "観測済み失敗パターン(errors誤検知でneeds_human嵐/変更ゼロ空回りrun/curl200だけで白画面見逃し/fix対応の場当たり)に直接効くSkill構成へ。新規2件: skill-fix-followup(要修正・失敗対応: 再現→原因→最小修正→回帰→再発防止)/skill-app-change(非progressアプリ改修: アプリ固有の検証手段確認→実描画まで)。既存3件をv2強化(報告品質: summary人間語・errorsは実エラーのみ/実描画検証/変更ゼロ禁止/必須判断未回答時は進めない)。選択ルール拡張: fixRequested最優先→goal-app→progress系→research→非progressアプリ。記録と注入のcontext一致。SkillVersion履歴6件。",
+      "## 自動実行に効くSkill体制(5件)",
+      "### 効かせる失敗パターン(実データ由来)",
+      "a) errors誤検知(stderr断片)→v2手順で『errorsには実エラーのみ』を全Skillに明記",
+      "b) 変更ゼロ空回りrun→progress-feature v2『今回のrunで着地させる変更を1つ決める。変更ゼロで終えない』"
+    ],
+    "nextActions": [
+      "自動実行の改善効果が大きいSkillを模索・追加(5 Skill体制) の結果を確認し、未達のDoneCriteriaを1つ進める"
+    ],
+    "changedFiles": [
+      "data/real/skills.json: 新規2Skill追加+既存3Skillをv2手順へ",
+      "data/real/skill-versions.json: v1/v2履歴6件",
+      "lib/skill-select.ts: context.fixRequested最優先+非progress→app-change",
+      "lib/factory-runner.ts: 記録時にhasFixRequestedForEpicをcontextで渡す",
+      "lib/operations-store.ts: codexプロンプト注入も同じfix判定",
+      "lib/factory-dispatch.ts: claudeプロンプト注入も同じfix判定",
+      "lib/skill-select.test.ts: fix優先/app-changeケース追加"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-04_know-20260704-000321.md",
+    "researchPath": "06_research/2026-07-04_know-20260704-000321.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-04T05:08:05.998Z",
+    "updatedAt": "2026-07-04T05:08:06.086Z",
+    "nextEpicCandidateId": "rec-knowledge-20260704-000321"
+  },
+  {
+    "id": "know-20260703-232042",
+    "sourceRunId": "20260703-232042",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: 運用方針検討 - Skillsを増やす基準",
+    "summary": "[AI一次レビュー 2026-07-04 05:08] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Skillsは役割が被らないなら増やすべきか検討。結論: 被らないだけでは不十分。増設条件3つ(①機械的な選択経路を書ける ②月数回以上実行され成績がたまる=改善ループの母数3以上 ③一般論でない具体的手順を書ける)を全部満たすものだけ。増やしすぎは選択ルール複雑化・母数分散・未使用ノイズ。当面5-7個上限。今すぐ価値があるのは要修正・失敗の修正対応Skill1件(fixPrompt再実行は頻出の別種作業)。それ以外は数日運用して未分類runの偏りを見てから追加。",
+      "## Skills増設基準の方針検討",
+      "### 議論",
+      "役割が被らなければ増やすべきか→否。選択経路/実行頻度(母数)/手順の具体性の3条件が必要。改善候補の発火は母数3以上失敗率30%のため、低頻度Skillはループが回らない。",
+      "### 選択肢"
+    ],
+    "nextActions": [
+      "運用方針検討 - Skillsを増やす基準 の結果を確認し、未達のDoneCriteriaを1つ進める"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-04_know-20260703-232042.md",
+    "researchPath": "06_research/2026-07-04_know-20260703-232042.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-04T05:08:06.223Z",
+    "updatedAt": "2026-07-04T05:08:06.242Z",
+    "nextEpicCandidateId": "rec-knowledge-20260703-232042"
+  },
+  {
+    "id": "know-20260703-230523",
+    "sourceRunId": "20260703-230523",
+    "goalId": "goal-execution-review-loop",
+    "title": "Review Knowledge: Factory schedule (schedule/systemd)",
+    "summary": "[AI一次レビュー 2026-07-04 05:08] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Factory 起動: Review Fix 実行0・予約0・skip0・block1 / Epic 1 Run / Prompt Queue 実行0・予約0・skip0・block0 / 停止理由=max_runs_reached（schedule/systemd）",
+      "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none",
+      "[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260703-230022-567",
+      "[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-04_know-20260703-230523.md",
+    "researchPath": "06_research/2026-07-04_know-20260703-230523.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-04T05:08:06.351Z",
+    "updatedAt": "2026-07-04T05:08:06.364Z",
+    "nextEpicCandidateId": "rec-knowledge-20260703-230523"
+  },
+  {
+    "id": "know-20260623-140555",
+    "sourceRunId": "20260623-140555",
+    "goalId": "goal-execution-review-loop",
+    "title": "Review Knowledge: Factory schedule (schedule/systemd)",
+    "summary": "[AI一次レビュー 2026-07-04 05:08] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "Factory 起動: Review Fix 実行0・予約0・skip0・block1 / Epic 1 Run / Prompt Queue 実行0・予約0・skip0・block0 / 停止理由=max_runs_reached（schedule/systemd）",
+      "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none",
+      "[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260623-140011-743",
+      "[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-04_know-20260623-140555.md",
+    "researchPath": "06_research/2026-07-04_know-20260623-140555.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-04T05:08:06.580Z",
+    "updatedAt": "2026-07-04T05:08:06.590Z",
+    "nextEpicCandidateId": "rec-knowledge-20260623-140555"
+  },
+  {
+    "id": "know-20260623-124838",
+    "sourceRunId": "20260623-124838",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: テスト: 並べ替え後の実行選定が新順序を反映するか検証",
+    "summary": "[AI一次レビュー 2026-07-04 05:08] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "ユーザーがキューを並べ替え＋手動追加(#1=グアムアプリ todo)した状態で、実行選定が新順序を反映するか検証。実コードのread-only確認で runner が新#1(goal-mqq28l9d-8h86j)を選定することを確定=順序反映OK。ただしfactoryは単一cwd(既定progress)で実executorを起動するため、別アプリ対象の#1をフル実行するとprogress cwdでcodexが動く別問題を発見。",
+      "【テスト結果=順序反映OK】一時検証ルート(実コードbuildAutoQueue+pickNextEpic解決をread-only実行、検証後撤去)で確認: runnerWouldPickFirst=todo:gtodo-mqq28l9d-8ievn(グアムアプリ地図経路, manualOrder=1, goal-mqq28l9d-8h86j)→epic-goalstep-goal-mqq28l9d-8h86j。queueResolvedTop6 は manualOrder 1..6 と完全一致。旧ロジック選定(参考)=epic-goalstep-goal-execution-review-loop。→並べ替え・手動追加が実行選定に正しく反映されている。",
+      "【発見した別問題】lib/factory-runner.ts runFactory は cwd=opts.cwd??process.cwd() の単一cwdで getAdapter(codex).run(...,cwd) を起動。targetApp別のcwd解決が無いため、#1のような非progress対象(グアムアプリ)をmode:auto/confirmでフル実行するとprogress repo内でcodex execが走る=誤repo作業リスク。安全判断によりフル自動実行は保留しユーザーに実施方法を確認する。",
+      "【補足】キュー#3「自動実行の最大件数の制御をなくす」#4「最優先/最後尾ボタン追加」はprogress対象でクリーンに実行テスト可能。",
+      "monetizationImpact: low / theme: workflow"
+    ],
+    "nextActions": [
+      "実行テストの実施方法をユーザー判断(progress対象項目で実行 / guamのまま実行 / 選定確認で十分)",
+      "別件: factory runnerが単一cwdのため非progress対象アプリを正しいrepoで実行できない(targetApp別cwd解決が未実装)"
+    ],
+    "changedFiles": [],
+    "vaultReviewPath": "20_reviews/2026-07-04_know-20260623-124838.md",
+    "researchPath": "06_research/2026-07-04_know-20260623-124838.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-04T05:08:06.844Z",
+    "updatedAt": "2026-07-04T05:08:06.855Z",
+    "nextEpicCandidateId": "rec-knowledge-20260623-124838"
+  },
+  {
+    "id": "know-20260623-123440",
+    "sourceRunId": "20260623-123440",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: 司令塔ホーム「最近の調査結果」セクションをpush(11:00自動実行成果の確定)",
+    "summary": "[AI一次レビュー 2026-07-04 05:08] 判定=reviewed 理由=completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。（rule=clean_completed）",
+    "learnings": [
+      "11:00定時自動実行が生成したホーム「最近の調査結果」セクション(app/page.tsx, lib/command-center.ts)をユーザー指示でレビュー後コミット&push(30a6883)。キュー順修正と同一クリーンビルドでtsc/lint/build検証済。",
+      "ユーザー指示でpush。内容は11:00 JST定時自動実行(runId 20260623-110010-282)がキュー順修正後の新ロジックで先頭todoを実行して生成した成果。差分レビュー(researchLogsからの集約・リンク追加、機密なし)→commit 30a6883 push成功(8115260..30a6883 main, local==origin)。data/real/*と_backups/archiveはランタイム書き込みのため非コミット。",
+      "monetizationImpact: low / theme: workflow"
+    ],
+    "nextActions": [
+      "review済みExecutionRunの学びを反映した改善が完了している",
+      "build / typecheck / lint のいずれかが実行され結果が記録されている",
+      "変更内容と次アクションがExecutionRunまたはレビュー履歴に保存されている"
+    ],
+    "changedFiles": [
+      "progress/lib/command-center.ts: CommandCenterViewにrecentResearch追加(researchLogs上位3件集約)",
+      "progress/app/page.tsx: ホームに「最近の調査結果」セクション追加"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-04_know-20260623-123440.md",
+    "researchPath": "06_research/2026-07-04_know-20260623-123440.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-04T05:08:06.974Z",
+    "updatedAt": "2026-07-04T05:08:06.986Z",
+    "nextEpicCandidateId": "rec-knowledge-20260623-123440"
+  },
+  {
+    "id": "know-20260608-184752",
+    "sourceRunId": "20260608-184752",
+    "sourceEpicId": "epic-91",
+    "goalId": "goal-ai-factory-os",
+    "title": "Review Knowledge: Factory判定修正を本番反映（commit/push + rebuild + pm2 restart）",
+    "summary": "[AI一次レビュー 2026-06-11 11:52] 判定=needs_human 理由=公開・デプロイ関連の作業（危険キーワード検知）。人間の確認を推奨。（rule=risk_keyword）\n[人間判断 2026-07-04 05:09] approval=appr-1781178720389 決定=mark_reviewed",
+    "learnings": [
+      "進行中だったprogressアプリのFactory機能ソース一式(95ファイル)をcommit 9e6af71としてpushし、rebuild+pm2 restartで本番(3010)へ反映。本番でURL一覧Epic・動作確認TodoEpicがFactory candidatesに入り、dispatch ok・claude_factoryプロンプト生成・deploy禁止文言なし(デプロイ注意)を確認。孤立commitは依存破綻で不可能なため、他アプリ・data・ビルド成果物を除いたprogressソース一式をcoherentにコミット。",
+      "注意: commit 9e6af71はprogressアプリのFactory機能WIP一式(95ファイル)を含む。孤立commitはapp/epic/page.tsx→未追跡FactoryGuideModal/FactoryStatusBar等の依存連鎖で不可能だったため、coherentな最小単位=progressソース一式とした。他アプリ(news-app/ai-trend-sns/anglerlog/birdlog)とdata/実行時JSONは除外",
+      "注意: 実auto実行(mode:auto+confirm)は未実施。autonomousなコード改変を伴うため候補確認・dispatchプロンプト生成・dry_runまでに留めた。実行はユーザー判断でFactory UI/factory-run autoから",
+      "注意: AI工場オペセンEpic(epic-91)はdoneCriteria/priority未設定で正しくFactory対象外(候補外)。データ捏造補正はせず",
+      "■目的: 3セッション分のFactory判定修正(deploy=注意化/承認過多解消/プロンプト整合)を本番反映し、URL一覧/動作確認TodoをFactory自動実行可能にする。■commit/push: 孤立commitは不可能(app/epic/page.tsxが未追跡FactoryGuideModal/FactoryStatusBarに依存し連鎖)。coherent最小単位としてprogressソース95ファイルをstage(他アプリ・data/・.next・tsbuildinfoは除外)→機密スキャンclean(.env/.key/secret無し、docs/factory-scheduleのsystemd/crontabはコメントアウト/dry_runのテンプレのみ)→commit 9e6af71→push origin main成功(d30959e..9e6af71)。■rebuild+restart: npm run build成功(41/41)→pm2 restart progress(restarts=1/online)→GET /epic=200。■本番検証(live 3010): /epicバッジ=⚙Factory対象12/✅自律実行可12/⚠デプロイ注意4/🛡要承認0/🚫対象外2。factory-dispatch scan: factoryEnabled=true, candidates=[epic-birdlog, epic-progress-url, epic-progress-todo], blocked=[epic-91:doneCriteria/priority未設定]。URL一覧・動作確認Todoとも個別plan safetyStatus=ok/executor=claude/promptType=claude_factory/blockedReason=なし。dispatchプロンプト生成: deploy禁止文言=出ない/デプロイ注意=あり。factory-run dry_run=200。■data非破壊: data/はコミット外、検証中のテストEpicは前セッションで削除済み・本セッションはdata未変更。■未実施: 実auto実行(autonomousコード改変のため候補確認・プロンプト生成・dry_runに留めた)。"
+    ],
+    "nextActions": [
+      "必要なら mode:auto+confirm で URL一覧/動作確認Todo を実起動（autonomousコード改変が走る点に留意）",
+      "AI工場オペセンEpicのdoneCriteria/priority補完で候補化",
+      "data/real実行時JSONのgit追跡方針の整理（現状一部tracked/一部untracked）"
+    ],
+    "changedFiles": [
+      "progress/lib/epic-contract.ts ほかFactory判定: 4概念分離・riskFlags2分割・buildExecutionGuard（本セッション修正）",
+      "progress/ (95ファイル source一式): 進行中のFactory/recommended/automation機能を含めcommit 9e6af71でpush。data/と他アプリは除外"
+    ],
+    "vaultReviewPath": "20_reviews/2026-07-04_know-20260608-184752.md",
+    "researchPath": "06_research/2026-07-04_know-20260608-184752.md",
+    "decisionLogPath": "pm/decision-log.md",
+    "createdAt": "2026-07-04T05:09:18.644Z",
+    "updatedAt": "2026-07-04T05:09:18.703Z",
+    "nextEpicCandidateId": "rec-knowledge-20260608-184752"
   }
 ]

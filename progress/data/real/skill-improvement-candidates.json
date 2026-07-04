@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "id": "skillcand-2026-07-04-skill-progress-feature-needs-followup-3",
+    "skillId": "skill-progress-feature",
+    "reason": "needs_followup が直近3run連続しています。",
+    "evidence": [
+      "20260703-230022-567",
+      "20260703-160030-788",
+      "20260703-140329-828"
+    ],
+    "suggestedChange": "手順のレビュー観点を点検し、完了条件と修正依頼を受けやすい箇所を明確化する",
+    "status": "pending",
+    "priority": "P1",
+    "riskFlags": [],
+    "createdAt": "2026-07-04T05:03:12.941Z"
+  }
+]

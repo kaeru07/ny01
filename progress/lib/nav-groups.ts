@@ -18,7 +18,6 @@ export const APP_DEVELOPMENT_SUBTABS: SubNavItem[] = [
 export const AUTO_EXECUTION_SUBTABS: SubNavItem[] = [
   { label: '自動実行', href: '/queue' },
   { label: 'ゴール', href: '/goal-planner' },
-  { label: 'Skills', href: '/skills' },
 ]
 
 export const STATUS_PATHS = STATUS_SUBTABS.map((item) => item.href)

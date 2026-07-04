@@ -1,10 +1,8 @@
 export const dynamic = 'force-dynamic'
 
-import SubTabBar from '@/components/navigation/SubTabBar'
 import Link from 'next/link'
 import CandidateActionButton from './CandidateActionButton'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
-import { AUTO_EXECUTION_SUBTABS } from '@/lib/nav-groups'
 import { readSkillImprovementCandidates, readSkills, readSkillVersions } from '@/lib/skill-store'
 import type { ExecutionRun } from '@/types/execution-run'
 
@@ -111,7 +109,6 @@ export default async function SkillsPage() {
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">実行手順の品質集計・改善候補・更新履歴</p>
       </header>
       <div className="mb-4">
-        <SubTabBar items={AUTO_EXECUTION_SUBTABS} />
       </div>
 
       <section className="mb-6">
