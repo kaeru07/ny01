@@ -34394,6 +34394,35 @@
         "アプリ自動作成ループの品質・意図整合チェック+欠陥2件修正 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "## ループ監査(意図整合・品質)\n\n### 修正済み欠陥\nD1: 承認時note破棄(意図入力経路ゼロ)→2段階承認+Goal.notes保存+プロンプト注入。\nD2(最重要): 承認したspec/screens/mvpScope/initialGoalDraftがビルダーに届かず、ゴール1行+Skill手順だけで実装される=設計乖離が構造的に発生→アプリ仕様ブロックを両executor promptへ注入。\n\n### 残改善(キュー投入済み goal-opus-app-loop-quality)\nD3: フェーズ①完了時の非ブロッキング方向性確認(早期の意図ズレ検出。自動実行は止めない) D4: 日次生成へ承認/却下履歴+却下noteをフィードバック(ユーザーの好みに収束) D5: WIP制限(同時作成2件推奨・3件目は今日の判断) D6: checksにtestスクリプト実行+Skill v4でテスト作成明記。\n\n### 総評\nループ骨格は健全(決定注入/Skill注入/危険ゲート/手詰まりブレーキ/完成の人間検収)。意図の入口(D1)と設計の伝達(D2)が欠けていたが解消。残4件で「好みに収束する生成」と「早期軌道修正」が閉じる。\n\nmonetizationImpact: high\ntheme: [app-strategy, workflow]"
+    },
+    {
+      "runId": "20260704-103531",
+      "startedAt": "2026-07-04T01:35:31.359Z",
+      "finishedAt": "2026-07-04T01:35:31.359Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "最終レビュー: コア必須判断の補完漏れ修正+仕様管理ページの結論",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "再監査で実害のある穴1件を発見・修正: 案が自前decisionPointsを持つと既定のコア必須判断(platform/framework/data_storage/auth)が使われず、承認済み2アプリが技術スタック未回答のままビルド開始予定だった。→コア必須判断をキー単位で補完するようdecide route修正+承認済み2アプリを冪等再approveでバックフィル(両者に技術スタック質問追加・回答までgoal hold)。仕様まとめページは既存の/app-designsが該当、編集機能のみ不足→goal-opus-spec-editでキュー化。これ以上の必須修正はなし(残はキュー3件の拡張のみ)。",
+      "changedFiles": [
+        {
+          "file": "app/api/app-proposals/[id]/decide/route.ts",
+          "change": "コア必須判断(required)をdecisionPointsにキー単位で補完"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "manual": "OK live: 2アプリに技術スタック質問(required)追加・goal hold確認"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "最終レビュー: コア必須判断の補完漏れ修正+仕様管理ページの結論 の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## 最終監査\n\n### 発見・修正\n必須コア判断の補完漏れ: decisionPoints空のときだけDEFAULTを使う実装で、自前dpを持つ案はframework等が聞かれない。承認済みの手牌解析(dp0→旧DEFAULT3問時代に承認)と将棋囲い(自前dp3)はスタック未決のままビルド開始予定だった。修正+冪等再approveでバックフィル(approvals+5/+4、required=4、hold=true)。\n\n### 仕様管理ページの結論\n閲覧集約は/app-designs(設計一覧)が既に担う。不足は編集のみ→goal-opus-spec-editをキュー化(candidate更新API+goal.notes。注入は既存経路で自動反映)。\n\n### 総括\n必須修正はこれで完了。残りはキューの拡張3件(codemagic-handoff/app-loop-quality/spec-edit)のみ。\n\nmonetizationImpact: medium\ntheme: [app-strategy, workflow]"
     }
   ]
 }

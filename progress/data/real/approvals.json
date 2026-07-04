@@ -1531,5 +1531,251 @@
     "status": "pending",
     "createdRunId": "20260703-084034",
     "createdAt": "2026-07-03T14:00:20.799Z"
+  },
+  {
+    "approvalId": "appr-1783128753992-1",
+    "projectId": "ny01-mahjong-analyzer",
+    "title": "ny01/mahjong-analyzer（手牌解析）: 最初に公開するストア対象は？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "platform-0-ios",
+        "label": "iOS"
+      },
+      {
+        "key": "platform-1-android",
+        "label": "Android"
+      },
+      {
+        "key": "platform-2-ios-android",
+        "label": "iOS + Android"
+      },
+      {
+        "key": "platform-3-ipad",
+        "label": "iPad対応"
+      }
+    ],
+    "recommended": "platform-0-ios",
+    "reason": "アプリ案決定時に方針決定が必要な項目",
+    "requiredForExecution": true,
+    "status": "pending",
+    "createdAt": "2026-07-04T01:32:33.992Z"
+  },
+  {
+    "approvalId": "appr-1783128753997-2",
+    "projectId": "ny01-mahjong-analyzer",
+    "title": "ny01/mahjong-analyzer（手牌解析）: 技術スタックは？（ビルドはCodemagic前提）",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "framework-0-expo-react-native",
+        "label": "Expo (React Native)"
+      },
+      {
+        "key": "framework-1-react-native-cli",
+        "label": "React Native CLI"
+      },
+      {
+        "key": "framework-2-next-js-web-pwa",
+        "label": "Next.js (Web/PWA)"
+      }
+    ],
+    "recommended": "framework-0-expo-react-native",
+    "reason": "アプリ案決定時に方針決定が必要な項目",
+    "requiredForExecution": true,
+    "status": "pending",
+    "createdAt": "2026-07-04T01:32:33.997Z"
+  },
+  {
+    "approvalId": "appr-1783128753998-3",
+    "projectId": "ny01-mahjong-analyzer",
+    "title": "ny01/mahjong-analyzer（手牌解析）: データ保存先は？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "data-storage-0",
+        "label": "端末内のみ"
+      },
+      {
+        "key": "data-storage-1",
+        "label": "クラウド同期あり"
+      },
+      {
+        "key": "data-storage-2",
+        "label": "端末内 + 手動バックアップ"
+      }
+    ],
+    "recommended": "data-storage-0",
+    "reason": "アプリ案決定時に方針決定が必要な項目",
+    "requiredForExecution": true,
+    "status": "pending",
+    "createdAt": "2026-07-04T01:32:33.998Z"
+  },
+  {
+    "approvalId": "appr-1783128754000-4",
+    "projectId": "ny01-mahjong-analyzer",
+    "title": "ny01/mahjong-analyzer（手牌解析）: 認証を入れる？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "auth-0",
+        "label": "認証なし"
+      },
+      {
+        "key": "auth-1-apple-google",
+        "label": "Apple/Googleログイン"
+      },
+      {
+        "key": "auth-2",
+        "label": "メールログイン"
+      }
+    ],
+    "recommended": "auth-0",
+    "reason": "アプリ案決定時に方針決定が必要な項目",
+    "requiredForExecution": true,
+    "status": "pending",
+    "createdAt": "2026-07-04T01:32:34.000Z"
+  },
+  {
+    "approvalId": "appr-1783128754001-5",
+    "projectId": "ny01-mahjong-analyzer",
+    "title": "ny01/mahjong-analyzer（手牌解析）: MVP範囲はどこまでにする？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mvp-scope-0",
+        "label": "記録と一覧だけ"
+      },
+      {
+        "key": "mvp-scope-1",
+        "label": "通知まで含める"
+      },
+      {
+        "key": "mvp-scope-2",
+        "label": "分析まで含める"
+      },
+      {
+        "key": "mvp-scope-3",
+        "label": "課金導線まで含める"
+      }
+    ],
+    "recommended": "mvp-scope-0",
+    "reason": "アプリ案決定時に方針決定が必要な項目",
+    "requiredForExecution": false,
+    "status": "pending",
+    "createdAt": "2026-07-04T01:32:34.001Z"
+  },
+  {
+    "approvalId": "appr-1783128754041-6",
+    "projectId": "shogi-kakoi-trainer",
+    "title": "将棋 囲いトレーナー: 最初に公開するストア対象は？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "platform-0-ios",
+        "label": "iOS"
+      },
+      {
+        "key": "platform-1-android",
+        "label": "Android"
+      },
+      {
+        "key": "platform-2-ios-android",
+        "label": "iOS + Android"
+      },
+      {
+        "key": "platform-3-ipad",
+        "label": "iPad対応"
+      }
+    ],
+    "recommended": "platform-0-ios",
+    "reason": "アプリ案決定時に方針決定が必要な項目",
+    "requiredForExecution": true,
+    "status": "pending",
+    "createdAt": "2026-07-04T01:32:34.041Z"
+  },
+  {
+    "approvalId": "appr-1783128754043-7",
+    "projectId": "shogi-kakoi-trainer",
+    "title": "将棋 囲いトレーナー: 技術スタックは？（ビルドはCodemagic前提）",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "framework-0-expo-react-native",
+        "label": "Expo (React Native)"
+      },
+      {
+        "key": "framework-1-react-native-cli",
+        "label": "React Native CLI"
+      },
+      {
+        "key": "framework-2-next-js-web-pwa",
+        "label": "Next.js (Web/PWA)"
+      }
+    ],
+    "recommended": "framework-0-expo-react-native",
+    "reason": "アプリ案決定時に方針決定が必要な項目",
+    "requiredForExecution": true,
+    "status": "pending",
+    "createdAt": "2026-07-04T01:32:34.043Z"
+  },
+  {
+    "approvalId": "appr-1783128754044-8",
+    "projectId": "shogi-kakoi-trainer",
+    "title": "将棋 囲いトレーナー: データ保存先は？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "data-storage-0",
+        "label": "端末内のみ"
+      },
+      {
+        "key": "data-storage-1",
+        "label": "クラウド同期あり"
+      },
+      {
+        "key": "data-storage-2",
+        "label": "端末内 + 手動バックアップ"
+      }
+    ],
+    "recommended": "data-storage-0",
+    "reason": "アプリ案決定時に方針決定が必要な項目",
+    "requiredForExecution": true,
+    "status": "pending",
+    "createdAt": "2026-07-04T01:32:34.044Z"
+  },
+  {
+    "approvalId": "appr-1783128754046-9",
+    "projectId": "shogi-kakoi-trainer",
+    "title": "将棋 囲いトレーナー: 認証を入れる？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "auth-0",
+        "label": "認証なし"
+      },
+      {
+        "key": "auth-1-apple-google",
+        "label": "Apple/Googleログイン"
+      },
+      {
+        "key": "auth-2",
+        "label": "メールログイン"
+      }
+    ],
+    "recommended": "auth-0",
+    "reason": "アプリ案決定時に方針決定が必要な項目",
+    "requiredForExecution": true,
+    "status": "pending",
+    "createdAt": "2026-07-04T01:32:34.046Z"
   }
 ]

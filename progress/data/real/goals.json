@@ -4278,45 +4278,55 @@
       "id": "goal-app-ny01-mahjong-analyzer",
       "projectId": "ny01-mahjong-analyzer",
       "title": "ny01/mahjong-analyzer（手牌解析）を作る",
-      "description": "手牌を入力すると有効牌・受け入れ枚数を解析するツール。",
+      "description": "手牌を入力すると有効牌・受け入れ枚数を解析するツール。\n\n完成条件: App Store/Google Playに提出できる品質（MVP全フロー完動・クラッシュゼロ・エラー/空状態処理・ストア素材と審査メタデータの準備まで）。提出・公開操作のみユーザーが行う。",
       "metric": "progress",
       "target": 100,
       "current": 0,
       "isNorthStar": false,
-      "summary": "手牌を入力すると有効牌・受け入れ枚数を解析するツール。",
+      "summary": "手牌を入力すると有効牌・受け入れ枚数を解析するツール。\n\n完成条件: App Store/Google Playに提出できる品質（MVP全フロー完動・クラッシュゼロ・エラー/空状態処理・ストア素材と審査メタデータの準備まで）。提出・公開操作のみユーザーが行う。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "status": "active",
       "priority": "low",
       "pinnedTop": false,
+      "queueControl": {
+        "hold": true,
+        "updatedBy": "user",
+        "updatedAt": "2026-07-04T01:32:34.006Z"
+      },
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "low",
       "phases": [],
       "todos": [],
       "createdAt": "2026-07-01T03:56:44.872Z",
-      "updatedAt": "2026-07-02T03:11:18.080Z"
+      "updatedAt": "2026-07-04T01:32:34.006Z"
     },
     {
       "id": "goal-app-shogi-kakoi-trainer",
       "projectId": "shogi-kakoi-trainer",
       "title": "将棋 囲いトレーナーを作る",
-      "description": "将棋初〜中級者が囲い（美濃・矢倉等）の手順を反復ドリルで習得できる学習アプリ。",
+      "description": "将棋初〜中級者が囲い（美濃・矢倉等）の手順を反復ドリルで習得できる学習アプリ。\n\n完成条件: App Store/Google Playに提出できる品質（MVP全フロー完動・クラッシュゼロ・エラー/空状態処理・ストア素材と審査メタデータの準備まで）。提出・公開操作のみユーザーが行う。",
       "metric": "progress",
       "target": 100,
       "current": 0,
       "isNorthStar": false,
-      "summary": "将棋初〜中級者が囲い（美濃・矢倉等）の手順を反復ドリルで習得できる学習アプリ。",
+      "summary": "将棋初〜中級者が囲い（美濃・矢倉等）の手順を反復ドリルで習得できる学習アプリ。\n\n完成条件: App Store/Google Playに提出できる品質（MVP全フロー完動・クラッシュゼロ・エラー/空状態処理・ストア素材と審査メタデータの準備まで）。提出・公開操作のみユーザーが行う。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "status": "active",
       "priority": "high",
       "pinnedTop": false,
+      "queueControl": {
+        "hold": true,
+        "updatedBy": "user",
+        "updatedAt": "2026-07-04T01:32:34.052Z"
+      },
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "high",
       "phases": [],
       "todos": [],
       "createdAt": "2026-07-02T03:12:47.792Z",
-      "updatedAt": "2026-07-02T03:12:47.792Z"
+      "updatedAt": "2026-07-04T01:32:34.052Z"
     },
     {
       "id": "goal-opus-spec-decisions",
@@ -4548,6 +4558,28 @@
       "current": 0,
       "isNorthStar": false,
       "summary": "【確定仕様】1) フェーズ方向性確認: goal-appのstep epic完了時(特にフェーズ①基盤完了)に非ブロッキングの方向性確認カードをレビュータブに出す(画面構成/主要フローの要約つき。自動実行は止めない。ユーザーが違うと思えば修正するでfixPrompt) 2) 生成への意図フィードバック: 日次アプリ案生成プロンプトに過去の承認/却下履歴(operational-decisionsのapp_proposal)と却下noteを渡し「却下された系統を避け承認された系統に寄せる」 3) WIP制限: 作成中(approved)アプリが2件以上あるとき、新規approveのゴールは自動的にqueueControl.hold+今日の判断に「同時作成は2件までを推奨。3件目を今始めるか」の判断を出す 4) テスト実行: checks-runnerでpackage.jsonにtestスクリプトがあれば npm test -- --watchAll=false 相当を実行しchecks.testに記録。skill-store-app-scaffold手順(v4)に「主要ロジックのテストを作る」を明記(SkillVersion履歴付き)。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "status": "active",
+      "priority": "medium",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [],
+      "todos": [],
+      "createdAt": "2026-07-03T23:31:06.011Z",
+      "updatedAt": "2026-07-03T23:31:06.011Z"
+    },
+    {
+      "id": "goal-opus-spec-edit",
+      "projectId": "company-mgmt",
+      "title": "設計一覧からアプリ仕様を編集できるようにする",
+      "description": "【確定仕様】/app-designs の各アプリに仕様編集(spec/mvpScope/意図メモ)のフォームを追加。保存先: spec/mvpScopeは app-factory-candidates.json の該当candidate(更新API新設 PATCH /api/app-proposals/[id])、意図メモは goal.notes。編集内容は既存の buildAppIntentContext 経由で次回実行プロンプトに自動反映される(追加配線不要)。編集履歴はoperational-decisionsに1行記録。破壊的変更なし。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "【確定仕様】/app-designs の各アプリに仕様編集(spec/mvpScope/意図メモ)のフォームを追加。保存先: spec/mvpScopeは app-factory-candidates.json の該当candidate(更新API新設 PATCH /api/app-proposals/[id])、意図メモは goal.notes。編集内容は既存の buildAppIntentContext 経由で次回実行プロンプトに自動反映される(追加配線不要)。編集履歴はoperational-decisionsに1行記録。破壊的変更なし。",
       "status": "active",
       "priority": "medium",
       "decisionPolicyDefault": "autonomous",
@@ -4555,10 +4587,10 @@
       "monetizationImpact": "none",
       "phases": [],
       "todos": [],
-      "createdAt": "2026-07-03T23:31:06.011Z",
-      "updatedAt": "2026-07-03T23:31:06.011Z"
+      "createdAt": "2026-07-04T01:35:31.311Z",
+      "updatedAt": "2026-07-04T01:35:31.311Z"
     }
   ],
   "mainGoalId": "goal-ai-factory-os",
-  "updatedAt": "2026-07-03T23:31:06.057Z"
+  "updatedAt": "2026-07-04T01:35:31.311Z"
 }

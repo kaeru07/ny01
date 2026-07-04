@@ -143,9 +143,16 @@ export async function POST(request: Request, { params }: { params: { id: string 
           warnings.push(`goal create failed: ${error instanceof Error ? error.message : String(error)}`)
         }
 
-        const decisionPoints = (candidate.decisionPoints && candidate.decisionPoints.length > 0)
+        // 案が自前のdecisionPointsを持っていても、コア必須判断(platform/framework/data_storage/auth)が
+        // 欠けていれば既定から補完する。欠けたまま作り始めると技術スタック等が未決でビルドされる。
+        const candidatePoints = (candidate.decisionPoints && candidate.decisionPoints.length > 0)
           ? candidate.decisionPoints
           : DEFAULT_DECISION_POINTS
+        const presentKeys = new Set(candidatePoints.map((p) => p.key))
+        const decisionPoints = [
+          ...candidatePoints,
+          ...DEFAULT_DECISION_POINTS.filter((d) => d.required === true && !presentKeys.has(d.key)),
+        ]
         // 決定を2回押しても同じ方針項目を重複追加しない（projectId+タイトルで既存pendingを判定）。
         const existingApprovals = await getPendingApprovals()
         for (const point of decisionPoints) {
