@@ -55,6 +55,8 @@
 
 
 
+
+- 2026-07-05: AI検索対応ASO / OpenAI が GPT-5.6 系の限定プレビューを開始 / Vercel Agent Runs / AI検索ASO診断を月額980〜2,980円で提供し、アプリ説明文、レビュー返信、スクリーンショット… / エラーなし / partial(market,news,tools)
 - 2026-07-04: AI短尺動画生成 / Anthropic「Fable」規制解除報道 / ZCode / AI短尺動画のテンプレート生成を月額課金にし、YouTube Shorts / エラーなし / partial(market,news,tools)
 - 2026-07-03: AI生成ショートドラマ / Claude Sonnet 5 公開 / NLWeb / AI生成ショート教材を無料公開し、続きやテンプレをnote・有料記事で販売する。 / エラーなし / partial(market,news,tools)
 - 2026-07-02: 会話型アプリ発見 / Anthropic、Fable 5 / GitHub Copilot coding agent / Google Play 向け小型ユーティリティを無料配布し、月額 300〜800 円の追加テンプレ・… / エラーなし / partial(market,news,tools)
