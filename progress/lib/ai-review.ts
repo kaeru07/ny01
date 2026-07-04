@@ -1,8 +1,10 @@
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { updateExecutionRunFields } from '@/lib/execution-run-writer'
 import { generateFollowupRecommendationForRun, runKnowledgeLoopForRunId } from '@/lib/knowledge-loop'
-import { appendAutomationLog, createApproval, getPendingApprovals } from '@/lib/operations-store'
-import type { ApprovalCategory } from '@/lib/types/operations'
+import { appendAutomationLog, createApproval, getEpics, getPendingApprovals } from '@/lib/operations-store'
+import { parseDecisionRequests } from '@/lib/decision-request'
+import { readGoals } from '@/lib/goal-reader'
+import type { Approval, ApprovalCategory } from '@/lib/types/operations'
 import type { AiReviewResult, AiReviewVerdict, ExecutionRun, ReviewStatus } from '@/types/execution-run'
 
 // AI一次レビュー（ルールベース・LLM API 不使用）。
@@ -134,6 +136,7 @@ export interface AiReviewRunResult {
   knowledgeCreated: boolean
   recommendationCreated: boolean
   approvalCreated: boolean
+  decisionRequestsCreated: number
 }
 
 export interface AiReviewBatchResult {
@@ -142,6 +145,7 @@ export interface AiReviewBatchResult {
   results: AiReviewRunResult[]
   knowledgeCreated: number
   approvalsCreated: number
+  decisionRequestsCreated: number
   /** 処理後に残っている not_reviewed 件数。 */
   notReviewedRemaining: number
   oldestNotReviewedAgeDays: number | null
@@ -159,6 +163,63 @@ export function oldestAgeDays(runs: ExecutionRun[]): number | null {
   return Math.max(0, Math.floor((Date.now() - oldest) / 86_400_000))
 }
 
+function optionKey(label: string, index: number): string {
+  const slug = label
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  return slug || `option-${index + 1}`
+}
+
+async function resolveProjectIdForRun(run: ExecutionRun): Promise<string> {
+  if (run.epicId) {
+    const [epics, goalsData] = await Promise.all([getEpics(), readGoals()])
+    const epic = epics.find((item) => item.epicId === run.epicId)
+    const goal = epic?.goalId ? goalsData.goals.find((item) => item.id === epic.goalId) : undefined
+    if (goal?.projectId) return goal.projectId
+  }
+  return run.targetApp
+}
+
+async function createDecisionRequestApprovals(args: {
+  run: ExecutionRun
+  pendingApprovals: Approval[]
+}): Promise<number> {
+  const requests = parseDecisionRequests(`${args.run.rawReport}\n${args.run.nextActions.join('\n')}`)
+  if (requests.length === 0) return 0
+
+  const projectId = await resolveProjectIdForRun(args.run)
+  let created = 0
+
+  for (const request of requests) {
+    const exists = args.pendingApprovals.some((approval) => (
+      approval.status === 'pending' && approval.projectId === projectId && approval.title === request.question
+    ))
+    if (exists) continue
+
+    const options = request.options.map((label, index) => ({ key: optionKey(label, index), label }))
+    const recommendedIndex = request.recommended
+      ? request.options.findIndex((label) => label.trim() === request.recommended?.trim())
+      : -1
+    const recommended = options[recommendedIndex >= 0 ? recommendedIndex : 0]?.key ?? 'option-1'
+    const approval = await createApproval({
+      projectId,
+      title: request.question,
+      category: 'multi_option',
+      priority: 'normal',
+      options,
+      recommended,
+      reason: '実行AIからの判断要求（回答までは推奨案で進行中。回答すると次回実行に反映）',
+      createdRunId: args.run.runId,
+    })
+    args.pendingApprovals.push(approval)
+    created += 1
+  }
+
+  return created
+}
+
 /** not_reviewed Run を新しい順に最大 limit 件、一次レビューして保存する。
  *  「未確認をAIで一括整理」で全件処理できるよう上限は 200 件（過大な一括書き込みの安全弁）。 */
 export async function runAiReviewBatch(limit = 10): Promise<AiReviewBatchResult> {
@@ -169,6 +230,7 @@ export async function runAiReviewBatch(limit = 10): Promise<AiReviewBatchResult>
   const results: AiReviewRunResult[] = []
   let knowledgeCreated = 0
   let approvalsCreated = 0
+  let decisionRequestsCreated = 0
 
   for (const run of targets) {
     const cls = classifyRun(run)
@@ -188,6 +250,12 @@ export async function runAiReviewBatch(limit = 10): Promise<AiReviewBatchResult>
     let createdKnowledge = false
     let createdRecommendation = false
     let approvalCreated = false
+    let runDecisionRequestsCreated = 0
+
+    if (cls.verdict !== 'failed') {
+      runDecisionRequestsCreated = await createDecisionRequestApprovals({ run, pendingApprovals })
+      decisionRequestsCreated += runDecisionRequestsCreated
+    }
 
     if (cls.verdict === 'reviewed') {
       // 既存の Knowledge 生成ループへ流す（Knowledge + Next Epic 候補を自動生成）。
@@ -215,7 +283,7 @@ export async function runAiReviewBatch(limit = 10): Promise<AiReviewBatchResult>
         a.createdRunId === run.runId || (Boolean(run.epicId) && a.epicId === run.epicId)
       ))
       if (!exists) {
-        await createApproval({
+        const approval = await createApproval({
           epicId: run.epicId,
           title: `判断が必要: ${run.targetTodoTitle || run.runId}`,
           category: cls.approvalCategory ?? 'multi_option',
@@ -229,6 +297,7 @@ export async function runAiReviewBatch(limit = 10): Promise<AiReviewBatchResult>
           reason: cls.reason,
           createdRunId: run.runId,
         })
+        pendingApprovals.push(approval)
         approvalCreated = true
         approvalsCreated += 1
       }
@@ -244,6 +313,7 @@ export async function runAiReviewBatch(limit = 10): Promise<AiReviewBatchResult>
       knowledgeCreated: createdKnowledge,
       recommendationCreated: createdRecommendation,
       approvalCreated,
+      decisionRequestsCreated: runDecisionRequestsCreated,
     })
   }
 
@@ -255,6 +325,7 @@ export async function runAiReviewBatch(limit = 10): Promise<AiReviewBatchResult>
     results,
     knowledgeCreated,
     approvalsCreated,
+    decisionRequestsCreated,
     notReviewedRemaining: remaining.length,
     oldestNotReviewedAgeDays: oldestAgeDays(remaining),
     executedAt: new Date().toISOString(),
@@ -262,7 +333,7 @@ export async function runAiReviewBatch(limit = 10): Promise<AiReviewBatchResult>
 
   await appendAutomationLog({
     event: 'ai_review',
-    fallbackReason: `一次レビュー ${result.processed}件処理: reviewed=${counts.reviewed} needs_human=${counts.needs_human} partial=${counts.partial} failed=${counts.failed} / 残not_reviewed=${remaining.length}`,
+    fallbackReason: `一次レビュー ${result.processed}件処理: reviewed=${counts.reviewed} needs_human=${counts.needs_human} partial=${counts.partial} failed=${counts.failed} decisionRequests=${decisionRequestsCreated} / 残not_reviewed=${remaining.length}`,
     aiReviewCounts: {
       processed: result.processed,
       reviewed: counts.reviewed,

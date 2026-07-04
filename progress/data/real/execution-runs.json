@@ -34493,6 +34493,52 @@
         "方針確定 - タップだけで品質操縦(自由記述最小化) の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "前提修正: 前回提案の一言指示欄(自由記述前提)はユーザー意図と逆。確定原則=タップで操縦。実装Q1-Q4はゴールsummaryに確定仕様として保存。\nmonetizationImpact: high\ntheme: [app-strategy, workflow]"
+    },
+    {
+      "runId": "20260704-110515",
+      "startedAt": "2026-07-04T02:05:15.260Z",
+      "finishedAt": "2026-07-04T02:05:15.260Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "判断要求プロトコル実装(実行中の分岐を選択式で今日の判断へ)",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "「作れるような今日の判断が出てくるか」の穴(実行中の分岐に具体的選択肢が出ない)を実装で解消。実行AIがrawReportに[判断要求] 質問|選択肢|推奨 形式で書くと、ai-reviewがパースしそのままの選択肢でmulti_option承認を生成(projectId付き・epicId無し=非ブロッキング、回答までは推奨案で進行、回答は既存decision-contextで次回実行に自動注入)。Skill 3種(scaffold v4/progress-feature v3/app-change v2)の手順に書式と運用を明記(履歴付き)。重複防止・最大3件/run。",
+      "changedFiles": [
+        {
+          "file": "lib/decision-request.ts",
+          "change": "[判断要求]パーサ(純関数・2-4択・最大3件)(新規)"
+        },
+        {
+          "file": "lib/ai-review.ts",
+          "change": "failed以外のrunから判断要求を抽出→選択肢そのままの承認生成(epicId無し非ブロッキング/projectId解決/重複スキップ/件数ログ)"
+        },
+        {
+          "file": "data/real/skills.json",
+          "change": "scaffold v4/progress-feature v3/app-change v2: 判断要求書式と推奨案先行の運用を手順に明記"
+        },
+        {
+          "file": "data/real/skill-versions.json",
+          "change": "履歴3件追加(計10)"
+        },
+        {
+          "file": "lib/decision-request.test.ts",
+          "change": "パーサテスト"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "test": "OK 38/38",
+        "manual": "OK: パーサ実挙動(2件抽出・推奨解決・通常行無視)/Skill版数と履歴確認"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "判断要求プロトコル実装(実行中の分岐を選択式で今日の判断へ) の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## 判断要求プロトコル\n\n前(承認時網羅質問+コア必須hold)と後(手詰まり/完成検収)は仕組み済みだったが、実行中の体験分岐が具体的選択肢として今日の判断に出る経路が無かった(検知しても汎用の進める/中止/保留カード)。本実装で: 実行AI→[判断要求]行→ai-reviewパース→A案/B案そのままのタップカード→回答が次回プロンプトのユーザー決定事項へ。非ブロッキング(epicId付けない)で自動実行は止まらず推奨案で先行。これで前・中・後すべてで「タップで品質を握れる判断」が自動的に湧く構造が完成。\nmonetizationImpact: high\ntheme: [app-strategy, workflow]"
     }
   ]
 }
