@@ -29,7 +29,6 @@ const legacyNavItems = [
   { href: '/recommended-epics', label: 'おすすめEpic', exact: false },
   { href: '/automation', label: '自動化', exact: false },
   { href: '/approvals', label: '承認', exact: false },
-  { href: '/morning', label: '朝会', exact: false },
   { href: '/ai-drive', label: 'AI自走', exact: false },
   { href: '/goal-planner', label: '目標', exact: false },
   { href: '/tasks', label: 'ToDo', exact: false },

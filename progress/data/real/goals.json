@@ -29,8 +29,8 @@
       "description": "Codex/Claudeの実行結果を完了報告で終わらせず、Review、Knowledge、Next Epic候補生成までつなげる。",
       "metric": "closed_loop_rate",
       "target": 80,
-      "current": 33.5,
-      "metricSyncedAt": "2026-07-04T05:03:14.738Z",
+      "current": 37.4,
+      "metricSyncedAt": "2026-07-04T07:00:11.398Z",
       "isNorthStar": false,
       "summary": "Codex/Claudeの実行結果を完了報告で終わらせず、Review、Knowledge、Next Epic候補生成までつなげる。",
       "status": "active",
@@ -43,7 +43,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-11T00:00:00.000Z",
-      "updatedAt": "2026-07-04T05:03:14.738Z"
+      "updatedAt": "2026-07-04T07:00:11.398Z"
     },
     {
       "id": "goal-ai-executor-ops",
@@ -80,7 +80,7 @@
       "metric": "validated_project_count",
       "target": 5,
       "current": 3,
-      "metricSyncedAt": "2026-07-04T05:03:14.738Z",
+      "metricSyncedAt": "2026-07-04T07:00:11.398Z",
       "isNorthStar": false,
       "summary": "調査・アプリ開発・教材化・収益化候補をAI工場内で継続的に検証し、次の収益候補や転職価値につなげる。",
       "status": "done",
@@ -3534,8 +3534,8 @@
       "status": "active",
       "priority": "medium",
       "pinnedTop": false,
-      "lastSelectedRunId": "20260704-140319-116",
-      "lastSelectedAt": "2026-07-04T05:03:19.089Z",
+      "lastSelectedRunId": "20260704-160016-138",
+      "lastSelectedAt": "2026-07-04T07:00:16.121Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [
@@ -3575,7 +3575,7 @@
         }
       ],
       "createdAt": "2026-06-23T03:03:51.451Z",
-      "updatedAt": "2026-07-04T05:03:19.181Z"
+      "updatedAt": "2026-07-04T07:00:16.196Z"
     },
     {
       "id": "goal-mqqmhcb9-jndlz",
@@ -4594,5 +4594,5 @@
     }
   ],
   "mainGoalId": "goal-ai-factory-os",
-  "updatedAt": "2026-07-04T05:03:19.181Z"
+  "updatedAt": "2026-07-04T07:00:16.196Z"
 }

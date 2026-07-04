@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-04T05:03:15.005Z",
+  "generatedAt": "2026-07-04T07:00:11.633Z",
   "issues": [
     {
       "id": "app-stalled-goal-app-shogi-kakoi-trainer",
@@ -36,7 +36,7 @@
     {
       "id": "pending-approvals",
       "severity": "medium",
-      "title": "今日の判断が43件たまっています",
+      "title": "今日の判断が16件たまっています",
       "detail": "承認待ちが多く、次の自動実行や方針決定が詰まりやすい状態です。",
       "actionLabel": "今日の判断",
       "actionHref": "/decide?tab=today"

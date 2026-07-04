@@ -18,6 +18,7 @@ import { addExecutionRun, updateExecutionRunFields } from './execution-run-write
 import { ensureExecutionRunNextActions } from './execution-run-next-actions'
 import { readExecutionRuns } from './execution-run-reader'
 import { runAiReviewBatch } from '@/lib/ai-review'
+import { normalizeExecutionRunErrors } from './execution-run-errors'
 import { readGoals } from './goal-reader'
 import { writeGoals } from './goal-writer'
 import { resolveAppCwd } from './app-paths'
@@ -252,7 +253,7 @@ async function recordRun(args: {
     ? [`lintゲート: checks NG（${ngChecks.join(' / ')}）のため completed→partial に格下げ。要修正/レビュー待ち。`]
     : []
   const rawReport = `[factory-runner ${args.mode}] executor=${args.executor}\n${args.result.stdout || args.result.resultSummary}`
-  const errors = args.result.stderr ? [args.result.stderr.slice(0, 500)] : []
+  const errors = normalizeExecutionRunErrors(args.result.stderr ? [args.result.stderr.slice(0, 500)] : [])
   const nextActions = ensureExecutionRunNextActions({
     nextActions: args.result.nextActions,
     rawReport,
@@ -376,7 +377,7 @@ async function finishRunningRun(args: {
     ? [`lintゲート: checks NG（${ngChecks.join(' / ')}）のため completed→partial に格下げ。要修正/レビュー待ち。`]
     : []
   const rawReport = `[factory-runner ${args.mode}] executor=${args.executor}\n${args.result.stdout || args.result.resultSummary}`
-  const errors = args.result.stderr ? [args.result.stderr.slice(0, 500)] : []
+  const errors = normalizeExecutionRunErrors(args.result.stderr ? [args.result.stderr.slice(0, 500)] : [])
   const nextActions = ensureExecutionRunNextActions({
     nextActions: args.result.nextActions,
     rawReport,

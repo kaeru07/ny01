@@ -86,7 +86,6 @@ export const NAV_GROUPS: NavGroup[] = [
     links: [
       { href: '/integration-map', label: '対応表（旧Vault→今のゴール運用）', note: '一時ページ。旧Vault運用と今のゴール運用の対応表＋統合の進め方①〜⑥' },
       { href: '/app-urls', label: 'アプリURL', note: '各アプリのURL一覧' },
-      { href: '/morning', label: '朝会', note: '朝のブリーフィング画面' },
       { href: '/daily', label: '日別', note: '日別の作業まとめ' },
       { href: '/legacy/home', label: '旧ダッシュボード', note: '以前のトップ画面（全部入り）' },
       { href: '/legacy', label: '画面一覧（Legacy）', note: '全画面のカテゴリ別ディレクトリ＋用語対応表' },

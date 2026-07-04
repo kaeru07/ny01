@@ -343,3 +343,11 @@
 {"id":"alog-1783141687265","at":"2026-07-04T05:08:07.265Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
 {"id":"alog-1783141758721","at":"2026-07-04T05:09:18.721Z","event":"approval_effect_applied","fallbackReason":"appr-1781178720389 mark_reviewed → none"}
 {"id":"alog-1783141764068","at":"2026-07-04T05:09:24.068Z","event":"approval_effect_applied","fallbackReason":"appr-1782961878105-3 pricing-0-mvp → none"}
+{"id":"alog-1783148409194","at":"2026-07-04T07:00:09.194Z","event":"monetization_sync","fallbackReason":"added=0 updated=2","detectionStatus":"schedule"}
+{"id":"alog-1783148409448","at":"2026-07-04T07:00:09.448Z","event":"skill_maintenance","fallbackReason":"candidates=0"}
+{"id":"alog-1783148411413","at":"2026-07-04T07:00:11.413Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=33.5→37.4","detectionStatus":"schedule"}
+{"id":"alog-1783148411635","at":"2026-07-04T07:00:11.635Z","event":"urgent_issues_recorded","fallbackReason":"count=5 『将棋 囲いトレーナー』が作成対象なのに2日進んでいません, 『/guideのFAQ・運用ページの鮮度を点検する仕組み』が作成対象なのに3日進んでいません, 『ny01/mahjong-analyzer（手牌解析）』が作成対象なのに3日進んでいません, 1件のゴールが1週間以上停滞, 今日の判断が16件たまっています"}
+{"id":"alog-1783148412027","at":"2026-07-04T07:00:12.027Z","event":"blocked_decisions_ensured","fallbackReason":"created=0 closed=1"}
+{"id":"alog-1783148414307","at":"2026-07-04T07:00:14.307Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=7 needs_human=2 partial=1 failed=0 decisionRequests=0 / 残not_reviewed=61","aiReviewCounts":{"processed":10,"reviewed":7,"needsHuman":2,"partial":1,"failed":0}}
+{"id":"alog-1783148722054","at":"2026-07-04T07:05:22.054Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=5 needs_human=2 partial=3 failed=0 decisionRequests=0 / 残not_reviewed=54","aiReviewCounts":{"processed":10,"reviewed":5,"needsHuman":2,"partial":3,"failed":0}}
+{"id":"alog-1783148722323","at":"2026-07-04T07:05:22.323Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}

@@ -3,6 +3,7 @@ import { updateExecutionRunFields } from '@/lib/execution-run-writer'
 import { generateFollowupRecommendationForRun, runKnowledgeLoopForRunId } from '@/lib/knowledge-loop'
 import { appendAutomationLog, createApproval, getEpics, getPendingApprovals } from '@/lib/operations-store'
 import { parseDecisionRequests } from '@/lib/decision-request'
+import { actionableExecutionRunErrors } from '@/lib/execution-run-errors'
 import { readGoals } from '@/lib/goal-reader'
 import type { Approval, ApprovalCategory } from '@/lib/types/operations'
 import type { AiReviewResult, AiReviewVerdict, ExecutionRun, ReviewStatus } from '@/types/execution-run'
@@ -99,8 +100,9 @@ export function classifyRun(run: ExecutionRun): AiReviewClassification {
   if ((run.stopReason ?? '').includes('approval_required')) {
     return { verdict: 'needs_human', rule: 'approval_required', reason: 'stopReason=approval_required。承認待ちのまま完了扱いになっている。', approvalCategory: 'multi_option' }
   }
-  if (run.errors.length > 0) {
-    return { verdict: 'partial', rule: 'errors_recorded', reason: `completed だが errors が ${run.errors.length} 件記録されている（先頭: ${run.errors[0].slice(0, 80)}）。要確認（自動実行は止めない）。` }
+  const actionableErrors = actionableExecutionRunErrors(run)
+  if (actionableErrors.length > 0) {
+    return { verdict: 'partial', rule: 'errors_recorded', reason: `completed だが errors が ${actionableErrors.length} 件記録されている（先頭: ${actionableErrors[0].slice(0, 80)}）。要確認（自動実行は止めない）。` }
   }
   const ngChecks = failedChecks(run)
   if (ngChecks.length > 0) {

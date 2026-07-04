@@ -27,7 +27,6 @@ export const SCREENS: ScreenDef[] = [
   { href: '/automation', label: '自動化' },
   { href: '/epic', label: '工場Epic' },
   { href: '/codex', label: 'Codex' },
-  { href: '/morning', label: '朝会' },
   { href: '/daily', label: '日別' },
   { href: '/ai-drive', label: 'AI自走' },
   { href: '/radar', label: 'レーダー' },

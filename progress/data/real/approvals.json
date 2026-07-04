@@ -1884,8 +1884,37 @@
     ],
     "recommended": "proceed",
     "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260704-110515",
-    "createdAt": "2026-07-04T05:03:16.799Z"
+    "createdAt": "2026-07-04T05:03:16.799Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T07:00:11.704Z"
+  },
+  {
+    "approvalId": "appr-1783148413679-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 今日の判断フォーマット再設計+推奨一括承認+遺物25件クローズ",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "pending",
+    "createdRunId": "20260704-154159",
+    "createdAt": "2026-07-04T07:00:13.678Z"
   }
 ]

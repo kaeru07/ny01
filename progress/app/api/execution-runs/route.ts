@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { addExecutionRun } from '@/lib/execution-run-writer'
 import { ensureExecutionRunNextActions } from '@/lib/execution-run-next-actions'
+import { normalizeExecutionRunErrors } from '@/lib/execution-run-errors'
 import { resolveEpicId } from '@/lib/operations-store'
 import type { ExecutorType, RunStatus, ReviewStatus, ChangedFile } from '@/types/execution-run'
 
@@ -121,7 +122,7 @@ export async function POST(request: Request) {
 
     const summary = String(body.summary).trim()
     const rawReport = String(body.rawReport).trim()
-    const errors = Array.isArray(body.errors) ? body.errors : []
+    const errors = normalizeExecutionRunErrors(body.errors)
     const warnings = Array.isArray(body.warnings) ? body.warnings : []
     const nextActions = ensureExecutionRunNextActions({
       nextActions: body.nextActions,
