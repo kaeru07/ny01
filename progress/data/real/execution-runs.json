@@ -34933,6 +34933,52 @@
         "今日の判断の全量表示化+Skillsを下タブ独立(状況の隣) の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "ユーザー指摘: 今日の判断が1アプリ1個相当(5件上限)で全量でない。→TODAY_LIMITカット撤廃。表示は既存のプロジェクト別グルーピングで捌く。Skillsページは下タブ独立(状況の隣)。skills内の追加ページは既存の/skills/[id]詳細で充足。\nmonetizationImpact: none\ntheme: [workflow]"
+    },
+    {
+      "runId": "20260704-154159",
+      "startedAt": "2026-07-04T06:41:59.266Z",
+      "finishedAt": "2026-07-04T06:41:59.266Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "今日の判断フォーマット再設計+推奨一括承認+遺物25件クローズ",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "意図が伝わり楽に答えられる形へ再設計。①質問を見出しの主役に(重複排除)+なぜ聞くか/推奨/回答の効果(必須は作成開始しない旨)を常時表示 ②選択肢の括弧補足を削らずボタン下の説明として表示+★推奨バッジ ③楽さの本命=プロジェクト単位「残りN件を推奨で一括決定」(2度押し確認・危険カテゴリはAPI側で絶対除外・既存decideApproval+applyApprovalEffect経路でhold解除も自動) ④旧方式の遺物「Run一次レビュー」型25件をauto_closedで一括クローズ(判断待ちは本物16件に)。",
+      "changedFiles": [
+        {
+          "file": "lib/command-center.ts",
+          "change": "directionカード: 質問主役/なぜ聞くか/推奨/回答の効果"
+        },
+        {
+          "file": "components/newux/InboxActions.tsx",
+          "change": "括弧補足を説明表示化+★推奨バッジ+縦積みボタン"
+        },
+        {
+          "file": "components/newux/InboxTabs.tsx",
+          "change": "PJグループに推奨一括決定ボタン(2度押し)"
+        },
+        {
+          "file": "app/api/operations/approvals/bulk-recommended/route.ts",
+          "change": "一括推奨決定API(danger除外)(新規)"
+        },
+        {
+          "file": "data/real/approvals.json",
+          "change": "遺物25件auto_closed"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "test": "OK 38/38",
+        "manual": "OK live: なぜ聞くか32/回答の効果32/★推奨16/一括決定ボタン4/対象外注記/pending 41→16"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "今日の判断フォーマット再設計+推奨一括承認+遺物25件クローズ の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "ユーザー要望: フォーマットで意図が伝わるか+本当に必要な判断が伝わるか+仕様固め方式の楽さ。監査結果: 遺物ノイズ25件/質問非主役/選択肢説明の除去/効果の見通し欠如。対応: 上記4点。方式の答え=推奨一括承認(7問7タップ→1タップ。個別に選ぶのは気になる質問だけ)。\nmonetizationImpact: medium\ntheme: [workflow]"
     }
   ]
 }

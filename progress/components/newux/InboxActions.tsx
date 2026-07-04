@@ -12,7 +12,7 @@ import InboxReviewCopyButton from './InboxReviewCopyButton'
 // 内部情報（元タイトル / runId / AI判断理由）は「詳細を見る」を押した時だけ開く。
 // api: null のアクション（あとで）は状態を変えず、今日の画面から閉じるだけ。
 
-const btn = 'rounded-lg px-3.5 py-2 text-xs font-semibold disabled:opacity-50'
+const btn = 'min-h-10 rounded-lg px-3.5 py-2 text-xs font-semibold disabled:opacity-50'
 const toneClass: Record<InboxCardAction['tone'], string> = {
   primary: `${btn} bg-blue-600 text-white hover:bg-blue-700`,
   ghost: `${btn} border border-gray-200 text-gray-700 dark:border-gray-700 dark:text-gray-200`,
@@ -43,6 +43,30 @@ const REVIEW_BADGE: Record<string, { label: string; cls: string }> = {
   snoozed: { label: 'あとで', cls: 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300' },
   needs_followup: { label: '要修正', cls: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300' },
   reviewed: { label: 'レビュー済み', cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' },
+}
+
+function splitOptionLabel(label: string): { main: string; description?: string } {
+  const trimmed = label.trim()
+  const match = trimmed.match(/^(.*?)\s*(?:（([^）]+)）|\(([^)]+)\))\s*$/)
+  if (!match) return { main: trimmed }
+  return {
+    main: match[1].trim() || trimmed,
+    description: (match[2] ?? match[3])?.trim(),
+  }
+}
+
+function actionContent(action: InboxCardAction, showRecommendedPrefix: boolean) {
+  const { main, description } = splitOptionLabel(action.label)
+  const label = showRecommendedPrefix && action.tone === 'primary' ? `★推奨 ${main}` : main
+  if (!description) return label
+  return (
+    <span className="flex flex-col items-start gap-0.5 text-left leading-snug">
+      <span>{label}</span>
+      <span className={`text-[11px] font-medium ${action.tone === 'primary' ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'}`}>
+        {description}
+      </span>
+    </span>
+  )
 }
 
 async function callApi(api: NonNullable<InboxCardAction['api']>): Promise<void> {
@@ -208,7 +232,7 @@ export default function InboxCardItem({ card, highlight = false, focusNotice = f
             {card.actions.map((action) => (
               action.href ? (
                 <Link key={action.label} href={action.href} className={toneClass[action.tone]}>
-                  {action.label}
+                  {actionContent(action, card.kind === 'direction')}
                 </Link>
               ) : (
                 <button
@@ -225,7 +249,7 @@ export default function InboxCardItem({ card, highlight = false, focusNotice = f
                     run(action.api)
                   }}
                 >
-                  {action.label}
+                  {actionContent(action, card.kind === 'direction')}
                 </button>
               )
             ))}

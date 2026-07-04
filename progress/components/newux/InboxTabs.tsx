@@ -199,6 +199,57 @@ function ProjectChipRow({
   )
 }
 
+function BulkRecommendedButton({ projectId, count }: { projectId: string; count: number }) {
+  const router = useRouter()
+  const [armed, setArmed] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+
+  if (projectId === 'unassigned' || count <= 0) return null
+
+  async function decideBulk() {
+    if (!armed) {
+      setArmed(true)
+      return
+    }
+    setBusy(true)
+    setError('')
+    try {
+      const res = await fetch('/api/operations/approvals/bulk-recommended', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ projectId }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error ?? '一括決定に失敗しました')
+      setArmed(false)
+      router.refresh()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '一括決定に失敗しました')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="flex shrink-0 flex-col items-end gap-1">
+      <button
+        type="button"
+        disabled={busy}
+        onClick={decideBulk}
+        className={`min-h-10 rounded-lg px-3 py-2 text-[11px] font-bold transition-colors disabled:opacity-50 ${
+          armed
+            ? 'bg-rose-600 text-white hover:bg-rose-700'
+            : 'bg-blue-600 text-white hover:bg-blue-700'
+        }`}
+      >
+        {armed ? `本当に一括決定（${count}件）` : `残り${count}件を推奨で一括決定`}
+      </button>
+      {error && <span className="max-w-48 text-right text-[11px] font-semibold text-rose-600">{error}</span>}
+    </div>
+  )
+}
+
 export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props) {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -555,11 +606,22 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
             <div className="space-y-3">
               {decisionProjectGroups.map((group) => (
                 <section key={group.projectId} className="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-                  <div className="flex items-center justify-between gap-3 border-b border-gray-100 px-3 py-2.5 dark:border-gray-800">
-                    <h3 className="min-w-0 text-sm font-bold text-gray-900 dark:text-gray-100">{group.projectId === 'unassigned' ? 'その他' : group.title}</h3>
-                    <span className="shrink-0 rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                      {group.cards.length}件
-                    </span>
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-3 py-2.5 dark:border-gray-800">
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">{group.projectId === 'unassigned' ? 'その他' : group.title}</h3>
+                      {group.cards.some((card) => card.approvalCategory !== 'multi_option') && (
+                        <p className="mt-0.5 text-[11px] text-gray-400">危険・作業カードは対象外</p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <BulkRecommendedButton
+                        projectId={group.projectId}
+                        count={group.cards.filter((card) => card.approvalCategory === 'multi_option').length}
+                      />
+                      <span className="shrink-0 rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-bold text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                        {group.cards.length}件
+                      </span>
+                    </div>
                   </div>
                   <ul className="space-y-3 p-3">
                     {group.cards.map((card) => (

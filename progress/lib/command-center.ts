@@ -388,6 +388,8 @@ export interface InboxCardRow {
 export interface InboxCard {
   id: string
   kind: InboxCardKind
+  /** 元Approvalのカテゴリ。画面上の一括操作対象判定に使う表示用メタデータ。 */
+  approvalCategory?: string
   /** 画面フィルタ用のGoal。変換レイヤーで付与し、正本データは変更しない。 */
   goalId?: string
   goalTitle?: string
@@ -787,25 +789,31 @@ export async function buildInbox(): Promise<InboxView> {
       })
     } else {
       // 方針選択: AIでは決められない方向性の判断
-      // 何の選択肢かが常に見えるよう、実際の質問(question)と判断内容/理由(rows)を折りたたまず表示する。
       const questionText = a.title.includes(':') ? a.title.slice(a.title.indexOf(':') + 1).trim() : clean
-      const rows: InboxCardRow[] = a.requiredForExecution
-        ? [{ label: '必須', text: 'この回答が済むまでこのアプリの自動作成は始まりません。' }]
-        : []
-      rows.push({ label: '判断内容', text: a.title })
-      if (a.reason && a.reason.trim()) rows.push({ label: '理由', text: a.reason })
-      rows.push({ label: '選ばないと', text: 'AIはこの作業を進められず、止まったままになります。' })
+      const recommendedOption = a.options.find((o) => o.key === a.recommended)
+      const rows: InboxCardRow[] = []
+      if (a.requiredForExecution) {
+        rows.push({ label: '必須', text: 'この回答が済むまでこのアプリの自動作成は始まりません。' })
+      }
+      if (a.reason && a.reason.trim()) rows.push({ label: 'なぜ聞くか', text: a.reason })
+      if (recommendedOption) rows.push({ label: '推奨', text: recommendedOption.label })
+      rows.push({
+        label: '回答の効果',
+        text: a.requiredForExecution
+          ? '回答まで作成を開始しません'
+          : '選ぶと次回の自動実行に反映されます（未回答の間は推奨案で進みます）',
+      })
       cards.push({
         id: `approval-${a.approvalId}`,
         kind: 'direction',
+        approvalCategory: a.category,
         ...goalForApproval(a),
         ...projectForApproval(a),
-        headline: `「${shorten(subjectOf(clean))}」について判断してください`,
+        headline: questionText,
         rows,
-        question: questionText,
         detail,
         actions: a.options.map((o) => ({
-          label: o.label.replace(/（[^）]*）|\([^)]*\)/g, '').trim(),
+          label: o.label,
           tone: o.key === a.recommended ? ('primary' as const) : ('ghost' as const),
           api: approveApi(o.key),
         })),

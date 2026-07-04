@@ -188,9 +188,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: 課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260608-173559",
-    "createdAt": "2026-06-11T11:52:00.398Z"
+    "createdAt": "2026-06-11T11:52:00.398Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1781178720403",
@@ -213,9 +216,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: 課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260608-143957",
-    "createdAt": "2026-06-11T11:52:00.403Z"
+    "createdAt": "2026-06-11T11:52:00.403Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1781323366076",
@@ -238,9 +244,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: 公開・デプロイ関連の作業（危険キーワード検知）。人間の確認を推奨。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260613-013109",
-    "createdAt": "2026-06-13T04:02:46.076Z"
+    "createdAt": "2026-06-13T04:02:46.076Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1781323367911",
@@ -263,9 +272,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: 公開・デプロイ関連の作業（危険キーワード検知）。人間の確認を推奨。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260612-212444",
-    "createdAt": "2026-06-13T04:02:47.911Z"
+    "createdAt": "2026-06-13T04:02:47.911Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1781939063230",
@@ -288,9 +300,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: runStatus=running のまま放置されている。実際の状態を人間が確認する必要あり。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260620-160012-044",
-    "createdAt": "2026-06-20T07:04:23.230Z"
+    "createdAt": "2026-06-20T07:04:23.230Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1781939065617",
@@ -313,9 +328,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: completed だが checks に NG がある（manual=/guide?tab=report フィルタ描画(期間7/30/全・状態すべて/完了/一部/失敗・該当件数)。range=7/status=failed 200。詳細レポートに progressレビュー用/monetizationImpact/obsidianSaveTarget が残らないこと(0件)確認。）。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260619-232121",
-    "createdAt": "2026-06-20T07:04:25.617Z"
+    "createdAt": "2026-06-20T07:04:25.617Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1781939068164",
@@ -338,9 +356,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: completed だが checks に NG がある（manual=主要7ルート200 / /queue参照チャンク8件全200 / restart後ランタイムエラーなし）。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260616-123240",
-    "createdAt": "2026-06-20T07:04:28.164Z"
+    "createdAt": "2026-06-20T07:04:28.164Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1781939068597",
@@ -363,9 +384,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: 課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260615-204710",
-    "createdAt": "2026-06-20T07:04:28.597Z"
+    "createdAt": "2026-06-20T07:04:28.597Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1781939068704",
@@ -388,9 +412,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: 課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260615-154109",
-    "createdAt": "2026-06-20T07:04:28.704Z"
+    "createdAt": "2026-06-20T07:04:28.704Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1781939069094",
@@ -413,9 +440,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: 課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260614-175356",
-    "createdAt": "2026-06-20T07:04:29.094Z"
+    "createdAt": "2026-06-20T07:04:29.094Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1781939069803",
@@ -438,9 +468,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: 課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260614-100448",
-    "createdAt": "2026-06-20T07:04:29.803Z"
+    "createdAt": "2026-06-20T07:04:29.803Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1781939071019",
@@ -463,9 +496,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: 課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260612-083126",
-    "createdAt": "2026-06-20T07:04:31.019Z"
+    "createdAt": "2026-06-20T07:04:31.019Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1781939071188",
@@ -488,9 +524,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: 課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260611-211508",
-    "createdAt": "2026-06-20T07:04:31.188Z"
+    "createdAt": "2026-06-20T07:04:31.188Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1781939071322",
@@ -513,9 +552,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: 公開・デプロイ関連の作業（危険キーワード検知）。人間の確認を推奨。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260608-133645",
-    "createdAt": "2026-06-20T07:04:31.322Z"
+    "createdAt": "2026-06-20T07:04:31.322Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1781939071703",
@@ -538,9 +580,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: 認証・秘密情報関連の作業（危険キーワード検知）。人間の確認を推奨。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260607-234517",
-    "createdAt": "2026-06-20T07:04:31.703Z"
+    "createdAt": "2026-06-20T07:04:31.703Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1781939071858",
@@ -563,9 +608,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: 認証・秘密情報関連の作業（危険キーワード検知）。人間の確認を推奨。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260607-212218",
-    "createdAt": "2026-06-20T07:04:31.858Z"
+    "createdAt": "2026-06-20T07:04:31.858Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1781939071947",
@@ -588,9 +636,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: 課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260607-160250",
-    "createdAt": "2026-06-20T07:04:31.947Z"
+    "createdAt": "2026-06-20T07:04:31.947Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1781939072266",
@@ -613,9 +664,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: 公開・デプロイ関連の作業（危険キーワード検知）。人間の確認を推奨。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260606-232717",
-    "createdAt": "2026-06-20T07:04:32.266Z"
+    "createdAt": "2026-06-20T07:04:32.266Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1782006446950",
@@ -719,9 +773,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: 方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260701-085142",
-    "createdAt": "2026-07-01T02:00:21.715Z"
+    "createdAt": "2026-07-01T02:00:21.715Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1782871489345",
@@ -744,9 +801,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: completed だが errors が 1 件記録されている（先頭: wResult, AiReviewVerdict, ExecutionRun, ReviewStatus } from '@/types/execution-r）。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260701-110023-448",
-    "createdAt": "2026-07-01T02:04:49.345Z"
+    "createdAt": "2026-07-01T02:04:49.345Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1782877702535-1",
@@ -853,9 +913,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: 方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260701-134744",
-    "createdAt": "2026-07-01T05:00:19.066Z"
+    "createdAt": "2026-07-01T05:00:19.066Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1782882019095-2",
@@ -878,9 +941,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: 方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260701-132951",
-    "createdAt": "2026-07-01T05:00:19.095Z"
+    "createdAt": "2026-07-01T05:00:19.095Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1782882484030-3",
@@ -903,9 +969,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: completed だが errors が 1 件記録されている（先頭: n /root/company/apps/ny01/progress\n succeeded in 0ms:\nState  Recv-Q Send-Q Local）。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260701-140021-017",
-    "createdAt": "2026-07-01T05:08:04.030Z"
+    "createdAt": "2026-07-01T05:08:04.030Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1782889527110-1",
@@ -928,9 +997,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: completed だが errors が 1 件記録されている（先頭: rmes/prompts/03-ai-tools.md`\n\n実施内容:\n- `2026-07-01` の実生成ファイルを確認し、`daily-market-re）。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260701-160026-567",
-    "createdAt": "2026-07-01T07:05:27.110Z"
+    "createdAt": "2026-07-01T07:05:27.110Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1782889527911-2",
@@ -953,9 +1025,12 @@
     ],
     "recommended": "mark_reviewed",
     "reason": "AI一次レビュー判定: completed だが errors が 1 件記録されている（先頭: Reading additional input from stdin...\nOpenAI Codex v0.142.3\n--------\nworkdir: /）。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260627-204029-318",
-    "createdAt": "2026-07-01T07:05:27.911Z"
+    "createdAt": "2026-07-01T07:05:27.911Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T06:00:59.650Z"
   },
   {
     "approvalId": "appr-1782898738039-1",
