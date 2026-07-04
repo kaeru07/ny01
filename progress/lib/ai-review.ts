@@ -89,7 +89,8 @@ function failedChecks(run: ExecutionRun): string[] {
 /** 1 Run をルールベースで分類する（書き込みなしの純粋判定）。 */
 export function classifyRun(run: ExecutionRun): AiReviewClassification {
   if (run.runStatus === 'failed') {
-    return { verdict: 'failed', rule: 'run_failed', reason: `runStatus=failed（${run.stopReason ?? run.errors[0] ?? '失敗理由未記録'}）。再試行または修復候補。` }
+    const actionableErrors = actionableExecutionRunErrors(run)
+    return { verdict: 'failed', rule: 'run_failed', reason: `runStatus=failed（${run.stopReason ?? actionableErrors[0] ?? '失敗理由未記録'}）。再試行または修復候補。` }
   }
   if (run.runStatus === 'partial') {
     return { verdict: 'partial', rule: 'run_partial', reason: `runStatus=partial（未完了の検証・作業が残っている）。継続または修復候補。` }

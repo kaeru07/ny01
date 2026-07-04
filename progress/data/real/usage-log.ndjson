@@ -775,3 +775,37 @@
 {"at":"2026-07-04T06:04:06.778Z","type":"action","path":"/skills","label":"?"}
 {"at":"2026-07-04T06:04:08.361Z","type":"action","path":"/skills","label":"×"}
 {"at":"2026-07-04T06:04:09.162Z","type":"page_view","path":"/decide"}
+{"at":"2026-07-04T14:11:52.956Z","type":"page_view","path":"/"}
+{"at":"2026-07-04T14:11:54.970Z","type":"page_view","path":"/decide"}
+{"at":"2026-07-04T14:11:56.218Z","type":"action","path":"/decide","label":"今日の判断17件"}
+{"at":"2026-07-04T14:12:11.722Z","type":"action","path":"/decide","label":"★推奨 Web"}
+{"at":"2026-07-04T14:12:18.390Z","type":"action","path":"/decide","label":"分析まで含める"}
+{"at":"2026-07-04T14:12:21.960Z","type":"action","path":"/decide","label":"★推奨 iOS"}
+{"at":"2026-07-04T14:12:25.741Z","type":"action","path":"/decide","label":"★推奨 ExpoReact Native"}
+{"at":"2026-07-04T14:12:30.000Z","type":"action","path":"/decide","label":"★推奨 端末内のみ"}
+{"at":"2026-07-04T14:12:39.094Z","type":"action","path":"/decide","label":"★推奨 認証なし"}
+{"at":"2026-07-04T14:12:52.929Z","type":"action","path":"/decide","label":"課金導線まで含める"}
+{"at":"2026-07-04T14:12:57.634Z","type":"action","path":"/decide","label":"許可する"}
+{"at":"2026-07-04T14:13:01.242Z","type":"action","path":"/decide","label":"★推奨 App Store"}
+{"at":"2026-07-04T14:13:09.228Z","type":"action","path":"/decide","label":"無料で検証"}
+{"at":"2026-07-04T14:13:14.157Z","type":"action","path":"/decide","label":"主要10種"}
+{"at":"2026-07-04T14:13:16.403Z","type":"action","path":"/decide","label":"★推奨 iOS"}
+{"at":"2026-07-04T14:13:36.020Z","type":"action","path":"/decide","label":"★推奨 ExpoReact Native"}
+{"at":"2026-07-04T14:13:38.168Z","type":"action","path":"/decide","label":"★推奨 端末内のみ"}
+{"at":"2026-07-04T14:13:40.335Z","type":"action","path":"/decide","label":"★推奨 認証なし"}
+{"at":"2026-07-04T14:13:45.474Z","type":"action","path":"/decide","label":"ゴール承認48件"}
+{"at":"2026-07-04T16:55:14.525Z","type":"page_view","path":"/"}
+{"at":"2026-07-04T16:55:20.662Z","type":"page_view","path":"/decide"}
+{"at":"2026-07-04T16:55:21.929Z","type":"action","path":"/decide","label":"ゴール承認48件"}
+{"at":"2026-07-04T16:55:23.017Z","type":"action","path":"/decide","label":"達成確認86件"}
+{"at":"2026-07-04T16:55:56.165Z","type":"page_view","path":"/skills"}
+{"at":"2026-07-04T16:56:01.711Z","type":"page_view","path":"/report"}
+{"at":"2026-07-04T17:07:32.113Z","type":"page_view","path":"/app-proposals"}
+{"at":"2026-07-04T17:07:32.815Z","type":"page_view","path":"/portfolio"}
+{"at":"2026-07-04T17:07:39.367Z","type":"page_view","path":"/app-proposals"}
+{"at":"2026-07-04T17:08:12.740Z","type":"action","path":"/app-proposals","label":"詳細（モック・収益イメージ・仕様）を見る"}
+{"at":"2026-07-04T17:08:21.477Z","type":"action","path":"/app-proposals","label":"市場・オーシャン"}
+{"at":"2026-07-04T17:14:47.048Z","type":"action","path":"/app-proposals","label":"閉じる"}
+{"at":"2026-07-04T17:14:53.175Z","type":"page_view","path":"/app-specs"}
+{"at":"2026-07-04T17:14:55.144Z","type":"page_view","path":"/app-designs"}
+{"at":"2026-07-04T17:15:09.670Z","type":"page_view","path":"/portfolio"}

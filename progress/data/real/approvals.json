@@ -1169,8 +1169,11 @@
     ],
     "recommended": "platform-0-web",
     "reason": "アプリ案決定時に方針決定が必要な項目",
-    "status": "pending",
-    "createdAt": "2026-07-02T03:11:18.098Z"
+    "status": "decided",
+    "createdAt": "2026-07-02T03:11:18.098Z",
+    "decidedOption": "platform-0-web",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-04T14:12:11.807Z"
   },
   {
     "approvalId": "appr-1782961878105-3",
@@ -1222,8 +1225,11 @@
     ],
     "recommended": "mvp-0",
     "reason": "アプリ案決定時に方針決定が必要な項目",
-    "status": "pending",
-    "createdAt": "2026-07-02T03:11:18.110Z"
+    "status": "decided",
+    "createdAt": "2026-07-02T03:11:18.110Z",
+    "decidedOption": "mvp-1",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-04T14:12:18.467Z"
   },
   {
     "approvalId": "appr-1782961968383-5",
@@ -1247,8 +1253,11 @@
     ],
     "recommended": "store-0-app-store",
     "reason": "アプリ案決定時に方針決定が必要な項目",
-    "status": "pending",
-    "createdAt": "2026-07-02T03:12:48.383Z"
+    "status": "decided",
+    "createdAt": "2026-07-02T03:12:48.383Z",
+    "decidedOption": "store-0-app-store",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-04T14:13:01.299Z"
   },
   {
     "approvalId": "appr-1782961968706-6",
@@ -1272,8 +1281,11 @@
     ],
     "recommended": "pricing-0",
     "reason": "アプリ案決定時に方針決定が必要な項目",
-    "status": "pending",
-    "createdAt": "2026-07-02T03:12:48.706Z"
+    "status": "decided",
+    "createdAt": "2026-07-02T03:12:48.706Z",
+    "decidedOption": "pricing-2",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-04T14:13:09.282Z"
   },
   {
     "approvalId": "appr-1782961968723-7",
@@ -1297,8 +1309,11 @@
     ],
     "recommended": "content-scope-0-5",
     "reason": "アプリ案決定時に方針決定が必要な項目",
-    "status": "pending",
-    "createdAt": "2026-07-02T03:12:48.723Z"
+    "status": "decided",
+    "createdAt": "2026-07-02T03:12:48.723Z",
+    "decidedOption": "content-scope-1-10",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-04T14:13:14.245Z"
   },
   {
     "approvalId": "appr-1782968429376-1",
@@ -1643,8 +1658,11 @@
     "recommended": "platform-0-ios",
     "reason": "アプリ案決定時に方針決定が必要な項目",
     "requiredForExecution": true,
-    "status": "pending",
-    "createdAt": "2026-07-04T01:32:33.992Z"
+    "status": "decided",
+    "createdAt": "2026-07-04T01:32:33.992Z",
+    "decidedOption": "platform-0-ios",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-04T14:12:22.034Z"
   },
   {
     "approvalId": "appr-1783128753997-2",
@@ -1669,8 +1687,11 @@
     "recommended": "framework-0-expo-react-native",
     "reason": "アプリ案決定時に方針決定が必要な項目",
     "requiredForExecution": true,
-    "status": "pending",
-    "createdAt": "2026-07-04T01:32:33.997Z"
+    "status": "decided",
+    "createdAt": "2026-07-04T01:32:33.997Z",
+    "decidedOption": "framework-0-expo-react-native",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-04T14:12:25.822Z"
   },
   {
     "approvalId": "appr-1783128753998-3",
@@ -1695,8 +1716,11 @@
     "recommended": "data-storage-0",
     "reason": "アプリ案決定時に方針決定が必要な項目",
     "requiredForExecution": true,
-    "status": "pending",
-    "createdAt": "2026-07-04T01:32:33.998Z"
+    "status": "decided",
+    "createdAt": "2026-07-04T01:32:33.998Z",
+    "decidedOption": "data-storage-0",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-04T14:12:30.074Z"
   },
   {
     "approvalId": "appr-1783128754000-4",
@@ -1721,8 +1745,11 @@
     "recommended": "auth-0",
     "reason": "アプリ案決定時に方針決定が必要な項目",
     "requiredForExecution": true,
-    "status": "pending",
-    "createdAt": "2026-07-04T01:32:34.000Z"
+    "status": "decided",
+    "createdAt": "2026-07-04T01:32:34.000Z",
+    "decidedOption": "auth-0",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-04T14:12:39.176Z"
   },
   {
     "approvalId": "appr-1783128754001-5",
@@ -1751,8 +1778,11 @@
     "recommended": "mvp-scope-0",
     "reason": "アプリ案決定時に方針決定が必要な項目",
     "requiredForExecution": false,
-    "status": "pending",
-    "createdAt": "2026-07-04T01:32:34.001Z"
+    "status": "decided",
+    "createdAt": "2026-07-04T01:32:34.001Z",
+    "decidedOption": "mvp-scope-3",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-04T14:12:52.996Z"
   },
   {
     "approvalId": "appr-1783128754041-6",
@@ -1781,8 +1811,11 @@
     "recommended": "platform-0-ios",
     "reason": "アプリ案決定時に方針決定が必要な項目",
     "requiredForExecution": true,
-    "status": "pending",
-    "createdAt": "2026-07-04T01:32:34.041Z"
+    "status": "decided",
+    "createdAt": "2026-07-04T01:32:34.041Z",
+    "decidedOption": "platform-0-ios",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-04T14:13:16.478Z"
   },
   {
     "approvalId": "appr-1783128754043-7",
@@ -1807,8 +1840,11 @@
     "recommended": "framework-0-expo-react-native",
     "reason": "アプリ案決定時に方針決定が必要な項目",
     "requiredForExecution": true,
-    "status": "pending",
-    "createdAt": "2026-07-04T01:32:34.043Z"
+    "status": "decided",
+    "createdAt": "2026-07-04T01:32:34.043Z",
+    "decidedOption": "framework-0-expo-react-native",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-04T14:13:36.056Z"
   },
   {
     "approvalId": "appr-1783128754044-8",
@@ -1833,8 +1869,11 @@
     "recommended": "data-storage-0",
     "reason": "アプリ案決定時に方針決定が必要な項目",
     "requiredForExecution": true,
-    "status": "pending",
-    "createdAt": "2026-07-04T01:32:34.044Z"
+    "status": "decided",
+    "createdAt": "2026-07-04T01:32:34.044Z",
+    "decidedOption": "data-storage-0",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-04T14:13:38.215Z"
   },
   {
     "approvalId": "appr-1783128754046-9",
@@ -1859,8 +1898,11 @@
     "recommended": "auth-0",
     "reason": "アプリ案決定時に方針決定が必要な項目",
     "requiredForExecution": true,
-    "status": "pending",
-    "createdAt": "2026-07-04T01:32:34.046Z"
+    "status": "decided",
+    "createdAt": "2026-07-04T01:32:34.046Z",
+    "decidedOption": "auth-0",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-04T14:13:40.394Z"
   },
   {
     "approvalId": "appr-1783141396799-1",
@@ -1913,8 +1955,40 @@
     ],
     "recommended": "proceed",
     "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260704-154159",
-    "createdAt": "2026-07-04T07:00:13.678Z"
+    "createdAt": "2026-07-04T07:00:13.678Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-04T14:00:17.209Z"
+  },
+  {
+    "approvalId": "appr-1783173619015-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 朝会運用の完全撤去(UI+company管理docs)",
+    "category": "secret",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "認証・秘密情報関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "decided",
+    "createdRunId": "20260704-191041",
+    "createdAt": "2026-07-04T14:00:19.015Z",
+    "decidedOption": "proceed",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-04T14:12:57.686Z"
   }
 ]

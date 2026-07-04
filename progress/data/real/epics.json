@@ -31,7 +31,7 @@
     "priority": "P0",
     "riskFlags": [],
     "preferredExecutor": "claude",
-    "updatedAt": "2026-06-16T14:05:21.431Z",
+    "updatedAt": "2026-07-04T14:12:57.698Z",
     "goalId": "goal-ai-factory-os",
     "queueControl": {
       "pinnedTop": true,
@@ -40,7 +40,8 @@
       "updatedAt": "2026-06-15T14:16:52.069Z",
       "excludedByUser": false
     },
-    "factoryEligible": true
+    "factoryEligible": true,
+    "notes": "[今日の判断 2026-07-04] 判断が必要: 朝会運用の完全撤去(UI+company管理docs) → 方針を確認して進める"
   },
   {
     "epicId": "epic-p2-factory-multiple-run-",

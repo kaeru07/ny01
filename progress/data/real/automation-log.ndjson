@@ -351,3 +351,26 @@
 {"id":"alog-1783148414307","at":"2026-07-04T07:00:14.307Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=7 needs_human=2 partial=1 failed=0 decisionRequests=0 / 残not_reviewed=61","aiReviewCounts":{"processed":10,"reviewed":7,"needsHuman":2,"partial":1,"failed":0}}
 {"id":"alog-1783148722054","at":"2026-07-04T07:05:22.054Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=5 needs_human=2 partial=3 failed=0 decisionRequests=0 / 残not_reviewed=54","aiReviewCounts":{"processed":10,"reviewed":5,"needsHuman":2,"partial":3,"failed":0}}
 {"id":"alog-1783148722323","at":"2026-07-04T07:05:22.323Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1783173611751","at":"2026-07-04T14:00:11.751Z","event":"monetization_sync","fallbackReason":"added=0 updated=2","detectionStatus":"schedule"}
+{"id":"alog-1783173611961","at":"2026-07-04T14:00:11.961Z","event":"skill_maintenance","fallbackReason":"candidates=0"}
+{"id":"alog-1783173616866","at":"2026-07-04T14:00:16.866Z","event":"factory_schedule","fallbackReason":"goalMetricSync: goal-execution-review-loop=37.4→40.3","detectionStatus":"schedule"}
+{"id":"alog-1783173617107","at":"2026-07-04T14:00:17.107Z","event":"urgent_issues_recorded","fallbackReason":"count=5 『将棋 囲いトレーナー』が作成対象なのに2日進んでいません, 『/guideのFAQ・運用ページの鮮度を点検する仕組み』が作成対象なのに3日進んでいません, 『ny01/mahjong-analyzer（手牌解析）』が作成対象なのに3日進んでいません, 1件のゴールが1週間以上停滞, 今日の判断が16件たまっています"}
+{"id":"alog-1783173617211","at":"2026-07-04T14:00:17.211Z","event":"blocked_decisions_ensured","fallbackReason":"created=0 closed=1"}
+{"id":"alog-1783173619865","at":"2026-07-04T14:00:19.865Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=6 needs_human=2 partial=2 failed=0 decisionRequests=0 / 残not_reviewed=49","aiReviewCounts":{"processed":10,"reviewed":6,"needsHuman":2,"partial":2,"failed":0}}
+{"id":"alog-1783174026057","at":"2026-07-04T14:07:06.057Z","event":"ai_review","fallbackReason":"一次レビュー 10件処理: reviewed=7 needs_human=2 partial=1 failed=0 decisionRequests=0 / 残not_reviewed=42","aiReviewCounts":{"processed":10,"reviewed":7,"needsHuman":2,"partial":1,"failed":0}}
+{"id":"alog-1783174027163","at":"2026-07-04T14:07:07.163Z","event":"factory_schedule","fallbackReason":"max_runs_reached","detectionStatus":"schedule"}
+{"id":"alog-1783174331811","at":"2026-07-04T14:12:11.811Z","event":"approval_effect_applied","fallbackReason":"appr-1782961878098-2 platform-0-web → none"}
+{"id":"alog-1783174338475","at":"2026-07-04T14:12:18.475Z","event":"approval_effect_applied","fallbackReason":"appr-1782961878110-4 mvp-1 → none"}
+{"id":"alog-1783174342044","at":"2026-07-04T14:12:22.044Z","event":"approval_effect_applied","fallbackReason":"appr-1783128753992-1 platform-0-ios → none"}
+{"id":"alog-1783174345830","at":"2026-07-04T14:12:25.830Z","event":"approval_effect_applied","fallbackReason":"appr-1783128753997-2 framework-0-expo-react-native → none"}
+{"id":"alog-1783174350080","at":"2026-07-04T14:12:30.080Z","event":"approval_effect_applied","fallbackReason":"appr-1783128753998-3 data-storage-0 → none"}
+{"id":"alog-1783174359198","at":"2026-07-04T14:12:39.198Z","event":"approval_effect_applied","fallbackReason":"appr-1783128754000-4 auth-0 → required_answered_release"}
+{"id":"alog-1783174373000","at":"2026-07-04T14:12:53.000Z","event":"approval_effect_applied","fallbackReason":"appr-1783128754001-5 mvp-scope-3 → none"}
+{"id":"alog-1783174377706","at":"2026-07-04T14:12:57.706Z","event":"approval_effect_applied","epicId":"epic-91","fallbackReason":"appr-1783173619015-1 proceed → none"}
+{"id":"alog-1783174381302","at":"2026-07-04T14:13:01.302Z","event":"approval_effect_applied","fallbackReason":"appr-1782961968383-5 store-0-app-store → none"}
+{"id":"alog-1783174389283","at":"2026-07-04T14:13:09.283Z","event":"approval_effect_applied","fallbackReason":"appr-1782961968706-6 pricing-2 → none"}
+{"id":"alog-1783174394260","at":"2026-07-04T14:13:14.260Z","event":"approval_effect_applied","fallbackReason":"appr-1782961968723-7 content-scope-1-10 → none"}
+{"id":"alog-1783174396487","at":"2026-07-04T14:13:16.487Z","event":"approval_effect_applied","fallbackReason":"appr-1783128754041-6 platform-0-ios → none"}
+{"id":"alog-1783174416063","at":"2026-07-04T14:13:36.063Z","event":"approval_effect_applied","fallbackReason":"appr-1783128754043-7 framework-0-expo-react-native → none"}
+{"id":"alog-1783174418220","at":"2026-07-04T14:13:38.220Z","event":"approval_effect_applied","fallbackReason":"appr-1783128754044-8 data-storage-0 → none"}
+{"id":"alog-1783174420407","at":"2026-07-04T14:13:40.407Z","event":"approval_effect_applied","fallbackReason":"appr-1783128754046-9 auth-0 → required_answered_release"}

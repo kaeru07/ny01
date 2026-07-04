@@ -247,9 +247,9 @@ function AppProposalDetailModal({ proposal, onClose }: { proposal: AppProposal; 
   ]
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end bg-black/40 p-3 sm:items-center sm:justify-center" role="dialog" aria-modal="true">
-      <div className="max-h-[88vh] w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-950 sm:max-w-2xl">
-        <div className="flex items-start justify-between gap-3 border-b border-gray-100 p-4 dark:border-gray-800">
+    <div className="fixed inset-0 z-50 flex items-end bg-black/40 p-0 sm:items-center sm:justify-center sm:p-3" role="dialog" aria-modal="true">
+      <div className="flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-gray-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-950 sm:max-h-[88dvh] sm:max-w-2xl sm:rounded-2xl">
+        <div className="flex shrink-0 items-start justify-between gap-3 border-b border-gray-100 p-4 dark:border-gray-800">
           <div className="min-w-0">
             <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400">{proposal.projectId ?? '未分類'}</p>
             <h3 className="mt-0.5 text-lg font-black text-gray-900 dark:text-gray-100">{proposal.name}</h3>
@@ -263,7 +263,7 @@ function AppProposalDetailModal({ proposal, onClose }: { proposal: AppProposal; 
             閉じる
           </button>
         </div>
-        <div className="flex gap-1 overflow-x-auto border-b border-gray-100 bg-gray-50 p-1 dark:border-gray-800 dark:bg-gray-900">
+        <div className="flex shrink-0 gap-1 overflow-x-auto border-b border-gray-100 bg-gray-50 p-1 dark:border-gray-800 dark:bg-gray-900">
           {tabs.map((item) => (
             <button
               key={item.key}
@@ -279,7 +279,8 @@ function AppProposalDetailModal({ proposal, onClose }: { proposal: AppProposal; 
             </button>
           ))}
         </div>
-        <div className="max-h-[62vh] overflow-y-auto p-4">
+        {/* flex-1 + min-h-0 で残り領域を必ずスクロール可能に。pb-10 で最下部まで到達できるようにする。 */}
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-10">
           {tab === 'spec' ? <SpecTab proposal={proposal} /> : null}
           {tab === 'market' ? <MarketTab proposal={proposal} /> : null}
           {tab === 'money' ? <MoneyTab proposal={proposal} /> : null}
