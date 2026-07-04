@@ -4551,24 +4551,23 @@
     {
       "id": "goal-opus-app-loop-quality",
       "projectId": "company-mgmt",
-      "title": "アプリ自動作成ループの品質・意図整合の強化(残4件)",
-      "description": "【確定仕様】1) フェーズ方向性確認: goal-appのstep epic完了時(特にフェーズ①基盤完了)に非ブロッキングの方向性確認カードをレビュータブに出す(画面構成/主要フローの要約つき。自動実行は止めない。ユーザーが違うと思えば修正するでfixPrompt) 2) 生成への意図フィードバック: 日次アプリ案生成プロンプトに過去の承認/却下履歴(operational-decisionsのapp_proposal)と却下noteを渡し「却下された系統を避け承認された系統に寄せる」 3) WIP制限: 作成中(approved)アプリが2件以上あるとき、新規approveのゴールは自動的にqueueControl.hold+今日の判断に「同時作成は2件までを推奨。3件目を今始めるか」の判断を出す 4) テスト実行: checks-runnerでpackage.jsonにtestスクリプトがあれば npm test -- --watchAll=false 相当を実行しchecks.testに記録。skill-store-app-scaffold手順(v4)に「主要ロジックのテストを作る」を明記(SkillVersion履歴付き)。",
+      "title": "タップだけで品質を操縦できるアプリ作成ループ(選択式品質操縦)",
+      "description": "【設計原則(ユーザー確定)】具体的指示を文字で打つのは最小化。今日の判断をタップでこなすだけで確実に良いアプリができる=AIが選択肢を用意する側に回る。\n【実装】Q1) skill-store-app-scaffold v4: 手順に「体験が分かれる箇所(デザイントーン/画面構成/機能の絞り方等)は自分で決めず、具体的な2-4択(推奨付き)を今日の判断に上げる。回答までは推奨案で仮実装して進む(止まらない)」を明記(SkillVersion履歴付き)。既存のdecision_needed→判断カード→回答注入の経路をそのまま使う。 Q2) フェーズ①基盤完了時の方向性確認カードを今日の判断へ: 選択式(このまま/画面構成を変える/機能を減らす/デザイン方向を変える)+任意の自由記述。非ブロッキング(放置=このまま)。回答はfixPrompt経路で次回最優先反映。 Q3) プレビュー導線(見るだけ): Next.js Web系は自動ポート起動URL、Expo系はexpo export web出力かスクショをapps/generated/<id>/preview/に置き、設計一覧+方向性確認カードに表示。 Q4) 好み学習: 承認/却下タップ履歴+却下noteを日次案生成プロンプトへ(打たなくても案が好みに収束)。\n【残】WIP制限(作成中2件推奨・3件目は今日の判断)/checksにtestスクリプト実行/テスト作成をSkillに明記。",
       "metric": "progress",
       "target": 100,
       "current": 0,
       "isNorthStar": false,
-      "summary": "【確定仕様】1) フェーズ方向性確認: goal-appのstep epic完了時(特にフェーズ①基盤完了)に非ブロッキングの方向性確認カードをレビュータブに出す(画面構成/主要フローの要約つき。自動実行は止めない。ユーザーが違うと思えば修正するでfixPrompt) 2) 生成への意図フィードバック: 日次アプリ案生成プロンプトに過去の承認/却下履歴(operational-decisionsのapp_proposal)と却下noteを渡し「却下された系統を避け承認された系統に寄せる」 3) WIP制限: 作成中(approved)アプリが2件以上あるとき、新規approveのゴールは自動的にqueueControl.hold+今日の判断に「同時作成は2件までを推奨。3件目を今始めるか」の判断を出す 4) テスト実行: checks-runnerでpackage.jsonにtestスクリプトがあれば npm test -- --watchAll=false 相当を実行しchecks.testに記録。skill-store-app-scaffold手順(v4)に「主要ロジックのテストを作る」を明記(SkillVersion履歴付き)。",
+      "summary": "【設計原則(ユーザー確定)】具体的指示を文字で打つのは最小化。今日の判断をタップでこなすだけで確実に良いアプリができる=AIが選択肢を用意する側に回る。\n【実装】Q1) skill-store-app-scaffold v4: 手順に「体験が分かれる箇所(デザイントーン/画面構成/機能の絞り方等)は自分で決めず、具体的な2-4択(推奨付き)を今日の判断に上げる。回答までは推奨案で仮実装して進む(止まらない)」を明記(SkillVersion履歴付き)。既存のdecision_needed→判断カード→回答注入の経路をそのまま使う。 Q2) フェーズ①基盤完了時の方向性確認カードを今日の判断へ: 選択式(このまま/画面構成を変える/機能を減らす/デザイン方向を変える)+任意の自由記述。非ブロッキング(放置=このまま)。回答はfixPrompt経路で次回最優先反映。 Q3) プレビュー導線(見るだけ): Next.js Web系は自動ポート起動URL、Expo系はexpo export web出力かスクショをapps/generated/<id>/preview/に置き、設計一覧+方向性確認カードに表示。 Q4) 好み学習: 承認/却下タップ履歴+却下noteを日次案生成プロンプトへ(打たなくても案が好みに収束)。\n【残】WIP制限(作成中2件推奨・3件目は今日の判断)/checksにtestスクリプト実行/テスト作成をSkillに明記。",
+      "status": "active",
+      "priority": "high",
+      "pinnedTop": false,
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
-      "status": "active",
-      "priority": "medium",
-      "pinnedTop": false,
-      "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [],
       "todos": [],
       "createdAt": "2026-07-03T23:31:06.011Z",
-      "updatedAt": "2026-07-03T23:31:06.011Z"
+      "updatedAt": "2026-07-04T01:42:11.456Z"
     },
     {
       "id": "goal-opus-spec-edit",
@@ -4580,10 +4579,12 @@
       "current": 0,
       "isNorthStar": false,
       "summary": "【確定仕様】/app-designs の各アプリに仕様編集(spec/mvpScope/意図メモ)のフォームを追加。保存先: spec/mvpScopeは app-factory-candidates.json の該当candidate(更新API新設 PATCH /api/app-proposals/[id])、意図メモは goal.notes。編集内容は既存の buildAppIntentContext 経由で次回実行プロンプトに自動反映される(追加配線不要)。編集履歴はoperational-decisionsに1行記録。破壊的変更なし。",
-      "status": "active",
-      "priority": "medium",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
+      "status": "active",
+      "priority": "medium",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [],
       "todos": [],
@@ -4592,5 +4593,5 @@
     }
   ],
   "mainGoalId": "goal-ai-factory-os",
-  "updatedAt": "2026-07-04T01:35:31.311Z"
+  "updatedAt": "2026-07-04T01:42:11.456Z"
 }

@@ -34423,6 +34423,76 @@
         "最終レビュー: コア必須判断の補完漏れ修正+仕様管理ページの結論 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "## 最終監査\n\n### 発見・修正\n必須コア判断の補完漏れ: decisionPoints空のときだけDEFAULTを使う実装で、自前dpを持つ案はframework等が聞かれない。承認済みの手牌解析(dp0→旧DEFAULT3問時代に承認)と将棋囲い(自前dp3)はスタック未決のままビルド開始予定だった。修正+冪等再approveでバックフィル(approvals+5/+4、required=4、hold=true)。\n\n### 仕様管理ページの結論\n閲覧集約は/app-designs(設計一覧)が既に担う。不足は編集のみ→goal-opus-spec-editをキュー化(candidate更新API+goal.notes。注入は既存経路で自動反映)。\n\n### 総括\n必須修正はこれで完了。残りはキューの拡張3件(codemagic-handoff/app-loop-quality/spec-edit)のみ。\n\nmonetizationImpact: medium\ntheme: [app-strategy, workflow]"
+    },
+    {
+      "runId": "20260704-103945",
+      "startedAt": "2026-07-04T01:39:45.071Z",
+      "finishedAt": "2026-07-04T01:39:45.071Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "方針判断 - シミュレーションテストの要否",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "机上シミュレーションは完了・追加不要と判断。未実施なのは実走のみ(goal-app epicの実実行はゼロ)。次の確認=技術スタック回答→定時実行1本を観察(reportダイジェスト/generated配下のscaffold/skills記録)。失敗時は今日の判断に出る設計のため放置安全。問題なければ開発ライン完成。",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "方針判断 - シミュレーションテストの要否 の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "議論: 追加シミュレーションの要否。判断: 不要(コード追跡監査は完了、必須修正は出し切り)。代替: 初回実走1本の観察が最後のテスト=本稼働開始。観察点: /reportダイジェスト成果/apps/generated scaffold実体/skills使用記録。\nmonetizationImpact: none\ntheme: [workflow]"
+    },
+    {
+      "runId": "20260704-104110",
+      "startedAt": "2026-07-04T01:41:10.732Z",
+      "finishedAt": "2026-07-04T01:41:10.732Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "方針判断 - 今日の判断だけで品質の良いアプリを作れるか",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "評価: 現状は方向(何を/何で/どこまで)は握れるが品質は握れない。理由: ①中間物を見て軌道修正する機会が手詰まり/完成時まで無い ②自由記述指示が今日の判断から出せない(fixPromptはレビュータブ) ③動くものを触る導線が無い(VPS内・プレビューURL/スクショ無し)。対策: 品質操縦3点(方向性確認カードを今日の判断へ+一言指示欄+プレビュー導線)を goal-opus-app-loop-quality に反映しpriority high化。",
+      "changedFiles": [
+        {
+          "file": "data/real/goals.json",
+          "change": "goal-opus-app-loop-qualityに品質操縦3点を追記・high化"
+        }
+      ],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "方針判断 - 今日の判断だけで品質の良いアプリを作れるか の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "議論: 今日の判断だけで品質良いアプリが作れるか。結論: 現状No(方向のみ握れる)。品質=見る→違うと言うループが必要で、Q1方向性確認カード(非ブロッキング・自由記述付き)/Q2一言指示欄/Q3プレビュー導線(Next系自動起動URL・Expo系web出力かスクショ)の3点で閉じる。既存キューゴールを更新。\nmonetizationImpact: high\ntheme: [app-strategy, workflow]"
+    },
+    {
+      "runId": "20260704-104211",
+      "startedAt": "2026-07-04T01:42:11.516Z",
+      "finishedAt": "2026-07-04T01:42:11.516Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "方針確定 - タップだけで品質操縦(自由記述最小化)",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "ユーザー意図確定: 具体的指示を文字で打つのは最小化し、今日の判断のタップだけで確実に良いアプリを作りたい。設計原則を「AIが選択肢を用意する側に回る」へ差し替え: 体験の分岐はAIが2-4択で今日の判断に上げ推奨案で進む/方向性確認も選択式/プレビューは見るだけ/承認・却下履歴で案が好みに収束。goal-opus-app-loop-qualityの仕様を選択式品質操縦に全面差し替え(自由記述は任意の最後の手段に格下げ)。",
+      "changedFiles": [
+        {
+          "file": "data/real/goals.json",
+          "change": "app-loop-quality仕様を選択式品質操縦へ差し替え"
+        }
+      ],
+      "checks": {},
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "方針確定 - タップだけで品質操縦(自由記述最小化) の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "前提修正: 前回提案の一言指示欄(自由記述前提)はユーザー意図と逆。確定原則=タップで操縦。実装Q1-Q4はゴールsummaryに確定仕様として保存。\nmonetizationImpact: high\ntheme: [app-strategy, workflow]"
     }
   ]
 }
