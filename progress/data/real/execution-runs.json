@@ -39234,6 +39234,59 @@
       "progressUpdated": false,
       "nextActions": [],
       "rawReport": "[review-fix] considered=1 executed=0 reserved=0 skipped=0 blocked=1 stopped=completed runIds=none\n[factory-schedule] source=schedule trigger=systemd runs=1 stopped=max_runs_reached tagged=20260704-160016-138\n[prompt-queue] considered=0 executed=0 reserved=0 skipped=0 blocked=0 stopped=no_candidate runIds=none"
+    },
+    {
+      "runId": "20260704-191041",
+      "startedAt": "2026-07-04T10:10:41.088Z",
+      "finishedAt": "2026-07-04T10:10:41.088Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "朝会運用の完全撤去(UI+company管理docs)",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "自動実行が朝夜問わず定時稼働の現運用に合わせ朝会運用を撤去。progress UI: TopNav/nav-menu/usage-screensから朝会タブ削除・/morningはホームへredirect・HelpModalを現フロー(ホーム+今日の判断)に更新。company管理docs: CLAUDE.mdの朝会モード節全削除+role表secretary・冒頭文言更新、ny01 CLAUDE.local.mdの朝会モード節(読む順番/出力対応/禁止事項)全削除+関係節の朝会言及除去。docs残存朝会0。",
+      "changedFiles": [
+        {
+          "file": "components/navigation/TopNav.tsx",
+          "change": "朝会タブ削除"
+        },
+        {
+          "file": "lib/nav-menu.ts",
+          "change": "朝会エントリ削除"
+        },
+        {
+          "file": "lib/usage-screens.ts",
+          "change": "朝会削除"
+        },
+        {
+          "file": "app/morning/page.tsx",
+          "change": "ホームへredirect"
+        },
+        {
+          "file": "components/HelpModal.tsx",
+          "change": "基本フロー/役割/困った時を現運用へ"
+        },
+        {
+          "file": "(docs)/root/company/CLAUDE.md",
+          "change": "朝会モード節削除+role表/冒頭更新(git管理外・ファイル反映のみ)"
+        },
+        {
+          "file": "(docs)/root/company/apps/ny01/CLAUDE.local.md",
+          "change": "朝会モード節削除+関係節更新(git管理外)"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "manual": "OK live: /morning 307/TopNavから朝会消滅/docs残存朝会0"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "朝会運用の完全撤去(UI+company管理docs) の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "ユーザー指示: 朝会運用はもう無い(朝夜関係なくなった)ので消す。progress UI5ファイル+company docs2ファイルから撤去。/morningは旧URL互換でホームredirect。company直下はgit管理外のためdocsはファイル反映のみ(progress配下はpush)。\nmonetizationImpact: none\ntheme: [workflow]"
     }
   ]
 }
