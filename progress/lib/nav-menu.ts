@@ -60,7 +60,7 @@ export const NAV_GROUPS: NavGroup[] = [
     links: [
       { href: '/approvals', label: '承認待ち', note: '旧承認画面（新UIではInboxに統合）' },
       { href: '/decisions', label: '決定事項', note: '過去の判断の記録（Decision Log）' },
-      { href: '/project-complete', label: 'プロジェクト完了', note: '全ゴール達成プロジェクトの提供内容・残確認・次候補のまとめ' },
+      { href: '/project-complete', label: 'プロジェクト完了', note: 'active/doneゴールだけを分母にした完了状況・もうすぐ完了・ゴール未設定プロジェクト' },
       { href: '/report', label: 'レポート', note: '実行履歴・作業レポート' },
       { href: '/inbox', label: '旧受信箱', note: 'Vault連携の受信箱' },
     ],
@@ -74,7 +74,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/portfolio?tab=goals', label: 'プロジェクト×ゴール進捗', note: 'プロジェクト別にゴールと達成率を一覧。アプリはApp Store公開仕様で「完成」表示・未紐付けゴールも警告' },
       { href: '/project-goals', label: 'プロジェクト×ゴール一覧', note: 'プロジェクトとゴールの対応一覧（旧導線復活・孤立防止）' },
       { href: '/research-flow', label: '調査フロー', note: '調査→候補→承認→自動実行のフロー画面（旧導線復活・孤立防止）' },
-      { href: '/goal-dashboard', label: 'ゴール×todo消化状況', note: '各ゴール配下のtodoが完了/未完了/止まっているかと達成率を一覧（閲覧専用）' },
+      { href: '/goal-dashboard', label: 'ゴール進行ボード', note: 'ゴール×実作業の進行状況（Epic/Run基準）' },
       { href: '/recommended-epics', label: 'おすすめ次作業（推薦Epic）', note: 'AI提案の作業候補の全件管理' },
       { href: '/monetization', label: '収益化候補管理', note: 'アプリ候補のスコア・詳細管理' },
       { href: '/radar', label: '案件レーダー', note: '案件の状態マップ' },

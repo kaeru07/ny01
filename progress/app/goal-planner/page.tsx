@@ -60,7 +60,7 @@ export default async function GoalPlannerPage({ searchParams }: { searchParams?:
             </p>
           </div>
           <Link href="/goal-dashboard" className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
-            配下todoの消化状況は「ゴール×todo消化」で確認
+            実作業の進行は「ゴール進行ボード」で確認
           </Link>
         </div>
       </header>

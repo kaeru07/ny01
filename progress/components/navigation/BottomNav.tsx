@@ -71,7 +71,7 @@ const navItems = [
   },
   {
     href: '/goal-dashboard',
-    label: 'todo消化',
+    label: '進行',
     exact: false,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">

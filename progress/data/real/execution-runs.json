@@ -40977,6 +40977,60 @@
         "アプリ案詳細モーダルのスクロール不能を修正 の結果を確認し、未達のDoneCriteriaを1つ進める"
       ],
       "rawReport": "ユーザー報告: アプリ案承認の詳細で一番下までスクロールできない/スクロールできないページ(タブ)がある。原因=二重max-h(外88vh/内62vh固定)でヘッダ+タブ分オーバーフローし底が到達不能。修正=flex-1 min-h-0の正しいスクロール構造+dvh。他モーダルは二重max-hパターン無し(本件固有)。\nmonetizationImpact: none\ntheme: [workflow]"
+    },
+    {
+      "runId": "20260705-102448",
+      "startedAt": "2026-07-05T01:24:48.928Z",
+      "finishedAt": "2026-07-05T01:24:48.928Z",
+      "targetApp": "progress",
+      "epicId": "epic-91",
+      "targetTodoTitle": "階層運用(Project→Goal→todo)の監査+todo消化/PJ完了タブ刷新",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "階層を実データ監査: todo層は死亡(active32ゴールでtodo12個・実作業はepic45件経由)/PJ完了はpaused45+proposed48が分母で永久0件/ゴールゼロproject11/17/未紐付けゴール26/タスク3重系統(旧ToDo管理145件放置)。結論: 正本階層をProject→Goal→Epic(次の一歩)→Runに確定、goal.todosは補助、旧ToDo管理はレガシー。UI刷新: todo消化→「進行」ボード(Epic/Run基準: キュー状態/直近run/停滞7日ハイライト/未紐付けグループ)、PJ完了→3段構成(完了/もうすぐ完了+残りゴール/ゴール未設定)で分母はactive+doneのみ。運用ドキュメント+FAQ反映。",
+      "changedFiles": [
+        {
+          "file": "app/goal-dashboard/page.tsx",
+          "change": "ゴール進行ボードに全面改修(Epic/Run基準)"
+        },
+        {
+          "file": "app/project-complete/page.tsx",
+          "change": "3段構成の現実的完了ビュー"
+        },
+        {
+          "file": "lib/project-completion.ts",
+          "change": "分母をactive+doneのみに(paused/proposedは参考値)"
+        },
+        {
+          "file": "components/navigation/BottomNav.tsx",
+          "change": "タブ名 todo消化→進行"
+        },
+        {
+          "file": "lib/nav-menu.ts",
+          "change": "note更新"
+        },
+        {
+          "file": "app/guide/page.tsx",
+          "change": "FAQ使い分けを新実態へ"
+        },
+        {
+          "file": "docs/operations/current-operating-model.md",
+          "change": "正本階層の確定を追記"
+        }
+      ],
+      "checks": {
+        "typescript": "OK",
+        "build": "OK",
+        "test": "OK 41/41",
+        "manual": "OK live: 進行ボード(実行可能/停滞/N日前/未紐付け)実描画・PJ完了3段構成実描画・下タブ進行・エラーなし"
+      },
+      "errors": [],
+      "warnings": [],
+      "progressUpdated": false,
+      "nextActions": [
+        "階層運用(Project→Goal→todo)の監査+todo消化/PJ完了タブ刷新 の結果を確認し、未達のDoneCriteriaを1つ進める"
+      ],
+      "rawReport": "## 階層運用監査の結論\n運用モデル自体(Project→Goal→作業)は正しいが、作業の正本がtodoからEpic/Runへ移行済みなのに計測UIがtodo基準のまま=「良い状態じゃない」の正体。旧ToDo管理(project-tasks 145件/open114)は3重系統のレガシーでアーカイブ扱いが妥当(今回は表示上の位置づけのみ、データは温存)。残る改善候補: 未紐付け26ゴールの紐付け(進行ボードに未紐付けグループ+誘導を設置済み)、ゴールゼロ11projectの棚卸し(PJ完了タブに一覧+誘導を設置済み)。\nmonetizationImpact: low\ntheme: [workflow]"
     }
   ]
 }

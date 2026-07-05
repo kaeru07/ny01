@@ -1,6 +1,6 @@
 ---
-updated: 2026-07-04
-updateNote: アプリ自動作成の品質バーをストア提出可能品質へ引き上げ（提出・公開操作のみ人間が実施）。
+updated: 2026-07-05
+updateNote: 階層の正本をProject→Goal→Epic(次の一歩)→Runに確定し、進行/完了ビューを実データ基準へ刷新。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -32,6 +32,12 @@ updateNote: アプリ自動作成の品質バーをストア提出可能品質�
 - store app 系の自動作成ゴールは、App Store / Google Play の審査に提出できる品質を到達点にする。プロトタイプでは止めず、MVP全フロー完動、クラッシュゼロ、エラー/空状態処理、ストア素材、審査メタデータの準備までを自動実行の完了条件に含める。
 - 進行フェーズは ①基盤 ②機能完成 ③品質仕上げ ④公開準備。各 run は現在フェーズを判断し、残作業から具体的な変更を1つ以上実装する。
 - 外部公開そのもの（external_publish）は引き続き危険操作として扱い、ストア提出・公開操作は自動化しない。公開準備完了時は「提出準備完了。あとはユーザーのストア提出操作のみ」と報告する。
+
+## 2026-07-05: Project→Goal→Epic(次の一歩)→Run を階層の正本に確定
+
+- 階層の正本は Project → Goal → Epic（次の一歩） → Run。`goal.todos` は補助（あれば使う）で、旧ToDo管理（`project-tasks`）はレガシー扱い。
+- 旧「todo消化」タブは「ゴール進行ボード」に刷新し、Goal配下todoではなく Epic/Run 基準で自動実行の実際の動きを見る。
+- プロジェクト完了の分母は active + done ゴールのみ。paused / proposed / dropped は分母外として注記に回す。
 
 
 ## 2026-06-20: factoryRunState 廃止とRunner責務分離
@@ -68,9 +74,9 @@ Progress は **AI工場の管理画面ではなく、人間用の司令塔**。
 | 司令塔 | `/` | 毎日最初に開く画面。今日やること・AI工場の状態・収益マイルストーン・直近の成果 |
 | Inbox | `/decide` | 5タブ構成（タブ切り替え）。「今日の判断」=工場停止要因のみ（危険判断/方針選択/人間作業・最大3件・約3分）/「ゴール承認」=自動実行が提案した目標候補（proposed）の承認/却下/「レビュー」=検収（放置しても工場は止まらない・**隠さず全件表示**）/「Epic候補」=実行許可（放置可能）/「AI保留」=件数のみ。社長は「今日の判断」と「ゴール承認」を見れば足りる。`?tab=today|goalApproval|review|candidates|aiHold`、`?reviewFilter=unconfirmed|followup|snoozed|reviewed`、`?reviewStatus=needs_followup`、互換 `?filter=needs_followup`、`?focusRunId=<runId>`、`?goalId=<id|unassigned>`、`?q=...`、`?fixPrompt=1`で直接表示できる。内部分類・内部IDは「詳細を見る」内のみ |
 | Inbox レビュータブ | `/decide` | **レビュー待ちは未消込リストとして全件表示**（「ほか◯件」「処理すると次が出ます」の隠れ表示は廃止）。上部に件数サマリー（未確認/要修正/あとで/レビュー済み）。各カードに「完了: YYYY/MM/DD HH:mm」を表示し、**completedAt（finishedAt→startedAt）降順**で最新が上。50件ずつの明示ページング（全◯件中◯〜◯件）。状態遷移=問題なし→`reviewed`（一覧から消し込み・「レビュー済み」タブに残置＝物理削除しない）/あとで→`snoozed`（後回しで残置）/修正する→**修正指示プロンプト(textarea)を入力して保存**→`needs_followup`（要修正で残置・`fixPrompt`/`fixRequestedAt`/`fixRequestedBy='human'` を ExecutionRun に保存）。修正指示は要修正カードに表示され、`followupOfRunId` 付きおすすめ次作業の reason/doneCriteria/notes に反映されて次回自動実行の作業指示になる。空欄保存は警告して送信しない。「未確認レビューをAIで一括整理」は未確認**全件**対象（サーバ安全上限200件）で、危険・要判断は必ず残し最終判断は人間 |
-| 目標 | `/goal-planner` | Goal と todo の作成・編集・並び替えを行う管理画面。キュー由来の進捗要約は置かず、配下todoの消化状況は `/goal-dashboard`、実行順・実行制御は `/queue` に分ける |
+| 目標 | `/goal-planner` | Goal と補助todoの作成・編集・並び替えを行う管理画面。実作業の進行は `/goal-dashboard`、実行順・実行制御は `/queue` に分ける |
 | 自動実行キュー | `/queue` | **AI工場が次に何をやるか**の実行画面（派生・新正本を作らない）。`buildAutoQueue()` が Epic / Goal / ExecutionRun / Approval / Inbox から都度生成。`factoryEligible=true && status=executable` のみ自動実行候補。**Goalごとにグループ表示し、Goal順がキュー順＝次回実行選択を決める**（`rankGoals`: pin>boost>優先度>goals.json安定順）。明示pin・自走化アンカー・要修正は安全のためGoal順より上位に据置。各itemに「なぜこの順位か」の理由を機械生成。スマホで最優先(pin)/保留(hold)/対象外(exclude)/上下移動(manualOrder)。Goal配下todoのチェックリストは表示せず、実行順・実行制御に専念する。表示専用フィルターとして `?filter=<status>` / `?goalId=` / `?projectId=` / `?app=` / `?priority=P0|P1|P2` / `?pinned=1` / `?excluded=1` / `?manualOnly=1` / `?executor=unset|set` / `?q=` を使える。旧 work-queue 並べ替え画面は `/legacy/queue` に退避 |
-| ゴール×todo消化状況 | `/goal-dashboard` | Goal と todo の閲覧専用画面。全ゴールの状態内訳、実行中ゴールの達成率、配下todoの完了/未完了/進行中/止まっている状態を一覧する。止まっている判定は「未完了todoがあり、そのGoalに executable な work item が無い」状態 |
+| ゴール進行ボード | `/goal-dashboard` | Goalごとの実作業進行を見る閲覧専用画面。active GoalをProject単位で並べ、達成率、キュー状態、直近Run、7日以上停滞、直近Run summaryを Epic/Run 基準で表示する。Project未紐付けGoalは最後にまとめ、Goal Plannerへ誘導する |
 | Projects | `/portfolio` | 進行中プロジェクトの一覧と次の作業 |
 | Revenue | `/revenue` | 収益化マイルストーンの現在地 |
 | 📖 運用 | `/guide` | このアプリの使い方を自分で説明するページ（本ドキュメントと連動） |
@@ -363,6 +369,7 @@ Progress 自身の使われ方を把握するページ（下タブ「使用状�
 
 ## 変更履歴
 
+- 2026-07-05: 階層の正本を Project→Goal→Epic(次の一歩)→Run に確定。`goal.todos` は補助（あれば使う）、旧ToDo管理（`project-tasks`）はレガシー。旧todo消化タブは「ゴール進行ボード」（Epic/Run基準）に刷新し、PJ完了の分母は active+done ゴールのみへ変更。
 - 2026-06-28: **運用ガイド（/guide）を図ベースのスライド型に刷新**（ユーザー指示「運用ページをもっと図でわかりやすく／文字ベースではなく図ベース／iPhone前提／パワポみたいなイメージ」。前回JSON破損で中断していた作業の再開）。`/guide` の使い方ガイドタブを、各セクション=1スライド（パワポ1枚相当の大カード+番号バッジ）の縦スクロール構成に再構成。新設 `components/guide/SlideKit.tsx`（`Slide`/`FlowDiagram`/`LoopDiagram`/`StatTiles`/`Roadmap`/`LegendGrid`）と `components/guide/FaqAccordion.tsx`（'use client'・折りたたみFAQ）で、AI工場の流れを循環図（↻最初に戻る）、今日の流れを朝/夜フロー図、工場状態をKPIタイル、収益化をロードマップ、キュー/動作確認の状態を色分け凡例として図解。**文言・件数・データ・3タブ（report/system/research）・footerは不変、表示のみ刷新**。再発防止として `data/` 配下（特に `data/real/`）には一切触れない方針で実装。検証: tsc0 / next build0 / pm2(next start)再起動で新ビルド反映を確認し `/guide` 200・LoopDiagram「↻最初に戻る」・FAQ `<details>` 35件・各スライド実描画・エラーマーカー0。
 - 2026-06-25: **画面の役割を管理/実行/閲覧に分離**。`/goal-planner` は Goal/todo の作成・編集・並び替えに専念し、キュー由来の進捗要約を撤去。`/queue` は work item の実行順・pin/保留/対象外・理由表示に専念し、Goal配下todoチェックリストを撤去。`/goal-dashboard` を「ゴール×todo消化状況」として拡張し、状態内訳・達成率に加えて active Goal 配下todoの done/skipped/in_progress/未完了/止まっている判定を一覧表示する閲覧専用画面に集約。
 - 2026-06-24: **current-operating-model.md の鮮度チェックを強化**（Epic: `/guide`のFAQ・運用ページの鮮度を点検する仕組み）。既存の「14日以上未更新」警告に加え、`lib/operating-model.ts` で `updated` の形式不正と、監視対象の実装ファイルの最終更新日が `updated` より新しい可能性を検知するようにした。`/guide?tab=system` では理由（未設定/形式不正、未更新日数、対象ファイル名と日付）を箇条書きで表示し、正本ドキュメントと実装の乖離点検を促す。表示専用で自動実行・キュー判定には非干渉。

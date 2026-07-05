@@ -9,7 +9,7 @@ import { usePathname } from 'next/navigation'
 const newNavItems = [
   { href: '/', label: '司令塔', exact: true },
   { href: '/queue', label: 'キュー', exact: false },
-  { href: '/goal-dashboard', label: 'todo消化', exact: false },
+  { href: '/goal-dashboard', label: '進行', exact: false },
   { href: '/activity', label: '実行状況', exact: false },
   { href: '/decide', label: 'Inbox', exact: false },
   { href: '/portfolio', label: 'Projects', exact: false },

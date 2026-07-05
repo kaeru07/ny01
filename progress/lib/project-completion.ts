@@ -20,6 +20,8 @@ export interface ProjectCompletion {
   achievedGoals: ProjectCompletionGoal[]
   deliveredCount: number
   nextCandidates: ProjectCompletionCandidate[]
+  pausedCount: number
+  proposedCount: number
 }
 
 export interface ProjectCompletionProgress {
@@ -27,11 +29,21 @@ export interface ProjectCompletionProgress {
   projectTitle: string
   achieved: number
   total: number
+  remainingGoals: ProjectCompletionGoal[]
+  pausedCount: number
+  proposedCount: number
+}
+
+export interface ProjectWithoutGoals {
+  projectId: string
+  projectTitle: string
 }
 
 export interface ProjectCompletionView {
   completions: ProjectCompletion[]
   progress: ProjectCompletionProgress[]
+  nearCompletions: ProjectCompletionProgress[]
+  projectsWithoutGoals: ProjectWithoutGoals[]
 }
 
 function isAchieved(goal: Goal): boolean {
@@ -74,24 +86,50 @@ export async function getProjectCompletionView(): Promise<ProjectCompletionView>
     if (!projectTitleById.has(project.projectId)) projectTitleById.set(project.projectId, project.projectId)
   }
 
-  const activeGoals = goalsData.goals.filter((goal) => goal.status !== 'dropped' && goal.projectId)
+  const denominatorGoals = goalsData.goals.filter((goal) => (goal.status === 'active' || goal.status === 'done') && goal.projectId)
   const goalById = new Map(goalsData.goals.map((goal) => [goal.id, goal]))
-  const goalsByProject = activeGoals.reduce((map, goal) => {
+  const goalsByProject = denominatorGoals.reduce((map, goal) => {
     const projectId = goal.projectId as string
     const group = map.get(projectId)
     if (group) group.push(goal)
     else map.set(projectId, [goal])
     return map
   }, new Map<string, Goal[]>())
+  const allGoalsByProject = goalsData.goals.reduce((map, goal) => {
+    if (!goal.projectId) return map
+    const group = map.get(goal.projectId)
+    if (group) group.push(goal)
+    else map.set(goal.projectId, [goal])
+    return map
+  }, new Map<string, Goal[]>())
+
+  const supplementaryCounts = (projectId: string) => {
+    const allGoals = allGoalsByProject.get(projectId) ?? []
+    return {
+      pausedCount: allGoals.filter((goal) => goal.status === 'paused').length,
+      proposedCount: allGoals.filter((goal) => goal.status === 'proposed').length,
+    }
+  }
 
   const progress: ProjectCompletionProgress[] = Array.from(goalsByProject)
     .map(([projectId, goals]) => {
       const achieved = goals.filter(isAchieved).length
+      const remainingGoals = goals
+        .filter((goal) => !isAchieved(goal))
+        .map((goal) => ({
+          id: goal.id,
+          title: goal.title,
+          summary: goal.summary || goal.description || undefined,
+        }))
+      const counts = supplementaryCounts(projectId)
       return {
         projectId,
         projectTitle: projectTitleById.get(projectId) ?? projectId,
         achieved,
         total: goals.length,
+        remainingGoals,
+        pausedCount: counts.pausedCount,
+        proposedCount: counts.proposedCount,
       }
     })
     .sort((a, b) => (b.achieved / b.total) - (a.achieved / a.total) || a.projectTitle.localeCompare(b.projectTitle, 'ja'))
@@ -126,6 +164,7 @@ export async function getProjectCompletionView(): Promise<ProjectCompletionView>
           title: goal.title,
           summary: goal.summary || goal.description || undefined,
         }))
+      const counts = supplementaryCounts(projectId)
 
       return {
         projectId,
@@ -133,9 +172,21 @@ export async function getProjectCompletionView(): Promise<ProjectCompletionView>
         achievedGoals,
         deliveredCount: achievedGoals.length,
         nextCandidates: nextCandidates.slice(0, 5),
+        pausedCount: counts.pausedCount,
+        proposedCount: counts.proposedCount,
       }
     })
     .sort((a, b) => b.deliveredCount - a.deliveredCount || a.projectTitle.localeCompare(b.projectTitle, 'ja'))
 
-  return { completions, progress }
+  const completedProjectIds = new Set(completions.map((completion) => completion.projectId))
+  const nearCompletions = progress
+    .filter((item) => !completedProjectIds.has(item.projectId))
+    .slice(0, 5)
+
+  const projectsWithoutGoals = Array.from(projectTitleById)
+    .filter(([projectId]) => !allGoalsByProject.has(projectId))
+    .map(([projectId, projectTitle]) => ({ projectId, projectTitle }))
+    .sort((a, b) => a.projectTitle.localeCompare(b.projectTitle, 'ja'))
+
+  return { completions, progress, nearCompletions, projectsWithoutGoals }
 }

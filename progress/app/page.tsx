@@ -273,7 +273,7 @@ export default async function CommandCenterPage() {
         {autoQueue.goalProgress.length > 0 && (
           <div className="mt-4">
             <Link href="/goal-dashboard" className="text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">
-              ゴール別の進捗・配下todoの消化状況を見る →
+              ゴール別の実作業進行を見る →
             </Link>
           </div>
         )}
