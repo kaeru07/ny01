@@ -57,6 +57,8 @@
 
 
 
+
+- 2026-07-07: AIアプリ発見最適化 / UN「AI for Good Global Commission」始動前夜 / Gemini CLI / ストア掲載文、レビュー要約、短尺デモ動画を一括生成する月額SaaS。 / エラーなし / partial(market,news,tools)
 - 2026-07-06: AI回答比較ツール / Claude Science ベータ提供開始 / Cursor for iOS public beta / 広告: CapCut / エラーなし / partial(market,news,tools)
 - 2026-07-05: AI検索対応ASO / OpenAI が GPT-5.6 系の限定プレビューを開始 / Vercel Agent Runs / AI検索ASO診断を月額980〜2,980円で提供し、アプリ説明文、レビュー返信、スクリーンショット… / エラーなし / partial(market,news,tools)
 - 2026-07-04: AI短尺動画生成 / Anthropic「Fable」規制解除報道 / ZCode / AI短尺動画のテンプレート生成を月額課金にし、YouTube Shorts / エラーなし / partial(market,news,tools)
