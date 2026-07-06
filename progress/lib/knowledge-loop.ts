@@ -554,7 +554,8 @@ function buildLoopHandoffStat(recommendations: RecommendedEpic[]): LoopHandoffSt
     nextAction,
     topPendingCandidates,
     distinctPendingIssues,
-    consolidatedPending: consolidatedPending.slice(0, 5),
+    // 案件単位で決定（採用/保留/却下）できるよう、上位だけでなく滞留案件を全件返す。
+    consolidatedPending,
   }
 }
 

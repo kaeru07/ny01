@@ -57,6 +57,40 @@ export default function LoopHealthCard() {
     }
   }
 
+  async function approveGroup(groupKey: string, representativeId: string, candidateIds: string[]) {
+    const dupCount = candidateIds.length - 1
+    if (
+      !window.confirm(
+        dupCount > 0
+          ? `この案件を採用してEpic化しますか？（同じ案件の重複 ${dupCount} 件はまとめてクローズします）`
+          : 'この案件を採用してEpic化しますか？',
+      )
+    ) {
+      return
+    }
+    setTriaging(groupKey)
+    setTriageMsg(null)
+    try {
+      const res = await fetch('/api/recommended-epics/bulk-approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ representativeId, candidateIds }),
+      })
+      const result = await res.json()
+      if (!res.ok || !result.ok) throw new Error(result.error || String(res.status))
+      setTriageMsg(
+        result.closed > 0
+          ? `採用してEpic化しました（重複 ${result.closed} 件をクローズ）。`
+          : '採用してEpic化しました。',
+      )
+      await load()
+    } catch (e) {
+      setTriageMsg(`採用に失敗しました（${e instanceof Error ? e.message : '不明'}）。候補一覧から確認してください。`)
+    } finally {
+      setTriaging(null)
+    }
+  }
+
   async function triageGroup(
     groupKey: string,
     candidateIds: string[],
@@ -212,7 +246,7 @@ export default function LoopHealthCard() {
             <div className="mt-2 border-t border-gray-200 pt-2 dark:border-gray-700">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-[11px] font-semibold text-gray-600 dark:text-gray-300">
-                  次に着手すべき案件（上位{report.handoff.consolidatedPending.length}件・重複まとめ済み）
+                  判断待ちの案件（{report.handoff.consolidatedPending.length}件・重複まとめ済み）
                 </span>
                 <a href="/recommended-epics" className="text-[11px] text-blue-600 underline">
                   すべてトリアージ →
@@ -250,6 +284,18 @@ export default function LoopHealthCard() {
                       >
                         内容を確認
                       </a>
+                      <button
+                        type="button"
+                        disabled={triaging !== null}
+                        onClick={() => approveGroup(g.groupKey, g.representativeId, g.candidateIds)}
+                        className="rounded bg-green-600 px-2 py-0.5 font-semibold text-white disabled:opacity-40"
+                      >
+                        {triaging === g.groupKey
+                          ? '処理中…'
+                          : g.count > 1
+                            ? `採用（重複${g.count}件クローズ）`
+                            : '採用してEpic化'}
+                      </button>
                       <button
                         type="button"
                         disabled={triaging !== null}
