@@ -632,6 +632,15 @@ export async function getLoopClosureReport(): Promise<LoopClosureReport> {
     }
   }
 
+  // 参照整合チェック（gaps とは別枠・closed 判定に含めない）:
+  // nextEpicCandidateId は入っているが、指す先の候補が recommended-epics に存在しない
+  // 「リンク切れ」を数える。gap 判定（!nextEpicCandidateId）は ID が空かしか見ないため、
+  // このリンク切れは素通りしてどの画面にも出ない。件数の可視化のみ行い、再生成はしない。
+  const recIds = new Set(recommendations.map((r) => r.id))
+  const brokenKnowledge = knowledge.filter(
+    (k) => k.nextEpicCandidateId && !recIds.has(k.nextEpicCandidateId),
+  )
+
   return {
     closed: gaps.length === 0,
     generatedAt: nowIso(),
@@ -648,6 +657,10 @@ export async function getLoopClosureReport(): Promise<LoopClosureReport> {
     },
     gaps,
     gapCount: gaps.length,
+    referenceIntegrity: {
+      brokenNextEpicCandidates: brokenKnowledge.length,
+      brokenKnowledgeIds: brokenKnowledge.map((k) => k.id).slice(0, 50),
+    },
   }
 }
 

@@ -297,6 +297,19 @@ export default function LoopHealthCard() {
         <Cell label="レビュー起点候補" value={s.reviewKnowledgeRecommendations} />
       </div>
 
+      {/* 参照整合（Next Epic候補のリンク切れ）: 自己修復で消せないため gaps とは別枠で可視化のみ */}
+      {report.referenceIntegrity && report.referenceIntegrity.brokenNextEpicCandidates > 0 && (
+        <div className="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-[11px] dark:border-rose-800 dark:bg-rose-900/20">
+          <p className="font-semibold text-rose-700 dark:text-rose-300">
+            Next Epic候補の参照切れ: {report.referenceIntegrity.brokenNextEpicCandidates} 件
+          </p>
+          <p className="mt-1 text-gray-600 dark:text-gray-300">
+            Knowledgeに次Epic候補IDは入っているが、指す先の候補が存在しません（過去のデータ縮小が原因）。
+            自己修復（backfill）では再生成されないため、件数の可視化のみ行っています。再生成するかは人間判断です。
+          </p>
+        </div>
+      )}
+
       {/* こぼれ一覧 */}
       {report.gaps.length > 0 && (
         <div className="mt-3 rounded-xl bg-white/70 px-3 py-2 text-[11px] dark:bg-gray-900/40">

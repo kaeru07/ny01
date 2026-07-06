@@ -144,6 +144,20 @@ export interface LoopMetricBreakdown {
   nextActionsToRaise: string[]
 }
 
+/**
+ * 参照整合（Knowledge.nextEpicCandidateId → recommended-epics）の健全性。
+ * gaps とは別枠で扱う理由: リンク切れは backfill（自己修復）で再生成できない
+ * （早期returnで既存扱いされるため）。gaps/closed に混ぜると「こぼれ」や閉ループ率を
+ * 汚し、かつ heal ボタンで消せない gap が常駐してしまう。件数の可視化のみを行い、
+ * 再生成は人間判断とする（自動 heal に含めない）。
+ */
+export interface LoopReferenceIntegrity {
+  /** nextEpicCandidateId が recommended-epics に存在しない Knowledge の件数（リンク切れ）。 */
+  brokenNextEpicCandidates: number
+  /** リンク切れした Knowledge の id（先頭最大50件・調査用）。 */
+  brokenKnowledgeIds: string[]
+}
+
 /** ループが閉じているか（reviewed→Knowledge→Next Epic候補 / needs_followup→修正候補）の健全性レポート。 */
 export interface LoopClosureReport {
   closed: boolean
@@ -156,6 +170,8 @@ export interface LoopClosureReport {
   handoff: LoopHandoffStat
   gaps: LoopClosureGap[]
   gapCount: number
+  /** 参照整合（Next Epic候補のリンク切れ）の可視化。closed/gaps 判定には含めない。 */
+  referenceIntegrity: LoopReferenceIntegrity
 }
 
 /** heal（既存 backfill による自己修復）の前後比較。 */
