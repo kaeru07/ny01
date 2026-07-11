@@ -62,6 +62,8 @@
 
 
 
+
+- 2026-07-12: 常駐ワーク代行 AI / AnthropicがClaudeの利用振り返り機能「Reflection」をベータ提供 / ChatGPT Work / 広告: Shorts 制作用のタイトル・字幕・構成チェックツールを無料公開し、広告付きで流入を取る。 / エラーなし / partial(market,news,tools)
 - 2026-07-11: モバイルAI業務代行 / OpenAI と Google の中国関連企業向け AI 提供が問題化 / ChatGPT Work / 業務代行エージェントの月額課金: 議事録からタスク化、請求前チェック、週次レポート作成など狭い仕事に… / エラーなし / partial(market,news,tools)
 - 2026-07-10: スマホ常駐AIエージェント / OpenAI、GPT-5.6 と ChatGPT Work を発表 / ChatGPT Work / 月額課金: AIエージェントの実行ログ、通知、失敗検知、再実行を管理する小型ダッシュボード。 / エラーなし / partial(market,news,tools)
 - 2026-07-09: AI常駐ワークフロー / Claude Sonnet 5公開 / Cloudflare Agents x402 paidTool / Shorts制作者向けに、台本生成、字幕整形、投稿タイトル案、収益化リスクチェックを月額課金で提供す… / エラーなし / partial(market,news,tools)
