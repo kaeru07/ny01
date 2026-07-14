@@ -65,6 +65,8 @@
 
 
 
+
+- 2026-07-15: 仕事エージェント / GPT-5.6 が一般提供、Sol/Terra/Luna の3系統へ拡張 / ChatGPT Work / 複数AIの用途別ルーティング、プロンプト保管、費用メモをまとめた月額ミニSaaS。 / エラーなし / partial(market,news,tools)
 - 2026-07-14: AI業務エージェント / OpenAI が GPT-5.6 と ChatGPT Work を展開 / ChatGPT Work / レビュー分析SaaS: App Store / エラーなし / partial(market,news,tools)
 - 2026-07-13: モバイル常駐 AI エージェント / GPT-5.6 と ChatGPT Work が公開 / Gemini CLI / YouTube Shorts 実演動画から、テンプレ販売・note・アフィリエイトへ流す。 / エラーなし / partial(market,news,tools)
 - 2026-07-12: 常駐ワーク代行 AI / AnthropicがClaudeの利用振り返り機能「Reflection」をベータ提供 / ChatGPT Work / 広告: Shorts 制作用のタイトル・字幕・構成チェックツールを無料公開し、広告付きで流入を取る。 / エラーなし / partial(market,news,tools)
