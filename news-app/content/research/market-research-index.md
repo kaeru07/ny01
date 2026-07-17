@@ -68,6 +68,8 @@
 
 
 
+
+- 2026-07-18: (未取得) / Kimi K3 が長文・エージェント型モデルとして浮上 / ChatGPT Work / (未取得) / エラーあり(daily-market-research) / partial(news,tools)
 - 2026-07-17: AIエージェント運用 / タイトル: EU が Google に Android 上の AI 相互運用性を義務付ける仕様措置を… / ChatGPT Work / 小規模EC向けに、商品説明からTikTok用の動画台本、字幕、NG表現チェックを作る月額ツールを提供… / エラーなし / partial(market,news,tools)
 - 2026-07-16: Android 代替ストア対応 / Codex Micro が登場 / Lovable MCP / Android 代替ストア対応チェックリストを note、テンプレ、個別相談で販売する。 / エラーなし / partial(market,news,tools)
 - 2026-07-15: 仕事エージェント / GPT-5.6 が一般提供、Sol/Terra/Luna の3系統へ拡張 / ChatGPT Work / 複数AIの用途別ルーティング、プロンプト保管、費用メモをまとめた月額ミニSaaS。 / エラーなし / partial(market,news,tools)
