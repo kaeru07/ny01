@@ -388,7 +388,23 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
         </p>
       </Slide>
 
-      <Slide n={9} title="動作確認Todo" accent="rose" lead="AIの作業やEpic完了後に「人間がこの画面をこう確認してほしい」という項目を一覧管理する場所です（上部メニュー「動作確認」／ /verify-todos）。AIが作業を終えるたびに、アプリ名・Epic名・確認URL・確認手順・期待結果を1件ずつ登録します。">
+      <Slide n={9} title="アプリ開発" accent="blue" lead="アプリ案・設計・市場分析に加えて、iOSの配信準備状況を /ios-builds で確認できます。">
+        <LegendGrid
+          items={[
+            { dot: 'bg-blue-500', term: 'ビルド状況', desc: 'Codemagicの直近ビルド、状態、workflow、branch、完了時刻、commitをアプリごとに見ます。' },
+            { dot: 'bg-green-500', term: 'TestFlight状態', desc: 'App Store Connect APIキーが配置済みなら、直近アップロードの処理状態を確認します。' },
+            { dot: 'bg-amber-500', term: 'ビルド候補', desc: '未ビルド、最新ビルド失敗、ローカル未反映コミットありを候補として表示します。' },
+          ]}
+        />
+        <p className="mt-3 rounded-xl bg-white px-3 py-2 text-[11px] font-semibold leading-relaxed text-gray-600 dark:bg-gray-900 dark:text-gray-300">
+          「ビルド実行」は確認ダイアログの後にCodemagicビルドを起動します。「候補を今日の判断へ」は、候補アプリをInboxの方針選択として作成し、同じ未決判断がある場合は重複作成しません。
+        </p>
+        <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-semibold leading-relaxed text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
+          ASCキーが未配置の間はTestFlightの処理状況は未確認になります。その場合はCodemagicビルドのPublishing状態でアップロード成否を判断します。
+        </p>
+      </Slide>
+
+      <Slide n={10} title="動作確認Todo" accent="rose" lead="AIの作業やEpic完了後に「人間がこの画面をこう確認してほしい」という項目を一覧管理する場所です（上部メニュー「動作確認」／ /verify-todos）。AIが作業を終えるたびに、アプリ名・Epic名・確認URL・確認手順・期待結果を1件ずつ登録します。">
         <LegendGrid
           items={[
             { dot: 'bg-gray-400', term: '未確認', desc: 'まだ人間が確認していない項目です。' },
@@ -402,7 +418,7 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
         </p>
       </Slide>
 
-      <Slide n={10} title="よくある質問" accent="gray">
+      <Slide n={11} title="よくある質問" accent="gray">
         <FaqAccordion items={FAQ} />
       </Slide>
 

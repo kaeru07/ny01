@@ -13,6 +13,7 @@ export const APP_DEVELOPMENT_SUBTABS: SubNavItem[] = [
   { label: '新アプリ案', href: '/app-proposals' },
   { label: '設計一覧', href: '/app-designs' },
   { label: '仕様承認・履歴', href: '/app-specs' },
+  { label: 'iOSビルド', href: '/ios-builds' },
 ]
 
 export const AUTO_EXECUTION_SUBTABS: SubNavItem[] = [

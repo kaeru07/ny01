@@ -1,6 +1,6 @@
 ---
-updated: 2026-07-05
-updateNote: 階層の正本をProject→Goal→Epic(次の一歩)→Runに確定し、進行/完了ビューを実データ基準へ刷新。
+updated: 2026-07-18
+updateNote: iOSビルド画面を追加。Codemagicのビルド状況、TestFlight処理状況、ビルド候補を確認し、ビルド実行と候補の今日の判断化ができるようにした。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -39,6 +39,16 @@ updateNote: 階層の正本をProject→Goal→Epic(次の一歩)→Runに確定
 - 旧「todo消化」タブは「ゴール進行ボード」に刷新し、Goal配下todoではなく Epic/Run 基準で自動実行の実際の動きを見る。
 - プロジェクト完了の分母は active + done ゴールのみ。paused / proposed / dropped は分母外として注記に回す。
 
+
+## 2026-07-18: iOSビルド状況・候補ピックアップ
+
+`/ios-builds` は、hima-app / mahjong などのiOS配信対象アプリについて、Codemagicの直近ビルド、TestFlight処理状況、ローカル最新コミットとの差分をまとめて見るアプリ開発系画面。
+
+- 対象アプリは `/root/company/apps/*/codemagic.yaml` から発見し、`release/ios-app.json` があれば appName / bundleId / repository / branch / workflowId を読む。無い場合は `codemagic.yaml` と Capacitor設定から最低限を推定する。
+- Codemagicは `/root/.secrets/appstore/codemagic.env` のトークンをサーバ側だけで読み、`GET /apps` で repository と照合して appId を解決し、`GET /builds?appId=...` で直近5件を表示する。トークン値はクライアント、APIレスポンス、ログに出さない。
+- App Store Connect APIキー（`/root/.secrets/appstore/asc.env` と p8）が配置済みなら、bundleId からAppを引き、直近TestFlight buildの version / processingState / uploadedDate を表示する。未配置なら「ASCキー未配置のため処理状況未確認」と明示し、アップロード成否はCodemagicのPublishingで判断する。
+- ビルド候補は「未ビルド」「最新ビルド失敗」「ローカル最新コミットが直近成功ビルドへ未反映」の3条件で導出する。候補は画面上部の「候補を今日の判断へ」から `category='multi_option'` の approval としてInboxへ作成し、「ビルドする / 見送る」を選べる。同一タイトルの未決approvalがある場合は重複作成しない。
+- 「ビルド実行」は確認ダイアログ後にCodemagic `POST /builds` を呼ぶ手動操作。CI分を消費するため、検証では実行しない。
 
 ## 2026-06-20: factoryRunState 廃止とRunner責務分離
 
