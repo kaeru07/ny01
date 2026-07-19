@@ -21,7 +21,7 @@ workflows:
       app_store_connect: ASC_API_KEY
 
     environment:
-      node: 20.11.0
+      node: 22.11.0
       xcode: latest
       cocoapods: default
       vars:
