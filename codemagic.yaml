@@ -11,6 +11,30 @@
 # certificate, and provisioning profile references must exist in Codemagic UI.
 
 workflows:
+  # One-shot: register the Bundle ID on Apple Developer Portal via the ASC API
+  # key integration. Needed once before automatic code signing can create
+  # provisioning profiles for a new app.
+  register-bundle-id:
+    name: Register Bundle ID (mahjong-trainer)
+    max_build_duration: 10
+    instance_type: linux_x2
+    integrations:
+      app_store_connect: ASC_API_KEY
+    environment:
+      vars:
+        BUNDLE_ID: "com.kaeru07.mahjongtrainer"
+    scripts:
+      - name: Ensure bundle id exists
+        script: |
+          set -e
+          EXISTING=$(app-store-connect list-bundle-ids --bundle-id-identifier "$BUNDLE_ID" --platform IOS --json | python3 -c "import sys,json;print(len(json.load(sys.stdin)))")
+          if [ "$EXISTING" = "0" ]; then
+            app-store-connect create-bundle-id "$BUNDLE_ID" --name "Mahjong Trainer" --platform IOS
+          else
+            echo "Bundle ID already registered"
+          fi
+          app-store-connect list-bundle-ids --bundle-id-identifier "$BUNDLE_ID" --platform IOS
+
   mahjong-trainer-ios-testflight:
     name: Mahjong Trainer iOS TestFlight
     max_build_duration: 60
