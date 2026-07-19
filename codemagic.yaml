@@ -47,11 +47,15 @@ workflows:
           BUNDLE_RES_ID=$(app-store-connect list-bundle-ids --bundle-id-identifier "$BUNDLE_ID" --platform IOS --json | json_id)
           echo "bundle id resource: $BUNDLE_RES_ID"
           echo "== distribution certificates =="
-          app-store-connect list-certificates --type IOS_DISTRIBUTION
-          CERT_IDS=$(app-store-connect list-certificates --type IOS_DISTRIBUTION --json | json_id)
+          CERT_IDS=$(app-store-connect list-certificates --type DISTRIBUTION --json | json_id || true)
+          if [ -z "$CERT_IDS" ]; then
+            CERT_IDS=$(app-store-connect list-certificates --type IOS_DISTRIBUTION --json | json_id || true)
+          fi
           echo "cert ids: $CERT_IDS"
-          echo "== existing app store profiles for bundle =="
-          app-store-connect list-profiles --profile-type IOS_APP_STORE || true
+          if [ -z "$CERT_IDS" ]; then
+            echo "ERROR: no distribution certificate found in the Apple Developer account"
+            exit 1
+          fi
           echo "== create app store profile =="
           app-store-connect create-profile "$BUNDLE_RES_ID" \
             --type IOS_APP_STORE \
