@@ -97,12 +97,11 @@ export function useGame() {
     if (humanPlayer.drawnTile === null && state.wall.length > 0) {
       dispatch({ type: "DRAW_TILE" });
     }
-  }, [state.turn, state.phase, state.isPaused]);
+  }, [state.turn, state.phase, state.isPaused, state.players, state.wall.length]);
 
   // 山切れチェック
   useEffect(() => {
     if (state.phase === "playing" && state.wall.length === 0) {
-      const allHands = state.players.map((p) => p.hand);
       // TODO: 流局処理
     }
   }, [state.wall.length, state.phase]);
