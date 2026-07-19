@@ -81,9 +81,8 @@ workflows:
         BUILD_NUMBER: "1"
         XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.kaeru07.mahjongtrainer
+      groups:
+        - mahjong_signing # CERTIFICATE_PRIVATE_KEY (secure, registered via Codemagic API)
 
     scripts:
       - name: Install dependencies
@@ -108,6 +107,13 @@ workflows:
       - name: Set up code signing
         script: |
           set -e
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --platform IOS \
+            --type IOS_APP_STORE \
+            --certificate-key=@env:CERTIFICATE_PRIVATE_KEY \
+            --create
+          keychain add-certificates
           xcode-project use-profiles
           echo "--- provisioning profiles in keychain dir ---"
           ls -1 "$HOME/Library/MobileDevice/Provisioning Profiles" 2>/dev/null || echo "(none)"
