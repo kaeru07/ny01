@@ -11,14 +11,17 @@ export const STATUS_SUBTABS: SubNavItem[] = [
 
 export const APP_DEVELOPMENT_SUBTABS: SubNavItem[] = [
   { label: '新アプリ案', href: '/app-proposals' },
+  { label: '市場分析', href: '/app-market-analysis' },
   { label: '設計一覧', href: '/app-designs' },
   { label: '仕様承認・履歴', href: '/app-specs' },
   { label: 'iOSビルド', href: '/ios-builds' },
+  { label: 'iOS署名準備', href: '/ios-signing-guide' },
 ]
 
 export const AUTO_EXECUTION_SUBTABS: SubNavItem[] = [
   { label: '自動実行', href: '/queue' },
   { label: 'ゴール', href: '/goal-planner' },
+  { label: '長期未解消', href: '/stalled-goals' },
 ]
 
 export const STATUS_PATHS = STATUS_SUBTABS.map((item) => item.href)

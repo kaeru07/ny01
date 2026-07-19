@@ -65,6 +65,7 @@ export const TERMS: Record<string, { ja: string; help: string }> = {
   stalledGoal: { ja: '長期未解消ゴール', help: '承認済み(active)なのに7日以上前進していない目標です。/stalled-goals で原因、解消方法、完了・保留・優先度上げの操作をまとめて確認できます' },
   approvalEntry: { ja: '承認の入口', help: '実行可否の承認（ゴール承認・危険判断・方針選択）と検収（問題なし/修正する）はprogress（Inboxとレビュータブ）が唯一の入口です。VaultのレビューキューはChatGPTへ品質レビューを依頼する専用チャネルで、承認や検収はしません。同じ判断を2か所でしない運用です' },
   iosBuilds: { ja: 'iOSビルド', help: 'Codemagicの直近ビルド、TestFlight処理状況、ローカル最新コミットとの差分から、iOSアプリを今ビルドすべきか確認する画面です。ビルド実行と、候補を今日の判断へ送る操作ができます' },
+  iosSigningGuide: { ja: 'iOS署名準備', help: '新しいiOSアプリをTestFlightへ送る前に、Apple Developer / App Store Connect / Codemagicへ入力する値をアプリ別に確認・コピーする画面です' },
   buildCandidate: { ja: 'ビルド候補', help: '未ビルド、最新ビルド失敗、ローカル最新コミットが直近成功ビルドへ未反映のアプリです。必要なら今日の判断に送り、ビルドする/見送るを選べます' },
   testFlight: { ja: 'TestFlight', help: 'App Store Connect側でiOSビルドがテスター配信前に処理される場所です。ASCキーが未配置の間はProgressから処理状況を確認できないため、CodemagicのPublishing状態でアップロード成否を見ます' },
 }
