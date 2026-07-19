@@ -43,31 +43,35 @@ function StepCard({
 
 function AppGuideCard({ app }: { app: IosSigningGuideApp }) {
   return (
-    <article className="space-y-4 rounded-3xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/50">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-lg font-black text-gray-900 dark:text-gray-100">{app.appName}</h2>
-            <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-black text-green-700 dark:bg-green-900/30 dark:text-green-200">
-              TestFlight対象
-            </span>
-          </div>
-          <p className="mt-1 font-mono text-xs font-bold text-gray-500 dark:text-gray-400">{app.appPathLabel}</p>
-          <p className="mt-0.5 font-mono text-xs font-bold text-gray-500 dark:text-gray-400">{app.repository ?? 'repository未設定'}</p>
-        </div>
-        <CopyButton text={app.copyText} label="このアプリの手順を全文コピー" />
-      </div>
+    <details className="group rounded-2xl border border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900/50">
+      <summary className="cursor-pointer select-none px-4 py-3 text-sm font-black text-gray-900 dark:text-gray-100">
+        {app.appName}
+      </summary>
 
-      <StepCard
-        title="1. Apple Developer: Bundle IDを作る"
-        summary="Certificates, Identifiers & Profiles > Identifiers > + > App IDs > App。Explicit Bundle IDで作成する。"
-        rows={[
-          { label: 'Description', value: app.appName },
-          { label: 'Bundle ID Type', value: 'Explicit' },
-          { label: 'Bundle ID', value: app.bundleId },
-          { label: 'Capabilities', value: '追加なし（必要になった時だけ有効化）' },
-        ]}
-      />
+      <article className="space-y-4 border-t border-gray-200 p-4 dark:border-gray-800">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-black text-green-700 dark:bg-green-900/30 dark:text-green-200">
+                TestFlight対象
+              </span>
+            </div>
+            <p className="mt-1 font-mono text-xs font-bold text-gray-500 dark:text-gray-400">{app.appPathLabel}</p>
+            <p className="mt-0.5 font-mono text-xs font-bold text-gray-500 dark:text-gray-400">{app.repository ?? 'repository未設定'}</p>
+          </div>
+          <CopyButton text={app.copyText} label="このアプリの手順を全文コピー" />
+        </div>
+
+        <StepCard
+          title="1. Apple Developer: Bundle IDを作る"
+          summary="Certificates, Identifiers & Profiles > Identifiers > + > App IDs > App。Explicit Bundle IDで作成する。"
+          rows={[
+            { label: 'Description', value: app.appName },
+            { label: 'Bundle ID Type', value: 'Explicit' },
+            { label: 'Bundle ID', value: app.bundleId },
+            { label: 'Capabilities', value: '追加なし（必要になった時だけ有効化）' },
+          ]}
+        />
 
       <StepCard
         title="2. App Store Connect: New Appを作る"
@@ -115,11 +119,12 @@ function AppGuideCard({ app }: { app: IosSigningGuideApp }) {
         ]}
       />
 
-      <details className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950">
-        <summary className="cursor-pointer select-none text-sm font-black text-gray-900 dark:text-gray-100">手動コピー用全文</summary>
-        <pre className="mt-3 whitespace-pre-wrap rounded-xl bg-gray-950 p-3 font-mono text-[11px] leading-relaxed text-gray-100">{app.copyText}</pre>
-      </details>
-    </article>
+        <details className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950">
+          <summary className="cursor-pointer select-none text-sm font-black text-gray-900 dark:text-gray-100">手動コピー用全文</summary>
+          <pre className="mt-3 whitespace-pre-wrap rounded-xl bg-gray-950 p-3 font-mono text-[11px] leading-relaxed text-gray-100">{app.copyText}</pre>
+        </details>
+      </article>
+    </details>
   )
 }
 
