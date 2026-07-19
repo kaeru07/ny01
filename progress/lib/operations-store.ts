@@ -503,34 +503,10 @@ const HANDOFF_SECTIONS = [
 
 // ---- Executor 適格性ポリシー（Claude→Codex 自動切替の共有判定） ----
 // handoff は UI 非表示のまま、この判定に基づき内部で executor を選ぶ。
-
-/** Codex へ渡してよい安全シグナル（方針決定済み・非破壊作業） */
-export const CODEX_ALLOW_SIGNALS = [
-  'lint', 'typecheck', 'type check', 'build', 'test', 'テスト', 'document', 'docs', 'ドキュメント',
-  'vault', 'integ', 'issue', 'ui', 'copy', '文言', 'リファクタ', '整理', 'スタイル', 'format',
-]
-
-/** Codex へ渡さない危険シグナル（Claude 専任 / 人間判断が必要） */
-export const CODEX_DENY_SIGNALS = [
-  '課金', 'billing', '本番db', 'production db', '本番', 'destructive', '削除', 'drop ', 'truncate',
-  'secret', 'token', '認証', 'credential', '外部公開', 'publish', 'deploy', 'デプロイ',
-  'pm2', 'cron', 'systemd', 'migration', 'マイグレーション', 'スキーマ変更', '.env',
-]
-
-export interface CodexEligibility {
-  eligible: boolean
-  reason: string
-}
-
-/** テキストから Codex 自動切替の可否を判定する（最終ゲートは requiresClaude / Approval Queue）。 */
-export function classifyCodexEligibility(text: string): CodexEligibility {
-  const t = text.toLowerCase()
-  const deny = CODEX_DENY_SIGNALS.find((s) => t.includes(s))
-  if (deny) return { eligible: false, reason: `危険シグナル「${deny}」を含むため Claude 専任` }
-  const allow = CODEX_ALLOW_SIGNALS.find((s) => t.includes(s))
-  if (allow) return { eligible: true, reason: `安全シグナル「${allow}」に該当` }
-  return { eligible: false, reason: '安全シグナル未検出のため既定で Claude' }
-}
+// 実装は codex-eligibility.ts（純粋関数・単体テスト対象）。既存 import 互換のため再 export する。
+export { CODEX_ALLOW_SIGNALS, CODEX_DENY_SIGNALS, classifyCodexEligibility } from './codex-eligibility'
+export type { CodexEligibility } from './codex-eligibility'
+import { classifyCodexEligibility, CODEX_DENY_SIGNALS } from './codex-eligibility'
 
 function getTaskExecutor(task: Task): ExecutorType {
   if (task.preferredExecutor) return task.preferredExecutor
