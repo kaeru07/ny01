@@ -14,8 +14,11 @@ export const APP_DEVELOPMENT_SUBTABS: SubNavItem[] = [
   { label: '市場分析', href: '/app-market-analysis' },
   { label: '設計一覧', href: '/app-designs' },
   { label: '仕様承認・履歴', href: '/app-specs' },
-  { label: 'iOSビルド', href: '/ios-builds' },
+]
+
+export const IOS_BUILD_SUBTABS: SubNavItem[] = [
   { label: 'iOS署名準備', href: '/ios-signing-guide' },
+  { label: 'iOSビルド', href: '/ios-builds' },
 ]
 
 export const AUTO_EXECUTION_SUBTABS: SubNavItem[] = [
@@ -26,4 +29,5 @@ export const AUTO_EXECUTION_SUBTABS: SubNavItem[] = [
 
 export const STATUS_PATHS = STATUS_SUBTABS.map((item) => item.href)
 export const APP_DEVELOPMENT_PATHS = [...APP_DEVELOPMENT_SUBTABS.map((item) => item.href), '/app-decisions']
+export const IOS_BUILD_PATHS = IOS_BUILD_SUBTABS.map((item) => item.href)
 export const AUTO_EXECUTION_PATHS = AUTO_EXECUTION_SUBTABS.map((item) => item.href)

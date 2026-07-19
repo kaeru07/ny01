@@ -1,6 +1,6 @@
 import PageGuide from '@/components/newux/PageGuide'
 import SubTabBar from '@/components/navigation/SubTabBar'
-import { APP_DEVELOPMENT_SUBTABS } from '@/lib/nav-groups'
+import { IOS_BUILD_SUBTABS } from '@/lib/nav-groups'
 import { getIosSigningGuideApps, type IosSigningGuideApp } from '@/lib/ios-signing-guide'
 import CopyButton from './CopyButton'
 
@@ -137,7 +137,7 @@ export default function IosSigningGuidePage() {
         title="iOS署名準備"
         guide="新しいiOSアプリをTestFlightへ送る前に、人間がApple Developer / App Store Connect / Codemagicへ入力する値をまとめたページです。TestFlight対象workflowだけを表示します。"
       />
-      <SubTabBar items={APP_DEVELOPMENT_SUBTABS} />
+      <SubTabBar items={IOS_BUILD_SUBTABS} />
 
       <section className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-xs leading-relaxed text-blue-900 dark:border-blue-900/50 dark:bg-blue-950/30 dark:text-blue-100">
         <h2 className="text-sm font-black">使い方</h2>

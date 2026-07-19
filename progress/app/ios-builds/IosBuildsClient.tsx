@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import PageGuide from '@/components/newux/PageGuide'
 import SubTabBar from '@/components/navigation/SubTabBar'
-import { APP_DEVELOPMENT_SUBTABS } from '@/lib/nav-groups'
+import { IOS_BUILD_SUBTABS } from '@/lib/nav-groups'
 import type { IosBuildsAppResponse, IosBuildsResponse, IosCodemagicBuild } from '@/types/ios-builds'
 
 interface TriggerResponse {
@@ -280,7 +280,7 @@ export default function IosBuildsClient() {
           </ul>
         </div>
       </details>
-      <SubTabBar items={APP_DEVELOPMENT_SUBTABS} />
+      <SubTabBar items={IOS_BUILD_SUBTABS} />
 
       {toast ? (
         <div className="rounded-lg bg-gray-900 px-3 py-2 text-xs font-bold text-white dark:bg-gray-100 dark:text-gray-900">

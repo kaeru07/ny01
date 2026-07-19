@@ -2,9 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { APP_DEVELOPMENT_PATHS, AUTO_EXECUTION_PATHS, STATUS_PATHS } from '@/lib/nav-groups'
-
-const APP_DEVELOPMENT_BOTTOM_PATHS = APP_DEVELOPMENT_PATHS.filter((path) => path !== '/ios-builds')
+import { APP_DEVELOPMENT_PATHS, AUTO_EXECUTION_PATHS, IOS_BUILD_PATHS, STATUS_PATHS } from '@/lib/nav-groups'
 
 const navItems = [
   {
@@ -42,7 +40,7 @@ const navItems = [
     href: '/app-proposals',
     label: 'アプリ開発',
     exact: false,
-    activePaths: APP_DEVELOPMENT_BOTTOM_PATHS,
+    activePaths: APP_DEVELOPMENT_PATHS,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
         <rect x="7" y="3" width="10" height="18" rx="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -54,6 +52,7 @@ const navItems = [
     href: '/ios-builds',
     label: 'iOSビルド',
     exact: false,
+    activePaths: IOS_BUILD_PATHS,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
         <rect x="7" y="2.5" width="10" height="19" rx="2" strokeLinecap="round" strokeLinejoin="round" />
