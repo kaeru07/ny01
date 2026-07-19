@@ -7,8 +7,8 @@
 # `working_directory: mahjong-trainer` so it only builds the practical mahjong
 # reading trainer sub-app.
 #
-# Secrets are not stored here. App Store Connect / Developer Portal credentials
-# are referenced through the Codemagic integration.
+# Secrets are not stored here. App Store Connect integration, distribution
+# certificate, and provisioning profile references must exist in Codemagic UI.
 
 workflows:
   mahjong-trainer-ios-testflight:
@@ -30,6 +30,11 @@ workflows:
         BUILD_NUMBER: "1"
         XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
+      ios_signing:
+        certificates:
+          - IOS_DISTRIBUTION_CERTIFICATE
+        provisioning_profiles:
+          - MAHJONG_TRAINER_APP_STORE_PROFILE
 
     scripts:
       - name: Install dependencies
@@ -50,20 +55,6 @@ workflows:
           cd ios/App
           agvtool new-marketing-version "$APP_VERSION"
           agvtool new-version -all "$BUILD_NUMBER"
-
-      - name: Initialize keychain
-        script: |
-          keychain initialize
-
-      - name: Fetch signing files
-        script: |
-          app-store-connect fetch-signing-files "$BUNDLE_ID" \
-            --type IOS_APP_STORE \
-            --create
-
-      - name: Add signing certificates
-        script: |
-          keychain add-certificates
 
       - name: Set up code signing
         script: |
