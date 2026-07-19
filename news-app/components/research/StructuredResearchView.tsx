@@ -41,16 +41,18 @@ export function StructuredResearchView({ data, docDate }: Props) {
         </article>
       )}
 
-      <div>
-        <p className="text-xs font-semibold text-gray-500 px-1 mb-2">
-          トピック {data.topics.length} 件
-        </p>
-        <div className="space-y-4">
-          {data.topics.map((t) => (
-            <TopicCard key={t.index} topic={t} docDate={docDate} />
-          ))}
+      {data.topics.length > 0 && (
+        <div>
+          <p className="text-xs font-semibold text-gray-500 px-1 mb-2">
+            トピック {data.topics.length} 件
+          </p>
+          <div className="space-y-4">
+            {data.topics.map((t) => (
+              <TopicCard key={t.index} topic={t} docDate={docDate} />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {data.todos.length > 0 && (
         <ListSection
@@ -68,6 +70,15 @@ export function StructuredResearchView({ data, docDate }: Props) {
           items={data.pending}
           itemClass="text-sm text-gray-600"
         />
+      )}
+
+      {data.restMarkdown.trim().length > 0 && (
+        <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <p className="text-[11px] font-semibold tracking-widest text-gray-400 mb-3">
+            調査メモ
+          </p>
+          <MarkdownView markdown={data.restMarkdown} />
+        </section>
       )}
     </div>
   );

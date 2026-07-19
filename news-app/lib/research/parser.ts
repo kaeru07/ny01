@@ -242,19 +242,21 @@ function pickPriority(raw: string, paperInfo?: PaperInfo): Priority | undefined 
 
 /**
  * 「## 今日の結論 / ## 記事本文 / ## トピック一覧 / ## 今日のToDo候補 / ## 保留・未確認」を構造化する。
- * トピックが 1 件も取れない場合は undefined を返し、呼び出し側で従来表示に fallback する。
+ * トピックが 1 件も取れず記事本文も無い場合は undefined を返し、呼び出し側で従来表示に fallback する。
+ * （記事本文があればトピック 0 件でも「1日1ページの記事」レイアウトで表示できるよう構造化を返す）
  */
 function extractStructured(
   sections: ResearchSection[],
   date: string
 ): StructuredResearch | undefined {
   const topicSection = sections.find((s) => s.heading.includes("トピック"));
-  if (!topicSection) return undefined;
-  const topics = parseTopics(topicSection.body, date);
-  if (topics.length === 0) return undefined;
+  const topics = topicSection ? parseTopics(topicSection.body, date) : [];
 
   const conclusionSection = sections.find((s) => s.heading.includes("結論"));
   const articleSection = sections.find(isArticleBodySection);
+  const articleBody = articleSection ? articleSection.body.trim() : "";
+  if (topics.length === 0 && articleBody.length === 0) return undefined;
+
   const todoSection = sections.find(
     (s) => s.heading.includes("ToDo") || s.heading.includes("やること")
   );
@@ -262,12 +264,28 @@ function extractStructured(
     (s) => s.heading.includes("保留") || s.heading.includes("未確認")
   );
 
+  const consumed = new Set<ResearchSection>(
+    [
+      topicSection,
+      conclusionSection,
+      articleSection,
+      todoSection,
+      pendingSection,
+    ].filter((s): s is ResearchSection => s !== undefined)
+  );
+  const restMarkdown = sections
+    .filter((s) => !consumed.has(s) && !s.heading.includes("取得状況"))
+    .map((s) => `## ${s.heading}\n\n${s.body.trim()}`)
+    .filter((block) => block.trim().length > 0)
+    .join("\n\n");
+
   return {
     conclusion: conclusionSection ? conclusionSection.body.trim() : "",
-    articleBody: articleSection ? articleSection.body.trim() : "",
+    articleBody,
     topics,
     todos: bulletItemsOf(todoSection),
     pending: bulletItemsOf(pendingSection),
+    restMarkdown,
   };
 }
 

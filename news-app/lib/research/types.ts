@@ -86,13 +86,15 @@ export interface ResearchTopic {
   duplicateCandidates?: string[];
 }
 
-/** 日次レポートを「カード分離できる構造」に解析した結果。topics が空なら従来表示へ fallback。 */
+/** 日次レポートを「カード分離できる構造」に解析した結果。topics と articleBody が両方空なら従来表示へ fallback。 */
 export interface StructuredResearch {
   conclusion: string;   // 今日の結論
   articleBody: string;  // 記事本文（一日1ページの読み物として表示）
   topics: ResearchTopic[];
   todos: string[];      // 今日のToDo候補
   pending: string[];    // 保留・未確認
+  /** 結論/記事本文/トピック/ToDo/保留に消費されなかった残りセクションの Markdown（記事の下に表示） */
+  restMarkdown: string;
 }
 
 /** 全 Research 横断で 1 Topic を出自（カテゴリ・日付）付きで扱うための参照。 */

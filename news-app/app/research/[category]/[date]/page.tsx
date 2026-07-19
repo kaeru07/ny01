@@ -95,7 +95,7 @@ export default async function ResearchDetailPage({ params }: Props) {
 
         <UtilizationView utilization={doc.utilization} showEmpty={true} />
 
-        {doc.structured && doc.structured.topics.length > 0 ? (
+        {doc.structured ? (
           <>
             <StructuredResearchView data={doc.structured} docDate={doc.date} />
             <details className="bg-white rounded-2xl border border-gray-100 p-4">
