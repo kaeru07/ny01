@@ -28,6 +28,18 @@ export interface IosCodemagicBuild {
   commitHash: string | null
 }
 
+export interface IosUnshippedCommit {
+  subject: string
+  committedAt: string | null
+}
+
+export interface IosUnshippedCommits {
+  total: number
+  commits: IosUnshippedCommit[]
+  baseFinishedAt: string | null
+  baseSubject: string | null
+}
+
 export interface IosCandidate {
   isCandidate: boolean
   reason?: string
@@ -53,6 +65,7 @@ export interface IosBuildsAppResponse {
   localGit: Pick<IosLocalGit, 'head' | 'lastCommitAt' | 'subject'>
   codemagicAppId: string | null
   builds: IosCodemagicBuild[]
+  unshippedCommits: IosUnshippedCommits | null
   testflight: IosTestflightState
   candidate: IosCandidate
   codemagicError?: string

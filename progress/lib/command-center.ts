@@ -62,6 +62,8 @@ export const TERMS: Record<string, { ja: string; help: string }> = {
   goalStepEpic: { ja: '達成まで自動で進める（次の一歩）', help: 'ToDoも大きな作業も無い未達成の目標を、AI工場が「達成まで自動で進める」対象として自動実行キューに載せます。工場が拾うと、その目標を進める次の1ステップ（次の一歩）を大きな作業として自動で作り、達成するまで繰り返します。承認待ち・手動方針・危険操作の目標は対象外です' },
   usage: { ja: '使用状況', help: 'Progress 自身の使われ方を集計する画面（/usage）。どの画面をよく開き・どのボタンをよく押し・最後にいつ使い・どの画面を放置しているかを直近7日で表示します。画面遷移とボタン操作を自動で記録（usage-log.ndjson）した表示専用の集計で、AI工場の判定や実行には影響しません' },
   proposedGoal: { ja: 'ゴール承認', help: 'AI が「次に目指すべきゴール」を提案します（status=proposed）。提案元は2系統で、①自動実行の最初に日々の調査結果（ニュース）から、②自動実行する作業が無くなったアイドル時に progress 自身の改善事項・試したいこと（ゴール生成モード）から補充します。提案ゴールは今日の判断（Inbox）の「ゴール承認」に並び、承認すると次回以降の自動実行で達成まで自動で進めます。やめると候補から外れます。承認するまで自動実行はされません' },
+  stalledGoal: { ja: '長期未解消ゴール', help: '承認済み(active)なのに7日以上前進していない目標です。/stalled-goals で原因、解消方法、完了・保留・優先度上げの操作をまとめて確認できます' },
+  approvalEntry: { ja: '承認の入口', help: '実行可否の承認（ゴール承認・危険判断・方針選択）と検収（問題なし/修正する）はprogress（Inboxとレビュータブ）が唯一の入口です。VaultのレビューキューはChatGPTへ品質レビューを依頼する専用チャネルで、承認や検収はしません。同じ判断を2か所でしない運用です' },
   iosBuilds: { ja: 'iOSビルド', help: 'Codemagicの直近ビルド、TestFlight処理状況、ローカル最新コミットとの差分から、iOSアプリを今ビルドすべきか確認する画面です。ビルド実行と、候補を今日の判断へ送る操作ができます' },
   buildCandidate: { ja: 'ビルド候補', help: '未ビルド、最新ビルド失敗、ローカル最新コミットが直近成功ビルドへ未反映のアプリです。必要なら今日の判断に送り、ビルドする/見送るを選べます' },
   testFlight: { ja: 'TestFlight', help: 'App Store Connect側でiOSビルドがテスター配信前に処理される場所です。ASCキーが未配置の間はProgressから処理状況を確認できないため、CodemagicのPublishing状態でアップロード成否を見ます' },
@@ -370,6 +372,24 @@ const CATEGORY_LABEL: Record<string, string> = {
 /** 危険判断に回す承認カテゴリ（本番・課金・認証・破壊的・公開）。 */
 const DANGER_CATEGORIES = new Set(['billing', 'secret', 'production_risk', 'destructive', 'deploy', 'external_publish'])
 
+function summaryDetailLines(summary: string, maxLines = 3): string[] {
+  const cleaned = summary.replace(/\s+/g, ' ').trim()
+  if (!cleaned) return ['- 要約は記録されていません。']
+  const sentences = cleaned
+    .split(/(?<=[。.!?！？])\s*/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+  const chunks = sentences.length > 0 ? sentences : [cleaned]
+  return chunks.slice(0, maxLines).map((line) => `- ${shorten(line, 120)}`)
+}
+
+function nextActionDetailLines(run: ExecutionRun): string[] {
+  return run.nextActions
+    .filter((line) => line.trim())
+    .slice(0, 3)
+    .map((line) => `- ${shorten(line, 120)}`)
+}
+
 export { KIND_CHIP_LABEL } from '@/lib/inbox-labels'
 export type { InboxCardKind } from '@/lib/inbox-labels'
 
@@ -378,7 +398,7 @@ export interface InboxCardAction {
   tone: 'primary' | 'ghost' | 'danger'
   /** 画面遷移だけのアクション。api より優先してリンク表示する。 */
   href?: string
-  /** null のときは「あとで」= 今日は見ない（画面から閉じるだけ。状態は変えない） */
+  /** null のときは状態を変えない。今日の判断には入れず、放置可能タブだけで使う。 */
   api: { url: string; method: 'POST' | 'PATCH'; body: Record<string, unknown> } | null
 }
 
@@ -707,6 +727,7 @@ export async function buildInbox(): Promise<InboxView> {
     for (const todo of goal.todos) {
       if (todo.role !== 'human') continue
       if (todo.status === 'done' || todo.status === 'skipped') continue
+      if (todo.queueControl?.hold === true) continue
       cards.push({
         id: `human-todo-${goal.id}-${todo.id}`,
         kind: 'human_task',
@@ -726,7 +747,7 @@ export async function buildInbox(): Promise<InboxView> {
         ],
         actions: [
           { label: '完了', tone: 'primary', api: { url: '/api/goals', method: 'POST', body: { action: 'updateTodo', goalId: goal.id, todoId: todo.id, updates: { status: 'done' } } } },
-          { label: 'あとで', tone: 'ghost', api: null },
+          { label: '今日はやらない（保留して今日の判断から外す）', tone: 'ghost', api: { url: '/api/goals', method: 'POST', body: { action: 'updateTodo', goalId: goal.id, todoId: todo.id, updates: { queueControl: { hold: true } } } } },
         ],
       })
     }
@@ -734,7 +755,7 @@ export async function buildInbox(): Promise<InboxView> {
 
   // ① 承認待ち → 危険判断 / 検収 / 方針選択
   for (const a of approvals) {
-    const isReviewDecision = a.options.some((o) => /問題なし|フォローアップ/.test(o.label))
+    const isReviewDecision = !DANGER_CATEGORIES.has(a.category) && a.options.some((o) => /問題なし|フォローアップ/.test(o.label))
     const clean = humanizeTitle(a.title)
     const detail = [
       `元タイトル: ${a.title}`,
@@ -762,20 +783,55 @@ export async function buildInbox(): Promise<InboxView> {
         headline: `「${shorten(subjectOf(clean))}」の作業が完了しました`,
         rows: [
           { label: 'AIがやったこと', text: `${shorten(clean, 40)}。` },
-          { label: '人間がやること', text: '結果を見るだけ。' },
+          { label: '選ぶこと', text: '完了として進めるか、修正へ戻すか、いったん保留するかを決めます。' },
         ],
-        question: '確認してください。問題ありませんか？',
+        question: 'この作業をどう扱いますか？',
         detail,
         actions: [
           { label: '問題なし', tone: 'primary', api: approveApi(ok.key) },
           ...(fix ? [{ label: '修正する', tone: 'danger' as const, api: approveApi(fix.key) }] : []),
-          { label: 'あとで', tone: 'ghost', api: hold ? approveApi(hold.key) : null },
+          { label: 'いったん保留する', tone: 'ghost', api: approveApi(hold?.key ?? 'hold') },
         ],
       })
     } else if (DANGER_CATEGORIES.has(a.category)) {
       // 危険判断: 実行すると影響が大きい。社長判断必須
+      const sourceRun = a.createdRunId ? runById.get(a.createdRunId) : undefined
+      const completedReview = sourceRun?.runStatus === 'completed'
       const yes = a.options.find((o) => o.key === a.recommended) ?? a.options[0]
       const no = findOption(/却下|見送|やめる|中止|しない/) ?? a.options.find((o) => o.key !== yes.key)
+      if (completedReview && sourceRun) {
+        const ok = findOption(/問題なし|このままでよい/) ?? a.options.find((o) => o.key === 'mark_reviewed') ?? yes
+        const fix = findOption(/修正|フォローアップ|再確認/) ?? a.options.find((o) => o.key === 'needs_followup')
+        const hold = findOption(/保留|あとで/) ?? a.options.find((o) => o.key === 'hold')
+        const completedDetail = [
+          'この作業でやったこと:',
+          ...summaryDetailLines(sourceRun.summary),
+          '確認のポイント:',
+          `- ${shorten(a.reason, 180)}`,
+          ...(sourceRun.nextActions.length > 0 ? ['補足:', ...nextActionDetailLines(sourceRun)] : []),
+          ...detail,
+        ]
+        cards.push({
+          id: `approval-${a.approvalId}`,
+          kind: 'danger',
+          ...goalForApproval(a),
+          ...projectForApproval(a),
+          sourceRunId: a.createdRunId,
+          headline: `完了した作業「${shorten(subjectOf(humanizeTitle(sourceRun.targetTodoTitle || sourceRun.summary || clean)), 32)}」の確認が必要です`,
+          rows: [{
+            label: '影響',
+            text: '認証・秘密情報などに関わる変更を含むため、人間の確認が必要です。問題があれば修正を依頼できます。',
+          }],
+          question: '内容を確認してください。問題ありませんか？',
+          detail: completedDetail,
+          actions: [
+            { label: ok.label, tone: 'primary', api: approveApi(ok.key) },
+            ...(fix ? [{ label: fix.label, tone: 'danger' as const, api: approveApi(fix.key) }] : []),
+            ...(hold ? [{ label: hold.label, tone: 'ghost' as const, api: approveApi(hold.key) }] : []),
+          ],
+        })
+        continue
+      }
       cards.push({
         id: `approval-${a.approvalId}`,
         kind: 'danger',
@@ -835,6 +891,14 @@ export async function buildInbox(): Promise<InboxView> {
     const fix: InboxCardAction = { label: '修正する', tone: 'danger', api: { url, method: 'PATCH', body: { reviewStatus: 'needs_followup' } } }
     const later: InboxCardAction = { label: 'あとで', tone: 'ghost', api: { url, method: 'PATCH', body: { reviewStatus: 'snoozed' } } }
     const back: InboxCardAction = { label: '未確認に戻す', tone: 'ghost', api: { url, method: 'PATCH', body: { reviewStatus: 'not_reviewed' } } }
+    if (run.runStatus === 'failed') {
+      return [
+        { label: '再実行する', tone: 'primary', api: { url, method: 'PATCH', body: { reviewStatus: 'needs_followup', fixPrompt: '前回の失敗原因を避けて、同じ目的の作業を再実行してください。' } } },
+        { label: '原因確認を依頼', tone: 'ghost', api: { url, method: 'PATCH', body: { reviewStatus: 'needs_followup', fixPrompt: '前回Runの失敗原因を調査し、再発防止策と次に必要な修正を報告してください。' } } },
+        { label: '修正依頼を出す', tone: 'danger', api: { url, method: 'PATCH', body: { reviewStatus: 'needs_followup' } } },
+        { label: '解決済みにする', tone: 'ghost', api: { url, method: 'PATCH', body: { reviewStatus: 'reviewed' } } },
+      ]
+    }
     if (run.reviewStatus === 'needs_followup') return [ok, back] // 要修正 →[問題なし]対応済み /[未確認に戻す]
     if (run.reviewStatus === 'snoozed') return [ok, fix, back] // あとで →[問題なし]/[修正する]/[未確認に戻す]
     return [ok, fix, later] // 未確認（needs_human / not_reviewed / copied）
@@ -855,13 +919,21 @@ export async function buildInbox(): Promise<InboxView> {
       completedAt,
       completedAtText: fmtDateTime(completedAt),
       reviewStatus: run.reviewStatus,
-      headline: isPublish ? '公開作業が完了しました' : `「${shorten(subjectOf(clean))}」の作業が完了しました`,
+      headline: run.runStatus === 'failed'
+        ? `「${shorten(subjectOf(clean))}」の作業が失敗しました`
+        : isPublish
+          ? '公開作業が完了しました'
+          : `「${shorten(subjectOf(clean))}」の作業が完了しました`,
       rows: [
-        { label: 'AIがやったこと', text: `${shorten(run.summary || clean, 48)}。` },
-        { label: '人間がやること', text: isPublish ? '正常に表示されているか見るだけ。' : 'レビュー用コピーで内容を確認する。' },
+        { label: run.runStatus === 'failed' ? '失敗内容' : 'AIがやったこと', text: `${shorten(run.summary || clean, 48)}。` },
+        { label: '次の選択', text: run.runStatus === 'failed' ? '再実行・原因確認・修正依頼・解決済みのどれかを選ぶ。' : isPublish ? '正常に表示されているか選ぶ。' : '問題なし・修正・後回しのどれかを選ぶ。' },
         ...(fixPromptPreview ? [{ label: '修正指示', text: fixPromptPreview }] : []),
       ],
-      question: isPublish ? '正常に表示されていますか？' : '確認してください。問題ありませんか？',
+      question: run.runStatus === 'failed'
+        ? 'この失敗をどう処理しますか？'
+        : isPublish
+          ? '正常に表示されていますか？'
+          : 'この作業をどう扱いますか？',
       detail: [
         `元タイトル: ${raw}`,
         `状態: ${run.runStatus} / ${run.reviewStatus}`,
@@ -1005,6 +1077,7 @@ export async function buildInbox(): Promise<InboxView> {
   for (const row of stuckGoalRows) {
     const goal = goalsById.get(row.goalId)
     if (!goal) continue
+    const resumeTodoTitle = `${goal.title} の停止原因を調査して再開する`
     cards.push({
       id: `stuck-goal-${goal.id}`,
       kind: 'direction',
@@ -1014,16 +1087,45 @@ export async function buildInbox(): Promise<InboxView> {
       headline: `「${goal.title}」が止まっています`,
       rows: [
         { label: '状況', text: '未完了の作業があるのに自動実行候補に入っていません。原因解消が必要です。' },
+        { label: '選ぶと', text: '再開用の作業を追加するか、目標自体を保留/取りやめにして、この詰まりを処理します。' },
       ],
-      question: '原因を確認しますか？',
+      question: '次にどう進めますか？',
       detail: [
         `goalId: ${goal.id}`,
         `実行可能候補: ${row.executable}`,
         `待機: user=${row.waitingUser} aiHold=${row.aiHold} review=${row.reviewWaiting} blocked=${row.blocked} manual=${row.manual}`,
       ],
       actions: [
-        { label: '詳細を見る', tone: 'primary', href: `/goal-dashboard?goalId=${encodeURIComponent(goal.id)}`, api: null },
-        { label: 'あとで', tone: 'ghost', api: null },
+        {
+          label: '再開用の調査TODOを追加する（AIが原因を調べて次に進める）',
+          tone: 'primary',
+          api: {
+            url: '/api/goals',
+            method: 'POST',
+            body: {
+              action: 'appendTodos',
+              goalId: goal.id,
+              todo: {
+                title: resumeTodoTitle,
+                role: 'claude',
+                priority: 'high',
+                nextAction: '止まっている原因を調査し、実行可能な次の作業に分解して進める',
+                taskPrompt: `Goal「${goal.title}」が自動実行候補に入っていません。原因を調査し、必要な修正または次の作業を実施してください。`,
+                source: 'goal_resume',
+              },
+            },
+          },
+        },
+        {
+          label: 'いったん保留する（今日の判断から外す）',
+          tone: 'ghost',
+          api: { url: '/api/goals', method: 'PATCH', body: { id: goal.id, title: goal.title, status: 'paused' } },
+        },
+        {
+          label: 'この目標を取りやめる',
+          tone: 'danger',
+          api: { url: '/api/goals', method: 'PATCH', body: { id: goal.id, title: goal.title, status: 'dropped' } },
+        },
       ],
     })
   }
@@ -1153,7 +1255,6 @@ export async function buildInbox(): Promise<InboxView> {
   const decisions = (() => {
     const humanTaskFactors = [
       ...stopFactors.filter((c) => c.kind === 'human_task'),
-      ...(reviewNudgeCard ? [reviewNudgeCard] : []),
     ]
     const queues = [
       stopFactors.filter((c) => c.kind === 'danger'),
@@ -1173,7 +1274,6 @@ export async function buildInbox(): Promise<InboxView> {
   const decisionFactors = [
     ...stopFactors,
     ...escalatedReviews,
-    ...(reviewNudgeCard ? [reviewNudgeCard] : []),
   ]
   const decisionTotal = decisionFactors.length
   const goalIds = new Set<string>([

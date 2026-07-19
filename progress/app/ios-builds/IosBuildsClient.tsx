@@ -15,6 +15,7 @@ interface TriggerResponse {
 interface PickupResponse {
   success: boolean
   created?: Array<{ dir: string; title: string; approvalId: string }>
+  updated?: Array<{ dir: string; title: string; approvalId: string }>
   skipped?: Array<{ dir: string; title: string; reason: string }>
   error?: string
 }
@@ -249,7 +250,7 @@ export default function IosBuildsClient() {
       const response = await fetch('/api/ios-builds/pickup', { method: 'POST' })
       const json = await response.json() as PickupResponse
       if (!json.success) throw new Error(json.error ?? '候補作成に失敗しました')
-      setToast(`今日の判断へ追加: ${json.created?.length ?? 0}件 / スキップ: ${json.skipped?.length ?? 0}件`)
+      setToast(`今日の判断へ追加: ${json.created?.length ?? 0}件 / 更新: ${json.updated?.length ?? 0}件 / スキップ: ${json.skipped?.length ?? 0}件`)
       await load()
     } catch (pickupError) {
       setToast(pickupError instanceof Error ? pickupError.message : '候補作成に失敗しました')

@@ -11,6 +11,8 @@ import type {
   IosLocalGit,
   IosTestflightBuild,
   IosTestflightState,
+  IosUnshippedCommit,
+  IosUnshippedCommits,
 } from '@/types/ios-builds'
 
 const APPS_ROOT = '/root/company/apps'
@@ -178,6 +180,12 @@ function safeExecGit(appDir: string, command: string): string | null {
   }
 }
 
+function safeGitHash(hash: string | null | undefined): string | null {
+  if (!hash) return null
+  const trimmed = hash.trim()
+  return /^[0-9a-fA-F]{7,40}$/.test(trimmed) ? trimmed : null
+}
+
 function readLocalGit(appDir: string): IosLocalGit {
   return {
     head: safeExecGit(appDir, 'git rev-parse --short HEAD'),
@@ -185,6 +193,10 @@ function readLocalGit(appDir: string): IosLocalGit {
     subject: safeExecGit(appDir, 'git log -1 --format=%s'),
     originUrl: safeExecGit(appDir, 'git remote get-url origin'),
   }
+}
+
+function readBuiltCommitSubject(appDir: string, hash: string): string | null {
+  return safeExecGit(appDir, `git show -s --format=%s ${hash}`)
 }
 
 function normalizeRepository(input: string | null | undefined): string | null {
@@ -509,6 +521,10 @@ function sortedBuilds(builds: IosCodemagicBuild[]): IosCodemagicBuild[] {
   return [...builds].sort((a, b) => buildTimeMs(b) - buildTimeMs(a))
 }
 
+function latestSuccessfulBuild(builds: IosCodemagicBuild[]): IosCodemagicBuild | null {
+  return sortedBuilds(builds).find((build) => isSuccessStatus(build.status)) ?? null
+}
+
 function isFailedStatus(status: string | null): boolean {
   return ['failed', 'canceled', 'cancelled', 'timeout', 'timed_out'].includes(statusKey(status))
 }
@@ -521,6 +537,59 @@ function hashesMatch(local: string, remote: string): boolean {
   const a = local.toLowerCase()
   const b = remote.toLowerCase()
   return a === b || a.startsWith(b) || b.startsWith(a)
+}
+
+export function formatJstShortDateTime(value: string | null | undefined): string | null {
+  if (!value) return null
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return null
+  const parts = new Intl.DateTimeFormat('ja-JP', {
+    timeZone: 'Asia/Tokyo',
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(date)
+  const part = (type: string) => parts.find((item) => item.type === type)?.value ?? ''
+  return `${part('month')}/${part('day')} ${part('hour')}:${part('minute')}`
+}
+
+export function formatUnshippedCommitLines(summary: IosUnshippedCommits | null): string[] {
+  if (!summary || summary.total <= 0) return []
+  const lines = summary.commits.map((commit) => {
+    const time = formatJstShortDateTime(commit.committedAt)
+    return time ? `- 『${commit.subject}』（${time}）` : `- 『${commit.subject}』`
+  })
+  const remaining = summary.total - summary.commits.length
+  if (remaining > 0) lines.push(`- ほか${remaining}件`)
+  return lines
+}
+
+export function readUnshippedCommits(appDir: string, latestSuccessBuild: IosCodemagicBuild | null): IosUnshippedCommits | null {
+  const builtHash = safeGitHash(latestSuccessBuild?.commitHash)
+  if (!builtHash) return null
+
+  const output = safeExecGit(appDir, `git log --format=%s§%cI ${builtHash}..HEAD`)
+  if (output === null) return null
+
+  const commits: IosUnshippedCommit[] = output
+    ? output.split('\n').filter(Boolean).map((line) => {
+        const separator = line.lastIndexOf('§')
+        if (separator === -1) return { subject: line.trim(), committedAt: null }
+        return {
+          subject: line.slice(0, separator).trim(),
+          committedAt: line.slice(separator + 1).trim() || null,
+        }
+      }).filter((commit) => commit.subject)
+    : []
+
+  return {
+    total: commits.length,
+    commits: commits.slice(0, 5),
+    baseFinishedAt: latestSuccessBuild?.finishedAt ?? null,
+    baseSubject: readBuiltCommitSubject(appDir, builtHash),
+  }
 }
 
 export function deriveCandidate(
@@ -538,7 +607,7 @@ export function deriveCandidate(
     return { isCandidate: true, reason: '最新ビルド失敗' }
   }
 
-  const latestSuccessBuild = orderedBuilds.find((build) => isSuccessStatus(build.status))
+  const latestSuccessBuild = latestSuccessfulBuild(orderedBuilds)
   if (!latestSuccessBuild) {
     return { isCandidate: false }
   }
@@ -618,9 +687,11 @@ export async function getIosBuildsOverview(): Promise<IosBuildsResponse> {
     codemagicError: codemagicState.error,
     apps: apps.map((app, index): IosBuildsAppResponse => {
       const cm = cmByDir.get(app.dir)
+      const builds = cm?.builds ?? []
       const candidate = cm?.error
         ? { isCandidate: false, reason: cm.error }
-        : deriveCandidate(app, cm?.builds ?? [], app.localGit)
+        : deriveCandidate(app, builds, app.localGit)
+      const latestSuccess = latestSuccessfulBuild(builds)
       return {
         dir: app.dir,
         appName: app.appName,
@@ -634,7 +705,10 @@ export async function getIosBuildsOverview(): Promise<IosBuildsResponse> {
           subject: app.localGit.subject,
         },
         codemagicAppId: cm?.codemagicAppId ?? null,
-        builds: cm?.builds ?? [],
+        builds,
+        unshippedCommits: candidate.reason === '未反映コミットあり'
+          ? readUnshippedCommits(app.appDir, latestSuccess)
+          : null,
         testflight: testflightStates[index],
         candidate,
         codemagicError: cm?.error,

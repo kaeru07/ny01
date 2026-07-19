@@ -5,6 +5,7 @@ import { appendAutomationLog, createApproval, getEpics, getPendingApprovals } fr
 import { parseDecisionRequests } from '@/lib/decision-request'
 import { actionableExecutionRunErrors } from '@/lib/execution-run-errors'
 import { readGoals } from '@/lib/goal-reader'
+import { humanizeTitle, shorten, subjectOf } from '@/lib/humanize'
 import type { Approval, ApprovalCategory } from '@/lib/types/operations'
 import type { AiReviewResult, AiReviewVerdict, ExecutionRun, ReviewStatus } from '@/types/execution-run'
 
@@ -23,6 +24,13 @@ interface RiskRule {
 interface DecisionRule {
   pattern: RegExp
   label: string
+}
+
+export interface AiReviewApprovalDraft {
+  title: string
+  reason: string
+  options: Approval['options']
+  recommended: string
 }
 
 // 危険キーワード判定は targetTodoTitle / summary / warnings / stopReason のみ走査する。
@@ -47,6 +55,29 @@ const DECISION_RULES: DecisionRule[] = [
 
 const NG_CHECK_PATTERN = /\b(ng|fail|failed|error)\b|エラー|失敗|✗/i
 const OK_CHECK_PATTERN = /^(ok|pass|passed|n\/a|none|skip|skipped|-|未実施)/i
+const HUMAN_REVIEW_TERMS = [
+  '認証',
+  'ログアウト',
+  'oauth',
+  'credential',
+  'secret',
+  'api key',
+  'トークン',
+  'パスワード',
+  '課金',
+  'billing',
+  'サブスク',
+  'AdMob',
+  '本番公開',
+  'ストア公開',
+  'deploy',
+  'デプロイ',
+  '本番DB',
+  'migration',
+  'スキーマ変更',
+  '削除',
+  'force push',
+]
 
 export interface AiReviewClassification {
   verdict: AiReviewVerdict
@@ -61,6 +92,55 @@ function riskHit(run: ExecutionRun): RiskRule | null {
     if (rule.pattern.test(text)) return rule
   }
   return null
+}
+
+function humanReviewKeywords(run: ExecutionRun): string[] {
+  const text = [run.targetTodoTitle, run.summary, run.stopReason ?? '', ...run.warnings].join(' ')
+  const lower = text.toLowerCase()
+  const hits = HUMAN_REVIEW_TERMS.filter((term) => lower.includes(term.toLowerCase()))
+  return Array.from(new Set(hits)).slice(0, 4)
+}
+
+function runSubject(run: ExecutionRun): string {
+  return subjectOf(humanizeTitle(run.targetTodoTitle || run.summary || run.runId))
+}
+
+function targetAppLabel(run: ExecutionRun): string | null {
+  const app = run.targetApp?.trim()
+  if (!app || app === 'unknown') return null
+  return humanizeTitle(app)
+}
+
+export function buildAiReviewApprovalDraft(run: ExecutionRun, cls: Pick<AiReviewClassification, 'rule' | 'reason' | 'approvalCategory'>): AiReviewApprovalDraft {
+  const app = targetAppLabel(run)
+  const subject = runSubject(run)
+  const target = app ? `「${shorten(app, 24)}」の作業` : `「${shorten(subject, 28)}」`
+  const keywords = humanReviewKeywords(run)
+  const keywordText = keywords.length > 0
+    ? keywords.slice(0, 3).map((keyword) => `「${keyword}」`).join('、')
+    : cls.reason.replace(/（.*?）/g, '').replace(/。.*$/, '')
+  const riskText = cls.approvalCategory === 'secret'
+    ? '認証・秘密情報'
+    : cls.approvalCategory === 'billing'
+      ? '課金'
+      : cls.approvalCategory === 'external_publish'
+        ? '公開・配信'
+        : cls.approvalCategory === 'production_risk'
+          ? '本番DB・スキーマ'
+          : cls.approvalCategory === 'destructive'
+            ? '破壊的操作'
+            : '影響が大きい操作'
+
+  return {
+    title: `完了作業の確認: ${target}に${riskText}まわりの変更が含まれています`,
+    reason: `作業内容に${keywordText}など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。`,
+    options: [
+      { key: 'mark_reviewed', label: '問題なし（このままでよい）' },
+      { key: 'needs_followup', label: '修正を依頼する' },
+      { key: 'hold', label: '保留' },
+    ],
+    recommended: 'mark_reviewed',
+  }
 }
 
 function decisionHit(run: ExecutionRun): DecisionRule | null {
@@ -125,9 +205,9 @@ const VERDICT_TO_REVIEW_STATUS: Record<AiReviewVerdict, ReviewStatus> = {
   reviewed: 'reviewed',
   needs_human: 'needs_human',
   partial: 'needs_followup',
-  // 失敗Runは「レビュー」に入れて止めない。停止/再実行はキュー側(失敗→blocked→今日の判断、または一時的原因は再キュー)で扱うため、
-  // レビュー対象からは外す（reviewed 扱いにしてレビュータブに出さない）。
-  failed: 'reviewed',
+  // 失敗Runは reviewed 化しない。needs_followup としてレビュー/緊急課題に残し、
+  // 再実行・修正依頼・原因確認の入口を維持する。
+  failed: 'needs_followup',
 }
 
 export interface AiReviewRunResult {
@@ -247,7 +327,7 @@ export async function runAiReviewBatch(limit = 10): Promise<AiReviewBatchResult>
       reviewStatus,
       reviewMemo,
       aiReview,
-      reviewedAt: (cls.verdict === 'reviewed' || cls.verdict === 'failed') ? at : run.reviewedAt,
+      reviewedAt: cls.verdict === 'reviewed' ? at : run.reviewedAt,
     })
 
     let createdKnowledge = false
@@ -268,8 +348,8 @@ export async function runAiReviewBatch(limit = 10): Promise<AiReviewBatchResult>
       if (createdKnowledge) knowledgeCreated += 1
     }
 
-    if (cls.verdict === 'partial') {
-      // partial(未完了)のみ修正候補へ。failed(失敗)はレビューに入れず、キュー側(blocked→今日の判断 / 一時的は再キュー)で扱う。
+    if (cls.verdict === 'partial' || cls.verdict === 'failed') {
+      // partial/failed は修正候補へ。failed も reviewStatus=needs_followup で可視状態を維持する。
       const followupRun: ExecutionRun = {
         ...run,
         reviewStatus,
@@ -286,18 +366,15 @@ export async function runAiReviewBatch(limit = 10): Promise<AiReviewBatchResult>
         a.createdRunId === run.runId || (Boolean(run.epicId) && a.epicId === run.epicId)
       ))
       if (!exists) {
+        const approvalDraft = buildAiReviewApprovalDraft(run, cls)
         const approval = await createApproval({
           epicId: run.epicId,
-          title: `判断が必要: ${run.targetTodoTitle || run.runId}`,
+          title: approvalDraft.title,
           category: cls.approvalCategory ?? 'multi_option',
           priority: 'normal',
-          options: [
-            { key: 'proceed', label: '方針を確認して進める' },
-            { key: 'cancel', label: 'この作業を中止' },
-            { key: 'hold', label: '保留' },
-          ],
-          recommended: 'proceed',
-          reason: cls.reason,
+          options: approvalDraft.options,
+          recommended: approvalDraft.recommended,
+          reason: approvalDraft.reason,
           createdRunId: run.runId,
         })
         pendingApprovals.push(approval)

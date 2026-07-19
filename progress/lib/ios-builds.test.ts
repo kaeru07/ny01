@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { deriveCandidate } from './ios-builds.ts'
+import { deriveCandidate, formatJstShortDateTime, formatUnshippedCommitLines } from './ios-builds.ts'
 import type { IosCodemagicBuild, IosLocalGit } from '../types/ios-builds.ts'
 
 const localGit: IosLocalGit = {
@@ -62,4 +62,32 @@ test('deriveCandidate: local commit time is used when build commit hash is missi
     isCandidate: true,
     reason: '未反映コミットあり',
   })
+})
+
+test('formatJstShortDateTime: formats ISO time in JST', () => {
+  assert.equal(formatJstShortDateTime('2026-07-18T08:16:11.000Z'), '7/18 17:16')
+})
+
+test('formatUnshippedCommitLines: lists five commits and summarizes the rest', () => {
+  const lines = formatUnshippedCommitLines({
+    total: 7,
+    baseFinishedAt: '2026-07-18T08:16:11.000Z',
+    baseSubject: 'last delivered change',
+    commits: [
+      { subject: 'change 1', committedAt: '2026-07-18T09:00:00.000Z' },
+      { subject: 'change 2', committedAt: '2026-07-18T09:01:00.000Z' },
+      { subject: 'change 3', committedAt: '2026-07-18T09:02:00.000Z' },
+      { subject: 'change 4', committedAt: '2026-07-18T09:03:00.000Z' },
+      { subject: 'change 5', committedAt: '2026-07-18T09:04:00.000Z' },
+    ],
+  })
+
+  assert.deepEqual(lines, [
+    '- 『change 1』（7/18 18:00）',
+    '- 『change 2』（7/18 18:01）',
+    '- 『change 3』（7/18 18:02）',
+    '- 『change 4』（7/18 18:03）',
+    '- 『change 5』（7/18 18:04）',
+    '- ほか2件',
+  ])
 })

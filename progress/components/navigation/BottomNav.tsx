@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { APP_DEVELOPMENT_PATHS, AUTO_EXECUTION_PATHS, STATUS_PATHS } from '@/lib/nav-groups'
 
+const APP_DEVELOPMENT_BOTTOM_PATHS = APP_DEVELOPMENT_PATHS.filter((path) => path !== '/ios-builds')
+
 const navItems = [
   {
     href: '/',
@@ -40,11 +42,32 @@ const navItems = [
     href: '/app-proposals',
     label: 'アプリ開発',
     exact: false,
-    activePaths: APP_DEVELOPMENT_PATHS,
+    activePaths: APP_DEVELOPMENT_BOTTOM_PATHS,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
         <rect x="7" y="3" width="10" height="18" rx="2" strokeLinecap="round" strokeLinejoin="round" />
         <path strokeLinecap="round" strokeLinejoin="round" d="M11 18h2" />
+      </svg>
+    ),
+  },
+  {
+    href: '/ios-builds',
+    label: 'iOSビルド',
+    exact: false,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+        <rect x="7" y="2.5" width="10" height="19" rx="2" strokeLinecap="round" strokeLinejoin="round" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M11 18.5h2M9.5 7h5M9.5 10h5M9.5 13h3" />
+      </svg>
+    ),
+  },
+  {
+    href: '/tasks',
+    label: 'ToDo',
+    exact: false,
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2" />
       </svg>
     ),
   },
@@ -56,26 +79,6 @@ const navItems = [
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
         <path strokeLinecap="round" strokeLinejoin="round" d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-8" />
-      </svg>
-    ),
-  },
-  {
-    href: '/skills',
-    label: 'Skills',
-    exact: false,
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3l1.9 4.6L19 9.2l-4.1 1.6L12 15l-1.9-4.2L6 9.2l5.1-1.6L12 3zM5 16l.9 2.1L8 19l-2.1.9L5 22l-.9-2.1L2 19l2.1-.9L5 16z" />
-      </svg>
-    ),
-  },
-  {
-    href: '/goal-dashboard',
-    label: '進行',
-    exact: false,
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5h9M9 12h9M9 19h9M4 5l1 1 2-2M4 12l1 1 2-2M4 19l1 1 2-2" />
       </svg>
     ),
   },
