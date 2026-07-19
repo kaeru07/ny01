@@ -27,11 +27,19 @@ workflows:
       - name: Ensure app store profile exists
         script: |
           set -e
+          # cli-tools mixes ANSI-colored log lines into stdout; strip them and
+          # locate the JSON payload at a line start before parsing.
           json_id() { python3 -c "
-          import sys, json
-          s = sys.stdin.read()
-          i = min(x for x in (s.find('['), s.find('{')) if x >= 0)
-          d = json.loads(s[i:])
+          import sys, json, re
+          s = re.sub(r'\x1b\[[0-9;]*[A-Za-z]', '', sys.stdin.read())
+          for i in [i for i in range(len(s)) if s[i] in '[{' and (i == 0 or s[i-1] == '\n')]:
+              try:
+                  d = json.loads(s[i:])
+                  break
+              except Exception:
+                  continue
+          else:
+              sys.exit('no json in input')
           d = d if isinstance(d, list) else [d]
           print(' '.join(r['id'] for r in d))
           "; }
