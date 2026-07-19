@@ -17,7 +17,7 @@ workflows:
   register-bundle-id:
     name: Register Bundle ID (mahjong-trainer)
     max_build_duration: 10
-    instance_type: linux_x2
+    instance_type: mac_mini_m2
     integrations:
       app_store_connect: ASC_API_KEY
     environment:
