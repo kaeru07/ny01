@@ -31,6 +31,9 @@ import { decideCodexFallback } from './executor-fallback'
 import { runChecks, failingChecks, gateRunStatusByChecks } from './checks-runner'
 import { selectSkillForEpic } from './skill-select'
 import { hasFixRequestedForEpic } from './auto-queue-score'
+import { applyCompletedEpicToGoalData } from './goal-completion-sync'
+import { humanizeTitle, shorten } from './humanize'
+import { dangerScopeLabels, matchesDangerBlockedScope, summarizeDangerApprovalScopes, type DangerApprovalScopeSummary } from './danger-approval-scope'
 import type { ChecksRunResult } from './checks-runner'
 import { getDoneCriteriaForEpic } from './done-criteria'
 import type { FactoryRunMode, FactoryRunReport, FactoryRunStep, ExecutorResult } from './executors/types'
@@ -42,7 +45,6 @@ import type { ExecutorChoice, FactoryDispatchPlan } from './types/operations'
 // auto は明示時のみ。Dispatch判定のexecutorを起動し、Claude上限時はCodexへfallbackする。
 // 禁止: 無限ループ / 危険作業の Codex 委譲 / Approval・Decision 待ちの実行 / チャットで質問停止。
 
-const OPEN_EPIC_STATUSES = new Set(['active', 'approved', 'paused'])
 const STALE_NOCHANGE_LIMIT = 3
 
 interface RunnerOptions {
@@ -118,6 +120,15 @@ async function resolveSkillForRun(args: { epicId: string; targetApp: string }): 
   }
 }
 
+async function resolvePrimaryTodoIdForEpic(epicId: string): Promise<string | undefined> {
+  try {
+    const epic = (await getEpics()).find((item) => item.epicId === epicId)
+    return epic?.relatedTodoIds?.[0]
+  } catch {
+    return undefined
+  }
+}
+
 async function updateGoalSelectionPointer(selection: ExecutionRun['selection'] | undefined, runId: string): Promise<void> {
   if (!selection?.selectedGoalKey || selection.selectedGoalKey === 'unassigned') return
   const data = await readGoals()
@@ -134,6 +145,26 @@ async function updateGoalSelectionPointer(selection: ExecutionRun['selection'] |
 
 function errorMessage(err: unknown): string {
   return err instanceof Error ? err.message : String(err)
+}
+
+function humanExecutorSummary(summary: string): string {
+  const cleaned = summary
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .filter((line) => /[ぁ-んァ-ン一-龯]/.test(line))
+    .map((line) => line
+      .replace(/\b[0-9a-f]{7,40}\b/gi, '')
+      .replace(/\b[A-Za-z][A-Za-z0-9_.-]*=[^/\s]+(?:\s*\/\s*[A-Za-z][A-Za-z0-9_.-]*=[^/\s]+)+/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim())
+    .filter(Boolean)
+    .slice(0, 2)
+
+  if (cleaned.length === 0) {
+    return '実行結果の詳細は作業履歴で確認してください。'
+  }
+  return `実行結果の要約: ${cleaned.map((line) => shorten(line, 90)).join(' / ')}`
 }
 
 async function runAiReviewBatchSafely(context: string): Promise<void> {
@@ -169,7 +200,7 @@ async function detectGoalstepStaleNoChange(args: {
   if (!exists) {
     await createApproval({
       epicId: args.epicId,
-      title: `ゴール手詰まり/完了確認: ${args.epicTitle}`,
+      title: `ゴール手詰まり/完了確認: ${humanizeTitle(args.epicTitle)}`,
       category: 'multi_option',
       priority: 'normal',
       options: [
@@ -194,31 +225,16 @@ async function detectGoalstepStaleNoChange(args: {
 
 export async function propagateEpicDoneToGoal(epicId: string, goalId?: string): Promise<void> {
   if (!goalId) return
-  // アプリ作成ゴール(goal-app-*)は1つの「次の一歩」Epic完了で閉じない。
-  // 4フェーズ(基盤→機能完成→品質仕上げ→公開準備)を次のstep epicで継続し、
-  // 完了は人間の確認(手詰まり確認のmark_done / 達成確認)経由でのみ行う。
-  if (goalId.startsWith('goal-app-')) return
   const [epics, goalsData] = await Promise.all([getEpics(), readGoals()])
-  const goal = goalsData.goals.find((g) => g.id === goalId)
-  if (!goal || goal.status !== 'active') return
-
-  const hasOtherOpenEpic = epics.some((epic) => (
-    epic.goalId === goalId &&
-    epic.epicId !== epicId &&
-    OPEN_EPIC_STATUSES.has(epic.status)
-  ))
-  const hasOpenAutoTodo = goal.todos.some((todo) => (
-    todo.role !== 'human' &&
-    todo.status !== 'done' &&
-    todo.status !== 'skipped'
-  ))
-  if (hasOtherOpenEpic || hasOpenAutoTodo) return
-
-  const now = new Date().toISOString()
-  goal.status = 'done'
-  goal.current = typeof goal.target === 'number' ? goal.target : goal.current
-  goal.updatedAt = now
-  await writeGoals(goalsData)
+  const epic = epics.find((item) => item.epicId === epicId)
+  const result = applyCompletedEpicToGoalData(goalsData, epics, {
+    epicId,
+    goalId,
+    relatedTodoIds: epic?.relatedTodoIds,
+  })
+  if (result.todoSynced > 0 || result.phaseSynced > 0 || result.goalCompleted) {
+    await writeGoals(goalsData)
+  }
 }
 
 async function recordRun(args: {
@@ -263,7 +279,10 @@ async function recordRun(args: {
     targetTodoTitle: args.title,
     errors,
   })
-  const skillFields = await resolveSkillForRun({ epicId: args.epicId, targetApp: args.targetApp })
+  const [skillFields, targetTodoId] = await Promise.all([
+    resolveSkillForRun({ epicId: args.epicId, targetApp: args.targetApp }),
+    resolvePrimaryTodoIdForEpic(args.epicId),
+  ])
   const run: ExecutionRun = {
     runId,
     startedAt: now,
@@ -271,6 +290,7 @@ async function recordRun(args: {
     targetApp: args.targetApp,
     epicId: args.epicId,
     ...skillFields,
+    targetTodoId,
     targetTodoTitle: args.title,
     runStatus: gatedRunStatus,
     reviewStatus: 'not_reviewed',
@@ -317,7 +337,10 @@ async function startRunningRun(args: {
 }): Promise<string> {
   const runId = await generateUniqueRunId()
   const now = new Date().toISOString()
-  const skillFields = await resolveSkillForRun({ epicId: args.epicId, targetApp: args.targetApp })
+  const [skillFields, targetTodoId] = await Promise.all([
+    resolveSkillForRun({ epicId: args.epicId, targetApp: args.targetApp }),
+    resolvePrimaryTodoIdForEpic(args.epicId),
+  ])
   const run: ExecutionRun = {
     runId,
     startedAt: now,
@@ -325,6 +348,7 @@ async function startRunningRun(args: {
     targetApp: args.targetApp,
     epicId: args.epicId,
     ...skillFields,
+    targetTodoId,
     targetTodoTitle: args.title,
     runStatus: 'running',
     reviewStatus: 'not_reviewed',
@@ -417,6 +441,9 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
   let lastRecordedRunId: string | undefined
   let selfHealNeeded = false
   const progressCwd = resolveAppCwd('progress')
+  // finalize() が参照するため、早期リターン(危険判断待ち/factory_off)より前で宣言する。
+  // 2026-07-11 16:00以降、宣言が後方にありTDZ ReferenceErrorで定時実行が500になっていた不具合の修正。
+  const doneEpics: string[] = []
 
   const config = await getAutomationConfig()
   try {
@@ -438,28 +465,62 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
 
   // 2026-06-11 運用方針変更: レビュー件数では止めない（レビュー100件でも稼働可能）。
   // 停止条件は「人間しか判断できないもの」のみ:
-  //   ① 危険判断待ち（本番・課金・認証・公開系の承認が pending）→ 今回の自動実行をスキップ
+  //   ① 危険判断待ち（本番・課金・認証・公開系の承認が pending）→ 紐付く対象だけ除外。対象不明なら安全側で全体停止
   //   ② Goal未設定のEpic → そのEpicだけ対象外（全対象EpicがGoal未設定なら実質停止）
   // factoryEnabled は変更しない（恒久OFFにしない）。auto の実起動のみ対象（dry_run / manual は影響なし）。
+  const allEpics = await getEpics()
   const goalUnsetEpicIds = new Set(
-    (await getEpics())
+    allEpics
       .filter((e) => ['approved', 'active'].includes(e.status) && !e.goalId)
       .map((e) => e.epicId),
   )
+  const goalsData = await readGoals()
+  const dangerScopeSummary: DangerApprovalScopeSummary = {
+    scoped: [],
+    unscoped: [],
+    blockedProjectIds: new Set<string>(),
+    blockedGoalIds: new Set<string>(),
+    blockedEpicIds: new Set<string>(),
+  }
   if (mode === 'auto') {
-    const approvals = await getPendingApprovals()
+    const [approvals, runsForDangerScope] = await Promise.all([getPendingApprovals(), readExecutionRuns()])
     const dangerPending = approvals.filter(
       (a) => DANGER_CATEGORIES.has(a.category) && !isReviewApprovalOptions(a.options.map((o) => o.label)),
     )
     if (dangerPending.length > 0) {
-      await appendAutomationLog({
-        event: 'factory_backpressure',
-        fallbackReason: `危険判断待ち=${dangerPending.length}件: あなたの許可が出るまで今回のFactory自動実行をスキップ（レビュー件数は停止条件から除外済み。factoryEnabledは変更しない）`,
-        backpressureAction: 'pause',
+      const scoped = summarizeDangerApprovalScopes(dangerPending, {
+        epics: allEpics,
+        goals: goalsData.goals,
+        runs: runsForDangerScope,
       })
-      return finalize('blocked_by_danger_decision')
+      dangerScopeSummary.scoped = scoped.scoped
+      dangerScopeSummary.unscoped = scoped.unscoped
+      dangerScopeSummary.blockedProjectIds = scoped.blockedProjectIds
+      dangerScopeSummary.blockedGoalIds = scoped.blockedGoalIds
+      dangerScopeSummary.blockedEpicIds = scoped.blockedEpicIds
+
+      if (scoped.unscoped.length > 0) {
+        await appendAutomationLog({
+          event: 'factory_backpressure',
+          fallbackReason: `スコープ不明の危険判断待ち=${scoped.unscoped.length}件（${scoped.unscoped.map((a) => a.approvalId).join(' / ')}）: 安全のため今回のFactory自動実行をスキップ`,
+          backpressureAction: 'pause',
+        })
+        return finalize('blocked_by_unscoped_danger_decision')
+      }
+
+      if (scoped.scoped.length > 0) {
+        await appendAutomationLog({
+          event: 'factory_backpressure',
+          fallbackReason: `危険判断待ちにより ${dangerScopeLabels(scoped).join('、')} を除外して続行`,
+          backpressureAction: 'slow_down',
+        })
+      }
     }
   }
+
+  const isDangerBlocked = (input: { epicId?: string; goalId?: string; projectId?: string }): boolean => (
+    matchesDangerBlockedScope(input, dangerScopeSummary, { epics: allEpics, goals: goalsData.goals })
+  )
 
   // 自動実行の最初に、日々の調査結果（news-app の daily research）から「効果がありそうなこと」を
   // ゴール候補として提案する（承認待ちが上限未満のときのみ）。承認されたものが次回以降の自動実行対象になる。
@@ -479,15 +540,27 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
   }
 
   let scan = await scanFactoryDispatch()
-  // 実行できる Epic が無いが、todo/epic の無い未達成 Goal がある場合は「次の一歩」Epic を自動生成して進める。
+  // 実行できる Epic が無いが、キュー上位に Goal/GoalTodo がある場合は「次の一歩」Epic を自動生成して進める。
   // （Goal達成が自動実行の目的。auto の実起動かつ confirm 済みのときだけ epic を作る＝read経路・dry_run/manualでは作らない）
   if (!scan.picked && mode === 'auto' && opts.confirm) {
-    const step = await ensureNextGoalStepEpic()
+    const view = await buildAutoQueue()
+    const next = view.executable.find((item) => !isDangerBlocked({
+      epicId: item.type === 'epic' ? item.sourceId : undefined,
+      goalId: item.goalId,
+      projectId: item.projectId,
+    }))
+    const step = next?.type === 'goal_todo' && next.goalId
+      ? await ensureNextGoalStepEpic(next.goalId, next.todoId)
+      : next?.type === 'goal' && next.goalId
+        ? await ensureNextGoalStepEpic(next.goalId)
+        : await ensureNextGoalStepEpic()
     if (step.created) {
       await appendAutomationLog({
         event: 'factory_goal_step_epic_created',
         epicId: step.epicId,
-        fallbackReason: `未達成Goal「${step.goalTitle}」にtodo/epicが無いため、次の一歩Epic（${step.epicId}）を自動生成して進めます`,
+        fallbackReason: next?.type === 'goal_todo'
+          ? `キュー上位のGoalTodoを進めるため、Goal「${step.goalTitle}」の次の一歩Epic（${step.epicId}）を自動生成して進めます`
+          : `未達成Goal「${step.goalTitle}」に実行中Epicが無いため、次の一歩Epic（${step.epicId}）を自動生成して進めます`,
       })
       scan = await scanFactoryDispatch()
     }
@@ -514,7 +587,6 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
       fallbackReason: proposal.requested ? `${proposal.reason}\n${proposal.prompt ?? ''}` : proposal.reason,
     })
   }
-  const doneEpics: string[] = []
   // P4: 複数 Epic ループの「処理済み/スキップ済み」を統合管理し、再選択で無限ループしないようにする。
   // Goal未設定（方針選択待ち）のEpicは最初から対象外に入れる。
   const excludedEpics = new Set<string>(goalUnsetEpicIds)
@@ -527,6 +599,12 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
     let rescan = await scanFactoryDispatch()
 
     for (const item of view.executable) {
+      if (isDangerBlocked({
+        epicId: item.type === 'epic' ? item.sourceId : undefined,
+        goalId: item.goalId,
+        projectId: item.projectId,
+      })) continue
+
       let epicId: string | undefined
       if (item.type === 'epic') {
         epicId = item.sourceId
@@ -553,7 +631,7 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
         }
       }
 
-      if (!epicId || excludedEpics.has(epicId) || goalUnsetEpicIds.has(epicId)) continue
+      if (!epicId || excludedEpics.has(epicId) || goalUnsetEpicIds.has(epicId) || isDangerBlocked({ epicId })) continue
       if (rescan.candidates.some((candidate) => candidate.epicId === epicId)) return epicId
     }
     return null
@@ -765,7 +843,17 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
     if (result.needsApproval) {
       // 承認が必要な作業は Approval Queue に積む（安全ゲートは無改変）。
       // P4: その Epic はこの起動では飛ばし（excluded）、次 Epic へ進む。承認自体は人が後で判断する。
-      await createApproval({ epicId: currentEpicId, title: `Factory: ${plan.epicTitle} の判断`, category: 'executor_fallback', reason: result.resultSummary, options: [{ key: 'approve', label: '承認' }, { key: 'reject', label: '却下' }], recommended: 'approve' })
+      await createApproval({
+        epicId: currentEpicId,
+        title: `実行者の切り替え確認: 「${humanizeTitle(plan.epicTitle)}」をClaudeで続けますか？`,
+        category: 'executor_fallback',
+        reason: `Codex実行が失敗または不完全だったため、Claudeで続行するか判断が必要です。${humanExecutorSummary(result.resultSummary)}`,
+        options: [
+          { key: 'approve', label: 'Claudeで続ける' },
+          { key: 'reject', label: 'ここで止める' },
+        ],
+        recommended: 'approve',
+      })
       await updateExecutionRunFields(recordedRunId, { stopReason: 'approval_required' })
       steps.push({ epicId: currentEpicId, epicTitle: plan.epicTitle, dispatchPlanId: plan.dispatchPlanId, executor, result, recordedRunId, stopped: true, stopReason: 'approval_required → 次Epicへ' })
       await runAiReviewBatchSafely(`after_run:${recordedRunId}`)

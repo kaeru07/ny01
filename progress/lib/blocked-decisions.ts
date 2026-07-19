@@ -1,6 +1,7 @@
 import { buildAutoQueue } from '@/lib/auto-queue'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { appendAutomationLog, closeApproval, createApproval, getPendingApprovals, updatePendingApproval } from '@/lib/operations-store'
+import { humanizeTitle } from '@/lib/humanize'
 import type { Approval } from '@/lib/types/operations'
 import type { AutoQueueItem } from '@/types/auto-queue'
 import type { ExecutionRun } from '@/types/execution-run'
@@ -42,15 +43,30 @@ function summarizeFailure(run?: ExecutionRun): string | undefined {
     (run.errors ?? []).find((error) => error.trim().length > 0)?.trim(),
   ].filter((part): part is string => Boolean(part))
   if (parts.length === 0) return undefined
-  return `前回実行が失敗しています: ${parts.join(' / ')}`
+  return `前回実行が失敗しています。${humanReadableReason(parts.join('。'))}`
+}
+
+function humanReadableReason(reason: string): string {
+  const cleaned = reason
+    .replace(/\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?\b/g, '')
+    .replace(/\b(?:appr-\d+(?:-\d+)?|\d{8}-\d{6}|goal-[a-z0-9-]+|epic-[a-z0-9-]+|know-\d+)\b/gi, '')
+    .replace(/\b[0-9a-f]{7,40}\b/gi, '')
+    .replace(/\b[A-Za-z][A-Za-z0-9_.-]*=[^/\s]+(?:\s*\/\s*[A-Za-z][A-Za-z0-9_.-]*=[^/\s]+)+/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+  if (!cleaned) return 'この作業はブロック中です。方針を決めてください。'
+  if (!/[ぁ-んァ-ン一-龯]/.test(cleaned) && cleaned.length >= 20) {
+    return '前回実行の詳細確認が必要です。作業履歴を確認して、再開するか中止するかを決めてください。'
+  }
+  return cleaned
 }
 
 function reasonForBlockedItem(item: AutoQueueItem, runById: Map<string, ExecutionRun>): string {
   const candidateBlockedReason = item.candidateBlockedReason ?? 'この作業はブロック中です。方針を決めてください。'
   if (isFailedBlockedReason(candidateBlockedReason)) {
-    return summarizeFailure(item.latestRunId ? runById.get(item.latestRunId) : undefined) ?? candidateBlockedReason
+    return summarizeFailure(item.latestRunId ? runById.get(item.latestRunId) : undefined) ?? humanReadableReason(candidateBlockedReason)
   }
-  return candidateBlockedReason
+  return humanReadableReason(candidateBlockedReason)
 }
 
 function isAutoBlockedApproval(approval: Approval): boolean {
@@ -101,7 +117,7 @@ export async function ensureBlockedDecisions(): Promise<{ created: number; close
       const existing = pendingApprovals.find((approval) => approval.epicId === epicId && approval.status === 'pending')
       if (existing) {
         if (isAutoBlockedApproval(existing)) {
-          const title = `ブロック中の作業: ${item.title}`
+          const title = `ブロック中の作業: ${humanizeTitle(item.title)}`
           if (existing.reason !== reason || existing.title !== title || existing.recommended !== options[0].key || !sameOptions(existing.options, options)) {
             await updatePendingApproval(existing.approvalId, {
               title,
@@ -120,7 +136,7 @@ export async function ensureBlockedDecisions(): Promise<{ created: number; close
       await createApproval({
         epicId,
         projectId: item.projectId,
-        title: `ブロック中の作業: ${item.title}`,
+        title: `ブロック中の作業: ${humanizeTitle(item.title)}`,
         category: 'multi_option',
         options,
         recommended: options[0].key,

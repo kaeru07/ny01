@@ -1,6 +1,6 @@
 ---
-updated: 2026-07-18
-updateNote: iOSビルド画面を追加。Codemagicのビルド状況、TestFlight処理状況、ビルド候補を確認し、ビルド実行と候補の今日の判断化ができるようにした。
+updated: 2026-07-19
+updateNote: 危険判断待ちは関係するプロジェクトだけ停止し、対象不明の場合のみFactory全体停止に変更。iOSビルド画面に使い方とボタン説明を追加した。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -39,6 +39,27 @@ updateNote: iOSビルド画面を追加。Codemagicのビルド状況、TestFlig
 - 旧「todo消化」タブは「ゴール進行ボード」に刷新し、Goal配下todoではなく Epic/Run 基準で自動実行の実際の動きを見る。
 - プロジェクト完了の分母は active + done ゴールのみ。paused / proposed / dropped は分母外として注記に回す。
 
+## 2026-07-08: 長期未解消ゴールの整理
+
+- `/stalled-goals` は active なのに7日以上前進していないGoalを、原因（タスク無し / done化漏れ / 依存待ち / 優先度負け）・解消方法・見込みで表示する。14日以上は長期未解消、7日以上14日未満は警告。
+- 保留は既存statusの `paused` を使い、新しいGoalフィールドは追加しない。done化漏れは `done`、優先度負けは既存のGoal優先度APIで上げる。
+- 定時Factoryの envelope summary に長期未解消/警告件数を含め、司令塔から `/stalled-goals` へ辿れるようにする。
+
+
+## 2026-07-11: 承認入口の役割分担（progress一本化・Vaultはレビュー依頼チャネル）
+
+承認・レビューの入口が二系統（Vault の ChatGPT 承認待ち / progress のゴール承認・レビュー）あり、同じ判断を2か所で行う恐れがあったため、役割を以下に確定する（Goal「④承認の入口の役割を整理して重複をなくす」）。
+
+| 判断の種類 | 正本（唯一の入口） | Vault側の扱い |
+|---|---|---|
+| 実行可否の承認（ゴール承認・Epic候補の実行許可・危険判断・方針選択） | progress の Inbox（/decide）。ゴール承認タブ / 今日の判断 | 承認には使わない。Vault側に承認待ちページを新設・運用しない |
+| 作業品質の検収（問題なし / 修正する / あとで） | progress のレビュータブ（ExecutionRun.reviewStatus が状態の正本） | 検収状態は持たない |
+| ChatGPTへの品質レビュー依頼 | Vault の `20_reviews/_review_queue.md`（依頼の出口チャネル専用） | チェック `[x]` は「ChatGPTレビューを実施したか」だけを意味する |
+
+- **同じ判断を2か所でしない**: Vault のレビューキューのチェック状態と、progress の reviewed / 承認状態は独立した別の事実であり、相互同期しない（二重管理しない）。
+- **ChatGPTの指摘を採用する場合**: 人間が progress 側の操作（レビュータブの「修正する」＋修正指示、または Inbox への起票）に写して反映する。判断の記録は progress 側に残るため、Vault 側に判断ログを二重に残さない。
+- **レビュー用コピー / キュー外レビューコピー**（progress→外部への出口）は従来どおり。外部レビュー結果を戻す正式経路は未実装のため、採用指摘は人間が起票する（既存FAQと同じ）。
+- Vault 側の旧「候補承認」運用は新規に行わない（既存ページの片付けは Goal⑥「移行後の古い運用メモを片付ける」で扱う）。
 
 ## 2026-07-18: iOSビルド状況・候補ピックアップ
 
@@ -48,7 +69,8 @@ updateNote: iOSビルド画面を追加。Codemagicのビルド状況、TestFlig
 - Codemagicは `/root/.secrets/appstore/codemagic.env` のトークンをサーバ側だけで読み、`GET /apps` で repository と照合して appId を解決し、`GET /builds?appId=...` で直近5件を表示する。トークン値はクライアント、APIレスポンス、ログに出さない。
 - App Store Connect APIキー（`/root/.secrets/appstore/asc.env` と p8）が配置済みなら、bundleId からAppを引き、直近TestFlight buildの version / processingState / uploadedDate を表示する。未配置なら「ASCキー未配置のため処理状況未確認」と明示し、アップロード成否はCodemagicのPublishingで判断する。
 - ビルド候補は「未ビルド」「最新ビルド失敗」「ローカル最新コミットが直近成功ビルドへ未反映」の3条件で導出する。候補は画面上部の「候補を今日の判断へ」から `category='multi_option'` の approval としてInboxへ作成し、「ビルドする / 見送る」を選べる。同一タイトルの未決approvalがある場合は重複作成しない。
-- 「ビルド実行」は確認ダイアログ後にCodemagic `POST /builds` を呼ぶ手動操作。CI分を消費するため、検証では実行しない。
+- 「ビルド実行」は確認ダイアログ後にCodemagic `POST /builds` を呼ぶ手動操作。クラウドMacでビルドし、成功するとTestFlightへ自動アップロードされる。所要は通常3〜5分で、CI分を消費するため連打しない。検証では実行しない。
+- 「候補を今日の判断へ」は方針カードを作るだけで、ビルドを自動起動しない。「ビルドする」を選んだ後も、現状は `/ios-builds` で「ビルド実行」を押して起動する。
 
 ## 2026-06-20: factoryRunState 廃止とRunner責務分離
 
@@ -89,6 +111,7 @@ Progress は **AI工場の管理画面ではなく、人間用の司令塔**。
 | ゴール進行ボード | `/goal-dashboard` | Goalごとの実作業進行を見る閲覧専用画面。active GoalをProject単位で並べ、達成率、キュー状態、直近Run、7日以上停滞、直近Run summaryを Epic/Run 基準で表示する。Project未紐付けGoalは最後にまとめ、Goal Plannerへ誘導する |
 | Projects | `/portfolio` | 進行中プロジェクトの一覧と次の作業 |
 | Revenue | `/revenue` | 収益化マイルストーンの現在地 |
+| iOSビルド | `/ios-builds` | アプリ開発系の配信準備画面。Codemagicの直近ビルド、TestFlight処理状況、ローカル最新コミットとの差分からビルド候補を表示する。ビルド実行と、候補を今日の判断へ送る操作ができる。ASCキー未配置時はTestFlight処理状況は未確認として案内する |
 | 📖 運用 | `/guide` | このアプリの使い方を自分で説明するページ（本ドキュメントと連動） |
 | Legacy | `/legacy` | 旧画面群（URL / 案件 / ログ / 旧ホーム / 旧Factory / 旧Goal）への入口。無削除退避 |
 
@@ -102,7 +125,7 @@ Progress は **AI工場の管理画面ではなく、人間用の司令塔**。
 
 目標 → 大きな作業 → AI作業 → レビュー → 学習 → 次の作業
 
-**定時自動実行の実処理順（11/14/16/23時・`runScheduledFactory` → `runFactory`）**: ①lock取得・Factory ON確認 → ②危険判断待ちならスキップ → ③Review Fix（修正依頼）→ ④調査からゴール提案 → ⑤実行Epic選定（無ければ次の一歩生成→ゴール生成モード）→ ⑥Claude実行（上限時Codex Fallback）→ ⑦検証(typecheck/lint)＋ExecutionRun記録 → ⑧doneCriteria判定で次へ/継続（1起動最大3作業）→ ⑨Prompt Queue → ⑩Envelope Run記録。`/guide?tab=system` の「自動実行で行われる処理」がこの順を人間語で図示する正本表示。
+**定時自動実行の実処理順（11/14/16/23時・`runScheduledFactory` → `runFactory`）**: ①lock取得・Factory ON確認 → ②危険判断待ちを確認し、対象が分かるものは該当プロジェクト/Goal/Epicだけ除外、対象不明なら全体スキップ → ③Review Fix（修正依頼）→ ④調査からゴール提案 → ⑤実行Epic選定（無ければ次の一歩生成→ゴール生成モード）→ ⑥Claude実行（上限時Codex Fallback）→ ⑦検証(typecheck/lint)＋ExecutionRun記録 → ⑧doneCriteria判定で次へ/継続（1起動最大3作業）→ ⑨Prompt Queue → ⑩Envelope Run記録。`/guide?tab=system` の「自動実行で行われる処理」がこの順を人間語で図示する正本表示。
 
 **②調査からのゴール提案（毎回・自動実行の最初）**: `proposeGoalsFromResearchIfNeeded()` が日々の調査結果（news-app の AIツール調査「導入価値評価」★4以上）を読み、「○○を試す/調査する」を `status='proposed'` のゴール候補として提案する（`source='research'`）。承認待ち（proposed）が3件未満のときだけ補充。承認（→active）したものが次回以降の自動実行対象になる。
 
@@ -130,7 +153,7 @@ AI工場の「今」は、Factory runner が開始時に `running` の作業履�
 
 | 停止要因 | 挙動 |
 |---|---|
-| 危険判断待ち（本番DB・migration・課金・認証・deploy・external_publish・destructive 系の承認が pending） | Factory自動実行を全体停止 |
+| 危険判断待ち（本番DB・migration・課金・認証・deploy・external_publish・destructive 系の承認が pending） | approval.projectId、Epic→Goal→Project、または作業履歴の対象アプリから範囲を特定できる場合は、そのプロジェクト/Goal/Epicだけ停止して他プロジェクトは稼働。範囲を特定できない場合のみ安全側でFactory自動実行を全体停止 |
 | Goal未設定の Epic | 該当Epicのみ対象外（スキップ）。全対象EpicがGoal未設定なら実質停止 |
 | 人間作業（ストア公開・課金設定・契約など） | AIはそもそも触らない（他のEpicは稼働継続） |
 | 優先順位決定待ち（方針選択系の承認） | 該当作業のみ待ち |
@@ -235,6 +258,9 @@ Inboxカード（今日の判断 / レビュー / Epic候補 / AI保留集計）
 | Review Copy | レビュー用コピー |
 | Goal Step Epic（次の一歩） | 達成まで自動で進める（次の一歩） |
 | Usage | 使用状況 |
+| iOS Builds | iOSビルド |
+| Build Candidate | ビルド候補 |
+| TestFlight | TestFlight |
 
 **Inbox 6分類**（「何の種類のタスクか」ではなく「人間が何を判断するか」で分類）:
 
@@ -265,7 +291,7 @@ MVP完成 → ストア公開 → 広告導入 → DL100 → はじめての収�
 
 ## 司令塔の停止バンド
 
-危険判断待ち、または全対象EpicがGoal未設定でAI工場が停止している場合、司令塔の上部に停止継続日数・理由・Inboxへの導線を表示する。停止していないときは表示しない。
+対象不明の危険判断待ち、または全対象EpicがGoal未設定でAI工場が停止している場合、司令塔の上部に停止継続日数・理由・Inboxへの導線を表示する。範囲を特定できる危険判断待ちは該当プロジェクトだけを止め、司令塔では「稼働中（一部だけ判断待ち）」として表示する。
 
 ## レビュー用コピー
 
@@ -379,6 +405,9 @@ Progress 自身の使われ方を把握するページ（下タブ「使用状�
 
 ## 変更履歴
 
+- 2026-07-19: **危険判断待ちの停止範囲をプロジェクト単位へ変更し、iOSビルド画面の使い方を追記**。Factory は pending の危険approvalを `approval.projectId`、`epicId→Goal.projectId`、`createdRunId→targetApp` の順にスコープ解決し、解決できた場合は該当Project/Goal/Epic配下だけを今回の候補から除外して他プロジェクトを継続実行する。スコープ不明が1件でもあれば従来どおり全体停止し、automation log にapprovalIdを記録する。`factory-metrics` と司令塔表示は、全体停止を「スコープ不明の危険判断」のみに変更し、スコープ済み危険判断は「対象のみ停止、他プロジェクトは稼働」と表示する。`/ios-builds` には「使い方」を追加し、ビルド実行、候補を今日の判断へ、候補バッジ、ビルド状態、TestFlight欄、30秒自動更新の意味を説明した。
+- 2026-07-18: **iOSビルド状況・候補ピックアップ画面を追加**。`/ios-builds` で `/root/company/apps/*/codemagic.yaml` からiOS配信対象アプリを発見し、Codemagicの直近ビルド、TestFlight処理状況、ローカル最新コミットとの差分を表示する。候補判定は未ビルド/最新ビルド失敗/未反映コミットあり。手動の「ビルド実行」はCodemagic `POST /builds` を確認ダイアログ後に呼び、「候補を今日の判断へ」は `multi_option` approval（ビルドする/見送る）を重複防止付きで作成する。ASCキー未配置時はTestFlight未確認として案内。TERMS に `iosBuilds` / `buildCandidate` / `testFlight` を追加、/guide にアプリ開発スライドを追加。今日の流れ/AI工場の流れは日次判断と定時Factory本体の説明であり、今回の任意ビルド管理追加では変更不要と確認。
+- 2026-07-11: **承認入口の役割分担を明文化**（Goal④承認の入口整理）。実行可否の承認（ゴール承認・危険判断・方針選択）と作業品質の検収は progress（/decide・レビュータブ）が唯一の正本、Vault の `20_reviews/_review_queue.md` は ChatGPT への品質レビュー依頼専用チャネルと確定。Vault のチェック状態と progress の reviewed/承認状態は独立（相互同期しない）。ChatGPT指摘の採用は人間が progress 側の「修正する」/Inbox起票へ写す。TERMS に `approvalEntry` を追加、/guide に FAQ 1件追加。
 - 2026-07-05: 階層の正本を Project→Goal→Epic(次の一歩)→Run に確定。`goal.todos` は補助（あれば使う）、旧ToDo管理（`project-tasks`）はレガシー。旧todo消化タブは「ゴール進行ボード」（Epic/Run基準）に刷新し、PJ完了の分母は active+done ゴールのみへ変更。
 - 2026-06-28: **運用ガイド（/guide）を図ベースのスライド型に刷新**（ユーザー指示「運用ページをもっと図でわかりやすく／文字ベースではなく図ベース／iPhone前提／パワポみたいなイメージ」。前回JSON破損で中断していた作業の再開）。`/guide` の使い方ガイドタブを、各セクション=1スライド（パワポ1枚相当の大カード+番号バッジ）の縦スクロール構成に再構成。新設 `components/guide/SlideKit.tsx`（`Slide`/`FlowDiagram`/`LoopDiagram`/`StatTiles`/`Roadmap`/`LegendGrid`）と `components/guide/FaqAccordion.tsx`（'use client'・折りたたみFAQ）で、AI工場の流れを循環図（↻最初に戻る）、今日の流れを朝/夜フロー図、工場状態をKPIタイル、収益化をロードマップ、キュー/動作確認の状態を色分け凡例として図解。**文言・件数・データ・3タブ（report/system/research）・footerは不変、表示のみ刷新**。再発防止として `data/` 配下（特に `data/real/`）には一切触れない方針で実装。検証: tsc0 / next build0 / pm2(next start)再起動で新ビルド反映を確認し `/guide` 200・LoopDiagram「↻最初に戻る」・FAQ `<details>` 35件・各スライド実描画・エラーマーカー0。
 - 2026-06-25: **画面の役割を管理/実行/閲覧に分離**。`/goal-planner` は Goal/todo の作成・編集・並び替えに専念し、キュー由来の進捗要約を撤去。`/queue` は work item の実行順・pin/保留/対象外・理由表示に専念し、Goal配下todoチェックリストを撤去。`/goal-dashboard` を「ゴール×todo消化状況」として拡張し、状態内訳・達成率に加えて active Goal 配下todoの done/skipped/in_progress/未完了/止まっている判定を一覧表示する閲覧専用画面に集約。
@@ -488,7 +517,7 @@ Progress 自身の使われ方を把握するページ（下タブ「使用状�
 
 - 2026-06-12: Inboxの4区分（今日の判断/レビュー/Epic候補/AI保留）を縦積みセクションからタブ切り替えへ変更。タブバーに件数バッジ（今日の判断のみ赤字強調）
 
-- 2026-06-11: 工場停止条件を変更。レビュー件数によるバックプレッシャー（10件減速/20件停止）を撤廃し、停止要因を「危険判断待ち（全体停止）/ Goal未設定（該当Epicスキップ）/ 人間作業（AI対象外）」のみに。Inboxを4セクション構成（①今日の判断=停止要因のみ最大3件 ②レビュー ③Epic候補 ④AI保留件数のみ）へ変更。ホームは「今日の判断 残りN件」を主表示にし、レビュー件数は参考情報化
+- 2026-06-11: 工場停止条件を変更。レビュー件数によるバックプレッシャー（10件減速/20件停止）を撤廃し、停止要因を「危険判断待ち / Goal未設定（該当Epicスキップ）/ 人間作業（AI対象外）」のみに。危険判断待ちは2026-07-19以降、対象が分かる場合は該当プロジェクトだけ停止し、対象不明の場合のみ全体停止。Inboxを4セクション構成（①今日の判断=停止要因のみ最大3件 ②レビュー ③Epic候補 ④AI保留件数のみ）へ変更。ホームは「今日の判断 残りN件」を主表示にし、レビュー件数は参考情報化
 
 - 2026-06-11: Inboxを「人間が何を判断するか」の6分類（検収/実行許可/方針選択/人間作業/危険判断/AI保留）へ再設計。優先順=危険判断→検収→方針選択→実行許可→人間作業で最大3件表示。定期実行・重複・内容不足・同テーマ大量候補はAI保留でカード非表示。Goal紐付けは目標名ボタン選択へ。ホームの①②③にも分類ラベル表示
 

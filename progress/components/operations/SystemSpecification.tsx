@@ -14,7 +14,7 @@ const text = 'text-[11px] leading-relaxed text-gray-600 dark:text-gray-300'
 // この順番がこのページの主役。各ステップは「何をするか」を人間語で書き、内部名は括弧で残す。
 const AUTO_STEPS: Array<{ title: string; detail: string; tag?: 'research' | 'idle' | 'safety' | 'run' }> = [
   { title: '二重起動を防ぐ印を付ける', detail: '同じ時刻の処理が遅延などで重なって二重実行されないよう、一時的な「実行中」マークを付けます（lock取得）。Factory OFFのときは何もしません。', tag: 'safety' },
-  { title: '危険判断待ちがあるか確認', detail: '本番・課金・認証・外部公開などの「あなたの許可待ち」があれば、今回の自動実行はスキップします（勝手に危険操作をしないため）。', tag: 'safety' },
+  { title: '危険判断待ちがあるか確認', detail: '本番・課金・認証・外部公開などの「あなたの許可待ち」があれば、対象が分かるものはそのプロジェクトだけ除外し、対象が分からないものだけ全体を止めます（勝手に危険操作をしないため）。', tag: 'safety' },
   { title: '① 修正依頼を処理（Review Fix）', detail: 'レビューで「修正する」を付けた指示を最優先で実行します。危険語を含む指示は実行せず要修正のまま残します。' },
   { title: '② 調査からゴールを提案', detail: '日々の調査結果（ニュースアプリのAIツール調査など）を読み、効果がありそう・やった方が良いことを「次に目指すゴール候補」として1〜3件提案します。承認待ちが3件未満のときだけ補充します。', tag: 'research' },
   { title: '③ 実行する大きな作業を選ぶ', detail: '目標の優先順（最優先pin→boost→優先度）に沿って、いま実行できる大きな作業（Epic）を選びます（scan）。', tag: 'run' },
@@ -37,7 +37,7 @@ const STEP_TAG_STYLE: Record<NonNullable<(typeof AUTO_STEPS)[number]['tag']>, { 
 const OVERVIEW = ['二重起動防止', '①修正依頼', '②調査→目標提案', '③作業を選ぶ/生成', '④実行(Claude→Codex)', '⑤検証・報告', '⑦作業予約', '⑧結果保存']
 
 const SAFETY_RULES = [
-  ['危険判断待ち（本番・課金・認証・公開）', '今回の自動実行をスキップ。あなたの許可が出るまで待つ'],
+  ['危険判断待ち（本番・課金・認証・公開）', '対象が分かる場合はそのプロジェクトだけ停止。対象不明の場合のみ全体停止'],
   ['Goal未設定のEpic', 'そのEpicだけ対象外。全候補がGoal未設定なら実質停止'],
   ['billing / production_db / auth_secret / migration / destructive / external_publish', '承認必須。Fallbackでも自動実行しない'],
   ['approval_required', '該当作業だけ人間判断待ち（他は止めない）'],
@@ -226,7 +226,7 @@ export default async function SystemSpecification() {
       <Section title="状態モデル" hint="現在使う具体状態だけ。合成状態 factoryRunState は廃止しました。">
         <ul className={`space-y-1 ${text}`}>
           <li>・Factory ON/OFF: automation-config.json</li>
-          <li>・WorkItemStatus: executable / waiting_user / ai_hold / review_waiting / blocked / manual / done</li>
+          <li>・WorkItemStatus: executable / waiting_user / held / ai_hold / review_waiting / blocked / manual / done</li>
           <li>・RunStatus: running / completed / failed / partial</li>
           <li>・ReviewStatus: not_reviewed / reviewed / needs_followup / needs_human / snoozed</li>
           <li>・GoalStatus: proposed / active / paused / done / dropped / archived（proposed=AI/調査/ゴール生成モードの提案。承認でactive）</li>

@@ -32,6 +32,7 @@ import { readGoals } from './goal-reader'
 import { selectSkillForEpic, skillPromptBlock } from './skill-select'
 import { hasFixRequestedForEpic } from './auto-queue-score'
 import { buildAppIntentContext } from './app-intent-context'
+import { findMachineTextIssues } from './human-card-lint'
 import type { WorkQueueData } from '@/types/session'
 import type { AppProgress, ProjectTasksData, Task, TaskPriority } from '@/types/progress'
 import type { ExecutionRunsData, ExecutionRun } from '@/types/execution-run'
@@ -184,6 +185,24 @@ export async function getFactoryEligibility(epicId: string): Promise<FactoryElig
 
 let approvalSeq = 0
 
+async function logApprovalTextLint(input: {
+  approvalId: string
+  title: string
+  reason: string
+  source: 'create' | 'update'
+}): Promise<void> {
+  const issues = findMachineTextIssues(`${input.title}\n${input.reason}`)
+  if (issues.length === 0) return
+  try {
+    await appendAutomationLog({
+      event: 'approval_text_lint',
+      fallbackReason: `${input.source} ${input.approvalId}: ${issues.map((issue) => `${issue.rule}(${issue.sample})`).join(' / ')}`,
+    })
+  } catch {
+    // Lint warning is observational only. Approval writes must not be blocked.
+  }
+}
+
 export async function getApprovals(): Promise<Approval[]> {
   return readJson<Approval[]>('approvals.json', [])
 }
@@ -308,6 +327,12 @@ export async function updatePendingApproval(
   }
   approvals[idx] = updated
   await writeJson('approvals.json', approvals)
+  await logApprovalTextLint({
+    approvalId: updated.approvalId,
+    title: updated.title,
+    reason: updated.reason,
+    source: 'update',
+  })
   return updated
 }
 
@@ -343,6 +368,12 @@ export async function createApproval(input: {
   }
   approvals.push(approval)
   await writeJson('approvals.json', approvals)
+  await logApprovalTextLint({
+    approvalId: approval.approvalId,
+    title: approval.title,
+    reason: approval.reason,
+    source: 'create',
+  })
   return approval
 }
 

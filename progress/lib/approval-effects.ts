@@ -18,6 +18,12 @@ function latestFailedRun(runs: ExecutionRun[], epicId: string): ExecutionRun | u
     .sort((a, b) => Date.parse(b.finishedAt || b.startedAt) - Date.parse(a.finishedAt || a.startedAt))[0]
 }
 
+function skillCandidateIdFromApproval(approval: Approval): string | undefined {
+  if (approval.projectId?.startsWith('skills:')) return approval.projectId.slice('skills:'.length)
+  return approval.reason.match(/candidate:([A-Za-z0-9._:-]+)/)?.[1]
+    ?? approval.title.match(/candidate:([A-Za-z0-9._:-]+)/)?.[1]
+}
+
 async function markRetryApproved(epicId: string, investigate: boolean): Promise<string> {
   const run = latestFailedRun(await readExecutionRuns(), epicId)
   if (!run) return 'none:no_failed_run'
@@ -76,12 +82,11 @@ async function releaseGoalHoldForProject(projectId: string): Promise<string> {
 }
 
 async function applyApprovalEffectInner(approval: Approval, decidedOption: string): Promise<string> {
-  if (approval.projectId === 'skills') {
+  if (approval.projectId === 'skills' || approval.projectId?.startsWith('skills:')) {
     const selectedLabel = approval.options.find((option) => option.key === decidedOption)?.label ?? decidedOption
     const shouldApply = decidedOption === 'apply' || decidedOption === 'approve' || selectedLabel.includes('反映する')
     if (!shouldApply) return decidedOption === 'reject' || selectedLabel.includes('却下') ? 'skill_rejected' : 'skill_hold'
-    const candidateId = approval.reason.match(/candidate:([A-Za-z0-9._:-]+)/)?.[1]
-      ?? approval.title.match(/candidate:([A-Za-z0-9._:-]+)/)?.[1]
+    const candidateId = skillCandidateIdFromApproval(approval)
     if (!candidateId) return 'skill_apply:none:candidate_not_found'
     const result = await applySkillImprovement(candidateId)
     return result.applied ? `skill_apply:${candidateId}` : `skill_apply:none:${result.reason}`

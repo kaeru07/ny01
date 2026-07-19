@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { humanizeTitle } from '@/lib/humanize'
 import { createApproval } from '@/lib/operations-store'
 import { applySkillImprovement } from '@/lib/skill-apply'
 import { readSkillImprovementCandidates, updateSkillImprovementCandidateStatus } from '@/lib/skill-store'
@@ -44,8 +45,8 @@ export async function POST(request: Request, { params }: Params) {
   }
 
   const approval = await createApproval({
-    projectId: 'skills',
-    title: `Skill改善反映: ${candidate.skillId} candidate:${candidate.id}`,
+    projectId: `skills:${candidate.id}`,
+    title: `Skill改善の確認: 「${humanizeTitle(candidate.skillId)}」の手順を更新しますか？`,
     category: 'multi_option',
     priority: candidate.priority === 'P0' ? 'high' : 'normal',
     options: [
@@ -54,7 +55,11 @@ export async function POST(request: Request, { params }: Params) {
       { key: 'hold', label: '保留' },
     ],
     recommended: 'hold',
-    reason: `candidate:${candidate.id}\n${candidate.reason}\n${candidate.suggestedChange}`,
+    reason: [
+      'このSkill改善候補は影響が大きい可能性があるため、反映してよいか確認してください。',
+      candidate.reason ? `理由: ${candidate.reason}` : '',
+      candidate.suggestedChange ? `変更内容: ${candidate.suggestedChange}` : '',
+    ].filter(Boolean).join('\n'),
   })
   return NextResponse.json({ success: true, approval })
 }

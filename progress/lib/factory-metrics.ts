@@ -4,13 +4,15 @@ import { getAutomationLog, getEpics, getOperationalDecisions, getPendingApproval
 import { getKnowledgeRecords } from '@/lib/knowledge-loop'
 import { listNotReviewed, oldestAgeDays } from '@/lib/ai-review'
 import { DANGER_CATEGORIES, isReviewApprovalOptions } from '@/lib/inbox-labels'
+import { dangerScopeLabels, summarizeDangerApprovalScopes } from '@/lib/danger-approval-scope'
+import { readGoals } from '@/lib/goal-reader'
 import type { RecommendedEpic } from '@/types/recommended-epic'
 
 // Factory を安全に動かすための最低限の計測。新しい正本は作らない（既存 JSON / ndjson から都度算出）。
 
 // 2026-06-11 運用方針変更: レビュー件数では工場を止めない（レビュー100件でも稼働可能）。
 // 停止要因は「人間しか判断できないもの」のみ:
-//   - 危険判断待ち（本番・課金・認証・公開系の承認）→ 全体停止
+//   - 危険判断待ち（本番・課金・認証・公開系の承認）→ 紐付く対象だけ停止。対象不明なら全体停止
 //   - Goal未設定 → 該当Epicを対象外（全対象EpicがGoal未設定なら実質停止）
 //   - 人間作業 → AIはそもそも触らない（他のEpicは稼働継続）
 const STALE_SUGGESTED_DAYS = 7
@@ -18,8 +20,14 @@ const STALE_SUGGESTED_DAYS = 7
 export type BackpressureLevel = 'ok' | 'pause'
 
 export interface FactoryBlockers {
-  /** 危険判断待ちの承認件数（工場全体を止める） */
+  /** 危険判断待ちの承認件数 */
   dangerApprovalCount: number
+  /** 紐付け先が分からず、工場全体を止める危険判断待ち */
+  unscopedDangerApprovalCount: number
+  /** 紐付け先が分かり、該当プロジェクト/Goal/Epicだけ止める危険判断待ち */
+  scopedDangerApprovalCount: number
+  /** 一部停止対象の人間向けラベル */
+  scopedDangerLabels: string[]
   /** Goal未設定のオープンEpic件数（該当Epicのみ対象外） */
   goalUnsetEpicCount: number
   /** Goal設定済みでFactoryが拾えるオープンEpic件数 */
@@ -58,23 +66,26 @@ function localYmd(date: Date): string {
 }
 
 export function backpressureLevel(blockers: FactoryBlockers): BackpressureLevel {
-  if (blockers.dangerApprovalCount > 0) return 'pause'
+  if (blockers.unscopedDangerApprovalCount > 0) return 'pause'
   if (blockers.runnableEpicCount === 0 && blockers.goalUnsetEpicCount > 0) return 'pause'
   return 'ok'
 }
 
 export function backpressureMessage(level: BackpressureLevel, blockers: FactoryBlockers): string {
   if (level === 'pause') {
-    if (blockers.dangerApprovalCount > 0) {
-      return `危険判断待ち=${blockers.dangerApprovalCount}件: あなたの許可が出るまでFactory自動実行を停止`
+    if (blockers.unscopedDangerApprovalCount > 0) {
+      return `スコープ不明の危険判断待ち=${blockers.unscopedDangerApprovalCount}件: 対象を特定できないためFactory自動実行を停止`
     }
     return `Goal未設定Epic=${blockers.goalUnsetEpicCount}件・実行可能Epic=0: Goalを紐付けるまでFactory自動実行を停止`
+  }
+  if (blockers.scopedDangerApprovalCount > 0) {
+    return `危険判断待ち${blockers.scopedDangerApprovalCount}件: ${blockers.scopedDangerLabels.join('、')}のみ停止、他プロジェクトは稼働`
   }
   return `停止要因なし（危険判断待ち0・実行可能Epic ${blockers.runnableEpicCount}件）。レビュー件数では停止しません`
 }
 
 export async function computeFactoryMetrics(): Promise<FactoryMetrics> {
-  const [runs, knowledge, decisions, recommendations, automationLog, pendingApprovals, epics] = await Promise.all([
+  const [runs, knowledge, decisions, recommendations, automationLog, pendingApprovals, epics, goalsData] = await Promise.all([
     readExecutionRuns(),
     getKnowledgeRecords(),
     getOperationalDecisions(),
@@ -82,6 +93,7 @@ export async function computeFactoryMetrics(): Promise<FactoryMetrics> {
     getAutomationLog(50),
     getPendingApprovals(),
     getEpics(),
+    readGoals(),
   ])
 
   const countableRuns = runs.filter((r) => r.runStatus !== 'running')
@@ -123,11 +135,19 @@ export async function computeFactoryMetrics(): Promise<FactoryMetrics> {
   const dangerApprovals = pendingApprovals.filter(
     (a) => DANGER_CATEGORIES.has(a.category) && !isReviewApprovalOptions(a.options.map((o) => o.label)),
   )
+  const dangerScopes = summarizeDangerApprovalScopes(dangerApprovals, {
+    epics,
+    goals: goalsData.goals,
+    runs,
+  })
   const openEpicStatuses = new Set(['approved', 'active'])
   const openEpics = epics.filter((e) => openEpicStatuses.has(e.status))
   const goalUnsetEpics = openEpics.filter((e) => !e.goalId)
   const blockers: FactoryBlockers = {
     dangerApprovalCount: dangerApprovals.length,
+    unscopedDangerApprovalCount: dangerScopes.unscoped.length,
+    scopedDangerApprovalCount: dangerScopes.scoped.length,
+    scopedDangerLabels: dangerScopeLabels(dangerScopes),
     goalUnsetEpicCount: goalUnsetEpics.length,
     runnableEpicCount: openEpics.length - goalUnsetEpics.length,
   }

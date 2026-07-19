@@ -27,7 +27,7 @@ const FAQ: Array<{ q: string; a: string }> = [
   { q: 'Skillって何？どう効く？', a: '自動実行の実行手順書です。作業の種類ごとにSkillが選ばれ、実行AIへの指示に手順が注入されます。結果（完了率・失敗率）はSkillごとに集計され、問題があれば改善候補が出て、あなたが承認すると手順が更新され、次回の自動実行から新しい手順が使われます。' },
   { q: '自動で作られるアプリの品質はどこまで？', a: 'App Store/Google Playの審査に提出できる品質が到達点です。基盤→機能完成→品質仕上げ→公開準備（ストア素材・審査メタデータまで）の4フェーズで自動的に進み、最後の提出・公開操作だけはあなたが行います（安全のため自動化しません）。' },
   { q: 'Goalって何？', a: 'AI工場が向かう目標です。すべての大きな作業はどれかの目標に紐付き、目標のない作業はInboxで紐付けを求められます。' },
-  { q: '自走化・最優先って何？', a: 'North Starの「AI工場OS自走化」（goal-ai-factory-os）を止めないためのアンカーです。Goal単体は実行されないため、配下の「AI工場オペレーションセンター」Epicに優先度「高」・Factory対象・検証可能な完了条件を持たせ、表示キューとFactory実行の両方で同じ最優先候補として扱います。ただし危険操作・承認待ち・ブロック中はこれまで通り自動実行しません。' },
+  { q: '自走化・最優先って何？', a: 'North Starの「AI工場OS自走化」（goal-ai-factory-os）を止めないためのアンカーです。Goal単体は実行されないため、配下の「AI工場オペレーションセンター」Epicに優先度「高」・Factory対象・検証可能な完了条件を持たせ、表示キューとFactory実行の両方で同じ最優先候補として扱います。ただし危険操作・承認待ち・ブロック中は、紐付くプロジェクトだけ自動実行しません。対象が分からない危険判断だけは安全のため全体を止めます。' },
   { q: '修正するで付けた指示は自動実行される？', a: 'はい。「修正する」で付けた修正指示は、次回の定時自動実行（11/14/16/23時）で最優先に処理されます（承認不要）。ただし安全のため、課金・本番・デプロイ・認証・「削除」などの危険語を含む指示は自動実行されず、要修正のまま残ります（人手で対応）。実行された修正は新しい作業履歴として残り、結果をレビューで確認できます。', },
   { q: '修正するを押した後は？', a: '「修正する」を押すとカード内に修正指示の入力欄（textarea）が開きます。「ここをこう直して」と具体的に書いて「修正依頼として保存」を押すと、その作業が要修正として残り、入力した指示が次回自動実行の作業指示になります（承認後にAIがその指示で再作業）。空欄では保存できません。同じ作業から重複候補は作らず、修正結果が戻ったらレビューで再確認できます。' },
   { q: '古いEpic候補は消える？', a: '消えません。30日以上動かなかった候補は期限切れとしてAI保留に移ります。必要なら候補詳細からsuggestedへ戻せます。' },
@@ -35,10 +35,11 @@ const FAQ: Array<{ q: string; a: string }> = [
   { q: '古い作業履歴はどうなる？', a: '300件を超えたら、確認済みの古い作業履歴だけをバックアップ後に月別アーカイブへ移します。未確認・修正依頼・人間判断待ち・実行中は移しません。' },
   { q: 'レビュー用コピーは何に使う？', a: '司令塔の「レビュー用コピー」から、現在の判断・進捗・最近の作業・保留事項をMarkdownでコピーし、ChatGPT/Fableへ貼って外部レビューを受けます。結果をProgressへ戻す機能はまだないため、必要な指摘は人間がInboxへ手動起票します。' },
   { q: 'ログ画面のキュー外レビューコピーとの違いは？', a: '司令塔のレビュー用コピーはProgressに蓄積済みの現在状態を外へ出す出口です。ログ画面のキュー外レビューコピーは、Progressにまだ無い任意アウトプットを一時的にレビュー依頼文へ整える別用途です。' },
+  { q: '承認やレビューはProgressとVault（ChatGPTレビュー）どちらでする？', a: '承認と検収はProgressだけで行います。実行可否の承認（ゴール承認・危険判断・方針選択）はInbox（今日の判断）、作業品質の検収（問題なし/修正する/あとで）はレビュータブが唯一の入口です。VaultのレビューキューはChatGPTへ品質レビューを「依頼する」ための専用チャネルで、そこで承認や検収はしません（チェックは「ChatGPTレビューを実施したか」の意味だけ）。ChatGPTの指摘を採用するときは、Progress側で「修正する」＋修正指示、またはInboxへの起票に写して反映します。同じ判断を2か所でしない運用です（2026-07-11確定）。', },
   { q: '次にAI工場が何をやるか、どこで分かる？', a: '司令塔トップの「次回自動実行予定」と「自動実行キュー（/queue）」で分かります。Epicベースの優先順位で1件＝次・3件＝候補を表示し、各カードに「なぜこれが次か」を出します。意図と違うときは、その場で最優先(pin)・保留・対象外・上下移動で並べ替えられます（手動操作は自動計算で上書きされません）。未整理メモ（Inbox）や対象外（factoryEligible=false）は自動実行候補に出ません。' },
   { q: '「最優先にしたのに候補外」と出たらどうすればいい？', a: 'その作業の下（司令塔トップと/queue）に「👉 こうすれば動きます」と解消手順＋ボタンが出ます。レビュー待ち/判断待ちなら「Inboxでレビュー/承認」、ブロック中なら「詳細を見る」でブロック解消、AI保留なら「保留解除」、対象外なら「対象に戻す」を押せば、次回の自動実行候補に入ります。最優先(pin)は安全のため、これらを解消するまでは自動実行しません。', },
   { q: '次が「実行可能なEpicがありません」になるのは？', a: '開いているEpicが全部「あなたの判断待ち」や「レビュー待ち」などで止まっている状態です。AI工場が勝手に変なものを進めないための正常動作です。判断待ち件数を見て、必要なものだけ処理すれば次が動き出します。低優先のレビュー（優先度「低」・危険なし）は工場を止めません。' },
-  { q: 'レビュー待ちが増えても大丈夫？', a: '大丈夫です。レビューが100件たまっても工場は止まりません（2026-06-11の方針変更）。工場が止まるのは「危険判断待ち」「目標未設定」「人間作業待ち」だけです。レビューは時間があるときに「未確認レビューをAIで一括整理」で片付けられます。' },
+  { q: 'レビュー待ちが増えても大丈夫？', a: '大丈夫です。レビューが100件たまっても工場は止まりません（2026-06-11の方針変更）。危険判断待ちは、関係するプロジェクトだけを止めて他プロジェクトは動かします。工場全体が止まるのは、対象が分からない危険判断待ち、全対象の目標未設定、人間作業待ちだけです。レビューは時間があるときに「未確認レビューをAIで一括整理」で片付けられます。' },
   { q: 'レビュータブの見方は？', a: 'レビュータブは隠さず全件表示です（「ほか◯件」で隠しません）。上部に未確認/要修正/あとで/レビュー済みの件数が出て、フィルタで切り替えられます。各カードに「完了: 2026/06/13 13:02」を表示し、最新完了が上に並びます。件数が多いときは50件ずつのページ送り（全◯件中◯〜◯件）で全件を辿れます。' },
   { q: '次回予定からレビューへ飛ぶときは？', a: '司令塔トップの「Inboxでレビューする」は /decide?tab=review&goalId=...&focusRunId=... を開きます。今日の判断0件のタブへ飛ばず、該当Goalのレビュー一覧に絞り込み、対象カードを自動でハイライトします。カードが要修正/あとで/レビュー済み側にある場合は、そのフィルタへ自動で切り替えます。該当タブが0件でも同じGoalの他タブに件数があれば案内ボタンを出します。未紐づけは「未紐づけ」として絞り込みできます。' },
   { q: '問題なし／あとで／修正するを押すとどうなる？', a: '「問題なし」=レビュー済みになり待ち一覧から消えます（消えても「レビュー済み」タブに残り、物理削除しません）。「あとで」=後回しとして一覧に残り「あとで」バッジが付きます。「修正する」=修正指示の入力欄が開き、書いて保存すると要修正として残り、その指示が次回自動実行の作業指示になります（空欄保存は不可）。「未確認レビューをAIで一括整理」は未確認の全件が対象で、危険なもの・判断が必要なものは必ず一覧に残し、最終判断は人間が行えます。' },
@@ -172,11 +173,16 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
   let bottleneck: { stage: string; text: string } | null = null
   if (metrics.backpressure.level === 'pause') {
     bottleneck = {
-      stage: metrics.blockers.dangerApprovalCount > 0 ? '大きな作業' : '目標',
+      stage: metrics.blockers.unscopedDangerApprovalCount > 0 ? '大きな作業' : '目標',
       text:
-        metrics.blockers.dangerApprovalCount > 0
-          ? `危険判断待ち ${metrics.blockers.dangerApprovalCount}件（工場停止中）`
+        metrics.blockers.unscopedDangerApprovalCount > 0
+          ? `対象不明の危険判断待ち ${metrics.blockers.unscopedDangerApprovalCount}件（工場停止中）`
           : `目標未設定 ${metrics.blockers.goalUnsetEpicCount}件（工場停止中）`,
+    }
+  } else if (metrics.blockers.scopedDangerApprovalCount > 0) {
+    bottleneck = {
+      stage: '大きな作業',
+      text: `危険判断待ち ${metrics.blockers.scopedDangerApprovalCount}件（${metrics.blockers.scopedDangerLabels.join('、')}だけ停止）`,
     }
   } else if (inbox.decisionTotal > 0) {
     bottleneck = { stage: '大きな作業', text: `あなたの判断待ち ${inbox.decisionTotal}件` }
@@ -199,7 +205,7 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
     {
       label: '今日の判断',
       value: `${inbox.decisions.length}件（レビュー${inbox.reviewTotal}・候補${inbox.candidateTotal}・AI保留${inbox.aiHoldCount}）`,
-      desc: '工場が止まる原因（危険判断・方針選択・人間作業）だけを最大3件表示します。レビューと候補は放置しても工場は止まりません。',
+      desc: '人間判断が必要な危険判断・方針選択・人間作業を最大3件表示します。紐付く危険判断はそのプロジェクトだけ止め、レビューと候補は放置しても工場を止めません。',
     },
     {
       label: '収益化状況',
@@ -388,7 +394,23 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
         </p>
       </Slide>
 
-      <Slide n={9} title="アプリ開発" accent="blue" lead="アプリ案・設計・市場分析に加えて、iOSの配信準備状況を /ios-builds で確認できます。">
+      <Slide n={9} title="長期未解消ゴール" accent="amber" lead="/stalled-goals は、承認済みなのに7日以上前進していないGoalを整理する画面です。">
+        <p className={body}>
+          原因はデータから機械判定します。タスク未分解、実質完了のdone化漏れ、依存・ブロッカー待ち、キュー内で優先度負けしているGoalを分け、解消方法と見込みを表示します。
+        </p>
+        <LegendGrid
+          items={[
+            { dot: 'bg-green-500', term: '解消見込みあり', desc: '全Todo完了など、完了にすれば片付く可能性が高い状態です。' },
+            { dot: 'bg-amber-500', term: '判断が必要', desc: 'タスク分解、優先度上げ、保留のどれにするかを選ぶ状態です。' },
+            { dot: 'bg-red-500', term: '自然解消は低い', desc: '依存やブロッカーが止まっていて、保留や先行作業の見直しが必要な状態です。' },
+          ]}
+        />
+        <p className="mt-3 rounded-xl bg-white px-3 py-2 text-[11px] font-semibold leading-relaxed text-gray-600 dark:bg-gray-900 dark:text-gray-300">
+          「保留にする」は既存statusの paused を使い、新しいGoalフィールドは増やしません。「完了にする」はdone化漏れのときだけ表示し、「優先度を上げる」は既存のGoal優先度APIを使って次回キュー選定に反映します。
+        </p>
+      </Slide>
+
+      <Slide n={10} title="アプリ開発" accent="blue" lead="アプリ案・設計・市場分析に加えて、iOSの配信準備状況を /ios-builds で確認できます。">
         <LegendGrid
           items={[
             { dot: 'bg-blue-500', term: 'ビルド状況', desc: 'Codemagicの直近ビルド、状態、workflow、branch、完了時刻、commitをアプリごとに見ます。' },
@@ -397,14 +419,14 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
           ]}
         />
         <p className="mt-3 rounded-xl bg-white px-3 py-2 text-[11px] font-semibold leading-relaxed text-gray-600 dark:bg-gray-900 dark:text-gray-300">
-          「ビルド実行」は確認ダイアログの後にCodemagicビルドを起動します。「候補を今日の判断へ」は、候補アプリをInboxの方針選択として作成し、同じ未決判断がある場合は重複作成しません。
+          「ビルド実行」は確認ダイアログの後にCodemagicビルドを起動します。「候補を今日の判断へ」は、候補アプリをInboxの方針選択として作成します。「ビルドする」を選んでも自動では起動しないため、その後この画面でビルド実行を押します。同じ未決判断がある場合は重複作成しません。
         </p>
         <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-semibold leading-relaxed text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
           ASCキーが未配置の間はTestFlightの処理状況は未確認になります。その場合はCodemagicビルドのPublishing状態でアップロード成否を判断します。
         </p>
       </Slide>
 
-      <Slide n={10} title="動作確認Todo" accent="rose" lead="AIの作業やEpic完了後に「人間がこの画面をこう確認してほしい」という項目を一覧管理する場所です（上部メニュー「動作確認」／ /verify-todos）。AIが作業を終えるたびに、アプリ名・Epic名・確認URL・確認手順・期待結果を1件ずつ登録します。">
+      <Slide n={11} title="動作確認Todo" accent="rose" lead="AIの作業やEpic完了後に「人間がこの画面をこう確認してほしい」という項目を一覧管理する場所です（上部メニュー「動作確認」／ /verify-todos）。AIが作業を終えるたびに、アプリ名・Epic名・確認URL・確認手順・期待結果を1件ずつ登録します。">
         <LegendGrid
           items={[
             { dot: 'bg-gray-400', term: '未確認', desc: 'まだ人間が確認していない項目です。' },
@@ -418,7 +440,7 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
         </p>
       </Slide>
 
-      <Slide n={11} title="よくある質問" accent="gray">
+      <Slide n={12} title="よくある質問" accent="gray">
         <FaqAccordion items={FAQ} />
       </Slide>
 

@@ -43,7 +43,7 @@ export const TERMS: Record<string, { ja: string; help: string }> = {
   closedLoopRate: { ja: '自動化率', help: 'AIが人間の介入なしで作業を完了し、学習結果まで残せた割合' },
   notReviewed: { ja: '未確認の作業履歴', help: 'AIの作業結果のうち、まだ内容確認が済んでいないもの。たまっても工場は止まりません（参考情報）' },
   needsHuman: { ja: 'あなたの判断待ち', help: 'AIだけでは決められず、人間の判断を待っている項目' },
-  inbox: { ja: '今日の判断', help: '工場が止まる原因（危険判断・方針選択・人間作業）だけが入る判断箱。最大5件・約5分。処理すると工場が動き出します' },
+  inbox: { ja: '今日の判断', help: '人間の判断が必要な危険判断・方針選択・人間作業が入る判断箱。最大5件・約5分。処理すると止まっている対象が動き出します' },
   aiHold: { ja: 'AI保留', help: '人間が判断する必要のないもの（AIレビュー・候補整理・定期実行・重複・内容不足）をAIが預かっている状態。件数だけ表示します' },
   acceptance: { ja: '検収', help: 'AIの作業が終わったので、結果だけ見て「問題なし/修正する」を選ぶ判断' },
   permission: { ja: '実行許可', help: 'AIがやりたい作業を「進める/やめる」で許可する判断' },
@@ -171,9 +171,13 @@ function buildFactoryState(metrics: FactoryMetrics, factoryEnabled: boolean): Fa
     statusLabel = '停止中（あなたの判断待ち）'
     statusTone = 'alert'
     description =
-      metrics.blockers.dangerApprovalCount > 0
-        ? `危険判断待ちが${metrics.blockers.dangerApprovalCount}件あるため、許可が出るまで自動作業を止めています。Inboxの「今日の判断」で許可・不許可を選んでください。`
+      metrics.blockers.unscopedDangerApprovalCount > 0
+        ? `対象が分からない危険判断待ちが${metrics.blockers.unscopedDangerApprovalCount}件あるため、許可が出るまで自動作業全体を止めています。Inboxの「今日の判断」で許可・不許可を選んでください。`
         : `対象の大きな作業がすべて目標未設定（${metrics.blockers.goalUnsetEpicCount}件）のため止まっています。Inboxで目標を紐付けてください。`
+  } else if (metrics.blockers.scopedDangerApprovalCount > 0) {
+    statusLabel = '稼働中（一部だけ判断待ち）'
+    statusTone = 'ok'
+    description = `危険判断待ちが${metrics.blockers.scopedDangerApprovalCount}件ありますが、${metrics.blockers.scopedDangerLabels.join('、')}だけを止め、他プロジェクトは動かしています。`
   }
   // レビュー件数では止めない（2026-06-11 運用方針変更）。レビューはたまっていても稼働を続ける。
   return {
@@ -190,7 +194,7 @@ function buildFactoryState(metrics: FactoryMetrics, factoryEnabled: boolean): Fa
 async function buildFactoryStopAlert(metrics: FactoryMetrics, factoryEnabled: boolean): Promise<FactoryStopAlert | null> {
   if (!factoryEnabled || metrics.backpressure.level !== 'pause') return null
   const nowMs = Date.now()
-  if (metrics.blockers.dangerApprovalCount > 0) {
+  if (metrics.blockers.unscopedDangerApprovalCount > 0) {
     const approvals = await readPagePendingApprovals()
     const danger = approvals
       .filter((a) => DANGER_CATEGORIES.has(a.category))
@@ -198,7 +202,7 @@ async function buildFactoryStopAlert(metrics: FactoryMetrics, factoryEnabled: bo
     const started = Date.parse(danger?.createdAt ?? new Date().toISOString())
     return {
       days: Math.max(0, Math.floor((nowMs - started) / 86_400_000)),
-      reason: '危険判断待ちがあります',
+      reason: '対象が分からない危険判断待ちがあります',
     }
   }
   if (metrics.blockers.goalUnsetEpicCount > 0) {
@@ -848,7 +852,7 @@ export async function buildInbox(): Promise<InboxView> {
       })
     } else {
       // 方針選択: AIでは決められない方向性の判断
-      const questionText = a.title.includes(':') ? a.title.slice(a.title.indexOf(':') + 1).trim() : clean
+      const questionText = humanizeTitle(a.title.includes(':') ? a.title.slice(a.title.indexOf(':') + 1).trim() : clean)
       const recommendedOption = a.options.find((o) => o.key === a.recommended)
       const rows: InboxCardRow[] = []
       if (a.requiredForExecution) {

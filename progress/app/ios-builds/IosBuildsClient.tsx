@@ -263,8 +263,23 @@ export default function IosBuildsClient() {
     <main className="space-y-4 px-4 pb-6 pt-4">
       <PageGuide
         title="iOSビルド"
-        guide="Codemagicの直近ビルド、TestFlight処理状況、ローカル最新コミットとの差分から今日ビルドすべき候補を確認します。"
+        guide="iOSアプリをTestFlight、つまりiPhoneで試せる状態に届けるための管理画面です。ビルド状況、TestFlight状態、ビルド候補をまとめて確認できます。"
       />
+      <details className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-xs leading-relaxed text-blue-900 dark:border-blue-900/50 dark:bg-blue-950/30 dark:text-blue-100">
+        <summary className="cursor-pointer select-none text-sm font-black">使い方</summary>
+        <div className="mt-3 space-y-3">
+          <p>
+            このページは、iOSアプリをクラウドMacでビルドし、成功したものをTestFlightへ届ける流れを確認する場所です。画面は30秒ごとに自動更新されます。
+          </p>
+          <ul className="list-disc space-y-2 pl-4">
+            <li><strong>ビルド実行</strong>: 押すとCodemagicでビルドが始まり、成功するとTestFlightへ自動アップロードされます。所要時間はおおむね3〜5分です。ビルド時間の無料枠を消費するため、連打せず完了を待ってください。完了後はiPhoneのTestFlightアプリで更新できます。</li>
+            <li><strong>候補を今日の判断へ</strong>: ビルドすべきアプリを「今日の判断」に方針カードとして送ります。「ビルドする」を選んでも自動では起動しないため、その後この画面でビルド実行を押してください。</li>
+            <li><strong>候補バッジ</strong>: 未ビルドはまだ一度も配信されていない状態、最新ビルド失敗は前回が失敗した状態、未反映コミットありは前回配信後に新しい変更がある状態です。</li>
+            <li><strong>ビルド状態バッジ</strong>: Finishedは成功してTestFlightへアップロード済み、BuildingとPublishingは実行中、Failedは失敗です。</li>
+            <li><strong>TestFlight欄</strong>: App Store Connect APIキーが配置済みなら処理状況が出ます。未配置の間は未確認になり、CodemagicのPublishing成功をアップロード成功として読みます。</li>
+          </ul>
+        </div>
+      </details>
       <SubTabBar items={APP_DEVELOPMENT_SUBTABS} />
 
       {toast ? (
