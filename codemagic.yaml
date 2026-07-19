@@ -31,10 +31,8 @@ workflows:
         XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
       ios_signing:
-        certificates:
-          - IOS_DISTRIBUTION_CERTIFICATE
-        provisioning_profiles:
-          - MAHJONG_TRAINER_APP_STORE_PROFILE
+        distribution_type: app_store
+        bundle_identifier: com.kaeru07.mahjongtrainer
 
     scripts:
       - name: Install dependencies
