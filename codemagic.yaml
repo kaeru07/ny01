@@ -24,16 +24,31 @@ workflows:
       vars:
         BUNDLE_ID: "com.kaeru07.mahjongtrainer"
     scripts:
-      - name: Ensure bundle id exists
+      - name: Ensure app store profile exists
         script: |
           set -e
-          EXISTING=$(app-store-connect list-bundle-ids --bundle-id-identifier "$BUNDLE_ID" --platform IOS --json | python3 -c "import sys,json;print(len(json.load(sys.stdin)))")
-          if [ "$EXISTING" = "0" ]; then
-            app-store-connect create-bundle-id "$BUNDLE_ID" --name "Mahjong Trainer" --platform IOS
-          else
-            echo "Bundle ID already registered"
-          fi
-          app-store-connect list-bundle-ids --bundle-id-identifier "$BUNDLE_ID" --platform IOS
+          json_id() { python3 -c "
+          import sys, json
+          s = sys.stdin.read()
+          i = min(x for x in (s.find('['), s.find('{')) if x >= 0)
+          d = json.loads(s[i:])
+          d = d if isinstance(d, list) else [d]
+          print(' '.join(r['id'] for r in d))
+          "; }
+          echo "== bundle id =="
+          BUNDLE_RES_ID=$(app-store-connect list-bundle-ids --bundle-id-identifier "$BUNDLE_ID" --platform IOS --json | json_id)
+          echo "bundle id resource: $BUNDLE_RES_ID"
+          echo "== distribution certificates =="
+          app-store-connect list-certificates --type IOS_DISTRIBUTION
+          CERT_IDS=$(app-store-connect list-certificates --type IOS_DISTRIBUTION --json | json_id)
+          echo "cert ids: $CERT_IDS"
+          echo "== existing app store profiles for bundle =="
+          app-store-connect list-profiles --profile-type IOS_APP_STORE || true
+          echo "== create app store profile =="
+          app-store-connect create-profile "$BUNDLE_RES_ID" \
+            --type IOS_APP_STORE \
+            --name "mahjong-trainer app_store" \
+            --certificate-ids $CERT_IDS
 
   mahjong-trainer-ios-testflight:
     name: Mahjong Trainer iOS TestFlight
