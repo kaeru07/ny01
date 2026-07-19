@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 interface CopyButtonProps {
   text: string
@@ -9,18 +9,55 @@ interface CopyButtonProps {
 
 export default function CopyButton({ text, label = 'コピー' }: CopyButtonProps) {
   const [state, setState] = useState<'idle' | 'copied' | 'error'>('idle')
+  const resetTimer = useRef<number | null>(null)
+
+  function copyWithTextarea() {
+    const textarea = document.createElement('textarea')
+    textarea.value = text
+    textarea.setAttribute('readonly', '')
+    textarea.style.position = 'fixed'
+    textarea.style.left = '-9999px'
+    textarea.style.opacity = '0'
+    document.body.appendChild(textarea)
+    textarea.focus()
+    textarea.select()
+    textarea.setSelectionRange(0, textarea.value.length)
+
+    try {
+      return document.execCommand('copy')
+    } finally {
+      textarea.remove()
+    }
+  }
+
+  function showResult(result: 'copied' | 'error') {
+    if (resetTimer.current !== null) {
+      window.clearTimeout(resetTimer.current)
+    }
+    setState(result)
+    resetTimer.current = window.setTimeout(() => {
+      setState('idle')
+      resetTimer.current = null
+    }, 1600)
+  }
 
   async function copy() {
     try {
-      if (navigator.clipboard?.writeText) {
+      if (window.isSecureContext && navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(text)
-        setState('copied')
-        window.setTimeout(() => setState('idle'), 1600)
-        return
+      } else if (!copyWithTextarea()) {
+        throw new Error('copy command failed')
       }
-      throw new Error('clipboard unavailable')
+      showResult('copied')
     } catch {
-      setState('error')
+      try {
+        if (!copyWithTextarea()) {
+          throw new Error('copy command failed')
+        }
+        showResult('copied')
+      } catch {
+        showResult('error')
+      }
     }
   }
 
