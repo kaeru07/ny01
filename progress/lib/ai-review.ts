@@ -114,6 +114,21 @@ function targetAppLabel(run: ExecutionRun): string | null {
 export function buildAiReviewApprovalDraft(run: ExecutionRun, cls: Pick<AiReviewClassification, 'rule' | 'reason' | 'approvalCategory'>): AiReviewApprovalDraft {
   const app = targetAppLabel(run)
   const subject = runSubject(run)
+  // 方針判断（decision_needed）は検収文言（問題なし/修正）ではなく、選べる方針の選択肢を出す。
+  // key は既存承認APIの意味（mark_reviewed=完了確定 / needs_followup=差し戻し / hold=保留）を維持し、
+  // ラベルを「選ぶとユーザー決定事項として次回実行に引き継がれる方針文」にする。
+  if (cls.rule === 'decision_needed') {
+    return {
+      title: `方針の決定: 「${shorten(subject, 32)}」の進め方を選んでください`,
+      reason: cls.reason,
+      options: [
+        { key: 'mark_reviewed', label: '今回の進め方をルールとして採用する（次回も同じ方針で進める）' },
+        { key: 'needs_followup', label: '別の方針にする（修正内容を指示して差し戻す）' },
+        { key: 'hold', label: '保留する（当面は推奨案のまま進める）' },
+      ],
+      recommended: 'mark_reviewed',
+    }
+  }
   const target = app ? `「${shorten(app, 24)}」の作業` : `「${shorten(subject, 28)}」`
   const keywords = humanReviewKeywords(run)
   const keywordText = keywords.length > 0
@@ -143,15 +158,22 @@ export function buildAiReviewApprovalDraft(run: ExecutionRun, cls: Pick<AiReview
   }
 }
 
-function decisionHit(run: ExecutionRun): DecisionRule | null {
-  const text = [
+function decisionHit(run: ExecutionRun): { rule: DecisionRule; excerpt: string } | null {
+  const sources = [
     run.summary,
-    run.nextActions.join(' '),
+    ...run.nextActions,
     run.stopReason ?? '',
     ...run.warnings,
-  ].join(' ')
+  ]
   for (const rule of DECISION_RULES) {
-    if (rule.pattern.test(text)) return rule
+    for (const source of sources) {
+      if (!source || !rule.pattern.test(source)) continue
+      const sentence = source
+        .split(/[。\n]/)
+        .map((part) => part.trim())
+        .find((part) => rule.pattern.test(part)) ?? source.trim()
+      return { rule, excerpt: shorten(sentence, 80) }
+    }
   }
   return null
 }
@@ -196,7 +218,7 @@ export function classifyRun(run: ExecutionRun): AiReviewClassification {
   // 作業AIが summary/nextActions にこれらの語を書けば、意図的に今日の判断へ上げられる。
   const decision = decisionHit(run)
   if (decision) {
-    return { verdict: 'needs_human', rule: 'decision_needed', reason: '方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。', approvalCategory: 'multi_option' }
+    return { verdict: 'needs_human', rule: 'decision_needed', reason: `AIが方針の決定を求めています: 「${decision.excerpt}」`, approvalCategory: 'multi_option' }
   }
   return { verdict: 'reviewed', rule: 'clean_completed', reason: 'completed・errorsなし・checks NGなし・危険キーワードなし。機械判定で問題なし。' }
 }
