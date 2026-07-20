@@ -3,6 +3,13 @@ import path from 'node:path'
 import { execSync } from 'node:child_process'
 
 const APPS_ROOT = '/root/company/apps'
+const PUBLIC_APP_URLS_PATH = path.join(APPS_ROOT, 'kaeru07.github.io', 'apps.json')
+
+interface PublicAppUrls {
+  bundleId: string
+  privacyPolicyUrl: string
+  supportUrl: string
+}
 
 export interface IosSigningGuideApp {
   id: string
@@ -22,6 +29,8 @@ export interface IosSigningGuideApp {
   provisioningProfileReference: string | null
   provisioningProfileName: string
   codemagicYamlPath: string
+  privacyPolicyUrl: string | null
+  supportUrl: string | null
   copyText: string
 }
 
@@ -70,6 +79,24 @@ function safeReadJson(filePath: string): Record<string, unknown> | null {
     return isRecord(parsed) ? parsed : null
   } catch {
     return null
+  }
+}
+
+function readPublicAppUrls(): Map<string, PublicAppUrls> {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(PUBLIC_APP_URLS_PATH, 'utf8')) as unknown
+    if (!Array.isArray(parsed)) return new Map()
+    return new Map(parsed.flatMap((item) => {
+      if (!isRecord(item)) return []
+      const bundleId = stringValue(item.bundleId)
+      const privacyPolicyUrl = stringValue(item.privacyPolicyUrl)
+      const supportUrl = stringValue(item.supportUrl)
+      return bundleId && privacyPolicyUrl && supportUrl
+        ? [[bundleId, { bundleId, privacyPolicyUrl, supportUrl }] as const]
+        : []
+    }))
+  } catch {
+    return new Map()
   }
 }
 
@@ -184,6 +211,8 @@ function buildCopyText(app: Omit<IosSigningGuideApp, 'copyText'>): string {
     `Bundle ID: ${app.bundleId}`,
     `SKU: ${app.sku}`,
     'User Access: Full Access',
+    `Privacy Policy URL: ${app.privacyPolicyUrl ?? '未作成'}`,
+    `Support URL: ${app.supportUrl ?? '未作成'}`,
     '',
     'Apple Developer > Profiles > Distribution > App Store',
     `App ID: ${app.bundleId}`,
@@ -203,6 +232,7 @@ function buildCopyText(app: Omit<IosSigningGuideApp, 'copyText'>): string {
 export function getIosSigningGuideApps(): IosSigningGuideApp[] {
   const entries = fs.readdirSync(APPS_ROOT, { withFileTypes: true })
   const apps: IosSigningGuideApp[] = []
+  const publicUrls = readPublicAppUrls()
 
   for (const entry of entries) {
     if (!entry.isDirectory()) continue
@@ -227,6 +257,7 @@ export function getIosSigningGuideApps(): IosSigningGuideApp[] {
         ?? yamlScalar(workflow.block, 'name')
         ?? readPackageName(appDir)
         ?? appPathLabel
+      const urls = publicUrls.get(bundleId)
       const app: Omit<IosSigningGuideApp, 'copyText'> = {
         id: `${entry.name}:${workflow.id}`,
         rootDir: entry.name,
@@ -245,6 +276,8 @@ export function getIosSigningGuideApps(): IosSigningGuideApp[] {
         provisioningProfileReference: profileReference,
         provisioningProfileName: `${appName} App Store Profile`,
         codemagicYamlPath: yamlPath,
+        privacyPolicyUrl: urls?.privacyPolicyUrl ?? null,
+        supportUrl: urls?.supportUrl ?? null,
       }
 
       apps.push({ ...app, copyText: buildCopyText(app) })

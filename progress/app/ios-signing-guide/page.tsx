@@ -83,6 +83,8 @@ function AppGuideCard({ app }: { app: IosSigningGuideApp }) {
           { label: 'Bundle ID', value: app.bundleId },
           { label: 'SKU', value: app.sku },
           { label: 'User Access', value: 'Full Access' },
+          { label: 'Privacy Policy URL', value: app.privacyPolicyUrl },
+          { label: 'Support URL', value: app.supportUrl },
         ]}
       />
 
