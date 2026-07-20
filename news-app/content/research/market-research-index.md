@@ -71,6 +71,8 @@
 
 
 
+
+- 2026-07-21: (未取得) / (未取得) / (未取得) / (未取得) / エラーあり(daily-market-research,daily-ai-news,daily-ai-tools,market-research-method-review)
 - 2026-07-20: (未取得) / (未取得) / (未取得) / (未取得) / エラーあり(daily-market-research,daily-ai-news,daily-ai-tools,market-research-method-review)
 - 2026-07-19: AI動画編集 / Kimi K3 がオープンウェイト競争を再加熱 / GPT-Live / 月額課金: TikTok / エラーなし / partial(market,news,tools)
 - 2026-07-18: (未取得) / Kimi K3 が長文・エージェント型モデルとして浮上 / ChatGPT Work / (未取得) / エラーあり(daily-market-research) / partial(news,tools)
