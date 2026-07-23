@@ -9,6 +9,8 @@ import { getAutoQueueView } from '@/lib/auto-queue'
 import { computeFactoryStatus } from '@/lib/factory-status'
 import { epicPriorityLabel } from '@/lib/epic-priority-label'
 import { detectUrgentIssues } from '@/lib/urgent-issues'
+import { readGoals } from '@/lib/goal-reader'
+import { computeStalledGoals } from '@/lib/stalled-goals'
 
 // 新UXのトップ = 司令塔。毎日最初に開く画面。
 // 「今日の5〜15分をどう使うか」だけが分かることを最優先にする。専門用語は出さない。
@@ -28,6 +30,7 @@ const fixStageClass: Record<string, string> = {
 
 const autoQueueStatusLabel: Record<string, string> = {
   waiting_user: '人間判断待ち',
+  held: '保留中',
   ai_hold: 'AI保留中',
   review_waiting: 'レビュー互換',
   blocked: 'ブロック中',
@@ -53,12 +56,16 @@ const urgentIssueClass = {
 }
 
 export default async function CommandCenterPage() {
-  const [view, autoQueue, factoryStatus, urgentIssues] = await Promise.all([
+  const [view, autoQueue, factoryStatus, urgentIssues, goalsData] = await Promise.all([
     buildCommandCenter(),
     getAutoQueueView(),
     computeFactoryStatus(),
     detectUrgentIssues(),
+    readGoals(),
   ])
+  const stalledGoals = computeStalledGoals(goalsData.goals)
+  const stalledCount = stalledGoals.filter((item) => item.severity === 'stalled').length
+  const warnStalledCount = stalledGoals.filter((item) => item.severity === 'warn').length
   const executionFailure =
     autoQueue.counts.executable > 0 &&
     !factoryStatus.factoryEnabled
@@ -68,6 +75,14 @@ export default async function CommandCenterPage() {
 
   return (
     <div className="space-y-4 px-4 pb-5 pt-4">
+      {/* 一時導線: 麻雀問題の確定シート。取り込みが終わったらこの Link ごと削除してよい。 */}
+      <Link
+        href="/mahjong-confirm"
+        className="flex items-center justify-between gap-3 rounded-xl border-2 border-amber-300 bg-amber-50 px-4 py-3 text-amber-900 shadow-sm dark:border-amber-700 dark:bg-amber-900/20 dark:text-amber-200"
+      >
+        <span className="text-sm font-bold">🀄 麻雀の問題 確定シート（一時）</span>
+        <span className="text-xs">選んで保存する →</span>
+      </Link>
       <section className="rounded-xl border-2 border-rose-300 bg-white p-3 shadow-sm dark:border-rose-900/70 dark:bg-gray-900">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-sm font-black text-gray-950 dark:text-gray-100">🚨 早急に対処が必要な問題</h2>
@@ -121,6 +136,20 @@ export default async function CommandCenterPage() {
       <div className="-mt-3">
         <ReviewCopyButton />
       </div>
+
+      {(stalledCount > 0 || warnStalledCount > 0) && (
+        <Link
+          href="/stalled-goals"
+          className="flex items-center justify-between gap-3 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 dark:border-amber-900/60 dark:bg-amber-900/20"
+        >
+          <span className="min-w-0 text-sm font-black text-amber-900 dark:text-amber-100">
+            長期未解消 {stalledCount}件 / 警告 {warnStalledCount}件
+          </span>
+          <span className="shrink-0 rounded-full bg-amber-200 px-2 py-0.5 text-[10px] font-black text-amber-900 dark:bg-amber-800 dark:text-amber-50">
+            整理する →
+          </span>
+        </Link>
+      )}
 
       {/* 一時導線: 旧Vault→今のゴール運用の対応表。統合完了後に撤去予定。 */}
       <Link
@@ -255,9 +284,10 @@ export default async function CommandCenterPage() {
           </div>
         )}
 
-        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-6">
           {[
             ['判断待ち', autoQueue.counts.waiting_user, 'waiting_user'],
+            ['保留', autoQueue.counts.held, 'held'],
             ['AI保留', autoQueue.counts.ai_hold, 'ai_hold'],
             ['レビュー互換', autoQueue.counts.review_waiting, 'review_waiting'],
             ['実行可', autoQueue.counts.executable, 'executable'],
@@ -420,17 +450,17 @@ export default async function CommandCenterPage() {
       {/* 最近の成果 */}
       <section className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
         <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">最近の成果</h2>
-        <ul className="mt-2 grid grid-cols-2 gap-2">
+        <ul className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
           {view.recentWins.map((w, i) => (
-            <li key={i} className="flex items-start gap-2 text-xs">
+            <li key={i} className="flex min-w-0 flex-col gap-0.5 rounded-lg bg-gray-50 p-2.5 text-xs sm:flex-row sm:gap-2 dark:bg-gray-800/50">
               <span className="shrink-0 text-xs text-gray-400">{w.date}</span>
-              <span className="min-w-0">
+              <span className="min-w-0 break-words">
                 <span className="text-gray-900 dark:text-gray-100">{w.title}</span>
                 <span className="ml-1 text-xs text-gray-400">（{w.app}）</span>
               </span>
             </li>
           ))}
-          {view.recentWins.length === 0 && <li className="col-span-2 text-sm text-gray-400">まだ成果がありません。</li>}
+          {view.recentWins.length === 0 && <li className="text-sm text-gray-400 sm:col-span-2">まだ成果がありません。</li>}
         </ul>
       </section>
 
@@ -438,21 +468,21 @@ export default async function CommandCenterPage() {
       <section className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">最近の調査結果</h2>
-          <Link href="/monetization" className="text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">調査一覧</Link>
+          <Link href="/monetization" className="shrink-0 text-xs font-semibold text-blue-600 hover:underline dark:text-blue-400">調査一覧</Link>
         </div>
-        <ul className="mt-2 grid grid-cols-2 gap-2">
+        <ul className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
           {view.recentResearch.map((item) => (
-            <li key={`${item.candidateId}-${item.date}-${item.summary}`} className="rounded-lg bg-gray-50 p-2.5 dark:bg-gray-800/50">
-              <div className="flex items-start justify-between gap-3">
-                <Link href={`/monetization/${item.candidateId}`} className="line-clamp-2 min-w-0 text-xs font-bold leading-snug text-gray-900 hover:underline dark:text-gray-100">
+            <li key={`${item.candidateId}-${item.date}-${item.summary}`} className="min-w-0 rounded-lg bg-gray-50 p-2.5 dark:bg-gray-800/50">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+                <Link href={`/monetization/${item.candidateId}`} className="line-clamp-2 min-w-0 break-words text-xs font-bold leading-snug text-gray-900 hover:underline dark:text-gray-100">
                   {item.candidateName}
                 </Link>
                 <span className="shrink-0 text-xs text-gray-400">{item.date}</span>
               </div>
-              <p className="mt-1 line-clamp-3 text-[11px] leading-snug text-gray-600 dark:text-gray-300">{item.summary}</p>
+              <p className="mt-1 line-clamp-3 break-words text-[11px] leading-snug text-gray-600 dark:text-gray-300">{item.summary}</p>
             </li>
           ))}
-          {view.recentResearch.length === 0 && <li className="col-span-2 text-sm text-gray-400">まだ調査結果がありません。</li>}
+          {view.recentResearch.length === 0 && <li className="text-sm text-gray-400 sm:col-span-2">まだ調査結果がありません。</li>}
         </ul>
       </section>
 
