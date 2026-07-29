@@ -1,13 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 48">
-  <!-- shadow -->
-  <rect x="2" y="3" width="31" height="44" rx="3" fill="#00000028"/>
-  <!-- body: やや白めの象牙色 -->
-  <rect x="1" y="1" width="31" height="44" rx="3" fill="#faf7f0" stroke="#9b8566" stroke-width="1.4"/>
-  <!-- top-left bevel -->
-  <rect x="2.5" y="2.5" width="28" height="41" rx="2" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="0.7"/>
+  <!-- 影 -->
+  <rect x="2.4" y="3" width="29.6" height="43" rx="4" fill="#0000001f"/>
+  <!-- 側面(厚み) -->
+  <rect x="2" y="2.4" width="30" height="44" rx="4" fill="#d8d0bc"/>
+  <!-- 面 -->
+  <rect x="2" y="1.6" width="30" height="43.2" rx="4" fill="#f7f4ea" stroke="#b7a888" stroke-width="0.8"/>
+  <!-- 面のハイライト -->
+  <rect x="3.4" y="3" width="27.2" height="40" rx="3" fill="none" stroke="#ffffffcc" stroke-width="0.7"/>
   
-  
-  <text x="17" y="28" text-anchor="middle" dominant-baseline="middle"
-    font-family="'Noto Serif SC','Source Han Serif CK','HiraMinProN-W6','MS Mincho',serif"
-    font-size="20" font-weight="900" fill="#374151">西</text>
+  <path d="M95 561V-84H116C174 -84 210 -62 210 -54V20H789V-80H810C870 -80 909 -55 909 -49V521C932 526 944 533 951 543L842 628L785 561H636V723H937C952 723 964 728 966 739C918 780 839 838 839 838L769 752H39L47 723H332V561H222L95 608ZM443 723H527V561H443ZM210 48V158L216 151C416 247 441 402 443 532H527V314C527 246 536 222 612 222H658C752 222 787 243 787 285C787 306 781 320 756 332L753 434H742C730 392 717 347 709 336C704 329 698 327 692 327C686 327 679 327 670 327H650C638 327 636 331 636 344V532H789V48ZM210 164V532H332C331 406 316 270 210 164Z" transform="translate(17 23.5) scale(0.023 -0.023) translate(-502.5 -377)" fill="#1b2431"/>
 </svg>

@@ -1,40 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 34 48">
-  <!-- shadow -->
-  <rect x="2" y="3" width="31" height="44" rx="3" fill="#00000028"/>
-  <!-- body: やや白めの象牙色 -->
-  <rect x="1" y="1" width="31" height="44" rx="3" fill="#faf7f0" stroke="#9b8566" stroke-width="1.4"/>
-  <!-- top-left bevel -->
-  <rect x="2.5" y="2.5" width="28" height="41" rx="2" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="0.7"/>
+  <!-- 影 -->
+  <rect x="2.4" y="3" width="29.6" height="43" rx="4" fill="#0000001f"/>
+  <!-- 側面(厚み) -->
+  <rect x="2" y="2.4" width="30" height="44" rx="4" fill="#d8d0bc"/>
+  <!-- 面 -->
+  <rect x="2" y="1.6" width="30" height="43.2" rx="4" fill="#f7f4ea" stroke="#b7a888" stroke-width="0.8"/>
+  <!-- 面のハイライト -->
+  <rect x="3.4" y="3" width="27.2" height="40" rx="3" fill="none" stroke="#ffffffcc" stroke-width="0.7"/>
   
-  <!-- stalk body -->
-  <rect x="8" y="7" width="5" height="10" rx="2.5" fill="#166534"/>
-  <!-- joint ring -->
-  <ellipse cx="10.5" cy="12" rx="4" ry="2.3" fill="#22c55e"/>
-  <!-- upper highlight -->
-  <rect x="9" y="8.5" width="3" height="2" rx="1.5" fill="#bbf7d0" opacity="0.35"/>
-  <!-- stalk body -->
-  <rect x="21" y="7" width="5" height="10" rx="2.5" fill="#166534"/>
-  <!-- joint ring -->
-  <ellipse cx="23.5" cy="12" rx="4" ry="2.3" fill="#22c55e"/>
-  <!-- upper highlight -->
-  <rect x="22" y="8.5" width="3" height="2" rx="1.5" fill="#bbf7d0" opacity="0.35"/>
-  <!-- stalk body -->
-  <rect x="14.5" y="19" width="5" height="10" rx="2.5" fill="#166534"/>
-  <!-- joint ring -->
-  <ellipse cx="17" cy="24" rx="4" ry="2.3" fill="#22c55e"/>
-  <!-- upper highlight -->
-  <rect x="15.5" y="20.5" width="3" height="2" rx="1.5" fill="#bbf7d0" opacity="0.35"/>
-  <!-- stalk body -->
-  <rect x="8" y="31" width="5" height="10" rx="2.5" fill="#166534"/>
-  <!-- joint ring -->
-  <ellipse cx="10.5" cy="36" rx="4" ry="2.3" fill="#22c55e"/>
-  <!-- upper highlight -->
-  <rect x="9" y="32.5" width="3" height="2" rx="1.5" fill="#bbf7d0" opacity="0.35"/>
-  <!-- stalk body -->
-  <rect x="21" y="31" width="5" height="10" rx="2.5" fill="#166534"/>
-  <!-- joint ring -->
-  <ellipse cx="23.5" cy="36" rx="4" ry="2.3" fill="#22c55e"/>
-  <!-- upper highlight -->
-  <rect x="22" y="32.5" width="3" height="2" rx="1.5" fill="#bbf7d0" opacity="0.35"/>
-  
+  <rect x="8.5" y="7" width="5" height="10" rx="2.5" fill="#12703f" stroke="#0c5030" stroke-width="0.5"/>
+  <rect x="9.3" y="8" width="1.2" height="8" rx="0.6" fill="#ffffff55"/>
+  <ellipse cx="11" cy="12" rx="3.5" ry="1.7" fill="#3ecf8e"/>
+  <rect x="20.5" y="7" width="5" height="10" rx="2.5" fill="#12703f" stroke="#0c5030" stroke-width="0.5"/>
+  <rect x="21.3" y="8" width="1.2" height="8" rx="0.6" fill="#ffffff55"/>
+  <ellipse cx="23" cy="12" rx="3.5" ry="1.7" fill="#3ecf8e"/>
+  <rect x="14.5" y="18.5" width="5" height="10" rx="2.5" fill="#12703f" stroke="#0c5030" stroke-width="0.5"/>
+  <rect x="15.3" y="19.5" width="1.2" height="8" rx="0.6" fill="#ffffff55"/>
+  <ellipse cx="17" cy="23.5" rx="3.5" ry="1.7" fill="#3ecf8e"/>
+  <rect x="8.5" y="30" width="5" height="10" rx="2.5" fill="#12703f" stroke="#0c5030" stroke-width="0.5"/>
+  <rect x="9.3" y="31" width="1.2" height="8" rx="0.6" fill="#ffffff55"/>
+  <ellipse cx="11" cy="35" rx="3.5" ry="1.7" fill="#3ecf8e"/>
+  <rect x="20.5" y="30" width="5" height="10" rx="2.5" fill="#12703f" stroke="#0c5030" stroke-width="0.5"/>
+  <rect x="21.3" y="31" width="1.2" height="8" rx="0.6" fill="#ffffff55"/>
+  <ellipse cx="23" cy="35" rx="3.5" ry="1.7" fill="#3ecf8e"/>
 </svg>

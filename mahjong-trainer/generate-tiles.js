@@ -1,233 +1,223 @@
 #!/usr/bin/env node
 /**
- * 麻雀牌SVG生成スクリプト v2
- * 実牌寄りデザイン
- * - 索子: 竹茎デザイン (1索=鳥, 2-9索=竹茎)
- * - 萬子: 萬を大きく中央配置
- * - 赤5: man/pin/sou の赤5牌追加
+ * 麻雀牌SVG生成スクリプト v3 — 実牌寄りデザイン
+ *
+ * - 牌枠: viewBox に対して中央配置。全種類で余白・線幅・角丸を統一。
+ * - 萬子/字牌: Noto Serif CJK JP（SIL OFL）のグリフ輪郭を SVG パスとして埋め込む。
+ *   → 端末フォントに依存せず、明朝体の実牌らしい字形で描画される。
+ *     OFL はアウトラインの埋め込み/改変を許可（予約名 "Noto" を名乗らなければ可）。
+ *   グリフパスは tools/glyphs.json（fontTools で抽出）から読む。
+ * - 筒子: ベタ点ではなく輪（コイン）状。同心円で実牌の銭形に寄せる。
+ * - 索子: 節のある竹。1索は鳥。
+ * - 字牌の色: 東南西北=黒 / 發=緑 / 中=赤 / 白=青枠（日本の一般的な配色）。
+ *
+ * 変更後は `node generate-tiles.js` で public/tiles/*.svg を再生成する。
  */
 
 const fs = require('fs');
 const path = require('path');
 
 const W = 34, H = 48;
+const GLYPHS = JSON.parse(fs.readFileSync(path.join(__dirname, 'tools', 'glyphs.json'), 'utf8'));
+const UPEM = GLYPHS.unitsPerEm;
 
-// ── ベース牌 ──────────────────────────────────────────────────
+// 牌の面の色
+const IVORY = '#f7f4ea';
+const IVORY_EDGE = '#d8d0bc';
+const FRAME = '#b7a888';
+
+// ── ベース牌（中央配置・統一枠）───────────────────────────────
 function tile(content) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}">
-  <!-- shadow -->
-  <rect x="2" y="3" width="31" height="44" rx="3" fill="#00000028"/>
-  <!-- body: やや白めの象牙色 -->
-  <rect x="1" y="1" width="31" height="44" rx="3" fill="#faf7f0" stroke="#9b8566" stroke-width="1.4"/>
-  <!-- top-left bevel -->
-  <rect x="2.5" y="2.5" width="28" height="41" rx="2" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="0.7"/>
+  <!-- 影 -->
+  <rect x="2.4" y="3" width="29.6" height="43" rx="4" fill="#0000001f"/>
+  <!-- 側面(厚み) -->
+  <rect x="2" y="2.4" width="30" height="44" rx="4" fill="${IVORY_EDGE}"/>
+  <!-- 面 -->
+  <rect x="2" y="1.6" width="30" height="43.2" rx="4" fill="${IVORY}" stroke="${FRAME}" stroke-width="0.8"/>
+  <!-- 面のハイライト -->
+  <rect x="3.4" y="3" width="27.2" height="40" rx="3" fill="none" stroke="#ffffffcc" stroke-width="0.7"/>
   ${content}
 </svg>`.trim();
 }
 
-// ── 萬子 (実牌寄り: 萬を中央下に配置) ──────────────────────────
+// ── グリフ埋め込み（明朝アウトライン）─────────────────────────
+// char を (cx,cy) 中心・em サイズ em(px) で配置。バウンディングボックス中心で厳密センタリング。
+function glyph(char, cx, cy, em, color) {
+  const g = GLYPHS.glyphs[char];
+  if (!g) throw new Error('glyph not found: ' + char);
+  const s = em / UPEM;
+  const [xmin, ymin, xmax, ymax] = g.bounds;
+  const bxc = (xmin + xmax) / 2;
+  const byc = (ymin + ymax) / 2;
+  // font は y-up。scale(s,-s) で SVG の y-down に反転しつつ中心を合わせる。
+  const t = `translate(${round(cx)} ${round(cy)}) scale(${round(s)} ${round(-s)}) translate(${round(-bxc)} ${round(-byc)})`;
+  return `<path d="${g.d}" transform="${t}" fill="${color}"/>`;
+}
+
+function round(n) { return Math.round(n * 1000) / 1000; }
+
+// ── 萬子 ───────────────────────────────────────────────────────
 const MAN_KANJI = ['一','二','三','四','五','六','七','八','九'];
+const MAN_NUM_COLOR = '#1b2431'; // 数字=墨
+const MAN_WAN_COLOR = '#b32519'; // 萬=朱
+const RED5 = '#d4213a';
 
 function manTile(n, red = false) {
-  const numColor  = red ? '#e11d48' : '#dc2626';
-  const wanColor  = red ? '#e11d48cc' : '#dc2626bb';
+  const numColor = red ? RED5 : MAN_NUM_COLOR;
+  const wanColor = red ? RED5 : MAN_WAN_COLOR;
   return tile(`
-  <text x="17" y="23" text-anchor="middle" dominant-baseline="middle"
-    font-family="'Noto Serif SC','Source Han Serif CK','HiraMinProN-W6','MS Mincho',serif"
-    font-size="21" font-weight="900" fill="${numColor}">${MAN_KANJI[n-1]}</text>
-  <text x="17" y="39" text-anchor="middle" dominant-baseline="middle"
-    font-family="'Noto Serif SC','Source Han Serif CK','HiraMinProN-W6','MS Mincho',serif"
-    font-size="10" font-weight="700" fill="${wanColor}">萬</text>
-  ${red ? '<circle cx="5" cy="6" r="3" fill="#e11d48"/>' : ''}`);
+  ${glyph(MAN_KANJI[n - 1], 17, 17, 20, numColor)}
+  ${glyph('萬', 17, 35, 15, wanColor)}
+  ${red ? redDot() : ''}`);
 }
 
-// ── 筒子 (青い円, 変更なし) ────────────────────────────────────
+// ── 筒子（コイン=同心円）───────────────────────────────────────
 const PIN_POS = {
-  1: { r: 7.5, dots: [[17, 24]] },
-  2: { r: 5,   dots: [[17, 14], [17, 34]] },
-  3: { r: 4.5, dots: [[10.5, 13], [17, 24], [23.5, 35]] },
-  4: { r: 4,   dots: [[10.5, 13], [23.5, 13], [10.5, 35], [23.5, 35]] },
-  5: { r: 3.5, dots: [[10.5, 12], [23.5, 12], [17, 24], [10.5, 36], [23.5, 36]] },
-  6: { r: 3.5, dots: [[10.5, 12], [23.5, 12], [10.5, 24], [23.5, 24], [10.5, 36], [23.5, 36]] },
-  7: { r: 3,   dots: [[17, 8], [10.5, 18], [23.5, 18], [10.5, 28], [23.5, 28], [10.5, 38], [23.5, 38]] },
-  8: { r: 3,   dots: [[10.5, 8], [23.5, 8], [10.5, 19], [23.5, 19], [10.5, 29], [23.5, 29], [10.5, 40], [23.5, 40]] },
-  9: { r: 3,   dots: [[10, 10], [17, 10], [24, 10], [10, 24], [17, 24], [24, 24], [10, 38], [17, 38], [24, 38]] },
+  1: { r: 8,   dots: [[17, 23.5]] },
+  2: { r: 5.2, dots: [[17, 13.5], [17, 33.5]] },
+  3: { r: 4.7, dots: [[10, 12], [17, 23.5], [24, 35]] },
+  4: { r: 4.4, dots: [[11, 13], [23, 13], [11, 34], [23, 34]] },
+  5: { r: 4,   dots: [[11, 12], [23, 12], [17, 23.5], [11, 35], [23, 35]] },
+  6: { r: 3.9, dots: [[11, 12], [23, 12], [11, 23.5], [23, 23.5], [11, 35], [23, 35]] },
+  7: { r: 3.4, dots: [[17, 9.5], [10.5, 18], [23.5, 18], [17, 23.5], [10.5, 33], [23.5, 33], [17, 39]] },
+  8: { r: 3.4, dots: [[11, 10], [23, 10], [11, 20], [23, 20], [11, 30], [23, 30], [11, 40], [23, 40]] },
+  9: { r: 3.4, dots: [[10, 11], [17, 11], [24, 11], [10, 23.5], [17, 23.5], [24, 23.5], [10, 36], [17, 36], [24, 36]] },
 };
 
+// 単独コイン: 外輪(濃) + 中地(象牙) + 内輪(色) + 芯
+function coin(cx, cy, r, outer, inner) {
+  return `
+  <circle cx="${cx}" cy="${cy}" r="${round(r)}" fill="${outer}"/>
+  <circle cx="${cx}" cy="${cy}" r="${round(r * 0.66)}" fill="${IVORY}"/>
+  <circle cx="${cx}" cy="${cy}" r="${round(r * 0.4)}" fill="${inner}"/>`;
+}
+
 function pinTile(n, red = false) {
-  const fill   = red ? '#e11d48' : '#1d4ed8';
-  const stroke = red ? '#be123c' : '#1e3a8a';
   const { r, dots } = PIN_POS[n];
-  const circles = dots.map(([cx, cy]) =>
-    `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="0.6"/>`
-  ).join('\n  ');
-  const redDot = red ? '<circle cx="5" cy="6" r="3" fill="#e11d48"/>' : '';
-  return tile(circles + '\n  ' + redDot);
+  // 実牌に寄せた配色。赤5は全て赤。1筒は大きめの銭形。
+  const outer = red ? '#c01f38' : '#15559e';
+  const inner = red ? '#8f1228' : '#1f7a4d';
+  let body;
+  if (n === 1 && !red) {
+    // 1筒: 多重リングの銭形
+    body = `
+  <circle cx="17" cy="23.5" r="9" fill="#15559e"/>
+  <circle cx="17" cy="23.5" r="7" fill="${IVORY}"/>
+  <circle cx="17" cy="23.5" r="5.4" fill="#c01f38"/>
+  <circle cx="17" cy="23.5" r="3.4" fill="${IVORY}"/>
+  <circle cx="17" cy="23.5" r="1.7" fill="#15559e"/>`;
+  } else {
+    body = dots.map(([cx, cy]) => coin(cx, cy, r, outer, inner)).join('\n  ');
+  }
+  return tile(body + (red ? '\n  ' + redDot() : ''));
 }
 
-// ── 索子: 竹茎デザイン ─────────────────────────────────────────
-
-// 竹茎1本を描画
-// cx,cy = 茎の中心, w = 幅, h = 高さ
-function bambooStalk(cx, cy, w, h, red = false) {
-  const hw   = w / 2;
-  const halfH = h / 2;
-  const bodyColor  = red ? '#9f1239' : '#166534';
-  const jointColor = red ? '#e11d48' : '#22c55e';
-  const lightColor = red ? '#fda4af' : '#bbf7d0';
-  const midH = Math.max(halfH - 3, 2);
-
+// ── 索子（節のある竹 / 1索=鳥）─────────────────────────────────
+function bamboo(cx, cy, w, h, red = false) {
+  const hw = w / 2;
+  const body = red ? '#9f1239' : '#12703f';
+  const dark = red ? '#7f1d1d' : '#0c5030';
+  const node = red ? '#fb7185' : '#3ecf8e';
+  const y0 = cy - h / 2, y1 = cy + h / 2;
   return `
-  <!-- stalk body -->
-  <rect x="${cx-hw}" y="${cy-halfH}" width="${w}" height="${h}" rx="${hw}" fill="${bodyColor}"/>
-  <!-- joint ring -->
-  <ellipse cx="${cx}" cy="${cy}" rx="${hw+1.5}" ry="2.3" fill="${jointColor}"/>
-  <!-- upper highlight -->
-  <rect x="${cx-hw+1}" y="${cy-halfH+1.5}" width="${w-2}" height="${midH}" rx="${(w-2)/2}" fill="${lightColor}" opacity="0.35"/>`;
+  <rect x="${round(cx - hw)}" y="${round(y0)}" width="${round(w)}" height="${round(h)}" rx="${round(hw)}" fill="${body}" stroke="${dark}" stroke-width="0.5"/>
+  <rect x="${round(cx - hw + 0.8)}" y="${round(y0 + 1)}" width="1.2" height="${round(h - 2)}" rx="0.6" fill="#ffffff55"/>
+  <ellipse cx="${round(cx)}" cy="${round(cy)}" rx="${round(hw + 1)}" ry="1.7" fill="${node}"/>`;
 }
 
-// 1索: 鳥デザイン (簡略化した横向き鳥)
-function sou1Bird() {
+function sou1Bird(red = false) {
+  const b = red ? '#991b1b' : '#12703f';
+  const d = red ? '#7f1d1d' : '#0c5030';
+  const lt = red ? '#fca5a5' : '#3ecf8e';
   return `
-  <!-- 1索: 鳥 -->
-  <!-- body -->
-  <ellipse cx="19" cy="27" rx="9" ry="6.5" fill="#166534"/>
-  <!-- neck+head area (merged) -->
-  <ellipse cx="11.5" cy="22.5" rx="5.5" ry="5" fill="#166534"/>
-  <!-- smooth neck connector -->
-  <path d="M10,25 Q14,24 16,28 Q14,30 19,30 Q13,31 10,28Z" fill="#166534"/>
-  <!-- beak -->
-  <polygon points="6,22 10.5,20 10.5,25" fill="#ca8a04"/>
-  <!-- eye -->
-  <circle cx="9" cy="21" r="1.5" fill="white"/>
-  <circle cx="9.1" cy="21" r="0.75" fill="#111"/>
-  <!-- wing shading -->
-  <ellipse cx="20" cy="26" rx="7" ry="4" fill="#14532d" opacity="0.5" transform="rotate(-12,20,26)"/>
-  <!-- wing highlight -->
-  <ellipse cx="18" cy="25" rx="4" ry="2.5" fill="#22c55e" opacity="0.35" transform="rotate(-12,18,25)"/>
-  <!-- tail -->
-  <path d="M27,26 C31,21 33,29 29,33 C28,30 27,26 27,26Z" fill="#14532d"/>
-  <path d="M27,27 C30,24 31,30 28,32 C27.5,30 27,27 27,27Z" fill="#166534"/>
-  <!-- left leg -->
-  <line x1="16" y1="33" x2="14" y2="40" stroke="#14532d" stroke-width="1.6" stroke-linecap="round"/>
-  <line x1="14" y1="40" x2="11" y2="42" stroke="#14532d" stroke-width="1.2" stroke-linecap="round"/>
-  <line x1="14" y1="40" x2="15" y2="43" stroke="#14532d" stroke-width="1.2" stroke-linecap="round"/>
-  <!-- right leg -->
-  <line x1="20" y1="33" x2="22" y2="40" stroke="#14532d" stroke-width="1.6" stroke-linecap="round"/>
-  <line x1="22" y1="40" x2="19" y2="42" stroke="#14532d" stroke-width="1.2" stroke-linecap="round"/>
-  <line x1="22" y1="40" x2="24" y2="43" stroke="#14532d" stroke-width="1.2" stroke-linecap="round"/>`;
+  <ellipse cx="19" cy="27" rx="9" ry="6.4" fill="${b}"/>
+  <ellipse cx="11.6" cy="22.4" rx="5.4" ry="5" fill="${b}"/>
+  <path d="M10,25 Q14,24 16,28 Q14,30 19,30 Q13,31 10,28Z" fill="${b}"/>
+  <polygon points="6,22 10.6,20 10.6,25" fill="#d99a1c"/>
+  <circle cx="9" cy="21" r="1.5" fill="#fff"/>
+  <circle cx="9.1" cy="21" r="0.8" fill="#111"/>
+  <ellipse cx="20" cy="26" rx="6.6" ry="3.6" fill="${d}" opacity="0.55" transform="rotate(-12,20,26)"/>
+  <ellipse cx="18" cy="25" rx="3.6" ry="2.2" fill="${lt}" opacity="0.4" transform="rotate(-12,18,25)"/>
+  <path d="M27,26 C31,21 33.5,29 29,33 C28,30 27,26 27,26Z" fill="${d}"/>
+  <path d="M27,27 C30,24 31,30 28,32 C27.5,30 27,27 27,27Z" fill="${b}"/>
+  <line x1="16" y1="33" x2="14" y2="40" stroke="${d}" stroke-width="1.6" stroke-linecap="round"/>
+  <line x1="14" y1="40" x2="11" y2="42" stroke="${d}" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="14" y1="40" x2="15" y2="43" stroke="${d}" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="20" y1="33" x2="22" y2="40" stroke="${d}" stroke-width="1.6" stroke-linecap="round"/>
+  <line x1="22" y1="40" x2="19" y2="42" stroke="${d}" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="22" y1="40" x2="24" y2="43" stroke="${d}" stroke-width="1.2" stroke-linecap="round"/>`;
 }
 
-// n別の竹茎サイズ (PIN_POSの配置に合わせた高さ/幅)
-// 列が2本のとき幅は6、3本のとき幅は5
 const SOU_DIMS = {
-  1: { w: 7,  h: 28 }, // 鳥 (未使用)
-  2: { w: 6,  h: 16 }, // 縦2本, y間隔20
-  3: { w: 6,  h: 16 }, // 斜め, 衝突なし
-  4: { w: 6,  h: 14 }, // 2×2, y間隔22
-  5: { w: 5,  h: 10 }, // y間隔12
-  6: { w: 5,  h: 10 }, // y間隔12
-  7: { w: 5,  h: 8  }, // y間隔10
-  8: { w: 5,  h: 8  }, // y間隔11
-  9: { w: 5,  h: 9  }, // y間隔14
+  2: { w: 6,   h: 15 }, 3: { w: 5.6, h: 14 }, 4: { w: 5.6, h: 13 },
+  5: { w: 5,   h: 10 }, 6: { w: 5,   h: 10 }, 7: { w: 4.6, h: 8 },
+  8: { w: 4.6, h: 8 },  9: { w: 4.6, h: 8 },
 };
 
 function souTile(n, red = false) {
-  if (n === 1 && !red) {
-    return tile(sou1Bird());
-  }
-  if (n === 1 && red) {
-    // 赤1索: 鳥を赤で
-    return tile(`
-  <!-- 赤1索: 鳥 -->
-  <ellipse cx="19" cy="27" rx="9" ry="6.5" fill="#991b1b"/>
-  <ellipse cx="11.5" cy="22.5" rx="5.5" ry="5" fill="#991b1b"/>
-  <path d="M10,25 Q14,24 16,28 Q14,30 19,30 Q13,31 10,28Z" fill="#991b1b"/>
-  <polygon points="6,22 10.5,20 10.5,25" fill="#ca8a04"/>
-  <circle cx="9" cy="21" r="1.5" fill="white"/>
-  <circle cx="9.1" cy="21" r="0.75" fill="#111"/>
-  <ellipse cx="20" cy="26" rx="7" ry="4" fill="#7f1d1d" opacity="0.5" transform="rotate(-12,20,26)"/>
-  <path d="M27,26 C31,21 33,29 29,33 C28,30 27,26 27,26Z" fill="#7f1d1d"/>
-  <line x1="16" y1="33" x2="14" y2="40" stroke="#7f1d1d" stroke-width="1.6" stroke-linecap="round"/>
-  <line x1="14" y1="40" x2="11" y2="42" stroke="#7f1d1d" stroke-width="1.2" stroke-linecap="round"/>
-  <line x1="14" y1="40" x2="15" y2="43" stroke="#7f1d1d" stroke-width="1.2" stroke-linecap="round"/>
-  <line x1="20" y1="33" x2="22" y2="40" stroke="#7f1d1d" stroke-width="1.6" stroke-linecap="round"/>
-  <line x1="22" y1="40" x2="19" y2="42" stroke="#7f1d1d" stroke-width="1.2" stroke-linecap="round"/>
-  <line x1="22" y1="40" x2="24" y2="43" stroke="#7f1d1d" stroke-width="1.2" stroke-linecap="round"/>
-  <circle cx="5" cy="6" r="3" fill="#e11d48"/>`);
-  }
-
+  if (n === 1) return tile(sou1Bird(red) + (red ? '\n  ' + redDot() : ''));
   const { w, h } = SOU_DIMS[n];
   const { dots } = PIN_POS[n];
-  const stalks = dots.map(([cx, cy]) => bambooStalk(cx, cy, w, h, red)).join('');
-  const redDot  = red ? '<circle cx="5" cy="6" r="3" fill="#e11d48"/>' : '';
-  return tile(stalks + '\n  ' + redDot);
+  const stalks = dots.map(([cx, cy]) => bamboo(cx, cy, w, h, red)).join('');
+  return tile(stalks + (red ? '\n  ' + redDot() : ''));
 }
 
-// ── 字牌 ──────────────────────────────────────────────────────
+// ── 字牌 ───────────────────────────────────────────────────────
+// 東南西北=黒 / 發=緑 / 中=赤 / 白=青枠（日本の一般的な配色）
 const HONORS = [
-  { name: 'east',  kanji: '東', color: '#1d4ed8' },
-  { name: 'south', kanji: '南', color: '#dc2626' },
-  { name: 'west',  kanji: '西', color: '#374151' },
-  { name: 'north', kanji: '北', color: '#111827' },
-  { name: 'white', kanji: '白', color: '#6b7280', border: true },
-  { name: 'green', kanji: '発', color: '#16a34a' },
-  { name: 'red',   kanji: '中', color: '#dc2626' },
+  { name: 'east',  char: '東', color: '#1b2431' },
+  { name: 'south', char: '南', color: '#1b2431' },
+  { name: 'west',  char: '西', color: '#1b2431' },
+  { name: 'north', char: '北', color: '#1b2431' },
+  { name: 'green', char: '發', color: '#1a7d3a' },
+  { name: 'red',   char: '中', color: '#c01f2f' },
 ];
 
-function honorTile({ kanji, color, border }) {
-  const frame = border
-    ? `<rect x="7" y="7" width="20" height="30" rx="2" fill="none" stroke="#9ca3af" stroke-width="1.5"/>`
-    : '';
-  return tile(`
-  ${frame}
-  <text x="17" y="28" text-anchor="middle" dominant-baseline="middle"
-    font-family="'Noto Serif SC','Source Han Serif CK','HiraMinProN-W6','MS Mincho',serif"
-    font-size="20" font-weight="900" fill="${color}">${kanji}</text>`);
+function honorTile({ char, color }) {
+  return tile(`\n  ${glyph(char, 17, 23.5, 23, color)}`);
 }
 
-// ── 裏牌 ──────────────────────────────────────────────────────
+// 白: 字ではなく青い二重枠（白板）
+function whiteTile() {
+  return tile(`
+  <rect x="9" y="9" width="16" height="27" rx="2" fill="none" stroke="#2b6cb0" stroke-width="1.4"/>
+  <line x1="9.6" y1="9.6" x2="24.4" y2="35.4" stroke="#2b6cb0" stroke-width="0.9"/>`);
+}
+
+function redDot() {
+  return `<circle cx="6" cy="6.5" r="2.6" fill="${RED5}"/>`;
+}
+
+// ── 裏牌 ───────────────────────────────────────────────────────
 function backTile() {
+  // 裏面: 文字は入れない（表牌と誤認させない）。深緑地に幾何模様。
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}">
-  <rect x="2" y="3" width="31" height="44" rx="3" fill="#00000028"/>
-  <rect x="1" y="1" width="31" height="44" rx="3" fill="#166534" stroke="#14532d" stroke-width="1.5"/>
-  <rect x="3" y="3" width="27" height="40" rx="2" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.8"/>
-  <line x1="5"  y1="5"  x2="29" y2="41" stroke="rgba(255,255,255,0.09)" stroke-width="1.2"/>
-  <line x1="29" y1="5"  x2="5"  y2="41" stroke="rgba(255,255,255,0.09)" stroke-width="1.2"/>
-  <line x1="17" y1="4"  x2="17" y2="44" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
-  <circle cx="17" cy="24" r="8" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>
-  <text x="17" y="28" text-anchor="middle" dominant-baseline="middle"
-    font-family="serif" font-size="11" fill="rgba(255,255,255,0.28)">雀</text>
+  <rect x="2.4" y="3" width="29.6" height="43" rx="4" fill="#0000001f"/>
+  <rect x="2" y="1.6" width="30" height="44.4" rx="4" fill="#155e45" stroke="#0e4633" stroke-width="1"/>
+  <rect x="3.6" y="3.4" width="26.8" height="40" rx="3" fill="none" stroke="#ffffff2e" stroke-width="0.8"/>
+  <line x1="6" y1="6" x2="28" y2="42" stroke="#ffffff14" stroke-width="1.4"/>
+  <line x1="28" y1="6" x2="6" y2="42" stroke="#ffffff14" stroke-width="1.4"/>
+  <circle cx="17" cy="24" r="6.5" fill="none" stroke="#ffffff2b" stroke-width="1.2"/>
+  <circle cx="17" cy="24" r="2.4" fill="#ffffff22"/>
 </svg>`.trim();
 }
 
-// ── ファイル書き出し ───────────────────────────────────────────
+// ── 書き出し ───────────────────────────────────────────────────
 const BASE = path.join(__dirname, 'public', 'tiles');
-['man','pin','sou','honor'].forEach(d => fs.mkdirSync(path.join(BASE, d), { recursive: true }));
+['man', 'pin', 'sou', 'honor'].forEach(d => fs.mkdirSync(path.join(BASE, d), { recursive: true }));
 
-// 通常牌
 for (let n = 1; n <= 9; n++) {
   fs.writeFileSync(path.join(BASE, 'man', `${n}.svg`), manTile(n));
   fs.writeFileSync(path.join(BASE, 'pin', `${n}.svg`), pinTile(n));
   fs.writeFileSync(path.join(BASE, 'sou', `${n}.svg`), souTile(n));
 }
-
-// 赤5牌
 fs.writeFileSync(path.join(BASE, 'man', '5-red.svg'), manTile(5, true));
 fs.writeFileSync(path.join(BASE, 'pin', '5-red.svg'), pinTile(5, true));
 fs.writeFileSync(path.join(BASE, 'sou', '5-red.svg'), souTile(5, true));
 
-// 字牌
-HONORS.forEach(h => {
-  fs.writeFileSync(path.join(BASE, 'honor', `${h.name}.svg`), honorTile(h));
-});
-
+HONORS.forEach(h => fs.writeFileSync(path.join(BASE, 'honor', `${h.name}.svg`), honorTile(h)));
+fs.writeFileSync(path.join(BASE, 'honor', 'white.svg'), whiteTile());
 fs.writeFileSync(path.join(BASE, 'back.svg'), backTile());
 
-const total = 9*3 + 3 + 7 + 1;
-console.log(`✓ ${total} SVG tiles generated in public/tiles/`);
-console.log('  - 万子: 一〜九 + 赤5');
-console.log('  - 筒子: 1〜9 + 赤5');
-console.log('  - 索子: 1〜9 (1索=鳥, 2-9索=竹茎) + 赤5');
-console.log('  - 字牌: 東南西北白発中');
-console.log('  - 裏牌');
+console.log('✓ tiles regenerated (実牌寄り v3 / Noto Serif CJK JP グリフ埋め込み)');
