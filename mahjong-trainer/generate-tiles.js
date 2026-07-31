@@ -72,18 +72,26 @@ function manTile(n, red = false) {
   ${red ? redDot() : ''}`);
 }
 
-// ── 筒子（コイン=同心円）───────────────────────────────────────
-const PIN_POS = {
-  1: { r: 8,   dots: [[17, 23.5]] },
-  2: { r: 5.2, dots: [[17, 13.5], [17, 33.5]] },
-  3: { r: 4.7, dots: [[10, 12], [17, 23.5], [24, 35]] },
-  4: { r: 4.4, dots: [[11, 13], [23, 13], [11, 34], [23, 34]] },
-  5: { r: 4,   dots: [[11, 12], [23, 12], [17, 23.5], [11, 35], [23, 35]] },
-  6: { r: 3.9, dots: [[11, 12], [23, 12], [11, 23.5], [23, 23.5], [11, 35], [23, 35]] },
-  7: { r: 3.4, dots: [[17, 9.5], [10.5, 18], [23.5, 18], [17, 23.5], [10.5, 33], [23.5, 33], [17, 39]] },
-  8: { r: 3.4, dots: [[11, 10], [23, 10], [11, 20], [23, 20], [11, 30], [23, 30], [11, 40], [23, 40]] },
-  9: { r: 3.4, dots: [[10, 11], [17, 11], [24, 11], [10, 23.5], [17, 23.5], [24, 23.5], [10, 36], [17, 36], [24, 36]] },
+// ── 数牌の配置（筒子・索子で共通。実牌の標準的な段組み）──────────
+//   L=左列(x10.5) C=中央(x17) R=右列(x23.5)。行yは牌の高さ(1.6〜44.8)内で対称配置。
+//   7 は「上段3・下段4」、8 は縦2列4段、9 は3×3。実牌の並びに合わせる。
+const Y2 = [14, 33];             // 2段
+const Y3 = [11, 23.5, 36];       // 3段
+const Y4 = [9.5, 19, 28.5, 38]; // 4段
+const NUM_POS = {
+  1: [[17, 23.5]],
+  2: [[17, 13], [17, 34]],
+  3: [[11, 12], [17, 23.5], [23.5, 35]],
+  4: [[11, 14], [23.5, 14], [11, 33], [23.5, 33]],
+  5: [[11, 12.5], [23.5, 12.5], [17, 23.5], [11, 34.5], [23.5, 34.5]],
+  6: [[11, 13], [23.5, 13], [11, 23.5], [23.5, 23.5], [11, 34], [23.5, 34]],
+  // 7: 上段に3つ(斜め or 横)、下段に4つ … 実牌は「上3・下4」。上段は横3、下段は2×2。
+  7: [[10, 11], [17, 11], [24, 11], [11, 27], [23.5, 27], [11, 37.5], [23.5, 37.5]],
+  8: [[11, Y4[0]], [23.5, Y4[0]], [11, Y4[1]], [23.5, Y4[1]], [11, Y4[2]], [23.5, Y4[2]], [11, Y4[3]], [23.5, Y4[3]]],
+  9: [[10, Y3[0]], [17, Y3[0]], [24, Y3[0]], [10, Y3[1]], [17, Y3[1]], [24, Y3[1]], [10, Y3[2]], [17, Y3[2]], [24, Y3[2]]],
 };
+// 各数字の玉サイズ（枚数が多いほど小さく）
+const PIN_R = { 1: 8, 2: 5.6, 3: 5, 4: 4.8, 5: 4.4, 6: 4.4, 7: 3.9, 8: 4, 9: 3.9 };
 
 // 単独コイン: 外輪(濃) + 中地(象牙) + 内輪(色) + 芯
 function coin(cx, cy, r, outer, inner) {
@@ -94,7 +102,8 @@ function coin(cx, cy, r, outer, inner) {
 }
 
 function pinTile(n, red = false) {
-  const { r, dots } = PIN_POS[n];
+  const dots = NUM_POS[n];
+  const r = PIN_R[n];
   // 実牌に寄せた配色。赤5は全て赤。1筒は大きめの銭形。
   const outer = red ? '#c01f38' : '#15559e';
   const inner = red ? '#8f1228' : '#1f7a4d';
@@ -114,16 +123,21 @@ function pinTile(n, red = false) {
 }
 
 // ── 索子（節のある竹 / 1索=鳥）─────────────────────────────────
+// 縦の稈に上下2つの節（横帯）を持つ竹。h=茎の高さ。
 function bamboo(cx, cy, w, h, red = false) {
   const hw = w / 2;
-  const body = red ? '#9f1239' : '#12703f';
-  const dark = red ? '#7f1d1d' : '#0c5030';
-  const node = red ? '#fb7185' : '#3ecf8e';
+  const body = red ? '#a01840' : '#137a44';
+  const dark = red ? '#7f1d1d' : '#0b4a2c';
+  const node = red ? '#f0567f' : '#37c07f';
+  const lite = red ? '#ffffff66' : '#ffffff55';
   const y0 = cy - h / 2, y1 = cy + h / 2;
+  const n1 = cy - h / 6, n2 = cy + h / 6; // 節の位置(上下1/3)
+  const nr = hw + 0.7; // 節帯の半幅
   return `
-  <rect x="${round(cx - hw)}" y="${round(y0)}" width="${round(w)}" height="${round(h)}" rx="${round(hw)}" fill="${body}" stroke="${dark}" stroke-width="0.5"/>
-  <rect x="${round(cx - hw + 0.8)}" y="${round(y0 + 1)}" width="1.2" height="${round(h - 2)}" rx="0.6" fill="#ffffff55"/>
-  <ellipse cx="${round(cx)}" cy="${round(cy)}" rx="${round(hw + 1)}" ry="1.7" fill="${node}"/>`;
+  <rect x="${round(cx - hw)}" y="${round(y0)}" width="${round(w)}" height="${round(h)}" rx="${round(hw)}" fill="${body}" stroke="${dark}" stroke-width="0.4"/>
+  <rect x="${round(cx - hw + 0.7)}" y="${round(y0 + 0.8)}" width="1" height="${round(h - 1.6)}" rx="0.5" fill="${lite}"/>
+  <rect x="${round(cx - nr)}" y="${round(n1 - 0.9)}" width="${round(nr * 2)}" height="1.8" rx="0.9" fill="${node}"/>
+  <rect x="${round(cx - nr)}" y="${round(n2 - 0.9)}" width="${round(nr * 2)}" height="1.8" rx="0.9" fill="${node}"/>`;
 }
 
 function sou1Bird(red = false) {
@@ -149,16 +163,17 @@ function sou1Bird(red = false) {
   <line x1="22" y1="40" x2="24" y2="43" stroke="${d}" stroke-width="1.2" stroke-linecap="round"/>`;
 }
 
-const SOU_DIMS = {
-  2: { w: 6,   h: 15 }, 3: { w: 5.6, h: 14 }, 4: { w: 5.6, h: 13 },
-  5: { w: 5,   h: 10 }, 6: { w: 5,   h: 10 }, 7: { w: 4.6, h: 8 },
-  8: { w: 4.6, h: 8 },  9: { w: 4.6, h: 8 },
+// 索子の竹サイズ（幅と高さ）。NUM_POS と同じ段組みで、段数が多いほど短く。
+const SOU_DIM = {
+  2: { w: 5.6, h: 15 }, 3: { w: 5.4, h: 13 }, 4: { w: 5.4, h: 14 },
+  5: { w: 4.8, h: 13 }, 6: { w: 4.8, h: 13 }, 7: { w: 4.4, h: 9.5 },
+  8: { w: 4.6, h: 8.5 }, 9: { w: 4.4, h: 9.5 },
 };
 
 function souTile(n, red = false) {
   if (n === 1) return tile(sou1Bird(red) + (red ? '\n  ' + redDot() : ''));
-  const { w, h } = SOU_DIMS[n];
-  const { dots } = PIN_POS[n];
+  const { w, h } = SOU_DIM[n];
+  const dots = NUM_POS[n];
   const stalks = dots.map(([cx, cy]) => bamboo(cx, cy, w, h, red)).join('');
   return tile(stalks + (red ? '\n  ' + redDot() : ''));
 }

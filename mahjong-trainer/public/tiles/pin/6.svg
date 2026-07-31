@@ -8,27 +8,27 @@
   <!-- 面のハイライト -->
   <rect x="3.4" y="3" width="27.2" height="40" rx="3" fill="none" stroke="#ffffffcc" stroke-width="0.7"/>
   
-  <circle cx="11" cy="12" r="3.9" fill="#15559e"/>
-  <circle cx="11" cy="12" r="2.574" fill="#f7f4ea"/>
-  <circle cx="11" cy="12" r="1.56" fill="#1f7a4d"/>
+  <circle cx="11" cy="13" r="4.4" fill="#15559e"/>
+  <circle cx="11" cy="13" r="2.904" fill="#f7f4ea"/>
+  <circle cx="11" cy="13" r="1.76" fill="#1f7a4d"/>
   
-  <circle cx="23" cy="12" r="3.9" fill="#15559e"/>
-  <circle cx="23" cy="12" r="2.574" fill="#f7f4ea"/>
-  <circle cx="23" cy="12" r="1.56" fill="#1f7a4d"/>
+  <circle cx="23.5" cy="13" r="4.4" fill="#15559e"/>
+  <circle cx="23.5" cy="13" r="2.904" fill="#f7f4ea"/>
+  <circle cx="23.5" cy="13" r="1.76" fill="#1f7a4d"/>
   
-  <circle cx="11" cy="23.5" r="3.9" fill="#15559e"/>
-  <circle cx="11" cy="23.5" r="2.574" fill="#f7f4ea"/>
-  <circle cx="11" cy="23.5" r="1.56" fill="#1f7a4d"/>
+  <circle cx="11" cy="23.5" r="4.4" fill="#15559e"/>
+  <circle cx="11" cy="23.5" r="2.904" fill="#f7f4ea"/>
+  <circle cx="11" cy="23.5" r="1.76" fill="#1f7a4d"/>
   
-  <circle cx="23" cy="23.5" r="3.9" fill="#15559e"/>
-  <circle cx="23" cy="23.5" r="2.574" fill="#f7f4ea"/>
-  <circle cx="23" cy="23.5" r="1.56" fill="#1f7a4d"/>
+  <circle cx="23.5" cy="23.5" r="4.4" fill="#15559e"/>
+  <circle cx="23.5" cy="23.5" r="2.904" fill="#f7f4ea"/>
+  <circle cx="23.5" cy="23.5" r="1.76" fill="#1f7a4d"/>
   
-  <circle cx="11" cy="35" r="3.9" fill="#15559e"/>
-  <circle cx="11" cy="35" r="2.574" fill="#f7f4ea"/>
-  <circle cx="11" cy="35" r="1.56" fill="#1f7a4d"/>
+  <circle cx="11" cy="34" r="4.4" fill="#15559e"/>
+  <circle cx="11" cy="34" r="2.904" fill="#f7f4ea"/>
+  <circle cx="11" cy="34" r="1.76" fill="#1f7a4d"/>
   
-  <circle cx="23" cy="35" r="3.9" fill="#15559e"/>
-  <circle cx="23" cy="35" r="2.574" fill="#f7f4ea"/>
-  <circle cx="23" cy="35" r="1.56" fill="#1f7a4d"/>
+  <circle cx="23.5" cy="34" r="4.4" fill="#15559e"/>
+  <circle cx="23.5" cy="34" r="2.904" fill="#f7f4ea"/>
+  <circle cx="23.5" cy="34" r="1.76" fill="#1f7a4d"/>
 </svg>

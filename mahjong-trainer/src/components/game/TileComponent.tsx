@@ -11,6 +11,7 @@ interface TileComponentProps {
   highlighted?: boolean; // ツモ牌ハイライト
   faceDown?: boolean;    // 裏向き表示
   redFive?: boolean;     // 赤5牌
+  rotation?: 0 | 90 | 180 | 270; // 牌画像の回転（席方向）
   onClick?: () => void;
   className?: string;
 }
@@ -33,6 +34,13 @@ const sizeClasses: Record<string, string> = {
   lg: "tile-hand",
 };
 
+// 回転時に縦横を入れ替えるため、サイズごとの幅/高さ変数名を持つ
+const sizeVars: Record<string, { w: string; h: string }> = {
+  sm: { w: "var(--tile-sm-w)", h: "var(--tile-sm-h)" },
+  md: { w: "var(--tile-md-w)", h: "var(--tile-md-h)" },
+  lg: { w: "var(--tile-hand-w)", h: "var(--tile-hand-h)" },
+};
+
 export default function TileComponent({
   tileIndex,
   size = "md",
@@ -40,6 +48,7 @@ export default function TileComponent({
   highlighted = false,
   faceDown = false,
   redFive = false,
+  rotation = 0,
   onClick,
   className = "",
 }: TileComponentProps) {
@@ -61,28 +70,50 @@ export default function TileComponent({
     ? "hover:-translate-y-0.5 hover:shadow"
     : "";
 
+  const rotated90 = rotation === 90 || rotation === 270;
+  const sv = sizeVars[size];
+
+  // 回転なし: これまで通り sizeClass でサイズ制御。
+  if (rotation === 0) {
+    return (
+      <div className={`${baseClasses} ${stateClasses} ${className}`} onClick={onClick} title={alt}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt={alt} style={{ display: "block", width: "100%", height: "100%" }} draggable={false} />
+        {selected && <div className="absolute inset-0 rounded bg-yellow-400/20 pointer-events-none" />}
+        {highlighted && <div className="absolute inset-0 rounded bg-orange-400/20 pointer-events-none" />}
+      </div>
+    );
+  }
+
+  // 回転あり: 外側フットプリントは 90/270 で縦横入替。内側 img は元の縦横のまま回転。
+  const outerW = rotated90 ? sv.h : sv.w;
+  const outerH = rotated90 ? sv.w : sv.h;
+  const rotClasses = [
+    "relative inline-block rounded select-none overflow-hidden flex-shrink-0",
+    onClick ? "cursor-pointer" : "cursor-default",
+    stateClasses,
+    className,
+  ].join(" ");
+
   return (
-    <div
-      className={`${baseClasses} ${stateClasses} ${className}`}
-      onClick={onClick}
-      title={alt}
-    >
+    <div className={rotClasses} onClick={onClick} title={alt} style={{ width: outerW, height: outerH }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
         alt={alt}
-        width="100%"
-        height="100%"
-        style={{ display: "block", width: "100%", height: "100%" }}
         draggable={false}
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          width: sv.w,
+          height: sv.h,
+          transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
+          transformOrigin: "center center",
+        }}
       />
-      {/* 選択・ハイライトのカラーオーバーレイ */}
-      {selected && (
-        <div className="absolute inset-0 rounded bg-yellow-400/20 pointer-events-none" />
-      )}
-      {highlighted && (
-        <div className="absolute inset-0 rounded bg-orange-400/20 pointer-events-none" />
-      )}
+      {selected && <div className="absolute inset-0 rounded bg-yellow-400/20 pointer-events-none" />}
+      {highlighted && <div className="absolute inset-0 rounded bg-orange-400/20 pointer-events-none" />}
     </div>
   );
 }

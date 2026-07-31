@@ -27,28 +27,30 @@ body {
 
 /* === レスポンシブタイルサイズ (CSS変数) === */
 :root {
-  /* 手牌 (人間プレイヤー) */
-  --tile-hand-w: 34px;
-  --tile-hand-h: 48px;
-  /* 小タイル (河・CPU手牌) */
-  --tile-sm-w: 28px;
-  --tile-sm-h: 40px;
+  /* 手牌 (人間プレイヤー)
+     14枚(13+ツモ)が横スクロールなしで必ず1画面に収まるよう、牌幅を画面幅から算出する。
+     overhead(左右余白+牌間gap+ツモ区切り)を引いた残りを14分割し、上限34pxでクランプ。
+     → 小型iPhone(375px)でも収まり、大画面では34pxで頭打ち。 */
+  --hand-gap: 2px;
+  --hand-px: 4px;
+  --hand-overhead: 46px; /* 左右padding + gap合計 + ツモ区切り の見込み */
+  --tile-hand-w: min(34px, calc((100vw - var(--hand-overhead)) / 14));
+  --tile-hand-h: calc(var(--tile-hand-w) * 48 / 34);
+  /* 小タイル (河・CPU手牌)
+     対面CPUの伏せ牌は横13枚。375px幅でも収まるよう幅を画面から算出(上限26px)。 */
+  --tile-sm-w: min(26px, calc((100vw - 30px) / 13));
+  --tile-sm-h: calc(var(--tile-sm-w) * 48 / 34);
   /* 中タイル (モーダル選択等) */
   --tile-md-w: 32px;
   --tile-md-h: 44px;
-  /* 手牌行レイアウト */
-  --hand-gap: 3px;
-  --hand-px: 8px;
   /* 河レイアウト */
   --river-gap: 2px;
 }
 
 @media (orientation: landscape) {
   :root {
-    --tile-hand-w: 30px;
-    --tile-hand-h: 42px;
-    --tile-sm-w: 23px;
-    --tile-sm-h: 33px;
+    --tile-sm-w: min(23px, calc((100vw - 30px) / 13));
+    --tile-sm-h: calc(var(--tile-sm-w) * 48 / 34);
     --tile-md-w: 28px;
     --tile-md-h: 39px;
     --hand-gap: 2px;
@@ -74,12 +76,13 @@ body {
   flex-shrink: 0;
 }
 
-/* 手牌行 */
+/* 手牌行: 横スクロールさせず中央寄せ。牌幅が画面幅から算出されるため必ず収まる。 */
 .hand-row {
   display: flex;
   flex-wrap: nowrap;
   gap: var(--hand-gap);
-  overflow-x: auto;
+  overflow-x: hidden;
+  justify-content: center;
   padding-left: var(--hand-px);
   padding-right: var(--hand-px);
   padding-bottom: 2px;

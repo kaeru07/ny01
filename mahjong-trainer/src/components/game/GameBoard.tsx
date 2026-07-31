@@ -60,39 +60,41 @@ export default function GameBoard({
           </div>
         </div>
 
-        {/* 卓中央エリア */}
-        <div className="flex-1 flex flex-col bg-green-900 rounded-xl border-2 border-green-700 overflow-hidden">
-          {/* 河エリア */}
-          <div className="flex-1 grid grid-cols-2 gap-2 landscape:gap-1 p-2 landscape:p-1 overflow-auto">
-            {/* 上家河 */}
-            <div className="col-span-2 flex justify-center">
-              <River discards={players[2].discards} label={playerLabel(2)} />
+        {/* 卓中央エリア: 4人の河を風車状に配置。牌は各席方向へ回転する。
+            上段=対面(180°) / 中段=上家(左270°)・中央情報・下家(右90°) / 下段=自分(0°) */}
+        <div className="flex-1 flex flex-col bg-green-900 rounded-xl border-2 border-green-700 overflow-hidden p-1.5 landscape:p-1 gap-1">
+          {/* 対面(上, 180°) */}
+          <div className="flex justify-center min-h-0">
+            <River discards={players[2].discards} label={playerLabel(2)} rotation={180} />
+          </div>
+
+          {/* 中段: 上家(左270°) | 中央情報 | 下家(右90°) */}
+          <div className="flex-1 flex items-center justify-center gap-1.5 min-h-0">
+            <div className="flex justify-end items-center">
+              <River discards={players[3].discards} label={playerLabel(3)} rotation={270} />
             </div>
-            {/* 左家河 */}
-            <div className="flex justify-start">
-              <River discards={players[3].discards} label={playerLabel(3)} />
+
+            {/* 卓中央: ドラ・残り牌数 */}
+            <div className="flex flex-col items-center justify-center gap-1 bg-green-950/60 rounded-lg px-2 py-1.5 flex-shrink-0">
+              <div className="flex flex-col items-center gap-0.5">
+                <span className="text-[10px] text-green-300">ドラ</span>
+                <div className="flex gap-0.5">
+                  {dora.map((t, i) => (
+                    <TileComponent key={i} tileIndex={t} size="sm" />
+                  ))}
+                </div>
+              </div>
+              <span className="text-[10px] text-green-300">山 {gameState.wall.length}</span>
             </div>
-            {/* 右家河 */}
-            <div className="flex justify-end">
-              <River discards={players[1].discards} label={playerLabel(1)} />
-            </div>
-            {/* 自家河 */}
-            <div className="col-span-2 flex justify-center">
-              <River discards={players[0].discards} label="あなた" />
+
+            <div className="flex justify-start items-center">
+              <River discards={players[1].discards} label={playerLabel(1)} rotation={90} />
             </div>
           </div>
 
-          {/* 卓中央: ドラ・残り牌数 */}
-          <div className="flex items-center justify-center gap-3 landscape:gap-2 p-1 landscape:py-0.5 bg-green-800 border-t border-green-700">
-            <div className="flex items-center gap-1">
-              <span className="text-xs text-green-300">ドラ</span>
-              {dora.map((t, i) => (
-                <TileComponent key={i} tileIndex={t} size="sm" />
-              ))}
-            </div>
-            <span className="text-xs text-green-300">
-              山: {gameState.wall.length}
-            </span>
+          {/* 自分(下, 0°) */}
+          <div className="flex justify-center min-h-0">
+            <River discards={players[0].discards} label="あなた" rotation={0} />
           </div>
         </div>
 
