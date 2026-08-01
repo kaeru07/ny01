@@ -83,6 +83,8 @@
 
 
 
+
+- 2026-08-02: (未取得) / (未取得) / (未取得) / (未取得) / エラーあり(daily-market-research,daily-ai-news,daily-ai-tools,market-research-method-review)
 - 2026-08-01: (未取得) / (未取得) / (未取得) / (未取得) / エラーあり(daily-market-research,daily-ai-news,daily-ai-tools,market-research-method-review)
 - 2026-07-31: (未取得) / (未取得) / (未取得) / (未取得) / エラーあり(daily-market-research,daily-ai-news,daily-ai-tools,market-research-method-review)
 - 2026-07-30: (未取得) / (未取得) / (未取得) / (未取得) / エラーあり(daily-market-research,daily-ai-news,daily-ai-tools,market-research-method-review)
