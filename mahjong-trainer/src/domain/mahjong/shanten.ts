@@ -1,4 +1,4 @@
-import { TileIndex } from "@/types/mahjong";
+import type { TileIndex } from "@/types/mahjong";
 
 // ============================================================
 // 向聴数計算 (標準手・七対子・国士対応)

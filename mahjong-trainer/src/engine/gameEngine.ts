@@ -1,5 +1,5 @@
-import { GameState, GameAction, GamePhase, RoundInfo } from "@/types/game";
-import { Player, PlayerIndex, Wind, TileIndex } from "@/types/mahjong";
+import type { GameState, GameAction, GamePhase, RoundInfo } from "@/types/game";
+import type { Player, PlayerIndex, Wind, TileIndex } from "@/types/mahjong";
 import { createDeck, shuffleDeck, sortTiles } from "@/domain/mahjong/tile";
 import { calculateShanten, isWinningHand, isTenpai } from "@/domain/mahjong/shanten";
 
@@ -135,22 +135,21 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       const player = state.players[state.turn];
       const tileIndex = action.tileIndex;
 
-      // ドローした牌か手牌かを判断してdiscardに追加
-      let newHand: TileIndex[];
-      if (player.drawnTile === tileIndex) {
-        newHand = [...player.hand];
-      } else {
-        const pos = player.hand.indexOf(tileIndex);
-        newHand = player.hand.filter((_, i) => i !== pos);
-      }
-
+      // ツモ牌を含めた全牌(手牌13 + ツモ1 = 14相当)から、打牌する1枚だけを取り除く。
+      // 手出し(ツモ牌以外を切る)でも、ツモ牌は手牌に残す必要がある。
+      // ここでツモ牌を戻し忘れると手出しのたびに牌が1枚消える(牌が減るバグ)。
       const fullHand = player.drawnTile !== null
         ? [...player.hand, player.drawnTile]
         : [...player.hand];
 
-      // 和了チェック: 自分が和了できるか (ツモ和了)
-      const allTiles = [...player.hand, ...(player.drawnTile !== null ? [player.drawnTile] : [])];
-      const isTsumo = isWinningHand(allTiles);
+      const pos = fullHand.indexOf(tileIndex);
+      // 見つからない異常時はツモ切り扱いにフォールバックして枚数を保つ
+      const newHand = pos >= 0
+        ? fullHand.filter((_, i) => i !== pos)
+        : [...player.hand];
+
+      // 和了チェック: 打牌前の全牌(14枚相当)でツモ和了できるか
+      const isTsumo = isWinningHand(fullHand);
 
       const updatedPlayer: Player = {
         ...player,
@@ -182,7 +181,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // TODO: 立直宣言の完全実装
       const player = state.players[state.turn];
       const tileIndex = action.tileIndex;
-      const newHand = player.hand.filter((t) => t !== tileIndex);
+      // DISCARD_TILE と同様、全牌から1枚だけ取り除く(同一牌を全消し/ツモ牌消失を防ぐ)
+      const fullHand = player.drawnTile !== null
+        ? [...player.hand, player.drawnTile]
+        : [...player.hand];
+      const pos = fullHand.indexOf(tileIndex);
+      const newHand = pos >= 0
+        ? fullHand.filter((_, i) => i !== pos)
+        : [...player.hand];
       const updatedPlayer: Player = {
         ...player,
         hand: sortTiles(newHand),

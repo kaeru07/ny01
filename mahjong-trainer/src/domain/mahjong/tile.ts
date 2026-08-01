@@ -1,4 +1,4 @@
-import { Tile, TileIndex, TileSuit } from "@/types/mahjong";
+import type { Tile, TileIndex, TileSuit } from "@/types/mahjong";
 
 // 牌インデックス 0-33 を Tile オブジェクトに変換
 export function indexToTile(index: TileIndex): Tile {

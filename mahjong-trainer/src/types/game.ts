@@ -1,4 +1,4 @@
-import { Player, PlayerIndex, TileIndex, Wind } from "./mahjong";
+import type { Player, PlayerIndex, TileIndex, Wind } from "./mahjong";
 
 export type GamePhase =
   | "idle"     // 開始前
