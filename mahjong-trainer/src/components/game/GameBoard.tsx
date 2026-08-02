@@ -61,17 +61,18 @@ export default function GameBoard({
         </div>
 
         {/* 卓中央エリア: 4人の河を風車状に配置。牌は各席方向へ回転する。
-            上段=対面(180°) / 中段=上家(左270°)・中央情報・下家(右90°) / 下段=自分(0°) */}
+            上段=対面(180°) / 中段=上家(左90°)・中央情報・下家(右270°) / 下段=自分(0°)
+            左右は牌が外側(そのプレイヤー側)を向くように回転する。 */}
         <div className="flex-1 flex flex-col bg-green-900 rounded-xl border-2 border-green-700 overflow-hidden p-1.5 landscape:p-1 gap-1">
           {/* 対面(上, 180°) */}
           <div className="flex justify-center min-h-0">
             <River discards={players[2].discards} label={playerLabel(2)} rotation={180} />
           </div>
 
-          {/* 中段: 上家(左270°) | 中央情報 | 下家(右90°) */}
+          {/* 中段: 上家(左90°) | 中央情報 | 下家(右270°) */}
           <div className="flex-1 flex items-center justify-center gap-1.5 min-h-0">
             <div className="flex justify-end items-center">
-              <River discards={players[3].discards} label={playerLabel(3)} rotation={270} />
+              <River discards={players[3].discards} label={playerLabel(3)} rotation={90} />
             </div>
 
             {/* 卓中央: ドラ・残り牌数 */}
@@ -88,7 +89,7 @@ export default function GameBoard({
             </div>
 
             <div className="flex justify-start items-center">
-              <River discards={players[1].discards} label={playerLabel(1)} rotation={90} />
+              <River discards={players[1].discards} label={playerLabel(1)} rotation={270} />
             </div>
           </div>
 
@@ -115,8 +116,8 @@ export default function GameBoard({
         </div>
       </div>
 
-      {/* 自分の手牌エリア (下) */}
-      <div className="p-2 landscape:p-1 bg-gray-800 rounded-lg border border-gray-700">
+      {/* 自分の手牌エリア (下)。hand-area で container query の基準幅にする */}
+      <div className="hand-area p-2 landscape:p-1 bg-gray-800 rounded-lg border border-gray-700">
         <div className="flex items-center justify-between mb-1 landscape:mb-0.5">
           <div className="flex items-center gap-2">
             <span className="text-xs text-gray-300 font-bold">

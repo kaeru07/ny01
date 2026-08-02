@@ -28,13 +28,12 @@ body {
 /* === レスポンシブタイルサイズ (CSS変数) === */
 :root {
   /* 手牌 (人間プレイヤー)
-     14枚(13+ツモ)が横スクロールなしで必ず1画面に収まるよう、牌幅を画面幅から算出する。
-     overhead(左右余白+牌間gap+ツモ区切り)を引いた残りを14分割し、上限34pxでクランプ。
-     → 小型iPhone(375px)でも収まり、大画面では34pxで頭打ち。 */
+     14枚(13+ツモ)が横スクロールなしで必ず収まるよう、牌幅を「手牌エリアの実幅」から
+     算出する(100vwではなく container query。100vwだと内側の padding 分を過大評価して
+     14枚目がはみ出す)。フォールバックは 30px。実算出は .hand-row .tile-hand 側で cqw を使う。 */
   --hand-gap: 2px;
   --hand-px: 4px;
-  --hand-overhead: 46px; /* 左右padding + gap合計 + ツモ区切り の見込み */
-  --tile-hand-w: min(34px, calc((100vw - var(--hand-overhead)) / 14));
+  --tile-hand-w: 30px;
   --tile-hand-h: calc(var(--tile-hand-w) * 48 / 34);
   /* 小タイル (河・CPU手牌)
      対面CPUの伏せ牌は横13枚。375px幅でも収まるよう幅を画面から算出(上限26px)。 */
@@ -76,7 +75,12 @@ body {
   flex-shrink: 0;
 }
 
-/* 手牌行: 横スクロールさせず中央寄せ。牌幅が画面幅から算出されるため必ず収まる。 */
+/* 手牌エリア: この幅を基準(container query)に牌サイズを決める */
+.hand-area {
+  container-type: inline-size;
+}
+
+/* 手牌行: 横スクロールさせず中央寄せ。 */
 .hand-row {
   display: flex;
   flex-wrap: nowrap;
@@ -87,6 +91,14 @@ body {
   padding-right: var(--hand-px);
   padding-bottom: 2px;
   align-items: flex-end;
+}
+
+/* 手牌エリアの実幅から牌幅を算出。overhead = 手牌行padding + 牌間gap合計 + ツモ区切り。
+   14枚(+区切り)でも必ず収まる。上限34px。 */
+.hand-area .hand-row .tile-hand {
+  --thw: min(34px, calc((100cqw - 52px) / 14));
+  width: var(--thw);
+  height: calc(var(--thw) * 48 / 34);
 }
 
 /* 河グリッド */
