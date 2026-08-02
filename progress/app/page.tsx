@@ -75,6 +75,14 @@ export default async function CommandCenterPage() {
 
   return (
     <div className="space-y-4 px-4 pb-5 pt-4">
+      {/* 導線: 麻雀 問題ビルダー（UIから問題集へ問題追加） */}
+      <Link
+        href="/mahjong-builder"
+        className="flex items-center justify-between gap-3 rounded-xl border-2 border-emerald-300 bg-emerald-50 px-4 py-3 text-emerald-900 shadow-sm dark:border-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-200"
+      >
+        <span className="text-sm font-bold">🀄 麻雀 問題ビルダー</span>
+        <span className="text-xs">手牌と捨て牌から問題作成 →</span>
+      </Link>
       {/* 一時導線: 麻雀問題の確定シート。取り込みが終わったらこの Link ごと削除してよい。 */}
       <Link
         href="/mahjong-confirm"
