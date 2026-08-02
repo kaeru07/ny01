@@ -1,5 +1,5 @@
-import { GameState } from "@/types/game";
-import { PlayerIndex, TileIndex } from "@/types/mahjong";
+import type { GameState } from "@/types/game";
+import type { TileIndex } from "@/types/mahjong";
 import { calculateShanten, isWinningHand } from "@/domain/mahjong/shanten";
 import { sortTiles } from "@/domain/mahjong/tile";
 

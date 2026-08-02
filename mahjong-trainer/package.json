@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./tools/ts-alias-loader.mjs --test 'src/**/*.test.ts'"
+    "test": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./tools/ts-alias-loader.mjs --test 'src/**/*.test.ts'",
+    "ai:selfplay": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./tools/ts-alias-loader.mjs src/ai/cli-selfplay.ts",
+    "ai:train": "node --experimental-transform-types --disable-warning=ExperimentalWarning --import ./tools/ts-alias-loader.mjs src/ai/cli-train.ts"
   },
   "dependencies": {
     "@capacitor/core": "^8.4.2",
