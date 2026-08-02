@@ -134,30 +134,113 @@ function buildSituation(input: BuilderInput) {
   }
 }
 
-export async function appendQuestion(input: BuilderInput): Promise<{ id: string; total: number }> {
-  const errors = validateInput(input)
-  if (errors.length) throw new Error(errors.join(' / '))
-
-  const existing = await readQuestions()
-  const id = nextId(existing)
-  const q: Question = {
+// input から Question オブジェクトを組み立てる（新規/更新で共通）
+function buildQuestionObject(id: string, input: BuilderInput, base?: Question): Question {
+  return {
+    ...(base ?? {}),
     id,
     title: input.title.trim(),
     question: input.question.trim(),
     choices: input.choices.filter((c) => c.label?.trim()).map((c) => ({ key: c.key, label: c.label.trim() })),
     answer: input.answer.trim(),
     explanation: input.explanation.trim(),
-    ...(input.tags?.length ? { tags: input.tags } : {}),
+    ...(input.tags?.length ? { tags: input.tags } : { tags: undefined }),
     ...(input.difficulty ? { difficulty: input.difficulty } : {}),
     situation: buildSituation(input),
-    createdVia: 'ui-builder',
+    createdVia: base?.createdVia ?? 'ui-builder',
     ...(input.notes?.trim() ? { notes: input.notes.trim() } : {}),
   }
+}
 
-  const updated = [...existing, q]
-  // 原子的書き込み（tmp→rename）
+async function writeQuestions(list: Question[]): Promise<void> {
   const tmp = QUESTIONS_PATH + `.tmp-${process.pid}-${Date.now()}`
-  await fs.writeFile(tmp, JSON.stringify(updated, null, 2) + '\n', 'utf-8')
+  await fs.writeFile(tmp, JSON.stringify(list, null, 2) + '\n', 'utf-8')
   await fs.rename(tmp, QUESTIONS_PATH)
-  return { id, total: updated.length }
+}
+
+export async function appendQuestion(input: BuilderInput): Promise<{ id: string; total: number }> {
+  const errors = validateInput(input)
+  if (errors.length) throw new Error(errors.join(' / '))
+
+  const existing = await readQuestions()
+  const id = nextId(existing)
+  const q = buildQuestionObject(id, input)
+  await writeQuestions([...existing, q])
+  return { id, total: existing.length + 1 }
+}
+
+// ── 既存問題の一覧（編集対象の選択用）──────────────────────────
+export interface QuestionSummary {
+  id: string
+  title: string
+  tags: string[]
+  hasDiscards: boolean
+  createdVia?: string
+}
+
+export async function listQuestions(): Promise<QuestionSummary[]> {
+  const list = await readQuestions()
+  return list.map((q) => {
+    const players = (q.situation as { players?: Record<string, { discards?: unknown[] }> } | undefined)?.players
+    const hasDiscards = players
+      ? SEATS.some((s) => (players[s]?.discards?.length ?? 0) > 0)
+      : false
+    return { id: q.id, title: q.title, tags: q.tags ?? [], hasDiscards, createdVia: q.createdVia }
+  })
+}
+
+// ── 既存問題を BuilderInput 形へ復元（編集フォームに読み込む）──
+interface SituationShape {
+  round?: { bakaze?: string; kyoku?: number }
+  dora?: string[]
+  players?: Record<string, { hand?: string[]; discards?: { tile: string }[] }>
+}
+
+export async function getQuestionForEdit(id: string): Promise<BuilderInput & { id: string }> {
+  const list = await readQuestions()
+  const q = list.find((x) => x.id === id)
+  if (!q) throw new Error(`問題が見つかりません: ${id}`)
+
+  const sit = (q.situation as SituationShape) ?? {}
+  const players = sit.players ?? {}
+  const discards: Record<Seat, string[]> = { self: [], shimocha: [], toimen: [], kamicha: [] }
+  for (const s of SEATS) {
+    discards[s] = (players[s]?.discards ?? []).map((d) => d.tile)
+  }
+
+  // 選択肢は最低4枠に整える（UIの4行フォームに合わせる）
+  const choices = [...(q.choices ?? [])]
+  const keys = ['A', 'B', 'C', 'D']
+  while (choices.length < 4) choices.push({ key: keys[choices.length], label: '' })
+
+  return {
+    id: q.id,
+    title: q.title,
+    question: q.question,
+    explanation: q.explanation,
+    choices,
+    answer: q.answer,
+    difficulty: (q.difficulty as 'easy' | 'medium' | 'hard') || 'medium',
+    tags: q.tags ?? [],
+    bakaze: sit.round?.bakaze || '東',
+    kyoku: sit.round?.kyoku || 1,
+    dora: sit.dora ?? [],
+    hand: players.self?.hand ?? [],
+    discards,
+  }
+}
+
+export async function updateQuestion(id: string, input: BuilderInput): Promise<{ id: string; total: number }> {
+  const errors = validateInput(input)
+  if (errors.length) throw new Error(errors.join(' / '))
+
+  const list = await readQuestions()
+  const idx = list.findIndex((x) => x.id === id)
+  if (idx < 0) throw new Error(`問題が見つかりません: ${id}`)
+
+  const updated = buildQuestionObject(id, input, list[idx])
+  const next = [...list]
+  next[idx] = updated
+  await writeQuestions(next)
+  return { id, total: next.length }
 }
