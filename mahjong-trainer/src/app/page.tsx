@@ -1,18 +1,20 @@
 "use client";
 
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import { useGame } from "@/application/game/useGame";
 import { useTraining } from "@/application/training/useTraining";
 import GameBoard from "@/components/game/GameBoard";
 import GameControls from "@/components/game/GameControls";
 import ReadingModal from "@/components/training/ReadingModal";
 import ReviewPanel from "@/components/training/ReviewPanel";
+import FeedbackTrainer from "@/components/ai/FeedbackTrainer";
 import { PlayerIndex } from "@/types/mahjong";
 import { playerLabel } from "@/engine/gameEngine";
 
 export default function HomePage() {
   const { state, startGame, discardTile, pause, resume, goToReview, nextRound, canDiscard } =
     useGame();
+  const [showFeedback, setShowFeedback] = useState(false);
 
   const {
     training,
@@ -106,6 +108,12 @@ export default function HomePage() {
               >
                 対局開始
               </button>
+              <button
+                onClick={() => setShowFeedback(true)}
+                className="px-6 py-2.5 bg-purple-700 hover:bg-purple-600 text-white font-semibold rounded-lg text-sm shadow"
+              >
+                🎓 AI育成（フィードバック学習）
+              </button>
             </div>
           ) : state.phase === "review" ? (
             /* レビュー画面 */
@@ -164,6 +172,9 @@ export default function HomePage() {
             onCancel={handleCancelReading}
           />
         )}
+
+      {/* AI育成（フィードバック学習）画面 */}
+      {showFeedback && <FeedbackTrainer onClose={() => setShowFeedback(false)} />}
 
       {/* 一時停止オーバーレイ (読みモード以外の一時停止時) */}
       {state.isPaused && !training.isReading && (
