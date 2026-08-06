@@ -10,15 +10,29 @@ import {
   playerLabel,
 } from "@/engine/gameEngine";
 import { processCpuTurn } from "@/engine/cpuPlayer";
+import { cpuTurnWithPolicy } from "@/ai/live-agent";
+import { loadProfile } from "@/ai/policy-store";
 
 const CPU_DELAY_MS = 800; // CPU行動の遅延 (ms)
 
 export function useGame() {
   const [state, dispatch] = useReducer(gameReducer, createInitialState());
   const processingRef = useRef(false);
+  // 学習した重み（プレイスタイル）。UIのフィードバックで育てた内容が対局のCPUに反映される。
+  const policyRef = useRef<number[] | null>(null);
+  const cpuTurn = useCallback((s: typeof state) => {
+    if (policyRef.current === null) policyRef.current = loadProfile().weights;
+    try {
+      return cpuTurnWithPolicy(s, policyRef.current);
+    } catch {
+      // 学習方策で問題があれば従来ロジックにフォールバック
+      return processCpuTurn(s);
+    }
+  }, []);
 
-  // ゲーム開始
+  // ゲーム開始（最新の学習スタイルを読み直してからCPUに反映する）
   const startGame = useCallback(() => {
+    policyRef.current = null;
     dispatch({ type: "START_GAME" });
   }, []);
 
@@ -71,7 +85,7 @@ export function useGame() {
     if (currentPlayer.drawnTile !== null) {
       processingRef.current = true;
       const timer = setTimeout(() => {
-        const { discard, tsumoWin } = processCpuTurn(state);
+        const { discard, tsumoWin } = cpuTurn(state);
 
         if (tsumoWin) {
           // TODO: CPU和了処理
@@ -83,7 +97,7 @@ export function useGame() {
       }, CPU_DELAY_MS);
       return () => clearTimeout(timer);
     }
-  }, [state]);
+  }, [state, cpuTurn]);
 
   // ============================================================
   // 人間のターン開始時に自動ツモ
