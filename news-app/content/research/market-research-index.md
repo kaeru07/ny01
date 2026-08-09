@@ -92,6 +92,8 @@
 
 
 
+
+- 2026-08-10: AI短尺動画制作支援 / AIエージェントの無断行動リスクが顕在化 / GitHub Copilot cloud agent for Linear / 基本料金と生成クレジットを組み合わせ、推論原価の大きい処理だけ従量課金にする / エラーなし / partial(market,news,tools)
 - 2026-08-09: AI投稿品質チェック / OpenAI次期モデル「Astra」を巡る観測 / Gemini API Managed Agents / 業種別の台本生成、根拠確認、投稿管理をまとめ、月額980〜2,980円の段階課金にする / エラーなし / partial(market,news,tools)
 - 2026-08-08: (未取得) / (未取得) / (未取得) / (未取得) / エラーあり(daily-market-research,daily-ai-news,daily-ai-tools,market-research-method-review)
 - 2026-08-07: (未取得) / (未取得) / (未取得) / (未取得) / エラーあり(daily-market-research,daily-ai-news,daily-ai-tools,market-research-method-review)
