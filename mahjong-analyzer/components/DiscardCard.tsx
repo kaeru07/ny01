@@ -40,7 +40,7 @@ interface DiscardCardProps {
  * 打牌候補1件を表示するカード
  */
 export function DiscardCard({ candidate, rank }: DiscardCardProps) {
-  const badge = RANK_BADGE[rank] ?? RANK_BADGE[2];
+  const badge = RANK_BADGE[rank];
   const { text: shantenText, color: shantenColor } = shantenLabel(
     candidate.resultShanten
   );
@@ -50,11 +50,13 @@ export function DiscardCard({ candidate, rank }: DiscardCardProps) {
       {/* ヘッダー */}
       <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 border-b border-gray-200">
         {/* 順位バッジ */}
-        <span
-          className={`text-xs font-bold px-2 py-0.5 rounded-full ${badge.bg} ${badge.text}`}
-        >
-          {badge.label}
-        </span>
+        {badge && (
+          <span
+            className={`text-xs font-bold px-2 py-0.5 rounded-full ${badge.bg} ${badge.text}`}
+          >
+            {badge.label}
+          </span>
+        )}
 
         {/* 切る牌 */}
         <div className="flex items-center gap-2">
@@ -80,10 +82,37 @@ export function DiscardCard({ candidate, rank }: DiscardCardProps) {
         </div>
       )}
 
+      {(candidate.emergingYaku.length > 0 || candidate.vanishingYaku.length > 0) && (
+        <div className="flex flex-wrap gap-1.5 px-4 pt-3">
+          {candidate.emergingYaku.map((yaku) => (
+            <span
+              key={`emerging-${yaku}`}
+              className="text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-700 border border-green-300"
+            >
+              出る役: {yaku}
+            </span>
+          ))}
+          {candidate.vanishingYaku.map((yaku) => (
+            <span
+              key={`vanishing-${yaku}`}
+              className="text-xs px-2 py-0.5 rounded-full font-medium bg-red-100 text-red-700 border border-red-300 line-through"
+            >
+              消える役: {yaku}
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* 理由 */}
-      <p className="px-4 pt-2 pb-3 text-sm text-gray-700 leading-relaxed">
-        {candidate.reason}
-      </p>
+      {candidate.reason && (
+        <p className="px-4 pt-2 pb-3 text-sm text-gray-700 leading-relaxed">
+          {candidate.reason}
+        </p>
+      )}
+
+      <div className="px-4 pt-2 text-xs text-gray-500">
+        受け入れ枚数: <span className="font-semibold text-gray-700">{candidate.effectiveTileCount}枚</span>
+      </div>
 
       {/* 有効牌 */}
       {candidate.effectiveTiles.length > 0 && (

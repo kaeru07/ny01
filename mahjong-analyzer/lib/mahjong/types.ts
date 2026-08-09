@@ -10,6 +10,8 @@ export interface Tile {
   suit: Suit;
   /** 数牌: 1-9 / 字牌: 1=東 2=南 3=西 4=北 5=白 6=発 7=中 */
   number: number;
+  /** 入力が赤5 (0m/0p/0s) だった場合の表示用フラグ */
+  isRed?: boolean;
 }
 
 /** パース結果 (成功 or 失敗) */
@@ -26,6 +28,10 @@ export interface DiscardCandidate {
   effectiveTiles: Tile[];
   /** 有効牌の受け入れ枚数 (山に残っている想定枚数) */
   effectiveTileCount: number;
+  /** この牌を切ると新たに可能性が出る役 */
+  emergingYaku: string[];
+  /** この牌を切ると狙えなくなる役 */
+  vanishingYaku: string[];
   /** 簡易ラベル (例: "受け入れ広い", "孤立牌" など) */
   labels: string[];
   /** 解説テキスト */
@@ -44,6 +50,6 @@ export interface AnalysisResult {
   effectiveTiles: Tile[];
   /** 受け入れ枚数合計 */
   effectiveTileCount: number;
-  /** 打牌候補 (14枚時のみ, 最大3件) */
+  /** 打牌候補 (14枚時のみ, 異なる牌ごとの全候補) */
   discardCandidates: DiscardCandidate[];
 }

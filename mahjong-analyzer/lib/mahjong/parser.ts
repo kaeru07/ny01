@@ -59,7 +59,7 @@ export function parseHand(input: string): ParseResult {
           };
         }
 
-        tiles.push({ suit, number: n });
+        tiles.push({ suit, number: n, isRed: num === 0 });
       }
 
       numBuf = [];

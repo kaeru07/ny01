@@ -2,7 +2,7 @@
 // 手牌解析メインモジュール
 // ========================================
 // 13枚 → シャンテン数 + 有効牌を返す
-// 14枚 → 打牌候補3件 (シャンテン数・有効牌・理由付き) を返す
+// 14枚 → 異なる牌ごとの全打牌候補を返す
 // ========================================
 
 import { Tile, AnalysisResult, DiscardCandidate } from "./types";
@@ -12,6 +12,7 @@ import {
   getEffectiveTileIndices,
   countEffectiveTiles,
 } from "./shanten";
+import { possibleYaku } from "./yaku";
 
 // ── ラベル生成 ──────────────────────────────────────────────────
 
@@ -126,7 +127,7 @@ function buildReason(
  * 手牌を解析する
  *
  * - 13枚: 現在のシャンテン数と有効牌を返す
- * - 14枚: 打牌候補3件 (各候補のシャンテン数・有効牌・ラベル・理由) を返す
+ * - 14枚: 異なる牌ごとの全打牌候補を返す
  *
  * @param tiles 13枚または14枚の手牌
  */
@@ -173,8 +174,10 @@ export function analyzeHand(tiles: Tile[]): AnalysisResult {
       resultShanten,
       effectiveTiles,
       effectiveTileCount: effectiveCount,
-      labels: [],   // 後でセット
-      reason: "",   // 後でセット
+      emergingYaku: [],
+      vanishingYaku: [],
+      labels: [], // 後でセット
+      reason: "", // 後でセット
     });
 
     counts[idx]++;
@@ -186,6 +189,40 @@ export function analyzeHand(tiles: Tile[]): AnalysisResult {
       return a.resultShanten - b.resultShanten;
     return b.effectiveTileCount - a.effectiveTileCount;
   });
+
+  // 各打牌後に狙える役を集計し、和集合(unionSet)と共通集合(commonSet)を求める。
+  //   unionSet  = どれかの打牌なら狙える役の全体
+  //   commonSet = どの打牌でも狙える役（打牌に依存しない役）
+  // 出る役   = この打牌後に狙える役 − commonSet（＝この打牌だから残る/活きる役）
+  // 消える役 = unionSet − この打牌後に狙える役（＝この牌を切ると狙えなくなる役）
+  const yakuAfterDiscard = new Map<number, Set<string>>();
+  const unionSet = new Set<string>();
+  let commonSet: Set<string> | null = null;
+  for (const cand of candidates) {
+    const idx = tileToIndex(cand.tile);
+    counts[idx]--;
+    const afterSet = new Set(possibleYaku(counts));
+    counts[idx]++;
+    yakuAfterDiscard.set(idx, afterSet);
+    afterSet.forEach((yaku) => unionSet.add(yaku));
+    if (commonSet === null) {
+      commonSet = new Set<string>(afterSet);
+    } else {
+      const prev: Set<string> = commonSet;
+      const next = new Set<string>();
+      afterSet.forEach((yaku) => {
+        if (prev.has(yaku)) next.add(yaku);
+      });
+      commonSet = next;
+    }
+  }
+  const common = commonSet ?? new Set<string>();
+
+  for (const cand of candidates) {
+    const afterSet = yakuAfterDiscard.get(tileToIndex(cand.tile)) ?? new Set<string>();
+    cand.emergingYaku = Array.from(afterSet).filter((yaku) => !common.has(yaku));
+    cand.vanishingYaku = Array.from(unionSet).filter((yaku) => !afterSet.has(yaku));
+  }
 
   // 上位3候補にラベルと理由を付与
   const top3 = candidates.slice(0, 3);
@@ -224,6 +261,6 @@ export function analyzeHand(tiles: Tile[]): AnalysisResult {
     shanten,
     effectiveTiles,
     effectiveTileCount,
-    discardCandidates: top3,
+    discardCandidates: candidates,
   };
 }

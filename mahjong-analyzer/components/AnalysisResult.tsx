@@ -28,7 +28,7 @@ interface Props {
  * 解析結果コンポーネント
  *
  * 13枚: シャンテン数 + 有効牌
- * 14枚: シャンテン数 + 打牌候補3件
+ * 14枚: シャンテン数 + 異なる牌ごとの全打牌候補
  */
 export function AnalysisResultView({ result }: Props) {
   const badge = shantenBadge(result.shanten);
@@ -97,7 +97,7 @@ export function AnalysisResultView({ result }: Props) {
       {!is13 && result.discardCandidates.length > 0 && (
         <section>
           <h2 className="text-sm font-semibold text-gray-500 mb-3 uppercase tracking-wide">
-            おすすめ打牌 (上位3候補)
+            打牌候補 (全{result.discardCandidates.length}件)
           </h2>
           <div className="space-y-3">
             {result.discardCandidates.map((cand, i) => (

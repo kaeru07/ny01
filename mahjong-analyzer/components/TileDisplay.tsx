@@ -1,37 +1,58 @@
 // ========================================
 // 牌・手牌の表示コンポーネント
 // ========================================
-// 将来、画像牌に差し替える場合はここを変更するだけでよい
+// public/tiles 配下の自作SVG牌を表示する
 // ========================================
 
 import React from "react";
 import { Tile } from "@/lib/mahjong/types";
 import { tileToString } from "@/lib/mahjong/tiles";
 
-// スーツごとの文字色クラス
-const SUIT_COLOR: Record<string, string> = {
+// SVGの読み込みに失敗した場合の文字色
+const SUIT_COLOR: Record<Tile["suit"], string> = {
   m: "text-red-600",
   p: "text-blue-600",
   s: "text-green-700",
   z: "text-purple-700",
 };
 
-// スーツごとの背景色クラス (ハイライト用)
-const SUIT_BG: Record<string, string> = {
-  m: "bg-red-50 border-red-300",
-  p: "bg-blue-50 border-blue-300",
-  s: "bg-green-50 border-green-300",
-  z: "bg-purple-50 border-purple-300",
+const SUIT_DIRECTORY: Record<Tile["suit"], string> = {
+  m: "man",
+  p: "pin",
+  s: "sou",
+  z: "honor",
+};
+
+const HONOR_FILENAME: Record<number, string> = {
+  1: "east",
+  2: "south",
+  3: "west",
+  4: "north",
+  5: "white",
+  6: "green",
+  7: "red",
 };
 
 type TileSize = "xs" | "sm" | "md" | "lg";
 
-const SIZE_CLASS: Record<TileSize, string> = {
-  xs: "text-xs px-1 py-0.5 min-w-[1.4rem] text-center",
-  sm: "text-sm px-1.5 py-0.5 min-w-[1.8rem] text-center",
-  md: "text-base px-2 py-1 min-w-[2.2rem] text-center",
-  lg: "text-lg px-2.5 py-1.5 min-w-[2.8rem] text-center",
+const TILE_DIMENSIONS: Record<TileSize, { width: number; height: number }> = {
+  xs: { width: 20, height: 28 },
+  sm: { width: 24, height: 34 },
+  md: { width: 32, height: 45 },
+  lg: { width: 40, height: 56 },
 };
+
+function tileImageSrc(tile: Tile): string | null {
+  if (tile.suit === "z") {
+    const filename = HONOR_FILENAME[tile.number];
+    return filename ? `/tiles/honor/${filename}.svg` : null;
+  }
+
+  // number=0 の旧形式が渡された場合も赤5として扱う。
+  const filename = tile.isRed || tile.number === 0 ? "5-red" : String(tile.number);
+  if (tile.number < 0 || tile.number > 9) return null;
+  return `/tiles/${SUIT_DIRECTORY[tile.suit]}/${filename}.svg`;
+}
 
 interface TileProps {
   tile: Tile;
@@ -44,7 +65,7 @@ interface TileProps {
 
 /**
  * 1枚の牌を表示するコンポーネント
- * テキスト表示版 — 将来は画像に差し替えやすい構造
+ * SVG画像が取得できない場合は従来の文字表示へフォールバックする。
  */
 export function TileDisplay({
   tile,
@@ -52,24 +73,40 @@ export function TileDisplay({
   highlight = false,
   selected = false,
 }: TileProps) {
-  const color = SUIT_COLOR[tile.suit];
-  const sizeClass = SIZE_CLASS[size];
-
-  let containerClass =
-    `inline-flex items-center justify-center rounded border font-mono font-bold ` +
-    `${sizeClass} ${color} `;
+  const label = tileToString(tile);
+  const src = tileImageSrc(tile);
+  const dimensions = TILE_DIMENSIONS[size];
+  let containerClass = "inline-flex items-center justify-center rounded ";
 
   if (selected) {
-    containerClass += "bg-yellow-200 border-yellow-500 ring-2 ring-yellow-400 ";
+    containerClass += "ring-2 ring-yellow-400 ";
   } else if (highlight) {
-    containerClass += `${SUIT_BG[tile.suit]} `;
-  } else {
-    containerClass += "bg-white border-gray-300 ";
+    containerClass += "ring-2 ring-blue-400 ";
   }
 
   return (
-    <span className={containerClass.trim()} title={tileToString(tile)}>
-      {tileToString(tile)}
+    <span className={containerClass.trim()} title={label}>
+      {src && (
+        <img
+          src={src}
+          alt={label}
+          width={dimensions.width}
+          height={dimensions.height}
+          className="block object-contain"
+          onError={(event) => {
+            event.currentTarget.hidden = true;
+            const fallback = event.currentTarget.nextElementSibling;
+            if (fallback instanceof HTMLElement) fallback.hidden = false;
+          }}
+        />
+      )}
+      <span
+        hidden={Boolean(src)}
+        className={`inline-flex items-center justify-center rounded border border-gray-300 bg-white font-mono font-bold ${SUIT_COLOR[tile.suit]}`}
+        style={dimensions}
+      >
+        {label}
+      </span>
     </span>
   );
 }
