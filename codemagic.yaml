@@ -56,11 +56,26 @@ workflows:
             echo "ERROR: no distribution certificate found in the Apple Developer account"
             exit 1
           fi
-          echo "== create app store profile =="
-          app-store-connect create-profile "$BUNDLE_RES_ID" \
-            --type IOS_APP_STORE \
-            --name "mahjong-trainer app_store" \
-            --certificate-ids $CERT_IDS
+          echo "== ensure app store profile (idempotent) =="
+          PROFILE_NAME="mahjong-trainer app_store"
+          filter_ids() { python3 -c "
+          import sys, json, re
+          name = sys.argv[1]
+          s = re.sub(r'\x1b\[[0-9;]*[A-Za-z]', '', sys.stdin.read())
+          start = next((i for i in range(len(s)) if s[i] in '[{' and (i == 0 or s[i-1] == '\n')), None)
+          data = json.loads(s[start:]) if start is not None else []
+          data = data if isinstance(data, list) else [data]
+          print(' '.join(r['id'] for r in data if r.get('attributes', {}).get('name') == name))
+          " "$PROFILE_NAME"; }
+          EXISTING=$(app-store-connect profiles list --json 2>/dev/null | filter_ids || true)
+          if [ -n "$EXISTING" ]; then
+            echo "profile '$PROFILE_NAME' already exists (${EXISTING}) — skip create"
+          else
+            app-store-connect profiles create "$BUNDLE_RES_ID" \
+              --type IOS_APP_STORE \
+              --name "$PROFILE_NAME" \
+              --certificate-ids $CERT_IDS
+          fi
 
   mahjong-trainer-ios-testflight:
     name: Mahjong Trainer iOS TestFlight
@@ -186,11 +201,26 @@ workflows:
             echo "ERROR: no distribution certificate found in the Apple Developer account"
             exit 1
           fi
-          echo "== create app store profile =="
-          app-store-connect create-profile "$BUNDLE_RES_ID" \
-            --type IOS_APP_STORE \
-            --name "mahjong-analyzer app_store" \
-            --certificate-ids $CERT_IDS
+          echo "== ensure app store profile (idempotent) =="
+          PROFILE_NAME="mahjong-analyzer app_store"
+          filter_ids() { python3 -c "
+          import sys, json, re
+          name = sys.argv[1]
+          s = re.sub(r'\x1b\[[0-9;]*[A-Za-z]', '', sys.stdin.read())
+          start = next((i for i in range(len(s)) if s[i] in '[{' and (i == 0 or s[i-1] == '\n')), None)
+          data = json.loads(s[start:]) if start is not None else []
+          data = data if isinstance(data, list) else [data]
+          print(' '.join(r['id'] for r in data if r.get('attributes', {}).get('name') == name))
+          " "$PROFILE_NAME"; }
+          EXISTING=$(app-store-connect profiles list --json 2>/dev/null | filter_ids || true)
+          if [ -n "$EXISTING" ]; then
+            echo "profile '$PROFILE_NAME' already exists (${EXISTING}) — skip create"
+          else
+            app-store-connect profiles create "$BUNDLE_RES_ID" \
+              --type IOS_APP_STORE \
+              --name "$PROFILE_NAME" \
+              --certificate-ids $CERT_IDS
+          fi
 
   mahjong-analyzer-ios-testflight:
     name: Mahjong Analyzer iOS TestFlight
