@@ -154,74 +154,6 @@ workflows:
         auth: integration
         submit_to_testflight: true
 
-  # ============================================================
-  # mahjong-analyzer (手牌解析) — trainer と同構成の別アプリ用ワークフロー。
-  # working_directory で mahjong-analyzer だけをビルドするため trainer は巻き込まれない。
-  # Bundle ID: com.kaeru07.mahjonganalyzer / 表示名: 麻雀手牌解析
-  # 事前に register-bundle-id-analyzer を1回実行してプロファイルを作成し、
-  # Codemagic UI で MAHJONG_ANALYZER_APP_STORE_PROFILE を登録しておくこと。
-  # ============================================================
-  register-bundle-id-analyzer:
-    name: Register Bundle ID (mahjong-analyzer)
-    max_build_duration: 10
-    instance_type: mac_mini_m2
-    integrations:
-      app_store_connect: ASC_API_KEY
-    environment:
-      vars:
-        BUNDLE_ID: "com.kaeru07.mahjonganalyzer"
-    scripts:
-      - name: Ensure app store profile exists
-        script: |
-          set -e
-          json_id() { python3 -c "
-          import sys, json, re
-          s = re.sub(r'\x1b\[[0-9;]*[A-Za-z]', '', sys.stdin.read())
-          for i in [i for i in range(len(s)) if s[i] in '[{' and (i == 0 or s[i-1] == '\n')]:
-              try:
-                  d = json.loads(s[i:])
-                  break
-              except Exception:
-                  continue
-          else:
-              sys.exit('no json in input')
-          d = d if isinstance(d, list) else [d]
-          print(' '.join(r['id'] for r in d))
-          "; }
-          echo "== bundle id =="
-          BUNDLE_RES_ID=$(app-store-connect list-bundle-ids --bundle-id-identifier "$BUNDLE_ID" --platform IOS --json | json_id)
-          echo "bundle id resource: $BUNDLE_RES_ID"
-          echo "== distribution certificates =="
-          CERT_IDS=$(app-store-connect list-certificates --type DISTRIBUTION --json | json_id || true)
-          if [ -z "$CERT_IDS" ]; then
-            CERT_IDS=$(app-store-connect list-certificates --type IOS_DISTRIBUTION --json | json_id || true)
-          fi
-          echo "cert ids: $CERT_IDS"
-          if [ -z "$CERT_IDS" ]; then
-            echo "ERROR: no distribution certificate found in the Apple Developer account"
-            exit 1
-          fi
-          echo "== ensure app store profile (idempotent) =="
-          PROFILE_NAME="mahjong-analyzer app_store"
-          filter_ids() { python3 -c "
-          import sys, json, re
-          name = sys.argv[1]
-          s = re.sub(r'\x1b\[[0-9;]*[A-Za-z]', '', sys.stdin.read())
-          start = next((i for i in range(len(s)) if s[i] in '[{' and (i == 0 or s[i-1] == '\n')), None)
-          data = json.loads(s[start:]) if start is not None else []
-          data = data if isinstance(data, list) else [data]
-          print(' '.join(r['id'] for r in data if r.get('attributes', {}).get('name') == name))
-          " "$PROFILE_NAME"; }
-          EXISTING=$(app-store-connect profiles list --json 2>/dev/null | filter_ids || true)
-          if [ -n "$EXISTING" ]; then
-            echo "profile '$PROFILE_NAME' already exists (${EXISTING}) — skip create"
-          else
-            app-store-connect profiles create "$BUNDLE_RES_ID" \
-              --type IOS_APP_STORE \
-              --name "$PROFILE_NAME" \
-              --certificate-ids $CERT_IDS
-          fi
-
   mahjong-analyzer-ios-testflight:
     name: Mahjong Analyzer iOS TestFlight
     max_build_duration: 60
@@ -240,11 +172,11 @@ workflows:
         APP_VERSION: "1.0"
         XCODE_PROJECT: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
+      # 自動署名: ASC API キー連携から証明書/プロファイルを Codemagic が自動取得・作成する。
+      # これにより register-bundle-id / UI での名前付きプロファイル登録が不要になる。
       ios_signing:
-        certificates:
-          - IOS_DISTRIBUTION_CERTIFICATE
-        provisioning_profiles:
-          - MAHJONG_ANALYZER_APP_STORE_PROFILE
+        distribution_type: app_store
+        bundle_identifier: com.kaeru07.mahjonganalyzer
 
     scripts:
       - name: Install dependencies
