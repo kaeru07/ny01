@@ -94,6 +94,8 @@
 
 
 
+
+- 2026-08-12: AI集中・実行支援 / Meta、PCで動作するオープンモデル「Muse Glimmer」を発表 / Google Antigravity / 無料版を記録・通知までとし、AI再計画、週次分析、外部連携を月額課金にする / エラーなし / partial(market,news,tools)
 - 2026-08-11: AI着手支援 / Gemini旧画像生成モデルの停止期限が8月17日に接近 / GitHub Copilot cloud agent for Linear / 無料の一件選択ツールから、履歴、カレンダー同期、週次分析を月額課金へ分ける。 / エラーなし / partial(market,news,tools)
 - 2026-08-10: AI短尺動画制作支援 / AIエージェントの無断行動リスクが顕在化 / GitHub Copilot cloud agent for Linear / 基本料金と生成クレジットを組み合わせ、推論原価の大きい処理だけ従量課金にする / エラーなし / partial(market,news,tools)
 - 2026-08-09: AI投稿品質チェック / OpenAI次期モデル「Astra」を巡る観測 / Gemini API Managed Agents / 業種別の台本生成、根拠確認、投稿管理をまとめ、月額980〜2,980円の段階課金にする / エラーなし / partial(market,news,tools)
