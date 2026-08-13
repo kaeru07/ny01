@@ -96,6 +96,8 @@
 
 
 
+
+- 2026-08-14: 行動連動型AIタスク管理 / 当日付の主要モデル発表は確認できず / AI SDK 7 / 基本タイマーと一日三回の分解を無料、履歴分析・週次レポート・カレンダー連携を月額課金にする / エラーなし / partial(market,news,tools)
 - 2026-08-13: 家族向けAI管理 / MCP Dev Summit Seoul が開幕 / Codex Sites / 基本生成を無料にし、履歴、同期、家族共有、自動通知を月額500〜980円で提供する / エラーなし / partial(market,news,tools)
 - 2026-08-12: AI集中・実行支援 / Meta、PCで動作するオープンモデル「Muse Glimmer」を発表 / Google Antigravity / 無料版を記録・通知までとし、AI再計画、週次分析、外部連携を月額課金にする / エラーなし / partial(market,news,tools)
 - 2026-08-11: AI着手支援 / Gemini旧画像生成モデルの停止期限が8月17日に接近 / GitHub Copilot cloud agent for Linear / 無料の一件選択ツールから、履歴、カレンダー同期、週次分析を月額課金へ分ける。 / エラーなし / partial(market,news,tools)
