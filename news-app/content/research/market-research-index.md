@@ -98,6 +98,8 @@
 
 
 
+
+- 2026-08-16: 垂直特化AIエージェント / Anthropic、最新リスク報告で警戒水準を引き上げ / GitHub Copilot app / 基本記録を無料にし、AI週次分析、長期履歴、複数目標、詳細通知を月額課金にする。 / エラーなし / partial(market,news,tools)
 - 2026-08-15: ADHD・実行機能支援 / AIコードレビューがLinux開発の修正量を押し上げる / GitHub Agent Finder / AI処理を一日3〜5回まで無料にし、回数追加を月額またはクレジット課金にする / エラーなし / partial(market,news,tools)
 - 2026-08-14: 行動連動型AIタスク管理 / 当日付の主要モデル発表は確認できず / AI SDK 7 / 基本タイマーと一日三回の分解を無料、履歴分析・週次レポート・カレンダー連携を月額課金にする / エラーなし / partial(market,news,tools)
 - 2026-08-13: 家族向けAI管理 / MCP Dev Summit Seoul が開幕 / Codex Sites / 基本生成を無料にし、履歴、同期、家族共有、自動通知を月額500〜980円で提供する / エラーなし / partial(market,news,tools)
