@@ -101,6 +101,8 @@
 
 
 
+
+- 2026-08-19: 教材取り込み型AI学習 / A2AがAgentic AI Foundationの傘下へ移行 / ChatGPT Work / 無料で一教材・一日一復習を提供し、複数教材、弱点分析、試験直前モードを月額または年額課金にする / エラーなし / partial(market,news,tools)
 - 2026-08-18: 垂直特化AIエージェント / EU AI Actの透明性義務とGPAI監督が適用段階へ / ChatGPT Work / 無料診断から、履歴保存、定期実行、詳細解説を月額課金へつなげる。 / エラーなし / partial(market,news,tools)
 - 2026-08-17: AI文字起こし・会議要約 / GPT-5.6が性能・価格帯別の3モデルで展開 / GitHub Agent Finder / 文字起こしを月額一本にせず、無料30分、追加時間パック、専門用語辞書を組み合わせる。 / エラーなし / partial(market,news,tools)
 - 2026-08-16: 垂直特化AIエージェント / Anthropic、最新リスク報告で警戒水準を引き上げ / GitHub Copilot app / 基本記録を無料にし、AI週次分析、長期履歴、複数目標、詳細通知を月額課金にする。 / エラーなし / partial(market,news,tools)
