@@ -4,7 +4,7 @@
 
 // checks に NG（lint / typecheck / build 失敗）が含まれるかを判定する。
 // ai-review.ts の NG_CHECK_PATTERN と同じ語彙に揃える（OK 以外で fail/ng/error 等）。
-export const NG_CHECK_PATTERN = /\b(ng|fail|failed|error)\b|エラー|失敗|✗/i
+export const NG_CHECK_PATTERN = /\b(ng|fail|failed|error)\b|\bexit(?:ed)?(?:\s+with)?\s+code\s+[1-9]\d*\b|エラー|失敗|✗/i
 
 /** checks の中で NG 判定されたキーを `key=value` で返す。NG が無ければ空配列。 */
 export function failingChecks(checks: Record<string, string | undefined> | undefined): string[] {
@@ -28,4 +28,21 @@ export function gateRunStatusByChecks<T extends string>(
 ): T | 'partial' {
   if (runStatus === 'completed' && failingChecks(checks).length > 0) return 'partial'
   return runStatus
+}
+
+/** checks NG の Run を、AI一次レビューを待たず要修正キューへ送る。 */
+export function gateReviewStatusByChecks<T extends string>(
+  reviewStatus: T,
+  checks: Record<string, string | undefined> | undefined,
+): T | 'needs_followup' {
+  if (failingChecks(checks).length > 0) return 'needs_followup'
+  return reviewStatus
+}
+
+/** 人間レビュー後も、失敗/機械チェックNGのRunからEpicを完了させない。 */
+export function canFinalizeReviewedRun(
+  runStatus: string,
+  checks: Record<string, string | undefined> | undefined,
+): boolean {
+  return runStatus !== 'failed' && failingChecks(checks).length === 0
 }

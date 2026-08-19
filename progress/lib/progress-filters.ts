@@ -24,7 +24,7 @@ export interface ProgressFilterState {
 
 type SearchInput = URLSearchParams | Record<string, string | string[] | undefined> | undefined
 
-const QUEUE_STATUS_FILTERS = new Set(['executable', 'waiting_user', 'ai_hold', 'review_waiting', 'blocked', 'manual', 'done'])
+const QUEUE_STATUS_FILTERS = new Set(['executable', 'waiting_user', 'held', 'ai_hold', 'review_waiting', 'blocked', 'manual', 'done'])
 const REVIEW_STATUS_FILTERS = new Set(['unconfirmed', 'followup', 'needs_followup', 'snoozed', 'reviewed'])
 
 function firstValue(input: SearchInput, key: string): string | undefined {

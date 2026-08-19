@@ -116,7 +116,7 @@ function describeOutcome(r: ExecutionRun): string {
   if (has('approval_required')) return 'あなたの承認待ちになり、ここで止まりました。'
   if (has('run_failed')) return '作業中にエラーが出て停止しました（下の課題を参照）。'
   if (has('rate_limited') || has('rate_limit')) return 'AIの利用上限に達して停止しました。'
-  if (has('max_runs_reached')) return '1回分の実行上限（最大3作業）まで動きました。'
+  if (has('safety_run_limit_reached') || has('max_runs_reached')) return '1回分の内部安全ガードまで動きました。'
   if (has('manual_execution_pending')) return '手動で実行する作業として記録しました（自動実行はしていません）。'
   if (has('dry_run')) return '試走（プレビュー）のみで、実際の変更はしていません。'
   if (has('auto_requires_confirm')) return '自動起動の確認が無く、実行していません。'
@@ -138,7 +138,7 @@ function describeOutcome(r: ExecutionRun): string {
 function didRealWork(r: ExecutionRun): boolean {
   if (r.changedFiles && r.changedFiles.length > 0) return true
   const s = (r.stopReason || '').toLowerCase()
-  return /epic_done|continue|run_failed|max_runs_reached|approval_required|all_epics_done/.test(s)
+  return /epic_done|continue|run_failed|safety_run_limit_reached|max_runs_reached|approval_required|all_epics_done/.test(s)
 }
 
 const MACHINE_TOKEN_RE = /\b(?:block\d+|executed=\d+|reserved=\d+|skipped=\d+|blocked=\d+|runs=\d+|considered=\d+|scanned=\d+|stopped=\w+|no_candidate|source=\w+|trigger=\w+|tagged=\S+|runIds=\S+)\b|\[[\w-]+\]|Review Fix\s*実行\d+・予約\d+・skip\d+・block\d+|Prompt Queue\s*実行\d+|Epic\s*\d+\s*Run|Vault走査\s*\d+\s*ファイル/

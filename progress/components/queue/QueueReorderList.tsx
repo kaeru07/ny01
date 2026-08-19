@@ -22,6 +22,7 @@ import { epicPriorityLabel } from '@/lib/epic-priority-label'
 interface QueueReorderItem {
   workItemId: string
   title: string
+  actualWork: string
   goalTitle?: string
   projectId?: string
   pinned: boolean
@@ -43,6 +44,7 @@ interface QueueReorderListProps {
 const STATUS_LABEL: Record<string, string> = {
   executable: '実行可能',
   waiting_user: '判断待ち',
+  held: '保留',
   ai_hold: 'AIが後回し中',
   review_waiting: 'レビュー互換',
   blocked: 'Block',
@@ -57,6 +59,7 @@ export function QueueReorderList({ items }: QueueReorderListProps) {
   const [saving, setSaving] = useState(false)
   const [pinningId, setPinningId] = useState<string>()
   const [unpinningId, setUnpinningId] = useState<string>()
+  const [holdingId, setHoldingId] = useState<string>()
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -173,6 +176,27 @@ export function QueueReorderList({ items }: QueueReorderListProps) {
     }
   }
 
+  async function hold(workItemId: string) {
+    if (holdingId) return
+    setHoldingId(workItemId)
+    try {
+      const response = await fetch('/api/auto-queue/control', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ workItemId, action: 'hold' }),
+      })
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}))
+        throw new Error(data.error ?? '保留に失敗しました')
+      }
+      window.location.reload()
+    } catch (error) {
+      alert(error instanceof Error ? error.message : '保留に失敗しました')
+    } finally {
+      setHoldingId(undefined)
+    }
+  }
+
   return (
     <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
       <div>
@@ -206,10 +230,18 @@ export function QueueReorderList({ items }: QueueReorderListProps) {
                       <button
                         type="button"
                         onClick={() => void unpin(item.workItemId)}
-                        disabled={Boolean(unpinningId)}
+                        disabled={Boolean(unpinningId) || Boolean(holdingId)}
                         className="min-h-10 flex-1 rounded border border-amber-300 bg-white px-2 py-1 text-[11px] font-bold text-amber-800 hover:bg-amber-100 disabled:opacity-40 dark:border-amber-800 dark:bg-gray-900 dark:text-amber-200 dark:hover:bg-amber-950/40 sm:min-h-0 sm:flex-none"
                       >
                         {unpinningId === item.workItemId ? '解除中' : '固定解除'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void hold(item.workItemId)}
+                        disabled={Boolean(holdingId)}
+                        className="min-h-10 flex-1 rounded border border-sky-300 bg-white px-2 py-1 text-[11px] font-bold text-sky-800 hover:bg-sky-50 disabled:opacity-40 dark:border-sky-800 dark:bg-gray-900 dark:text-sky-200 dark:hover:bg-sky-950/40 sm:min-h-0 sm:flex-none"
+                      >
+                        {holdingId === item.workItemId ? '保留中' : '保留'}
                       </button>
                     </div>
                   </li>
@@ -231,13 +263,15 @@ export function QueueReorderList({ items }: QueueReorderListProps) {
                       item={item}
                       index={index}
                       itemCount={order.length}
-                      disabled={saving || Boolean(pinningId)}
+                      disabled={saving || Boolean(pinningId) || Boolean(holdingId)}
                       onMove={move}
                       onMoveToEnd={moveToEnd}
                       onPin={(workItemId) => void pin(workItemId)}
+                      onHold={(workItemId) => void hold(workItemId)}
                       onDetail={() => setDetail(item)}
                       number={pinnedItems.length + index + 1}
                       pinning={pinningId === item.workItemId}
+                      holding={holdingId === item.workItemId}
                     />
                   ))}
                 </ol>
@@ -260,9 +294,11 @@ function SortableRow({
   onMove,
   onMoveToEnd,
   onPin,
+  onHold,
   onDetail,
   number,
   pinning,
+  holding,
 }: {
   item: QueueReorderItem
   index: number
@@ -271,9 +307,11 @@ function SortableRow({
   onMove: (index: number, offset: -1 | 1) => void
   onMoveToEnd: (index: number) => void
   onPin: (workItemId: string) => void
+  onHold: (workItemId: string) => void
   onDetail: () => void
   number: number
   pinning: boolean
+  holding: boolean
 }) {
   const {
     attributes,
@@ -309,7 +347,7 @@ function SortableRow({
         </span>
         <CompactItem item={item} number={number} />
       </div>
-      <div className="grid w-full shrink-0 grid-cols-5 gap-1 sm:flex sm:w-auto sm:max-w-[10rem] sm:flex-wrap sm:items-center sm:justify-end">
+      <div className="grid w-full shrink-0 grid-cols-6 gap-1 sm:flex sm:w-auto sm:max-w-[12rem] sm:flex-wrap sm:items-center sm:justify-end">
         <DetailButton onClick={onDetail} stopPointerPropagation />
         <button
           type="button"
@@ -320,6 +358,16 @@ function SortableRow({
           className="min-h-10 rounded border border-amber-300 bg-amber-50 px-1.5 py-1 text-[11px] font-bold text-amber-800 hover:bg-amber-100 disabled:opacity-40 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200 dark:hover:bg-amber-950/50 sm:min-h-0 sm:px-2"
         >
           {pinning ? '移動中' : '最優先'}
+        </button>
+        <button
+          type="button"
+          onClick={() => onHold(item.workItemId)}
+          onPointerDown={(event) => event.stopPropagation()}
+          disabled={disabled}
+          aria-label={`${item.title}を保留にする`}
+          className="min-h-10 rounded border border-sky-200 bg-sky-50 px-1.5 py-1 text-[11px] font-bold text-sky-800 hover:bg-sky-100 disabled:opacity-40 dark:border-sky-800 dark:bg-sky-950/30 dark:text-sky-200 dark:hover:bg-sky-950/50 sm:min-h-0 sm:px-2"
+        >
+          {holding ? '保留中' : '保留'}
         </button>
         <button
           type="button"
@@ -376,6 +424,9 @@ function CompactItem({
         </p>
         <p className="mt-0.5 break-words text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
           {item.summary || '概要なし'}
+        </p>
+        <p className="mt-1 break-words rounded bg-emerald-50 px-2 py-1 text-[11px] font-semibold leading-relaxed text-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-100">
+          実際にやること: {item.actualWork}
         </p>
       </div>
       {item.priority && (
@@ -449,6 +500,13 @@ function DetailModal({
             {item.projectId && <p>案件: {item.projectId}</p>}
           </div>
         )}
+
+        <div className="mt-4">
+          <h3 className="text-xs font-bold text-gray-900 dark:text-gray-100">実際にやること</h3>
+          <p className="mt-1 whitespace-pre-wrap rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 text-sm font-semibold leading-relaxed text-gray-900 dark:border-emerald-900/50 dark:bg-emerald-950/20 dark:text-gray-100">
+            {item.actualWork}
+          </p>
+        </div>
 
         <div className="mt-4">
           <h3 className="text-xs font-bold text-gray-900 dark:text-gray-100">なぜこれが次か</h3>

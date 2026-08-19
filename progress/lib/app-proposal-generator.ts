@@ -316,7 +316,7 @@ function normalizeDecisionPoints(value: unknown): AiDecisionPoint[] {
   return points
 }
 
-function normalizeAiProposal(value: unknown): AiStoreAppProposal | null {
+export function normalizeAiProposal(value: unknown): AiStoreAppProposal | null {
   if (!value || typeof value !== 'object') return null
   const source = value as Record<string, unknown>
   const title = compactText(source.title, '', 80)
@@ -407,7 +407,7 @@ function priorityForProposal(proposal: AiStoreAppProposal): AppFactoryCandidate[
   return 'medium'
 }
 
-function toCandidate(proposal: AiStoreAppProposal, index: number, now: string): AppFactoryCandidate {
+export function toCandidate(proposal: AiStoreAppProposal, index: number, now: string, derivation?: AppFactoryCandidate['derivation']): AppFactoryCandidate {
   const id = `daily-${todayJst()}-${index + 1}-${safeSlug(proposal.title)}`.slice(0, 80)
   return {
     id,
@@ -435,6 +435,7 @@ function toCandidate(proposal: AiStoreAppProposal, index: number, now: string): 
     difficulty: proposal.difficulty,
     externalApis: proposal.externalApis,
     initialGoalDraft: proposal.initialGoalDraft,
+    derivation,
     priority: priorityForProposal(proposal),
     status: 'proposed',
     nextAction: 'ストア公開対象、課金方式、MVP機能、審査リスクを今日の判断で決める',
@@ -511,10 +512,29 @@ export async function ensureDailyAppProposal(): Promise<DailyAppProposalResult> 
   ]
   const now = new Date().toISOString()
   const generated = await generateStoreAppProposalsViaAI(seeds, observation)
-  const candidates = generated.proposals.slice(0, MAX_AI_PROPOSALS).map((proposal, index) => toCandidate(proposal, index, now))
+  const baseDerivation: AppFactoryCandidate['derivation'] = {
+    mode: generated.mode,
+    reason: generated.reason,
+    seedSources,
+    seedTitles: seeds.map((seed) => `${seed.source}: ${seed.title}`).slice(0, 6),
+    marketDate: observation.market?.date,
+    aiNewsDate: observation.aiNews?.date,
+    marketGenres: observation.market?.genres.slice(0, 5),
+    monetizationHints: observation.market?.monetizationHints.slice(0, 5),
+    aiNewsHighlights: observation.aiNews?.highlights.slice(0, 5),
+    promptVersion: 'store-app-proposal-v2-market-observation',
+  }
+  const candidates = generated.proposals.slice(0, MAX_AI_PROPOSALS).map((proposal, index) => toCandidate(proposal, index, now, {
+    ...baseDerivation,
+    proposalIndex: index + 1,
+  }))
 
   const candidateIds: string[] = []
-  for (const candidate of candidates.length > 0 ? candidates : [toCandidate(fallbackProposal(seeds[0], observation), 0, now)]) {
+  for (const candidate of candidates.length > 0 ? candidates : [toCandidate(fallbackProposal(seeds[0], observation), 0, now, {
+    ...baseDerivation,
+    mode: 'fallback',
+    proposalIndex: 1,
+  })]) {
     await addAppFactoryCandidate(candidate)
     candidateIds.push(candidate.id)
   }

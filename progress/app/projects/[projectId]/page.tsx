@@ -9,6 +9,8 @@ import RecentLogs from '@/components/dashboard/RecentLogs'
 import ProjectSummaryEditor from '@/components/projects/ProjectSummaryEditor'
 import BlockersEditor from '@/components/projects/BlockersEditor'
 import ExcludeToggle from '@/components/projects/ExcludeToggle'
+import { buildInbox } from '@/lib/command-center'
+import { readGoals } from '@/lib/goal-reader'
 import { formatDateTime, getProjectTaskStats } from '@/lib/progress-transform'
 
 interface Props {
@@ -18,10 +20,12 @@ interface Props {
 export default async function ProjectDetailPage({ params }: Props) {
   const { projectId } = params
 
-  const [progressData, tasksData, allLogs] = await Promise.all([
+  const [progressData, tasksData, allLogs, goalsData, inbox] = await Promise.all([
     readAppProgress(),
     readProjectTasks(),
     readWorkLog(),
+    readGoals(),
+    buildInbox(),
   ])
 
   const project = progressData.projects.find((p) => p.id === projectId)
@@ -32,6 +36,13 @@ export default async function ProjectDetailPage({ params }: Props) {
   const ts = getProjectTaskStats(tasks)
 
   const projectLogs = allLogs.filter((l) => l.project === projectId).slice(0, 8)
+  const achievedGoalIds = new Set(inbox.achievedGoalIds)
+  const achievedGoals = goalsData.goals
+    .filter((goal) => goal.projectId === projectId && achievedGoalIds.has(goal.id))
+    .sort((a, b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''))
+  const waitingReviews = inbox.reviews.filter((card) => card.projectId === projectId && card.goalId && achievedGoalIds.has(card.goalId))
+  const latestWaitingReview = waitingReviews[0]
+  const achievementHref = `/decide?tab=achievement&projectId=${encodeURIComponent(projectId)}`
 
   const taskStats = [
     { label: 'TODO', value: ts.todo, color: 'text-gray-600 dark:text-gray-300' },
@@ -89,6 +100,51 @@ export default async function ProjectDetailPage({ params }: Props) {
         <main className="space-y-4">
           {/* Summary editor */}
           <ProjectSummaryEditor project={project} />
+
+          {achievedGoals.length > 0 && (
+            <section className="rounded-2xl border border-blue-100 bg-blue-50 p-3 shadow-sm dark:border-blue-900/50 dark:bg-blue-900/20">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-blue-700 dark:text-blue-200">確認待ち</p>
+                  <h2 className="mt-0.5 text-sm font-bold text-blue-950 dark:text-blue-50">
+                    達成済みGoal {achievedGoals.length}件
+                  </h2>
+                  <p className="mt-1 text-xs leading-relaxed text-blue-800/80 dark:text-blue-100/80">
+                    完成・達成扱いになったGoalをこのプロジェクトから確認できます。未確認レビューは {waitingReviews.length}件です。
+                  </p>
+                </div>
+                <Link
+                  href={achievementHref}
+                  className="shrink-0 rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-700"
+                >
+                  達成確認を開く
+                </Link>
+              </div>
+
+              <div className="mt-3 grid gap-2 md:grid-cols-2">
+                {achievedGoals.slice(0, 4).map((goal) => (
+                  <div key={goal.id} className="rounded-xl bg-white p-2 dark:bg-gray-950">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="min-w-0 truncate text-xs font-bold text-gray-900 dark:text-gray-100">{goal.title}</p>
+                      <span className="shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-700 dark:bg-blue-900/40 dark:text-blue-200">
+                        確認対象
+                      </span>
+                    </div>
+                    {(goal.summary || goal.description) && (
+                      <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-gray-500 dark:text-gray-400">
+                        {goal.summary || goal.description}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {latestWaitingReview && (
+                <p className="mt-2 text-[11px] text-blue-800/80 dark:text-blue-100/80">
+                  最新の確認待ち: {latestWaitingReview.headline}
+                </p>
+              )}
+            </section>
+          )}
 
           {/* Tasks */}
           <section>

@@ -36,6 +36,7 @@ export default function AutomationPage() {
   const [automation, setAutomation] = useState<AutomationReadiness | null>(null)
   const [config, setConfig] = useState<AutomationConfig | null>(null)
   const [busy, setBusy] = useState(false)
+  const [configFeedback, setConfigFeedback] = useState<string | null>(null)
 
   const refresh = useCallback(async () => {
     const [h, a, au, cfg] = await Promise.all([
@@ -70,13 +71,19 @@ export default function AutomationPage() {
 
   async function patchConfig(patch: Partial<AutomationConfig>) {
     setBusy(true)
+    setConfigFeedback(null)
     try {
       const res = await fetch('/api/operations/automation-config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(patch),
       })
-      setConfig(await res.json())
+      if (!res.ok) throw new Error(`automation-config: ${res.status}`)
+      const updated = await res.json() as AutomationConfig
+      setConfig(updated)
+      setConfigFeedback('設定を保存しました')
+    } catch {
+      setConfigFeedback('設定を保存できませんでした。もう一度お試しください')
     } finally {
       setBusy(false)
     }
@@ -182,7 +189,7 @@ export default function AutomationPage() {
         <div className="mt-4">
           <p className="mb-0.5 text-xs text-gray-500">1サイクルの深掘り回数</p>
           <p className="mb-1 text-[11px] text-gray-400">
-            同じEpicを1起動内で何回まで掘るか。1=毎回ちがうEpicへ / 3=同じEpicを最大3回（既定）
+            同じEpicを1起動内で何回まで掘るか。1=毎回ちがうEpicへ（既定） / 3=同じEpicを最大3回
           </p>
           <div className="flex gap-2">
             {([1, 2, 3] as const).map((n) => (
@@ -190,14 +197,24 @@ export default function AutomationPage() {
                 key={n}
                 disabled={busy}
                 onClick={() => patchConfig({ factoryMaxPerEpic: n })}
+                aria-pressed={(config?.factoryMaxPerEpic ?? 1) === n}
+                aria-label={`同一Epicの深掘り上限を${n}回にする`}
                 className={`flex-1 rounded-lg px-3 py-2 text-sm disabled:opacity-50 ${
-                  (config?.factoryMaxPerEpic ?? 3) === n ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                  (config?.factoryMaxPerEpic ?? 1) === n ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
                 }`}
               >
                 {n}回
               </button>
             ))}
           </div>
+          <p className="mt-1 text-xs text-gray-500" role="status" aria-live="polite">
+            {(config?.factoryMaxPerEpic ?? 1) === 1
+              ? '現在: 1回ごとに次のEpicへ進みます'
+              : `現在: 同じEpicを最大${config?.factoryMaxPerEpic ?? 1}回続けます`}
+          </p>
+          {configFeedback && (
+            <p className="mt-1 text-xs text-gray-500" role="status" aria-live="polite">{configFeedback}</p>
+          )}
         </div>
 
         {/* Auto Resume 状態（Claude上限後に安全作業だけ自動継続） */}
@@ -232,7 +249,7 @@ export default function AutomationPage() {
           <p className="mt-0.5 mb-3 text-[11px] text-gray-500">
             scan→pick→Dispatch→（adapter で）Run→ExecutionRun 記録→Epic 内ループ。既定 dry-run（実起動なし）。auto は claude/codex を実起動するため確認チェック必須。
           </p>
-          <FactoryRunnerPanel />
+          <FactoryRunnerPanel configuredMaxPerEpic={config?.factoryMaxPerEpic} />
         </section>
       </DevModeGate>
 

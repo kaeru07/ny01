@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { updateReviewStatus } from '@/lib/execution-run-writer'
 import { generateFollowupRecommendationForRun, runKnowledgeLoopForReviewedRun } from '@/lib/knowledge-loop'
 import { recordOperationalDecision } from '@/lib/operations-store'
+import { finalizeEpicAsDone } from '@/lib/epic-finalize'
+import { canFinalizeReviewedRun } from '@/lib/checks-gate'
 import type { ReviewStatus } from '@/types/execution-run'
 
 interface Params {
@@ -45,7 +47,13 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     const followupLoop = reviewStatus === 'needs_followup'
       ? await generateFollowupRecommendationForRun(updated)
       : null
-    return NextResponse.json({ success: true, knowledgeLoop, followupLoop })
+    // レビュー(問題なし)= 人間が「この作業は完了」と確定した信号。doneCriteria 自動判定が
+    // continue のままでも Epic を done にし、Goal 完了まで伝播させる（完了済み作業の滞留を止める）。
+    const epicFinalize = reviewStatus === 'reviewed' && updated.epicId
+      && canFinalizeReviewedRun(updated.runStatus, updated.checks)
+      ? await finalizeEpicAsDone(updated.epicId)
+      : null
+    return NextResponse.json({ success: true, knowledgeLoop, followupLoop, epicFinalize })
   } catch (err) {
     console.error('Failed to update review status:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

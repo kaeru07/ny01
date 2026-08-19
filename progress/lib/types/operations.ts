@@ -400,8 +400,8 @@ export interface AutomationConfig {
   factoryEnabled: boolean
   /**
    * 1 起動内で同一 Epic を深掘りする最大 Run 数（1〜3）。
-   * 既定 3 = 1 Epic を最大3回深掘り。1 にすると1 Run ごとに次の Epic へローテーションし、
-   * 1サイクルで複数の異なるタスクを回せる。API opts.maxPerEpic 未指定時の既定として使う。
+   * 既定 1 = 1 Run ごとに次の Epic へローテーションし、1サイクルで複数の異なるタスクを回す。
+   * 2〜3 にすると同じ Epic を指定回数まで深掘りする。API opts.maxPerEpic 未指定時の既定として使う。
    */
   factoryMaxPerEpic: number
   updatedAt: string

@@ -2,7 +2,7 @@ import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { getEpics } from '@/lib/operations-store'
 import { readGoals } from '@/lib/goal-reader'
 
-export type DataHealthIssueKind = 'orphan_epic_ref' | 'missing_goal_ref' | 'stale_followup' | 'stale_running'
+export type DataHealthIssueKind = 'orphan_epic_ref' | 'missing_goal_ref' | 'stale_followup' | 'stale_running' | 'goals_read_error'
 
 export interface DataHealthIssue {
   kind: DataHealthIssueKind
@@ -35,6 +35,10 @@ export async function checkDataHealth(): Promise<DataHealthSummary> {
   const goalIds = new Set(goalsData.goals.map((g) => g.id))
   const issues: DataHealthIssue[] = []
 
+  if (goalsData.readError) {
+    issues.push({ kind: 'goals_read_error', ref: 'goals.json', message: `目標データ(goals.json)が読み込めません。手動修復が必要です: ${goalsData.readError}` })
+  }
+
   for (const run of runs) {
     if (run.epicId && !epicIds.has(run.epicId)) {
       issues.push({ kind: 'orphan_epic_ref', ref: run.runId, message: `作業履歴が存在しない大きな作業を参照しています: ${run.epicId}` })
@@ -53,9 +57,12 @@ export async function checkDataHealth(): Promise<DataHealthSummary> {
     }
   }
 
-  for (const epic of epics) {
-    if (epic.goalId && !goalIds.has(epic.goalId)) {
-      issues.push({ kind: 'missing_goal_ref', ref: epic.epicId, message: `大きな作業が存在しない目標を参照しています: ${epic.goalId}` })
+  // goals.json が読めない間は goals が空に見えるだけなので、参照切れ扱いにしない（誤検知防止）
+  if (!goalsData.readError) {
+    for (const epic of epics) {
+      if (epic.goalId && !goalIds.has(epic.goalId)) {
+        issues.push({ kind: 'missing_goal_ref', ref: epic.epicId, message: `大きな作業が存在しない目標を参照しています: ${epic.goalId}` })
+      }
     }
   }
 

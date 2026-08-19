@@ -120,6 +120,7 @@ export async function POST(req: Request) {
       const item = [
         ...queue.executable,
         ...queue.waitingUser,
+        ...queue.held,
         ...queue.aiHold,
         ...queue.reviewWaiting,
         ...queue.blocked,
@@ -157,6 +158,7 @@ export async function POST(req: Request) {
       const item = [
         ...queue.executable,
         ...queue.waitingUser,
+        ...queue.held,
         ...queue.aiHold,
         ...queue.reviewWaiting,
         ...queue.blocked,
@@ -206,10 +208,39 @@ export async function POST(req: Request) {
       patch = { factoryEligible: false, queueControl: userControl(epic.queueControl, { excludedByUser: true }) }
     } else if (action === 'include') {
       patch = { factoryEligible: true, queueControl: userControl(epic.queueControl, { excludedByUser: false }) }
+    } else if (action === 'prioritize') {
+      patch = {
+        priority: 'P0',
+        factoryEligible: true,
+        queueControl: userControl(epic.queueControl, {
+          pinnedTop: true,
+          pinnedAt: new Date().toISOString(),
+          hold: false,
+          excludedByUser: false,
+        }),
+      }
+    } else if (action === 'complete') {
+      patch = {
+        status: 'done',
+        progress: 100,
+        remainingWork: [],
+        factoryEligible: false,
+        queueControl: userControl(epic.queueControl, {
+          pinnedTop: false,
+          hold: false,
+          excludedByUser: false,
+        }),
+      }
     } else if (action === 'setManualOrder') {
       const value = typeof body.value === 'number' && Number.isFinite(body.value) ? body.value : undefined
       if (!value) return NextResponse.json({ error: 'numeric value is required' }, { status: 400 })
       patch = { queueControl: userControl(epic.queueControl, { manualOrder: value }) }
+    } else {
+      return NextResponse.json({ error: 'action is not supported for epic' }, { status: 422 })
+    }
+
+    if (Object.keys(patch).length === 0) {
+      return NextResponse.json({ error: 'action produced no state change' }, { status: 422 })
     }
 
     await updateEpic(epicId, patch)

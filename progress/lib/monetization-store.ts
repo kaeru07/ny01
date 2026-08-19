@@ -2,6 +2,7 @@ import { readJson, writeJson } from '@/lib/store'
 import { getEpics, createEpic } from '@/lib/operations-store'
 import { validateEpicContract, evaluateFactoryEligibility } from '@/lib/epic-contract'
 import { addExecutionRun } from '@/lib/execution-run-writer'
+import { ensureExecutionRunNextActions } from '@/lib/execution-run-next-actions'
 import type { ExecutionRun } from '@/types/execution-run'
 import type {
   MonetizationCandidate,
@@ -260,6 +261,16 @@ export async function promoteToEpic(id: string): Promise<PromoteResult> {
   // 6) ExecutionRun記録
   const ts = now()
   const runId = genRunId()
+  const warnings = eligibility.eligible ? [] : [`Factory自動対象外: ${eligibility.reasons.join(' / ')}`]
+  const rawReport = `Monetization Hub からの Epic化。候補 ${candidate.id}「${candidate.name}」を人間承認で Epic ${epic.epicId} に昇格。decisionPolicy=${epic.decisionPolicy} / riskFlags=${(epic.riskFlags ?? []).join(',')} / factoryEligible=${eligibility.eligible}（${eligibility.reasons.join(' / ') || '自動実行可'}）。`
+  const nextActions = ensureExecutionRunNextActions({
+    rawReport,
+    runStatus: 'completed',
+    summary: `候補 ${candidate.id}（score ${candidate.score}）を承認し Epic ${epic.epicId} を作成（factoryEligible=${eligibility.eligible}）`,
+    targetTodoTitle: `Monetization Hub: ${candidate.name} を人間承認で Epic化`,
+    errors: [],
+    warnings,
+  })
   const run: ExecutionRun = {
     runId,
     startedAt: ts,
@@ -277,10 +288,11 @@ export async function promoteToEpic(id: string): Promise<PromoteResult> {
     ],
     checks: {},
     errors: [],
-    warnings: eligibility.eligible ? [] : [`Factory自動対象外: ${eligibility.reasons.join(' / ')}`],
+    warnings,
     progressUpdated: false,
-    nextActions: [],
-    rawReport: `Monetization Hub からの Epic化。候補 ${candidate.id}「${candidate.name}」を人間承認で Epic ${epic.epicId} に昇格。decisionPolicy=${epic.decisionPolicy} / riskFlags=${(epic.riskFlags ?? []).join(',')} / factoryEligible=${eligibility.eligible}（${eligibility.reasons.join(' / ') || '自動実行可'}）。`,
+    nextActionCount: nextActions.length,
+    nextActions,
+    rawReport,
   }
   await addExecutionRun(run)
 

@@ -9,7 +9,7 @@ const VALID_MODES: FactoryRunMode[] = ['dry_run', 'manual', 'auto']
 // POST: factory-runner を 1 回起動する。
 //   body: { mode?: 'dry_run'|'manual'|'auto', maxPerEpic?, confirm? }
 //   - 既定は dry_run（実起動なし）。auto は confirm:true がないと実起動しない。
-//   - Factory OFF のときは何もしない（factory_off）。maxRuns は外部から制御しない。
+//   - Factory OFF のときは何もしない（factory_off）。実行件数は外部から制御しない。
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}))
   const mode: FactoryRunMode = VALID_MODES.includes(body?.mode) ? body.mode : 'dry_run'

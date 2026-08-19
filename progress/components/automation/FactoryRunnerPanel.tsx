@@ -5,7 +5,11 @@ import type { FactoryRunReport, FactoryRunMode } from '@/lib/executors/types'
 
 // 開発者モード用の Factory runner コントロール。既定は dry_run（実起動なし）。
 // auto は確認チェックを入れたときだけ confirm=true で実起動する。
-export default function FactoryRunnerPanel() {
+interface FactoryRunnerPanelProps {
+  configuredMaxPerEpic?: number
+}
+
+export default function FactoryRunnerPanel({ configuredMaxPerEpic }: FactoryRunnerPanelProps) {
   const [report, setReport] = useState<FactoryRunReport | null>(null)
   const [busy, setBusy] = useState(false)
   const [confirmAuto, setConfirmAuto] = useState(false)
@@ -16,7 +20,8 @@ export default function FactoryRunnerPanel() {
       const res = await fetch('/api/operations/factory-run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode, maxPerEpic: 3, confirm: mode === 'auto' ? confirmAuto : false }),
+        // maxPerEpic は送らず、/automation で保存した factoryMaxPerEpic を runner に採用させる。
+        body: JSON.stringify({ mode, confirm: mode === 'auto' ? confirmAuto : false }),
       })
       setReport(res.ok ? await res.json() : null)
     } finally {
@@ -37,12 +42,17 @@ export default function FactoryRunnerPanel() {
         </label>
         <button onClick={() => run('auto')} disabled={busy || !confirmAuto} className="rounded-lg bg-rose-600 px-3 py-1.5 text-[11px] font-semibold text-white disabled:opacity-40 hover:bg-rose-700">auto 実行</button>
       </div>
-      <p className="text-[10px] text-gray-400">既定は dry_run（実起動なし）。実行件数はユーザー入力で制御せず、内部安全ガードで停止します。同一 Epic 最大 3 Run。Factory OFF / Approval / blocked / rate-limit(Codex不可) で停止。</p>
+      <p className="text-[10px] text-gray-400">
+        既定は dry_run（実起動なし）。実行件数はユーザー入力で制御せず、内部安全ガードで停止します。
+        同一 Epic の深掘り回数は Automation 設定を使用
+        {configuredMaxPerEpic ? `（現在 ${configuredMaxPerEpic}回）` : '（読込中）'}。
+        Factory OFF / Approval / blocked / rate-limit(Codex不可) で停止。
+      </p>
 
       {report && (
         <div className="rounded-xl border border-gray-200 p-3 dark:border-gray-700">
           <p className="text-xs font-bold text-gray-900 dark:text-gray-100">
-            runner: {report.mode} / runs {report.runsExecuted} / 停止: {report.stoppedReason}
+            runner: {report.mode} / runs {report.runsExecuted} / 深掘り上限 {report.maxPerEpic}回 / 停止: {report.stoppedReason}
           </p>
           <ul className="mt-1.5 space-y-1">
             {report.steps.length === 0 ? (

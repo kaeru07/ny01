@@ -8,7 +8,5 @@ Type=oneshot
 TimeoutStartSec=2h
 User=root
 WorkingDirectory=/root/company/apps/ny01/progress
-# 安全側初回運用: 1 起動あたり最大 1 Run。安定後に値を上げる or 行ごと削除（API 既定=最大3）。
-Environment=FACTORY_MAX_RUNS=1
 # 安全判定・二重起動防止・ExecutionRun 記録は progress 側 API に集約。ここは入口を叩くだけ。
 ExecStart=/root/company/apps/ny01/progress/docs/factory-schedule/factory-schedule-trigger.sh schedule systemd

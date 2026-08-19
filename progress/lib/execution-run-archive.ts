@@ -1,6 +1,7 @@
 import fs from 'fs/promises'
 import path from 'path'
 import { getDataPath } from '@/lib/progress-reader'
+import { readJson, writeJson } from '@/lib/store'
 import type { ExecutionRun, ExecutionRunsData } from '@/types/execution-run'
 
 export interface ExecutionRunArchivePlan {
@@ -79,37 +80,31 @@ export function planExecutionRunArchive(runs: ExecutionRun[], now = new Date()):
   }
 }
 
-async function readRunsFile(filePath: string): Promise<ExecutionRun[]> {
-  try {
-    const parsed = JSON.parse(await fs.readFile(filePath, 'utf-8')) as ExecutionRunsData
-    return Array.isArray(parsed.runs) ? parsed.runs : []
-  } catch {
-    return []
-  }
+async function readRunsFile(filename: string): Promise<ExecutionRun[]> {
+  const parsed = await readJson<ExecutionRunsData>(filename, { runs: [] })
+  return Array.isArray(parsed.runs) ? parsed.runs : []
 }
 
-async function writeRunsFile(filePath: string, runs: ExecutionRun[]): Promise<void> {
-  await fs.mkdir(path.dirname(filePath), { recursive: true })
-  await fs.writeFile(filePath, JSON.stringify({ runs }, null, 2) + '\n', 'utf-8')
+async function writeRunsFile(filename: string, runs: ExecutionRun[]): Promise<void> {
+  await writeJson(filename, { runs })
 }
 
 export async function rotateExecutionRunsArchive(): Promise<ExecutionRunArchivePlan> {
   const activePath = dataPath(ACTIVE_FILE)
-  const runs = await readRunsFile(activePath)
+  const runs = await readRunsFile(ACTIVE_FILE)
   const plan = planExecutionRunArchive(runs)
   if (!plan.shouldRotate || !plan.archiveFilename || !plan.backupFilename) return plan
 
   const movableIds = new Set(runs.filter(canArchiveRun).sort(sortOldestFirst).slice(0, plan.archiveCount).map((r) => r.runId))
   const moving = runs.filter((r) => movableIds.has(r.runId))
   const keeping = runs.filter((r) => !movableIds.has(r.runId))
-  const archivePath = dataPath(plan.archiveFilename)
   const backupPath = dataPath(plan.backupFilename)
-  const existingArchive = await readRunsFile(archivePath)
+  const existingArchive = await readRunsFile(plan.archiveFilename)
 
   await fs.mkdir(path.dirname(backupPath), { recursive: true })
   await fs.copyFile(activePath, backupPath)
-  await writeRunsFile(archivePath, [...existingArchive, ...moving])
-  await writeRunsFile(activePath, keeping)
+  await writeRunsFile(plan.archiveFilename, [...existingArchive, ...moving])
+  await writeRunsFile(ACTIVE_FILE, keeping)
 
   return {
     ...plan,
@@ -125,7 +120,7 @@ export async function readExecutionRunArchiveSummaries(): Promise<ExecutionRunAr
     const files = (await fs.readdir(archiveDir)).filter((file) => /^execution-runs-\d{6}\.json$/.test(file)).sort().reverse()
     const summaries: ExecutionRunArchiveSummary[] = []
     for (const file of files) {
-      const runs = await readRunsFile(path.join(archiveDir, file))
+      const runs = await readRunsFile(path.posix.join('archive', file))
       summaries.push({ file, count: runs.length })
     }
     return summaries

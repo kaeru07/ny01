@@ -3,6 +3,7 @@ import type { DecisionPolicy, ExecutorType, EpicPriority } from '@/lib/types/ope
 export type WorkItemStatus =
   | 'executable'
   | 'waiting_user'
+  | 'held'
   | 'ai_hold'
   | 'review_waiting'
   | 'blocked'
@@ -26,6 +27,8 @@ export interface AutoQueueItem {
   todoId?: string
   source?: 'manual_todo' | 'goal_resume' | 'review_fix' | 'ai_generated'
   title: string
+  /** キュー上で実際に次回実行する作業内容。優先理由や所属Goalとは別に表示する。 */
+  actualWork: string
   goalId?: string
   goalTitle?: string
   projectId?: string
@@ -77,6 +80,7 @@ export interface GoalProgressRow {
   executable: number
   nextCandidateCount: number
   waitingUser: number
+  held: number
   aiHold: number
   reviewWaiting: number
   reviewFixRequested?: number
@@ -94,6 +98,7 @@ export interface AutoQueueView {
   candidates: AutoQueueItem[]
   executable: AutoQueueItem[]
   waitingUser: AutoQueueItem[]
+  held: AutoQueueItem[]
   aiHold: AutoQueueItem[]
   reviewWaiting: AutoQueueItem[]
   blocked: AutoQueueItem[]

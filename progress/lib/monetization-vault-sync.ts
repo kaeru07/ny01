@@ -4,6 +4,7 @@ import { readJson, writeJson } from '@/lib/store'
 import { slugify } from '@/lib/monetization-store'
 import { getEpics } from '@/lib/operations-store'
 import { addExecutionRun } from '@/lib/execution-run-writer'
+import { ensureExecutionRunNextActions } from '@/lib/execution-run-next-actions'
 import type { ExecutionRun } from '@/types/execution-run'
 import type {
   MonetizationCandidate,
@@ -338,6 +339,16 @@ export async function syncCandidatesFromVault(input?: {
   }
 
   // ExecutionRun 記録（追加/更新件数）
+  const summary = `Vault走査 ${scannedFiles} ファイル / 新規追加 ${added} 件 / 既存追記 ${updated} 件 / skip ${skipped} 件`
+  const rawReport = `[monetization-sync] source=${input?.source ?? 'manual'} trigger=${input?.trigger ?? '-'} scanned=${scannedFiles} added=[${addedNames.join(', ')}] updated=[${updatedNames.join(', ')}] skipped=${skipped}. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。`
+  const nextActions = ensureExecutionRunNextActions({
+    rawReport,
+    runStatus: 'completed',
+    summary,
+    targetTodoTitle: `収益化候補 定期取り込み（Vault→Hub） 追加${added}/更新${updated}`,
+    errors: [],
+    warnings: [],
+  })
   const run: ExecutionRun = {
     runId,
     startedAt: ts,
@@ -348,14 +359,15 @@ export async function syncCandidatesFromVault(input?: {
     reviewStatus: 'not_reviewed',
     source: 'monetization_sync',
     trigger: input?.trigger,
-    summary: `Vault走査 ${scannedFiles} ファイル / 新規追加 ${added} 件 / 既存追記 ${updated} 件 / skip ${skipped} 件`,
+    summary,
     changedFiles: added > 0 || updated > 0 ? [{ file: 'data/real/monetization-candidates.json', change: `追加${added}/更新${updated}` }] : [],
     checks: {},
     errors: [],
     warnings: [],
     progressUpdated: false,
-    nextActions: [],
-    rawReport: `[monetization-sync] source=${input?.source ?? 'manual'} trigger=${input?.trigger ?? '-'} scanned=${scannedFiles} added=[${addedNames.join(', ')}] updated=[${updatedNames.join(', ')}] skipped=${skipped}. Vault は読み取りのみ（書き換えなし）。Epic化・公開・課金・deploy・secret には触れていない。`,
+    nextActionCount: nextActions.length,
+    nextActions,
+    rawReport,
   }
   await addExecutionRun(run)
 

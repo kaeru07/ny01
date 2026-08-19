@@ -21,9 +21,15 @@ function priorityOfTodo(todo: GoalTodo, goal: Goal): EpicPriority {
   return priorityOfGoal(goal)
 }
 
-function sourceTodoForGoal(goal: Goal, sourceTodoId?: string): GoalTodo | undefined {
-  if (!sourceTodoId) return undefined
-  return goal.todos.find((todo) => todo.id === sourceTodoId)
+export function sourceTodoForGoal(goal: Goal, sourceTodoId?: string): GoalTodo | undefined {
+  if (sourceTodoId) return goal.todos.find((todo) => todo.id === sourceTodoId)
+
+  // Goalだけがキューから選ばれた場合も、実行可能なTodoが1件に定まるなら関連付ける。
+  // これが無いとEpic完了時にGoalTodoをdoneへ同期できず、同名step-epicが再生成され続ける。
+  const openAutoTodos = goal.todos.filter((todo) => (
+    todo.role !== 'human' && todo.status !== 'done' && todo.status !== 'skipped'
+  ))
+  return openAutoTodos.length === 1 ? openAutoTodos[0] : undefined
 }
 
 function defaultDoneCriteriaForGoal(goal: Goal): string[] {
@@ -117,7 +123,7 @@ export async function ensureNextGoalStepEpic(targetGoalId?: string, sourceTodoId
     riskFlags: sourceTodo?.riskFlags ?? target.riskFlagsDefault ?? [],
     factoryEligible: true,
     targetApp: target.projectId,
-    relatedTodoIds: sourceTodoId ? [sourceTodoId] : undefined,
+    relatedTodoIds: sourceTodo ? [sourceTodo.id] : undefined,
     preferredExecutor: sourceTodo?.role === 'codex' ? 'codex' : skill?.skill.preferredExecutor ?? 'claude',
     notes: sourceTodo
       ? `GoalTodoから自動生成した「次の一歩」Epic（todoId=${sourceTodo.id}）。完了後はGoalTodoの消化状況に反映する。${sourceTodo.memo ? `\nTodoメモ: ${sourceTodo.memo}` : ''}`

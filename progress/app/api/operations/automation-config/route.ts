@@ -23,7 +23,8 @@ export async function POST(request: Request) {
   if (typeof body.autoFallback === 'boolean') patch.autoFallback = body.autoFallback
   if (typeof body.factoryEnabled === 'boolean') patch.factoryEnabled = body.factoryEnabled
   // 深掘り回数（同一Epicを1起動内で何Run回すか）。store 側で 1〜3 にクランプされるが、
-  // 数値以外は無視して既定維持。これを受けないと UI/外部から調整できず default 3 に固定される。
+  // 数値以外は無視して現在値を維持。保存値は runner で実行時指定に次いで採用され、
+  // 未設定時は既定1（1 Runごとに次Epicへローテーション）となる。
   if (typeof body.factoryMaxPerEpic === 'number' && Number.isFinite(body.factoryMaxPerEpic)) {
     patch.factoryMaxPerEpic = body.factoryMaxPerEpic
   }

@@ -63,6 +63,25 @@ function overlapRatio(a: string, b: string): number {
   return hit / ba.length
 }
 
+function evidenceTextFor(criterion: string, ctx: EvalContext): string {
+  const source = `${ctx.summary} ${ctx.rawReport} ${ctx.changedFiles.join(' ')}`
+  return source
+    .replaceAll(criterion, ' ')
+    .replaceAll(criterion.replace(/\s+/g, ''), ' ')
+}
+
+function isResearchCriterion(text: string): boolean {
+  return /調査|確認|検証|レビュー|棚卸|洗い出|分析|比較|整理|報告|レポート|結果|特定|記録|一覧|サマリ|まとめ/.test(text)
+}
+
+function isImplementationCriterion(text: string): boolean {
+  return /変更|修正|追加|実装|作成|画面|ファイル|対応|削除|導入|API|UI|コンポーネント|設定/.test(text)
+}
+
+function hasResearchEvidence(text: string): boolean {
+  return /調査結果|確認結果|検証結果|レビュー結果|棚卸し結果|分析結果|比較結果|報告|レポート|結論|判明|特定|一覧|対象|確認済み|未確認|所見|根拠/.test(text)
+}
+
 function evalCriterion(text: string, ctx: EvalContext): CriterionResult {
   const t = text.toLowerCase()
   const mentionsBuild = /build|ビルド/.test(t)
@@ -98,12 +117,32 @@ function evalCriterion(text: string, ctx: EvalContext): CriterionResult {
     return { text, met, level: 'meta', evidence: met ? '承認待ちなし' : `承認待ち ${ctx.pendingApprovalCount} 件` }
   }
 
+  const evidenceText = evidenceTextFor(text, ctx)
+  const ratioText = overlapRatio(text, evidenceText)
+
+  // 調査・確認・レビュー系: changedFiles が無い実行でも、結果・所見・対象ファイル等の証跡があれば達成できる。
+  // criteria 文言を rawReport にそのまま貼っただけの自己引用は evidenceTextFor で除外する。
+  if (isResearchCriterion(text)) {
+    const hayFiles = ctx.changedFiles.join(' ')
+    const ratioFiles = overlapRatio(text, hayFiles)
+    const reportArtifact = /\.(md|markdown|txt|json|csv|ndjson)$/i.test(hayFiles) || /docs\/|reviews\/|reports?\//i.test(hayFiles)
+    const reportEvidence = hasResearchEvidence(evidenceText)
+    const met = (reportArtifact && (ratioFiles >= 0.18 || ctx.changedFiles.length > 0)) || (reportEvidence && ratioText >= 0.12)
+    return {
+      text,
+      met,
+      level: reportArtifact ? 'L2' : 'L3',
+      evidence: met
+        ? `${reportArtifact ? `調査成果ファイル ${ctx.changedFiles.length}件` : '調査結果の記録あり'} / 一致率 text=${ratioText.toFixed(2)} files=${ratioFiles.toFixed(2)}`
+        : `未達（調査結果証跡=${reportEvidence ? 'あり' : 'なし'} / changedFiles ${ctx.changedFiles.length}件 / 一致率 text=${ratioText.toFixed(2)} files=${ratioFiles.toFixed(2)}）`,
+    }
+  }
+
   // L2/L3: ファイル変更・機能実装・文言修正など
-  if (/変更|修正|追加|実装|作成|画面|ファイル|対応|削除/.test(t)) {
+  if (isImplementationCriterion(text)) {
     const onlyOne = /1\s*箇所|一箇所|1\s*ファイル|1つ/.test(t)
     const fileChanged = ctx.changedFiles.length > 0
     const hayFiles = ctx.changedFiles.join(' ')
-    const ratioText = overlapRatio(text, `${ctx.summary} ${ctx.rawReport}`)
     const ratioFiles = overlapRatio(text, hayFiles)
     const tokenHit = ratioText >= 0.18 || ratioFiles >= 0.25
     const level: CriterionLevel = ratioFiles >= 0.25 ? 'L2' : 'L3'
@@ -120,9 +159,8 @@ function evalCriterion(text: string, ctx: EvalContext): CriterionResult {
   }
 
   // L3 汎用曖昧一致
-  const ratio = overlapRatio(text, `${ctx.summary} ${ctx.rawReport} ${ctx.changedFiles.join(' ')}`)
-  const met = ratio >= 0.3
-  return { text, met, level: 'L3', evidence: met ? `要約一致 ${ratio.toFixed(2)}` : `一致不足 ${ratio.toFixed(2)}` }
+  const met = ratioText >= 0.3 && (ctx.changedFiles.length > 0 || hasResearchEvidence(evidenceText))
+  return { text, met, level: 'L3', evidence: met ? `要約一致 ${ratioText.toFixed(2)}` : `一致不足 ${ratioText.toFixed(2)}` }
 }
 
 /** 最新優先で checks をマージ（各キーを持つ最も新しい run の値）。 */

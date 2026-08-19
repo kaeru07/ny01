@@ -17,6 +17,7 @@ import type { AutoQueueItem, WorkItemStatus } from '@/types/auto-queue'
 const STATUS_LABEL: Record<WorkItemStatus, string> = {
   executable: '実行可能',
   waiting_user: '判断待ち',
+  held: '保留',
   ai_hold: 'AIが後回し中',
   review_waiting: 'レビュー互換',
   blocked: 'ブロック',
@@ -24,13 +25,14 @@ const STATUS_LABEL: Record<WorkItemStatus, string> = {
   done: '完了',
 }
 
-type QueueView = 'queue' | 'others'
+type QueueView = 'queue' | 'held' | 'others'
 
 const OUTSIDE_QUEUE_STATUSES = new Set<WorkItemStatus>(['waiting_user', 'ai_hold', 'review_waiting', 'blocked', 'manual'])
 
 const STATUS_CLASS: Record<WorkItemStatus, string> = {
   executable: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
   waiting_user: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+  held: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300',
   ai_hold: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
   review_waiting: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
   blocked: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
@@ -62,6 +64,7 @@ function allItems(queue: Awaited<ReturnType<typeof getAutoQueueView>>): AutoQueu
   return [
     ...queue.executable,
     ...queue.waitingUser,
+    ...queue.held,
     ...queue.aiHold,
     ...queue.reviewWaiting,
     ...queue.blocked,
@@ -70,6 +73,7 @@ function allItems(queue: Awaited<ReturnType<typeof getAutoQueueView>>): AutoQueu
 }
 
 function parseQueueView(value?: string): QueueView {
+  if (value === 'held') return 'held'
   return value === 'others' ? 'others' : 'queue'
 }
 
@@ -82,7 +86,7 @@ function queueHref(filters: ProgressFilterState, patch: Partial<ProgressFilterSt
 }
 
 function clearQueueFiltersHref(view: QueueView): string {
-  return buildProgressFilterUrl('/queue', view === 'others' ? { view } : {})
+  return buildProgressFilterUrl('/queue', view === 'queue' ? {} : { view })
 }
 
 function statusCount(items: AutoQueueItem[], status: WorkItemStatus): number {
@@ -120,6 +124,7 @@ function matchesQuery(item: AutoQueueItem, q?: string): boolean {
   if (!q) return true
   const haystack = [
     item.title,
+    item.actualWork,
     item.goalTitle,
     item.projectName,
     item.projectId,
@@ -199,13 +204,14 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
     factoryStatus.lastScheduleAttempt?.blocked === true
   const filters = parseProgressFilters(searchParams)
   const view = parseQueueView(filters.view)
-  const filterView: ProgressFilterState = view === 'others' ? { ...filters, view } : { ...filters, view: undefined }
+  const filterView: ProgressFilterState = view === 'queue' ? { ...filters, view: undefined } : { ...filters, view }
   const goalId = filters.goalId
   const goalProgress = goalId ? queue.goalProgress.find((row) => row.goalId === goalId) : undefined
   const allQueueItems = allItems(queue)
   const executableItems = queue.executable
+  const heldItems = queue.held
   const outsideQueueItems = allQueueItems.filter((item) => OUTSIDE_QUEUE_STATUSES.has(item.status))
-  const viewBaseItems = view === 'others' ? outsideQueueItems : executableItems
+  const viewBaseItems = view === 'others' ? outsideQueueItems : view === 'held' ? heldItems : executableItems
   const goalScopedItems = viewBaseItems.filter((item) => !goalId || (item.goalId ?? 'unassigned') === goalId)
   const items = filterItems(viewBaseItems, filters)
   const goalGroups = groupItemsByGoal(items, queue.goalProgress)
@@ -227,12 +233,15 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
   ]
   const viewTabs = [
     { key: 'queue' as const, label: '自動実行キュー', count: executableItems.length, href: queueHref(filterView, { view: undefined }) },
+    { key: 'held' as const, label: '保留', count: heldItems.length, href: queueHref(filterView, { view: 'held' }) },
     { key: 'others' as const, label: 'キュー外', count: outsideQueueItems.length, href: queueHref(filterView, { view: 'others' }) },
   ]
-  const pageLabel = view === 'others' ? 'キュー外' : '自動実行キュー'
-  const emptyTitle = view === 'others' ? 'キュー外の項目はありません' : '実行できる作業がありません'
+  const pageLabel = view === 'others' ? 'キュー外' : view === 'held' ? '保留' : '自動実行キュー'
+  const emptyTitle = view === 'others' ? 'キュー外の項目はありません' : view === 'held' ? '保留中の作業はありません' : '実行できる作業がありません'
   const emptyDescription = view === 'others'
     ? '判断待ち・AIが後回し中・ブロック・手動などの項目はありません。'
+    : view === 'held'
+      ? '保留した作業はここに表示されます。再開すると自動実行キューへ戻ります。'
     : '現在の条件で実行可能な作業はありません。条件を解除するか、キュー外を確認してください。'
 
   return (
@@ -387,13 +396,14 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
         </section>
       )}
 
-      {view === 'others' && (
+      {view !== 'queue' && (
         <FilterBar
           basePath="/queue"
           filters={filterView}
           clearKeepKeys={['view']}
           quickFilters={[
             { key: 'all', label: 'すべて', patch: { status: undefined, excluded: undefined, pinned: undefined, manualOnly: undefined, executor: undefined, blocked: undefined, aiHold: undefined }, active: !filters.status && !filters.excluded && !filters.pinned && !filters.manualOnly && !filters.executor && !filters.blocked && !filters.aiHold },
+            { key: 'held', label: '保留', patch: { status: 'held', manualOnly: undefined, blocked: undefined, aiHold: undefined }, active: filters.status === 'held' },
             { key: 'waitingUser', label: '判断待ち', patch: { status: 'waiting_user', manualOnly: undefined, blocked: undefined, aiHold: undefined }, active: filters.status === 'waiting_user' },
             { key: 'aiHold', label: 'AIが後回し中', patch: { status: 'ai_hold', manualOnly: undefined, blocked: undefined, aiHold: undefined }, active: filters.status === 'ai_hold' || filters.aiHold === true },
             { key: 'blocked', label: 'ブロック', patch: { status: 'blocked', manualOnly: undefined, blocked: undefined, aiHold: undefined }, active: filters.status === 'blocked' || filters.blocked === true },
@@ -415,10 +425,11 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
         items={items.map((item) => ({
           workItemId: item.workItemId,
           title: item.title,
+          actualWork: item.actualWork,
           goalTitle: item.goalTitle,
           projectId: item.projectId,
           pinned: item.queueControl?.pinnedTop === true,
-          summary: item.reason,
+          summary: item.actualWork,
           status: item.status,
           priority: item.priority,
           reason: item.reason,
@@ -439,12 +450,13 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
           <p className="mt-1 text-xs text-gray-400">{emptyDescription}</p>
           <div className="mt-3 flex flex-wrap justify-center gap-2">
             <Link href={clearQueueFiltersHref(view)} className="rounded-lg bg-gray-900 px-3 py-1.5 text-xs font-bold text-white dark:bg-gray-100 dark:text-gray-900">クリア</Link>
+            {view === 'queue' && <Link href={queueHref(filterView, { view: 'held' })} className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 dark:border-gray-700 dark:text-gray-200">保留を見る</Link>}
             {view === 'queue' && <Link href={queueHref(filterView, { view: 'others' })} className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 dark:border-gray-700 dark:text-gray-200">キュー外を見る</Link>}
             <Link href={queueHref(filterView, { pinned: true })} className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 dark:border-gray-700 dark:text-gray-200">pin済みを見る</Link>
             {filters.goalId && <Link href={queueHref(filterView, { goalId: undefined })} className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 dark:border-gray-700 dark:text-gray-200">Goal解除</Link>}
           </div>
         </section>
-      ) : view === 'others' ? (
+      ) : view !== 'queue' ? (
         <div className="space-y-4">
           {goalGroups.map((group) => (
             <section key={group.goalId} className="space-y-2">
@@ -487,14 +499,23 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
                 </div>
 
                 <h2 className="mt-2 text-sm font-bold leading-snug text-gray-900 dark:text-gray-100">{item.title}</h2>
+                <div className="mt-2 rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 dark:border-emerald-900/50 dark:bg-emerald-950/20">
+                  <p className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300">実際にやること</p>
+                  <p className="mt-0.5 whitespace-pre-wrap text-sm font-semibold leading-relaxed text-gray-900 dark:text-gray-100">{item.actualWork}</p>
+                </div>
                 <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Project {item.projectName ?? item.projectId ?? '未設定'}
                 </p>
                 {!item.candidateEligible && (
                   <div className={`mt-3 rounded-lg px-3 py-2 ${pinnedButExcluded ? 'bg-amber-50 dark:bg-amber-900/20' : 'bg-gray-50 dark:bg-gray-800/50'}`}>
                     <p className={`text-sm font-bold ${pinnedButExcluded ? 'text-amber-800 dark:text-amber-200' : 'text-gray-700 dark:text-gray-200'}`}>
-                      {view === 'others' ? 'キュー外の理由' : pinnedButExcluded ? 'pin済みだが候補外' : '候補外'}: {item.candidateBlockedReason ?? STATUS_LABEL[item.status]}のため、自動実行の次回候補には入りません。
+                      {view === 'held' ? '保留中' : view === 'others' ? 'キュー外の理由' : pinnedButExcluded ? 'pin済みだが候補外' : '候補外'}: {item.candidateBlockedReason ?? STATUS_LABEL[item.status]}のため、自動実行の次回候補には入りません。
                     </p>
+                    {item.status === 'held' && (
+                      <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
+                        あなたが保留した作業です。再開すると安全条件を確認したうえで自動実行キューに戻ります。
+                      </p>
+                    )}
                     {item.status === 'ai_hold' && (
                       <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
                         依存する作業の完了待ちなどでAIが一時的に後回しにしています。
@@ -544,7 +565,7 @@ export default async function QueuePage({ searchParams }: { searchParams?: Recor
                   <QueueActionButton workItemId={item.workItemId} action="moveDown" disabled={!canMove}>↓</QueueActionButton>
                   {(item.type === 'epic' || item.type === 'goal_todo' || item.type === 'goal') && (
                     <QueueActionButton workItemId={item.workItemId} action={isHeld ? 'unhold' : 'hold'}>
-                      {isHeld ? '保留解除' : 'あとで'}
+                      {isHeld ? '再開' : '保留'}
                     </QueueActionButton>
                   )}
                   {item.type === 'epic' && item.factoryEligible && (

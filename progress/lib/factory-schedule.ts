@@ -2,10 +2,11 @@ import fs from 'fs/promises'
 import path from 'path'
 import { getDataPath } from '@/lib/progress-reader'
 import { getAutomationConfig, appendAutomationLog } from './operations-store'
-import { runFactory } from './factory-runner'
+import { resolveMaxPerEpic, runFactory, sweepDoneReadyEpics } from './factory-runner'
 import { runReviewFixDispatch } from './review-fix-runner'
 import { runPromptQueueDispatch } from './prompt-queue-runner'
 import { addExecutionRun, updateExecutionRunFields } from './execution-run-writer'
+import { readExecutionRuns } from './execution-run-reader'
 import { syncCandidatesFromVault } from './monetization-vault-sync'
 import { backfillFollowupRecommendations, backfillReviewedKnowledgeLoop } from './knowledge-loop'
 import { syncGoalMetricsFromFactory } from './goal-metric-sync'
@@ -14,6 +15,8 @@ import { rotateExecutionRunsArchive } from './execution-run-archive'
 import { checkAutonomyCompletionAndNotify } from './autonomy-notification'
 import { ensureDailyAppProposal } from './app-proposal-generator'
 import { runSkillMaintenance } from './skill-maintenance'
+import { readGoals } from './goal-reader'
+import { computeStalledGoals } from './stalled-goals'
 import type { ExecutionRun } from '@/types/execution-run'
 import type { FactoryRunReport } from './executors/types'
 
@@ -34,7 +37,6 @@ const LOCK_STALE_MS = 2 * 60 * 60 * 1000
 export interface ScheduleRunInput {
   source: ScheduleSource
   trigger: ScheduleTrigger
-  maxRuns?: number
   maxPerEpic?: number
   /** テスト用に runFactory を実起動せず擬似化したい場合のオプションを素通しする。 */
   passthrough?: Record<string, unknown>
@@ -49,6 +51,8 @@ export interface ScheduleRunResult {
   factoryEnabled: boolean
   stoppedReason?: string
   runsExecuted: number
+  /** この起動で Epic runner が実際に採用した深掘り上限。 */
+  maxPerEpic?: number
   promptQueueExecuted?: number
   promptQueueReserved?: number
   promptQueueSkipped?: number
@@ -197,6 +201,33 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
     await appendAutomationLog({ event: 'skill_maintenance', fallbackReason: 'skill_maintenance_failed' })
   }
 
+  // 0.3) オーファン回収: 実行プロセスが完了記録を残さず終了し 'running' のまま残った Run を failed に回収する。
+  //   これがないと画面の実行中バッジが残り続け「progress表示と内部状態の不一致」になる（2026-08-09 追加）。
+  //   閾値は executor timeout の 2 倍（既定 25分×2=50分）を大きく超える 2 時間。best-effort。
+  try {
+    const STALE_RUNNING_MS = 2 * 60 * 60 * 1000
+    const now = Date.now()
+    const stale = (await readExecutionRuns()).filter(
+      (r) => r.runStatus === 'running' && Number.isFinite(Date.parse(r.startedAt)) && now - Date.parse(r.startedAt) > STALE_RUNNING_MS,
+    )
+    for (const r of stale) {
+      // orphan は「本当の失敗」ではなく完了記録を残せず終了しただけ。'failed' にすると
+      // 「前回failed→恒久ブロック」(auto-queue-score) に落ちて自動実行から永久に外れるため、
+      // 継続可能な 'partial' として回収し、次回以降のローテーションに戻す（2026-08-09）。
+      await updateExecutionRunFields(r.runId, {
+        runStatus: 'partial',
+        finishedAt: new Date().toISOString(),
+        stopReason: `${r.stopReason ? r.stopReason + ' / ' : ''}orphan_reconciled(実行中のまま2h超で回収→partialで継続)`,
+        warnings: [...(r.warnings ?? []), '実行プロセスが完了記録を残さず終了したため partial として回収（オーファン・継続可能）'],
+      })
+    }
+    if (stale.length > 0) {
+      await appendAutomationLog({ event: 'factory_schedule', fallbackReason: `orphan_reconciled=${stale.length}件（running→failed）`, detectionStatus: input.source } as never)
+    }
+  } catch {
+    // 回収失敗は無視して Factory 本体へ進む
+  }
+
   // 0.5) AI候補の棚卸し。修正依頼は候補へ戻し、古い suggested は期限切れにする。
   //      さらに reviewed 済みなのに Knowledge/Next Epic 候補が未生成の Run を補完し、
   //      Review→Knowledge→Next Epic ループの取りこぼし（手動更新・旧データ等）を自動で閉じる。
@@ -244,6 +275,9 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
 
   // 1) Factory ON/OFF（OFF なら何も起動しない）
   const config = await getAutomationConfig()
+  // OFF / 二重起動による早期終了でも、次回起動時に採用する深掘り上限を返す。
+  // 実行せずにスケジュール経路への設定反映を確認できるようにするため。
+  const configuredMaxPerEpic = resolveMaxPerEpic(input.maxPerEpic, config.factoryMaxPerEpic)
   if (!config.factoryEnabled) {
     const envelopeRunId = await recordEnvelope({
       source: input.source,
@@ -256,7 +290,15 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
       runsExecuted: 0,
     })
     await appendAutomationLog({ event: 'factory_schedule', fallbackReason: 'factory_off', detectionStatus: input.source } as never)
-    return { ...base, factoryEnabled: false, skipReason: 'factory_off', envelopeRunId, startedAt, finishedAt: new Date().toISOString() }
+    return {
+      ...base,
+      factoryEnabled: false,
+      skipReason: 'factory_off',
+      maxPerEpic: configuredMaxPerEpic,
+      envelopeRunId,
+      startedAt,
+      finishedAt: new Date().toISOString(),
+    }
   }
 
   // 2) 二重起動防止
@@ -277,6 +319,7 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
       ...base,
       factoryEnabled: true,
       skipReason: 'already_running',
+      maxPerEpic: configuredMaxPerEpic,
       envelopeRunId,
       startedAt,
       finishedAt: new Date().toISOString(),
@@ -285,6 +328,12 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
 
   // 3) 起動（auto / confirm）。各Runnerが自分の候補・安全ゲートを判定する。
   try {
+    const sweep = await sweepDoneReadyEpics()
+    await appendAutomationLog({
+      event: 'factory_schedule',
+      fallbackReason: `epicSweepClosed=${sweep.closedEpics.length} goalsCompleted=${sweep.completedGoals.length} skipped=${sweep.skipped.length}`,
+      detectionStatus: input.source,
+    } as never)
     const reviewFix = await runReviewFixDispatch({
       mode: 'auto',
       confirm: true,
@@ -293,7 +342,6 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
     const report: FactoryRunReport = await runFactory({
       mode: 'auto',
       confirm: true,
-      maxRuns: input.maxRuns,
       maxPerEpic: input.maxPerEpic,
       ...(input.passthrough ?? {}),
     })
@@ -313,6 +361,9 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
     }
     const promptQueueRunIds = promptQueue.steps.map((step) => step.runId).filter((runId): runId is string => Boolean(runId))
     const reviewFixRunIds = reviewFix.steps.map((step) => step.followupRunId).filter((runId): runId is string => Boolean(runId))
+    const stalledGoals = computeStalledGoals((await readGoals()).goals)
+    const stalledCount = stalledGoals.filter((item) => item.severity === 'stalled').length
+    const stalledWarnCount = stalledGoals.filter((item) => item.severity === 'warn').length
 
     const runStatus: ExecutionRun['runStatus'] =
       report.runsExecuted > 0 || promptQueue.executed > 0 || promptQueue.reserved > 0 || reviewFix.executed > 0 || reviewFix.reserved > 0
@@ -322,11 +373,12 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
       source: input.source,
       trigger: input.trigger,
       runStatus,
-      summary: `Factory 起動: Review Fix 実行${reviewFix.executed}・予約${reviewFix.reserved}・skip${reviewFix.skipped}・block${reviewFix.blocked} / Epic ${report.runsExecuted} Run / Prompt Queue 実行${promptQueue.executed}・予約${promptQueue.reserved}・skip${promptQueue.skipped}・block${promptQueue.blocked} / 停止理由=${report.stoppedReason}（${input.source}/${input.trigger}）`,
+      summary: `Factory 起動: Review Fix 実行${reviewFix.executed}・予約${reviewFix.reserved}・skip${reviewFix.skipped}・block${reviewFix.blocked} / Epic ${report.runsExecuted} Run / Prompt Queue 実行${promptQueue.executed}・予約${promptQueue.reserved}・skip${promptQueue.skipped}・block${promptQueue.blocked} / 長期未解消${stalledCount}・警告${stalledWarnCount} / 停止理由=${report.stoppedReason}（${input.source}/${input.trigger}）`,
       rawReport: [
         `[review-fix] considered=${reviewFix.considered} executed=${reviewFix.executed} reserved=${reviewFix.reserved} skipped=${reviewFix.skipped} blocked=${reviewFix.blocked} stopped=${reviewFix.stoppedReason} runIds=${reviewFixRunIds.join(',') || 'none'}`,
-        `[factory-schedule] source=${input.source} trigger=${input.trigger} runs=${report.runsExecuted} stopped=${report.stoppedReason} tagged=${taggedRunIds.join(',') || 'none'}`,
+        `[factory-schedule] source=${input.source} trigger=${input.trigger} runs=${report.runsExecuted} maxPerEpic=${report.maxPerEpic} stopped=${report.stoppedReason} tagged=${taggedRunIds.join(',') || 'none'}`,
         `[prompt-queue] considered=${promptQueue.considered} executed=${promptQueue.executed} reserved=${promptQueue.reserved} skipped=${promptQueue.skipped} blocked=${promptQueue.blocked} stopped=${promptQueue.stoppedReason} runIds=${promptQueueRunIds.join(',') || 'none'}`,
+        `[stalled-goals] stalled=${stalledCount} warn=${stalledWarnCount}`,
       ].join('\n'),
       startedAt,
       stoppedReason: report.stoppedReason,
@@ -348,6 +400,7 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
       factoryEnabled: true,
       stoppedReason: report.stoppedReason,
       runsExecuted: report.runsExecuted + promptQueue.executed + promptQueue.reserved + reviewFix.executed + reviewFix.reserved,
+      maxPerEpic: report.maxPerEpic,
       promptQueueExecuted: promptQueue.executed,
       promptQueueReserved: promptQueue.reserved,
       promptQueueSkipped: promptQueue.skipped,

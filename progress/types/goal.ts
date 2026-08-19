@@ -97,6 +97,8 @@ export interface GoalsData {
   goals: Goal[]
   mainGoalId?: string
   updatedAt: string
+  /** goals.json がパース不能だった場合のエラー内容。これが立っているデータを writeGoals へ渡すと全ゴール消失になるため書き込みを拒否する。 */
+  readError?: string
 }
 
 export interface GoalUpsertInput {
@@ -150,6 +152,7 @@ export interface GoalImportInput {
   projectId: string
   goalTitle: string
   goalSummary?: string
+  status?: GoalStatus
   priority?: TaskPriority
   monetizationImpact?: MonetizationImpact
   phases: GoalImportInputPhase[]

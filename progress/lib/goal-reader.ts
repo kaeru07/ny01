@@ -4,7 +4,8 @@ import { getDataPath } from '@/lib/progress-reader'
 import type { Goal, GoalsData, GoalProgress, GoalRoleCounts, GoalStatus } from '@/types/goal'
 
 const EMPTY: GoalsData = { goals: [], mainGoalId: undefined, updatedAt: '' }
-const VALID_STATUSES: GoalStatus[] = ['proposed', 'active', 'paused', 'done', 'dropped', 'archived']
+/** Goal status の正本定義。reader/writer で二重定義しない（writer 側はここを import する）。 */
+export const VALID_GOAL_STATUSES: GoalStatus[] = ['proposed', 'active', 'paused', 'done', 'dropped', 'archived']
 
 function normalizeNumber(value: unknown, fallback: number): number {
   return typeof value === 'number' && Number.isFinite(value) ? value : fallback
@@ -14,7 +15,7 @@ export function normalizeGoal(raw: Partial<Goal> & Record<string, unknown>): Goa
   const now = new Date().toISOString()
   const title = typeof raw.title === 'string' && raw.title.trim() ? raw.title.trim() : 'Untitled Goal'
   const summary = typeof raw.summary === 'string' ? raw.summary : typeof raw.description === 'string' ? raw.description : ''
-  const status = VALID_STATUSES.includes(raw.status as GoalStatus) ? (raw.status as GoalStatus) : 'active'
+  const status = VALID_GOAL_STATUSES.includes(raw.status as GoalStatus) ? (raw.status as GoalStatus) : 'active'
   return {
     id: typeof raw.id === 'string' && raw.id.trim() ? raw.id.trim() : `goal-${Date.now()}`,
     projectId: typeof raw.projectId === 'string' ? raw.projectId : undefined,
@@ -56,17 +57,25 @@ export function normalizeGoal(raw: Partial<Goal> & Record<string, unknown>): Goa
 }
 
 export async function readGoals(): Promise<GoalsData> {
+  const filePath = path.join(getDataPath(), 'goals.json')
+  let content: string
   try {
-    const filePath = path.join(getDataPath(), 'goals.json')
-    const content = await fs.readFile(filePath, 'utf-8')
+    content = await fs.readFile(filePath, 'utf-8')
+  } catch (error) {
+    // ファイル未作成（初回）だけ空データで開始してよい。それ以外の読込失敗は readError を立てて上書きを防ぐ。
+    if ((error as NodeJS.ErrnoException)?.code === 'ENOENT') return { ...EMPTY }
+    return { ...EMPTY, readError: `goals.json read failed: ${error instanceof Error ? error.message : String(error)}` }
+  }
+  try {
     const parsed = JSON.parse(content) as Partial<GoalsData>
     return {
       goals: Array.isArray(parsed.goals) ? parsed.goals.map((g) => normalizeGoal(g as Partial<Goal> & Record<string, unknown>)) : [],
       mainGoalId: typeof parsed.mainGoalId === 'string' ? parsed.mainGoalId : undefined,
       updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : '',
     }
-  } catch {
-    return { ...EMPTY }
+  } catch (error) {
+    // パース不能＝破損。空データのまま writeGoals へ流れると全ゴール消失するため readError で止める。
+    return { ...EMPTY, readError: `goals.json parse failed: ${error instanceof Error ? error.message : String(error)}` }
   }
 }
 

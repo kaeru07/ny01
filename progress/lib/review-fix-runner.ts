@@ -2,6 +2,7 @@ import { getAutomationConfig } from '@/lib/operations-store'
 import { routesToApprovalQueue } from '@/lib/executor-roles'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { addExecutionRun, updateReviewStatus } from '@/lib/execution-run-writer'
+import { ensureExecutionRunNextActions } from '@/lib/execution-run-next-actions'
 import { getAdapter } from '@/lib/executors'
 import type { ExecutorResult, FactoryRunMode } from '@/lib/executors/types'
 import type { ExecutionRun } from '@/types/execution-run'
@@ -108,7 +109,7 @@ function dryRunResult(): ExecutorResult {
     changedFiles: [],
     rateLimited: false,
     needsApproval: false,
-    nextActions: [],
+    nextActions: ['auto+confirm でレビュー修正依頼を実行し、元RunのreviewStatus更新を確認する'],
   }
 }
 
@@ -126,6 +127,19 @@ async function recordReviewFixRun(args: {
     failed: 'failed',
     needs_manual: 'partial',
   }
+  const runStatus = runStatusMap[args.result.status]
+  const rawReport = `[review-fix ${args.mode}] followupOfRunId=${args.original.runId}\n${args.result.stdout || args.result.resultSummary}`
+  const errors = args.result.stderr ? [args.result.stderr.slice(0, 500)] : []
+  const warnings: string[] = []
+  const nextActions = ensureExecutionRunNextActions({
+    nextActions: args.result.nextActions,
+    rawReport,
+    runStatus,
+    summary: args.result.resultSummary,
+    targetTodoTitle: `修正依頼: ${args.original.targetTodoTitle}`,
+    errors,
+    warnings,
+  })
   const run: ExecutionRun = {
     runId,
     startedAt: now,
@@ -134,7 +148,7 @@ async function recordReviewFixRun(args: {
     epicId: args.original.epicId,
     targetTodoId: args.original.targetTodoId,
     targetTodoTitle: `修正依頼: ${args.original.targetTodoTitle}`,
-    runStatus: runStatusMap[args.result.status],
+    runStatus,
     reviewStatus: 'not_reviewed',
     source: 'review_fix',
     followupOfRunId: args.original.runId,
@@ -148,14 +162,15 @@ async function recordReviewFixRun(args: {
     promptGenerated: true,
     resultReturned: args.mode === 'auto',
     promptUsed: args.prompt,
+    nextActionCount: nextActions.length,
     summary: args.result.resultSummary,
     changedFiles: args.result.changedFiles.map((file) => ({ file, change: '' })),
     checks: {},
-    errors: args.result.stderr ? [args.result.stderr.slice(0, 500)] : [],
-    warnings: [],
+    errors,
+    warnings,
     progressUpdated: false,
-    nextActions: args.result.nextActions,
-    rawReport: `[review-fix ${args.mode}] followupOfRunId=${args.original.runId}\n${args.result.stdout || args.result.resultSummary}`,
+    nextActions,
+    rawReport,
   }
   await addExecutionRun(run)
   return runId

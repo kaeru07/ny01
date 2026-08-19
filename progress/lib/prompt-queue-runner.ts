@@ -1,6 +1,7 @@
 import { classifyCodexEligibility, getAutomationConfig } from '@/lib/operations-store'
 import { addExecutionRun } from '@/lib/execution-run-writer'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
+import { ensureExecutionRunNextActions } from '@/lib/execution-run-next-actions'
 import { buildPromptQueueView, updatePromptQueueItem } from '@/lib/prompt-queue'
 import { getAdapter } from '@/lib/executors'
 import { decideCodexFallback } from '@/lib/executor-fallback'
@@ -108,13 +109,26 @@ async function recordPromptQueueRun(args: {
     failed: 'failed',
     needs_manual: 'partial',
   }
+  const runStatus = runStatusMap[args.result.status]
+  const rawReport = `[prompt-queue ${args.mode}] item=${args.item.id} executor=${args.executor}\n${args.result.stdout || args.result.resultSummary}`
+  const errors = args.result.stderr ? [args.result.stderr.slice(0, 500)] : []
+  const warnings: string[] = []
+  const nextActions = ensureExecutionRunNextActions({
+    nextActions: args.result.nextActions,
+    rawReport,
+    runStatus,
+    summary: args.result.resultSummary,
+    targetTodoTitle: args.item.title,
+    errors,
+    warnings,
+  })
   const run: ExecutionRun = {
     runId,
     startedAt: now,
     finishedAt: now,
     targetApp: args.item.projectName ?? args.item.projectId ?? 'prompt-queue',
     targetTodoTitle: args.item.title,
-    runStatus: runStatusMap[args.result.status],
+    runStatus,
     reviewStatus: 'not_reviewed',
     source: 'prompt_queue',
     executorUsed: args.executor,
@@ -128,14 +142,15 @@ async function recordPromptQueueRun(args: {
     resultReturned: args.mode === 'auto',
     fallbackReason: args.fallbackReason,
     promptUsed: args.prompt,
+    nextActionCount: nextActions.length,
     summary: args.result.resultSummary,
     changedFiles: args.result.changedFiles.map((file) => ({ file, change: '' })),
     checks: {},
-    errors: args.result.stderr ? [args.result.stderr.slice(0, 500)] : [],
-    warnings: [],
+    errors,
+    warnings,
     progressUpdated: false,
-    nextActions: args.result.nextActions,
-    rawReport: `[prompt-queue ${args.mode}] item=${args.item.id} executor=${args.executor}\n${args.result.stdout || args.result.resultSummary}`,
+    nextActions,
+    rawReport,
   }
   await addExecutionRun(run)
   return runId
@@ -150,7 +165,7 @@ function dryRunResult(): ExecutorResult {
     changedFiles: [],
     rateLimited: false,
     needsApproval: false,
-    nextActions: [],
+    nextActions: ['auto+confirm でPrompt Queue作業を実行し、結果のExecutionRunを確認する'],
   }
 }
 

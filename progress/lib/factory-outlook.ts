@@ -7,7 +7,7 @@ import type { ExecutionRun } from '@/types/execution-run'
 // AI工場の「計器盤」ビューモデル（第1波・2026-06-12）。
 // 司令塔ホームに出す Now/Next/Later・稼働サマリー・修正依頼中・前回結果の人間語化をここで組み立てる。
 // 新しい正本は作らない（既存の runs / epics / dispatch scan からの都度算出）。
-// 内部語（runId / ExecutionRun / max_runs_reached 等）はこのモジュールの出口で必ず人間語に変換する。
+// 内部語（runId / ExecutionRun / safety_run_limit_reached 等）はこのモジュールの出口で必ず人間語に変換する。
 
 export interface FactoryOutlook {
   /** いま: 実行中の作業 or 待機中の説明文 */
@@ -221,7 +221,9 @@ export async function humanizeLastFactoryResult(): Promise<{ text: string; error
   let text: string
   if (last.runStatus === 'completed') {
     text = `前回の自動実行は正常に完了しました（${subject}）。`
-  } else if (/max_runs_reached|max_per_epic/.test(reason)) {
+  } else if (/max_per_epic/.test(reason)) {
+    text = `同一Epicの深掘り上限に達し、次のEpicへ切り替えました（${subject}）。`
+  } else if (/safety_run_limit_reached|max_runs_reached/.test(reason)) {
     text = `前回の自動実行は上限回数に達して終了しました（${subject}）。異常ではありません。`
   } else if (last.runStatus === 'partial') {
     text = `前回は一部の作業だけ完了しました（${subject}）。残りは次回に回ります。`

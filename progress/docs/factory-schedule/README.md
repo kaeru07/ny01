@@ -5,7 +5,7 @@ Factory を **ユーザー操作なし**で起動するためのスケジュー�
 - ① VPS 起動時: Factory ON なら自動開始（`factory-schedule-boot.service`）
 - ② 定時実行: 毎日指定時刻に自動開始（`factory-schedule.timer`）
 - ③ Factory OFF: 何も起動しない（API 側 `skip=factory_off`）
-- ④ 安全停止: blocked / approval_required / fail / max_runs / rate_limited 等は従来通り停止（`runFactory` に委譲）
+- ④ 安全停止: blocked / approval_required / fail / safety_run_limit / rate_limited 等は従来通り停止（`runFactory` に委譲）
 
 > 旧ドラフト `factory-runner.sh` / `factory-runner.service` / `factory-runner.timer` /
 > `factory-runner-boot.service` / `crontab.disabled` は本 `factory-schedule.*` 一式で**置き換え**。
@@ -37,10 +37,10 @@ Factory を **ユーザー操作なし**で起動するためのスケジュー�
 1. `factoryEnabled === true`（false → `skip=factory_off`）
 2. 二重起動防止: `data/real/factory-schedule.lock` が有効 → `skip=already_running`
 3. Review Fix / Epic Runner / Prompt Queue が、それぞれ自分の候補と安全条件を判定
-   - lock は実行開始時に作成し、`finally` で削除。最大3 Run×25分と前後処理を考慮し、2時間で stale 奪取。
+   - lock は実行開始時に作成し、`finally` で削除。内部安全ガード3 Run×25分と前後処理を考慮し、2時間で stale 奪取。
 
 通過したら3つのRunnerを起動。Epic ループ・安全ゲート
-（blocked / approval_required / riskFlags / decision 待ち / max_runs / rate_limited）は
+（blocked / approval_required / riskFlags / decision 待ち / safety_run_limit / rate_limited）は
 **runFactory 既存実装のまま**。P3 では一切変更しない。
 
 ---
@@ -79,7 +79,7 @@ cron 版（`crontab.example`）も同等機能を用意し、systemd 不可環�
 |---|---|---|
 | 定時 | 毎日 **11:00 / 14:00 / 16:00 / 23:00 JST** | `factory-schedule.timer` OnCalendar（複数行＝いずれか一致で発火）。TZ=Asia/Tokyo 確認済み |
 | 取りこぼし | `Persistent=true` | 停止中に跨いだら起動後 1 回補填 |
-| 初回 maxRuns | **1** | 両 service に `Environment=FACTORY_MAX_RUNS=1`。安定後に引き上げ or 削除 |
+| 実行件数制御 | 外部指定なし | 起動ごとの実行数は API / shell / systemd から制御しない。無限ループ防止は `runFactory` の内部安全ガードで扱う |
 | WorkingDirectory | `/root/company/apps/ny01/progress` | 両 service |
 | 実行ユーザー | `root` | progress(pm2) と同一 |
 | boot 前提 | `pm2-root.service`=enabled + `dump.pm2` に progress 含む → 再起動後 3010 自動復帰 | trigger 側 `wait_for_health` 最大 60 秒で待つ |
@@ -94,7 +94,7 @@ cron 版（`crontab.example`）も同等機能を用意し、systemd 不可環�
 2. **手動テスト** — `systemctl start factory-schedule.service`（OFF なので skip=factory_off を確認）
 3. **timer だけ enable** — 1〜2 日 11:00 の挙動を観察（boot はまだ）
 4. 問題なければ **boot service を enable**
-5. 安定したら `Environment=FACTORY_MAX_RUNS=1` を緩める（or 行削除で API 既定=最大3）
+5. 安定後も実行件数の外部指定は増やさない。調整が必要な場合は `runFactory` の内部安全ガードとして別途見直す
 
 ### setup（設置のみ・自動起動しない / 要承認）
 

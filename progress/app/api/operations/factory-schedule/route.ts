@@ -8,7 +8,7 @@ const VALID_SOURCES: ScheduleSource[] = ['schedule', 'boot']
 const VALID_TRIGGERS: ScheduleTrigger[] = ['systemd', 'cron', 'startup']
 
 // POST: スケジューラ（systemd timer / cron / boot service）から Factory を起動する入口。
-//   body: { source: 'schedule'|'boot', trigger: 'systemd'|'cron'|'startup', maxRuns?, maxPerEpic? }
+//   body: { source: 'schedule'|'boot', trigger: 'systemd'|'cron'|'startup', maxPerEpic? }
 //   - factoryEnabled=false → 何も起動しない（skip=factory_off）
 //   - 各Runnerが自分の候補・安全条件を判定する（グローバルな合成状態では止めない）
 //   - 実行中（lock 有効）→ 起動しない（skip=already_running）
@@ -21,7 +21,6 @@ export async function POST(request: Request) {
   const result = await runScheduledFactory({
     source,
     trigger,
-    maxRuns: typeof body?.maxRuns === 'number' ? body.maxRuns : undefined,
     maxPerEpic: typeof body?.maxPerEpic === 'number' ? body.maxPerEpic : undefined,
     // テスト用に runFactory の simulate* / cwd を素通しする（本番スケジューラからは渡さない）。
     passthrough:

@@ -145,7 +145,8 @@ function humanStopReason(reason?: string): string {
   if (/epic_done/i.test(raw)) {
     return ratio ? `Epic完了（DoneCriteria ${ratio[1]}/${ratio[2]}）` : 'Epic完了'
   }
-  if (/max_per_epic_reached|max_runs_reached/i.test(raw)) return '上限回数に到達'
+  if (/max_per_epic_reached/i.test(raw)) return '同一Epicの深掘り上限に達し、次のEpicへ切替'
+  if (/safety_run_limit_reached|max_runs_reached/i.test(raw)) return '上限回数に到達'
   if (/approval_required/i.test(raw)) return '承認待ちで停止'
   if (/run_failed/i.test(raw)) return '実行失敗で停止'
   if (/blocked/i.test(raw)) return 'ブロック中'

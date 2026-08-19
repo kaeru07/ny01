@@ -22,6 +22,20 @@ export interface AppFactoryMockScreen {
   rows: string[]
 }
 
+export interface AppFactoryCandidateDerivation {
+  mode?: 'ai' | 'fallback'
+  reason?: string
+  seedSources?: string[]
+  seedTitles?: string[]
+  marketDate?: string
+  aiNewsDate?: string
+  marketGenres?: string[]
+  monetizationHints?: string[]
+  aiNewsHighlights?: string[]
+  proposalIndex?: number
+  promptVersion?: string
+}
+
 /** 候補キューの 1 アプリ案。 */
 export interface AppFactoryCandidate {
   id: string
@@ -66,6 +80,8 @@ export interface AppFactoryCandidate {
   externalApis?: string[]
   /** Codexへ渡す初期Goal案。 */
   initialGoalDraft?: string
+  /** 生成元・市場観測・AI/fallback の導出メタ情報。 */
+  derivation?: AppFactoryCandidateDerivation
   /** 提案作成日時。 */
   createdAt?: string
   /** 優先度。 */
@@ -115,4 +131,28 @@ export async function addAppFactoryCandidate(candidate: AppFactoryCandidate): Pr
   }
   await writeJson('app-factory-candidates.json', next)
   return next
+}
+
+/** 候補の編集可能な仕様だけを更新する。候補が存在しない場合は null を返す。 */
+export async function updateAppFactoryCandidateSpec(
+  id: string,
+  updates: { spec?: string; mvpScope?: string },
+): Promise<AppFactoryCandidate | null> {
+  const queue = await readJson<AppFactoryCandidateQueue>('app-factory-candidates.json', EMPTY)
+  const index = (queue.candidates ?? []).findIndex((candidate) => candidate.id === id)
+  if (index === -1) return null
+
+  const updated: AppFactoryCandidate = {
+    ...queue.candidates[index],
+    ...(updates.spec !== undefined ? { spec: updates.spec || undefined } : {}),
+    ...(updates.mvpScope !== undefined ? { mvpScope: updates.mvpScope || undefined } : {}),
+  }
+  const candidates = [...queue.candidates]
+  candidates[index] = updated
+  await writeJson('app-factory-candidates.json', {
+    ...queue,
+    candidates,
+    updatedAt: new Date().toISOString(),
+  })
+  return updated
 }

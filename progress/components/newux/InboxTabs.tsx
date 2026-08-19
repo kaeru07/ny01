@@ -30,6 +30,7 @@ interface Props {
 }
 
 function tabFromQuery(value: string | null): TabKey {
+  if (value === 'today' || value === 'decisions') return 'decisions'
   if (value === 'review' || value === 'reviews') return 'reviews'
   if (value === 'goalApproval') return 'goalApproval'
   if (value === 'achievement') return 'achievement'
@@ -334,6 +335,7 @@ export default function InboxTabs({ inbox, notReviewedCount, autoQueue }: Props)
     ? [
         ...autoQueue.executable,
         ...autoQueue.waitingUser,
+        ...autoQueue.held,
         ...autoQueue.aiHold,
         ...autoQueue.reviewWaiting,
         ...autoQueue.blocked,

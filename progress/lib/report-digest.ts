@@ -90,6 +90,7 @@ function allQueueItems(queue: AutoQueueView): AutoQueueItem[] {
   return [
     ...queue.executable,
     ...queue.waitingUser,
+    ...queue.held,
     ...queue.aiHold,
     ...queue.reviewWaiting,
     ...queue.blocked,

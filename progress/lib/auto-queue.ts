@@ -25,10 +25,52 @@ function doneCriteriaDone(epic: Epic, total: number): number {
   return Math.max(0, Math.min(total, Math.max(byProgress, byRemaining)))
 }
 
+function firstNonEmpty(...values: Array<string | undefined | null>): string | undefined {
+  return values.map((value) => value?.trim()).find((value): value is string => Boolean(value))
+}
+
+function stripGenericSuffix(title: string): string {
+  const stripped = title
+    .replace(/[:：]\s*次の一歩\s*$/, '')
+    .replace(/（達成まで自動で進める）\s*$/, '')
+    .trim()
+  const separator = stripped.includes('：') ? '：' : stripped.includes(':') ? ':' : undefined
+  if (!separator) return stripped
+  const [head, ...tailParts] = stripped.split(separator)
+  const tail = tailParts.join(separator).trim()
+  if (head.trim() && tail && head.trim() === tail) return head.trim()
+  return stripped
+}
+
+function isGenericStepText(text: string): boolean {
+  return /次の具体|次の一歩|1ステップ|一歩をEpic化|達成に向けた/.test(text)
+}
+
+function buildEpicActualWork(epic: Epic): string {
+  const next = firstNonEmpty(epic.nextAction)
+  if (next) return next
+  const remaining = firstNonEmpty(...(epic.remainingWork ?? []))
+  if (remaining) return remaining
+  const criterion = firstNonEmpty(...(epic.doneCriteria ?? []))
+  if (criterion && !isGenericStepText(criterion)) return `完了条件「${criterion}」を満たす変更を進める`
+  return stripGenericSuffix(epic.title)
+}
+
+function buildGoalTodoActualWork(todo: GoalTodo): string {
+  return firstNonEmpty(todo.nextAction, todo.taskPrompt, todo.title) ?? todo.title
+}
+
+function buildGoalActualWork(goal: Goal, achievement: number): string {
+  const summary = firstNonEmpty(goal.summary, goal.description)
+  if (summary) return `Goal達成用Epicを自動生成して実行する: ${summary.replace(/[。.\s]+$/, '')}（現在の達成率${achievement}%）`
+  return `Goal「${goal.title}」の達成用Epicを自動生成して実行する（現在の達成率${achievement}%）`
+}
+
 export function statusBlockedReason(status: WorkItemStatus): string {
   const statusLabel: Record<WorkItemStatus, string> = {
     executable: '実行可能',
     waiting_user: '人間判断待ち',
+    held: '保留中',
     ai_hold: 'AIが後回し中',
     review_waiting: 'レビュー確認状態',
     blocked: 'ブロック中',
@@ -38,7 +80,7 @@ export function statusBlockedReason(status: WorkItemStatus): string {
   return statusLabel[status]
 }
 
-function reasonFromFactors(status: WorkItemStatus, factors: string[], goalTitle: string | undefined, pinnedTop: boolean): string {
+function reasonFromFactors(status: WorkItemStatus, factors: string[], pinnedTop: boolean): string {
   if (status !== 'executable') {
     const blockedReason = status === 'waiting_user' ? 'ユーザー判断が必要' : statusBlockedReason(status)
     if (pinnedTop) return `最優先指定中。ただし${blockedReason}のため、次回自動実行候補には入りません`
@@ -49,8 +91,7 @@ function reasonFromFactors(status: WorkItemStatus, factors: string[], goalTitle:
   if (factors.includes('レビュー未確認あり')) return 'レビュー未確認あり（自動実行は継続）'
   const core = factors.filter((f) => f !== 'factoryEligible')
   if (core.length === 0) return '実行可能条件を満たしているため候補入り'
-  const suffix = goalTitle ? ` / Goal「${goalTitle}」配下` : ''
-  return `${core.slice(0, 4).join('＋')} のため上位候補${suffix}`
+  return `${core.slice(0, 4).join('＋')} のため上位候補`
 }
 
 function blockedReasonForEpic(epic: Epic, latestRun: ExecutionRun | undefined): string | undefined {
@@ -97,6 +138,7 @@ function toEpicItem(epic: Epic, goal: Goal | undefined, runs: ExecutionRun[], st
     type: 'epic',
     sourceId: epic.epicId,
     title: epic.title,
+    actualWork: buildEpicActualWork(epic),
     goalId: epic.goalId,
     goalTitle: goal?.title ?? epic.goal,
     projectId: goal?.projectId ?? epic.targetApp ?? epic.targetApps?.[0],
@@ -121,7 +163,7 @@ function toEpicItem(epic: Epic, goal: Goal | undefined, runs: ExecutionRun[], st
     fixRequested,
     autonomyAnchor,
     resolution: candidateEligible ? undefined : deriveResolution(epic, status, latestRun, hasPendingApproval),
-    reason: reasonFromFactors(status, reasonFactors, goal?.title, epic.queueControl?.pinnedTop === true),
+    reason: reasonFromFactors(status, reasonFactors, epic.queueControl?.pinnedTop === true),
     reasonFactors: reasonFactors.length > 0 ? reasonFactors : [status],
     queueControl: epic.queueControl,
   }
@@ -145,7 +187,7 @@ function toGoalTodoItem(todo: GoalTodo, goal: Goal): AutoQueueItem {
     : todo.decisionPolicy === 'manual'
       ? 'manual'
     : todo.queueControl?.hold === true
-      ? 'ai_hold'
+      ? 'held'
     : todo.dependsOn.length > 0
       ? 'ai_hold'
       : 'executable'
@@ -165,6 +207,7 @@ function toGoalTodoItem(todo: GoalTodo, goal: Goal): AutoQueueItem {
     todoId: todo.id,
     source,
     title: todo.title,
+    actualWork: buildGoalTodoActualWork(todo),
     goalId: goal.id,
     goalTitle: goal.title,
     projectId: goal.projectId,
@@ -190,8 +233,8 @@ function toGoalTodoItem(todo: GoalTodo, goal: Goal): AutoQueueItem {
       ? undefined
       : dangerous
         ? { how: 'riskFlags が危険操作を含むため、承認またはリスク除去が必要です。' }
-        : { how: status === 'waiting_user' ? '承認が必要です。Goal詳細で内容を確認してください。' : '依存する作業の完了待ちです。先行する作業が終わると自動で候補に戻ります。' },
-    reason: reasonFromFactors(status, score.reasonFactors, goal.title, todo.queueControl?.pinnedTop === true),
+        : { how: status === 'waiting_user' ? '承認が必要です。Goal詳細で内容を確認してください。' : status === 'held' ? 'あなたが保留にした作業です。「再開」で自動実行候補に戻せます。' : '依存する作業の完了待ちです。先行する作業が終わると自動で候補に戻ります。' },
+    reason: reasonFromFactors(status, score.reasonFactors, todo.queueControl?.pinnedTop === true),
     reasonFactors: score.reasonFactors.length > 0 ? score.reasonFactors : [status],
     queueControl: todo.queueControl,
   }
@@ -232,7 +275,7 @@ function toGoalItem(goal: Goal): AutoQueueItem {
     : goal.decisionPolicyDefault === 'manual'
       ? 'manual'
     : goal.queueControl?.hold === true
-      ? 'ai_hold'
+      ? 'held'
       : 'executable'
   const achievement = goalAchievement(goal)
   const score = computeQueueScore({
@@ -249,6 +292,7 @@ function toGoalItem(goal: Goal): AutoQueueItem {
     sourceId: goal.id,
     source: 'goal_resume',
     title: `${goal.title}（達成まで自動で進める）`,
+    actualWork: buildGoalActualWork(goal, achievement),
     goalId: goal.id,
     goalTitle: goal.title,
     projectId: goal.projectId,
@@ -276,11 +320,13 @@ function toGoalItem(goal: Goal): AutoQueueItem {
         ? { how: 'Goal の riskFlagsDefault が危険操作を含むため、承認またはリスク除去が必要です。', actionLabel: 'Goal詳細', actionHref: `/goal-planner?goalId=${encodeURIComponent(goal.id)}` }
         : status === 'waiting_user'
           ? { how: 'この Goal は承認が必要な方針（approval_required）です。Inboxで承認すると自動で進みます。', actionLabel: 'Inboxで承認する', actionHref: `/decide?tab=today&goalId=${encodeURIComponent(goal.id)}` }
-          : { how: 'この Goal は手動方針（manual）です。自動化するには Goal の decisionPolicyDefault を見直してください。', actionLabel: 'Goal詳細', actionHref: `/goal-planner?goalId=${encodeURIComponent(goal.id)}` },
+          : status === 'held'
+            ? { how: 'あなたが保留にした Goal です。「再開」で自動実行候補に戻せます。', actionLabel: '再開', actionHref: '/queue?view=held' }
+            : { how: 'この Goal は手動方針（manual）です。自動化するには Goal の decisionPolicyDefault を見直してください。', actionLabel: 'Goal詳細', actionHref: `/goal-planner?goalId=${encodeURIComponent(goal.id)}` },
     reason: status === 'executable'
-      ? `Goal未達成（達成率${achievement}%）・todo/epicが無いため、次の一歩をEpic化して自動で進めます`
-      : reasonFromFactors(status, score.reasonFactors, goal.title, goal.pinnedTop === true),
-    reasonFactors: status === 'executable' ? ['Goal達成が目的', '次の一歩を自動Epic化', `優先度${epicPriorityLabel(priority)}`] : (score.reasonFactors.length > 0 ? score.reasonFactors : [status]),
+      ? `Goal未達成（達成率${achievement}%）・todo/epicが無いため、「${buildGoalActualWork(goal, achievement)}」を進めるEpicを自動生成して実行します`
+      : reasonFromFactors(status, score.reasonFactors, goal.pinnedTop === true),
+    reasonFactors: status === 'executable' ? ['Goal達成が目的', 'Goal達成用Epicを自動生成', `優先度${epicPriorityLabel(priority)}`] : (score.reasonFactors.length > 0 ? score.reasonFactors : [status]),
     queueControl: goal.queueControl ?? (goal.pinnedTop ? { pinnedTop: true } : undefined),
   }
 }
@@ -319,6 +365,7 @@ function countsOf(items: AutoQueueItem[], inbox: number): AutoQueueCounts {
   const counts: AutoQueueCounts = {
     executable: 0,
     waiting_user: 0,
+    held: 0,
     ai_hold: 0,
     review_waiting: 0,
     blocked: 0,
@@ -358,6 +405,7 @@ function buildGoalProgress(goals: Goal[], items: AutoQueueItem[], goalRank: Map<
       executable,
       nextCandidateCount: executable,
       waitingUser: goalItems.filter((item) => item.status === 'waiting_user').length,
+      held: goalItems.filter((item) => item.status === 'held').length,
       aiHold: goalItems.filter((item) => item.status === 'ai_hold').length,
       reviewWaiting: goalItems.filter((item) => item.status === 'review_waiting').length,
       reviewFixRequested: goalItems.filter((item) => item.fixRequested).length,
@@ -436,6 +484,7 @@ export async function buildAutoQueue(): Promise<AutoQueueView> {
     candidates: executable.slice(1, 4),
     executable,
     waitingUser: merged.filter((item) => item.status === 'waiting_user').sort(cmp),
+    held: merged.filter((item) => item.status === 'held').sort(cmp),
     aiHold: merged.filter((item) => item.status === 'ai_hold').sort(cmp),
     reviewWaiting: merged.filter((item) => item.status === 'review_waiting').sort(cmp),
     blocked: merged.filter((item) => item.status === 'blocked').sort(cmp),

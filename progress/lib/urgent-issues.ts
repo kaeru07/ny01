@@ -1,7 +1,8 @@
 import { buildAutoQueue } from '@/lib/auto-queue'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { goalAchievement, readGoals } from '@/lib/goal-reader'
-import { appendAutomationLog, getAutomationConfig, getPendingApprovals } from '@/lib/operations-store'
+import { appendAutomationLog, getAutomationConfig, getEpics, getPendingApprovals } from '@/lib/operations-store'
+import { resolveAppCwd } from '@/lib/app-paths'
 import { writeJson } from '@/lib/store'
 import type { ExecutionRun } from '@/types/execution-run'
 import type { Goal } from '@/types/goal'
@@ -148,8 +149,36 @@ export async function detectUrgentIssues(): Promise<UrgentIssue[]> {
       }
     }
 
+    // repoパス未登録の検知（今回の盲点）。targetApp が resolveAppCwd で解決できないと factory は
+    // 毎回「repo未登録」でスキップし、他の検知（キュー空/ブロック）に埋もれて原因が見えない。
+    // active ゴールの projectId と factory 対象 Epic の targetApp を解決チェックする。
+    try {
+      const epics = await getEpics()
+      const targets = new Set<string>()
+      for (const goal of activeGoals) if (goal.projectId) targets.add(goal.projectId)
+      for (const epic of epics) {
+        if (!['approved', 'active'].includes(epic.status)) continue
+        for (const app of epic.targetApps ?? (epic.targetApp ? [epic.targetApp] : [])) {
+          if (app) targets.add(app)
+        }
+      }
+      const unresolved = Array.from(targets).filter((app) => resolveAppCwd(app) === null)
+      if (unresolved.length > 0) {
+        addIssue(issues, {
+          id: 'repo-path-unregistered',
+          severity: 'high',
+          title: `リポジトリ未登録のアプリが${unresolved.length}件（自動実行が毎回スキップ）`,
+          detail: `${unresolved.slice(0, 6).join(' / ')} の repo パスが app-paths.ts に未登録のため、自動実行のたびにスキップされます。lib/app-paths.ts に登録が必要です。`,
+          actionLabel: 'キューを確認',
+          actionHref: '/queue',
+        }, 15)
+      }
+    } catch (err) {
+      console.warn('repo-path check failed:', err)
+    }
+
     const unreviewedFailed = runs.filter((run) =>
-      run.runStatus === 'failed' && (run.reviewStatus === 'not_reviewed' || run.reviewStatus === 'needs_followup')
+      run.runStatus === 'failed' && run.reviewStatus !== 'reviewed'
     )
     if (unreviewedFailed.length > 0) {
       addIssue(issues, {

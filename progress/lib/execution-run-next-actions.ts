@@ -12,6 +12,7 @@ const NEXT_ACTION_HEADINGS = [
 function cleanAction(value: unknown): string | null {
   if (typeof value !== 'string') return null
   const cleaned = value
+    .trim()
     .replace(/^[\s\-*・\d.]+/, '')
     .replace(/^["'「『]+|["'」』]+$/g, '')
     .trim()

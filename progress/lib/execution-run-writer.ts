@@ -1,23 +1,15 @@
-import fs from 'fs/promises'
-import path from 'path'
-import { getDataPath } from '@/lib/progress-reader'
+import { readJson, writeJson } from '@/lib/store'
+import { gateReviewStatusByChecks } from '@/lib/checks-gate'
 import type { ExecutionRun, ExecutionRunsData, ReviewStatus } from '@/types/execution-run'
 
 async function readAll(): Promise<ExecutionRun[]> {
-  try {
-    const filePath = path.join(getDataPath(), 'execution-runs.json')
-    const content = await fs.readFile(filePath, 'utf-8')
-    const data = JSON.parse(content) as ExecutionRunsData
-    return Array.isArray(data.runs) ? data.runs : []
-  } catch {
-    return []
-  }
+  const data = await readJson<ExecutionRunsData>('execution-runs.json', { runs: [] })
+  return Array.isArray(data.runs) ? data.runs : []
 }
 
 async function writeAll(runs: ExecutionRun[]): Promise<void> {
-  const filePath = path.join(getDataPath(), 'execution-runs.json')
   const data: ExecutionRunsData = { runs }
-  await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8')
+  await writeJson('execution-runs.json', data)
 }
 
 export interface ReviewStatusUpdateOptions {
@@ -33,8 +25,9 @@ export async function updateReviewStatus(
   const runs = await readAll()
   const idx = runs.findIndex((r) => r.runId === runId)
   if (idx === -1) return null
+  const gatedReviewStatus = gateReviewStatusByChecks(reviewStatus, runs[idx].checks)
   const options = typeof reviewMemoOrOptions === 'string' ? { reviewMemo: reviewMemoOrOptions } : reviewMemoOrOptions
-  const fixPrompt = reviewStatus === 'needs_followup' ? options?.fixPrompt?.trim() : undefined
+  const fixPrompt = gatedReviewStatus === 'needs_followup' ? options?.fixPrompt?.trim() : undefined
   const fixMemo = fixPrompt ? `修正指示: ${fixPrompt}` : undefined
   const reviewMemo = options?.reviewMemo !== undefined
     ? options.reviewMemo
@@ -43,14 +36,14 @@ export async function updateReviewStatus(
       : runs[idx].reviewMemo
   runs[idx] = {
     ...runs[idx],
-    reviewStatus,
+    reviewStatus: gatedReviewStatus,
     reviewMemo,
     ...(fixPrompt ? {
       fixPrompt,
       fixRequestedAt: new Date().toISOString(),
       fixRequestedBy: 'human' as const,
     } : {}),
-    reviewedAt: reviewStatus === 'reviewed' ? new Date().toISOString() : runs[idx].reviewedAt,
+    reviewedAt: gatedReviewStatus === 'reviewed' ? new Date().toISOString() : runs[idx].reviewedAt,
   }
   await writeAll(runs)
   return runs[idx]

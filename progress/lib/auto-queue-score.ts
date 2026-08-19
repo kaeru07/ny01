@@ -4,6 +4,7 @@ import type { Goal } from '@/types/goal'
 import type { QueueControl, QueueResolution, WorkItemStatus } from '@/types/auto-queue'
 import { AUTONOMY_ANCHOR_SCORE_BOOST, REVIEW_FIX_SCORE_BOOST } from './autonomy-anchor'
 import { epicPriorityLabel } from './epic-priority-label'
+import { isReviewApprovalOptions } from './inbox-labels'
 
 const DANGER_RISK_FLAGS = new Set<EpicRiskFlag>([
   'billing',
@@ -17,6 +18,19 @@ const DANGER_RISK_FLAGS = new Set<EpicRiskFlag>([
 const PRIORITY_SCORE: Record<EpicPriority, number> = { P0: 900, P1: 600, P2: 300 }
 const GOAL_PRIORITY_BOOST: Record<string, 0 | 1 | 2> = { high: 2, medium: 1, low: 0 }
 const RETRYABLE_FAILURE_PATTERN = /rate.?limit|weekly limit|usage limit|上限|too many requests|claude_rate_limited|codex_rate|retry_approved|429|quota|temporar|一時的/
+
+// 前回failedで恒久ブロックされた作業を、一定日数の経過後に「自動見直し（retry）対象」へ戻すための猶予日数。
+// これがないと rate-limit 以外の失敗が1回で永久に自動実行から外れ、放置され続ける（2026-08-09 追加）。
+// 失敗のたびに finishedAt が更新されるため、再失敗しても即ループせず「3日おきに1回だけ再挑戦」になる。
+export const STALE_FAILURE_REVIEW_DAYS = 3
+
+/** failed かつ最終実行から STALE_FAILURE_REVIEW_DAYS 日以上経過＝自動見直し対象。 */
+export function isStaleFailure(run: ExecutionRun | undefined, now: number = Date.now()): boolean {
+  if (!run || run.runStatus !== 'failed') return false
+  const finished = Date.parse(run.finishedAt || run.startedAt || '')
+  if (!Number.isFinite(finished)) return false
+  return now - finished >= STALE_FAILURE_REVIEW_DAYS * 24 * 60 * 60 * 1000
+}
 
 export interface StatusContext {
   runs: ExecutionRun[]
@@ -86,15 +100,25 @@ export function isRetryableFailure(run: ExecutionRun): boolean {
 export function deriveWorkItemStatus(epic: Epic, context: StatusContext): WorkItemStatus {
   if (epic.status === 'done' || epic.status === 'merged') return 'done'
   if (epic.decisionPolicy === 'manual' || epic.factoryEligible === false) return 'manual'
+  if (epic.queueControl?.hold === true) return 'held'
   const dangerous = hasDangerRisk(epic.riskFlags)
   const latestRun = latestRunForEpic(epic, context.runs)
   if (dangerous || (epic.blockers ?? []).length > 0 || epic.status === 'blocked') return 'blocked'
-  if (latestRun?.runStatus === 'failed' && !isRetryableFailure(latestRun)) return 'blocked'
+  // 前回failed→ブロック。ただし STALE_FAILURE_REVIEW_DAYS 日以上経過した失敗は「自動見直し対象」として
+  // ブロックを解除し、自動実行で再挑戦させる（恒久ブロックの放置を防ぐ）。
+  if (latestRun?.runStatus === 'failed' && !isRetryableFailure(latestRun) && !isStaleFailure(latestRun)) return 'blocked'
 
-  const pendingApproval = context.approvals.some((approval) => approval.epicId === epic.epicId && approval.status === 'pending')
+  // 「完了作業の確認」等のレビュー型承認（問題なし/フォローアップ型）は完了済み作業の事後確認であり、
+  // 実行前の判断ではない。これで epic を waiting_user にすると、事後確認が将来の自動実行を止めてしまう。
+  // 危険スコープゲート（factory-runner）と同じ isReviewApprovalOptions 基準で除外し、実行前判断のみ待たせる。
+  const pendingApproval = context.approvals.some((approval) =>
+    approval.epicId === epic.epicId
+    && approval.status === 'pending'
+    && !isReviewApprovalOptions((approval.options ?? []).map((o) => o.label)),
+  )
   if (pendingApproval || epic.decisionPolicy === 'approval_required') return 'waiting_user'
 
-  if (epic.queueControl?.hold === true || epic.status === 'paused') return 'ai_hold'
+  if (epic.status === 'paused') return 'ai_hold'
   // ただのレビュー待ち(not_reviewed)/修正依頼(needs_followup)は止めない。危険・判断要のゲートを通過していれば
   // factoryEligible に従って executable とする。fixRequested/reviewPending は toEpicItem 側で
   // status==='executable' のときフラグ付与＆boostする。
@@ -212,6 +236,12 @@ export function deriveResolution(
         actionHref: decideHref('today'),
       }
     }
+    case 'held':
+      return {
+        how: 'あなたが「保留」にした作業です。「再開」で自動実行候補に戻せます（安全条件は引き続き確認します）。',
+        actionLabel: '再開',
+        actionHref: '/queue?view=held',
+      }
     case 'blocked': {
       const blocker = (epic.blockers ?? [])[0]
       const risks = dangerRiskFlags(epic.riskFlags)
@@ -226,13 +256,6 @@ export function deriveResolution(
       }
     }
     case 'ai_hold':
-      if (epic.queueControl?.hold === true) {
-        return {
-          how: 'あなたが「保留」にした作業です。下の「保留解除」で自動実行候補に戻せます（安全条件は引き続き確認します）。',
-          actionLabel: '保留解除',
-          actionHref: '/queue',
-        }
-      }
       return {
         how: 'AIが一時保留にしています（依存作業の完了待ちなど）。条件が解ければ自動で候補に戻ります。',
         actionLabel: 'AI保留を見る',

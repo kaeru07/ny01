@@ -93,7 +93,7 @@ export interface ExecutionRun {
   runIndex?: number
   /** この Run 後の doneCriteria 判定（done / continue）。 */
   doneCriteriaStatus?: string
-  /** この Run の停止理由（epic_done / max_runs_reached / blocked など）。 */
+  /** この Run の停止理由（epic_done / safety_run_limit_reached / blocked など）。 */
   stopReason?: string
   /** 次アクション件数（= 未達 doneCriteria 件数）。 */
   nextActionCount?: number

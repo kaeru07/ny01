@@ -1,6 +1,4 @@
-import fs from 'fs/promises'
-import path from 'path'
-import { getDataPath } from './progress-reader'
+import { readJson } from './store'
 import type { ExecutionRun, ExecutionRunsData, ChangedFile } from '@/types/execution-run'
 
 function normalizeChangedFile(f: unknown): ChangedFile {
@@ -16,23 +14,17 @@ function normalizeChangedFile(f: unknown): ChangedFile {
 }
 
 export async function readExecutionRuns(): Promise<ExecutionRun[]> {
-  try {
-    const filePath = path.join(getDataPath(), 'execution-runs.json')
-    const content = await fs.readFile(filePath, 'utf-8')
-    const data = JSON.parse(content) as ExecutionRunsData
-    if (!Array.isArray(data.runs)) return []
-    const runs = data.runs.map((r) => ({
-      ...r,
-      changedFiles: Array.isArray(r.changedFiles)
-        ? r.changedFiles.map(normalizeChangedFile)
-        : [],
-    }))
-    return runs.sort(
-      (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
-    )
-  } catch {
-    return []
-  }
+  const data = await readJson<ExecutionRunsData>('execution-runs.json', { runs: [] })
+  if (!Array.isArray(data.runs)) return []
+  const runs = data.runs.map((r) => ({
+    ...r,
+    changedFiles: Array.isArray(r.changedFiles)
+      ? r.changedFiles.map(normalizeChangedFile)
+      : [],
+  }))
+  return runs.sort(
+    (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
+  )
 }
 
 export function countUnreviewed(runs: ExecutionRun[]): number {

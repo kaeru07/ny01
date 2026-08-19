@@ -15,6 +15,16 @@ const APP_CWD_BY_TARGET = new Map<string, string>([
   ['anglerlog', '/root/company/apps/ny01/anglerlog'],
   ['birdlog', '/root/company/apps/ny01/birdlog'],
   ['mahjong', '/root/company/apps/mahjong'],
+  // 麻雀系アプリ（ny01 モノレポ配下・news-app と同じ扱い）。
+  // 未登録だと factory が「repoパス未登録」で毎回スキップし自動実行がアイドル化していた（2026-08-09 修正）。
+  ['mahjong-trainer', '/root/company/apps/ny01/mahjong-trainer'],
+  ['ny01-mahjong-trainer', '/root/company/apps/ny01/mahjong-trainer'],
+  ['ny01/mahjong-trainer', '/root/company/apps/ny01/mahjong-trainer'],
+  ['mahjong-analyzer', '/root/company/apps/ny01/mahjong-analyzer'],
+  ['ny01-mahjong-analyzer', '/root/company/apps/ny01/mahjong-analyzer'],
+  ['ny01/mahjong-analyzer', '/root/company/apps/ny01/mahjong-analyzer'],
+  ['mahjong-quiz', '/root/company/apps/ny01/mahjong-quiz'],
+  ['ny01-mahjong-quiz', '/root/company/apps/ny01/mahjong-quiz'],
 ])
 
 export function resolveAppCwd(targetApp?: string | null): string | null {

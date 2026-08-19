@@ -13,6 +13,14 @@ export interface ShellResult {
   timedOut: boolean
 }
 
+export function summarizeCodexResult(stdout: string, code: number | null, timedOut: boolean): string {
+  const outputSummary = stdout.split('\n').filter(Boolean).slice(-3).join(' / ').slice(0, 300)
+  if (outputSummary) return outputSummary
+  if (timedOut) return 'Codexがタイムアウトしました（出力なし）'
+  if (code !== 0) return `Codexが終了コード${code ?? '不明'}で終了しました（出力なし）`
+  return '（出力なし）'
+}
+
 export function runCommand(
   cmd: string,
   args: string[],
@@ -120,24 +128,67 @@ export function parseNextActions(stdout: string): string[] {
 
 const CHANGED_FILES_HEADING = /(変更(済み)?ファイル|changed\s*files?|files?\s*changed|modified\s*files?)/i
 const FILE_FIELD = /["']?(?:file|path)["']?\s*:\s*["']([^"'\n]+)["']/gi
-const PATH_TOKEN = /(?:^|[`'"\s(])((?:\.\/)?(?:(?:app|components|lib|types|data|docs|scripts|tests|pages|public|src)\/[A-Za-z0-9_@./-]+|[A-Za-z0-9_@./-]+\.[A-Za-z0-9]{1,12}))(?=[`'"\s),:;]|$)/g
+const PATH_TOKEN = /(?:^|[`'"\s([,{])((?:\.\/)?(?:(?:a|b)\/)?(?:(?:apps\/ny01\/progress|progress|app|components|lib|types|data|docs|scripts|tests|pages|public|src)\/[A-Za-z0-9_@./-]+|[A-Za-z0-9_@./-]+\.[A-Za-z0-9]{1,12}))(?=[`'"\s\]),:;}]|$)/g
+const KNOWN_FILE_EXTENSIONS = new Set([
+  'cjs',
+  'css',
+  'csv',
+  'html',
+  'js',
+  'json',
+  'jsx',
+  'md',
+  'mdx',
+  'mjs',
+  'ndjson',
+  'scss',
+  'sh',
+  'sql',
+  'svg',
+  'ts',
+  'tsx',
+  'txt',
+  'yaml',
+  'yml',
+])
+
+// IPアドレス(例 127.0.0.1)や HTTP/1.1 のようなログ由来トークンを changedFiles から除外する。
+const IP_LIKE = /^\d{1,3}(?:\.\d{1,3}){3}$/
 
 function normalizeReportedPath(file: string): string | null {
-  const normalized = file
+  let normalized = file
     .trim()
     .replace(/^[-*・]\s+/, '')
     .replace(/^`|`$/g, '')
     .replace(/^\.\//, '')
     .replace(/[.,;:]+$/g, '')
+  normalized = normalized.replace(/^[ab]\//, '')
+  normalized = normalized.replace(/^apps\/ny01\/progress\//, '')
+  normalized = normalized.replace(/^progress\//, '')
   if (!normalized) return null
-  if (normalized.startsWith('/') || normalized.includes('..') || normalized.includes('://')) return null
+  if (normalized.startsWith('/') || normalized.includes('..') || normalized.includes('://') || normalized.includes('//')) return null
   if (normalized.includes('node_modules/')) return null
+  // ログ由来ノイズ除外: IPアドレス / 数字のみ拡張子(HTTP/1.1 等) / .env系(秘匿ファイル)
+  if (IP_LIKE.test(normalized)) return null
+  const base = normalized.slice(normalized.lastIndexOf('/') + 1)
+  if (/^\.env(\.|$)/.test(base)) return null
+  const dot = base.lastIndexOf('.')
+  const ext = dot > 0 ? base.slice(dot + 1) : ''
+  if (ext && /^\d+$/.test(ext)) return null
+  if (ext && !KNOWN_FILE_EXTENSIONS.has(ext.toLowerCase())) return null
+  if (!ext && !normalized.includes('/')) return null
   return normalized
 }
 
 function addReportedPath(out: Set<string>, file: string): void {
   const normalized = normalizeReportedPath(file)
   if (normalized) out.add(normalized)
+}
+
+function shouldReadPathTokens(line: string, inChangedFilesSection: boolean): boolean {
+  if (CHANGED_FILES_HEADING.test(line)) return true
+  if (!inChangedFilesSection) return false
+  return /^\s*(?:[-*・]|\d+[.)]|\||["'\[]|(?:\.\/)?(?:(?:a|b)\/)?(?:apps\/ny01\/progress|progress|app|components|lib|types|data|docs|scripts|tests|pages|public|src)\/)/.test(line)
 }
 
 /**
@@ -164,7 +215,7 @@ export function parseChangedFilesFromOutput(output: string): string[] {
       inChangedFilesSection = false
     }
 
-    if (!inChangedFilesSection) continue
+    if (!shouldReadPathTokens(line, inChangedFilesSection)) continue
     PATH_TOKEN.lastIndex = 0
     let pathMatch: RegExpExecArray | null
     while ((pathMatch = PATH_TOKEN.exec(line)) !== null) {

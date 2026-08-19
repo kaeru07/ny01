@@ -3,7 +3,11 @@ import { readExecutionRuns } from '@/lib/execution-run-reader'
 import { addExecutionRun } from '@/lib/execution-run-writer'
 import { ensureExecutionRunNextActions } from '@/lib/execution-run-next-actions'
 import { normalizeExecutionRunErrors } from '@/lib/execution-run-errors'
-import { resolveEpicId } from '@/lib/operations-store'
+import { parseChangedFilesFromOutput } from '@/lib/executors/shell'
+import { failingChecks, gateReviewStatusByChecks, gateRunStatusByChecks } from '@/lib/checks-gate'
+import { getEpic, resolveEpicId, updateEpic } from '@/lib/operations-store'
+import { shouldFinalizeEpicFromManualRun } from '@/lib/goal-completion-sync'
+import { propagateEpicDoneToGoal } from '@/lib/factory-runner'
 import type { ExecutorType, RunStatus, ReviewStatus, ChangedFile } from '@/types/execution-run'
 
 const VALID_RUN_STATUSES: RunStatus[] = ['running', 'completed', 'failed', 'partial']
@@ -37,6 +41,18 @@ function parseChangedFile(f: unknown): ChangedFile {
     }
   }
   return { file: String(f), change: '' }
+}
+
+function mergeChangedFiles(explicit: ChangedFile[], rawReport: string): ChangedFile[] {
+  const byFile = new Map<string, ChangedFile>()
+  for (const item of explicit) {
+    const file = item.file.trim()
+    if (file) byFile.set(file, { ...item, file })
+  }
+  for (const file of parseChangedFilesFromOutput(rawReport)) {
+    if (!byFile.has(file)) byFile.set(file, { file, change: 'rawReportから自動補完' })
+  }
+  return Array.from(byFile.values())
 }
 
 function normalizeChecks(raw: unknown): Record<string, string> {
@@ -101,33 +117,60 @@ export async function POST(request: Request) {
       ? body.runId.trim()
       : generateRunId()
 
+    // lint ゲート: API 経由の自己申告 Run も factory-runner と同じく、checks に NG が
+    // あれば completed を partial へ格下げする（lint NG を完了扱いにしない）。
+    const checks = normalizeChecks(body.checks)
+    const ngChecks = failingChecks(checks)
+    const runStatus = gateRunStatusByChecks(body.runStatus as RunStatus, checks)
+    const gateWarnings = runStatus !== body.runStatus
+      ? [`lintゲート: checks NG（${ngChecks.join(' / ')}）のため completed→partial に格下げ。要修正/レビュー待ち。`]
+      : []
+
     const requestedReviewStatus: ReviewStatus = VALID_REVIEW_STATUSES.includes(body.reviewStatus)
       ? body.reviewStatus
       : 'not_reviewed'
     // 新規Run作成は必ずInboxレビューに残す。reviewed化はPATCH/AI一次レビュー/人間レビュー操作だけで行う。
-    const reviewStatus: ReviewStatus = requestedReviewStatus === 'reviewed' ? 'not_reviewed' : requestedReviewStatus
-
-    const changedFiles: ChangedFile[] = Array.isArray(body.changedFiles)
-      ? body.changedFiles.map(parseChangedFile)
-      : []
-
-    const targetApp = String(body.targetApp).trim()
-    const targetTodoId = typeof body.targetTodoId === 'string' ? body.targetTodoId : undefined
-    // epicId は明示優先。無ければ targetApp / targetTodoId から Epic を自動結合する。
-    const epicId = await resolveEpicId({
-      epicId: typeof body.epicId === 'string' && body.epicId.trim() ? body.epicId.trim() : undefined,
-      targetApp,
-      targetTodoId,
-    })
+    const normalizedReviewStatus: ReviewStatus = requestedReviewStatus === 'reviewed' ? 'not_reviewed' : requestedReviewStatus
+    const reviewStatus: ReviewStatus = gateReviewStatusByChecks(normalizedReviewStatus, checks)
 
     const summary = String(body.summary).trim()
     const rawReport = String(body.rawReport).trim()
+    const explicitChangedFiles: ChangedFile[] = Array.isArray(body.changedFiles)
+      ? body.changedFiles.map(parseChangedFile)
+      : []
+    const changedFiles = mergeChangedFiles(explicitChangedFiles, rawReport)
+
+    const targetApp = String(body.targetApp).trim()
+    const targetTodoId = typeof body.targetTodoId === 'string' ? body.targetTodoId : undefined
+    const explicitEpicId = typeof body.epicId === 'string' && body.epicId.trim() ? body.epicId.trim() : undefined
+    // epicId は明示優先。無ければ targetApp / targetTodoId から Epic を自動結合する。
+    const epicId = await resolveEpicId({ epicId: explicitEpicId, targetApp, targetTodoId })
+
+    // 手動戻しRunの完了後処理: doneCriteriaStatus='done' 明示 + completed + epicId 明示のときだけ、
+    // factory-runner と同じ Epic done 化 + Goal/GoalTodo 同期を適用する（再キュー漏れの根本対策）。
+    const doneCriteriaStatus: string | undefined =
+      body.doneCriteriaStatus === 'done' || body.doneCriteriaStatus === 'continue'
+        ? body.doneCriteriaStatus
+        : undefined
+    const finalizeEpic = explicitEpicId
+      ? await getEpic(explicitEpicId).then((epic) => (
+          epic && shouldFinalizeEpicFromManualRun({
+            doneCriteriaStatus,
+            runStatus,
+            explicitEpicId,
+            epicStatus: epic.status,
+          })
+            ? epic
+            : null
+        ))
+      : null
+
     const errors = normalizeExecutionRunErrors(body.errors)
-    const warnings = Array.isArray(body.warnings) ? body.warnings : []
+    const warnings = [...(Array.isArray(body.warnings) ? body.warnings : []), ...gateWarnings]
     const nextActions = ensureExecutionRunNextActions({
       nextActions: body.nextActions,
       rawReport,
-      runStatus: body.runStatus as RunStatus,
+      runStatus,
       summary,
       targetTodoTitle: String(body.targetTodoTitle).trim(),
       errors,
@@ -142,7 +185,7 @@ export async function POST(request: Request) {
       epicId,
       targetTodoId,
       targetTodoTitle: String(body.targetTodoTitle).trim(),
-      runStatus: body.runStatus as RunStatus,
+      runStatus,
       reviewStatus,
       source: typeof body.source === 'string' && body.source.trim() ? body.source.trim() : undefined,
       executorUsed: VALID_EXECUTORS.includes(body.executorUsed) ? body.executorUsed : undefined,
@@ -157,12 +200,18 @@ export async function POST(request: Request) {
       executorCandidate: VALID_EXECUTORS.includes(body.executorCandidate) ? body.executorCandidate : undefined,
       promptGenerated: typeof body.promptGenerated === 'boolean' ? body.promptGenerated : undefined,
       resultReturned: typeof body.resultReturned === 'boolean' ? body.resultReturned : undefined,
+      doneCriteriaStatus,
+      stopReason: finalizeEpic
+        ? 'epic_done（手動Run doneCriteriaStatus=done）'
+        : gateWarnings.length > 0
+          ? 'lint_gate_partial'
+          : undefined,
       beforeStatus: typeof body.beforeStatus === 'string' ? body.beforeStatus : undefined,
       afterStatus: typeof body.afterStatus === 'string' ? body.afterStatus : undefined,
       promptUsed: typeof body.promptUsed === 'string' ? body.promptUsed : undefined,
       summary,
       changedFiles,
-      checks: normalizeChecks(body.checks),
+      checks,
       errors,
       warnings,
       progressUpdated: typeof body.progressUpdated === 'boolean' ? body.progressUpdated : false,
@@ -171,7 +220,26 @@ export async function POST(request: Request) {
     }
 
     await addExecutionRun(run)
-    return NextResponse.json({ success: true, runId })
+
+    // Run 保存後に Epic 完了後処理を適用する（失敗しても Run 登録は成功のまま返す）。
+    let epicCompleted = false
+    if (finalizeEpic) {
+      try {
+        await updateEpic(finalizeEpic.epicId, { status: 'done', progress: 100 })
+        await propagateEpicDoneToGoal(finalizeEpic.epicId, finalizeEpic.goalId)
+        epicCompleted = true
+      } catch (err) {
+        console.error(`Failed to finalize epic ${finalizeEpic.epicId} from manual run ${runId}:`, err)
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      runId,
+      runStatus,
+      ...(gateWarnings.length > 0 ? { lintGate: gateWarnings[0] } : {}),
+      ...(finalizeEpic ? { epicCompleted } : {}),
+    })
   } catch (err) {
     console.error('Failed to add execution run:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

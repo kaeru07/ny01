@@ -1,19 +1,19 @@
 export const dynamic = 'force-dynamic'
 
 import { readAppProgress } from '@/lib/progress-reader'
-import { readWorkQueue } from '@/lib/session-reader'
 import { readExecutionRuns } from '@/lib/execution-run-reader'
+import { buildAutoQueue } from '@/lib/auto-queue'
 import { buildRadar, pickTopFocus, ganttDates } from '@/lib/radar'
 import RadarBoard from '@/components/radar/RadarBoard'
 
 export default async function RadarPage() {
-  const [progressData, queueData, runs] = await Promise.all([
+  const [progressData, queue, runs] = await Promise.all([
     readAppProgress(),
-    readWorkQueue(),
+    buildAutoQueue(),
     readExecutionRuns(),
   ])
 
-  const radar = buildRadar(progressData.projects, queueData.items, runs)
+  const radar = buildRadar(progressData.projects, queue.candidates, runs)
   const focus = pickTopFocus(radar)
   const dates = ganttDates(21)
 

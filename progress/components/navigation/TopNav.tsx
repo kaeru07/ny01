@@ -44,7 +44,7 @@ const legacyNavItems = [
   { href: '/daily', label: '日別', exact: false },
 ]
 
-const NEW_ROUTES = ['/', '/queue', '/goal-dashboard', '/activity', '/decide', '/portfolio', '/app-proposals', '/project-complete', '/revenue', '/report', '/guide', '/legacy']
+const NEW_ROUTES = ['/', '/queue', '/goal-dashboard', '/activity', '/decide', '/portfolio', '/app-proposals', '/app-market-analysis', '/project-complete', '/revenue', '/report', '/guide', '/legacy']
 
 interface Props {
   logBadge?: number

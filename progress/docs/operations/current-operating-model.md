@@ -1,6 +1,6 @@
 ---
 updated: 2026-07-19
-updateNote: 危険判断待ちは関係するプロジェクトだけ停止し、対象不明の場合のみFactory全体停止に変更。iOSビルド画面に使い方とボタン説明を追加した。
+updateNote: 自動実行の1起動あたり実行件数の上限（3件固定）を撤廃し既定無制限に変更。必要な場合のみ環境変数で上限を設定できる。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -125,7 +125,9 @@ Progress は **AI工場の管理画面ではなく、人間用の司令塔**。
 
 目標 → 大きな作業 → AI作業 → レビュー → 学習 → 次の作業
 
-**定時自動実行の実処理順（11/14/16/23時・`runScheduledFactory` → `runFactory`）**: ①lock取得・Factory ON確認 → ②危険判断待ちを確認し、対象が分かるものは該当プロジェクト/Goal/Epicだけ除外、対象不明なら全体スキップ → ③Review Fix（修正依頼）→ ④調査からゴール提案 → ⑤実行Epic選定（無ければ次の一歩生成→ゴール生成モード）→ ⑥Claude実行（上限時Codex Fallback）→ ⑦検証(typecheck/lint)＋ExecutionRun記録 → ⑧doneCriteria判定で次へ/継続（1起動最大3作業）→ ⑨Prompt Queue → ⑩Envelope Run記録。`/guide?tab=system` の「自動実行で行われる処理」がこの順を人間語で図示する正本表示。
+**定時自動実行の実処理順（11/14/16/23時・`runScheduledFactory` → `runFactory`）**: ①lock取得・Factory ON確認 → ②危険判断待ちを確認し、対象が分かるものは該当プロジェクト/Goal/Epicだけ除外、対象不明なら全体スキップ → ③Review Fix（修正依頼）→ ④調査からゴール提案 → ⑤実行Epic選定（無ければ次の一歩生成→ゴール生成モード）→ ⑥Claude実行（上限時Codex Fallback）→ ⑦検証(typecheck/lint)＋ExecutionRun記録 → ⑧doneCriteria判定で次へ/継続（外部からの最大件数指定は受けず、無限ループ防止の内部安全ガードのみ適用）→ ⑨Prompt Queue → ⑩Envelope Run記録。`/guide?tab=system` の「自動実行で行われる処理」がこの順を人間語で図示する正本表示。
+
+**同一Epicの深掘り回数（`factoryMaxPerEpic`）**: `/automation` の「1サイクルの深掘り回数」で1〜3回を選ぶ。既定1は1 RunごとにそのEpicを今回の起動対象から外して次のEpicへ進むため、1サイクルで複数の異なるタスクを回す。2〜3を選ぶと同じEpicを指定回数まで続けて深掘りする。これは「1起動全体の実行件数上限」ではなく、同一Epicを連続して掘る回数の上限である。設定値はAutomation Configへ保存され、Factory RunnerはAPIで明示された値が無い場合にこの設定を採用する。
 
 **②調査からのゴール提案（毎回・自動実行の最初）**: `proposeGoalsFromResearchIfNeeded()` が日々の調査結果（news-app の AIツール調査「導入価値評価」★4以上）を読み、「○○を試す/調査する」を `status='proposed'` のゴール候補として提案する（`source='research'`）。承認待ち（proposed）が3件未満のときだけ補充。承認（→active）したものが次回以降の自動実行対象になる。
 
@@ -405,6 +407,7 @@ Progress 自身の使われ方を把握するページ（下タブ「使用状�
 
 ## 変更履歴
 
+- 2026-07-19: **自動実行の1起動あたり実行件数capを撤廃（既定無制限）**（goal-mqp5c2hm「自動実行の最大件数の制御をなくす」/ goal-mqrj2cbk 見直し）。従来は `maxRuns`（最大3にクランプ）→ codex 対応で `SAFETY_RUN_LIMIT=3` 固定となっており、いずれも「3件で停止」の挙動が残って意図と不一致だった。`lib/factory-runner.ts` を修正し、既定は件数無制限（safetyRunLimit=0）でキュー消化・全Epic完了・失敗・rate limit 等の条件でのみ停止する。無限ループ防止は maxPerEpic + excludedEpics + stale検知が担保（1起動内の総Run数は maxPerEpic×対象Epic/Goal数で有限）。暴走時の保険として env `FACTORY_SAFETY_RUN_LIMIT`（正の整数）で上限を任意設定可能。stoppedReason `safety_run_limit_reached` は env 設定時のみ発生。UI用語の変更なし（safetyRunLimit は画面非表示のため TERMS/図の更新は不要と確認）。
 - 2026-07-19: **危険判断待ちの停止範囲をプロジェクト単位へ変更し、iOSビルド画面の使い方を追記**。Factory は pending の危険approvalを `approval.projectId`、`epicId→Goal.projectId`、`createdRunId→targetApp` の順にスコープ解決し、解決できた場合は該当Project/Goal/Epic配下だけを今回の候補から除外して他プロジェクトを継続実行する。スコープ不明が1件でもあれば従来どおり全体停止し、automation log にapprovalIdを記録する。`factory-metrics` と司令塔表示は、全体停止を「スコープ不明の危険判断」のみに変更し、スコープ済み危険判断は「対象のみ停止、他プロジェクトは稼働」と表示する。`/ios-builds` には「使い方」を追加し、ビルド実行、候補を今日の判断へ、候補バッジ、ビルド状態、TestFlight欄、30秒自動更新の意味を説明した。
 - 2026-07-18: **iOSビルド状況・候補ピックアップ画面を追加**。`/ios-builds` で `/root/company/apps/*/codemagic.yaml` からiOS配信対象アプリを発見し、Codemagicの直近ビルド、TestFlight処理状況、ローカル最新コミットとの差分を表示する。候補判定は未ビルド/最新ビルド失敗/未反映コミットあり。手動の「ビルド実行」はCodemagic `POST /builds` を確認ダイアログ後に呼び、「候補を今日の判断へ」は `multi_option` approval（ビルドする/見送る）を重複防止付きで作成する。ASCキー未配置時はTestFlight未確認として案内。TERMS に `iosBuilds` / `buildCandidate` / `testFlight` を追加、/guide にアプリ開発スライドを追加。今日の流れ/AI工場の流れは日次判断と定時Factory本体の説明であり、今回の任意ビルド管理追加では変更不要と確認。
 - 2026-07-11: **承認入口の役割分担を明文化**（Goal④承認の入口整理）。実行可否の承認（ゴール承認・危険判断・方針選択）と作業品質の検収は progress（/decide・レビュータブ）が唯一の正本、Vault の `20_reviews/_review_queue.md` は ChatGPT への品質レビュー依頼専用チャネルと確定。Vault のチェック状態と progress の reviewed/承認状態は独立（相互同期しない）。ChatGPT指摘の採用は人間が progress 側の「修正する」/Inbox起票へ写す。TERMS に `approvalEntry` を追加、/guide に FAQ 1件追加。

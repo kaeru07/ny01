@@ -38,8 +38,13 @@ const SUPPLEMENT = {
 }
 const MAX_VARIANTS = 8
 
+const AUTH = (process.env.BASIC_AUTH_USER && process.env.BASIC_AUTH_PASSWORD)
+  ? 'Basic ' + Buffer.from(`${process.env.BASIC_AUTH_USER}:${process.env.BASIC_AUTH_PASSWORD}`).toString('base64')
+  : undefined
 const fetchText = async (url) => {
-  const res = await fetch(url, { headers: { 'user-agent': 'snapshot-export' }, redirect: 'follow' })
+  const headers = { 'user-agent': 'snapshot-export' }
+  if (AUTH) headers['authorization'] = AUTH
+  const res = await fetch(url, { headers, redirect: 'follow' })
   return { ok: res.ok, status: res.status, body: await res.text() }
 }
 

@@ -1075,13 +1075,17 @@ const DEFAULT_AUTOMATION_CONFIG: AutomationConfig = {
   autoResume: false,
   autoFallback: false,
   factoryEnabled: false,
-  factoryMaxPerEpic: 3,
+  // 未設定時は1 Runごとに次のEpicへ進み、1サイクルで複数の作業を回す。
+  // 保存済みの1〜3はそのまま尊重するため、既存利用者の選択は変えない。
+  factoryMaxPerEpic: 1,
   updatedAt: '',
 }
 
 /** factoryMaxPerEpic は 1〜3 にクランプする（無限ループ防止の安全上限は維持）。 */
 function clampMaxPerEpic(value: unknown): number {
-  const n = typeof value === 'number' && Number.isFinite(value) ? Math.round(value) : 3
+  // Runner の実行時指定と同じく切り捨てる。小数入力を切り上げて、指定より多く
+  // 同一 Epic を深掘りする挙動を避ける。
+  const n = typeof value === 'number' && Number.isFinite(value) ? Math.floor(value) : 1
   return Math.max(1, Math.min(n, 3))
 }
 
@@ -1111,6 +1115,13 @@ export async function updateAutomationConfig(
       action: patch.factoryEnabled ? 'factory_resume' : 'factory_pause',
       topic: 'Factory ON/OFF 切替',
       decision: `factoryEnabled=${patch.factoryEnabled}`,
+    })
+  }
+  if (typeof patch.factoryMaxPerEpic === 'number' && next.factoryMaxPerEpic !== current.factoryMaxPerEpic) {
+    await recordOperationalDecision({
+      action: 'factory_max_per_epic_change',
+      topic: 'Factory 同一Epic深掘り上限変更',
+      decision: `factoryMaxPerEpic=${current.factoryMaxPerEpic}→${next.factoryMaxPerEpic}`,
     })
   }
   return next

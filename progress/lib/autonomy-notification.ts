@@ -38,7 +38,7 @@ function buildBody(args: {
 }
 
 export async function checkAutonomyCompletionAndNotify(): Promise<AutonomyNotificationResult> {
-  const to = process.env.MAIL_TO || process.env.NOTIFY_EMAIL_TO || 'toku106ma@yahoo.co.jp'
+  const to = process.env.MAIL_TO || process.env.NOTIFY_EMAIL_TO || 'ill070308@gmail.com'
   const data = await readGoals()
   const idx = data.goals.findIndex((goal) => goal.id === AUTONOMY_GOAL_ID)
   if (idx === -1) return { checked: true, sent: false, skippedReason: 'goal_not_found', provider: 'noop', to }

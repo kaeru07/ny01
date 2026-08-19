@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import MockPhone from '@/components/app-proposals/MockPhone'
 import type { AppProposal } from '@/lib/app-proposals'
@@ -239,6 +239,7 @@ function DecisionButton({ disabled, label, tone, onClick }: { disabled: boolean;
 
 function AppProposalDetailModal({ proposal, onClose }: { proposal: AppProposal; onClose: () => void }) {
   const [tab, setTab] = useState<'spec' | 'market' | 'money' | 'plan'>('spec')
+  const contentRef = useRef<HTMLDivElement>(null)
   const tabs = [
     { key: 'spec' as const, label: '画面・仕様' },
     { key: 'market' as const, label: '市場・オーシャン' },
@@ -246,14 +247,19 @@ function AppProposalDetailModal({ proposal, onClose }: { proposal: AppProposal; 
     { key: 'plan' as const, label: '実装計画' },
   ]
 
+  function selectTab(nextTab: typeof tab) {
+    contentRef.current?.scrollTo({ top: 0, left: 0 })
+    setTab(nextTab)
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-end bg-black/40 p-0 sm:items-center sm:justify-center sm:p-3" role="dialog" aria-modal="true">
-      <div className="flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-gray-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-950 sm:max-h-[88dvh] sm:max-w-2xl sm:rounded-2xl">
+      <div className="flex h-[92dvh] max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-2xl border border-gray-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-950 sm:h-[88dvh] sm:max-h-[88dvh] sm:max-w-2xl sm:rounded-2xl">
         <div className="flex shrink-0 items-start justify-between gap-3 border-b border-gray-100 p-4 dark:border-gray-800">
           <div className="min-w-0">
             <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400">{proposal.projectId ?? '未分類'}</p>
-            <h3 className="mt-0.5 text-lg font-black text-gray-900 dark:text-gray-100">{proposal.name}</h3>
-            <p className="mt-1 text-xs leading-relaxed text-gray-600 dark:text-gray-300">{proposal.overview}</p>
+            <h3 className="mt-0.5 break-words text-lg font-black text-gray-900 dark:text-gray-100">{proposal.name}</h3>
+            <p className="mt-1 break-words text-xs leading-relaxed text-gray-600 dark:text-gray-300">{proposal.overview}</p>
           </div>
           <button
             type="button"
@@ -273,14 +279,14 @@ function AppProposalDetailModal({ proposal, onClose }: { proposal: AppProposal; 
                   ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-100'
                   : 'text-gray-500 dark:text-gray-400'
               }`}
-              onClick={() => setTab(item.key)}
+              onClick={() => selectTab(item.key)}
             >
               {item.label}
             </button>
           ))}
         </div>
         {/* flex-1 + min-h-0 で残り領域を必ずスクロール可能に。pb-10 で最下部まで到達できるようにする。 */}
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-10">
+        <div ref={contentRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 pb-10">
           {tab === 'spec' ? <SpecTab proposal={proposal} /> : null}
           {tab === 'market' ? <MarketTab proposal={proposal} /> : null}
           {tab === 'money' ? <MoneyTab proposal={proposal} /> : null}
@@ -468,7 +474,7 @@ function InfoBlock({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-xs font-black text-gray-500 dark:text-gray-400">{label}</p>
-      <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-gray-800 dark:text-gray-200">{value}</p>
+      <p className="mt-1 whitespace-pre-line break-words text-sm leading-relaxed text-gray-800 dark:text-gray-200">{value}</p>
     </div>
   )
 }

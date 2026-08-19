@@ -1,7 +1,7 @@
 import fs from 'fs/promises'
 import path from 'path'
 import { getDataPath } from '@/lib/progress-reader'
-import { readGoals } from '@/lib/goal-reader'
+import { readGoals, VALID_GOAL_STATUSES } from '@/lib/goal-reader'
 import { addTasks } from '@/lib/progress-writer'
 import { addTaskDirectlyToQueue } from '@/lib/session-writer'
 import type {
@@ -25,7 +25,6 @@ import type { QueueControl } from '@/types/auto-queue'
 const VALID_ROLES: GoalRole[] = ['human', 'claude', 'codex']
 const VALID_PRIORITIES: TaskPriority[] = ['high', 'medium', 'low']
 const VALID_IMPACT: MonetizationImpact[] = ['high', 'medium', 'low', 'none']
-const VALID_GOAL_STATUS: GoalStatus[] = ['proposed', 'active', 'paused', 'done', 'dropped', 'archived']
 const VALID_TODO_STATUS: GoalTodoStatus[] = ['pending', 'active', 'done', 'skipped']
 const VALID_DECISION_POLICIES: DecisionPolicy[] = ['autonomous', 'approval_required', 'manual', 'budget_sensitive', 'destructive_sensitive']
 const VALID_RISK_FLAGS: EpicRiskFlag[] = ['billing', 'production_db', 'auth_secret', 'deploy', 'migration', 'destructive', 'external_publish']
@@ -41,13 +40,20 @@ function genId(prefix: string): string {
 }
 
 export async function writeGoals(data: GoalsData): Promise<void> {
+  // readGoals が破損検知した空データを書き戻すと全ゴール消失になるため、書き込み前に拒否する。
+  if (data.readError) {
+    throw new Error(`writeGoals refused: ${data.readError}`)
+  }
   const filePath = path.join(getDataPath(), 'goals.json')
   data.updatedAt = nowIso()
-  await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8')
+  // tmp+rename のアトミック書き込み。書き込み途中のクラッシュで goals.json が半端な内容になるのを防ぐ。
+  const tmpPath = `${filePath}.${process.pid}.${Date.now().toString(36)}.tmp`
+  await fs.writeFile(tmpPath, JSON.stringify(data, null, 2), 'utf-8')
+  await fs.rename(tmpPath, filePath)
 }
 
 function pickGoalStatus(value: unknown, fallback: GoalStatus = 'active'): GoalStatus {
-  return VALID_GOAL_STATUS.includes(value as GoalStatus) ? (value as GoalStatus) : fallback
+  return VALID_GOAL_STATUSES.includes(value as GoalStatus) ? (value as GoalStatus) : fallback
 }
 
 function pickNumber(value: unknown, fallback: number): number {
@@ -95,6 +101,14 @@ function pickString(value: unknown, fallback = ''): string {
   return typeof value === 'string' ? value.trim() : fallback
 }
 
+export const PROJECT_ID_REQUIRED_MESSAGE = 'projectId は必須です。先にプロジェクトを追加してください'
+
+export function requireGoalProjectId(value: unknown, fallback = ''): string {
+  const projectId = pickString(value, fallback)
+  if (!projectId) throw new Error(PROJECT_ID_REQUIRED_MESSAGE)
+  return projectId
+}
+
 export interface GoalImportValidation {
   ok: boolean
   errors: string[]
@@ -117,10 +131,8 @@ export function validateGoalImport(input: unknown, projects: { id: string; name:
   const projectId = pickString(obj.projectId)
   const goalTitle = pickString(obj.goalTitle)
 
-  // projectId は任意（未設定可）。指定された場合のみ存在チェック。
-  if (projectId && !projects.some((p) => p.id === projectId)) {
-    warnings.push(`projectId "${projectId}" が既存案件に見つかりません（未設定として取り込みます）`)
-  }
+  if (!projectId) errors.push(PROJECT_ID_REQUIRED_MESSAGE)
+  else if (!projects.some((p) => p.id === projectId)) errors.push(`projectId "${projectId}" のプロジェクトが見つかりません。先にプロジェクトを追加してください`)
   if (!goalTitle) errors.push('goalTitle は必須です')
 
   const phasesRaw = Array.isArray(obj.phases) ? obj.phases : []
@@ -213,6 +225,7 @@ export async function importGoal(rawInput: unknown, opts: { projects: { id: stri
     projectId: pickString(obj.projectId),
     goalTitle: pickString(obj.goalTitle),
     goalSummary: pickString(obj.goalSummary),
+    status: pickGoalStatus(obj.status, 'active'),
     priority: pickPriority(obj.priority),
     monetizationImpact: pickImpact(obj.monetizationImpact),
     phases: (Array.isArray(obj.phases) ? obj.phases : []) as GoalImportInputPhase[],
@@ -315,7 +328,7 @@ export async function importGoal(rawInput: unknown, opts: { projects: { id: stri
     projectId: input.projectId,
     title: input.goalTitle,
     summary: input.goalSummary || '',
-    status: 'active',
+    status: input.status || 'active',
     priority: input.priority || 'medium',
     monetizationImpact: input.monetizationImpact || 'none',
     phases,
@@ -376,11 +389,12 @@ export async function upsertGoal(input: GoalUpsertInput): Promise<Goal> {
   const goalId = pickString(input.id) || genId('goal')
   const idx = data.goals.findIndex((g) => g.id === goalId)
   const previous = idx >= 0 ? data.goals[idx] : undefined
+  const projectId = requireGoalProjectId(input.projectId, previous?.projectId)
   const target = pickNumber(input.target, previous?.target ?? 100)
   const status = pickGoalStatus(input.status, previous?.status ?? 'active')
   const goal: Goal = {
     id: goalId,
-    projectId: pickString(input.projectId, previous?.projectId ?? '') || undefined,
+    projectId,
     title,
     description: pickString(input.description ?? input.summary, previous?.description ?? previous?.summary ?? ''),
     metric: pickString(input.metric, previous?.metric ?? 'progress'),
@@ -465,6 +479,11 @@ export async function proposeGoals(inputs: ProposeGoalInput[], opts: { source?: 
       skipped.push({ title: '(無題)', reason: 'titleが空' })
       continue
     }
+    const projectId = pickString(input.projectId)
+    if (!projectId) {
+      skipped.push({ title, reason: PROJECT_ID_REQUIRED_MESSAGE })
+      continue
+    }
     if (existingTitles.has(title)) {
       skipped.push({ title, reason: '同名のactive/proposedゴールが既存' })
       continue
@@ -473,7 +492,7 @@ export async function proposeGoals(inputs: ProposeGoalInput[], opts: { source?: 
     const target = pickNumber(input.target, 100)
     const goal: Goal = {
       id: genId('goal'),
-      projectId: pickString(input.projectId) || undefined,
+      projectId,
       title,
       description: pickString(input.summary),
       summary: pickString(input.summary),
@@ -553,6 +572,7 @@ function mapGoalStatus(value: unknown): GoalStatus {
 export async function upsertSingleGoal(input: SingleGoalInput): Promise<Goal> {
   const title = pickString(input.title)
   if (!title) throw new Error('title is required')
+  const projectId = requireGoalProjectId(input.projectId)
   const now = nowIso()
   const data = await readGoals()
   const goalId = genId('goal')
@@ -566,7 +586,7 @@ export async function upsertSingleGoal(input: SingleGoalInput): Promise<Goal> {
 
   const goal: Goal = {
     id: goalId,
-    projectId: pickString(input.projectId) || undefined,
+    projectId,
     title,
     summary: prompt || notes || '',
     description: prompt || notes || '',

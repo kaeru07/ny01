@@ -68,6 +68,7 @@ export const TERMS: Record<string, { ja: string; help: string }> = {
   iosSigningGuide: { ja: 'iOS署名準備', help: '新しいiOSアプリをTestFlightへ送る前に、Apple Developer / App Store Connect / Codemagicへ入力する値をアプリ別に確認・コピーする画面です' },
   buildCandidate: { ja: 'ビルド候補', help: '未ビルド、最新ビルド失敗、ローカル最新コミットが直近成功ビルドへ未反映のアプリです。必要なら今日の判断に送り、ビルドする/見送るを選べます' },
   testFlight: { ja: 'TestFlight', help: 'App Store Connect側でiOSビルドがテスター配信前に処理される場所です。ASCキーが未配置の間はProgressから処理状況を確認できないため、CodemagicのPublishing状態でアップロード成否を見ます' },
+  runReportEmail: { ja: '自動実行レポートメール', help: '自動実行（11/14/16/23時と起動時）が1回終わるたびに届くメールです。要対応（承認待ち・不具合）、システム自己点検、ゴール別の進捗・問題・やること、できるようになったこと、改善事項を1通にまとめます。ChatGPTなど外部AIにそのまま貼れるMarkdownが添付されます。progress画面を開かなくても状況が分かる通知で、メールが届かなくても自動実行そのものは止まりません' },
 }
 
 export interface TodayAction {

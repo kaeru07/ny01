@@ -46,7 +46,7 @@ export async function readOperatingModelMeta(): Promise<OperatingModelMeta> {
   }
 }
 
-export function operatingModelStaleDays(updated: string): number {
+export function operatingModelStaleDays(updated: string, today = new Date()): number {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(updated)
   if (!match) return -1
 
@@ -62,7 +62,6 @@ export function operatingModelStaleDays(updated: string): number {
     return -1
   }
 
-  const today = new Date()
   const todayAt = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate())
   return Math.floor((todayAt - updatedAt.getTime()) / DAY_MS)
 }
@@ -92,6 +91,30 @@ function formatDateOnly(date: Date): string {
   return `${year}-${month}-${day}`
 }
 
+export function evaluateOperatingModelFreshness(
+  updated: string,
+  latestImplementation: { file: string; mtime: Date } | null,
+  today = new Date(),
+): OperatingModelFreshness {
+  const days = operatingModelStaleDays(updated, today)
+  const docUpdatedEnd = parseDateOnlyEnd(updated)
+  const implementationChangedAfterDoc = Boolean(
+    docUpdatedEnd
+    && latestImplementation
+    && latestImplementation.mtime.getTime() > docUpdatedEnd.getTime(),
+  )
+
+  return {
+    updated,
+    days,
+    stale: days < 0 || days >= 14 || implementationChangedAfterDoc,
+    invalidUpdated: days < 0,
+    implementationChangedAfterDoc,
+    latestImplementationPath: latestImplementation?.file ?? '',
+    latestImplementationDate: latestImplementation ? formatDateOnly(latestImplementation.mtime) : '',
+  }
+}
+
 async function getLatestImplementationChange(): Promise<{ file: string; mtime: Date } | null> {
   const stats = await Promise.all(
     WATCHED_IMPLEMENTATION_PATHS.map(async (file) => {
@@ -113,22 +136,6 @@ async function getLatestImplementationChange(): Promise<{ file: string; mtime: D
 
 export async function getOperatingModelFreshness(): Promise<OperatingModelFreshness> {
   const { updated } = await readOperatingModelMeta()
-  const days = operatingModelStaleDays(updated)
-  const docUpdatedEnd = parseDateOnlyEnd(updated)
   const latestImplementation = await getLatestImplementationChange()
-  const implementationChangedAfterDoc = Boolean(
-    docUpdatedEnd
-    && latestImplementation
-    && latestImplementation.mtime.getTime() > docUpdatedEnd.getTime(),
-  )
-
-  return {
-    updated,
-    days,
-    stale: days < 0 || days >= 14 || implementationChangedAfterDoc,
-    invalidUpdated: days < 0,
-    implementationChangedAfterDoc,
-    latestImplementationPath: latestImplementation?.file ?? '',
-    latestImplementationDate: latestImplementation ? formatDateOnly(latestImplementation.mtime) : '',
-  }
+  return evaluateOperatingModelFreshness(updated, latestImplementation)
 }

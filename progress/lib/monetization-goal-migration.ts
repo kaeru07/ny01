@@ -63,6 +63,7 @@ export function buildMonetizationCandidateGoalImport(candidate: MonetizationCand
       candidate.whyNow?.summary,
       `Vault詳細: ${vault}`,
     ]),
+    status: goalStatus,
     priority: candidate.score >= 80 ? 'high' : candidate.score >= 60 ? 'medium' : 'low',
     monetizationImpact: impactForScore(candidate.score),
     phases: [

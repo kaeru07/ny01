@@ -34,17 +34,17 @@ export default function TaskList({ tasks, projectId }: TaskListProps) {
   })
 
   return (
-    <ul className="space-y-2">
+    <ul className="grid gap-2 md:grid-cols-2">
       {sorted.map((task) => (
         <li
           key={task.id}
-          className={`rounded-xl border p-3 transition-opacity ${
+          className={`rounded-xl border p-2.5 transition-opacity ${
             task.status === 'done'
               ? 'opacity-60 bg-gray-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-700'
               : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 shadow-sm'
           }`}
         >
-          <div className="flex items-start justify-between gap-2 mb-2">
+          <div className="flex items-start justify-between gap-2 mb-1.5">
             <p
               className={`text-sm font-medium leading-snug flex-1 ${
                 task.status === 'done' ? 'line-through text-gray-400 dark:text-gray-500' : 'text-gray-800 dark:text-gray-100'
@@ -66,7 +66,7 @@ export default function TaskList({ tasks, projectId }: TaskListProps) {
           </div>
 
           {task.memo && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mb-2">{task.memo}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed mb-1.5">{task.memo}</p>
           )}
 
           <div className="flex items-center justify-between gap-2">

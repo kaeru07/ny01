@@ -384,11 +384,16 @@ export async function runAiReviewBatch(limit = 10): Promise<AiReviewBatchResult>
 
     if (cls.verdict === 'needs_human') {
       // 意思決定キュー（Approval）へ。同一 Run の pending が既にあれば二重登録しない。
+      const approvalDraft = buildAiReviewApprovalDraft(run, cls)
+      // 「完了作業の確認」型（事後確認・review選択肢）は Run ごとに作ると同一アプリ×同一リスクで
+      // 大量重複する（例: mahjong-analyzer の課金確認 ×9）。同一タイトルの pending があれば作らない。
+      // ＝アプリ単位で 1 件に集約。方針判断（decision_needed）は Run/Epic 単位の従来判定を維持。
       const exists = pendingApprovals.some((a) => (
-        a.createdRunId === run.runId || (Boolean(run.epicId) && a.epicId === run.epicId)
+        a.createdRunId === run.runId
+        || (Boolean(run.epicId) && a.epicId === run.epicId)
+        || a.title === approvalDraft.title
       ))
       if (!exists) {
-        const approvalDraft = buildAiReviewApprovalDraft(run, cls)
         const approval = await createApproval({
           epicId: run.epicId,
           title: approvalDraft.title,

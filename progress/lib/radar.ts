@@ -1,5 +1,5 @@
 import type { Project } from '@/types/progress'
-import type { WorkQueueItem } from '@/types/session'
+import type { AutoQueueItem } from '@/types/auto-queue'
 import type { ExecutionRun } from '@/types/execution-run'
 
 export type RadarStatus = '着手' | '進行中' | 'レビュー待ち' | '停止' | '放置' | '完了'
@@ -51,10 +51,12 @@ function firstLine(s: string): string {
   return (s || '').split('\n')[0].trim()
 }
 
-// 次の1手: work-queue の active item → project.nextAction → blocker解消 の優先順
-function deriveNextStep(p: Project, queued: WorkQueueItem[]): string {
-  const q = queued.find((i) => i.projectId === p.id && (i.status === 'queued' || i.status === 'in_progress'))
-  if (q && q.taskTitle) return firstLine(q.taskTitle)
+const ACTIVE_QUEUE_STATUSES = new Set<AutoQueueItem['status']>(['executable'])
+
+// 次の1手: Epic/Goal 由来の自動実行候補 → project.nextAction → blocker解消 の優先順
+function deriveNextStep(p: Project, queued: AutoQueueItem[]): string {
+  const q = queued.find((item) => item.projectId === p.id && ACTIVE_QUEUE_STATUSES.has(item.status))
+  if (q) return firstLine(q.actualWork || q.title)
   if (p.blockers.length > 0 && (p.status === 'blocked')) return `ブロッカー解消: ${firstLine(p.blockers[0])}`
   if (p.nextAction && p.nextAction.trim()) return firstLine(p.nextAction)
   if (p.blockers.length > 0) return `ブロッカー解消: ${firstLine(p.blockers[0])}`
@@ -85,8 +87,7 @@ function deriveStatus(
   return '着手'
 }
 
-function deriveEstimate(status: RadarStatus, q?: WorkQueueItem): string {
-  if (q?.doneCondition && q.doneCondition.length > 0 && q.doneCondition.length < 24) return '15分'
+function deriveEstimate(status: RadarStatus): string {
   switch (status) {
     case 'レビュー待ち':
       return '5分'
@@ -103,7 +104,7 @@ function deriveEstimate(status: RadarStatus, q?: WorkQueueItem): string {
 
 export function buildRadar(
   projects: Project[],
-  queue: WorkQueueItem[],
+  queue: AutoQueueItem[],
   runs: ExecutionRun[],
   now: Date = new Date()
 ): RadarProject[] {
@@ -129,12 +130,12 @@ export function buildRadar(
         run.runStatus !== 'running' &&
         (run.reviewStatus === 'not_reviewed' || run.reviewStatus === 'copied')
       const activeQ = queue.find(
-        (i) => i.projectId === p.id && (i.status === 'queued' || i.status === 'in_progress')
+        (item) => item.projectId === p.id && ACTIVE_QUEUE_STATUSES.has(item.status)
       )
       const status = deriveStatus(p, staleDays, hasUnreviewedRun, !!activeQ)
       const relatedTodos = queue
-        .filter((i) => i.projectId === p.id && i.status !== 'done')
-        .map((i) => firstLine(i.taskTitle))
+        .filter((item) => item.projectId === p.id && item.status !== 'done')
+        .map((item) => firstLine(item.actualWork || item.title))
         .slice(0, 5)
       return {
         id: p.id,
@@ -147,7 +148,7 @@ export function buildRadar(
         phase: p.phase,
         current: firstLine(p.currentTask),
         nextStep: deriveNextStep(p, queue),
-        estimate: deriveEstimate(status, activeQ),
+        estimate: deriveEstimate(status),
         revenue: deriveRevenue(p),
         blockers: p.blockers,
         relatedTodos,

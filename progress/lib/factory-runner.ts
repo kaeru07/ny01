@@ -29,6 +29,7 @@ import { DANGER_CATEGORIES, isReviewApprovalOptions } from './inbox-labels'
 import { getAdapter } from './executors'
 import { decideCodexFallback } from './executor-fallback'
 import { runChecks, failingChecks, gateRunStatusByChecks } from './checks-runner'
+import { gateReviewStatusByChecks } from './checks-gate'
 import { selectSkillForEpic } from './skill-select'
 import { hasFixRequestedForEpic } from './auto-queue-score'
 import { applyCompletedEpicToGoalData } from './goal-completion-sync'
@@ -41,15 +42,41 @@ import type { ExecutionRun } from '@/types/execution-run'
 import type { ExecutorChoice, FactoryDispatchPlan } from './types/operations'
 
 // factory-runner: scan→pick→Dispatch→（adapter で）Run→ExecutionRun 記録→次へ。
-// 安全第一: 既定は dry_run（実起動なし）。caps（maxRuns / maxPerEpic）で無限ループを防ぐ。
+// 安全第一: 既定は dry_run（実起動なし）。maxPerEpic + excludedEpics + stale検知でループの有限性を保証する。
 // auto は明示時のみ。Dispatch判定のexecutorを起動し、Claude上限時はCodexへfallbackする。
 // 禁止: 無限ループ / 危険作業の Codex 委譲 / Approval・Decision 待ちの実行 / チャットで質問停止。
 
 const STALE_NOCHANGE_LIMIT = 3
 
+// Goal「自動実行の最大件数の制御をなくす」(goal-mqp5c2hm) に基づき、1起動あたりの実行件数は既定で無制限（0）。
+// ループの有限性は maxPerEpic + excludedEpics + stale検知が保証する（Epic/Goal は起動ごとに有限）。
+// 暴走時の保険として env FACTORY_SAFETY_RUN_LIMIT（正の整数）で上限を任意設定できる。
+export function resolveSafetyRunLimit(value = process.env.FACTORY_SAFETY_RUN_LIMIT): number {
+  const raw = Number(value)
+  return Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : 0
+}
+
+export function hasReachedSafetyRunLimit(runs: number, safetyRunLimit: number): boolean {
+  return safetyRunLimit > 0 && runs >= safetyRunLimit
+}
+
+/** 同一Epicを1起動内で深掘りする回数。実行時指定を保存設定より優先し、安全範囲1〜3に収める。 */
+export function resolveMaxPerEpic(override?: number, configured?: number): number {
+  const value = Number.isFinite(override)
+    ? override as number
+    : Number.isFinite(configured)
+      ? configured as number
+      : 1
+  return Math.max(1, Math.min(Math.floor(value), 3))
+}
+
+/** 現在の Epic を今回の起動対象から外し、次 Epic へ進む境界判定。 */
+export function hasReachedMaxPerEpic(perEpic: number, maxPerEpic: number): boolean {
+  return perEpic >= maxPerEpic
+}
+
 interface RunnerOptions {
   mode?: FactoryRunMode
-  maxRuns?: number
   maxPerEpic?: number
   /** auto モードを実起動するための明示確認。false/未指定なら auto でも実起動しない。 */
   confirm?: boolean
@@ -237,6 +264,90 @@ export async function propagateEpicDoneToGoal(epicId: string, goalId?: string): 
   }
 }
 
+export interface DoneReadyEpicSweepResult {
+  closedEpics: string[]
+  completedGoals: string[]
+  skipped: Array<{ epicId: string; reason: string }>
+}
+
+function runTime(run: ExecutionRun): number {
+  const value = Date.parse(run.finishedAt || run.startedAt)
+  return Number.isFinite(value) ? value : 0
+}
+
+function doneSweepSafetyReason(epic: { blockers?: string[] }, runs: ExecutionRun[]): string | null {
+  if ((epic.blockers?.length ?? 0) > 0) return 'unresolved_blocker'
+
+  const newestFirst = [...runs].sort((a, b) => runTime(b) - runTime(a))
+  const latest = newestFirst[0]
+  const latestCompleted = newestFirst.find((run) => run.runStatus === 'completed')
+  const hasCurrentFailure = latest?.runStatus === 'failed' || newestFirst.some((run) => (
+    run.runStatus === 'failed' && (!latestCompleted || runTime(run) > runTime(latestCompleted))
+  ))
+  if (hasCurrentFailure) return 'current_failed_run'
+
+  // Review には blocking / non-blocking の明確な区別がないため、確実に完了を止める
+  // 「最新 Run が needs_human のまま」のケースだけを保守的に未解決として扱う。
+  if (latest?.reviewStatus === 'needs_human') return 'blocking_needs_human'
+  return null
+}
+
+/** doneCriteria を満たしたまま active に残っている Epic を、安全条件を確認して完了状態へ同期する。 */
+export async function sweepDoneReadyEpics(): Promise<DoneReadyEpicSweepResult> {
+  const activeEpics = (await getEpics()).filter((epic) => epic.status === 'active')
+  const closedEpics: string[] = []
+  const completedGoals: string[] = []
+  const skipped: DoneReadyEpicSweepResult['skipped'] = []
+
+  for (const epic of activeEpics) {
+    try {
+      const evalResult = await getDoneCriteriaForEpic(epic.epicId)
+      if (!evalResult?.hasContract || evalResult.verdict !== 'done') continue
+
+      const [pendingApprovals, runs] = await Promise.all([getPendingApprovals(), readExecutionRuns()])
+      // Approval データには blocking / non-blocking の区別がないため、推測で緩和せず、
+      // この Epic の pending（将来互換の open を含む）が一件でもあれば close しない。
+      const hasPendingApproval = pendingApprovals.some((approval) => (
+        approval.epicId === epic.epicId && ['pending', 'open'].includes(approval.status as string)
+      ))
+      if (hasPendingApproval) {
+        skipped.push({ epicId: epic.epicId, reason: 'pending_approval' })
+        continue
+      }
+
+      const safetyReason = doneSweepSafetyReason(epic, runs.filter((run) => run.epicId === epic.epicId))
+      if (safetyReason) {
+        skipped.push({ epicId: epic.epicId, reason: safetyReason })
+        continue
+      }
+
+      const goalStatusBefore = epic.goalId
+        ? (await readGoals()).goals.find((goal) => goal.id === epic.goalId)?.status
+        : undefined
+      await updateEpic(epic.epicId, { status: 'done', progress: 100 })
+      try {
+        await propagateEpicDoneToGoal(epic.epicId, epic.goalId)
+      } catch (err) {
+        // Epic 更新後の Goal 伝播失敗を成功扱いにせず、再同期が必要な不整合として明示する。
+        skipped.push({ epicId: epic.epicId, reason: `goal_propagation_failed: ${errorMessage(err)}` })
+        continue
+      }
+      closedEpics.push(epic.epicId)
+
+      if (epic.goalId && goalStatusBefore !== 'done') {
+        const goalStatusAfter = (await readGoals()).goals.find((goal) => goal.id === epic.goalId)?.status
+        if (goalStatusAfter === 'done' && !completedGoals.includes(epic.goalId)) {
+          completedGoals.push(epic.goalId)
+        }
+      }
+    } catch (err) {
+      skipped.push({ epicId: epic.epicId, reason: `epic_processing_failed: ${errorMessage(err)}` })
+    }
+  }
+
+  return { closedEpics, completedGoals, skipped }
+}
+
 async function recordRun(args: {
   epicId: string
   targetApp: string
@@ -293,7 +404,7 @@ async function recordRun(args: {
     targetTodoId,
     targetTodoTitle: args.title,
     runStatus: gatedRunStatus,
-    reviewStatus: 'not_reviewed',
+    reviewStatus: gateReviewStatusByChecks('not_reviewed', args.checks),
     source: 'factory_runner',
     followupOfRunId: args.followupOfRunId,
     executorUsed: args.executor,
@@ -413,6 +524,7 @@ async function finishRunningRun(args: {
   await updateExecutionRunFields(args.runId, {
     finishedAt: new Date().toISOString(),
     runStatus: gatedRunStatus,
+    reviewStatus: gateReviewStatusByChecks('not_reviewed', args.checks),
     executorUsed: args.executor,
     executorCandidate: args.executor,
     resultReturned: args.mode === 'auto',
@@ -432,7 +544,7 @@ async function finishRunningRun(args: {
 
 export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunReport> {
   const mode: FactoryRunMode = opts.mode ?? 'dry_run'
-  let maxRuns = Math.max(1, Math.min(opts.maxRuns ?? 3, 3)) // 初期制限: 1 起動最大 3 Run
+  const safetyRunLimit = resolveSafetyRunLimit() // 0 = 無制限
   const startedAt = new Date().toISOString()
   const steps: FactoryRunStep[] = []
   let stoppedReason = 'completed'
@@ -456,9 +568,9 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
   } catch (err) {
     console.warn('ensureBlockedDecisions failed:', err)
   }
-  // 同一 Epic の深掘り回数上限。opts 明示 > config.factoryMaxPerEpic > 既定3 の優先順。
+  // 同一 Epic の深掘り回数上限。opts 明示 > config.factoryMaxPerEpic > 既定1 の優先順。
   // 1 にすると1 Run ごとに次 Epic へローテーションし、1サイクルで複数の異なるタスクを回せる。
-  const maxPerEpic = Math.max(1, Math.min(opts.maxPerEpic ?? config.factoryMaxPerEpic ?? 3, 3))
+  const maxPerEpic = resolveMaxPerEpic(opts.maxPerEpic, config.factoryMaxPerEpic)
   if (!config.factoryEnabled) {
     return finalize('factory_off')
   }
@@ -699,9 +811,9 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
 
   const executorTimeoutMs = Number(process.env.FACTORY_EXECUTOR_TIMEOUT_MS) || 1_500_000
 
-  while (runs < maxRuns) {
+  while (!hasReachedSafetyRunLimit(runs, safetyRunLimit)) {
     // P4: 同一 Epic の上限に達したら「全体停止」ではなく「その Epic を打ち切って次 Epic へ」。
-    if (perEpic >= maxPerEpic) {
+    if (hasReachedMaxPerEpic(perEpic, maxPerEpic)) {
       excludedEpics.add(currentEpicId)
       steps.push(stop(currentEpicId, '—', 'claude', 'max_per_epic_reached → 次Epicへ'))
       const next = await pickNextEpic()
@@ -905,6 +1017,19 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
       await updateExecutionRunFields(recordedRunId, { doneCriteriaStatus: 'done', stopReason: `epic_done（doneCriteria ${evalResult.ratio}）` })
       steps.push({ epicId: currentEpicId, epicTitle: plan.epicTitle, dispatchPlanId: plan.dispatchPlanId, executor, result, recordedRunId, stopped: true, stopReason: `epic_done（doneCriteria ${evalResult.ratio}） → 次Epicへ` })
       await runAiReviewBatchSafely(`after_run:${recordedRunId}`)
+      // 長い Factory 起動中にも、外部の調査成果が更新されていれば次の候補へ反映する。
+      // 既存の承認待ち上限・重複除外を通すため、起動時と同じ安全な提案処理を再利用する。
+      try {
+        const research = await proposeGoalsFromResearchIfNeeded()
+        if (research.created.length > 0) {
+          await appendAutomationLog({
+            event: 'factory_goal_proposal_requested',
+            fallbackReason: `Epic完了後の調査再読込: ${research.reason}: ${research.created.map((g) => g.title).join(' / ')}`,
+          })
+        }
+      } catch (err) {
+        console.warn('post-epic research goal proposal failed:', err)
+      }
       // P4: 次の eligible Epic へ進む（priority 順 / done・skip 済みは除外）。
       const next = await pickNextEpic()
       if (!next) { stoppedReason = 'all_epics_done'; break }
@@ -925,10 +1050,10 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
     }
   }
 
-  if (runs >= maxRuns && stoppedReason === 'completed') {
-    stoppedReason = 'max_runs_reached'
+  if (hasReachedSafetyRunLimit(runs, safetyRunLimit) && stoppedReason === 'completed') {
+    stoppedReason = 'safety_run_limit_reached'
     if (lastRecordedRunId) {
-      await updateExecutionRunFields(lastRecordedRunId, { stopReason: 'max_runs_reached' })
+      await updateExecutionRunFields(lastRecordedRunId, { stopReason: 'safety_run_limit_reached' })
     }
   }
 
@@ -949,7 +1074,7 @@ export async function runFactory(opts: RunnerOptions = {}): Promise<FactoryRunRe
       factoryEnabled: config.factoryEnabled,
       startedAt,
       finishedAt: new Date().toISOString(),
-      maxRuns,
+      safetyRunLimit,
       maxPerEpic,
       runsExecuted: runs,
       steps,

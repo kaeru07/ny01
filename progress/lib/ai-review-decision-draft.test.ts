@@ -1,7 +1,11 @@
 import './test-alias.cjs'
+import fs from 'node:fs/promises'
+import os from 'node:os'
+import path from 'node:path'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { buildAiReviewApprovalDraft, classifyRun } from './ai-review.ts'
+import { POST as postAiReview } from '../app/api/operations/ai-review/route.ts'
 import type { ExecutionRun } from '../types/execution-run'
 
 function makeRun(overrides: Partial<ExecutionRun>): ExecutionRun {
@@ -65,4 +69,46 @@ test('buildAiReviewApprovalDraft: 危険キーワード（risk_keyword）は従�
   const draft = buildAiReviewApprovalDraft(run, cls)
   assert.ok(draft.title.startsWith('完了作業の確認:'))
   assert.equal(draft.options.find((o) => o.key === 'mark_reviewed')?.label, '問題なし（このままでよい）')
+})
+
+test('POST /api/operations/ai-review: needs_followup への更新と review_followup 候補生成を1回で完了する', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'progress-ai-review-'))
+  const previous = process.env.PROGRESS_DATA_PATH
+  process.env.PROGRESS_DATA_PATH = dir
+
+  const run = makeRun({
+    runId: '20260720-130000-followup',
+    errors: ['関連テストが失敗'],
+  })
+
+  try {
+    await fs.writeFile(path.join(dir, 'execution-runs.json'), JSON.stringify({ runs: [run] }))
+    await fs.writeFile(path.join(dir, 'recommended-epics.json'), '[]')
+
+    const response = await postAiReview(new Request('http://localhost/api/operations/ai-review', {
+      method: 'POST',
+      body: JSON.stringify({ limit: 1 }),
+    }))
+    const result = await response.json()
+    const runs = JSON.parse(await fs.readFile(path.join(dir, 'execution-runs.json'), 'utf8')) as { runs: ExecutionRun[] }
+    const recommendations = JSON.parse(await fs.readFile(path.join(dir, 'recommended-epics.json'), 'utf8')) as Array<{
+      sourceKind?: string
+      sourceRunId?: string
+      followupOfRunId?: string
+    }>
+
+    assert.equal(response.status, 200)
+    assert.equal(result.processed, 1)
+    assert.equal(result.results[0]?.recommendationCreated, true)
+    assert.equal(runs.runs[0]?.reviewStatus, 'needs_followup')
+    assert.ok(recommendations.some((recommendation) => (
+      recommendation.sourceKind === 'review_followup'
+      && recommendation.sourceRunId === run.runId
+      && recommendation.followupOfRunId === run.runId
+    )))
+  } finally {
+    if (previous === undefined) delete process.env.PROGRESS_DATA_PATH
+    else process.env.PROGRESS_DATA_PATH = previous
+    await fs.rm(dir, { recursive: true, force: true })
+  }
 })

@@ -1,7 +1,7 @@
 import type { ExecutorChoice } from '@/lib/types/operations'
 
 // Executor adapter / factory-runner の共通型。
-// 完全自動実行は既定で行わない（mode=dry_run が既定）。auto は明示 + caps 付きのみ。
+// 完全自動実行は既定で行わない（mode=dry_run が既定）。auto は明示 + 内部安全ガード付きのみ。
 
 export type FactoryRunMode = 'dry_run' | 'manual' | 'auto'
 
@@ -58,7 +58,8 @@ export interface FactoryRunReport {
   factoryEnabled: boolean
   startedAt: string
   finishedAt: string
-  maxRuns: number
+  /** 1起動あたりの実行件数上限。0 = 無制限（env FACTORY_SAFETY_RUN_LIMIT で設定時のみ有限）。 */
+  safetyRunLimit: number
   maxPerEpic: number
   runsExecuted: number
   steps: FactoryRunStep[]

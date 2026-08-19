@@ -243,7 +243,8 @@ export default function InboxCardItem({ card, highlight = false, focusNotice = f
                     if (isFixAction(action)) {
                       setError('')
                       setFixAction(action)
-                      setFixPrompt(card.fixPrompt ?? '')
+                      const actionPrompt = typeof action.api?.body?.fixPrompt === 'string' ? action.api.body.fixPrompt : undefined
+                      setFixPrompt(actionPrompt ?? card.fixPrompt ?? '')
                       return
                     }
                     run(action.api)

@@ -53,7 +53,7 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
   const [singleMessage, setSingleMessage] = useState('')
   const [promptCopied, setPromptCopied] = useState(false)
 
-  const projectList = projects.map((p) => `${p.name}（id: ${p.id}）`).join(' / ') || '（案件なし。projectId は空でよい）'
+  const projectList = projects.map((p) => `${p.name}（id: ${p.id}）`).join(' / ') || '（案件なし。先にプロジェクトを追加する）'
   const chatgptPrompt = [
     'あなたは個人開発の目標設計を手伝うアシスタントです。',
     '私がやりたいことを、progress アプリに取り込める JSON（ゴール＋ToDo）に整理してください。',
@@ -62,7 +62,7 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
     '- JSON のみを出力（前後に説明文・コードフェンスを付けない）',
     '- 形式は { "goals": [ ... ] }。ゴールは1〜5件。',
     '- 各ゴールに 2〜8 個の具体的な ToDo を付ける。',
-    '- projectId は任意（分かるものがあれば下記から選ぶ。無ければ "" でよい）。',
+    '- projectId は必須。必ず下記の既存プロジェクトから選ぶ。該当が無ければ先にプロジェクトを追加する。',
     `- 既存の案件: ${projectList}`,
     '',
     '# JSON スキーマ',
@@ -71,7 +71,7 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
     '    {',
     '      "goalTitle": "ゴール名（達成したい状態）",',
     '      "goalSummary": "1〜2行の補足",',
-    '      "projectId": "",',
+    '      "projectId": "company-mgmt",',
     '      "priority": "high | medium | low",',
     '      "todos": [',
     '        { "title": "具体作業", "nextAction": "次にやる1行", "doneCriteria": ["検証可能な完了条件"] }',
@@ -188,6 +188,10 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
       setSingleMessage('title を入力してください')
       return
     }
+    if (!singleGoal.projectId) {
+      setSingleMessage('案件は必須です。該当する案件がなければ先にプロジェクトを追加してください')
+      return
+    }
     setSingleSaving(true)
     try {
       // ユーザーが直接追加したゴールは、その入力自体を実行許可とみなし即時 active にする。
@@ -230,7 +234,7 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
           <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-xs font-bold">＋</span>
           <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">ゴールを直接追加</h2>
         </div>
-        <p className="text-[11px] text-gray-500 dark:text-gray-400">タイトルだけで追加できます（案件・説明は任意）。直接追加したゴールは承認不要で、すぐ次回の自動実行対象になります。</p>
+        <p className="text-[11px] text-gray-500 dark:text-gray-400">タイトルと案件を指定して追加します。該当する案件がなければ、先に<Link href="/projects/new" className="font-bold text-emerald-600 dark:text-emerald-400">プロジェクトを追加</Link>してください。</p>
         <div className="grid grid-cols-1 gap-3">
           <div>
             <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">タイトル *</label>
@@ -242,13 +246,13 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">案件 (任意)</label>
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">案件 *</label>
             <select
               value={singleGoal.projectId}
               onChange={(e) => setSingleGoal((prev) => ({ ...prev, projectId: e.target.value }))}
               className="w-full rounded-xl border border-gray-200 dark:border-gray-600 px-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-emerald-400"
             >
-              <option value="">未設定</option>
+              <option value="">案件を選択</option>
               {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           </div>
@@ -258,7 +262,7 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
           </div>
         </div>
         {singleMessage && <p className={`text-xs ${singleMessage.includes('登録しました') ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>{singleMessage}</p>}
-        <button onClick={handleSingleGoalSubmit} disabled={singleSaving || !singleGoal.title.trim()} className="w-full py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold disabled:opacity-40 hover:bg-emerald-700 transition-colors">
+        <button onClick={handleSingleGoalSubmit} disabled={singleSaving || !singleGoal.title.trim() || !singleGoal.projectId} className="w-full py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold disabled:opacity-40 hover:bg-emerald-700 transition-colors">
           {singleSaving ? '追加中...' : 'ゴール承認へ追加'}
         </button>
       </section>
@@ -269,7 +273,7 @@ export default function GoalPlannerForm({ projects, hasMainGoal }: Props) {
           <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 text-xs font-bold">{'{}'}</span>
           <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">JSON で一括追加</h2>
         </div>
-        <p className="text-[11px] text-gray-500 dark:text-gray-400">{'ChatGPTにゴール＋ToDoを作らせて、その JSON を貼り付けて一括登録します。複数ゴール（{ "goals": [...] }）にも対応。projectId・phases は任意です。'}</p>
+        <p className="text-[11px] text-gray-500 dark:text-gray-400">{'ChatGPTにゴール＋ToDoを作らせて、その JSON を貼り付けて一括登録します。複数ゴール（{ "goals": [...] }）にも対応。projectId は必須、phases は任意です。'}</p>
         <button
           onClick={copyChatgptPrompt}
           className="w-full py-2.5 rounded-xl text-sm font-medium border border-violet-200 dark:border-violet-700 text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/20 hover:bg-violet-100 dark:hover:bg-violet-900/30 transition-colors"
