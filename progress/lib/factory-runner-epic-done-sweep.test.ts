@@ -131,14 +131,44 @@ test('done済みactive Epicだけを閉じてGoalへ伝播し、2回目は何も
   assert.deepEqual(second, { closedEpics: [], completedGoals: [], skipped: [] })
 })
 
-test('pending承認があるdone Epicはcloseしない', async () => {
+test('真の判断承認があるdone Epicはcloseしない', async () => {
   await writeSweepCase(
     [epic('epic-pending', ['ExecutionRunに実行結果が記録されている'])],
     [run('epic-pending', 'run-pending', 'completed', '2026-08-16T01:00:00.000Z')],
-    [{ approvalId: 'approval-1', epicId: 'epic-pending', title: '確認', priority: 'high', category: 'production_risk', options: [], recommended: '', reason: '', status: 'pending', createdAt: '2026-08-16T00:00:00.000Z' }],
+    [{ approvalId: 'approval-1', epicId: 'epic-pending', title: '実行判断', priority: 'high', category: 'production_risk', options: [{ key: 'approve', label: '承認' }, { key: 'reject', label: '却下' }], recommended: 'approve', reason: '実行可否の判断が必要です', status: 'pending', createdAt: '2026-08-16T00:00:00.000Z' }],
   )
   const result = await sweepDoneReadyEpics()
-  assert.deepEqual(result, { closedEpics: [], completedGoals: [], skipped: [{ epicId: 'epic-pending', reason: 'pending_approval' }] })
+  assert.deepEqual(result, { closedEpics: [], completedGoals: [], skipped: [{ epicId: 'epic-pending', reason: 'blocking_approval' }] })
+})
+
+test('mark_reviewed品質レビューだけなら承認を残したままcloseし、再実行も冪等', async () => {
+  const approval = { approvalId: 'approval-review', epicId: 'epic-review', title: '完了作業の確認: テスト', priority: 'normal', category: 'production_risk', options: [{ key: 'mark_reviewed', label: '確認済み' }, { key: 'needs_followup', label: '追加対応' }, { key: 'hold', label: '保留' }], recommended: 'mark_reviewed', reason: '作業自体は完了済みです', status: 'pending', createdAt: '2026-08-16T00:00:00.000Z' }
+  await writeSweepCase(
+    [epic('epic-review', ['ExecutionRunに実行結果が記録されている'])],
+    [run('epic-review', 'run-review', 'completed', '2026-08-16T01:00:00.000Z')],
+    [approval],
+  )
+
+  const first = await sweepDoneReadyEpics()
+  assert.deepEqual(first, { closedEpics: ['epic-review'], completedGoals: [], skipped: [] })
+  assert.deepEqual(await readFixture<unknown[]>('approvals.json'), [approval])
+  const second = await sweepDoneReadyEpics()
+  assert.deepEqual(second, { closedEpics: [], completedGoals: [], skipped: [] })
+  assert.deepEqual(await readFixture<unknown[]>('approvals.json'), [approval])
+})
+
+test('mark_reviewed確認と真の判断承認が混在すればcloseしない', async () => {
+  await writeSweepCase(
+    [epic('epic-mixed', ['ExecutionRunに実行結果が記録されている'])],
+    [run('epic-mixed', 'run-mixed', 'completed', '2026-08-16T01:00:00.000Z')],
+    [
+      { approvalId: 'approval-review', epicId: 'epic-mixed', title: '完了作業の確認: テスト', priority: 'normal', category: 'production_risk', options: [{ key: 'mark_reviewed', label: '確認済み' }], recommended: 'mark_reviewed', reason: '作業自体は完了済みです', status: 'pending', createdAt: '2026-08-16T00:00:00.000Z' },
+      { approvalId: 'approval-decision', epicId: 'epic-mixed', title: '公開判断', priority: 'high', category: 'external_publish', options: [{ key: 'approve', label: '承認' }, { key: 'reject', label: '却下' }], recommended: 'approve', reason: '公開可否を判断してください', status: 'pending', createdAt: '2026-08-16T00:01:00.000Z' },
+    ],
+  )
+
+  const result = await sweepDoneReadyEpics()
+  assert.deepEqual(result, { closedEpics: [], completedGoals: [], skipped: [{ epicId: 'epic-mixed', reason: 'blocking_approval' }] })
 })
 
 test('最新failedはcloseせず、後続completedで解消済みの古いfailedはcloseする', async () => {

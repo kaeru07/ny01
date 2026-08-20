@@ -39,7 +39,7 @@ import type { ChecksRunResult } from './checks-runner'
 import { getDoneCriteriaForEpic } from './done-criteria'
 import type { FactoryRunMode, FactoryRunReport, FactoryRunStep, ExecutorResult } from './executors/types'
 import type { ExecutionRun } from '@/types/execution-run'
-import type { ExecutorChoice, FactoryDispatchPlan } from './types/operations'
+import type { Approval, ExecutorChoice, FactoryDispatchPlan } from './types/operations'
 
 // factory-runner: scan→pick→Dispatch→（adapter で）Run→ExecutionRun 記録→次へ。
 // 安全第一: 既定は dry_run（実起動なし）。maxPerEpic + excludedEpics + stale検知でループの有限性を保証する。
@@ -292,6 +292,16 @@ function doneSweepSafetyReason(epic: { blockers?: string[] }, runs: ExecutionRun
   return null
 }
 
+function isBlockingApproval(approval: Approval): boolean {
+  const hasMarkReviewedOption = (approval.options || []).some((option) => (
+    (option.key ?? (option as { value?: string }).value) === 'mark_reviewed'
+  ))
+
+  // 運用3原則: post-completion品質レビューは自動実行を止めない。
+  // recommended と選択肢の両方が mark_reviewed の確認だけを非blockingとして扱う。
+  return approval.recommended !== 'mark_reviewed' || !hasMarkReviewedOption
+}
+
 /** doneCriteria を満たしたまま active に残っている Epic を、安全条件を確認して完了状態へ同期する。 */
 export async function sweepDoneReadyEpics(): Promise<DoneReadyEpicSweepResult> {
   const activeEpics = (await getEpics()).filter((epic) => epic.status === 'active')
@@ -305,13 +315,13 @@ export async function sweepDoneReadyEpics(): Promise<DoneReadyEpicSweepResult> {
       if (!evalResult?.hasContract || evalResult.verdict !== 'done') continue
 
       const [pendingApprovals, runs] = await Promise.all([getPendingApprovals(), readExecutionRuns()])
-      // Approval データには blocking / non-blocking の区別がないため、推測で緩和せず、
-      // この Epic の pending（将来互換の open を含む）が一件でもあれば close しない。
-      const hasPendingApproval = pendingApprovals.some((approval) => (
-        approval.epicId === epic.epicId && ['pending', 'open'].includes(approval.status as string)
+      const hasBlockingApproval = pendingApprovals.some((approval) => (
+        approval.epicId === epic.epicId
+        && ['pending', 'open'].includes(approval.status as string)
+        && isBlockingApproval(approval)
       ))
-      if (hasPendingApproval) {
-        skipped.push({ epicId: epic.epicId, reason: 'pending_approval' })
+      if (hasBlockingApproval) {
+        skipped.push({ epicId: epic.epicId, reason: 'blocking_approval' })
         continue
       }
 
