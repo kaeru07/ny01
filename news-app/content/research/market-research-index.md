@@ -103,6 +103,8 @@
 
 
 
+
+- 2026-08-21: (未取得) / (未取得) / (未取得) / (未取得) / エラーあり(daily-market-research,daily-ai-news,daily-ai-tools,market-research-method-review)
 - 2026-08-20: 一件集中型タスク支援 / OpenAI、GPT‑5.6 Luna/Terraを値下げ / Agent Plugins 1.0 / 無料版を一日五回までに制限し、音声入力、分析、同期を月額または年額Proへ分離する。 / エラーなし / partial(market,news,tools)
 - 2026-08-19: 教材取り込み型AI学習 / A2AがAgentic AI Foundationの傘下へ移行 / ChatGPT Work / 無料で一教材・一日一復習を提供し、複数教材、弱点分析、試験直前モードを月額または年額課金にする / エラーなし / partial(market,news,tools)
 - 2026-08-18: 垂直特化AIエージェント / EU AI Actの透明性義務とGPAI監督が適用段階へ / ChatGPT Work / 無料診断から、履歴保存、定期実行、詳細解説を月額課金へつなげる。 / エラーなし / partial(market,news,tools)
