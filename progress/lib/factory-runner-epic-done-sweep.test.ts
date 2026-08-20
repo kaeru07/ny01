@@ -171,15 +171,17 @@ test('mark_reviewed確認と真の判断承認が混在すればcloseしない',
   assert.deepEqual(result, { closedEpics: [], completedGoals: [], skipped: [{ epicId: 'epic-mixed', reason: 'blocking_approval' }] })
 })
 
-test('最新failedはcloseせず、後続completedで解消済みの古いfailedはcloseする', async () => {
+test('直近3日以内の最新failedはcloseせず、後続completedで解消済みならcloseする', async () => {
   const criterion = ['ExecutionRunに実行結果が記録されている']
+  const recent = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+  const recovered = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString()
   await writeSweepCase(
     [epic('epic-failed', criterion), epic('epic-recovered', criterion)],
     [
-      run('epic-failed', 'run-f-ok', 'completed', '2026-08-16T01:00:00.000Z'),
-      run('epic-failed', 'run-f-ng', 'failed', '2026-08-16T02:00:00.000Z'),
-      run('epic-recovered', 'run-r-ng', 'failed', '2026-08-16T01:00:00.000Z'),
-      run('epic-recovered', 'run-r-ok', 'completed', '2026-08-16T02:00:00.000Z'),
+      run('epic-failed', 'run-f-ok', 'completed', new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()),
+      run('epic-failed', 'run-f-ng', 'failed', recent),
+      run('epic-recovered', 'run-r-ng', 'failed', recent),
+      run('epic-recovered', 'run-r-ok', 'completed', recovered),
     ],
   )
   const result = await sweepDoneReadyEpics()
@@ -189,24 +191,23 @@ test('最新failedはcloseせず、後続completedで解消済みの古いfailed
   })
 })
 
-test('blockerと最新needs_humanはcloseせず、安全なdone Epicだけcloseする', async () => {
+test('3日超の古いfailedと最新needs_humanはcloseし、blockerだけcloseしない', async () => {
   const criterion = ['ExecutionRunに実行結果が記録されている']
   const blocked = { ...epic('epic-blocked', criterion), blockers: ['判断待ち'] }
+  const stale = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
   await writeSweepCase(
-    [blocked, epic('epic-human', criterion), epic('epic-clean', criterion)],
+    [blocked, epic('epic-human', criterion), epic('epic-stale-failed', criterion), epic('epic-clean', criterion)],
     [
       run('epic-blocked', 'run-blocked', 'completed', '2026-08-16T01:00:00.000Z'),
       run('epic-human', 'run-human', 'completed', '2026-08-16T01:00:00.000Z', 'needs_human'),
+      run('epic-stale-failed', 'run-stale-failed', 'failed', stale),
       run('epic-clean', 'run-clean', 'completed', '2026-08-16T01:00:00.000Z'),
     ],
   )
   const result = await sweepDoneReadyEpics()
   assert.deepEqual(result, {
-    closedEpics: ['epic-clean'], completedGoals: [],
-    skipped: [
-      { epicId: 'epic-blocked', reason: 'unresolved_blocker' },
-      { epicId: 'epic-human', reason: 'blocking_needs_human' },
-    ],
+    closedEpics: ['epic-human', 'epic-stale-failed', 'epic-clean'], completedGoals: [],
+    skipped: [{ epicId: 'epic-blocked', reason: 'unresolved_blocker' }],
   })
 })
 

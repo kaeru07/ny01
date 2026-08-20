@@ -31,7 +31,7 @@ import { decideCodexFallback } from './executor-fallback'
 import { runChecks, failingChecks, gateRunStatusByChecks } from './checks-runner'
 import { gateReviewStatusByChecks } from './checks-gate'
 import { selectSkillForEpic } from './skill-select'
-import { hasFixRequestedForEpic } from './auto-queue-score'
+import { hasFixRequestedForEpic, isStaleFailure } from './auto-queue-score'
 import { applyCompletedEpicToGoalData } from './goal-completion-sync'
 import { humanizeTitle, shorten } from './humanize'
 import { dangerScopeLabels, matchesDangerBlockedScope, summarizeDangerApprovalScopes, type DangerApprovalScopeSummary } from './danger-approval-scope'
@@ -280,15 +280,9 @@ function doneSweepSafetyReason(epic: { blockers?: string[] }, runs: ExecutionRun
 
   const newestFirst = [...runs].sort((a, b) => runTime(b) - runTime(a))
   const latest = newestFirst[0]
-  const latestCompleted = newestFirst.find((run) => run.runStatus === 'completed')
-  const hasCurrentFailure = latest?.runStatus === 'failed' || newestFirst.some((run) => (
-    run.runStatus === 'failed' && (!latestCompleted || runTime(run) > runTime(latestCompleted))
-  ))
-  if (hasCurrentFailure) return 'current_failed_run'
-
-  // Review には blocking / non-blocking の明確な区別がないため、確実に完了を止める
-  // 「最新 Run が needs_human のまま」のケースだけを保守的に未解決として扱う。
-  if (latest?.reviewStatus === 'needs_human') return 'blocking_needs_human'
+  // 直近 failed だけを止め、3日以上経過した失敗は自動見直し対象として完了を妨げない。
+  // 後続 completed があれば latest 自体が failed ではないため、解消済みとして扱う。
+  if (latest?.runStatus === 'failed' && !isStaleFailure(latest)) return 'current_failed_run'
   return null
 }
 

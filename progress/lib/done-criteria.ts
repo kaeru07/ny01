@@ -117,6 +117,22 @@ function evalCriterion(text: string, ctx: EvalContext): CriterionResult {
     return { text, met, level: 'meta', evidence: met ? '承認待ちなし' : `承認待ち ${ctx.pendingApprovalCount} 件` }
   }
 
+  // meta: goal-step Epic の「次の一歩を定義する」は計画文言だが、実際にはその一歩を
+  // executor 付きで実行して成果を残した時点で達成とする。「検証可能」を含むため、
+  // 調査 criterion と誤判定される前にここで捕捉する。
+  if ((/次の.*(具体的|検証可能).*(1|一).?ステップ.*定義/.test(text) || /次の一歩/.test(text)) && /定義/.test(text)) {
+    const hasOutcome = ctx.changedFiles.length > 0 || hasResearchEvidence(ctx.summary)
+    const met = ctx.runCount > 0 && ctx.hasExecutor && hasOutcome
+    return {
+      text,
+      met,
+      level: 'meta',
+      evidence: met
+        ? `ExecutionRun ${ctx.runCount}件 / executorUsed 有 / 成果あり`
+        : `未達（ExecutionRun ${ctx.runCount}件 / executorUsed ${ctx.hasExecutor ? '有' : '無'} / 成果${hasOutcome ? 'あり' : 'なし'}）`,
+    }
+  }
+
   const evidenceText = evidenceTextFor(text, ctx)
   const ratioText = overlapRatio(text, evidenceText)
 

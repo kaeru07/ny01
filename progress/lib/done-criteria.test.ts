@@ -57,3 +57,36 @@ test('implementation criteria still require changedFiles', () => {
   ], 0)
   assert.equal(result.verdict, 'continue')
 })
+
+const goalStepCriteria = [
+  'このGoalの達成に向けた、次の具体的で検証可能な1ステップを定義する',
+  '定義したステップを実装し、tscまたはbuildが成功する',
+  'ExecutionRunに実行結果が記録されている',
+]
+
+test('goal-stepの汎用3criteriaはexecutor付き変更runでdoneになる', () => {
+  const result = evaluateDoneCriteria('epic-goal-step', goalStepCriteria, [
+    run({
+      epicId: 'epic-goal-step',
+      summary: '次のステップとしてdone criteria判定を実装した',
+      changedFiles: [{ file: 'lib/done-criteria.ts', change: 'modified' }],
+      checks: { typescript: 'ok' },
+      executorUsed: 'codex',
+    }),
+  ], 0)
+
+  assert.equal(result.verdict, 'done')
+  assert.equal(result.ratio, '3/3')
+  assert.equal(result.criteria[0].level, 'meta')
+})
+
+test('goal-stepの計画criterionはrunなし・成果なしならcontinueになる', () => {
+  const withoutRun = evaluateDoneCriteria('epic-goal-step', goalStepCriteria, [], 0)
+  assert.equal(withoutRun.verdict, 'continue')
+
+  const withoutOutcome = evaluateDoneCriteria('epic-goal-step', goalStepCriteria, [
+    run({ epicId: 'epic-goal-step', changedFiles: [], checks: { typescript: 'ok' } }),
+  ], 0)
+  assert.equal(withoutOutcome.verdict, 'continue')
+  assert.equal(withoutOutcome.criteria[0].met, false)
+})
