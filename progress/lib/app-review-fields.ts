@@ -23,6 +23,8 @@ export type { AppReviewGroupDef }
 // ─────────────────────────────────────────────────────────────
 
 export type AppReviewFieldKey =
+  | 'screenshotUrl'
+  | 'screenshotRoutes'
   | 'screenshotNote'
   | 'releaseNotes'
   | 'promotionalText'
@@ -54,9 +56,13 @@ export interface AppReviewFieldDef {
   group: string
   /** App Store Connect 側の文字数上限。超過は画面で警告する。 */
   maxLength?: number
+  /** 撮影設定など、ASC に貼る値ではない項目は全文コピーから外す。 */
+  excludeFromCopy?: boolean
 }
 
 export const APP_REVIEW_FIELD_DEFS: AppReviewFieldDef[] = [
+  { key: 'screenshotUrl', label: '撮影URL', multiline: false, placeholder: '空ならアプリの静的出力(out/)を自動配信して撮影。例: http://localhost:3011', group: 'プレビューとスクリーンショット', excludeFromCopy: true },
+  { key: 'screenshotRoutes', label: '撮影するページ', multiline: true, placeholder: '1行1パス。空なら / のみ。例:\n/\n/history', group: 'プレビューとスクリーンショット', excludeFromCopy: true },
   { key: 'screenshotNote', label: 'スクリーンショット準備メモ', multiline: true, placeholder: '例: 6.5インチ 5枚作成済み / iPad 13インチ 未作成', group: 'プレビューとスクリーンショット' },
   { key: 'releaseNotes', label: 'このバージョンの新機能', multiline: true, placeholder: 'アップデート時のみ必須。新規申請では空でよい', group: 'バージョン情報', maxLength: 4000 },
   { key: 'promotionalText', label: 'プロモーション用テキスト', multiline: true, placeholder: '審査なしで更新できる宣伝文', group: 'バージョン情報', maxLength: 170 },
@@ -164,6 +170,8 @@ function buildAutoValues(base: ReturnType<typeof getIosSigningGuideApps>[number]
   const meta = (...segments: string[]) => readMetadata(path.join(...segments)) ?? ''
 
   return {
+    screenshotUrl: '',
+    screenshotRoutes: '',
     screenshotNote: '',
     releaseNotes: meta(jaDir, 'release_notes.txt'),
     promotionalText: meta(jaDir, 'promotional_text.txt'),
@@ -202,7 +210,9 @@ function buildApp(
     return { ...def, value, autoValue, source }
   })
 
-  const rows: AppReviewCopyRow[] = fields.map((field) => ({ label: field.label, value: field.value }))
+  const rows: AppReviewCopyRow[] = fields
+    .filter((field) => !field.excludeFromCopy)
+    .map((field) => ({ label: field.label, value: field.value }))
 
   return {
     id: base.id,

@@ -1,6 +1,7 @@
 import PageGuide from '@/components/newux/PageGuide'
 import SubTabBar from '@/components/navigation/SubTabBar'
 import { getAppReviewFields } from '@/lib/app-review-fields'
+import { listAppScreenshots, SCREENSHOT_DEVICES } from '@/lib/app-review-screenshots'
 import { IOS_BUILD_SUBTABS } from '@/lib/nav-groups'
 import AppReviewFieldsClient from './AppReviewFieldsClient'
 
@@ -8,6 +9,10 @@ export const dynamic = 'force-dynamic'
 
 export default async function AppReviewFieldsPage() {
   const apps = await getAppReviewFields()
+  const screenshotEntries = await Promise.all(
+    apps.map(async (app) => [app.bundleId, await listAppScreenshots(app.bundleId)] as const),
+  )
+  const screenshots = Object.fromEntries(screenshotEntries)
 
   return (
     <main className="space-y-4 px-4 pb-6 pt-4">
@@ -33,7 +38,7 @@ export default async function AppReviewFieldsPage() {
           TestFlight対象workflowは見つかりませんでした。
         </section>
       ) : (
-        <AppReviewFieldsClient apps={apps} />
+        <AppReviewFieldsClient apps={apps} screenshots={screenshots} devices={SCREENSHOT_DEVICES} />
       )}
     </main>
   )

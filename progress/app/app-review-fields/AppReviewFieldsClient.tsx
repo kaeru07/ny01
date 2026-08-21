@@ -3,9 +3,11 @@
 import { useMemo, useState } from 'react'
 
 import CopyButton from '../ios-signing-guide/CopyButton'
+import ScreenshotPanel from './ScreenshotPanel'
 import { buildAppReviewCopyText } from '@/lib/app-review-copy'
 import { APP_REVIEW_GROUPS } from '@/lib/app-review-groups'
 import type { AppReviewApp, AppReviewField, AppReviewFieldKey } from '@/lib/app-review-fields'
+import type { AppScreenshot, ScreenshotDevicePreset } from '@/lib/app-review-screenshots'
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error'
 
@@ -58,7 +60,17 @@ function SourceBadge({ field, value }: { field: AppReviewField; value: string })
   return <span className="rounded-md bg-blue-100 px-1.5 py-0.5 text-[10px] font-black text-blue-700 dark:bg-blue-950 dark:text-blue-200">入力値</span>
 }
 
-export default function AppReviewFieldsClient({ apps }: { apps: AppReviewApp[] }) {
+interface AppReviewFieldsClientProps {
+  apps: AppReviewApp[]
+  /** bundleId ごとの撮影済みスクリーンショット。 */
+  screenshots: Record<string, AppScreenshot[]>
+  devices: ScreenshotDevicePreset[]
+}
+
+/** スクリーンショット撮影パネルを差し込むグループ。 */
+const SCREENSHOT_GROUP = 'プレビューとスクリーンショット'
+
+export default function AppReviewFieldsClient({ apps, screenshots, devices }: AppReviewFieldsClientProps) {
   const [state, setState] = useState<Record<string, AppCardState>>(() => initialState(apps))
 
   function setValue(bundleId: string, key: AppReviewFieldKey, value: string) {
@@ -223,6 +235,17 @@ export default function AppReviewFieldsClient({ apps }: { apps: AppReviewApp[] }
                       )
                     })}
                   </div>
+                  {group.name === SCREENSHOT_GROUP ? (
+                    <div className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-800">
+                      <ScreenshotPanel
+                        bundleId={app.bundleId}
+                        devices={devices}
+                        initialScreenshots={screenshots[app.bundleId] ?? []}
+                        baseUrl={card.values.screenshotUrl ?? ''}
+                        routesText={card.values.screenshotRoutes ?? ''}
+                      />
+                    </div>
+                  ) : null}
                 </section>
               ))}
 
