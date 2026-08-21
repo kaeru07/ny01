@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 
 import CopyButton from '../ios-signing-guide/CopyButton'
 import { buildAppReviewCopyText } from '@/lib/app-review-copy'
+import { APP_REVIEW_GROUPS } from '@/lib/app-review-groups'
 import type { AppReviewApp, AppReviewField, AppReviewFieldKey } from '@/lib/app-review-fields'
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error'
@@ -124,7 +125,8 @@ export default function AppReviewFieldsClient({ apps }: { apps: AppReviewApp[] }
         const card = state[app.bundleId]
         if (!card) return null
         const dirty = app.fields.some((field) => (card.values[field.key] ?? '') !== (card.baseline[field.key] ?? ''))
-        const groups = Array.from(new Set(app.fields.map((field) => field.group)))
+        // 並びは App Store Connect の入力順（APP_REVIEW_GROUPS）に固定する。
+        const groups = APP_REVIEW_GROUPS.filter((group) => app.fields.some((field) => field.group === group.name))
         const copyText = buildAppReviewCopyText(app, app.fields.map((field) => ({ label: field.label, value: card.values[field.key] ?? '' })))
 
         return (
@@ -165,17 +167,26 @@ export default function AppReviewFieldsClient({ apps }: { apps: AppReviewApp[] }
               ) : null}
 
               {groups.map((group) => (
-                <section key={group} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-950">
-                  <h3 className="text-sm font-black text-gray-900 dark:text-gray-100">{group}</h3>
+                <section key={group.name} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-950">
+                  <h3 className="text-sm font-black text-gray-900 dark:text-gray-100">{group.name}</h3>
+                  {group.note ? (
+                    <p className="mt-2 rounded-xl bg-gray-50 px-3 py-2 text-[11px] font-semibold leading-relaxed text-gray-600 dark:bg-gray-900 dark:text-gray-300">{group.note}</p>
+                  ) : null}
                   <div className="mt-3 space-y-4">
-                    {app.fields.filter((field) => field.group === group).map((field) => {
+                    {app.fields.filter((field) => field.group === group.name).map((field) => {
                       const value = card.values[field.key] ?? ''
                       const canReset = field.autoValue.trim() !== '' && value.trim() !== field.autoValue.trim()
+                      const over = field.maxLength !== undefined && value.length > field.maxLength
                       return (
                         <div key={field.key} className="space-y-1.5">
                           <div className="flex flex-wrap items-center gap-2">
                             <label htmlFor={`${app.id}-${field.key}`} className="text-xs font-black text-gray-500 dark:text-gray-400">{field.label}</label>
                             <SourceBadge field={field} value={value} />
+                            {field.maxLength !== undefined ? (
+                              <span className={over ? 'rounded-md bg-red-100 px-1.5 py-0.5 text-[10px] font-black text-red-700 dark:bg-red-950 dark:text-red-200' : 'text-[10px] font-black text-gray-400 dark:text-gray-500'}>
+                                {value.length} / {field.maxLength}
+                              </span>
+                            ) : null}
                             {canReset ? (
                               <button
                                 type="button"
@@ -194,7 +205,7 @@ export default function AppReviewFieldsClient({ apps }: { apps: AppReviewApp[] }
                                 onChange={(event) => setValue(app.bundleId, field.key, event.target.value)}
                                 placeholder={field.placeholder}
                                 rows={3}
-                                className="min-w-0 flex-1 rounded-xl border border-gray-300 bg-white px-3 py-2 font-mono text-xs font-bold text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                                className={`min-w-0 flex-1 rounded-xl border bg-white px-3 py-2 font-mono text-xs font-bold text-gray-900 dark:bg-gray-900 dark:text-gray-100 ${over ? 'border-red-400 dark:border-red-700' : 'border-gray-300 dark:border-gray-700'}`}
                               />
                             ) : (
                               <input
@@ -203,7 +214,7 @@ export default function AppReviewFieldsClient({ apps }: { apps: AppReviewApp[] }
                                 value={value}
                                 onChange={(event) => setValue(app.bundleId, field.key, event.target.value)}
                                 placeholder={field.placeholder}
-                                className="min-w-0 flex-1 rounded-xl border border-gray-300 bg-white px-3 py-2 font-mono text-xs font-bold text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                                className={`min-w-0 flex-1 rounded-xl border bg-white px-3 py-2 font-mono text-xs font-bold text-gray-900 dark:bg-gray-900 dark:text-gray-100 ${over ? 'border-red-400 dark:border-red-700' : 'border-gray-300 dark:border-gray-700'}`}
                               />
                             )}
                             <CopyButton text={value} />

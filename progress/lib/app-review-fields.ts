@@ -2,8 +2,12 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { buildAppReviewCopyText, type AppReviewCopyRow } from './app-review-copy'
+import { APP_REVIEW_GROUPS, type AppReviewGroupDef } from './app-review-groups'
 import { getIosSigningGuideApps } from './ios-signing-guide'
 import { readJson, writeJson } from './store'
+
+export { APP_REVIEW_GROUPS }
+export type { AppReviewGroupDef }
 
 // ─────────────────────────────────────────────────────────────
 // 審査提出準備（/app-review-fields）
@@ -19,23 +23,26 @@ import { readJson, writeJson } from './store'
 // ─────────────────────────────────────────────────────────────
 
 export type AppReviewFieldKey =
+  | 'screenshotNote'
+  | 'releaseNotes'
+  | 'promotionalText'
+  | 'description'
+  | 'keywords'
+  | 'supportUrl'
+  | 'marketingUrl'
+  | 'version'
+  | 'copyright'
+  | 'reviewNotes'
+  | 'releaseMethod'
   | 'name'
   | 'subtitle'
   | 'primaryCategory'
   | 'secondaryCategory'
-  | 'copyright'
+  | 'privacyPolicyUrl'
   | 'price'
   | 'availability'
-  | 'privacyPolicyUrl'
-  | 'supportUrl'
-  | 'marketingUrl'
-  | 'promotionalText'
-  | 'keywords'
-  | 'description'
-  | 'releaseNotes'
   | 'appPrivacy'
   | 'ageRatingNote'
-  | 'reviewNotes'
 
 export interface AppReviewFieldDef {
   key: AppReviewFieldKey
@@ -43,28 +50,33 @@ export interface AppReviewFieldDef {
   /** true なら textarea で表示する。 */
   multiline: boolean
   placeholder: string
-  /** 画面のカード分けに使う見出し。 */
+  /** 画面のカード分けに使う見出し（APP_REVIEW_GROUPS の name と一致させる）。 */
   group: string
+  /** App Store Connect 側の文字数上限。超過は画面で警告する。 */
+  maxLength?: number
 }
 
 export const APP_REVIEW_FIELD_DEFS: AppReviewFieldDef[] = [
-  { key: 'name', label: 'Name', multiline: false, placeholder: 'App Store に表示するアプリ名（30文字以内）', group: 'App情報' },
-  { key: 'subtitle', label: 'Subtitle', multiline: false, placeholder: 'サブタイトル（30文字以内）', group: 'App情報' },
-  { key: 'primaryCategory', label: 'カテゴリ (Primary)', multiline: false, placeholder: '例: GAMES', group: 'App情報' },
-  { key: 'secondaryCategory', label: 'カテゴリ (Secondary)', multiline: false, placeholder: '任意', group: 'App情報' },
-  { key: 'copyright', label: '著作権 (Copyright)', multiline: false, placeholder: '例: 2026 kaeru07', group: 'App情報' },
-  { key: 'price', label: '価格', multiline: false, placeholder: '例: 無料（¥0）', group: '価格・配信' },
-  { key: 'availability', label: '配信地域', multiline: false, placeholder: '例: 全世界', group: '価格・配信' },
-  { key: 'privacyPolicyUrl', label: 'プライバシーポリシーURL', multiline: false, placeholder: 'https://kaeru07.github.io/privacy/<app>.html', group: 'URL' },
-  { key: 'supportUrl', label: 'サポートURL', multiline: false, placeholder: 'https://kaeru07.github.io/support/<app>.html', group: 'URL' },
-  { key: 'marketingUrl', label: 'マーケティングURL', multiline: false, placeholder: '任意', group: 'URL' },
-  { key: 'promotionalText', label: 'プロモーション用テキスト', multiline: true, placeholder: '審査なしで更新できる宣伝文（170文字以内）', group: 'バージョン情報（審査で貼る）' },
-  { key: 'keywords', label: 'キーワード', multiline: true, placeholder: 'カンマ区切り（100文字以内）', group: 'バージョン情報（審査で貼る）' },
-  { key: 'description', label: '概要', multiline: true, placeholder: 'アプリの説明文（4000文字以内）', group: 'バージョン情報（審査で貼る）' },
-  { key: 'releaseNotes', label: 'リリースノート', multiline: true, placeholder: 'このバージョンの新機能', group: 'バージョン情報（審査で貼る）' },
-  { key: 'appPrivacy', label: 'データ収集状況', multiline: false, placeholder: '例: データを収集しません（Data Not Collected）', group: 'App Privacy / 年齢レーティング（要人確認）' },
-  { key: 'ageRatingNote', label: '年齢レーティング', multiline: true, placeholder: '質問票で答える内容のメモ', group: 'App Privacy / 年齢レーティング（要人確認）' },
-  { key: 'reviewNotes', label: 'App Review に伝える備考', multiline: true, placeholder: '審査担当者への補足（デモアカウントのID/パスワードは書かない）', group: 'App Privacy / 年齢レーティング（要人確認）' },
+  { key: 'screenshotNote', label: 'スクリーンショット準備メモ', multiline: true, placeholder: '例: 6.5インチ 5枚作成済み / iPad 13インチ 未作成', group: 'プレビューとスクリーンショット' },
+  { key: 'releaseNotes', label: 'このバージョンの新機能', multiline: true, placeholder: 'アップデート時のみ必須。新規申請では空でよい', group: 'バージョン情報', maxLength: 4000 },
+  { key: 'promotionalText', label: 'プロモーション用テキスト', multiline: true, placeholder: '審査なしで更新できる宣伝文', group: 'バージョン情報', maxLength: 170 },
+  { key: 'description', label: '概要', multiline: true, placeholder: 'アプリの説明文', group: 'バージョン情報', maxLength: 4000 },
+  { key: 'keywords', label: 'キーワード', multiline: true, placeholder: 'カンマ区切り', group: 'バージョン情報', maxLength: 100 },
+  { key: 'supportUrl', label: 'サポートURL', multiline: false, placeholder: 'https://kaeru07.github.io/support/<app>.html', group: 'バージョン情報' },
+  { key: 'marketingUrl', label: 'マーケティングURL', multiline: false, placeholder: '任意', group: 'バージョン情報' },
+  { key: 'version', label: 'バージョン', multiline: false, placeholder: '例: 1.0.0', group: 'バージョン情報' },
+  { key: 'copyright', label: '著作権', multiline: false, placeholder: '例: 2026 kaeru07', group: 'バージョン情報', maxLength: 200 },
+  { key: 'reviewNotes', label: 'メモ', multiline: true, placeholder: '審査担当者への補足（デモアカウントのID/パスワードは書かない）', group: 'App Reviewに関する情報', maxLength: 4000 },
+  { key: 'releaseMethod', label: 'リリース方法', multiline: false, placeholder: '手動でリリース / 自動でリリース / 日付指定', group: 'App Storeバージョンのリリース' },
+  { key: 'name', label: 'Name', multiline: false, placeholder: 'App Store に表示するアプリ名', group: 'App情報（ASCでは別ページ）', maxLength: 30 },
+  { key: 'subtitle', label: 'Subtitle', multiline: false, placeholder: 'サブタイトル', group: 'App情報（ASCでは別ページ）', maxLength: 30 },
+  { key: 'primaryCategory', label: 'カテゴリ (Primary)', multiline: false, placeholder: '例: GAMES', group: 'App情報（ASCでは別ページ）' },
+  { key: 'secondaryCategory', label: 'カテゴリ (Secondary)', multiline: false, placeholder: '任意', group: 'App情報（ASCでは別ページ）' },
+  { key: 'privacyPolicyUrl', label: 'プライバシーポリシーURL', multiline: false, placeholder: 'https://kaeru07.github.io/privacy/<app>.html', group: 'App情報（ASCでは別ページ）' },
+  { key: 'price', label: '価格', multiline: false, placeholder: '例: 無料（¥0）', group: '価格および配信状況（ASCでは別ページ）' },
+  { key: 'availability', label: '配信地域', multiline: false, placeholder: '例: 全世界', group: '価格および配信状況（ASCでは別ページ）' },
+  { key: 'appPrivacy', label: 'データ収集状況', multiline: false, placeholder: '例: データを収集しません（Data Not Collected）', group: 'Appのプライバシー・年齢レーティング（ASCでは別ページ）' },
+  { key: 'ageRatingNote', label: '年齢レーティング', multiline: true, placeholder: '質問票で答える内容のメモ', group: 'Appのプライバシー・年齢レーティング（ASCでは別ページ）' },
 ]
 
 /** 1項目あたりの保存上限。App Store Connect の概要欄（4000文字）に合わせる。 */
@@ -137,6 +149,14 @@ function buildAgeRatingNote(appName: string, bundleId: string): string {
   return `${base} 麻雀アプリのため「シミュレートされたギャンブル」該当有無を要確認（賭博・課金・オンライン対戦がなければ該当しない想定）。`
 }
 
+/** Xcode プロジェクトの MARKETING_VERSION を App Store のバージョン既定値として読む。 */
+function readAppVersion(appDir: string): string {
+  const pbxproj = path.join(appDir, 'ios', 'App', 'App.xcodeproj', 'project.pbxproj')
+  const raw = readMetadata(pbxproj)
+  const matched = raw ? /MARKETING_VERSION = ([^;]+);/.exec(raw) : null
+  return matched ? matched[1].trim() : ''
+}
+
 /** fastlane/metadata・apps.json から取れる自動既定値。人の保存値が無いときに使う。 */
 function buildAutoValues(base: ReturnType<typeof getIosSigningGuideApps>[number]): Record<AppReviewFieldKey, string> {
   const metadataDir = path.join(base.appDir, 'fastlane', 'metadata')
@@ -144,23 +164,26 @@ function buildAutoValues(base: ReturnType<typeof getIosSigningGuideApps>[number]
   const meta = (...segments: string[]) => readMetadata(path.join(...segments)) ?? ''
 
   return {
+    screenshotNote: '',
+    releaseNotes: meta(jaDir, 'release_notes.txt'),
+    promotionalText: meta(jaDir, 'promotional_text.txt'),
+    description: meta(jaDir, 'description.txt'),
+    keywords: meta(jaDir, 'keywords.txt'),
+    supportUrl: base.supportUrl ?? meta(jaDir, 'support_url.txt'),
+    marketingUrl: meta(jaDir, 'marketing_url.txt'),
+    version: readAppVersion(base.appDir),
+    copyright: meta(metadataDir, 'copyright.txt'),
+    reviewNotes: '',
+    releaseMethod: '手動でリリース',
     name: meta(jaDir, 'name.txt') || base.appName,
     subtitle: meta(jaDir, 'subtitle.txt'),
     primaryCategory: meta(metadataDir, 'primary_category.txt'),
     secondaryCategory: meta(metadataDir, 'secondary_category.txt'),
-    copyright: meta(metadataDir, 'copyright.txt'),
+    privacyPolicyUrl: base.privacyPolicyUrl ?? meta(jaDir, 'privacy_url.txt'),
     price: '無料（¥0）',
     availability: '全世界',
-    privacyPolicyUrl: base.privacyPolicyUrl ?? meta(jaDir, 'privacy_url.txt'),
-    supportUrl: base.supportUrl ?? meta(jaDir, 'support_url.txt'),
-    marketingUrl: meta(jaDir, 'marketing_url.txt'),
-    promotionalText: meta(jaDir, 'promotional_text.txt'),
-    keywords: meta(jaDir, 'keywords.txt'),
-    description: meta(jaDir, 'description.txt'),
-    releaseNotes: meta(jaDir, 'release_notes.txt'),
     appPrivacy: 'データを収集しません（Data Not Collected）',
     ageRatingNote: buildAgeRatingNote(base.appName, base.bundleId),
-    reviewNotes: '',
   }
 }
 

@@ -21,7 +21,7 @@ after(() => {
 process.env.PROGRESS_DATA_PATH = TMP_DATA_DIR
 
 // eslint-disable-next-line import/first
-import { getAppReviewFields, saveAppReviewFields } from './app-review-fields'
+import { APP_REVIEW_FIELD_DEFS, APP_REVIEW_GROUPS, getAppReviewFields, saveAppReviewFields } from './app-review-fields'
 
 const ANALYZER_BUNDLE_ID = 'com.kaeru07.mahjonganalyzer'
 
@@ -91,4 +91,38 @@ test('未知キーは無視し、未知bundleId・型違い・長すぎる値は
   await assert.rejects(() => saveAppReviewFields('com.example.unknown', { subtitle: 'x' }), /未知の bundleId/)
   await assert.rejects(() => saveAppReviewFields(ANALYZER_BUNDLE_ID, { subtitle: 123 as unknown as string }), /文字列/)
   await assert.rejects(() => saveAppReviewFields(ANALYZER_BUNDLE_ID, { subtitle: 'あ'.repeat(4001) }), /長すぎます/)
+})
+
+test('入力欄の並びはApp Store Connectのバージョンページの順に固定する', async () => {
+  const mahjong = await findAnalyzer()
+
+  // グループ順（ASCの画面順）
+  assert.deepEqual(
+    APP_REVIEW_GROUPS.map((group) => group.name).slice(0, 4),
+    ['プレビューとスクリーンショット', 'バージョン情報', 'App Reviewに関する情報', 'App Storeバージョンのリリース'],
+  )
+
+  // バージョン情報グループの項目順
+  assert.deepEqual(
+    APP_REVIEW_FIELD_DEFS.filter((def) => def.group === 'バージョン情報').map((def) => def.key),
+    ['releaseNotes', 'promotionalText', 'description', 'keywords', 'supportUrl', 'marketingUrl', 'version', 'copyright'],
+  )
+
+  // アプリ側の fields も同じ並びで返る
+  assert.deepEqual(mahjong.fields.map((field) => field.key), APP_REVIEW_FIELD_DEFS.map((def) => def.key))
+})
+
+test('ASCの文字数上限を項目に持ち、バージョンはXcodeのMARKETING_VERSIONを初期値にする', async () => {
+  const mahjong = await findAnalyzer()
+  const limits = Object.fromEntries(APP_REVIEW_FIELD_DEFS.map((def) => [def.key, def.maxLength]))
+
+  assert.equal(limits.promotionalText, 170)
+  assert.equal(limits.description, 4000)
+  assert.equal(limits.keywords, 100)
+  assert.equal(limits.copyright, 200)
+  assert.equal(limits.name, 30)
+  assert.equal(limits.subtitle, 30)
+  assert.equal(limits.supportUrl, undefined)
+
+  assert.match(fieldOf(mahjong, 'version').value, /^\d+(\.\d+)*$/)
 })

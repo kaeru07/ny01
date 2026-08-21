@@ -441,7 +441,7 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
           ASCキーが未配置の間はTestFlightの処理状況は未確認になります。その場合はCodemagicビルドのPublishing状態でアップロード成否を判断します。
         </p>
         <p className="mt-2 rounded-xl bg-white px-3 py-2 text-[11px] font-semibold leading-relaxed text-gray-600 dark:bg-gray-900 dark:text-gray-300">
-          審査に出す段階では「審査提出準備」（iOSビルド系サブタブ / /app-review-fields）を開きます。価格・著作権・カテゴリ・プライバシーポリシー/サポートURL・キーワード・概要・リリースノートを項目ごとにコピーでき、アプリ単位の全文コピーもできます。表示の正本は各アプリの fastlane/metadata と apps.json です。価格・年齢レーティング・App Privacyはガイダンス値なので、提出前に必ず人が確認します。
+          審査に出す段階では「審査提出準備」（iOSビルド系サブタブ / /app-review-fields）を開きます。入力欄は App Store Connect のバージョンページと同じ順（スクリーンショット → 新機能 → プロモーション用テキスト → 概要 → キーワード → 各URL → バージョン → 著作権 → メモ → リリース方法 → App情報/価格/プライバシー）なので、上から順に埋めて項目ごとにコピーし、そのまま貼り付けられます。文字数はASCの上限つきカウンタで表示し、超過すると赤くなります。初期値は各アプリの fastlane/metadata と apps.json、入力して保存した値が優先されます。価格・年齢レーティング・App Privacyは目安なので、提出前に必ず人が確認します。
         </p>
       </Slide>
 
