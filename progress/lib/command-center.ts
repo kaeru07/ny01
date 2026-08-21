@@ -66,6 +66,7 @@ export const TERMS: Record<string, { ja: string; help: string }> = {
   approvalEntry: { ja: '承認の入口', help: '実行可否の承認（ゴール承認・危険判断・方針選択）と検収（問題なし/修正する）はprogress（Inboxとレビュータブ）が唯一の入口です。VaultのレビューキューはChatGPTへ品質レビューを依頼する専用チャネルで、承認や検収はしません。同じ判断を2か所でしない運用です' },
   iosBuilds: { ja: 'iOSビルド', help: 'Codemagicの直近ビルド、TestFlight処理状況、ローカル最新コミットとの差分から、iOSアプリを今ビルドすべきか確認する画面です。ビルド実行と、候補を今日の判断へ送る操作ができます' },
   iosSigningGuide: { ja: 'iOS署名準備', help: '新しいiOSアプリをTestFlightへ送る前に、Apple Developer / App Store Connect / Codemagicへ入力する値をアプリ別に確認・コピーする画面です' },
+  appReviewFields: { ja: '審査提出準備', help: 'App Store審査でApp Store Connectに入力する価格・著作権・カテゴリ・プライバシーポリシー/サポートURL・説明文などを、アプリ別にコピペ用としてまとめた画面です。fastlane/metadata と apps.json を正本に表示し、価格・年齢レーティング・App Privacy はガイダンス値なので提出前に人が最終確認します' },
   buildCandidate: { ja: 'ビルド候補', help: '未ビルド、最新ビルド失敗、ローカル最新コミットが直近成功ビルドへ未反映のアプリです。必要なら今日の判断に送り、ビルドする/見送るを選べます' },
   testFlight: { ja: 'TestFlight', help: 'App Store Connect側でiOSビルドがテスター配信前に処理される場所です。ASCキーが未配置の間はProgressから処理状況を確認できないため、CodemagicのPublishing状態でアップロード成否を見ます' },
   runReportEmail: { ja: '自動実行レポートメール', help: '自動実行（11/14/16/23時と起動時）が1回終わるたびに届くメールです。要対応（承認待ち・不具合）、システム自己点検、ゴール別の進捗・問題・やること、できるようになったこと、改善事項を1通にまとめます。ChatGPTなど外部AIにそのまま貼れるMarkdownが添付されます。progress画面を開かなくても状況が分かる通知で、メールが届かなくても自動実行そのものは止まりません' },

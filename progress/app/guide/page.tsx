@@ -425,12 +425,13 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
         </p>
       </Slide>
 
-      <Slide n={10} title="アプリ開発" accent="blue" lead="アプリ案・設計・市場分析に加えて、iOSの配信準備状況を /ios-builds で確認できます。">
+      <Slide n={10} title="アプリ開発" accent="blue" lead="アプリ案・設計・市場分析に加えて、iOSの配信準備状況を /ios-builds、審査提出の入力値を /app-review-fields で確認できます。">
         <LegendGrid
           items={[
             { dot: 'bg-blue-500', term: 'ビルド状況', desc: 'Codemagicの直近ビルド、状態、workflow、branch、完了時刻、commitをアプリごとに見ます。' },
             { dot: 'bg-green-500', term: 'TestFlight状態', desc: 'App Store Connect APIキーが配置済みなら、直近アップロードの処理状態を確認します。' },
             { dot: 'bg-amber-500', term: 'ビルド候補', desc: '未ビルド、最新ビルド失敗、ローカル未反映コミットありを候補として表示します。' },
+            { dot: 'bg-purple-500', term: '審査提出準備', desc: 'App Store Connectへ貼る価格・著作権・カテゴリ・各URL・説明文をアプリ別にコピーします。' },
           ]}
         />
         <p className="mt-3 rounded-xl bg-white px-3 py-2 text-[11px] font-semibold leading-relaxed text-gray-600 dark:bg-gray-900 dark:text-gray-300">
@@ -438,6 +439,9 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
         </p>
         <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-semibold leading-relaxed text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
           ASCキーが未配置の間はTestFlightの処理状況は未確認になります。その場合はCodemagicビルドのPublishing状態でアップロード成否を判断します。
+        </p>
+        <p className="mt-2 rounded-xl bg-white px-3 py-2 text-[11px] font-semibold leading-relaxed text-gray-600 dark:bg-gray-900 dark:text-gray-300">
+          審査に出す段階では「審査提出準備」（iOSビルド系サブタブ / /app-review-fields）を開きます。価格・著作権・カテゴリ・プライバシーポリシー/サポートURL・キーワード・概要・リリースノートを項目ごとにコピーでき、アプリ単位の全文コピーもできます。表示の正本は各アプリの fastlane/metadata と apps.json です。価格・年齢レーティング・App Privacyはガイダンス値なので、提出前に必ず人が確認します。
         </p>
       </Slide>
 

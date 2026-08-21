@@ -39,6 +39,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/logs', label: '実行履歴（作業ログ）', note: 'AIの作業履歴（Execution Run）の一覧' },
       { href: '/ios-builds', label: 'iOSビルド', note: 'Codemagicビルド状況・TestFlight・ビルド候補の確認と実行' },
       { href: '/ios-signing-guide', label: 'iOS署名準備', note: '新規TestFlight対象アプリのApple/Codemagic入力値をコピペ用に確認' },
+      { href: '/app-review-fields', label: '審査提出準備', note: 'App Store審査に貼る価格/著作権/カテゴリ/各URL/説明文を入力・保存してコピー' },
       { href: '/usage', label: '使用状況', note: 'このアプリ自身の使われ方（よく開く画面・ボタン操作・放置画面）' },
       { href: '/revenue', label: 'Revenue（収益）', note: '収益化の現在地・マイルストーン' },
       { href: '/guide', label: '運用ガイド', note: 'このアプリの使い方・最終更新' },

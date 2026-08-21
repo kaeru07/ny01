@@ -1,6 +1,6 @@
 ---
-updated: 2026-07-19
-updateNote: 自動実行の1起動あたり実行件数の上限（3件固定）を撤廃し既定無制限に変更。必要な場合のみ環境変数で上限を設定できる。
+updated: 2026-08-21
+updateNote: App Store審査の提出値を人が入力・保存してコピーできる「審査提出準備」画面（/app-review-fields）を追加。
 ---
 
 # Progress 現行運用モデル（current-operating-model）
@@ -61,6 +61,18 @@ updateNote: 自動実行の1起動あたり実行件数の上限（3件固定）
 - **レビュー用コピー / キュー外レビューコピー**（progress→外部への出口）は従来どおり。外部レビュー結果を戻す正式経路は未実装のため、採用指摘は人間が起票する（既存FAQと同じ）。
 - Vault 側の旧「候補承認」運用は新規に行わない（既存ページの片付けは Goal⑥「移行後の古い運用メモを片付ける」で扱う）。
 
+## 2026-08-21: 審査提出準備（App Store Connect 入力値の入力・保存・コピー）
+
+`/app-review-fields`（iOSビルド系サブタブ「審査提出準備」）は、App Store 審査の提出時に App Store Connect へ入力する値を、人がこの画面で入力・保存し、項目ごと／アプリごとにコピーして貼り付けるための画面。
+
+- 対象アプリは `/ios-signing-guide` と同じ発見ロジック（`getIosSigningGuideApps()`）で列挙する。専用のアプリ台帳は作らない。
+- 値の解決優先度は **保存値（人の入力） > 自動既定値 > 空**。自動既定値は各アプリの `fastlane/metadata`（name / subtitle / keywords / description / release_notes / primary_category / copyright 等）と `kaeru07.github.io/apps.json`（privacyPolicyUrl / supportUrl）、および価格・配信地域・App Privacy・年齢レーティング注記の定型文。
+- 入力欄は固定ホワイトリスト（17項目）。保存値は `app-review-fields.json` に bundleId 単位で持つ。空文字で保存するとその項目の保存値を消し、自動既定値へ戻る（画面の「自動値に戻す」＋保存で同じ動作）。
+- 画面には「自動 / 入力値 / 未入力」バッジと「未保存」バッジを出し、どの値が人の入力かを判別できるようにする。
+- 年齢レーティングの注記は麻雀アプリのときだけ「シミュレートされたギャンブル」該当有無の確認を足す。他アプリに麻雀固有の文言は出さない。
+- 価格・年齢レーティング・App Privacy は目安の初期値であり、提出前に人が最終確認する前提。
+- **機密は保存しない**: 審査用デモアカウントのID/パスワード、連絡先電話番号などは入力対象に含めず、画面にも警告を出す。`ny01` は公開リポジトリで `data/real` も追跡対象のため、保存内容は公開される。これらは App Store Connect に直接入力する。
+
 ## 2026-07-18: iOSビルド状況・候補ピックアップ
 
 `/ios-builds` は、hima-app / mahjong などのiOS配信対象アプリについて、Codemagicの直近ビルド、TestFlight処理状況、ローカル最新コミットとの差分をまとめて見るアプリ開発系画面。
@@ -112,6 +124,7 @@ Progress は **AI工場の管理画面ではなく、人間用の司令塔**。
 | Projects | `/portfolio` | 進行中プロジェクトの一覧と次の作業 |
 | Revenue | `/revenue` | 収益化マイルストーンの現在地 |
 | iOSビルド | `/ios-builds` | アプリ開発系の配信準備画面。Codemagicの直近ビルド、TestFlight処理状況、ローカル最新コミットとの差分からビルド候補を表示する。ビルド実行と、候補を今日の判断へ送る操作ができる。ASCキー未配置時はTestFlight処理状況は未確認として案内する |
+| 審査提出準備 | `/app-review-fields` | App Store 審査で App Store Connect に入力する価格・著作権・カテゴリ・各URL・説明文などを、人が入力・保存し、項目ごと／全文でコピーする画面。初期値は fastlane/metadata と apps.json。機密（デモアカウント・電話番号）は保存対象外 |
 | 📖 運用 | `/guide` | このアプリの使い方を自分で説明するページ（本ドキュメントと連動） |
 | Legacy | `/legacy` | 旧画面群（URL / 案件 / ログ / 旧ホーム / 旧Factory / 旧Goal）への入口。無削除退避 |
 
@@ -261,6 +274,7 @@ Inboxカード（今日の判断 / レビュー / Epic候補 / AI保留集計）
 | Goal Step Epic（次の一歩） | 達成まで自動で進める（次の一歩） |
 | Usage | 使用状況 |
 | iOS Builds | iOSビルド |
+| App Review Fields | 審査提出準備 |
 | Build Candidate | ビルド候補 |
 | TestFlight | TestFlight |
 
@@ -407,6 +421,7 @@ Progress 自身の使われ方を把握するページ（下タブ「使用状�
 
 ## 変更履歴
 
+- 2026-08-21: **審査提出準備画面を追加**。`/app-review-fields`（iOSビルド系サブタブ）で、App Store Connect へ入力する17項目（Name / Subtitle / カテゴリ / 著作権 / 価格 / 配信地域 / 各URL / プロモーション用テキスト / キーワード / 概要 / リリースノート / App Privacy / 年齢レーティング / App Review 備考）を人が入力・保存し、項目ごと／全文でコピーできるようにした。初期値は `fastlane/metadata` と `apps.json`、保存値は `app-review-fields.json`（bundleId 単位・空文字保存で自動既定値へ復帰）。API は `GET/PUT /api/app-review-fields`。機密（審査用デモアカウント・連絡先電話番号）は入力対象外とし、公開リポジトリである旨の警告を画面に出す。TERMS に `appReviewFields` を追加、/guide のアプリ開発スライドに審査提出準備の説明を追記。今日の流れ／AI工場の流れの図は日次判断と定時Factory本体の説明であり、手動の審査準備画面追加では変更不要と確認。
 - 2026-07-19: **自動実行の1起動あたり実行件数capを撤廃（既定無制限）**（goal-mqp5c2hm「自動実行の最大件数の制御をなくす」/ goal-mqrj2cbk 見直し）。従来は `maxRuns`（最大3にクランプ）→ codex 対応で `SAFETY_RUN_LIMIT=3` 固定となっており、いずれも「3件で停止」の挙動が残って意図と不一致だった。`lib/factory-runner.ts` を修正し、既定は件数無制限（safetyRunLimit=0）でキュー消化・全Epic完了・失敗・rate limit 等の条件でのみ停止する。無限ループ防止は maxPerEpic + excludedEpics + stale検知が担保（1起動内の総Run数は maxPerEpic×対象Epic/Goal数で有限）。暴走時の保険として env `FACTORY_SAFETY_RUN_LIMIT`（正の整数）で上限を任意設定可能。stoppedReason `safety_run_limit_reached` は env 設定時のみ発生。UI用語の変更なし（safetyRunLimit は画面非表示のため TERMS/図の更新は不要と確認）。
 - 2026-07-19: **危険判断待ちの停止範囲をプロジェクト単位へ変更し、iOSビルド画面の使い方を追記**。Factory は pending の危険approvalを `approval.projectId`、`epicId→Goal.projectId`、`createdRunId→targetApp` の順にスコープ解決し、解決できた場合は該当Project/Goal/Epic配下だけを今回の候補から除外して他プロジェクトを継続実行する。スコープ不明が1件でもあれば従来どおり全体停止し、automation log にapprovalIdを記録する。`factory-metrics` と司令塔表示は、全体停止を「スコープ不明の危険判断」のみに変更し、スコープ済み危険判断は「対象のみ停止、他プロジェクトは稼働」と表示する。`/ios-builds` には「使い方」を追加し、ビルド実行、候補を今日の判断へ、候補バッジ、ビルド状態、TestFlight欄、30秒自動更新の意味を説明した。
 - 2026-07-18: **iOSビルド状況・候補ピックアップ画面を追加**。`/ios-builds` で `/root/company/apps/*/codemagic.yaml` からiOS配信対象アプリを発見し、Codemagicの直近ビルド、TestFlight処理状況、ローカル最新コミットとの差分を表示する。候補判定は未ビルド/最新ビルド失敗/未反映コミットあり。手動の「ビルド実行」はCodemagic `POST /builds` を確認ダイアログ後に呼び、「候補を今日の判断へ」は `multi_option` approval（ビルドする/見送る）を重複防止付きで作成する。ASCキー未配置時はTestFlight未確認として案内。TERMS に `iosBuilds` / `buildCandidate` / `testFlight` を追加、/guide にアプリ開発スライドを追加。今日の流れ/AI工場の流れは日次判断と定時Factory本体の説明であり、今回の任意ビルド管理追加では変更不要と確認。

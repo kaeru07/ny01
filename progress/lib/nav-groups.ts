@@ -19,6 +19,7 @@ export const APP_DEVELOPMENT_SUBTABS: SubNavItem[] = [
 export const IOS_BUILD_SUBTABS: SubNavItem[] = [
   { label: 'iOS署名準備', href: '/ios-signing-guide' },
   { label: 'iOSビルド', href: '/ios-builds' },
+  { label: '審査提出準備', href: '/app-review-fields' },
 ]
 
 export const AUTO_EXECUTION_SUBTABS: SubNavItem[] = [
