@@ -216,8 +216,11 @@ export default function AppReviewFieldsClient({ apps }: { apps: AppReviewApp[] }
               ))}
 
               <details className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950">
-                <summary className="cursor-pointer select-none text-sm font-black text-gray-900 dark:text-gray-100">手動コピー用全文</summary>
-                <pre className="mt-3 whitespace-pre-wrap rounded-xl bg-gray-950 p-3 font-mono text-[11px] leading-relaxed text-gray-100">{copyText}</pre>
+                <summary className="cursor-pointer select-none text-sm font-black text-gray-900 dark:text-gray-100">全文プレビュー</summary>
+                <div className="mt-3 flex justify-end">
+                  <CopyButton text={copyText} label="全文をコピー" />
+                </div>
+                <pre className="mt-2 whitespace-pre-wrap rounded-xl bg-gray-950 p-3 font-mono text-[11px] leading-relaxed text-gray-100">{copyText}</pre>
               </details>
             </div>
           </details>
