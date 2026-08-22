@@ -298,7 +298,10 @@ async function fetchJson(url: string, init: RequestInit): Promise<unknown> {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
   try {
-    const response = await fetch(url, { ...init, signal: controller.signal })
+    // Next.js の fetch は既定でレスポンスをキャッシュするため、Codemagic の
+    // アプリ一覧・ビルド一覧が古いまま返り、後から登録したアプリが
+    // 「appId未解決」になる。常に最新を取りに行く（2026-08-22）。
+    const response = await fetch(url, { ...init, cache: 'no-store', signal: controller.signal })
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`)
     }
