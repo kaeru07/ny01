@@ -21,6 +21,13 @@ export const SUIT_OFFSET: Record<Suit, number> = {
 /** 字牌の名前 (インデックス 0-6 に対応) */
 export const HONOR_NAMES = ["東", "南", "西", "北", "白", "発", "中"];
 
+const NUMBER_NAMES = ["一", "二", "三", "四", "五", "六", "七", "八", "九"];
+const SUIT_NAMES: Record<Exclude<Suit, "z">, string> = {
+  m: "萬",
+  p: "筒",
+  s: "索",
+};
+
 /** Tile → インデックス (0-33) */
 export function tileToIndex(tile: Tile): number {
   return SUIT_OFFSET[tile.suit] + tile.number - 1;
@@ -38,6 +45,23 @@ export function indexToTile(index: number): Tile {
 export function tileToString(tile: Tile): string {
   if (tile.suit === "z") return HONOR_NAMES[tile.number - 1];
   return `${tile.number}${tile.suit}`;
+}
+
+/** スクリーンリーダー向けの日本語牌名（例: 赤五萬、東）。 */
+export function tileAccessibleName(tile: Tile): string {
+  if (tile.suit === "z") return HONOR_NAMES[tile.number - 1];
+
+  const numberName = NUMBER_NAMES[tile.number - 1] ?? String(tile.number);
+  return `${tile.isRed ? "赤" : ""}${numberName}${SUIT_NAMES[tile.suit]}`;
+}
+
+/**
+ * 表示上の牌を一意に識別するキー。
+ * 牌効率計算では赤5と通常5を同種として扱うが、切り牌の強調表示では
+ * 実際に選ばれた方だけを示す必要があるため赤ドラ属性も含める。
+ */
+export function tileDisplayKey(tile: Tile): string {
+  return `${tile.number}${tile.suit}:${tile.isRed ? "red" : "normal"}`;
 }
 
 /** 手牌配列 → カウント配列 (長さ 34) */

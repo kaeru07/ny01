@@ -4,8 +4,10 @@
 
 import React from "react";
 import { AnalysisResult } from "@/lib/mahjong/types";
-import { HandDisplay } from "./TileDisplay";
+import { HandDisplay, TileDisplay } from "./TileDisplay";
 import { DiscardCard } from "./DiscardCard";
+import { countRemainingTile } from "@/lib/mahjong/analyzer";
+import { tileAccessibleName } from "@/lib/mahjong/tiles";
 
 /** シャンテン数に応じたバッジスタイル */
 function shantenBadge(n: number): {
@@ -33,6 +35,7 @@ interface Props {
 export function AnalysisResultView({ result }: Props) {
   const badge = shantenBadge(result.shanten);
   const is13 = result.tileCount === 13;
+  const bestDiscard = result.discardCandidates[0]?.tile;
 
   return (
     <div className="space-y-6">
@@ -63,7 +66,20 @@ export function AnalysisResultView({ result }: Props) {
           </span>
           {result.shanten >= 0 && (
             <span className="text-sm text-gray-500">
-              {is13 ? "ツモ有効牌" : "最良打牌後の有効牌"}:{" "}
+              {is13 ? (
+                "ツモ有効牌"
+              ) : bestDiscard ? (
+                <>
+                  第1候補の
+                  <span className="font-semibold text-gray-700">
+                    {tileAccessibleName(bestDiscard)}
+                  </span>
+                  を切った後の有効牌
+                </>
+              ) : (
+                "最良打牌後の有効牌"
+              )}
+              :{" "}
               <span className="font-semibold text-gray-700">
                 {result.effectiveTileCount}枚
               </span>
@@ -72,17 +88,63 @@ export function AnalysisResultView({ result }: Props) {
         </div>
       </section>
 
+      {/* 河・副露を入力しない MVP では、受け入れ枚数は理論上限として案内する。 */}
+      {result.shanten >= 0 && (
+        <aside className="rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-xs leading-relaxed text-sky-900">
+          <span className="font-semibold">受け入れ枚数について:</span>{" "}
+          手牌で見えている牌だけを差し引いた理論上の最大枚数です。河や他家の副露で見えている牌は含まれないため、実戦の残り枚数は少ない場合があります。
+        </aside>
+      )}
+
+      {/* ── 14枚: 和了形 ── */}
+      {!is13 && result.shanten === -1 && (
+        <section
+          role="status"
+          className="rounded-lg border border-purple-200 bg-purple-50 px-4 py-3 text-sm text-purple-900"
+        >
+          <h2 className="font-semibold">和了形です</h2>
+          <p className="mt-1">
+            手牌が完成しています。打牌候補を確認する必要はありません。
+          </p>
+        </section>
+      )}
+
       {/* ── 13枚: 有効牌 ── */}
       {is13 && result.effectiveTiles.length > 0 && (
         <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
           <h2 className="text-sm font-semibold text-gray-500 mb-3 uppercase tracking-wide">
             有効牌 (ツモると前進する牌)
           </h2>
-          <HandDisplay
-            tiles={result.effectiveTiles}
-            highlightTiles={result.effectiveTiles}
-            size="md"
-          />
+          <div className="flex flex-wrap gap-2">
+            {result.effectiveTiles.map((tile) => {
+              const remaining = countRemainingTile(tile, result.hand);
+              return (
+                <div
+                  key={`${tile.suit}-${tile.number}`}
+                  className="flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-2 py-1.5"
+                  aria-label={`${tileAccessibleName(tile)} 残り${remaining}枚`}
+                >
+                  <TileDisplay tile={tile} size="md" highlight />
+                  <span className="text-xs font-semibold text-blue-800">
+                    残り{remaining}枚
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* ── 13枚: 有効牌なし ── */}
+      {is13 && result.effectiveTiles.length === 0 && (
+        <section
+          role="status"
+          className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+        >
+          <h2 className="font-semibold">有効牌が見つかりませんでした</h2>
+          <p className="mt-1">
+            現在の手牌では、ツモによってシャンテン数が下がる牌はありません。入力内容を確認してください。
+          </p>
         </section>
       )}
 
@@ -101,7 +163,12 @@ export function AnalysisResultView({ result }: Props) {
           </h2>
           <div className="space-y-3">
             {result.discardCandidates.map((cand, i) => (
-              <DiscardCard key={i} candidate={cand} rank={i} />
+              <DiscardCard
+                key={`${cand.tile.suit}-${cand.tile.number}`}
+                candidate={cand}
+                rank={i}
+                visibleTiles={result.hand}
+              />
             ))}
           </div>
         </section>

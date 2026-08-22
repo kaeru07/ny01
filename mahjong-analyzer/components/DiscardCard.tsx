@@ -3,8 +3,10 @@
 // ========================================
 
 import React from "react";
-import { DiscardCandidate } from "@/lib/mahjong/types";
-import { TileDisplay, HandDisplay } from "./TileDisplay";
+import { DiscardCandidate, Tile } from "@/lib/mahjong/types";
+import { TileDisplay } from "./TileDisplay";
+import { countRemainingTile } from "@/lib/mahjong/analyzer";
+import { tileAccessibleName } from "@/lib/mahjong/tiles";
 
 const RANK_BADGE: Record<number, { bg: string; text: string; label: string }> =
   {
@@ -27,19 +29,24 @@ function labelStyle(label: string): string {
   if (label === "即テンパイ")    return "bg-green-100 text-green-700 border border-green-300";
   if (label === "受け入れ広い")  return "bg-blue-100 text-blue-700 border border-blue-300";
   if (label === "孤立牌")        return "bg-gray-100 text-gray-600 border border-gray-300";
-  if (label === "安全牌候補")    return "bg-purple-100 text-purple-700 border border-purple-300";
+  if (label === "字牌")          return "bg-purple-100 text-purple-700 border border-purple-300";
   return "bg-gray-100 text-gray-600 border border-gray-200";
 }
 
 interface DiscardCardProps {
   candidate: DiscardCandidate;
   rank: number;
+  visibleTiles: Tile[];
 }
 
 /**
  * 打牌候補1件を表示するカード
  */
-export function DiscardCard({ candidate, rank }: DiscardCardProps) {
+export function DiscardCard({
+  candidate,
+  rank,
+  visibleTiles,
+}: DiscardCardProps) {
   const badge = RANK_BADGE[rank];
   const { text: shantenText, color: shantenColor } = shantenLabel(
     candidate.resultShanten
@@ -110,22 +117,39 @@ export function DiscardCard({ candidate, rank }: DiscardCardProps) {
         </p>
       )}
 
-      <div className="px-4 pt-2 text-xs text-gray-500">
-        受け入れ枚数: <span className="font-semibold text-gray-700">{candidate.effectiveTileCount}枚</span>
-      </div>
-
       {/* 有効牌 */}
       {candidate.effectiveTiles.length > 0 && (
         <div className="px-4 pb-4">
           <div className="text-xs text-gray-500 mb-1.5">
-            有効牌 ({candidate.effectiveTileCount}枚)
+            有効牌（受け入れ {candidate.effectiveTileCount}枚）
           </div>
-          <HandDisplay
-            tiles={candidate.effectiveTiles}
-            highlightTiles={candidate.effectiveTiles}
-            size="sm"
-          />
+          <div className="flex flex-wrap gap-2">
+            {candidate.effectiveTiles.map((tile) => {
+              const remaining = countRemainingTile(tile, visibleTiles);
+              return (
+                <div
+                  key={`${tile.suit}-${tile.number}`}
+                  className="flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-2 py-1.5"
+                  aria-label={`${tileAccessibleName(tile)} 残り${remaining}枚`}
+                >
+                  <TileDisplay tile={tile} size="sm" highlight />
+                  <span className="text-xs font-semibold text-blue-800">
+                    残り{remaining}枚
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
+      )}
+
+      {candidate.effectiveTiles.length === 0 && (
+        <p
+          role="status"
+          className="mx-4 mb-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900"
+        >
+          この打牌後にシャンテン数が下がる有効牌はありません。
+        </p>
       )}
     </div>
   );

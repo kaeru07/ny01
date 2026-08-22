@@ -5,8 +5,13 @@
 // ========================================
 
 import React from "react";
+import Image from "next/image";
 import { Tile } from "@/lib/mahjong/types";
-import { tileToString } from "@/lib/mahjong/tiles";
+import {
+  tileAccessibleName,
+  tileDisplayKey,
+  tileToString,
+} from "@/lib/mahjong/tiles";
 
 // SVGの読み込みに失敗した場合の文字色
 const SUIT_COLOR: Record<Tile["suit"], string> = {
@@ -74,6 +79,7 @@ export function TileDisplay({
   selected = false,
 }: TileProps) {
   const label = tileToString(tile);
+  const accessibleName = tileAccessibleName(tile);
   const src = tileImageSrc(tile);
   const dimensions = TILE_DIMENSIONS[size];
   let containerClass = "inline-flex items-center justify-center rounded ";
@@ -87,9 +93,9 @@ export function TileDisplay({
   return (
     <span className={containerClass.trim()} title={label}>
       {src && (
-        <img
+        <Image
           src={src}
-          alt={label}
+          alt={accessibleName}
           width={dimensions.width}
           height={dimensions.height}
           className="block object-contain"
@@ -102,6 +108,7 @@ export function TileDisplay({
       )}
       <span
         hidden={Boolean(src)}
+        aria-label={accessibleName}
         className={`inline-flex items-center justify-center rounded border border-gray-300 bg-white font-mono font-bold ${SUIT_COLOR[tile.suit]}`}
         style={dimensions}
       >
@@ -133,7 +140,7 @@ export function HandDisplay({
     highlightTiles.map((t) => `${t.number}${t.suit}`)
   );
   const selectedKey = selectedTile
-    ? `${selectedTile.number}${selectedTile.suit}`
+    ? tileDisplayKey(selectedTile)
     : null;
 
   return (
@@ -146,7 +153,7 @@ export function HandDisplay({
             tile={tile}
             size={size}
             highlight={highlightSet.has(key)}
-            selected={selectedKey === key}
+            selected={selectedKey === tileDisplayKey(tile)}
           />
         );
       })}

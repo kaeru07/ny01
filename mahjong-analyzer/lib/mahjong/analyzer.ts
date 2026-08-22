@@ -14,6 +14,18 @@ import {
 } from "./shanten";
 import { possibleYaku } from "./yaku";
 
+/** 手牌から見えている同種牌を除いた、山に残る最大枚数を返す。 */
+export function countRemainingTile(tile: Tile, visibleTiles: Tile[]): number {
+  const targetIndex = tileToIndex(tile);
+  const visibleCount = visibleTiles.reduce(
+    (count, visibleTile) =>
+      count + (tileToIndex(visibleTile) === targetIndex ? 1 : 0),
+    0
+  );
+
+  return Math.max(0, 4 - visibleCount);
+}
+
 // ── ラベル生成 ──────────────────────────────────────────────────
 
 /**
@@ -23,6 +35,7 @@ import { possibleYaku } from "./yaku";
  * @param resultShanten   切った後のシャンテン数
  * @param effectiveCount  切った後の有効牌受け入れ枚数
  * @param maxEffectiveCount 全候補中の最大受け入れ枚数
+ * @param bestShanten     全候補中の最小シャンテン数
  * @param countsAfterDiscard 切った後の手牌カウント配列
  */
 function buildLabels(
@@ -30,6 +43,7 @@ function buildLabels(
   resultShanten: number,
   effectiveCount: number,
   maxEffectiveCount: number,
+  bestShanten: number,
   countsAfterDiscard: number[]
 ): string[] {
   const labels: string[] = [];
@@ -39,6 +53,7 @@ function buildLabels(
 
   // 最大受け入れ (全候補中で最も広い)
   if (
+    resultShanten === bestShanten &&
     resultShanten > 0 &&
     effectiveCount === maxEffectiveCount &&
     maxEffectiveCount > 0
@@ -51,8 +66,8 @@ function buildLabels(
     labels.push("孤立牌");
   }
 
-  // 字牌 (安全牌候補になりやすい)
-  if (discardIdx >= 27) labels.push("安全牌候補");
+  // 相手の河や場況を入力していないため安全性は判定せず、牌種だけを示す。
+  if (discardIdx >= 27) labels.push("字牌");
 
   return labels;
 }
@@ -103,7 +118,7 @@ function buildReason(
   const parts: string[] = [];
 
   if (labels.includes("孤立牌") && tile.suit === "z") {
-    parts.push(`${name}は字牌の孤立牌。他の牌に影響せず安全に切れる`);
+    parts.push(`${name}は字牌の孤立牌。切っても手牌のつながりを崩しにくい`);
   } else if (labels.includes("孤立牌")) {
     parts.push(`${name}は周囲に繋がりのない孤立牌。切っても手の形は崩れない`);
   } else if (labels.includes("受け入れ広い")) {
@@ -132,13 +147,79 @@ function buildReason(
  * @param tiles 13枚または14枚の手牌
  */
 export function analyzeHand(tiles: Tile[]): AnalysisResult {
+  // Expo の画面や端末保存から渡される値は、TypeScript の型だけでは実行時の
+  // 破損を防げない。内部計算へ入る前に配列と各牌の形を検証し、null 参照などの
+  // 不明瞭な例外ではなく、画面側で扱える入力エラーとして返す。
+  if (!Array.isArray(tiles)) {
+    throw new TypeError("手牌データは配列で指定してください");
+  }
+
+  if (tiles.length !== 13 && tiles.length !== 14) {
+    throw new RangeError(
+      `解析には13枚か14枚の手牌が必要です (現在${tiles.length}枚)`
+    );
+  }
+
+  const invalidTileIndex = tiles.findIndex((tile) => {
+    if (typeof tile !== "object" || tile === null) return true;
+
+    const maxNumber = tile.suit === "z" ? 7 : 9;
+    return (
+      !["m", "p", "s", "z"].includes(tile.suit) ||
+      !Number.isInteger(tile.number) ||
+      tile.number < 1 ||
+      tile.number > maxNumber ||
+      (tile.isRed !== undefined && typeof tile.isRed !== "boolean")
+    );
+  });
+  if (invalidTileIndex !== -1) {
+    const invalidTile = tiles[invalidTileIndex] as Tile | null;
+    const tileLabel = invalidTile
+      ? `${String(invalidTile.number)}${String(invalidTile.suit)}`
+      : `${invalidTileIndex + 1}枚目`;
+    throw new RangeError(
+      `存在しない牌が含まれています (${tileLabel})`
+    );
+  }
+
+  const invalidRedTile = tiles.find(
+    (tile) => tile.isRed && (tile.suit === "z" || tile.number !== 5)
+  );
+  if (invalidRedTile) {
+    throw new RangeError(
+      `赤ドラに指定できるのは数牌の5だけです (${invalidRedTile.number}${invalidRedTile.suit})`
+    );
+  }
+
+  const redFiveCounts = new Map<string, number>();
+  for (const tile of tiles) {
+    if (!tile.isRed) continue;
+
+    const count = (redFiveCounts.get(tile.suit) ?? 0) + 1;
+    if (count > 1) {
+      throw new RangeError(`同じ種類の赤5は1枚までです (0${tile.suit})`);
+    }
+    redFiveCounts.set(tile.suit, count);
+  }
+
   const tileCount = tiles.length as 13 | 14;
   const counts = tilesToCounts(tiles);
+
+  const impossibleTileIndex = counts.findIndex((count) => count > 4);
+  if (impossibleTileIndex !== -1) {
+    throw new RangeError(
+      `同じ牌は4枚までです (${tileToString(indexToTile(impossibleTileIndex))})`
+    );
+  }
 
   // ── 13枚の場合 ──
   if (tileCount === 13) {
     const shanten = calculateShanten(counts);
-    const effIdx = getEffectiveTileIndices(counts);
+    // 同種牌をすでに4枚持っている場合、その牌は山に残っていない。
+    // シャンテン計算上の有効牌でも、実際に引けない牌は一覧から除外する。
+    const effIdx = getEffectiveTileIndices(counts).filter(
+      (effectiveIdx) => counts[effectiveIdx] < 4
+    );
     const effectiveTiles = effIdx.map(indexToTile);
     const effectiveTileCount = countEffectiveTiles(effIdx, counts);
 
@@ -152,6 +233,20 @@ export function analyzeHand(tiles: Tile[]): AnalysisResult {
     };
   }
 
+  // 14枚ですでに和了形なら、不要な打牌を勧めず完了状態を返す。
+  // 打牌後のシャンテン数を結果にするとテンパイへ後退して見えるため、
+  // 現在の手牌を先に判定する。
+  if (calculateShanten(counts) === -1) {
+    return {
+      hand: tiles,
+      tileCount,
+      shanten: -1,
+      effectiveTiles: [],
+      effectiveTileCount: 0,
+      discardCandidates: [],
+    };
+  }
+
   // ── 14枚の場合: 各牌を1枚切る試算 ──
   const candidates: DiscardCandidate[] = [];
   const triedIdx = new Set<number>(); // 同じ牌の重複解析を防ぐ
@@ -161,16 +256,31 @@ export function analyzeHand(tiles: Tile[]): AnalysisResult {
     if (triedIdx.has(idx)) continue;
     triedIdx.add(idx);
 
+    // 赤5と通常5は牌効率上は同じ種類として解析するが、両方ある場合に
+    // 赤ドラを捨てる表示にはしない。通常5を候補の代表牌として優先する。
+    const discardTile =
+      tiles.find(
+        (candidate) => tileToIndex(candidate) === idx && !candidate.isRed
+      ) ?? tile;
+
     // 1枚切る
     counts[idx]--;
 
     const resultShanten = calculateShanten(counts);
-    const effIdx = getEffectiveTileIndices(counts);
+    const effIdx = getEffectiveTileIndices(counts).filter(
+      // 捨てた牌も河の見えている牌として数える。元の手牌に同種牌が
+      // 4枚あった場合、その牌は山に残っていないため一覧にも出さない。
+      (effectiveIdx) =>
+        counts[effectiveIdx] + (effectiveIdx === idx ? 1 : 0) < 4
+    );
     const effectiveTiles = effIdx.map(indexToTile);
-    const effectiveCount = countEffectiveTiles(effIdx, counts);
+    // 捨てた牌は手牌から外れるが、河に見えており山には戻らない。
+    // 同種の牌が有効牌の場合は、その1枚を受け入れ枚数から除外する。
+    const effectiveCount =
+      countEffectiveTiles(effIdx, counts) - (effIdx.includes(idx) ? 1 : 0);
 
     candidates.push({
-      tile,
+      tile: discardTile,
       resultShanten,
       effectiveTiles,
       effectiveTileCount: effectiveCount,
@@ -183,11 +293,15 @@ export function analyzeHand(tiles: Tile[]): AnalysisResult {
     counts[idx]++;
   }
 
-  // シャンテン数昇順 → 受け入れ枚数降順でソート
+  // シャンテン数昇順 → 受け入れ枚数降順でソート。
+  // そこまで同じ候補は牌種順にし、同じ手牌を別の並びで入力しても
+  // 推奨順位が揺れないようにする。
   candidates.sort((a, b) => {
     if (a.resultShanten !== b.resultShanten)
       return a.resultShanten - b.resultShanten;
-    return b.effectiveTileCount - a.effectiveTileCount;
+    if (a.effectiveTileCount !== b.effectiveTileCount)
+      return b.effectiveTileCount - a.effectiveTileCount;
+    return tileToIndex(a.tile) - tileToIndex(b.tile);
   });
 
   // 各打牌後に狙える役を集計し、和集合(unionSet)と共通集合(commonSet)を求める。
@@ -224,9 +338,14 @@ export function analyzeHand(tiles: Tile[]): AnalysisResult {
     cand.vanishingYaku = Array.from(unionSet).filter((yaku) => !afterSet.has(yaku));
   }
 
-  // 上位3候補にラベルと理由を付与
+  // 上位3候補にランキング用ラベルを付与
   const top3 = candidates.slice(0, 3);
-  const maxCount = top3.reduce((m, c) => Math.max(m, c.effectiveTileCount), 0);
+  const bestShanten = top3[0]?.resultShanten ?? 8;
+  // 受け入れ幅はシャンテン数を維持できる候補同士でのみ比較する。
+  // シャンテン数が悪化する候補の枚数が多くても「受け入れ広い」とは案内しない。
+  const maxCount = top3
+    .filter((candidate) => candidate.resultShanten === bestShanten)
+    .reduce((max, candidate) => Math.max(max, candidate.effectiveTileCount), 0);
 
   for (const cand of top3) {
     const idx = tileToIndex(cand.tile);
@@ -239,8 +358,14 @@ export function analyzeHand(tiles: Tile[]): AnalysisResult {
       cand.resultShanten,
       cand.effectiveTileCount,
       maxCount,
+      bestShanten,
       afterCounts
     );
+  }
+
+  // 画面に表示する全候補に理由を付与する。
+  // 4位以下はランキング用ラベルを持たないが、解析根拠は省略しない。
+  for (const cand of candidates) {
     cand.reason = buildReason(
       cand.tile,
       cand.resultShanten,

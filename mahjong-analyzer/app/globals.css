@@ -12,3 +12,9 @@ body {
 :focus:not(:focus-visible) {
   outline: none;
 }
+
+/* Capacitor/iOS でノッチとホームインジケータにコンテンツが重ならないようにする */
+.app-safe-area {
+  padding-top: max(1.5rem, env(safe-area-inset-top));
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+}
