@@ -34,6 +34,7 @@ export default function ScreenshotPanel({ bundleId, devices, initialScreenshots,
   const [state, setState] = useState<PanelState>('idle')
   const [message, setMessage] = useState('')
   const [copied, setCopied] = useState<string | null>(null)
+  const [saved, setSaved] = useState<string | null>(null)
 
   async function capture() {
     setState('capturing')
@@ -72,6 +73,50 @@ export default function ScreenshotPanel({ bundleId, devices, initialScreenshots,
       return
     }
     setScreenshots(json.screenshots ?? [])
+  }
+
+  /**
+   * 画像を端末へ保存する。
+   *
+   * iPhone では <a download> が現在のページごとプレビューへ遷移してしまい、
+   * ホーム画面から起動した progress に戻れなくなる（2026-08-23 のユーザー報告）。
+   * そのため iOS では共有シート（保存したら元の画面へ戻る）を最優先で使い、
+   * 使えない環境だけ blob の保存 → 別タブ表示 の順にフォールバックする。
+   */
+  async function saveImage(name: string) {
+    setMessage('')
+    let blobUrl: string | null = null
+    try {
+      const blob = await (await fetch(fileUrl(bundleId, name, false))).blob()
+      const file = new File([blob], name.split('/').pop() ?? name, { type: 'image/png' })
+
+      // iOS/Android: 共有シートから「画像を保存」。シートを閉じれば progress に戻る。
+      if (navigator.canShare?.({ files: [file] }) && navigator.share) {
+        await navigator.share({ files: [file] })
+        setSaved(name)
+        window.setTimeout(() => setSaved((current) => (current === name ? null : current)), 1600)
+        return
+      }
+
+      // PC: blob をダウンロードする。ページ遷移は起きない。
+      blobUrl = URL.createObjectURL(blob)
+      const anchor = document.createElement('a')
+      anchor.href = blobUrl
+      anchor.download = file.name
+      anchor.rel = 'noopener'
+      document.body.appendChild(anchor)
+      anchor.click()
+      anchor.remove()
+      setSaved(name)
+      window.setTimeout(() => setSaved((current) => (current === name ? null : current)), 1600)
+    } catch (err) {
+      // 共有シートを閉じただけならエラー扱いにしない
+      if ((err as Error)?.name === 'AbortError') return
+      setState('error')
+      setMessage(`${(err as Error).message} 「別タブで開く」から長押しで保存してください`)
+    } finally {
+      if (blobUrl) window.setTimeout(() => URL.revokeObjectURL(blobUrl as string), 10_000)
+    }
   }
 
   // クリップボードへ画像を入れる。非対応ブラウザではダウンロードを案内する。
@@ -128,9 +173,16 @@ export default function ScreenshotPanel({ bundleId, devices, initialScreenshots,
         </p>
       ) : null}
 
+      {screenshots.length > 0 ? (
+        <p className="rounded-xl bg-gray-50 px-3 py-2 text-[11px] font-semibold leading-relaxed text-gray-600 dark:bg-gray-900 dark:text-gray-300">
+          iPhoneでは「画像を保存」を押すと共有シートが開きます。「画像を保存」を選ぶと写真アプリに入り、シートを閉じればこの画面に戻ります。
+          「別タブで開く」は新しいタブで開くので、長押しで保存してもこの画面は残ります。どちらもこの画面から移動しません。
+        </p>
+      ) : null}
+
       {screenshots.length === 0 ? (
         <p className="rounded-xl bg-gray-50 px-3 py-2 text-[11px] font-semibold text-gray-500 dark:bg-gray-900 dark:text-gray-400">
-          まだ撮影済みのスクリーンショットはありません。「スクショを撮る」でアプリの実画面を撮ると、ここに並んでダウンロードできます。
+          まだ撮影済みのスクリーンショットはありません。「スクショを撮る」でアプリの実画面を撮ると、ここに並んで保存できます。
         </p>
       ) : (
         <ul className="grid grid-cols-2 gap-3">
@@ -151,12 +203,22 @@ export default function ScreenshotPanel({ bundleId, devices, initialScreenshots,
                 <span className="text-gray-400 dark:text-gray-500">{formatBytes(shot.bytes)}</span>
               </p>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                <a
-                  href={fileUrl(bundleId, shot.name, true)}
-                  download={shot.name}
-                  className="rounded-lg bg-blue-600 px-2 py-1 text-[10px] font-black text-white dark:bg-blue-500"
+                <button
+                  type="button"
+                  onClick={() => saveImage(shot.name)}
+                  className={saved === shot.name
+                    ? 'rounded-lg bg-green-600 px-2 py-1 text-[10px] font-black text-white'
+                    : 'rounded-lg bg-blue-600 px-2 py-1 text-[10px] font-black text-white dark:bg-blue-500'}
                 >
-                  ダウンロード
+                  {saved === shot.name ? '保存しました' : '画像を保存'}
+                </button>
+                <a
+                  href={fileUrl(bundleId, shot.name, false)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg border border-gray-300 px-2 py-1 text-[10px] font-black text-gray-700 dark:border-gray-700 dark:text-gray-200"
+                >
+                  別タブで開く
                 </a>
                 <button
                   type="button"
