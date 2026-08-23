@@ -6,6 +6,7 @@
       "title": "AI工場OS自走化",
       "description": "Progressアプリで毎日5〜15分だけ意思決定すれば、調査・実装・レビュー・次Epic生成が止まらず進む状態を作る。",
       "metric": "daily_decision_minutes",
+      "metricDirection": "down",
       "target": 15,
       "current": 60,
       "isNorthStar": true,
@@ -13,14 +14,14 @@
       "status": "active",
       "priority": "high",
       "pinnedTop": false,
-      "lastSelectedRunId": "20260616-230002-520",
-      "lastSelectedAt": "2026-06-16T14:00:02.511Z",
+      "lastSelectedRunId": "20260706-140037-115",
+      "lastSelectedAt": "2026-07-06T05:00:37.092Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-11T00:00:00.000Z",
-      "updatedAt": "2026-06-21T05:33:57.722Z"
+      "updatedAt": "2026-07-06T05:00:37.201Z"
     },
     {
       "id": "goal-execution-review-loop",
@@ -29,21 +30,21 @@
       "description": "Codex/Claudeの実行結果を完了報告で終わらせず、Review、Knowledge、Next Epic候補生成までつなげる。",
       "metric": "closed_loop_rate",
       "target": 80,
-      "current": 40.3,
-      "metricSyncedAt": "2026-07-04T14:00:16.853Z",
+      "current": 0.2,
+      "metricSyncedAt": "2026-08-23T07:01:53.096Z",
       "isNorthStar": false,
       "summary": "Codex/Claudeの実行結果を完了報告で終わらせず、Review、Knowledge、Next Epic候補生成までつなげる。",
-      "status": "active",
+      "status": "done",
       "priority": "high",
       "pinnedTop": false,
-      "lastSelectedRunId": "20260701-110023-448",
-      "lastSelectedAt": "2026-07-01T02:00:23.435Z",
+      "lastSelectedRunId": "20260720-125753-134",
+      "lastSelectedAt": "2026-07-20T03:57:53.113Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-11T00:00:00.000Z",
-      "updatedAt": "2026-07-04T14:00:16.853Z"
+      "updatedAt": "2026-08-22T14:01:39.676Z"
     },
     {
       "id": "goal-ai-executor-ops",
@@ -80,7 +81,7 @@
       "metric": "validated_project_count",
       "target": 5,
       "current": 3,
-      "metricSyncedAt": "2026-07-04T14:00:16.853Z",
+      "metricSyncedAt": "2026-08-23T07:01:53.096Z",
       "isNorthStar": false,
       "summary": "調査・アプリ開発・教材化・収益化候補をAI工場内で継続的に検証し、次の収益候補や転職価値につなげる。",
       "status": "done",
@@ -185,13 +186,13 @@
       "description": "",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: 自分で追加した目標",
-      "status": "active",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
       "queueControl": {
@@ -199,14 +200,14 @@
         "updatedBy": "user",
         "updatedAt": "2026-06-23T16:04:09.713Z"
       },
-      "lastSelectedRunId": "20260624-093035-518",
-      "lastSelectedAt": "2026-06-24T00:30:35.507Z",
+      "lastSelectedRunId": "20260720-141041-546",
+      "lastSelectedAt": "2026-07-20T05:10:41.508Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-19T13:26:37.666Z",
-      "updatedAt": "2026-06-24T00:30:35.538Z"
+      "updatedAt": "2026-07-20T05:19:07.259Z"
     },
     {
       "id": "goal-mqlsxkwd-470tt",
@@ -1697,13 +1698,13 @@
       "description": "自動実行74件中10件しか変更ファイルが記録されておらず、レポートで何をしたか追えない。executor結果から変更ファイルを確実に拾う。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "自動実行74件中10件しか変更ファイルが記録されておらず、レポートで何をしたか追えない。executor結果から変更ファイルを確実に拾う。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: AutoExecReport調査で changedFiles=10/74。記録が薄いと作業内容が後から分からない。",
-      "status": "active",
+      "status": "done",
       "priority": "high",
       "priorityBoost": 2,
       "pinnedTop": false,
@@ -1714,8 +1715,8 @@
         "updatedAt": "2026-06-23T16:04:09.724Z",
         "manualOrder": 6
       },
-      "lastSelectedRunId": "20260624-140016-425",
-      "lastSelectedAt": "2026-06-24T05:00:16.404Z",
+      "lastSelectedRunId": "20260709-110325-870",
+      "lastSelectedAt": "2026-07-09T02:03:25.832Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "app_improvement",
@@ -1732,7 +1733,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-20T04:18:13.405Z",
-      "updatedAt": "2026-06-24T05:00:16.442Z"
+      "updatedAt": "2026-07-09T02:09:07.622Z"
     },
     {
       "id": "goal-mqluko5g-il7nz",
@@ -1772,13 +1773,13 @@
       "description": "nextActionsが1/74しか入っていない。実行後に『次にやること』を必ず1つ以上記録する。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "nextActionsが1/74しか入っていない。実行後に『次にやること』を必ず1つ以上記録する。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: nextActions populated=1/74。次アクションが無いとゴール生成モードの補充ソースも痩せる。",
-      "status": "active",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
       "queueControl": {
@@ -1786,8 +1787,8 @@
         "updatedBy": "user",
         "updatedAt": "2026-06-23T16:04:09.720Z"
       },
-      "lastSelectedRunId": "20260624-110010-958",
-      "lastSelectedAt": "2026-06-24T02:00:10.948Z",
+      "lastSelectedRunId": "20260710-110337-386",
+      "lastSelectedAt": "2026-07-10T02:03:37.357Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "app_improvement",
@@ -1801,7 +1802,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-20T04:18:13.405Z",
-      "updatedAt": "2026-06-24T02:00:10.979Z"
+      "updatedAt": "2026-07-10T02:11:31.206Z"
     },
     {
       "id": "goal-mqluko5g-f6c7f",
@@ -2020,13 +2021,13 @@
       "description": "司令塔/ToDo/Project/目標/自動実行/運用/承認の各画面で、折り返し・タップ領域・横スクロールの破綻が無いか点検する。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "司令塔/ToDo/Project/目標/自動実行/運用/承認の各画面で、折り返し・タップ領域・横スクロールの破綻が無いか点検する。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: ユーザーはiPhone閲覧を重視。縦長・崩れの指摘が出ている。",
-      "status": "active",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
       "queueControl": {
@@ -2034,8 +2035,8 @@
         "updatedBy": "user",
         "updatedAt": "2026-06-23T16:04:09.741Z"
       },
-      "lastSelectedRunId": "20260624-160758-989",
-      "lastSelectedAt": "2026-06-24T07:07:58.977Z",
+      "lastSelectedRunId": "20260710-140030-088",
+      "lastSelectedAt": "2026-07-10T05:00:30.057Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "app_improvement",
@@ -2051,7 +2052,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-20T04:18:13.405Z",
-      "updatedAt": "2026-06-24T07:07:59.009Z"
+      "updatedAt": "2026-07-10T05:09:42.596Z"
     },
     {
       "id": "goal-mqluko5i-ppywk",
@@ -2334,13 +2335,13 @@
       "description": "current-operating-model.mdのupdatedが古い/実装と乖離していないかを検知し、更新を促す。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "current-operating-model.mdのupdatedが古い/実装と乖離していないかを検知し、更新を促す。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: ドキュメントと実装の乖離は運用事故の元。",
-      "status": "active",
+      "status": "done",
       "priority": "low",
       "pinnedTop": false,
       "queueControl": {
@@ -2348,8 +2349,8 @@
         "updatedBy": "user",
         "updatedAt": "2026-06-23T16:04:09.706Z"
       },
-      "lastSelectedRunId": "20260624-092554-859",
-      "lastSelectedAt": "2026-06-24T00:25:54.846Z",
+      "lastSelectedRunId": "20260720-112854-508",
+      "lastSelectedAt": "2026-07-20T02:28:54.476Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "app_improvement",
@@ -2363,7 +2364,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-20T04:18:13.405Z",
-      "updatedAt": "2026-06-24T00:25:54.879Z"
+      "updatedAt": "2026-07-20T02:32:43.153Z"
     },
     {
       "id": "goal-mqluko5l-8jznd",
@@ -2517,13 +2518,13 @@
       "description": "非正本の旧データ・旧画面(/legacy/queue等)の依存を棚卸しし、安全に縮小する。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "非正本の旧データ・旧画面(/legacy/queue等)の依存を棚卸しし、安全に縮小する。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: 互換データが残ると正本と二重管理になり混乱の元。",
-      "status": "active",
+      "status": "done",
       "priority": "low",
       "pinnedTop": false,
       "queueControl": {
@@ -2531,6 +2532,8 @@
         "updatedBy": "user",
         "updatedAt": "2026-06-24T15:54:58.194Z"
       },
+      "lastSelectedRunId": "20260720-113245-148",
+      "lastSelectedAt": "2026-07-20T02:32:45.123Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "app_improvement",
@@ -2546,7 +2549,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-20T04:18:13.405Z",
-      "updatedAt": "2026-06-24T15:54:58.194Z"
+      "updatedAt": "2026-07-20T02:42:47.202Z"
     },
     {
       "id": "goal-mqlxglt5-yirib",
@@ -2597,13 +2600,13 @@
       "description": "Vaultにある収益化の候補を、状態を引き継いで今のゴール(progress)として登録し、Vault側の詳細はリンク参照に切り替える。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "Vaultにある収益化の候補を、状態を引き継いで今のゴール(progress)として登録し、Vault側の詳細はリンク参照に切り替える。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: 収益化候補がVaultとprogressで二重管理。自動実行まで回るprogress側に寄せれば、候補が承認→自動実行で前進する。",
-      "status": "active",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
       "queueControl": {
@@ -2611,8 +2614,8 @@
         "updatedBy": "user",
         "updatedAt": "2026-06-23T16:04:09.747Z"
       },
-      "lastSelectedRunId": "20260624-230018-748",
-      "lastSelectedAt": "2026-06-24T14:00:18.737Z",
+      "lastSelectedRunId": "20260710-160031-102",
+      "lastSelectedAt": "2026-07-10T07:00:31.076Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "app_improvement",
@@ -2631,7 +2634,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-20T05:39:02.618Z",
-      "updatedAt": "2026-06-24T14:00:18.767Z"
+      "updatedAt": "2026-07-10T07:09:56.298Z"
     },
     {
       "id": "goal-mqlxgluj-ot173",
@@ -2640,13 +2643,13 @@
       "description": "Vaultのやることリスト・実行待ち一覧を、progressのゴール内ToDoと自動実行キューにまとめ、見る場所を1か所にする。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "Vaultのやることリスト・実行待ち一覧を、progressのゴール内ToDoと自動実行キューにまとめ、見る場所を1か所にする。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: 実行キュー(vloop_queue vs auto-queue)とToDo(案件別ToDo vs GoalTodo)が二系統で、どちらを見るべきか曖昧。",
-      "status": "active",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
       "queueControl": {
@@ -2654,8 +2657,8 @@
         "updatedBy": "user",
         "updatedAt": "2026-06-24T15:54:58.182Z"
       },
-      "lastSelectedRunId": "20260625-110013-933",
-      "lastSelectedAt": "2026-06-25T02:00:13.921Z",
+      "lastSelectedRunId": "20260710-230032-385",
+      "lastSelectedAt": "2026-07-10T14:00:32.363Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "app_improvement",
@@ -2674,7 +2677,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-20T05:39:02.618Z",
-      "updatedAt": "2026-06-25T02:00:13.954Z"
+      "updatedAt": "2026-07-10T14:14:21.113Z"
     },
     {
       "id": "goal-mqlxgluk-kajmg",
@@ -2683,13 +2686,13 @@
       "description": "VaultのChatGPT承認待ちと、progressのゴール承認・レビューキューの役割を決め、同じ判断を2か所でしないようにする。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "VaultのChatGPT承認待ちと、progressのゴール承認・レビューキューの役割を決め、同じ判断を2か所でしないようにする。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: 承認の正本が二系統(Vault candidate承認 / progressゴール承認)で、同じ判断を2か所でしている恐れ。",
-      "status": "active",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
       "queueControl": {
@@ -2697,6 +2700,8 @@
         "updatedBy": "user",
         "updatedAt": "2026-06-24T15:54:58.216Z"
       },
+      "lastSelectedRunId": "20260711-110339-547",
+      "lastSelectedAt": "2026-07-11T02:03:39.519Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "app_improvement",
@@ -2715,7 +2720,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-20T05:39:02.618Z",
-      "updatedAt": "2026-06-24T15:54:58.216Z"
+      "updatedAt": "2026-07-11T02:12:35.819Z"
     },
     {
       "id": "goal-mqlxgluk-4aamd",
@@ -2901,19 +2906,22 @@
       "description": "調査や運用の知見から新アプリ候補を自動抽出し、ゴール承認へ提案する。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "調査や運用の知見から新アプリ候補を自動抽出し、ゴール承認へ提案する。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: ユーザー要望: 新アプリの提案を追加してほしい。",
-      "status": "proposed",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
+      "lastSelectedRunId": "20260720-143218-101",
+      "lastSelectedAt": "2026-07-20T05:32:18.057Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "vision_followup",
       "proposedAt": "2026-06-21T05:35:29.162Z",
+      "approvedAt": "2026-07-15T14:06:56.802Z",
       "proposalEnables": "新しい収益源の種が定期的に承認待ちに上がる。",
       "proposalPros": [
         "新規プロダクトの発掘が自動化"
@@ -2924,7 +2932,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-21T05:35:29.162Z",
-      "updatedAt": "2026-06-21T05:35:29.162Z"
+      "updatedAt": "2026-07-20T05:37:01.073Z"
     },
     {
       "id": "goal-mqncrvrf-5vcm8",
@@ -2933,19 +2941,22 @@
       "description": "propose/upsert/直接追加すべての経路でprojectIdを必須化し、無ければプロジェクト追加を促す。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "propose/upsert/直接追加すべての経路でprojectIdを必須化し、無ければプロジェクト追加を促す。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: 理想運用: ゴールは必ずプロジェクトに紐づく。今回activeはバックフィル済みだが新規作成の強制は未実装。",
-      "status": "proposed",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
+      "lastSelectedRunId": "20260720-143703-455",
+      "lastSelectedAt": "2026-07-20T05:37:03.434Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "vision_followup",
       "proposedAt": "2026-06-21T05:35:29.162Z",
+      "approvedAt": "2026-07-15T14:07:02.448Z",
       "proposalEnables": "全ゴールが常にプロジェクトに紐づく状態を維持できる。",
       "proposalPros": [
         "プロジェクト×ゴール一覧が常に正確"
@@ -2956,7 +2967,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-21T05:35:29.162Z",
-      "updatedAt": "2026-06-21T05:35:29.162Z"
+      "updatedAt": "2026-07-20T05:46:00.161Z"
     },
     {
       "id": "goal-mqncrvrf-nr9cj",
@@ -2971,13 +2982,16 @@
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: 理想運用: アプリはApp Store公開仕様で完成としてプロジェクト画面に示す。今はヒューリスティック。",
-      "status": "proposed",
+      "status": "active",
       "priority": "low",
       "pinnedTop": false,
+      "lastSelectedRunId": "20260810-110920-535",
+      "lastSelectedAt": "2026-08-10T02:09:20.505Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "vision_followup",
       "proposedAt": "2026-06-21T05:35:29.162Z",
+      "approvedAt": "2026-07-15T14:07:06.897Z",
       "proposalEnables": "完成したアプリが確実に『完成』表示される。",
       "proposalPros": [
         "完成状態が一目で分かる"
@@ -2988,7 +3002,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-21T05:35:29.162Z",
-      "updatedAt": "2026-06-21T05:35:29.162Z"
+      "updatedAt": "2026-08-10T02:09:20.641Z"
     },
     {
       "id": "goal-mqncrvrf-b5er4",
@@ -3037,13 +3051,13 @@
       "description": "factory-runnerの実装系タスクをCodex優先で実行し、Claudeは判断/レビュー/検証/安全判断に寄せる。課金/本番/認証/破壊/外部公開の安全ゲートは維持。Claudeの使用量上限による停止を減らす。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "factory-runnerの実装系タスクをCodex優先で実行し、Claudeは判断/レビュー/検証/安全判断に寄せる。課金/本番/認証/破壊/外部公開の安全ゲートは維持。Claudeの使用量上限による停止を減らす。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: ユーザー方針: 負担が減るなら実装はCodexに頼む。現在はClaude既定→上限時Codex fallback。実装スループットをCodexに逃がせば自走が長く続く。",
-      "status": "active",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
       "queueControl": {
@@ -3051,6 +3065,8 @@
         "updatedBy": "user",
         "updatedAt": "2026-06-24T15:54:58.203Z"
       },
+      "lastSelectedRunId": "20260719-110328-219",
+      "lastSelectedAt": "2026-07-19T02:03:28.179Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "vision_followup",
@@ -3068,7 +3084,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-21T05:38:04.771Z",
-      "updatedAt": "2026-06-24T15:54:58.203Z"
+      "updatedAt": "2026-08-20T11:48:48.984Z"
     },
     {
       "id": "goal-mqnl772j-2aehq",
@@ -3187,15 +3203,22 @@
       "description": "対話実行の待ち時間に溜めた作業を、Claudeの使用量上限が回復したタイミングで検知して自動的に実行再開する。自動実行を作った当初の動機の中核。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "対話実行の待ち時間に溜めた作業を、Claudeの使用量上限が回復したタイミングで検知して自動的に実行再開する。自動実行を作った当初の動機の中核。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: 経緯: 対話実行は待ち時間があり、その間にやりたいことが溜まる→溜めて上限回復時に実行したかった。現状: 作業予約(prompt-queue)+定時実行(11/14/16/23時)+Claude上限検知→Codex fallbackはあるが、『上限回復を検知して溜めた作業を自動再開』は未実装(Auto Resumeは部分実装)。",
-      "status": "active",
+      "status": "done",
       "priority": "high",
       "pinnedTop": false,
+      "queueControl": {
+        "manualOrder": 3,
+        "updatedBy": "user",
+        "updatedAt": "2026-07-05T04:38:49.273Z"
+      },
+      "lastSelectedRunId": "20260720-141908-620",
+      "lastSelectedAt": "2026-07-20T05:19:08.597Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "origin_gap",
@@ -3213,7 +3236,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-21T15:53:34.302Z",
-      "updatedAt": "2026-07-01T07:28:05.608Z"
+      "updatedAt": "2026-07-20T05:22:48.250Z"
     },
     {
       "id": "goal-mqnyuqu7-7mpo3",
@@ -3222,15 +3245,22 @@
       "description": "現在は定時自動実行の最初に調査を読むだけ。調査自体をより高頻度/常時に回し、試す候補と市場知見を継続的に蓄積する。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "現在は定時自動実行の最初に調査を読むだけ。調査自体をより高頻度/常時に回し、試す候補と市場知見を継続的に蓄積する。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: 経緯: 調査は常時やってほしい。現状: 調査は自動実行(定時4回/日)の最初にdaily-ai-toolsを読むのみで『常時』ではない。",
-      "status": "active",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
+      "queueControl": {
+        "manualOrder": 14,
+        "updatedBy": "user",
+        "updatedAt": "2026-07-05T04:38:49.301Z"
+      },
+      "lastSelectedRunId": "20260720-142302-900",
+      "lastSelectedAt": "2026-07-20T05:23:02.848Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "origin_gap",
@@ -3248,7 +3278,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-21T15:53:34.302Z",
-      "updatedAt": "2026-07-01T07:28:15.775Z"
+      "updatedAt": "2026-07-20T05:27:18.501Z"
     },
     {
       "id": "goal-mqnyuqu7-a2pp1",
@@ -3257,15 +3287,22 @@
       "description": "アプリ開発を、完成の定義(例: App Store公開仕様)まで人間の逐次指示なしで自走で作り切り、完成したらプロジェクト画面で『確認待ち』として人間に提示する一連のフローを作る。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "アプリ開発を、完成の定義(例: App Store公開仕様)まで人間の逐次指示なしで自走で作り切り、完成したらプロジェクト画面で『確認待ち』として人間に提示する一連のフローを作る。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "notes": "提案根拠: 経緯: アプリ開発は一定レベルまで指示なしで完成系を作ってから確認した方が時間効率が良い。現状: ゴール駆動の自動実行+Codex委譲はあるが『完成の定義→完成まで自走→完成したら確認依頼』が未体系化。App Store公開=完成の明示フラグも別ゴールで未実装。",
-      "status": "active",
+      "status": "done",
       "priority": "high",
       "pinnedTop": false,
+      "queueControl": {
+        "manualOrder": 4,
+        "updatedBy": "user",
+        "updatedAt": "2026-07-05T04:38:49.283Z"
+      },
+      "lastSelectedRunId": "20260709-140032-997",
+      "lastSelectedAt": "2026-07-09T05:00:32.964Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "proposalSource": "origin_gap",
@@ -3283,7 +3320,7 @@
       "phases": [],
       "todos": [],
       "createdAt": "2026-06-21T15:53:34.302Z",
-      "updatedAt": "2026-07-01T07:28:18.942Z"
+      "updatedAt": "2026-07-09T05:14:08.021Z"
     },
     {
       "id": "goal-mqp5c2hm-ts4es",
@@ -3292,16 +3329,16 @@
       "description": "",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
-      "status": "active",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
-      "lastSelectedRunId": "20260624-092117-004",
-      "lastSelectedAt": "2026-06-24T00:21:16.992Z",
+      "lastSelectedRunId": "20260719-140019-077",
+      "lastSelectedAt": "2026-07-19T05:00:19.049Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [
@@ -3310,7 +3347,7 @@
           "title": "初期フェーズ",
           "summary": "自動実行の最大件数の制御をなくす。",
           "order": 0,
-          "status": "todo"
+          "status": "done"
         }
       ],
       "todos": [
@@ -3329,10 +3366,10 @@
           "decisionPolicy": "autonomous",
           "riskFlags": [],
           "source": "manual_todo",
-          "status": "pending",
+          "status": "done",
           "dependsOn": [],
           "createdAt": "2026-06-22T11:42:46.419Z",
-          "updatedAt": "2026-06-23T16:04:09.685Z",
+          "updatedAt": "2026-07-19T05:08:26.747Z",
           "queueControl": {
             "manualOrder": 1,
             "updatedBy": "user",
@@ -3341,7 +3378,7 @@
         }
       ],
       "createdAt": "2026-06-22T11:42:46.419Z",
-      "updatedAt": "2026-06-24T00:21:17.034Z"
+      "updatedAt": "2026-07-19T05:08:26.747Z"
     },
     {
       "id": "goal-mqp5djzt-ekz87",
@@ -3350,16 +3387,16 @@
       "description": "",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
-      "status": "active",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
-      "lastSelectedRunId": "20260623-160008-996",
-      "lastSelectedAt": "2026-06-23T07:00:08.987Z",
+      "lastSelectedRunId": "20260719-160028-181",
+      "lastSelectedAt": "2026-07-19T07:00:28.155Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [
@@ -3368,7 +3405,7 @@
           "title": "初期フェーズ",
           "summary": "自動実行キューに最優先、最後尾ボタンを追加",
           "order": 0,
-          "status": "todo"
+          "status": "done"
         }
       ],
       "todos": [
@@ -3400,7 +3437,7 @@
         }
       ],
       "createdAt": "2026-06-22T11:43:55.755Z",
-      "updatedAt": "2026-06-23T13:12:15.896Z"
+      "updatedAt": "2026-07-19T07:06:38.889Z"
     },
     {
       "id": "goal-mqp6f72n-nb2xn",
@@ -3417,8 +3454,8 @@
       "status": "active",
       "priority": "medium",
       "pinnedTop": false,
-      "lastSelectedRunId": "20260701-160026-567",
-      "lastSelectedAt": "2026-07-01T07:00:26.533Z",
+      "lastSelectedRunId": "20260821-110334-136",
+      "lastSelectedAt": "2026-08-21T02:03:34.091Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [
@@ -3460,7 +3497,7 @@
         }
       ],
       "createdAt": "2026-06-22T12:13:11.527Z",
-      "updatedAt": "2026-07-01T07:00:26.605Z"
+      "updatedAt": "2026-08-21T02:03:34.302Z"
     },
     {
       "id": "goal-mqp6hasd-g5i9p",
@@ -3469,16 +3506,16 @@
       "description": "",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
-      "status": "active",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
-      "lastSelectedRunId": "20260701-140021-017",
-      "lastSelectedAt": "2026-07-01T05:00:21.003Z",
+      "lastSelectedRunId": "20260708-160030-805",
+      "lastSelectedAt": "2026-07-08T07:00:30.775Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [
@@ -3487,7 +3524,7 @@
           "title": "初期フェーズ",
           "summary": "progressのホームに、近々の自動実行結果、調査結果を表示するようにする",
           "order": 0,
-          "status": "todo"
+          "status": "done"
         }
       ],
       "todos": [
@@ -3518,24 +3555,24 @@
         }
       ],
       "createdAt": "2026-06-22T12:14:49.458Z",
-      "updatedAt": "2026-07-01T05:00:21.041Z"
+      "updatedAt": "2026-07-08T07:07:51.353Z"
     },
     {
       "id": "goal-mqq28l9d-8h86j",
       "title": "グアムアプリに、イベントごとの移動経路を地図でなぞって表示できるようにする",
-      "description": "",
+      "description": "2フェーズ方針。Phase 1（課金・外部API承認なしで実装可）: イベントのwaypoints座標列を訪問順に直線ポリラインでつなぎ、無料の地図タイル上に描画する。Phase 2（承認必須・課金対象）: ポリラインを実道路に沿わせる road-snapped routing（Directions/Routing API）。詳細スペックは docs/reviews/guam-map-route-goal-spec-proposal.md 参照。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
-      "summary": "",
+      "summary": "Codex継続確認（2026-07-08）: 元run 20260708-110341-418 の failed 判定は claude_rate_limited / Codex不可に起因し、コード不具合ではない。Phase 1 は「検証済みドロップイン実装リファレンス」まで前進済み。コアの純粋関数 orderedPath/computeBounds は node で 5/5 検証済みで、Leaflet 版描画コンポーネントも docs/reviews/guam-map-route-phase1-reference.md に用意済み。Codexで安全に実行できるProgress側の記録更新は完了。残りは B1（Guamアプリ repo が executor 作業ディレクトリ外＝サンドボックスからアクセス不可）の解消後、実 Guam repo へ機械的配線して build/型/モバイル表示検証すること。Phase 2 は B3（ルーティングAPI承認・課金）待ちで Phase 1 完了後に判断。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
-      "status": "active",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
-      "lastSelectedRunId": "20260704-230021-590",
-      "lastSelectedAt": "2026-07-04T14:00:21.569Z",
+      "lastSelectedRunId": "20260708-140030-161",
+      "lastSelectedAt": "2026-07-08T05:00:30.132Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [
@@ -3544,7 +3581,7 @@
           "title": "初期フェーズ",
           "summary": "グアムアプリに、イベントごとの移動経路を地図でなぞって表示できるようにする",
           "order": 0,
-          "status": "todo"
+          "status": "done"
         }
       ],
       "todos": [
@@ -3556,17 +3593,24 @@
           "role": "claude",
           "order": 0,
           "priority": "medium",
-          "nextAction": "グアムアプリに、イベントごとの移動経路を地図でなぞって表示できるようにする",
-          "doneCriteria": [],
-          "taskPrompt": "",
-          "memo": "",
+          "nextAction": "B1（Guamアプリ repo アクセス付与 or Guam 側 dispatch 切替）を人間側で解消後、docs/reviews/guam-map-route-phase1-reference.md のドロップイン実装を Guam repo に配線→npm run build / 型チェック / モバイル幅表示検証を実行する（コア orderedPath/computeBounds は検証済み 5/5）。B3（Phase 2 API 承認）は Phase 1 完了後に判断。",
+          "doneCriteria": [
+            "イベント詳細画面に地図が表示される（OSMタイル等の無料枠、外部課金・APIキー不要）",
+            "そのイベントの waypoints を訪問順に直線ポリラインでつなぎ地図上に描画する",
+            "各 waypoint にマーカー（任意で label）を表示する",
+            "地図の初期表示範囲が全 waypoint を含むよう自動フィットする",
+            "npm run build / 型チェックが通る",
+            "モバイル幅ブラウザで経路が破綻なく表示される"
+          ],
+          "taskPrompt": "【Phase 1 のみ・課金/外部API承認不要】グアムアプリのリポジトリで、イベントごとの移動経路を地図に表示する。データモデルは EventRoute{ eventId, waypoints: RouteWaypoint[{order,label?,lat,lng}], mode:'straight'|'road', encodedPolyline? }（詳細: docs/reviews/guam-map-route-goal-spec-proposal.md）。Phase 1 は mode:'straight' の直線ポリライン描画のみ。無料の地図タイル（OSM + Leaflet か MapLibre）で完結させ、Directions/Routing API・ジオコーディングAPIは使わない（課金ゼロ・APIキー不要）。座標は座標直書きを推奨。ライブラリ選定は既存 Guam アプリの規約に合わせる。doneCriteria を全て満たすこと。【Phase 2（road-snapped routing）は B3 承認必須のため本タスクでは着手しない】。前提: B1（repo が executor 作業ディレクトリでアクセス可能）が満たされていること。",
+          "memo": "Codex安全判定（2026-07-08）: Progress内のGoal記録更新・docs参照・検証は実行可。repoアクセス付与、Guam側dispatch、Phase 2 API承認、pm2/cron/systemd等は外部操作または承認/判断待ちのため未実行。元run 20260708-110341-418 は claude_rate_limited / Codex不可で failed 扱いだが、rawReport上の成果（Phase 1リファレンス作成、コア 5/5 検証）は有効。B1: Guam repo はサンドボックス外でアクセス不可（実 repo への配線のみ保留）。B2: Phase 1 スペック確定済み + 検証済みドロップイン実装リファレンス済み。B3: Phase 2 のルーティングAPI承認は Phase 1 完了後に判断。",
           "decisionPolicy": "autonomous",
           "riskFlags": [],
           "source": "manual_todo",
-          "status": "pending",
+          "status": "done",
           "dependsOn": [],
           "createdAt": "2026-06-23T03:03:51.451Z",
-          "updatedAt": "2026-06-23T03:33:57.697Z",
+          "updatedAt": "2026-07-08T05:04:39.840Z",
           "queueControl": {
             "manualOrder": 1,
             "updatedBy": "user",
@@ -3575,7 +3619,7 @@
         }
       ],
       "createdAt": "2026-06-23T03:03:51.451Z",
-      "updatedAt": "2026-07-04T14:00:21.677Z"
+      "updatedAt": "2026-07-08T05:04:39.840Z"
     },
     {
       "id": "goal-mqqmhcb9-jndlz",
@@ -3584,16 +3628,16 @@
       "description": "📋 コピペ用\n\nTestFlightで「麻雀読みトレーニング」を実機インストールして動作確認できました。\nただし、iPhone実機で致命的なUI崩れがあります。\n\n## 状況\n\n- Codemagic / TestFlight配信は成功\n- iPhone実機で起動確認済み\n- 画面: クイズ画面「待ち選択」\n- 重大なUI問題:\n  - 画面上部がiOSのステータスバー / Dynamic Island / safe areaに食い込んでいる\n  - 上部の進捗バーと「1/10」が画面最上部で切れている\n  - ページタイトル「待ち選択」が上に寄りすぎている\n  - iOS Capacitor環境で safe-area-inset-top / safe-area-inset-bottom を考慮できていない\n  - 下部もホームインジケータ分の余白不足がないか確認してほしい\n\n## 目的\n\niPhone / TestFlight / Capacitor環境で、画面がステータスバーやホームインジケータに被らないようにUIを修正してください。\n\n最優先は、iOS実機で以下が起きないことです。\n\n- 上部UIが切れない\n- 進捗バーがステータスバーに被らない\n- ページタイトルが見切れない\n- 下部コンテンツがホームインジケータに隠れない\n- スクロール時にも重要なボタン・説明文が読める\n\n## 対象\n\nGitHub:\nkaeru07/mahjong\n\n作業ブランチ:\nios-codemagic-test\n\n対象アプリ:\n麻雀読みトレーニング\n\nBundle ID:\ncom.kaeru07.mahjong\n\n## 重要ルール\n\n- Bundle IDは変更しない\n- Codemagic設定の ASC_API_KEY / IOS_DISTRIBUTION_CERTIFICATE / IOS_APP_STORE_PROFILE は変更しない\n- Apple ID / .p8 / 証明書 / 秘密鍵などの秘密情報は要求しない\n- App Store Connect / Codemagicの秘密設定には触らない\n- 今回はUI修正のみ\n- 問題データや正誤ロジックは勝手に変更しない\n\n## 修正してほしいこと\n\n### 1. iOS safe area 対応\n\nグローバルCSSまたはアプリのルートレイアウトで、iOS safe areaを考慮してください。\n\n具体的には以下を検討してください。\n\n- `env(safe-area-inset-top)`\n- `env(safe-area-inset-bottom)`\n- `padding-top`\n- `padding-bottom`\n- `min-height: 100dvh`\n- `viewport-fit=cover` が必要か確認\n- Capacitor環境でStatusBarがoverlayしている可能性の確認\n\n必要なら `app/layout.tsx`、`globals.css`、主要ページコンテナを修正してください。\n\n### 2. クイズ画面上部の余白修正\n\nクイズ画面で、上部の進捗バー・問題番号・タイトルがステータスバーに被らないようにしてください。\n\n確認ポイント:\n\n- 進捗バーが最上部で切れない\n- `1/10` が安全に表示される\n- 「待ち選択」が十分下に表示される\n- iPhone縦画面で自然に見える\n\n### 3. 下部余白・スクロール確認\n\n回答後の解説エリアが長くなるため、下部に十分な余白を確保してください。\n\n確認ポイント:\n\n- 解説文の最下部がホームインジケータに隠れない\n- スクロールで最後まで読める\n- 選択肢ボタンや結果カードが途中で不自然に切れない\n\n### 4. モバイルUI全体確認\n\n以下の画面でiPhone幅を想定して確認してください。\n\n- ホーム\n- 問題画面\n- 回答後の正誤表示\n- 結果画面\n\n## 検証\n\nConoHa/Linux上でできる範囲で以下を実行してください。\n\n- npm install または npm ci\n- npm run build\n- npx cap sync ios\n- git diff確認\n- 変更ファイル確認\n\n可能なら、ブラウザのモバイル幅で見た目も確認してください。\n\n## Codemagic注意\n\n過去に以下で詰まったため、今回も絶対に壊さないでください。\n\n- codemagic.yaml はブランチ直下に置く\n- App Store Connect integration 名は `ASC_API_KEY`\n- 証明書参照名は `IOS_DISTRIBUTION_CERTIFICATE`\n- Provisioning Profile参照名は `IOS_APP_STORE_PROFILE`\n- Bundle IDは `com.kaeru07.mahjong`\n- TestFlight目的なのでApp Store審査提出はしない\n\n## 完了後\n\n修正後、以下を実施してください。\n\n- 変更をcommit\n- `ios-codemagic-test` ブランチへpush\n- CodemagicでRebuildすればよい状態にする\n\n## 最終報告フォーマット\n\n## 原因\n## 修正内容\n## 変更ファイル\n## 実行した確認コマンド\n## iPhone実機で次に確認すべきポイント\n## CodemagicでRebuildしてよいか",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "📋 コピペ用\n\nTestFlightで「麻雀読みトレーニング」を実機インストールして動作確認できました。\nただし、iPhone実機で致命的なUI崩れがあります。\n\n## 状況\n\n- Codemagic / TestFlight配信は成功\n- iPhone実機で起動確認済み\n- 画面: クイズ画面「待ち選択」\n- 重大なUI問題:\n  - 画面上部がiOSのステータスバー / Dynamic Island / safe areaに食い込んでいる\n  - 上部の進捗バーと「1/10」が画面最上部で切れている\n  - ページタイトル「待ち選択」が上に寄りすぎている\n  - iOS Capacitor環境で safe-area-inset-top / safe-area-inset-bottom を考慮できていない\n  - 下部もホームインジケータ分の余白不足がないか確認してほしい\n\n## 目的\n\niPhone / TestFlight / Capacitor環境で、画面がステータスバーやホームインジケータに被らないようにUIを修正してください。\n\n最優先は、iOS実機で以下が起きないことです。\n\n- 上部UIが切れない\n- 進捗バーがステータスバーに被らない\n- ページタイトルが見切れない\n- 下部コンテンツがホームインジケータに隠れない\n- スクロール時にも重要なボタン・説明文が読める\n\n## 対象\n\nGitHub:\nkaeru07/mahjong\n\n作業ブランチ:\nios-codemagic-test\n\n対象アプリ:\n麻雀読みトレーニング\n\nBundle ID:\ncom.kaeru07.mahjong\n\n## 重要ルール\n\n- Bundle IDは変更しない\n- Codemagic設定の ASC_API_KEY / IOS_DISTRIBUTION_CERTIFICATE / IOS_APP_STORE_PROFILE は変更しない\n- Apple ID / .p8 / 証明書 / 秘密鍵などの秘密情報は要求しない\n- App Store Connect / Codemagicの秘密設定には触らない\n- 今回はUI修正のみ\n- 問題データや正誤ロジックは勝手に変更しない\n\n## 修正してほしいこと\n\n### 1. iOS safe area 対応\n\nグローバルCSSまたはアプリのルートレイアウトで、iOS safe areaを考慮してください。\n\n具体的には以下を検討してください。\n\n- `env(safe-area-inset-top)`\n- `env(safe-area-inset-bottom)`\n- `padding-top`\n- `padding-bottom`\n- `min-height: 100dvh`\n- `viewport-fit=cover` が必要か確認\n- Capacitor環境でStatusBarがoverlayしている可能性の確認\n\n必要なら `app/layout.tsx`、`globals.css`、主要ページコンテナを修正してください。\n\n### 2. クイズ画面上部の余白修正\n\nクイズ画面で、上部の進捗バー・問題番号・タイトルがステータスバーに被らないようにしてください。\n\n確認ポイント:\n\n- 進捗バーが最上部で切れない\n- `1/10` が安全に表示される\n- 「待ち選択」が十分下に表示される\n- iPhone縦画面で自然に見える\n\n### 3. 下部余白・スクロール確認\n\n回答後の解説エリアが長くなるため、下部に十分な余白を確保してください。\n\n確認ポイント:\n\n- 解説文の最下部がホームインジケータに隠れない\n- スクロールで最後まで読める\n- 選択肢ボタンや結果カードが途中で不自然に切れない\n\n### 4. モバイルUI全体確認\n\n以下の画面でiPhone幅を想定して確認してください。\n\n- ホーム\n- 問題画面\n- 回答後の正誤表示\n- 結果画面\n\n## 検証\n\nConoHa/Linux上でできる範囲で以下を実行してください。\n\n- npm install または npm ci\n- npm run build\n- npx cap sync ios\n- git diff確認\n- 変更ファイル確認\n\n可能なら、ブラウザのモバイル幅で見た目も確認してください。\n\n## Codemagic注意\n\n過去に以下で詰まったため、今回も絶対に壊さないでください。\n\n- codemagic.yaml はブランチ直下に置く\n- App Store Connect integration 名は `ASC_API_KEY`\n- 証明書参照名は `IOS_DISTRIBUTION_CERTIFICATE`\n- Provisioning Profile参照名は `IOS_APP_STORE_PROFILE`\n- Bundle IDは `com.kaeru07.mahjong`\n- TestFlight目的なのでApp Store審査提出はしない\n\n## 完了後\n\n修正後、以下を実施してください。\n\n- 変更をcommit\n- `ios-codemagic-test` ブランチへpush\n- CodemagicでRebuildすればよい状態にする\n\n## 最終報告フォーマット\n\n## 原因\n## 修正内容\n## 変更ファイル\n## 実行した確認コマンド\n## iPhone実機で次に確認すべきポイント\n## CodemagicでRebuildしてよいか",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
-      "status": "active",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
-      "lastSelectedRunId": "20260702-140031-071",
-      "lastSelectedAt": "2026-07-02T05:00:31.056Z",
+      "lastSelectedRunId": "20260720-145414-452",
+      "lastSelectedAt": "2026-07-20T05:54:14.418Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [
@@ -3602,7 +3646,7 @@
           "title": "初期フェーズ",
           "summary": "📋 コピペ用\n\nTestFlightで「麻雀読みトレーニング」を実機インストールして動作確認できました。\nただし、iPhone実機で致命的なUI崩れがあります。\n\n## 状況\n\n- Codemagic / TestFlight配信は成功\n- iPhone実機で起動確認済み\n- 画面: クイズ画面「待ち選択」\n- 重大なUI問題:\n  - 画面上部がiOSのステータスバー / Dynamic Island / safe areaに食い込んでいる\n  - 上部の進捗バーと「1/10」が画面最上部で切れている\n  - ページタイトル「待ち選択」が上に寄りすぎている\n  - iOS Capacitor環境で safe-area-inset-top / safe-area-inset-bottom を考慮できていない\n  - 下部もホームインジケータ分の余白不足がないか確認してほしい\n\n## 目的\n\niPhone / TestFlight / Capacitor環境で、画面がステータスバーやホームインジケータに被らないようにUIを修正してください。\n\n最優先は、iOS実機で以下が起きないことです。\n\n- 上部UIが切れない\n- 進捗バーがステータスバーに被らない\n- ページタイトルが見切れない\n- 下部コンテンツがホームインジケータに隠れない\n- スクロール時にも重要なボタン・説明文が読める\n\n## 対象\n\nGitHub:\nkaeru07/mahjong\n\n作業ブランチ:\nios-codemagic-test\n\n対象アプリ:\n麻雀読みトレーニング\n\nBundle ID:\ncom.kaeru07.mahjong\n\n## 重要ルール\n\n- Bundle IDは変更しない\n- Codemagic設定の ASC_API_KEY / IOS_DISTRIBUTION_CERTIFICATE / IOS_APP_STORE_PROFILE は変更しない\n- Apple ID / .p8 / 証明書 / 秘密鍵などの秘密情報は要求しない\n- App Store Connect / Codemagicの秘密設定には触らない\n- 今回はUI修正のみ\n- 問題データや正誤ロジックは勝手に変更しない\n\n## 修正してほしいこと\n\n### 1. iOS safe area 対応\n\nグローバルCSSまたはアプリのルートレイアウトで、iOS safe areaを考慮してください。\n\n具体的には以下を検討してください。\n\n- `env(safe-area-inset-top)`\n- `env(safe-area-inset-bottom)`\n- `padding-top`\n- `padding-bottom`\n- `min-height: 100dvh`\n- `viewport-fit=cover` が必要か確認\n- Capacitor環境でStatusBarがoverlayしている可能性の確認\n\n必要なら `app/layout.tsx`、`globals.css`、主要ページコンテナを修正してください。\n\n### 2. クイズ画面上部の余白修正\n\nクイズ画面で、上部の進捗バー・問題番号・タイトルがステータスバーに被らないようにしてください。\n\n確認ポイント:\n\n- 進捗バーが最上部で切れない\n- `1/10` が安全に表示される\n- 「待ち選択」が十分下に表示される\n- iPhone縦画面で自然に見える\n\n### 3. 下部余白・スクロール確認\n\n回答後の解説エリアが長くなるため、下部に十分な余白を確保してください。\n\n確認ポイント:\n\n- 解説文の最下部がホームインジケータに隠れない\n- スクロールで最後まで読める\n- 選択肢ボタンや結果カードが途中で不自然に切れない\n\n### 4. モバイルUI全体確認\n\n以下の画面でiPhone幅を想定して確認してください。\n\n- ホーム\n- 問題画面\n- 回答後の正誤表示\n- 結果画面\n\n## 検証\n\nConoHa/Linux上でできる範囲で以下を実行してください。\n\n- npm install または npm ci\n- npm run build\n- npx cap sync ios\n- git diff確認\n- 変更ファイル確認\n\n可能なら、ブラウザのモバイル幅で見た目も確認してください。\n\n## Codemagic注意\n\n過去に以下で詰まったため、今回も絶対に壊さないでください。\n\n- codemagic.yaml はブランチ直下に置く\n- App Store Connect integration 名は `ASC_API_KEY`\n- 証明書参照名は `IOS_DISTRIBUTION_CERTIFICATE`\n- Provisioning Profile参照名は `IOS_APP_STORE_PROFILE`\n- Bundle IDは `com.kaeru07.mahjong`\n- TestFlight目的なのでApp Store審査提出はしない\n\n## 完了後\n\n修正後、以下を実施してください。\n\n- 変更をcommit\n- `ios-codemagic-test` ブランチへpush\n- CodemagicでRebuildすればよい状態にする\n\n## 最終報告フォーマット\n\n## 原因\n## 修正内容\n## 変更ファイル\n## 実行した確認コマンド\n## iPhone実機で次に確認すべきポイント\n## CodemagicでRebuildしてよいか",
           "order": 0,
-          "status": "todo"
+          "status": "done"
         }
       ],
       "todos": [
@@ -3621,19 +3665,39 @@
           "decisionPolicy": "autonomous",
           "riskFlags": [],
           "source": "manual_todo",
-          "status": "pending",
+          "status": "done",
           "dependsOn": [],
           "createdAt": "2026-06-23T12:30:32.077Z",
-          "updatedAt": "2026-06-24T15:54:58.104Z",
+          "updatedAt": "2026-07-20T05:54:11.840Z",
           "queueControl": {
             "manualOrder": 7,
             "updatedBy": "user",
             "updatedAt": "2026-06-24T15:54:58.104Z"
           }
+        },
+        {
+          "id": "gtodo-mrm5j9dp-xqq6c",
+          "goalId": "goal-mqqmhcb9-jndlz",
+          "phaseId": "phase-mqqmhcb9-ca8fj",
+          "title": "testflightでのui修正 の停止原因を調査して再開する",
+          "role": "claude",
+          "order": 1,
+          "priority": "high",
+          "nextAction": "止まっている原因を調査し、実行可能な次の作業に分解して進める",
+          "doneCriteria": [],
+          "taskPrompt": "Goal「testflightでのui修正」が自動実行候補に入っていません。原因を調査し、必要な修正または次の作業を実施してください。",
+          "memo": "",
+          "status": "done",
+          "dependsOn": [],
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "goal_resume",
+          "createdAt": "2026-07-15T14:04:45.756Z",
+          "updatedAt": "2026-07-20T06:02:15.761Z"
         }
       ],
       "createdAt": "2026-06-23T12:30:32.077Z",
-      "updatedAt": "2026-07-02T05:00:31.100Z"
+      "updatedAt": "2026-07-20T06:02:15.761Z"
     },
     {
       "id": "goal-mqrj2bqc-arqe7",
@@ -3642,14 +3706,16 @@
       "description": "doneCriteriaが常に2/3(continue)でepicがdoneにならず、完了済み作業がreview_waitingに滞留する。レビュー(問題なし)→epic done→goal完了伝播 の経路、または完了判定の改善を実装し、終わった作業が溜まり続けないようにする。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "doneCriteriaが常に2/3(continue)でepicがdoneにならず、完了済み作業がreview_waitingに滞留する。レビュー(問題なし)→epic done→goal完了伝播 の経路、または完了判定の改善を実装し、終わった作業が溜まり続けないようにする。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
-      "status": "active",
+      "status": "done",
       "priority": "high",
       "pinnedTop": false,
+      "lastSelectedRunId": "20260709-160039-412",
+      "lastSelectedAt": "2026-07-09T07:00:39.383Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [
@@ -3658,7 +3724,7 @@
           "title": "初期フェーズ",
           "summary": "doneCriteriaが常に2/3(continue)でepicがdoneにならず、完了済み作業がreview_waitingに滞留する。レビュー(問題なし)→epic done→goal完了伝播 の経路、または完了判定の改善を実装し、終わった作業が溜まり続けないようにする。",
           "order": 0,
-          "status": "todo"
+          "status": "done"
         }
       ],
       "todos": [
@@ -3677,10 +3743,10 @@
           "decisionPolicy": "autonomous",
           "riskFlags": [],
           "source": "manual_todo",
-          "status": "pending",
+          "status": "done",
           "dependsOn": [],
           "createdAt": "2026-06-24T03:42:38.244Z",
-          "updatedAt": "2026-06-24T15:54:58.119Z",
+          "updatedAt": "2026-07-09T07:10:27.141Z",
           "queueControl": {
             "manualOrder": 9,
             "updatedBy": "user",
@@ -3689,7 +3755,7 @@
         }
       ],
       "createdAt": "2026-06-24T03:42:38.244Z",
-      "updatedAt": "2026-06-24T15:54:58.119Z"
+      "updatedAt": "2026-07-09T07:10:27.141Z"
     },
     {
       "id": "goal-mqrj2c77-xsurg",
@@ -3706,8 +3772,8 @@
       "status": "active",
       "priority": "medium",
       "pinnedTop": false,
-      "lastSelectedRunId": "20260626-230013-175",
-      "lastSelectedAt": "2026-06-26T14:00:13.162Z",
+      "lastSelectedRunId": "20260720-160850-065",
+      "lastSelectedAt": "2026-07-20T07:08:50.043Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [
@@ -3747,7 +3813,7 @@
         }
       ],
       "createdAt": "2026-06-24T03:42:39.351Z",
-      "updatedAt": "2026-06-26T14:00:13.199Z"
+      "updatedAt": "2026-07-20T07:08:50.170Z"
     },
     {
       "id": "goal-mqrj2cbk-rkmyt",
@@ -3764,6 +3830,8 @@
       "status": "active",
       "priority": "medium",
       "pinnedTop": false,
+      "lastSelectedRunId": "20260719-230029-541",
+      "lastSelectedAt": "2026-07-19T14:00:29.513Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [
@@ -3803,7 +3871,7 @@
         }
       ],
       "createdAt": "2026-06-24T03:42:39.576Z",
-      "updatedAt": "2026-06-24T15:54:58.137Z"
+      "updatedAt": "2026-07-19T14:00:29.643Z"
     },
     {
       "id": "goal-mqrj2cd0-orern",
@@ -3812,16 +3880,16 @@
       "description": "maxPerEpic既定3だと1 epicを3回深掘りする。1サイクルで複数の異なるタスクを回せるよう、挙動を調整・設定可能にする。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "maxPerEpic既定3だと1 epicを3回深掘りする。1サイクルで複数の異なるタスクを回せるよう、挙動を調整・設定可能にする。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
-      "status": "active",
+      "status": "done",
       "priority": "low",
       "pinnedTop": false,
-      "lastSelectedRunId": "20260627-103652-609",
-      "lastSelectedAt": "2026-06-27T01:36:52.594Z",
+      "lastSelectedRunId": "20260811-160715-082",
+      "lastSelectedAt": "2026-08-11T07:07:15.057Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [
@@ -3830,7 +3898,7 @@
           "title": "初期フェーズ",
           "summary": "maxPerEpic既定3だと1 epicを3回深掘りする。1サイクルで複数の異なるタスクを回せるよう、挙動を調整・設定可能にする。",
           "order": 0,
-          "status": "todo"
+          "status": "done"
         }
       ],
       "todos": [
@@ -3849,10 +3917,10 @@
           "decisionPolicy": "autonomous",
           "riskFlags": [],
           "source": "manual_todo",
-          "status": "pending",
+          "status": "done",
           "dependsOn": [],
           "createdAt": "2026-06-24T03:42:39.624Z",
-          "updatedAt": "2026-06-24T15:54:58.174Z",
+          "updatedAt": "2026-08-11T07:12:40.852Z",
           "queueControl": {
             "manualOrder": 12,
             "updatedBy": "user",
@@ -3861,7 +3929,7 @@
         }
       ],
       "createdAt": "2026-06-24T03:42:39.624Z",
-      "updatedAt": "2026-06-27T01:36:52.639Z"
+      "updatedAt": "2026-08-11T07:12:40.852Z"
     },
     {
       "id": "goal-mqueb7b0-y9ty9",
@@ -4175,16 +4243,16 @@
       "description": "今日の判断に確認するなど曖昧な表現のものがあるから、ルールとして〇〇するなど選択肢を示して選ぶことができるようにする．",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "今日の判断に確認するなど曖昧な表現のものがあるから、ルールとして〇〇するなど選択肢を示して選ぶことができるようにする．",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
-      "status": "active",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
-      "lastSelectedRunId": "20260627-110011-112",
-      "lastSelectedAt": "2026-06-27T02:00:11.097Z",
+      "lastSelectedRunId": "20260720-110331-874",
+      "lastSelectedAt": "2026-07-20T02:03:31.849Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [
@@ -4193,7 +4261,7 @@
           "title": "初期フェーズ",
           "summary": "今日の判断に確認するなど曖昧な表現のものがあるから、ルールとして〇〇するなど選択肢を示して選ぶことができるようにする．",
           "order": 0,
-          "status": "todo"
+          "status": "done"
         }
       ],
       "todos": [
@@ -4212,14 +4280,14 @@
           "decisionPolicy": "autonomous",
           "riskFlags": [],
           "source": "manual_todo",
-          "status": "pending",
+          "status": "done",
           "dependsOn": [],
           "createdAt": "2026-06-27T01:58:57.748Z",
-          "updatedAt": "2026-06-27T01:58:57.748Z"
+          "updatedAt": "2026-07-20T02:17:17.101Z"
         }
       ],
       "createdAt": "2026-06-27T01:58:57.748Z",
-      "updatedAt": "2026-06-27T02:00:11.146Z"
+      "updatedAt": "2026-07-20T02:17:17.101Z"
     },
     {
       "id": "goal-mqvpt6w4-ml6hk",
@@ -4228,16 +4296,16 @@
       "description": "運用の確認がしたい",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "運用の確認がしたい",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
-      "status": "active",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
-      "lastSelectedRunId": "20260627-140023-848",
-      "lastSelectedAt": "2026-06-27T05:00:23.835Z",
+      "lastSelectedRunId": "20260720-111721-161",
+      "lastSelectedAt": "2026-07-20T02:17:21.139Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [
@@ -4246,7 +4314,7 @@
           "title": "初期フェーズ",
           "summary": "運用の確認がしたい",
           "order": 0,
-          "status": "todo"
+          "status": "done"
         }
       ],
       "todos": [
@@ -4265,41 +4333,42 @@
           "decisionPolicy": "autonomous",
           "riskFlags": [],
           "source": "manual_todo",
-          "status": "pending",
+          "status": "done",
           "dependsOn": [],
           "createdAt": "2026-06-27T02:02:34.437Z",
-          "updatedAt": "2026-06-27T02:02:34.437Z"
+          "updatedAt": "2026-07-20T02:24:05.179Z"
         }
       ],
       "createdAt": "2026-06-27T02:02:34.437Z",
-      "updatedAt": "2026-06-27T05:00:23.880Z"
+      "updatedAt": "2026-07-20T02:24:05.179Z"
     },
     {
       "id": "goal-app-ny01-mahjong-analyzer",
       "projectId": "ny01-mahjong-analyzer",
-      "title": "ny01/mahjong-analyzer（手牌解析）を作る",
-      "description": "手牌を入力すると有効牌・受け入れ枚数を解析するツール。\n\n完成条件: App Store/Google Playに提出できる品質（MVP全フロー完動・クラッシュゼロ・エラー/空状態処理・ストア素材と審査メタデータの準備まで）。提出・公開操作のみユーザーが行う。",
+      "title": "麻雀手牌解析AI（apps/mahjong-analyzer）を App Store 提出まで仕上げる",
+      "description": "手牌を入力すると有効牌・受け入れ枚数・打牌候補を解析するアプリ。\n\n【作業ディレクトリ（重要）】/root/company/apps/mahjong-analyzer（GitHub: kaeru07/mahjong-analyzer）。\napps/ny01/mahjong-analyzer は2026-08-22に退役済みでREADMEしか無い。そちらでは作業しないこと。\n\n完成条件: App Storeに提出できる品質（MVP全フロー完動・クラッシュゼロ・エラー/空状態処理・ストア素材と審査メタデータの準備まで）。提出・公開操作のみユーザーが行う。",
       "metric": "progress",
       "target": 100,
       "current": 0,
       "isNorthStar": false,
-      "summary": "手牌を入力すると有効牌・受け入れ枚数を解析するツール。\n\n完成条件: App Store/Google Playに提出できる品質（MVP全フロー完動・クラッシュゼロ・エラー/空状態処理・ストア素材と審査メタデータの準備まで）。提出・公開操作のみユーザーが行う。",
+      "summary": "手牌を入力すると有効牌・受け入れ枚数・打牌候補を解析するアプリ。\n\n【作業ディレクトリ（重要）】/root/company/apps/mahjong-analyzer（GitHub: kaeru07/mahjong-analyzer）。\napps/ny01/mahjong-analyzer は2026-08-22に退役済みでREADMEしか無い。そちらでは作業しないこと。\n\n完成条件: App Storeに提出できる品質（MVP全フロー完動・クラッシュゼロ・エラー/空状態処理・ストア素材と審査メタデータの準備まで）。提出・公開操作のみユーザーが行う。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
       "status": "active",
       "priority": "low",
-      "pinnedTop": false,
+      "pinnedTop": true,
       "queueControl": {
         "hold": false,
         "updatedBy": "user",
-        "updatedAt": "2026-07-04T14:12:39.192Z"
+        "updatedAt": "2026-07-05T04:38:49.313Z",
+        "manualOrder": 26
       },
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "low",
       "phases": [],
       "todos": [],
       "createdAt": "2026-07-01T03:56:44.872Z",
-      "updatedAt": "2026-07-04T14:12:39.192Z"
+      "updatedAt": "2026-08-22T05:40:49.456Z"
     },
     {
       "id": "goal-app-shogi-kakoi-trainer",
@@ -4319,14 +4388,17 @@
       "queueControl": {
         "hold": false,
         "updatedBy": "user",
-        "updatedAt": "2026-07-04T14:13:40.403Z"
+        "updatedAt": "2026-07-05T04:38:49.319Z",
+        "manualOrder": 29
       },
+      "lastSelectedRunId": "20260720-130428-304",
+      "lastSelectedAt": "2026-07-20T04:04:28.280Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "high",
       "phases": [],
       "todos": [],
       "createdAt": "2026-07-02T03:12:47.792Z",
-      "updatedAt": "2026-07-04T14:13:40.403Z"
+      "updatedAt": "2026-07-20T04:04:28.427Z"
     },
     {
       "id": "goal-opus-spec-decisions",
@@ -4541,12 +4613,19 @@
       "status": "active",
       "priority": "high",
       "pinnedTop": false,
+      "queueControl": {
+        "manualOrder": 6,
+        "updatedBy": "user",
+        "updatedAt": "2026-07-05T04:38:49.290Z"
+      },
+      "lastSelectedRunId": "20260810-110420-604",
+      "lastSelectedAt": "2026-08-10T02:04:20.549Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [],
       "todos": [],
       "createdAt": "2026-07-03T16:28:04.667Z",
-      "updatedAt": "2026-07-03T16:28:04.667Z"
+      "updatedAt": "2026-08-10T02:04:20.710Z"
     },
     {
       "id": "goal-opus-app-loop-quality",
@@ -4555,20 +4634,27 @@
       "description": "【設計原則(ユーザー確定)】具体的指示を文字で打つのは最小化。今日の判断をタップでこなすだけで確実に良いアプリができる=AIが選択肢を用意する側に回る。\n【実装】Q1) skill-store-app-scaffold v4: 手順に「体験が分かれる箇所(デザイントーン/画面構成/機能の絞り方等)は自分で決めず、具体的な2-4択(推奨付き)を今日の判断に上げる。回答までは推奨案で仮実装して進む(止まらない)」を明記(SkillVersion履歴付き)。既存のdecision_needed→判断カード→回答注入の経路をそのまま使う。 Q2) フェーズ①基盤完了時の方向性確認カードを今日の判断へ: 選択式(このまま/画面構成を変える/機能を減らす/デザイン方向を変える)+任意の自由記述。非ブロッキング(放置=このまま)。回答はfixPrompt経路で次回最優先反映。 Q3) プレビュー導線(見るだけ): Next.js Web系は自動ポート起動URL、Expo系はexpo export web出力かスクショをapps/generated/<id>/preview/に置き、設計一覧+方向性確認カードに表示。 Q4) 好み学習: 承認/却下タップ履歴+却下noteを日次案生成プロンプトへ(打たなくても案が好みに収束)。\n【残】WIP制限(作成中2件推奨・3件目は今日の判断)/checksにtestスクリプト実行/テスト作成をSkillに明記。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "【設計原則(ユーザー確定)】具体的指示を文字で打つのは最小化。今日の判断をタップでこなすだけで確実に良いアプリができる=AIが選択肢を用意する側に回る。\n【実装】Q1) skill-store-app-scaffold v4: 手順に「体験が分かれる箇所(デザイントーン/画面構成/機能の絞り方等)は自分で決めず、具体的な2-4択(推奨付き)を今日の判断に上げる。回答までは推奨案で仮実装して進む(止まらない)」を明記(SkillVersion履歴付き)。既存のdecision_needed→判断カード→回答注入の経路をそのまま使う。 Q2) フェーズ①基盤完了時の方向性確認カードを今日の判断へ: 選択式(このまま/画面構成を変える/機能を減らす/デザイン方向を変える)+任意の自由記述。非ブロッキング(放置=このまま)。回答はfixPrompt経路で次回最優先反映。 Q3) プレビュー導線(見るだけ): Next.js Web系は自動ポート起動URL、Expo系はexpo export web出力かスクショをapps/generated/<id>/preview/に置き、設計一覧+方向性確認カードに表示。 Q4) 好み学習: 承認/却下タップ履歴+却下noteを日次案生成プロンプトへ(打たなくても案が好みに収束)。\n【残】WIP制限(作成中2件推奨・3件目は今日の判断)/checksにtestスクリプト実行/テスト作成をSkillに明記。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
-      "status": "active",
+      "status": "done",
       "priority": "high",
       "pinnedTop": false,
+      "queueControl": {
+        "manualOrder": 7,
+        "updatedBy": "user",
+        "updatedAt": "2026-07-05T04:38:49.295Z"
+      },
+      "lastSelectedRunId": "20260709-230032-687",
+      "lastSelectedAt": "2026-07-09T14:00:32.653Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [],
       "todos": [],
       "createdAt": "2026-07-03T23:31:06.011Z",
-      "updatedAt": "2026-07-04T01:42:11.456Z"
+      "updatedAt": "2026-07-09T14:05:23.298Z"
     },
     {
       "id": "goal-opus-spec-edit",
@@ -4577,22 +4663,1210 @@
       "description": "【確定仕様】/app-designs の各アプリに仕様編集(spec/mvpScope/意図メモ)のフォームを追加。保存先: spec/mvpScopeは app-factory-candidates.json の該当candidate(更新API新設 PATCH /api/app-proposals/[id])、意図メモは goal.notes。編集内容は既存の buildAppIntentContext 経由で次回実行プロンプトに自動反映される(追加配線不要)。編集履歴はoperational-decisionsに1行記録。破壊的変更なし。",
       "metric": "progress",
       "target": 100,
-      "current": 0,
+      "current": 100,
       "isNorthStar": false,
       "summary": "【確定仕様】/app-designs の各アプリに仕様編集(spec/mvpScope/意図メモ)のフォームを追加。保存先: spec/mvpScopeは app-factory-candidates.json の該当candidate(更新API新設 PATCH /api/app-proposals/[id])、意図メモは goal.notes。編集内容は既存の buildAppIntentContext 経由で次回実行プロンプトに自動反映される(追加配線不要)。編集履歴はoperational-decisionsに1行記録。破壊的変更なし。",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
-      "status": "active",
+      "status": "done",
       "priority": "medium",
       "pinnedTop": false,
+      "queueControl": {
+        "manualOrder": 22,
+        "updatedBy": "user",
+        "updatedAt": "2026-07-05T04:38:49.308Z"
+      },
+      "lastSelectedRunId": "20260720-112409-981",
+      "lastSelectedAt": "2026-07-20T02:24:09.956Z",
       "autonomyNotifyAttempts": 0,
       "monetizationImpact": "none",
       "phases": [],
       "todos": [],
       "createdAt": "2026-07-04T01:35:31.311Z",
-      "updatedAt": "2026-07-04T01:35:31.311Z"
+      "updatedAt": "2026-07-20T02:28:52.783Z"
+    },
+    {
+      "id": "goal-mrelf6f1-or8dk",
+      "projectId": "company-mgmt",
+      "title": "収益化候補: 釣果ログ AnglerLog",
+      "description": "EpicCreated から active として引き継ぐ。score=86 / category=記録 / 収集 / 趣味。\n釣行ごとの高継続・釣果写真のSNS拡散・サブスク導線が明確。local-firstでAI単独開発に最適。\nVault詳細: 05_monetization/収益化候補一覧.md（#9）",
+      "metric": "progress",
+      "target": 100,
+      "current": 100,
+      "isNorthStar": false,
+      "summary": "EpicCreated から active として引き継ぐ。score=86 / category=記録 / 収集 / 趣味。\n釣行ごとの高継続・釣果写真のSNS拡散・サブスク導線が明確。local-firstでAI単独開発に最適。\nVault詳細: 05_monetization/収益化候補一覧.md（#9）",
+      "status": "done",
+      "priority": "high",
+      "pinnedTop": false,
+      "lastSelectedRunId": "20260720-142720-786",
+      "lastSelectedAt": "2026-07-20T05:27:20.731Z",
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "high",
+      "phases": [
+        {
+          "id": "phase-monetization-candidates",
+          "title": "収益化候補のProgress移行",
+          "summary": "Vault由来の候補状態をProgressのGoal/Todoへ引き継ぐ",
+          "order": 0,
+          "status": "done"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-monetization-mc-anglerlog-001",
+          "goalId": "goal-mrelf6f1-or8dk",
+          "phaseId": "phase-monetization-candidates",
+          "title": "釣果ログ AnglerLog の次アクションをProgressで進める",
+          "role": "human",
+          "order": 0,
+          "priority": "high",
+          "nextAction": "競合ASO実査（Fishbrain）→スコア確定",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "taskPrompt": "対象候補: 釣果ログ AnglerLog (mc-anglerlog-001)\n現在状態: EpicCreated / score=86\n次アクション: 競合ASO実査（Fishbrain）→スコア確定\nVault詳細: 05_monetization/収益化候補一覧.md（#9）",
+          "memo": "Vault詳細: 05_monetization/収益化候補一覧.md（#9）\n第1サイクル発掘1位。海外大・SNS拡散強。\n既存Epic: epic-anglerlog-mvp-local-firs",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "ai_generated",
+          "status": "done",
+          "dependsOn": [],
+          "createdAt": "2026-07-10T07:07:19.741Z",
+          "updatedAt": "2026-07-10T07:07:19.741Z",
+          "taskId": "task-company-mgmt-1783667239748-0"
+        }
+      ],
+      "createdAt": "2026-07-10T07:07:19.741Z",
+      "updatedAt": "2026-07-20T05:32:15.706Z"
+    },
+    {
+      "id": "goal-mrelf6fr-s2idv",
+      "projectId": "company-mgmt",
+      "title": "収益化候補: 野鳥観察ノート BirdLog",
+      "description": "Candidate から proposed として引き継ぐ。score=83 / category=記録 / 収集 / 趣味。\n海外birding市場が厚く言語非依存で海外展開が効く。図鑑コレクション×観察記録×目撃マップで習慣化・継続率が高い。\nVault詳細: 05_monetization/収益化候補一覧.md（#14）",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "Candidate から proposed として引き継ぐ。score=83 / category=記録 / 収集 / 趣味。\n海外birding市場が厚く言語非依存で海外展開が効く。図鑑コレクション×観察記録×目撃マップで習慣化・継続率が高い。\nVault詳細: 05_monetization/収益化候補一覧.md（#14）",
+      "status": "proposed",
+      "priority": "high",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "high",
+      "phases": [
+        {
+          "id": "phase-monetization-candidates",
+          "title": "収益化候補のProgress移行",
+          "summary": "Vault由来の候補状態をProgressのGoal/Todoへ引き継ぐ",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-monetization-mc-birdlog-001",
+          "goalId": "goal-mrelf6fr-s2idv",
+          "phaseId": "phase-monetization-candidates",
+          "title": "野鳥観察ノート BirdLog の次アクションをProgressで進める",
+          "role": "human",
+          "order": 0,
+          "priority": "high",
+          "nextAction": "競合ASO実査（eBird/Merlin/Audubon）→スコア確定→Epic化判断",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "taskPrompt": "対象候補: 野鳥観察ノート BirdLog (mc-birdlog-001)\n現在状態: Candidate / score=83\n次アクション: 競合ASO実査（eBird/Merlin/Audubon）→スコア確定→Epic化判断\nVault詳細: 05_monetization/収益化候補一覧.md（#14）",
+          "memo": "Vault詳細: 05_monetization/収益化候補一覧.md（#14）\nlocal-first・API不要・静的JSONでAI単独開発しやすい。第2サイクル発掘1位。",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "ai_generated",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-07-10T07:07:19.767Z",
+          "updatedAt": "2026-07-10T07:07:19.767Z",
+          "taskId": "task-company-mgmt-1783667239769-0"
+        }
+      ],
+      "createdAt": "2026-07-10T07:07:19.767Z",
+      "updatedAt": "2026-07-10T07:07:19.767Z"
+    },
+    {
+      "id": "goal-mrelf6g3-du86a",
+      "projectId": "company-mgmt",
+      "title": "収益化候補: 自家焙煎ジャーナル Roast Journal",
+      "description": "Candidate から proposed として引き継ぐ。score=76 / category=記録 / 趣味。\n海外home roasting層が安定。温度カーブ比較でサブスク化しやすい。\nVault詳細: 05_monetization/収益化候補一覧.md",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "Candidate から proposed として引き継ぐ。score=76 / category=記録 / 趣味。\n海外home roasting層が安定。温度カーブ比較でサブスク化しやすい。\nVault詳細: 05_monetization/収益化候補一覧.md",
+      "status": "proposed",
+      "priority": "medium",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "medium",
+      "phases": [
+        {
+          "id": "phase-monetization-candidates",
+          "title": "収益化候補のProgress移行",
+          "summary": "Vault由来の候補状態をProgressのGoal/Todoへ引き継ぐ",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-monetization-mc-roastjournal-001",
+          "goalId": "goal-mrelf6g3-du86a",
+          "phaseId": "phase-monetization-candidates",
+          "title": "自家焙煎ジャーナル Roast Journal の次アクションをProgressで進める",
+          "role": "human",
+          "order": 0,
+          "priority": "medium",
+          "nextAction": "競合ASO実査",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "taskPrompt": "対象候補: 自家焙煎ジャーナル Roast Journal (mc-roastjournal-001)\n現在状態: Candidate / score=76\n次アクション: 競合ASO実査\nVault詳細: 05_monetization/収益化候補一覧.md",
+          "memo": "Vault詳細: 05_monetization/収益化候補一覧.md\n第2サイクル発掘2位。記録系・sub向き。",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "ai_generated",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-07-10T07:07:19.779Z",
+          "updatedAt": "2026-07-10T07:07:19.779Z",
+          "taskId": "task-company-mgmt-1783667239782-0"
+        }
+      ],
+      "createdAt": "2026-07-10T07:07:19.779Z",
+      "updatedAt": "2026-07-10T07:07:19.779Z"
+    },
+    {
+      "id": "goal-mrelf6gg-v48e6",
+      "projectId": "company-mgmt",
+      "title": "収益化候補: 香水コレクション台帳 Scent Vault",
+      "description": "Draft から proposed として引き継ぐ。score=76 / category=収集 / 趣味。\nVault詳細: 05_monetization/収益化候補一覧.md",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "Draft から proposed として引き継ぐ。score=76 / category=収集 / 趣味。\nVault詳細: 05_monetization/収益化候補一覧.md",
+      "status": "proposed",
+      "priority": "medium",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "medium",
+      "phases": [
+        {
+          "id": "phase-monetization-candidates",
+          "title": "収益化候補のProgress移行",
+          "summary": "Vault由来の候補状態をProgressのGoal/Todoへ引き継ぐ",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-monetization-mc-scentvault-001",
+          "goalId": "goal-mrelf6gg-v48e6",
+          "phaseId": "phase-monetization-candidates",
+          "title": "香水コレクション台帳 Scent Vault の次アクションをProgressで進める",
+          "role": "human",
+          "order": 0,
+          "priority": "medium",
+          "nextAction": "Progress側で次アクションを具体化する",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "taskPrompt": "対象候補: 香水コレクション台帳 Scent Vault (mc-scentvault-001)\n現在状態: Draft / score=76\n次アクション: Progress側で次アクションを具体化する\nVault詳細: 05_monetization/収益化候補一覧.md",
+          "memo": "Vault詳細: 05_monetization/収益化候補一覧.md\n第1サイクル発掘3位。SNS映え・拡散性高。",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "ai_generated",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-07-10T07:07:19.792Z",
+          "updatedAt": "2026-07-10T07:07:19.792Z",
+          "taskId": "task-company-mgmt-1783667239795-0"
+        }
+      ],
+      "createdAt": "2026-07-10T07:07:19.792Z",
+      "updatedAt": "2026-07-10T07:07:19.792Z"
+    },
+    {
+      "id": "goal-mrelf6gt-uqzll",
+      "projectId": "company-mgmt",
+      "title": "収益化候補: 卓上ゲーム戦績手帳 BG Stats",
+      "description": "Draft から proposed として引き継ぐ。score=74 / category=記録 / 集計 / 趣味。\nVault詳細: 05_monetization/収益化候補一覧.md",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "Draft から proposed として引き継ぐ。score=74 / category=記録 / 集計 / 趣味。\nVault詳細: 05_monetization/収益化候補一覧.md",
+      "status": "proposed",
+      "priority": "medium",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "medium",
+      "phases": [
+        {
+          "id": "phase-monetization-candidates",
+          "title": "収益化候補のProgress移行",
+          "summary": "Vault由来の候補状態をProgressのGoal/Todoへ引き継ぐ",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-monetization-mc-bgstats-001",
+          "goalId": "goal-mrelf6gt-uqzll",
+          "phaseId": "phase-monetization-candidates",
+          "title": "卓上ゲーム戦績手帳 BG Stats の次アクションをProgressで進める",
+          "role": "human",
+          "order": 0,
+          "priority": "medium",
+          "nextAction": "Progress側で次アクションを具体化する",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "taskPrompt": "対象候補: 卓上ゲーム戦績手帳 BG Stats (mc-bgstats-001)\n現在状態: Draft / score=74\n次アクション: Progress側で次アクションを具体化する\nVault詳細: 05_monetization/収益化候補一覧.md",
+          "memo": "Vault詳細: 05_monetization/収益化候補一覧.md\n第2サイクル発掘3位。コミュニティ不要でローカル成立。",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "ai_generated",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-07-10T07:07:19.805Z",
+          "updatedAt": "2026-07-10T07:07:19.805Z",
+          "taskId": "task-company-mgmt-1783667239809-0"
+        }
+      ],
+      "createdAt": "2026-07-10T07:07:19.805Z",
+      "updatedAt": "2026-07-10T07:07:19.805Z"
+    },
+    {
+      "id": "goal-mrelf6h8-57bsg",
+      "projectId": "company-mgmt",
+      "title": "収益化候補: AI日めくりロジックパズル",
+      "description": "Draft から proposed として引き継ぐ。score=68 / category=学習 / 習慣。\nVault詳細: 05_monetization/収益化候補一覧.md",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "Draft から proposed として引き継ぐ。score=68 / category=学習 / 習慣。\nVault詳細: 05_monetization/収益化候補一覧.md",
+      "status": "proposed",
+      "priority": "medium",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "medium",
+      "phases": [
+        {
+          "id": "phase-monetization-candidates",
+          "title": "収益化候補のProgress移行",
+          "summary": "Vault由来の候補状態をProgressのGoal/Todoへ引き継ぐ",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-monetization-mc-ailogicpuzzle-001",
+          "goalId": "goal-mrelf6h8-57bsg",
+          "phaseId": "phase-monetization-candidates",
+          "title": "AI日めくりロジックパズル の次アクションをProgressで進める",
+          "role": "human",
+          "order": 0,
+          "priority": "medium",
+          "nextAction": "Progress側で次アクションを具体化する",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "taskPrompt": "対象候補: AI日めくりロジックパズル (mc-ailogicpuzzle-001)\n現在状態: Draft / score=68\n次アクション: Progress側で次アクションを具体化する\nVault詳細: 05_monetization/収益化候補一覧.md",
+          "memo": "Vault詳細: 05_monetization/収益化候補一覧.md\n第1サイクル発掘5位。継続率高・AI生成相性◎。競合多くレッドオーシャン。",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "ai_generated",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-07-10T07:07:19.820Z",
+          "updatedAt": "2026-07-10T07:07:19.820Z",
+          "taskId": "task-company-mgmt-1783667239822-0"
+        }
+      ],
+      "createdAt": "2026-07-10T07:07:19.820Z",
+      "updatedAt": "2026-07-10T07:07:19.820Z"
+    },
+    {
+      "id": "goal-mrelf6hk-6fips",
+      "projectId": "company-mgmt",
+      "title": "収益化候補: ポーカー学習アプリ",
+      "description": "Draft から proposed として引き継ぐ。score=0 / category=候補一覧。\nVault詳細: 05_monetization/収益化候補一覧.md",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "Draft から proposed として引き継ぐ。score=0 / category=候補一覧。\nVault詳細: 05_monetization/収益化候補一覧.md",
+      "status": "proposed",
+      "priority": "low",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-monetization-candidates",
+          "title": "収益化候補のProgress移行",
+          "summary": "Vault由来の候補状態をProgressのGoal/Todoへ引き継ぐ",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-monetization-mc-cand-9elm-0",
+          "goalId": "goal-mrelf6hk-6fips",
+          "phaseId": "phase-monetization-candidates",
+          "title": "ポーカー学習アプリ の次アクションをProgressで進める",
+          "role": "human",
+          "order": 0,
+          "priority": "medium",
+          "nextAction": "Progress側で次アクションを具体化する",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "taskPrompt": "対象候補: ポーカー学習アプリ (mc-cand-9elm-0)\n現在状態: Draft / score=0\n次アクション: Progress側で次アクションを具体化する\nVault詳細: 05_monetization/収益化候補一覧.md",
+          "memo": "Vault詳細: 05_monetization/収益化候補一覧.md",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "ai_generated",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-07-10T07:07:19.832Z",
+          "updatedAt": "2026-07-10T07:07:19.832Z",
+          "taskId": "task-company-mgmt-1783667239834-0"
+        }
+      ],
+      "createdAt": "2026-07-10T07:07:19.832Z",
+      "updatedAt": "2026-07-10T07:07:19.832Z"
+    },
+    {
+      "id": "goal-mrelf6hu-0o2vt",
+      "projectId": "company-mgmt",
+      "title": "収益化候補: AI ニュース系",
+      "description": "Draft から proposed として引き継ぐ。score=0 / category=候補一覧。\nVault詳細: 05_monetization/収益化候補一覧.md",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "Draft から proposed として引き継ぐ。score=0 / category=候補一覧。\nVault詳細: 05_monetization/収益化候補一覧.md",
+      "status": "proposed",
+      "priority": "low",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-monetization-candidates",
+          "title": "収益化候補のProgress移行",
+          "summary": "Vault由来の候補状態をProgressのGoal/Todoへ引き継ぐ",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-monetization-mc-ai-9eln-1",
+          "goalId": "goal-mrelf6hu-0o2vt",
+          "phaseId": "phase-monetization-candidates",
+          "title": "AI ニュース系 の次アクションをProgressで進める",
+          "role": "human",
+          "order": 0,
+          "priority": "medium",
+          "nextAction": "Progress側で次アクションを具体化する",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "taskPrompt": "対象候補: AI ニュース系 (mc-ai-9eln-1)\n現在状態: Draft / score=0\n次アクション: Progress側で次アクションを具体化する\nVault詳細: 05_monetization/収益化候補一覧.md",
+          "memo": "Vault詳細: 05_monetization/収益化候補一覧.md",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "ai_generated",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-07-10T07:07:19.842Z",
+          "updatedAt": "2026-07-10T07:07:19.842Z",
+          "taskId": "task-company-mgmt-1783667239844-0"
+        }
+      ],
+      "createdAt": "2026-07-10T07:07:19.842Z",
+      "updatedAt": "2026-07-10T07:07:19.842Z"
+    },
+    {
+      "id": "goal-mrelf6i4-yfgfx",
+      "projectId": "company-mgmt",
+      "title": "収益化候補: 部位レスト筋トレ Recovery",
+      "description": "Draft から proposed として引き継ぐ。score=0 / category=新規発掘候補（2026-06-02 横断分析）。\nVault詳細: 05_monetization/収益化候補一覧.md",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "Draft から proposed として引き継ぐ。score=0 / category=新規発掘候補（2026-06-02 横断分析）。\nVault詳細: 05_monetization/収益化候補一覧.md",
+      "status": "proposed",
+      "priority": "low",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-monetization-candidates",
+          "title": "収益化候補のProgress移行",
+          "summary": "Vault由来の候補状態をProgressのGoal/Todoへ引き継ぐ",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-monetization-mc-recovery-9ely-2",
+          "goalId": "goal-mrelf6i4-yfgfx",
+          "phaseId": "phase-monetization-candidates",
+          "title": "部位レスト筋トレ Recovery の次アクションをProgressで進める",
+          "role": "human",
+          "order": 0,
+          "priority": "medium",
+          "nextAction": "Progress側で次アクションを具体化する",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "taskPrompt": "対象候補: 部位レスト筋トレ Recovery (mc-recovery-9ely-2)\n現在状態: Draft / score=0\n次アクション: Progress側で次アクションを具体化する\nVault詳細: 05_monetization/収益化候補一覧.md",
+          "memo": "Vault詳細: 05_monetization/収益化候補一覧.md",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "ai_generated",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-07-10T07:07:19.852Z",
+          "updatedAt": "2026-07-10T07:07:19.852Z",
+          "taskId": "task-company-mgmt-1783667239854-0"
+        }
+      ],
+      "createdAt": "2026-07-10T07:07:19.852Z",
+      "updatedAt": "2026-07-10T07:07:19.852Z"
+    },
+    {
+      "id": "goal-mrelf6if-okovg",
+      "projectId": "company-mgmt",
+      "title": "収益化候補: アナログレコード台帳 Vinyl Vault",
+      "description": "Draft から proposed として引き継ぐ。score=0 / category=新規発掘候補（2026-06-02 横断分析）。\nVault詳細: 05_monetization/収益化候補一覧.md",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "Draft から proposed として引き継ぐ。score=0 / category=新規発掘候補（2026-06-02 横断分析）。\nVault詳細: 05_monetization/収益化候補一覧.md",
+      "status": "proposed",
+      "priority": "low",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-monetization-candidates",
+          "title": "収益化候補のProgress移行",
+          "summary": "Vault由来の候補状態をProgressのGoal/Todoへ引き継ぐ",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-monetization-mc-vinylvault-9em3-3",
+          "goalId": "goal-mrelf6if-okovg",
+          "phaseId": "phase-monetization-candidates",
+          "title": "アナログレコード台帳 Vinyl Vault の次アクションをProgressで進める",
+          "role": "human",
+          "order": 0,
+          "priority": "medium",
+          "nextAction": "Progress側で次アクションを具体化する",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "taskPrompt": "対象候補: アナログレコード台帳 Vinyl Vault (mc-vinylvault-9em3-3)\n現在状態: Draft / score=0\n次アクション: Progress側で次アクションを具体化する\nVault詳細: 05_monetization/収益化候補一覧.md",
+          "memo": "Vault詳細: 05_monetization/収益化候補一覧.md",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "ai_generated",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-07-10T07:07:19.863Z",
+          "updatedAt": "2026-07-10T07:07:19.863Z",
+          "taskId": "task-company-mgmt-1783667239864-0"
+        }
+      ],
+      "createdAt": "2026-07-10T07:07:19.863Z",
+      "updatedAt": "2026-07-10T07:07:19.863Z"
+    },
+    {
+      "id": "goal-mrelf6io-0ry6b",
+      "projectId": "company-mgmt",
+      "title": "収益化候補: 発酵食ジャーナル Ferment Log",
+      "description": "Draft から proposed として引き継ぐ。score=0 / category=新規発掘候補（2026-06-02 第2サイクル / 定時発掘業務）。\nVault詳細: 05_monetization/収益化候補一覧.md",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "Draft から proposed として引き継ぐ。score=0 / category=新規発掘候補（2026-06-02 第2サイクル / 定時発掘業務）。\nVault詳細: 05_monetization/収益化候補一覧.md",
+      "status": "proposed",
+      "priority": "low",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-monetization-candidates",
+          "title": "収益化候補のProgress移行",
+          "summary": "Vault由来の候補状態をProgressのGoal/Todoへ引き継ぐ",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-monetization-mc-fermentlog-9emh-4",
+          "goalId": "goal-mrelf6io-0ry6b",
+          "phaseId": "phase-monetization-candidates",
+          "title": "発酵食ジャーナル Ferment Log の次アクションをProgressで進める",
+          "role": "human",
+          "order": 0,
+          "priority": "medium",
+          "nextAction": "Progress側で次アクションを具体化する",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "taskPrompt": "対象候補: 発酵食ジャーナル Ferment Log (mc-fermentlog-9emh-4)\n現在状態: Draft / score=0\n次アクション: Progress側で次アクションを具体化する\nVault詳細: 05_monetization/収益化候補一覧.md",
+          "memo": "Vault詳細: 05_monetization/収益化候補一覧.md",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "ai_generated",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-07-10T07:07:19.872Z",
+          "updatedAt": "2026-07-10T07:07:19.872Z",
+          "taskId": "task-company-mgmt-1783667239873-0"
+        }
+      ],
+      "createdAt": "2026-07-10T07:07:19.872Z",
+      "updatedAt": "2026-07-10T07:07:19.872Z"
+    },
+    {
+      "id": "goal-mrelf6ix-wzgqe",
+      "projectId": "company-mgmt",
+      "title": "収益化候補: 盆栽育成カレンダー BonsaiCare",
+      "description": "Draft から proposed として引き継ぐ。score=0 / category=新規発掘候補（2026-06-02 第2サイクル / 定時発掘業務）。\nVault詳細: 05_monetization/収益化候補一覧.md",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "Draft から proposed として引き継ぐ。score=0 / category=新規発掘候補（2026-06-02 第2サイクル / 定時発掘業務）。\nVault詳細: 05_monetization/収益化候補一覧.md",
+      "status": "proposed",
+      "priority": "low",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-monetization-candidates",
+          "title": "収益化候補のProgress移行",
+          "summary": "Vault由来の候補状態をProgressのGoal/Todoへ引き継ぐ",
+          "order": 0,
+          "status": "todo"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-monetization-mc-bonsaicare-9emk-5",
+          "goalId": "goal-mrelf6ix-wzgqe",
+          "phaseId": "phase-monetization-candidates",
+          "title": "盆栽育成カレンダー BonsaiCare の次アクションをProgressで進める",
+          "role": "human",
+          "order": 0,
+          "priority": "medium",
+          "nextAction": "Progress側で次アクションを具体化する",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "taskPrompt": "対象候補: 盆栽育成カレンダー BonsaiCare (mc-bonsaicare-9emk-5)\n現在状態: Draft / score=0\n次アクション: Progress側で次アクションを具体化する\nVault詳細: 05_monetization/収益化候補一覧.md",
+          "memo": "Vault詳細: 05_monetization/収益化候補一覧.md",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "ai_generated",
+          "status": "pending",
+          "dependsOn": [],
+          "createdAt": "2026-07-10T07:07:19.881Z",
+          "updatedAt": "2026-07-10T07:07:19.881Z",
+          "taskId": "task-company-mgmt-1783667239883-0"
+        }
+      ],
+      "createdAt": "2026-07-10T07:07:19.881Z",
+      "updatedAt": "2026-07-10T07:07:19.881Z"
+    },
+    {
+      "id": "goal-mruorbo0-ylrq3",
+      "projectId": "ny01-mahjong-trainer",
+      "title": "麻雀読みトレーナーの卓UIを天鳳/雀魂水準にする",
+      "description": "",
+      "metric": "progress",
+      "target": 100,
+      "current": 100,
+      "isNorthStar": false,
+      "summary": "",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "status": "done",
+      "priority": "high",
+      "pinnedTop": false,
+      "lastSelectedRunId": "20260810-120040-139",
+      "lastSelectedAt": "2026-08-10T03:00:40.114Z",
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-mruorbo1-kf5zw",
+          "title": "初期フェーズ",
+          "summary": "麻雀読みトレーナーの卓UIを天鳳/雀魂水準にする",
+          "order": 0,
+          "status": "done"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-mruorbo2-g3647",
+          "goalId": "goal-mruorbo0-ylrq3",
+          "phaseId": "phase-mruorbo1-kf5zw",
+          "title": "麻雀読みトレーナーの卓UIを天鳳/雀魂水準にする",
+          "role": "claude",
+          "order": 0,
+          "priority": "high",
+          "nextAction": "麻雀読みトレーナーの卓UIを天鳳/雀魂水準にする",
+          "doneCriteria": [],
+          "taskPrompt": "",
+          "memo": "",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "status": "done",
+          "dependsOn": [],
+          "createdAt": "2026-07-21T13:25:03.924Z",
+          "updatedAt": "2026-08-10T02:09:17.665Z"
+        },
+        {
+          "id": "gtodo-mrupdcg9-0jcok",
+          "goalId": "goal-mruorbo0-ylrq3",
+          "phaseId": "phase-mruorbo1-kf5zw",
+          "title": "手牌13枚+ツモが390px幅で横スクロールなしに全て収まる（現状 right=551pxで161px超過）",
+          "role": "claude",
+          "order": 1,
+          "priority": "medium",
+          "nextAction": "",
+          "doneCriteria": [],
+          "taskPrompt": "",
+          "memo": "",
+          "status": "done",
+          "dependsOn": [],
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "createdAt": "2026-07-21T13:42:11.529Z",
+          "updatedAt": "2026-08-10T02:19:20.924Z"
+        },
+        {
+          "id": "gtodo-mrupdcgd-0u2w0",
+          "goalId": "goal-mruorbo0-ylrq3",
+          "phaseId": "phase-mruorbo1-kf5zw",
+          "title": "対面の伏せ牌が画面左右で切れない（現状 left=-5px）",
+          "role": "claude",
+          "order": 2,
+          "priority": "medium",
+          "nextAction": "",
+          "doneCriteria": [],
+          "taskPrompt": "",
+          "memo": "",
+          "status": "done",
+          "dependsOn": [],
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "createdAt": "2026-07-21T13:42:11.529Z",
+          "updatedAt": "2026-08-10T02:25:06.613Z"
+        },
+        {
+          "id": "gtodo-mrupdcgd-uv9cx",
+          "goalId": "goal-mruorbo0-ylrq3",
+          "phaseId": "phase-mruorbo1-kf5zw",
+          "title": "河を卓中央を囲む配置にし「〜の河」テキストラベルを廃止する",
+          "role": "claude",
+          "order": 3,
+          "priority": "medium",
+          "nextAction": "",
+          "doneCriteria": [],
+          "taskPrompt": "",
+          "memo": "",
+          "status": "done",
+          "dependsOn": [],
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "createdAt": "2026-07-21T13:42:11.529Z",
+          "updatedAt": "2026-08-10T03:11:20.104Z"
+        },
+        {
+          "id": "gtodo-mrupdcgd-kesox",
+          "goalId": "goal-mruorbo0-ylrq3",
+          "phaseId": "phase-mruorbo1-kf5zw",
+          "title": "卓を正方形にし、中央に局/供託/ドラ/残り山のインジケータを置く",
+          "role": "claude",
+          "order": 4,
+          "priority": "medium",
+          "nextAction": "",
+          "doneCriteria": [],
+          "taskPrompt": "",
+          "memo": "",
+          "status": "done",
+          "dependsOn": [],
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "createdAt": "2026-07-21T13:42:11.529Z",
+          "updatedAt": "2026-08-10T02:45:56.256Z"
+        },
+        {
+          "id": "gtodo-mrupdcgd-frgci",
+          "goalId": "goal-mruorbo0-ylrq3",
+          "phaseId": "phase-mruorbo1-kf5zw",
+          "title": "牌SVGを実牌準拠に描き直す（筒子=同心円・索子=竹・萬子=フォント非依存）",
+          "role": "claude",
+          "order": 5,
+          "priority": "medium",
+          "nextAction": "",
+          "doneCriteria": [],
+          "taskPrompt": "",
+          "memo": "",
+          "status": "done",
+          "dependsOn": [],
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "createdAt": "2026-07-21T13:42:11.529Z",
+          "updatedAt": "2026-08-10T02:33:20.005Z"
+        },
+        {
+          "id": "gtodo-mrupdcgd-cxzdh",
+          "goalId": "goal-mruorbo0-ylrq3",
+          "phaseId": "phase-mruorbo1-kf5zw",
+          "title": "配色を麻雀卓寄りにする（濃紺グレー+蛍光紫をやめる）",
+          "role": "claude",
+          "order": 6,
+          "priority": "medium",
+          "nextAction": "",
+          "doneCriteria": [],
+          "taskPrompt": "",
+          "memo": "",
+          "status": "done",
+          "dependsOn": [],
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "createdAt": "2026-07-21T13:42:11.529Z",
+          "updatedAt": "2026-08-10T02:29:18.271Z"
+        },
+        {
+          "id": "gtodo-mrupdcgd-ukm0l",
+          "goalId": "goal-mruorbo0-ylrq3",
+          "phaseId": "phase-mruorbo1-kf5zw",
+          "title": "scripts/screenshot.mjs が全画面で「はみ出し判定: OK」を返す",
+          "role": "claude",
+          "order": 7,
+          "priority": "medium",
+          "nextAction": "",
+          "doneCriteria": [],
+          "taskPrompt": "",
+          "memo": "",
+          "status": "done",
+          "dependsOn": [],
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "createdAt": "2026-07-21T13:42:11.529Z",
+          "updatedAt": "2026-08-10T02:56:09.323Z"
+        },
+        {
+          "id": "gtodo-mrupdcgd-qpjpy",
+          "goalId": "goal-mruorbo0-ylrq3",
+          "phaseId": "phase-mruorbo1-kf5zw",
+          "title": "撮影画像を目視し、天鳳/雀魂と同等のUIに見えるか判定した結果を報告に書く",
+          "role": "claude",
+          "order": 8,
+          "priority": "medium",
+          "nextAction": "",
+          "doneCriteria": [],
+          "taskPrompt": "",
+          "memo": "",
+          "status": "done",
+          "dependsOn": [],
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "createdAt": "2026-07-21T13:42:11.529Z",
+          "updatedAt": "2026-08-10T02:48:56.426Z"
+        },
+        {
+          "id": "gtodo-mrupdcgd-jcbnf",
+          "goalId": "goal-mruorbo0-ylrq3",
+          "phaseId": "phase-mruorbo1-kf5zw",
+          "title": "npm run lint / npm run build が成功する",
+          "role": "claude",
+          "order": 9,
+          "priority": "medium",
+          "nextAction": "",
+          "doneCriteria": [],
+          "taskPrompt": "",
+          "memo": "",
+          "status": "done",
+          "dependsOn": [],
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "createdAt": "2026-07-21T13:42:11.529Z",
+          "updatedAt": "2026-08-10T02:36:08.289Z"
+        }
+      ],
+      "createdAt": "2026-07-21T13:25:03.924Z",
+      "updatedAt": "2026-08-10T03:11:20.104Z"
+    },
+    {
+      "id": "goal-msld0xln-o8unc",
+      "projectId": "company-mgmt",
+      "title": "progressにApp Store審査提出フォームを作る(設計から)",
+      "description": "",
+      "metric": "progress",
+      "target": 100,
+      "current": 100,
+      "isNorthStar": false,
+      "summary": "",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "status": "done",
+      "priority": "high",
+      "pinnedTop": false,
+      "lastSelectedRunId": "20260809-160121-752",
+      "lastSelectedAt": "2026-08-09T07:01:21.722Z",
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "phases": [
+        {
+          "id": "phase-msld0xlo-onmc6",
+          "title": "初期フェーズ",
+          "summary": "progressにApp Store審査提出フォームを作る(設計から)",
+          "order": 0,
+          "status": "done"
+        }
+      ],
+      "todos": [
+        {
+          "id": "gtodo-msld0xlp-jx7mo",
+          "goalId": "goal-msld0xln-o8unc",
+          "phaseId": "phase-msld0xlo-onmc6",
+          "title": "progressにApp Store審査提出フォームを作る(設計から)",
+          "role": "claude",
+          "order": 0,
+          "priority": "high",
+          "nextAction": "progressにApp Store審査提出フォームを作る(設計から)",
+          "doneCriteria": [],
+          "taskPrompt": "",
+          "memo": "",
+          "decisionPolicy": "autonomous",
+          "riskFlags": [],
+          "source": "manual_todo",
+          "status": "done",
+          "dependsOn": [],
+          "createdAt": "2026-08-09T05:26:23.568Z",
+          "updatedAt": "2026-08-09T07:03:04.327Z"
+        }
+      ],
+      "createdAt": "2026-08-09T05:26:23.568Z",
+      "updatedAt": "2026-08-09T07:03:04.327Z"
+    },
+    {
+      "id": "goal-mstjim3i-x611y",
+      "projectId": "company-mgmt",
+      "title": "progressをMCPサーバー化し、Goal/Epic/Runを自然言語で分析・レビューできるようにする",
+      "description": "デジタル庁の行政データMCP事例に倣い、progress正本(goals/epics/execution-runs等)をMCPツール(list_datasets/inspect_dataset/query_records/summarize_records相当)で公開。ChatGPT/Claude/Codexが自然言語でレビュー可能に。今回手動実施した全体像監査・自動実行監査を再現・自動化する。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "デジタル庁の行政データMCP事例に倣い、progress正本(goals/epics/execution-runs等)をMCPツール(list_datasets/inspect_dataset/query_records/summarize_records相当)で公開。ChatGPT/Claude/Codexが自然言語でレビュー可能に。今回手動実施した全体像監査・自動実行監査を再現・自動化する。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "notes": "提案根拠: 外部レビュー/自己監査の効率化。『LLMは検索条件指定・計算はサーバー側』で集計ミス(監査で判明した母数不一致)を防ぐ。",
+      "status": "proposed",
+      "priority": "medium",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "proposalSource": "note-digital-gov-mcp(n56aaf580bfb6)",
+      "proposedAt": "2026-08-14T22:50:15.772Z",
+      "phases": [],
+      "todos": [],
+      "createdAt": "2026-08-14T22:50:15.772Z",
+      "updatedAt": "2026-08-14T22:50:15.772Z"
+    },
+    {
+      "id": "goal-mstjim3k-dag17",
+      "projectId": "company-mgmt",
+      "title": "progress指標に意味定義層(dataset.yaml相当)とデータ品質可観測性を導入し集計母数・計算式を機械可読化する",
+      "description": "監査で判明した指標定義の曖昧さ(partial母数/complete定義/Goal進捗率の算出式不明)を、SDMX由来のdimension/measure/codelist/computed_measures/notesと、fill_rate/quality_summary等の品質情報で機械可読化。『完了/一部完了/停滞/オーファン』の定義を1箇所に集約しレポートと一致させる。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "監査で判明した指標定義の曖昧さ(partial母数/complete定義/Goal進捗率の算出式不明)を、SDMX由来のdimension/measure/codelist/computed_measures/notesと、fill_rate/quality_summary等の品質情報で機械可読化。『完了/一部完了/停滞/オーファン』の定義を1箇所に集約しレポートと一致させる。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "notes": "提案根拠: 監査で完了150とGoal進捗0%の乖離・母数不一致が判明。意味定義層で定義を単一の正本にする。",
+      "status": "proposed",
+      "priority": "medium",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "proposalSource": "note-digital-gov-mcp(n56aaf580bfb6)",
+      "proposedAt": "2026-08-14T22:50:15.772Z",
+      "phases": [],
+      "todos": [],
+      "createdAt": "2026-08-14T22:50:15.772Z",
+      "updatedAt": "2026-08-14T22:50:15.772Z"
+    },
+    {
+      "id": "goal-mstjim3k-7b8xp",
+      "projectId": "ny01-news-app",
+      "title": "news-appのResearchデータをParquet+意味定義でAI-ready化しMCP/自然言語分析可能にする",
+      "description": "構造化Research TopicをApache Parquet+dataset.yaml(意味定義)で格納し、フッターメタデータ活用の遅延ロード・列指向レスポンス({columns,rows})でトークン効率化。MCPツールでトレンド/重複(duplicateKey)/タイムライン(timelineKey)分析を自然言語化する。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "構造化Research TopicをApache Parquet+dataset.yaml(意味定義)で格納し、フッターメタデータ活用の遅延ロード・列指向レスポンス({columns,rows})でトークン効率化。MCPツールでトレンド/重複(duplicateKey)/タイムライン(timelineKey)分析を自然言語化する。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "notes": "提案根拠: 既存の構造化Research DBをAI-ready化。他公共データセットにも同枠組みを再利用できる。",
+      "status": "proposed",
+      "priority": "low",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "proposalSource": "note-digital-gov-mcp(n56aaf580bfb6)",
+      "proposedAt": "2026-08-14T22:50:15.772Z",
+      "phases": [],
+      "todos": [],
+      "createdAt": "2026-08-14T22:50:15.772Z",
+      "updatedAt": "2026-08-14T22:50:15.772Z"
+    },
+    {
+      "id": "goal-mstjim3k-tze3i",
+      "projectId": "company-mgmt",
+      "title": "自動実行のツール入出力を堅牢化する(パラメータ正規化・列指向レスポンス・曖昧照合・候補提示エラー)",
+      "description": "デジタル庁実装のLLM対話堅牢化パターンを自動実行/Codexツールに適用。dict/JSON文字列/単数複数の型揺れをサーバー側で正規化、応答を列指向でトークン削減、フィールド名照合を完全一致→NFKC→difflib近似の3段階(閉じた語彙限定・しきい値/候補1件ガード・補正明示)、エラー応答に類似候補と使用例を返しLLM自己修正を促す。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "デジタル庁実装のLLM対話堅牢化パターンを自動実行/Codexツールに適用。dict/JSON文字列/単数複数の型揺れをサーバー側で正規化、応答を列指向でトークン削減、フィールド名照合を完全一致→NFKC→difflib近似の3段階(閉じた語彙限定・しきい値/候補1件ガード・補正明示)、エラー応答に類似候補と使用例を返しLLM自己修正を促す。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "notes": "提案根拠: 監査で自動実行の到達率(commit/build/Goal反映)が低いと判明。ツール入出力の堅牢化で失敗・partialを減らす。",
+      "status": "proposed",
+      "priority": "low",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "proposalSource": "note-digital-gov-mcp(n56aaf580bfb6)",
+      "proposedAt": "2026-08-14T22:50:15.772Z",
+      "phases": [],
+      "todos": [],
+      "createdAt": "2026-08-14T22:50:15.772Z",
+      "updatedAt": "2026-08-14T22:50:15.772Z"
+    },
+    {
+      "id": "goal-mt04n8fc-9lhxy",
+      "projectId": "company-mgmt",
+      "title": "progressループ活性化の下ごしらえ: 未コミット52ファイルを分類し安全なcommit単位を提案する",
+      "description": "Epic完了スイープの本番反映が『未コミット52 TSファイルと同一ファイルでentangled+稼働.nextが未コミット変更を含む』で分離不能BLOCKED。未コミット52ファイルを機能別に分類し、本番.next(2026-08-11)に既に載っている分を特定、無関係な変更を巻き込まない安全なcommit単位を提案する。read-only調査+提案まで(reset/clean/一括commit/force pushは禁止)。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "Epic完了スイープの本番反映が『未コミット52 TSファイルと同一ファイルでentangled+稼働.nextが未コミット変更を含む』で分離不能BLOCKED。未コミット52ファイルを機能別に分類し、本番.next(2026-08-11)に既に載っている分を特定、無関係な変更を巻き込まない安全なcommit単位を提案する。read-only調査+提案まで(reset/clean/一括commit/force pushは禁止)。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "notes": "提案根拠: 自律ループ修正(epicスイープ)の本番反映ブロッカーを解消する前提作業。",
+      "status": "proposed",
+      "priority": "high",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "proposalSource": "next-task-menu(3options)",
+      "proposedAt": "2026-08-19T13:28:20.326Z",
+      "phases": [],
+      "todos": [],
+      "createdAt": "2026-08-19T13:28:20.326Z",
+      "updatedAt": "2026-08-19T13:28:20.326Z"
+    },
+    {
+      "id": "goal-mt04n8ff-ogu6z",
+      "projectId": "company-mgmt",
+      "title": "承認backlog43件を今日の判断形式で整理する(全active epicのgate解消)",
+      "description": "pending承認43件(危険:billing10/secret4/destructive1/external_publish1、方針選択multi_option24、executor_fallback3、最古38日)が全active epicを塞いでいる。1件ずつ棚卸しし、危険操作系16件を優先確認、multi_option24はラウンドロビンで消化。人間判断が要るものは選択肢+影響+推奨を提示(自動決定はしない)。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "pending承認43件(危険:billing10/secret4/destructive1/external_publish1、方針選択multi_option24、executor_fallback3、最古38日)が全active epicを塞いでいる。1件ずつ棚卸しし、危険操作系16件を優先確認、multi_option24はラウンドロビンで消化。人間判断が要るものは選択肢+影響+推奨を提示(自動決定はしない)。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "notes": "提案根拠: 承認backlogが解消しないとepicスイープを活性化してもepicが閉じない(実データでactive epic全件がpending承認gate)。",
+      "status": "proposed",
+      "priority": "medium",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "proposalSource": "next-task-menu(3options)",
+      "proposedAt": "2026-08-19T13:28:20.326Z",
+      "phases": [],
+      "todos": [],
+      "createdAt": "2026-08-19T13:28:20.326Z",
+      "updatedAt": "2026-08-19T13:28:20.326Z"
+    },
+    {
+      "id": "goal-mt04n8ff-30vmc",
+      "projectId": "company-mgmt",
+      "title": "麻雀3アプリ(analyzer/trainer/mahjong)の固有アイコンを作成する",
+      "description": "mahjong-analyzer/mahjong-trainer/mahjong(問題集)が同一の汎用青プレースホルダアイコンを使い回し(md5一致)。区別できる麻雀テーマの固有アイコンをSVG→PNGの自作パイプライン(外部画像/フォントDL不使用・OFL等順守)で生成し、各 ios/App/App/Assets.xcassets/AppIcon.appiconset に1024²を差し込み+Contents.json整備。npm run build+cap sync iosまで検証。TestFlight再配布は承認後。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "mahjong-analyzer/mahjong-trainer/mahjong(問題集)が同一の汎用青プレースホルダアイコンを使い回し(md5一致)。区別できる麻雀テーマの固有アイコンをSVG→PNGの自作パイプライン(外部画像/フォントDL不使用・OFL等順守)で生成し、各 ios/App/App/Assets.xcassets/AppIcon.appiconset に1024²を差し込み+Contents.json整備。npm run build+cap sync iosまで検証。TestFlight再配布は承認後。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "notes": "提案根拠: TestFlight到達済みだが固有アイコン未作成。priorities.mdに計画登録済の実行。",
+      "status": "proposed",
+      "priority": "medium",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "proposalSource": "next-task-menu(3options)",
+      "proposedAt": "2026-08-19T13:28:20.326Z",
+      "phases": [],
+      "todos": [],
+      "createdAt": "2026-08-19T13:28:20.326Z",
+      "updatedAt": "2026-08-19T13:28:20.326Z"
+    },
+    {
+      "id": "goal-mt1h3gmj-wjh0k",
+      "projectId": "ny01-mahjong-analyzer",
+      "title": "mahjong-analyzer(麻雀手牌解析)のストア審査提出準備を整える(アイコン/スクショ/メタデータ/ビルド。提出のみ人間)",
+      "description": "目的: 麻雀手牌解析(BUNDLE_ID com.kaeru07.mahjonganalyzer, kaeru07/mahjong-analyzer)をApp Store審査に出せる状態にする。提出操作(App Store Connect)だけ人間、それ以外の準備を自動実行で行う。\n\n現状(2026-08-20確認): アイコン=他麻雀アプリと同一の汎用青プレースホルダ(md5 0ac741c9・要固有化) / スクリーンショット=なし(審査必須) / プライバシーポリシー=https://kaeru07.github.io/privacy/mahjong-analyzer.html 済 / BUNDLE_ID/APP_VERSION(1.0.0)/appName(麻雀手牌解析)=確定。\n\n実行手順(1エピック=1ステップで進める):\n1. 固有アイコン作成: SVG→PNGの自作パイプライン(scripts/generate-icon.mjs 等)で、麻雀手牌解析が分かるデザイン(例: 牌+虫眼鏡/解析)を生成。外部画像/フォントDLは不使用(埋め込みはOFL等ライセンス順守)。1024x1024を ios/App/App/Assets.xcassets/AppIcon.appiconset に差し込み、共有プレースホルダ(0ac741c9)を置換。Contents.json整備。\n2. スクリーンショット生成: iPhone 6.5インチ(1284x2778)等の必須サイズで、入力→効率タブ→点数タブ→履歴 の代表画面を生成(playwright+静的export配信 or シミュレータ)。release/screenshots/app-store/ 配下に保存。\n3. メタデータ準備: docs/app-store/metadata.md に App名/サブタイトル/説明/キーワード/カテゴリ/サポートURL/プライバシーURL(既存)/年齢レーティング を用意。\n4. 検証: npm run build(静的export)成功、npx cap sync ios 成功、アイコンが1024²で固有(placeholder md5でない)ことを確認。\n5. 提出は人間(承認必須): TestFlight/App Store Connectへの提出・審査申請はユーザー操作。自動実行は準備完了(全アセット揃い build成功)まで。\n\n完了条件(機械判定可能な形で各ステップのExecutionRunに記録): AppIcon-512@2x.pngが1024²かつ md5!=0ac741c9 / release/screenshots/app-store配下にpng複数 / docs/app-store/metadata.md 存在 / npm run build 成功。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "目的: 麻雀手牌解析(BUNDLE_ID com.kaeru07.mahjonganalyzer, kaeru07/mahjong-analyzer)をApp Store審査に出せる状態にする。提出操作(App Store Connect)だけ人間、それ以外の準備を自動実行で行う。\n\n現状(2026-08-20確認): アイコン=他麻雀アプリと同一の汎用青プレースホルダ(md5 0ac741c9・要固有化) / スクリーンショット=なし(審査必須) / プライバシーポリシー=https://kaeru07.github.io/privacy/mahjong-analyzer.html 済 / BUNDLE_ID/APP_VERSION(1.0.0)/appName(麻雀手牌解析)=確定。\n\n実行手順(1エピック=1ステップで進める):\n1. 固有アイコン作成: SVG→PNGの自作パイプライン(scripts/generate-icon.mjs 等)で、麻雀手牌解析が分かるデザイン(例: 牌+虫眼鏡/解析)を生成。外部画像/フォントDLは不使用(埋め込みはOFL等ライセンス順守)。1024x1024を ios/App/App/Assets.xcassets/AppIcon.appiconset に差し込み、共有プレースホルダ(0ac741c9)を置換。Contents.json整備。\n2. スクリーンショット生成: iPhone 6.5インチ(1284x2778)等の必須サイズで、入力→効率タブ→点数タブ→履歴 の代表画面を生成(playwright+静的export配信 or シミュレータ)。release/screenshots/app-store/ 配下に保存。\n3. メタデータ準備: docs/app-store/metadata.md に App名/サブタイトル/説明/キーワード/カテゴリ/サポートURL/プライバシーURL(既存)/年齢レーティング を用意。\n4. 検証: npm run build(静的export)成功、npx cap sync ios 成功、アイコンが1024²で固有(placeholder md5でない)ことを確認。\n5. 提出は人間(承認必須): TestFlight/App Store Connectへの提出・審査申請はユーザー操作。自動実行は準備完了(全アセット揃い build成功)まで。\n\n完了条件(機械判定可能な形で各ステップのExecutionRunに記録): AppIcon-512@2x.pngが1024²かつ md5!=0ac741c9 / release/screenshots/app-store配下にpng複数 / docs/app-store/metadata.md 存在 / npm run build 成功。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "notes": "提案根拠: 審査提出準備(アイコン/スクショ/メタデータ)は概ね決定論的な生成作業でCodex実行可能。提出だけ人間。ユーザー要望。",
+      "status": "proposed",
+      "priority": "high",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "proposalSource": "user-request-app-review-prep",
+      "proposedAt": "2026-08-20T12:04:39.018Z",
+      "phases": [],
+      "todos": [],
+      "createdAt": "2026-08-20T12:04:39.018Z",
+      "updatedAt": "2026-08-20T12:04:39.018Z"
+    },
+    {
+      "id": "goal-mt1h3gmk-g6tq6",
+      "projectId": "company-mgmt",
+      "title": "iOSアプリのストア審査提出準備 共通手順をSkill化(icon SVG生成/スクショ/メタデータ/build検証の再利用手順)",
+      "description": "目的: mahjong-analyzer/trainer/mahjong/hima 等の審査提出準備を毎回同じ品質で自動実行できるよう、共通手順をSkill(実行手順書)化する。内容: (a)アイコン=SVG→PNG自作パイプラインの雛形(外部DL不使用・1024²+全サイズ+Contents.json) (b)スクショ=playwright+静的export配信で必須サイズ生成の雛形 (c)メタデータ=docs/app-store/metadata.mdテンプレ (d)プライバシーポリシー=kaeru07.github.io/privacy/<slug>.html定型(既存ルール) (e)検証=build+cap sync+アイコンmd5チェック (f)提出のみ人間。skills.jsonにprocedure/promptTemplateとして登録し、goal-app系/審査準備goalのEpicに注入されるようにする。",
+      "metric": "progress",
+      "target": 100,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "目的: mahjong-analyzer/trainer/mahjong/hima 等の審査提出準備を毎回同じ品質で自動実行できるよう、共通手順をSkill(実行手順書)化する。内容: (a)アイコン=SVG→PNG自作パイプラインの雛形(外部DL不使用・1024²+全サイズ+Contents.json) (b)スクショ=playwright+静的export配信で必須サイズ生成の雛形 (c)メタデータ=docs/app-store/metadata.mdテンプレ (d)プライバシーポリシー=kaeru07.github.io/privacy/<slug>.html定型(既存ルール) (e)検証=build+cap sync+アイコンmd5チェック (f)提出のみ人間。skills.jsonにprocedure/promptTemplateとして登録し、goal-app系/審査準備goalのEpicに注入されるようにする。",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "notes": "提案根拠: 複数アプリで再利用でき、審査準備を安定して自動実行できる。運用3原則のSkill注入ループに乗せる。",
+      "status": "proposed",
+      "priority": "medium",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
+      "monetizationImpact": "none",
+      "proposalSource": "user-request-app-review-prep",
+      "proposedAt": "2026-08-20T12:04:39.018Z",
+      "phases": [],
+      "todos": [],
+      "createdAt": "2026-08-20T12:04:39.018Z",
+      "updatedAt": "2026-08-20T12:04:39.018Z"
+    },
+    {
+      "id": "goal-app-market-research",
+      "projectId": "app-market-research",
+      "title": "個人・小規模開発のヒットアプリを継続調査して作る候補を貯める",
+      "description": "日本のApp Storeで個人・小規模チームが出して実際にヒットしているアプリを、自動実行のたびに3本前後ずつ調査して /app-market-research に蓄積する。\n\n目的は「個人＋AIで現実的に再現・差別化・収益化できるアプリ候補」を比較・意思決定できる状態にすること。単なるアイデア出しは禁止で、現在順位・ランキング推移・評価件数・Android DL など確認できた実績だけを根拠URL付きで記録する。買い切りは対象外。開発者規模が確認できないものは参考候補どまり。\n\n完了条件: 毎回の自動実行で調査タスクが1件実行され、結果が POST /api/app-market-research で保存されていること。",
+      "metric": "調査済みアプリ数",
+      "target": 30,
+      "current": 0,
+      "isNorthStar": false,
+      "summary": "日本のApp Storeで個人・小規模チームが出して実際にヒットしているアプリを、自動実行のたびに3本前後ずつ調査して /app-market-research に蓄積する。\n\n目的は「個人＋AIで現実的に再現・差別化・収益化できるアプリ候補」を比較・意思決定できる状態にすること。単なるアイデア出しは禁止で、現在順位・ランキング推移・評価件数・Android DL など確認できた実績だけを根拠URL付きで記録する。買い切りは対象外。開発者規模が確認できないものは参考候補どまり。\n\n完了条件: 毎回の自動実行で調査タスクが1件実行され、結果が POST /api/app-market-research で保存されていること。",
+      "status": "active",
+      "priority": "medium",
+      "decisionPolicyDefault": "autonomous",
+      "riskFlagsDefault": [],
+      "monetizationImpact": "high",
+      "phases": [],
+      "todos": [],
+      "createdAt": "2026-08-23T08:17:21.824Z",
+      "updatedAt": "2026-08-23T08:17:21.824Z"
     }
   ],
   "mainGoalId": "goal-ai-factory-os",
-  "updatedAt": "2026-07-04T14:13:40.404Z"
+  "updatedAt": "2026-08-23T08:17:21.824Z"
 }

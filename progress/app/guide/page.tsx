@@ -431,6 +431,7 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
             { dot: 'bg-blue-500', term: 'ビルド状況', desc: 'Codemagicの直近ビルド、状態、workflow、branch、完了時刻、commitをアプリごとに見ます。' },
             { dot: 'bg-green-500', term: 'TestFlight状態', desc: 'App Store Connect APIキーが配置済みなら、直近アップロードの処理状態を確認します。' },
             { dot: 'bg-amber-500', term: 'ビルド候補', desc: '未ビルド、最新ビルド失敗、ローカル未反映コミットありを候補として表示します。' },
+            { dot: 'bg-emerald-500', term: 'ヒットアプリ調査', desc: '個人・小規模開発で実際に伸びているApp Storeアプリを自動実行のたびに3本前後調べて貯めます。' },
             { dot: 'bg-purple-500', term: '審査提出準備', desc: 'App Store Connectへ貼る値をASCと同じ順で入力・保存してコピーし、スクショも審査サイズで撮ってダウンロードします。' },
           ]}
         />
@@ -439,6 +440,9 @@ export default async function OperationsGuidePage({ searchParams }: { searchPara
         </p>
         <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-xs font-semibold leading-relaxed text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
           ASCキーが未配置の間はTestFlightの処理状況は未確認になります。その場合はCodemagicビルドのPublishing状態でアップロード成否を判断します。
+        </p>
+        <p className="mt-2 rounded-xl bg-white px-3 py-2 text-[11px] font-semibold leading-relaxed text-gray-600 dark:bg-gray-900 dark:text-gray-300">
+          「ヒットアプリ調査」（/app-market-research）は、日本のApp Storeで個人・小規模チームが出して実際にヒットしているアプリを、自動実行のたびに3本前後ずつ調べて貯める画面です。順位・評価件数・Android DL など確認できた実績だけを根拠URL付きで記録し、個人＋AIで再現・差別化・収益化できるかを比較します。アプリ1本＝1レコードで調査履歴が積み上がるので、順位や評価の推移を後から追えます。
         </p>
         <p className="mt-2 rounded-xl bg-white px-3 py-2 text-[11px] font-semibold leading-relaxed text-gray-600 dark:bg-gray-900 dark:text-gray-300">
           審査に出す段階では「審査提出準備」（iOSビルド系サブタブ / /app-review-fields）を開きます。入力欄は App Store Connect のバージョンページと同じ順（スクリーンショット → 新機能 → プロモーション用テキスト → 概要 → キーワード → 各URL → バージョン → 著作権 → メモ → リリース方法 → App情報/価格/プライバシー）なので、上から順に埋めて項目ごとにコピーし、そのまま貼り付けられます。文字数はASCの上限つきカウンタで表示し、超過すると赤くなります。スクリーンショットは「スクショを撮る」でアプリの実画面を審査サイズ（iPhone 6.5インチ 1284×2778 / iPad 13インチ 2064×2752）で撮影し、一覧から1枚ずつダウンロードしてApp Store Connectへアップロードできます。初期値は各アプリの fastlane/metadata と apps.json、入力して保存した値が優先されます。価格・年齢レーティング・App Privacyは目安なので、提出前に必ず人が確認します。

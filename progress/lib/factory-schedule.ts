@@ -5,6 +5,7 @@ import { getAutomationConfig, appendAutomationLog } from './operations-store'
 import { resolveMaxPerEpic, runFactory, sweepDoneReadyEpics } from './factory-runner'
 import { runReviewFixDispatch } from './review-fix-runner'
 import { runPromptQueueDispatch } from './prompt-queue-runner'
+import { ensureMarketResearchTask } from './app-market-research-task'
 import { addExecutionRun, updateExecutionRunFields } from './execution-run-writer'
 import { readExecutionRuns } from './execution-run-reader'
 import { syncCandidatesFromVault } from './monetization-vault-sync'
@@ -199,6 +200,22 @@ export async function runScheduledFactory(input: ScheduleRunInput): Promise<Sche
     await runSkillMaintenance()
   } catch {
     await appendAutomationLog({ event: 'skill_maintenance', fallbackReason: 'skill_maintenance_failed' })
+  }
+
+  // 0.25) App Store のヒットアプリ調査を毎回1件だけ予約する。
+  //   実際の調査は executor が Prompt Queue 経由で行うため、ここでは積むだけ。
+  //   未完了の調査タスクが残っているときは積まない（溜めて工場を圧迫しない）。
+  try {
+    const research = await ensureMarketResearchTask()
+    if (research.created) {
+      await appendAutomationLog({
+        event: 'factory_schedule',
+        fallbackReason: `market_research_queued: ${research.reason}`,
+        detectionStatus: input.source,
+      } as never)
+    }
+  } catch {
+    await appendAutomationLog({ event: 'factory_schedule', fallbackReason: 'market_research_queue_failed', detectionStatus: input.source } as never)
   }
 
   // 0.3) オーファン回収: 実行プロセスが完了記録を残さず終了し 'running' のまま残った Run を failed に回収する。
