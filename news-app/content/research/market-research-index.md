@@ -106,6 +106,8 @@
 
 
 
+
+- 2026-08-24: AI暗記カード / Claude Sonnet 5の期間限定価格が8月31日に終了予定 / Postman Agent Stack / 無料で少量生成させ、追加教材を10回単位の回数券で販売する / エラーなし / partial(market,news,tools)
 - 2026-08-23: (未取得) / (未取得) / (未取得) / (未取得) / エラーあり(daily-market-research,daily-ai-news,daily-ai-tools,market-research-method-review)
 - 2026-08-22: (未取得) / (未取得) / (未取得) / (未取得) / エラーあり(daily-market-research,daily-ai-news,daily-ai-tools,market-research-method-review)
 - 2026-08-21: (未取得) / (未取得) / (未取得) / (未取得) / エラーあり(daily-market-research,daily-ai-news,daily-ai-tools,market-research-method-review)
