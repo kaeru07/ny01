@@ -36,3 +36,16 @@ test('classifyCodexEligibility: 安全シグナルのみは eligible', () => {
   const verdict = classifyCodexEligibility('typecheck と lint を通す')
   assert.equal(verdict.eligible, true)
 })
+
+test('英単語の危険シグナルは単語境界で判定する（secretary を secret と誤判定しない）', () => {
+  // 実例: 「company配下のドキュメント(CLAUDE.md, pm/, secretary/)を点検する」が
+  // 'secret' 扱いで自動実行ブロックされた（2026-08-22 / pq-mt3ya8v3-7utu2f）
+  assert.equal(classifyCodexEligibility('company配下のドキュメント(CLAUDE.md, pm/, secretary/)を点検する').eligible, true)
+  assert.equal(classifyCodexEligibility('reproduction の手順をドキュメント化する').eligible, true)
+
+  // 本物の危険シグナルは引き続き弾く
+  assert.equal(classifyCodexEligibility('secret を表示する').eligible, false)
+  assert.equal(classifyCodexEligibility('production db を触る').eligible, false)
+  assert.equal(classifyCodexEligibility('.env を編集する').eligible, false)
+  assert.equal(classifyCodexEligibility('本番DBを削除する').eligible, false)
+})

@@ -39,7 +39,11 @@ export interface PromptQueueDispatchReport {
   stoppedReason: string
 }
 
-const HARD_DENY_PATTERN = /課金|billing|deploy|デプロイ|本番|production|secret|\.env|認証|migration|マイグレーション|削除|destructive|force/i
+// 英単語は前後を単語境界で挟む。挟まないと company の `secretary/` が 'secret' に、
+// `production` を含まない `reproduction` 等が誤って危険判定になる（2026-08-23 修正）。
+// 日本語はスペースで区切られないため、そのまま部分一致で見る。
+const HARD_DENY_PATTERN =
+  /課金|デプロイ|本番|認証|マイグレーション|削除|\.env|\b(?:billing|deploy|production|secret|secrets|migration|destructive|force)\b/i
 
 function generateRunId(): string {
   const now = new Date()

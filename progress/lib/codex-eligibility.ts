@@ -26,11 +26,23 @@ export interface CodexEligibility {
 }
 
 /** テキストから Codex 自動切替の可否を判定する（最終ゲートは requiresClaude / Approval Queue）。 */
+/**
+ * シグナルがテキストに含まれるか判定する。
+ * 英字だけのシグナルは単語境界で挟む。挟まないと `secretary/` が 'secret' に、
+ * `reproduction` が 'production' に当たって誤判定する（2026-08-23 修正）。
+ * 日本語や記号入り（'.env' / 'drop ' 等）はスペース区切りが無いので部分一致のまま。
+ */
+function containsSignal(text: string, signal: string): boolean {
+  if (!/^[a-z0-9 ]+$/.test(signal)) return text.includes(signal)
+  const escaped = signal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return new RegExp(`\\b${escaped}\\b`).test(text)
+}
+
 export function classifyCodexEligibility(text: string): CodexEligibility {
   const t = text.replace(SAFETY_GATE_MENTION_RE, ' ').toLowerCase()
-  const deny = CODEX_DENY_SIGNALS.find((s) => t.includes(s))
+  const deny = CODEX_DENY_SIGNALS.find((s) => containsSignal(t, s))
   if (deny) return { eligible: false, reason: `危険シグナル「${deny}」を含むため Claude 専任` }
-  const allow = CODEX_ALLOW_SIGNALS.find((s) => t.includes(s))
+  const allow = CODEX_ALLOW_SIGNALS.find((s) => containsSignal(t, s))
   if (allow) return { eligible: true, reason: `安全シグナル「${allow}」に該当` }
   return { eligible: false, reason: '安全シグナル未検出のため既定で Claude' }
 }
