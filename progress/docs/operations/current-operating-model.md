@@ -61,6 +61,18 @@ updateNote: 「審査提出準備」画面（/app-review-fields）を追加。�
 - **レビュー用コピー / キュー外レビューコピー**（progress→外部への出口）は従来どおり。外部レビュー結果を戻す正式経路は未実装のため、採用指摘は人間が起票する（既存FAQと同じ）。
 - Vault 側の旧「候補承認」運用は新規に行わない（既存ページの片付けは Goal⑥「移行後の古い運用メモを片付ける」で扱う）。
 
+## 2026-08-24: 空振り Run を完了扱いにしないゲート
+
+executor が「（出力なし）」で終わり、ファイル変更も無い Run が `completed` として記録され、
+作業予約まで完了になっていた（実例 runId `20260822-160657-718`）。回った回数と成果が一致しないと
+優先順位の判断材料が濁るため、機械的に落とす。
+
+- 判定は `lib/no-op-run.ts` の `classifyNoOpRun()`。**変更ファイル0件 かつ 出力なし**（stdout が空で、要約が空か「出力なし」系）のときだけ空振り
+- `failed` は空振り扱いにしない（失敗として別経路で処理する）
+- Factory 本体・Prompt Queue の両方で、空振りは `completed` にせず **partial** で記録し、warnings に理由を残す
+- 作業予約（Prompt Queue）は `completed` にせず **needs_retry** にして、次回の自動実行で再試行する
+- 既存の lint ゲート（checks NG は completed→partial）と併存する
+
 ## 2026-08-23: ヒットアプリ調査（App Market Research）
 
 `/app-market-research` は、**日本の App Store で個人・小規模チームが出して実際にヒットしているアプリ**を継続調査し、
@@ -452,6 +464,7 @@ Progress 自身の使われ方を把握するページ（下タブ「使用状�
 
 ## 変更履歴
 
+- 2026-08-24: **空振り Run を完了扱いにしないゲートを追加**。変更ファイル0件かつ executor の出力なしの Run を `classifyNoOpRun()` で検出し、Factory 本体・Prompt Queue の両方で completed→partial に落とす。作業予約は completed ではなく needs_retry にして次回再試行に回す。failed は従来どおり失敗として扱う。実例 runId 20260822-160657-718（executor=claude / 「（出力なし）」）が完了扱いになっていた問題への対応。回帰テスト4件を追加。あわせて「ヒットアプリ調査」をアプリ開発タブのサブタブへ追加し、市場分析（/app-market-analysis）がスマホ390pxで54,471px（64.5画面分）あった縦長を、要約＋details/summary の折りたたみで2,916px（3.5画面分）へ短縮した。
 - 2026-08-23: **ヒットアプリ調査を追加**。`/app-market-research` で、日本のApp Storeの個人・小規模開発ヒットアプリを自動実行のたびに3本前後ずつ継続調査する。アプリ1本=1レコード＋調査ごとのスナップショット履歴で、順位・評価件数・DL数の推移と前回差分を保持する（過去データは消さない・同一アプリの行は増やさない）。対象は個人/小規模法人/小規模チーム、買い切りは対象外、規模不明は参考候補どまり。ヒット型は急上昇/継続/両方の3分類。確認できない値は推測で埋めず null。定時起動のたびに `ensureMarketResearchTask()` が作業予約へ調査タスクを1件だけ積み（未完了があれば積まない）、既存の dispatch と安全ゲートで実行する。API は `GET/POST /api/app-market-research`。TERMS に `appMarketResearch` を追加、/guide のアプリ開発スライドに説明を追記。今日の流れ／AI工場の流れの図は日次判断と定時Factory本体の説明であり、調査タスクの予約追加では変更不要と確認。
 - 2026-08-21: **審査提出準備画面を追加**。`/app-review-fields`（iOSビルド系サブタブ）で、App Store Connect へ入力する20項目を人が入力・保存し、項目ごと／全文でコピーできるようにした。**入力欄の並びは ASC のバージョンページの順**（スクリーンショット → 新機能 → プロモーション用テキスト → 概要 → キーワード → サポートURL → マーケティングURL → バージョン → 著作権 → メモ → リリース方法 → App情報 / 価格 / プライバシー）に固定し、ASC の文字数上限カウンタ（超過で赤表示）とスクリーンショット必要サイズの案内、`MARKETING_VERSION` からのバージョン初期値を持つ。全文プレビューはワンタップコピー。スクリーンショットは「スクショを撮る」で実画面を ASC サイズで撮影（playwright-core／静的出力を一時配信）し、一覧からダウンロード・画像コピー・削除できる（`GET/POST/DELETE /api/app-review-screenshots`、`GET /api/app-review-screenshots/file`）。playwright-core は `next.config.mjs` の `serverComponentsExternalPackages` でバンドル対象外にしている。初期値は `fastlane/metadata` と `apps.json`、保存値は `app-review-fields.json`（bundleId 単位・空文字保存で自動既定値へ復帰）。API は `GET/PUT /api/app-review-fields`。機密（審査用デモアカウント・連絡先電話番号）は入力対象外とし、公開リポジトリである旨の警告を画面に出す。TERMS に `appReviewFields` を追加、/guide のアプリ開発スライドに審査提出準備の説明を追記。今日の流れ／AI工場の流れの図は日次判断と定時Factory本体の説明であり、手動の審査準備画面追加では変更不要と確認。
 - 2026-07-19: **自動実行の1起動あたり実行件数capを撤廃（既定無制限）**（goal-mqp5c2hm「自動実行の最大件数の制御をなくす」/ goal-mqrj2cbk 見直し）。従来は `maxRuns`（最大3にクランプ）→ codex 対応で `SAFETY_RUN_LIMIT=3` 固定となっており、いずれも「3件で停止」の挙動が残って意図と不一致だった。`lib/factory-runner.ts` を修正し、既定は件数無制限（safetyRunLimit=0）でキュー消化・全Epic完了・失敗・rate limit 等の条件でのみ停止する。無限ループ防止は maxPerEpic + excludedEpics + stale検知が担保（1起動内の総Run数は maxPerEpic×対象Epic/Goal数で有限）。暴走時の保険として env `FACTORY_SAFETY_RUN_LIMIT`（正の整数）で上限を任意設定可能。stoppedReason `safety_run_limit_reached` は env 設定時のみ発生。UI用語の変更なし（safetyRunLimit は画面非表示のため TERMS/図の更新は不要と確認）。

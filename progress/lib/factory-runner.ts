@@ -40,6 +40,7 @@ import { getDoneCriteriaForEpic } from './done-criteria'
 import type { FactoryRunMode, FactoryRunReport, FactoryRunStep, ExecutorResult } from './executors/types'
 import type { ExecutionRun } from '@/types/execution-run'
 import type { Approval, ExecutorChoice, FactoryDispatchPlan } from './types/operations'
+import { classifyNoOpRun } from './no-op-run'
 
 // factory-runner: scan→pick→Dispatch→（adapter で）Run→ExecutionRun 記録→次へ。
 // 安全第一: 既定は dry_run（実起動なし）。maxPerEpic + excludedEpics + stale検知でループの有限性を保証する。
@@ -379,10 +380,16 @@ async function recordRun(args: {
   }
   // lint ゲート: checks に NG があれば completed を partial へ格下げ（lint NG を完了扱いにしない）。
   const ngChecks = failingChecks(args.checks)
-  const gatedRunStatus = gateRunStatusByChecks(runStatusMap[args.result.status], args.checks)
-  const checkWarnings = gatedRunStatus !== runStatusMap[args.result.status]
-    ? [`lintゲート: checks NG（${ngChecks.join(' / ')}）のため completed→partial に格下げ。要修正/レビュー待ち。`]
-    : []
+  // 空振り（変更0かつ出力なし）は completed にしない。回った回数と成果を一致させるため。
+  const noOpVerdict = classifyNoOpRun(args.result)
+  const baseRunStatus = noOpVerdict.isNoOp ? 'partial' : runStatusMap[args.result.status]
+  const gatedRunStatus = gateRunStatusByChecks(baseRunStatus, args.checks)
+  const checkWarnings = [
+    ...(gateRunStatusByChecks(baseRunStatus, args.checks) !== baseRunStatus
+      ? [`lintゲート: checks NG（${ngChecks.join(' / ')}）のため completed→partial に格下げ。要修正/レビュー待ち。`]
+      : []),
+    ...(noOpVerdict.isNoOp ? [`空振り: ${noOpVerdict.reason}。完了扱いにせず partial として記録した。`] : []),
+  ]
   const rawReport = `[factory-runner ${args.mode}] executor=${args.executor}\n${args.result.stdout || args.result.resultSummary}`
   const errors = normalizeExecutionRunErrors(args.result.stderr ? [args.result.stderr.slice(0, 500)] : [])
   const nextActions = ensureExecutionRunNextActions({
@@ -511,10 +518,16 @@ async function finishRunningRun(args: {
   }
   // lint ゲート: checks に NG があれば completed を partial へ格下げ（lint NG を完了扱いにしない）。
   const ngChecks = failingChecks(args.checks)
-  const gatedRunStatus = gateRunStatusByChecks(runStatusMap[args.result.status], args.checks)
-  const checkWarnings = gatedRunStatus !== runStatusMap[args.result.status]
-    ? [`lintゲート: checks NG（${ngChecks.join(' / ')}）のため completed→partial に格下げ。要修正/レビュー待ち。`]
-    : []
+  // 空振り（変更0かつ出力なし）は completed にしない。回った回数と成果を一致させるため。
+  const noOpVerdict = classifyNoOpRun(args.result)
+  const baseRunStatus = noOpVerdict.isNoOp ? 'partial' : runStatusMap[args.result.status]
+  const gatedRunStatus = gateRunStatusByChecks(baseRunStatus, args.checks)
+  const checkWarnings = [
+    ...(gateRunStatusByChecks(baseRunStatus, args.checks) !== baseRunStatus
+      ? [`lintゲート: checks NG（${ngChecks.join(' / ')}）のため completed→partial に格下げ。要修正/レビュー待ち。`]
+      : []),
+    ...(noOpVerdict.isNoOp ? [`空振り: ${noOpVerdict.reason}。完了扱いにせず partial として記録した。`] : []),
+  ]
   const rawReport = `[factory-runner ${args.mode}] executor=${args.executor}\n${args.result.stdout || args.result.resultSummary}`
   const errors = normalizeExecutionRunErrors(args.result.stderr ? [args.result.stderr.slice(0, 500)] : [])
   const nextActions = ensureExecutionRunNextActions({

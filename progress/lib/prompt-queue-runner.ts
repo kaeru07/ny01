@@ -9,6 +9,7 @@ import type { ExecutorResult, FactoryRunMode } from '@/lib/executors/types'
 import type { ExecutorChoice } from '@/lib/types/operations'
 import type { ExecutionRun } from '@/types/execution-run'
 import type { PromptQueueCandidate } from '@/types/prompt-queue'
+import { classifyNoOpRun } from './no-op-run'
 
 interface PromptQueueDispatchOptions {
   mode?: FactoryRunMode
@@ -113,10 +114,12 @@ async function recordPromptQueueRun(args: {
     failed: 'failed',
     needs_manual: 'partial',
   }
-  const runStatus = runStatusMap[args.result.status]
+  const noOp = classifyNoOpRun(args.result)
+  // 空振り（変更0かつ出力なし）は completed にしない。回った回数と成果を一致させるため。
+  const runStatus = noOp.isNoOp ? 'partial' : runStatusMap[args.result.status]
   const rawReport = `[prompt-queue ${args.mode}] item=${args.item.id} executor=${args.executor}\n${args.result.stdout || args.result.resultSummary}`
   const errors = args.result.stderr ? [args.result.stderr.slice(0, 500)] : []
-  const warnings: string[] = []
+  const warnings: string[] = noOp.isNoOp ? [`空振り: ${noOp.reason}。完了扱いにせず再実行対象にした`] : []
   const nextActions = ensureExecutionRunNextActions({
     nextActions: args.result.nextActions,
     rawReport,
@@ -248,7 +251,18 @@ export async function runPromptQueueDispatch(opts: PromptQueueDispatchOptions = 
         fallbackReason = fallback.reason
       }
       const runId = await recordPromptQueueRun({ item, mode, prompt, result, executor, fallbackReason })
-      if (result.status === 'completed' || result.status === 'partial') {
+      const noOp = classifyNoOpRun(result)
+      if (noOp.isNoOp) {
+        // 実質何もしていない Run で作業予約を閉じない。次回の自動実行で再試行する。
+        await updatePromptQueueItem(item.id, {
+          status: 'needs_retry',
+          executionRunId: runId,
+          resultSummary: result.resultSummary,
+          errorMessage: `空振り: ${noOp.reason}`,
+        })
+        skipped += 1
+        steps.push({ itemId: item.id, title: item.title, status: 'skipped', runId, reason: `空振り: ${noOp.reason}` })
+      } else if (result.status === 'completed' || result.status === 'partial') {
         await updatePromptQueueItem(item.id, {
           status: 'completed',
           executionRunId: runId,
