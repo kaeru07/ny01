@@ -1,6 +1,6 @@
 ---
 updated: 2026-08-25
-updateNote: 移行手順をコピペで実行できる手順書に拡張（WSL2 を主・ネイティブ Windows の差分を併記）。
+updateNote: バックアップの GitHub 冗長化を実施（kaeru07/company・kaeru07/vault-sync-backup を新設）。残る手動退避は586MBのzipのみ。
 ---
 
 # 環境移行の棚卸し（VPS → 別環境）
@@ -69,12 +69,14 @@ pm2 自体は `pm2-root.service`（`pm2 resurrect`）で起動時復帰してい
 |---|---|---|---|
 | `apps/ny01/progress/data` | **204MB** | あり（ny01・public） | 実行履歴・目標・承認・学びの正本 |
 | `obsidian-vault` | 638MB | あり（vault.git） | GitHub ミラー。clone で復元可 |
-| **`obsidian-sync-vault`** | **608MB** | **なし** | **稼働 Vault。git 管理外なので手で移す必要がある** |
-| `/root/company` 直下（CLAUDE.md / pm / secretary / engineering / scripts） | 約1.3MB | **remote なし** | **ローカルのみ。GitHub にバックアップが無い** |
+| `obsidian-sync-vault` | 608MB | **あり（2026-08-25〜）** | 中身23MB分を `kaeru07/vault-sync-backup`(private) へ。**586MBのzip 1個だけは対象外** |
+| `/root/company` 直下（CLAUDE.md / pm / secretary / engineering / scripts） | 約1.3MB | **あり（2026-08-25〜）** | `kaeru07/company`(private) へ |
 | `logs` | 2.4MB | なし | 移送は任意 |
 
-> **リスク**: `obsidian-sync-vault` と `/root/company` の管理ファイル群は、GitHub にバックアップが無い。
-> 移行前に必ず tar で退避するか、リモートを作って push しておく。
+> **2026-08-25 に解消**: private リポジトリ2本を新設して push した。更新は `scripts/backup-to-github.sh` で再実行できる。
+> ただし **`00_inbox` の 586MB zip（ChatGPTエクスポート）だけは git に載せていない**。これは手で別媒体へ退避すること。
+>
+> 補足: GitHub ミラー `kaeru07/vault` には**2,171件の同期漏れ**があり、実バックアップにはなっていなかった（rsync ミラーの取りこぼし）。
 
 ## 5. リポジトリ（clone で済むもの）
 
@@ -145,6 +147,13 @@ executor の実体は `spawn('claude' / 'codex')`。**`CLAUDE_BIN` / `CODEX_BIN`
 
 ### フェーズ0: 退避（形態が決まる前に済ませる）
 
+0. `【VPS】` **GitHub への冗長化（2026-08-25 実施済み）**
+   ```bash
+   bash /root/company/scripts/backup-to-github.sh   # 以後はこれ1本で更新できる
+   ```
+   - `kaeru07/company`(private): 管理ファイル74件
+   - `kaeru07/vault-sync-backup`(private): Vault の中身2,937件（zip除く）
+
 1. `【VPS】` git にバックアップが無いものを tar 退避（**2026-08-24 実施済み**）
    ```bash
    cd /root/company
@@ -152,17 +161,14 @@ executor の実体は `spawn('claude' / 'codex')`。**`CLAUDE_BIN` / `CODEX_BIN`
    tar czf _backups/sync-vault-$(date +%Y%m%d).tar.gz obsidian-sync-vault
    tar tzf _backups/sync-vault-$(date +%Y%m%d).tar.gz | wc -l   # 読めるか確認
    ```
-2. `【手】` **tar を別媒体へコピー**（同じディスク上にしか無い状態を解消する）。
-   Windows 機へ直接 `scp` するのが手っ取り早い
+2. `【手】` **残る586MBのzipを別媒体へコピー**（git に載らない唯一の大物）
    ```bash
-   scp /root/company/_backups/*.tar.gz <windowsのユーザー>@<WindowsのIP>:/mnt/c/backup/
+   # 対象: obsidian-sync-vault/00_inbox/aaab0604...zip（ChatGPTエクスポート・585MB）
+   scp /root/company/obsidian-sync-vault/00_inbox/*.zip <user>@<WindowsのIP>:/mnt/c/backup/
+   # SSH が使えないなら progress 経由でダウンロードするか、rclone でクラウドへ
    ```
-3. `【手】` `/root/company` 用の **private リポジトリを作って push**（管理ファイルの冗長化）
-   ```bash
-   cd /root/company && git remote add origin git@github.com:kaeru07/company.git
-   git add -A && git commit -m "company 管理ファイルのバックアップ" && git push -u origin main
-   ```
-   ※ `.gitignore` で `apps/`・`obsidian-*`・`_backups/`・`.env*` を除外してから push すること
+   ※ 移行後もこの zip が要るのか（＝ChatGPT の過去ログを Vault に置き続けるのか）は要判断。
+   不要なら退避して Vault から外すとバックアップが 608MB → 23MB になる。
 
 ### フェーズ1: 移行先の土台づくり
 
