@@ -12,6 +12,7 @@ export const STATUS_SUBTABS: SubNavItem[] = [
 export const APP_DEVELOPMENT_SUBTABS: SubNavItem[] = [
   { label: '新アプリ案', href: '/app-proposals' },
   { label: '市場分析', href: '/app-market-analysis' },
+  { label: 'ヒットアプリ調査', href: '/app-market-research' },
   { label: '設計一覧', href: '/app-designs' },
   { label: '仕様承認・履歴', href: '/app-specs' },
 ]

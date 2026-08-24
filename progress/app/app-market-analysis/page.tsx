@@ -34,7 +34,7 @@ export default async function AppMarketAnalysisPage() {
       />
       <SubTabBar items={APP_DEVELOPMENT_SUBTABS} />
 
-      <section className="grid gap-2 sm:grid-cols-4">
+      <section className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <Metric label="候補総数" value={`${analysis.counts.total}`} detail={`直近 ${analysis.counts.recent}件を重点表示`} />
         <Metric label="開発寄り" value={pct(analysis.counts.developerRecent, analysis.counts.recent)} detail={`直近 ${analysis.counts.developerRecent}/${analysis.counts.recent}件`} tone="blue" />
         <Metric label="fallback" value={pct(analysis.counts.fallbackRecent, analysis.counts.recent)} detail={`直近 ${analysis.counts.fallbackRecent}/${analysis.counts.recent}件`} tone="amber" />
@@ -44,31 +44,49 @@ export default async function AppMarketAnalysisPage() {
       <section className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-950">
         <h2 className="text-sm font-black text-gray-900 dark:text-gray-100">偏りの見立て</h2>
         <ul className="mt-2 space-y-1.5">
-          {analysis.findings.map((finding) => (
+          {analysis.findings.slice(0, 2).map((finding) => (
             <li key={finding} className="rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold leading-relaxed text-gray-700 dark:bg-gray-900 dark:text-gray-200">
               {finding}
             </li>
           ))}
         </ul>
+        {analysis.findings.length > 2 ? (
+          <details className="mt-2">
+            <summary className="cursor-pointer select-none text-[11px] font-black text-blue-700 dark:text-blue-300">
+              残り{analysis.findings.length - 2}件を見る
+            </summary>
+            <ul className="mt-2 space-y-1.5">
+              {analysis.findings.slice(2).map((finding) => (
+                <li key={finding} className="rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold leading-relaxed text-gray-700 dark:bg-gray-900 dark:text-gray-200">
+                  {finding}
+                </li>
+              ))}
+            </ul>
+          </details>
+        ) : null}
       </section>
 
       <section className="grid gap-3 lg:grid-cols-2">
-        <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-950">
-          <h2 className="text-sm font-black text-gray-900 dark:text-gray-100">カテゴリ分布</h2>
-          <div className="mt-3 space-y-2">
+        <Foldout
+          title="カテゴリ分布"
+          summary={analysis.categoryCounts.slice(0, 3).map((item) => `${item.label} ${item.count}`).join(' / ') || '該当なし'}
+        >
+          <div className="space-y-2">
             {analysis.categoryCounts.map((item) => (
               <BarRow key={item.key} label={item.label} count={item.count} total={analysis.counts.total} note={`直近 ${item.recentCount}`} />
             ))}
           </div>
-        </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-950">
-          <h2 className="text-sm font-black text-gray-900 dark:text-gray-100">生成モード</h2>
-          <div className="mt-3 space-y-2">
+        </Foldout>
+        <Foldout
+          title="生成モード"
+          summary={analysis.modeCounts.map((item) => `${item.mode} ${item.count}`).join(' / ') || '該当なし'}
+        >
+          <div className="space-y-2">
             {analysis.modeCounts.map((item) => (
               <BarRow key={item.mode} label={item.mode} count={item.count} total={analysis.counts.total} note={`直近 ${item.recentCount}`} />
             ))}
           </div>
-        </div>
+        </Foldout>
       </section>
 
       <section className="grid gap-3 lg:grid-cols-2">
@@ -87,11 +105,31 @@ export default async function AppMarketAnalysisPage() {
         />
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-sm font-black text-gray-900 dark:text-gray-100">候補ごとの導出過程</h2>
-        {analysis.records.map((record) => (
-          <CandidateTrace key={record.candidate.id} record={record} />
-        ))}
+      <p className="text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+        以下は候補ごとの導出過程です。既定では要約だけを表示し、タップで生成ログ・市場判断・勝機・懸念が開きます。
+      </p>
+
+      <section className="space-y-2">
+        <h2 className="text-sm font-black text-gray-900 dark:text-gray-100">
+          候補ごとの導出過程 <span className="font-bold text-gray-500 dark:text-gray-400">（{analysis.records.length}件）</span>
+        </h2>
+        <div className="space-y-2">
+          {analysis.records.slice(0, 10).map((record) => (
+            <CandidateTrace key={record.candidate.id} record={record} />
+          ))}
+        </div>
+        {analysis.records.length > 10 ? (
+          <details className="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
+            <summary className="cursor-pointer select-none px-3 py-2.5 text-xs font-black text-blue-700 dark:text-blue-300">
+              古い候補 {analysis.records.length - 10}件を表示
+            </summary>
+            <div className="space-y-2 border-t border-gray-200 p-2 dark:border-gray-800">
+              {analysis.records.slice(10).map((record) => (
+                <CandidateTrace key={record.candidate.id} record={record} />
+              ))}
+            </div>
+          </details>
+        ) : null}
       </section>
     </main>
   )
@@ -129,10 +167,16 @@ function BarRow({ label, count, total, note }: { label: string; count: number; t
 }
 
 function ObservationBlock({ title, groups }: { title: string; groups: Array<{ label: string; items: string[] }> }) {
+  const count = groups.reduce((sum, group) => sum + group.items.length, 0)
   return (
-    <section className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-950">
-      <h2 className="text-sm font-black text-gray-900 dark:text-gray-100">{title}</h2>
-      <div className="mt-3 space-y-3">
+    <details className="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
+      <summary className="cursor-pointer select-none px-3 py-2.5">
+        <span className="text-sm font-black text-gray-900 dark:text-gray-100">{title}</span>
+        <span className="mt-0.5 block truncate text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+          {count > 0 ? `${count}件（${groups.map((group) => `${group.label} ${group.items.length}`).join(' / ')}）` : '該当なし'}
+        </span>
+      </summary>
+      <div className="space-y-3 border-t border-gray-200 p-3 dark:border-gray-800">
         {groups.map((group) => (
           <div key={group.label}>
             <p className="text-[11px] font-black text-gray-500 dark:text-gray-400">{group.label}</p>
@@ -148,23 +192,31 @@ function ObservationBlock({ title, groups }: { title: string; groups: Array<{ la
           </div>
         ))}
       </div>
-    </section>
+    </details>
   )
 }
 
 function CandidateTrace({ record }: { record: AppMarketAnalysisRecord }) {
   const candidate = record.candidate
   return (
-    <article className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-950">
-      <div className="flex flex-wrap items-center gap-1.5">
-        <Badge>{formatDate(record.createdAt)}</Badge>
-        <Badge>{record.categoryLabel}</Badge>
-        <ModeBadge mode={record.generatedMode} />
-        {record.isGenericFallback ? <Badge tone="amber">汎用fallback</Badge> : null}
-        <Badge tone="gray">根拠:{record.derivationConfidence}</Badge>
-      </div>
-      <h3 className="mt-2 break-words text-base font-black leading-snug text-gray-900 dark:text-gray-100">{candidate.title}</h3>
-      <p className="mt-1 break-words text-xs font-semibold leading-relaxed text-gray-600 dark:text-gray-300">{candidate.overview ?? candidate.purpose}</p>
+    <details className="group rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
+      {/* 既定は1行の要約。66件が全部開いた状態だとスマホで60画面分の縦長になるため（2026-08-24 改善） */}
+      <summary className="cursor-pointer select-none px-3 py-2.5">
+        <span className="flex flex-wrap items-center gap-1.5">
+          <Badge>{record.categoryLabel}</Badge>
+          <ModeBadge mode={record.generatedMode} />
+          {record.isGenericFallback ? <Badge tone="amber">汎用fallback</Badge> : null}
+          <span className="text-[11px] font-bold text-gray-400 dark:text-gray-500">{formatDate(record.createdAt)}</span>
+        </span>
+        <span className="mt-1 block break-words text-sm font-black leading-snug text-gray-900 dark:text-gray-100">{candidate.title}</span>
+        <span className="mt-0.5 line-clamp-2 block break-words text-[11px] font-semibold leading-relaxed text-gray-500 dark:text-gray-400">
+          {candidate.overview ?? candidate.purpose}
+        </span>
+      </summary>
+
+      <div className="border-t border-gray-200 p-3 dark:border-gray-800">
+      <p className="break-words text-xs font-semibold leading-relaxed text-gray-600 dark:text-gray-300">{candidate.overview ?? candidate.purpose}</p>
+      <Badge tone="gray">根拠:{record.derivationConfidence}</Badge>
 
       <div className="mt-3 grid gap-3 lg:grid-cols-2">
         <TraceBlock label="生成ログ" lines={[
@@ -189,7 +241,21 @@ function CandidateTrace({ record }: { record: AppMarketAnalysisRecord }) {
           </div>
         </div>
       ) : null}
-    </article>
+      </div>
+    </details>
+  )
+}
+
+/** 見出しと要約だけ見せて、中身はタップで開く枠。スマホの縦長対策。 */
+function Foldout({ title, summary, children }: { title: string; summary: string; children: React.ReactNode }) {
+  return (
+    <details className="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
+      <summary className="cursor-pointer select-none px-3 py-2.5">
+        <span className="text-sm font-black text-gray-900 dark:text-gray-100">{title}</span>
+        <span className="mt-0.5 block truncate text-[11px] font-semibold text-gray-500 dark:text-gray-400">{summary}</span>
+      </summary>
+      <div className="border-t border-gray-200 p-3 dark:border-gray-800">{children}</div>
+    </details>
   )
 }
 

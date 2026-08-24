@@ -1,4 +1,6 @@
 import PageGuide from '@/components/newux/PageGuide'
+import SubTabBar from '@/components/navigation/SubTabBar'
+import { APP_DEVELOPMENT_SUBTABS } from '@/lib/nav-groups'
 import { buildRows, readMarketResearch, sortRows } from '@/lib/app-market-research'
 import MarketResearchClient from './MarketResearchClient'
 
@@ -14,6 +16,8 @@ export default async function AppMarketResearchPage() {
         title="App Market Research"
         guide="日本のApp Storeで、個人・小規模チームが出して実際にヒットしているアプリを自動実行のたびに3本前後ずつ調べて貯める画面です。順位・評価件数・DL数など確認できた実績だけを根拠URL付きで記録し、個人＋AIで再現・差別化・収益化できるかを比較します。"
       />
+
+      <SubTabBar items={APP_DEVELOPMENT_SUBTABS} />
 
       <section className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-xs leading-relaxed text-blue-900 dark:border-blue-900/50 dark:bg-blue-950/30 dark:text-blue-100">
         <h2 className="text-sm font-black">見方</h2>
