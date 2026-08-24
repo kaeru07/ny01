@@ -1,6 +1,6 @@
 ---
-updated: 2026-08-24
-updateNote: 別環境（Windows 想定）への移行に向けた棚卸し。実行形態は未決定、VPS は最終的に完全移行する方針。
+updated: 2026-08-25
+updateNote: 移行手順をコピペで実行できる手順書に拡張（WSL2 を主・ネイティブ Windows の差分を併記）。
 ---
 
 # 環境移行の棚卸し（VPS → 別環境）
@@ -138,31 +138,160 @@ executor の実体は `spawn('claude' / 'codex')`。**`CLAUDE_BIN` / `CODEX_BIN`
 - **シェル**: トリガースクリプトが bash。ネイティブなら PowerShell か Node スクリプトへ置換
 - **改行コード**: Windows で clone すると CRLF になり得る。`.gitattributes` か `core.autocrlf=false` を決める
 
-## 9. 移行手順（形態が決まる前でもできること）
+## 9. 移行手順（実行順）
 
-1. **バックアップを取る**（最優先・git に無いものが対象）
+所要は WSL2 なら**半日**、ネイティブ Windows なら**数日**。
+`【VPS】`＝今の環境で実行、`【Win】`＝移行先で実行、`【手】`＝人の操作（自動化しない）。
+
+### フェーズ0: 退避（形態が決まる前に済ませる）
+
+1. `【VPS】` git にバックアップが無いものを tar 退避（**2026-08-24 実施済み**）
    ```bash
-   tar czf /root/company/_backups/sync-vault-$(date +%Y%m%d).tar.gz -C /root/company obsidian-sync-vault
-   tar czf /root/company/_backups/company-mgmt-$(date +%Y%m%d).tar.gz -C /root/company CLAUDE.md CLAUDE.local.md pm secretary engineering scripts
+   cd /root/company
+   tar czf _backups/company-mgmt-$(date +%Y%m%d).tar.gz CLAUDE.md CLAUDE.local.md pm secretary engineering scripts
+   tar czf _backups/sync-vault-$(date +%Y%m%d).tar.gz obsidian-sync-vault
+   tar tzf _backups/sync-vault-$(date +%Y%m%d).tar.gz | wc -l   # 読めるか確認
    ```
-2. **`/root/company` にリモートを作って push**（管理ファイル群のバックアップ。private リポジトリ推奨）
-3. **秘密情報を安全な手段で新環境へ**（チャット・リポジトリには絶対に載せない）
-4. 新環境に Node 22 / git / gh / Claude Code / Codex CLI を導入し、**CLI のログインを済ませる**
-5. リポジトリを clone（`ny01` / `mahjong-analyzer` / `vault` ほか）
-6. `progress` で `npm ci` → `npm run build` → 起動 → `/api/operations/factory-status` が応答するか確認
-7. **定時実行の切り替え**（形態が決まってから）: 新環境で 11/14/16/23 時に progress の API を叩く仕掛けを作る
-8. **VPS 側の定時実行を停止**して一本化する
+2. `【手】` **tar を別媒体へコピー**（同じディスク上にしか無い状態を解消する）。
+   Windows 機へ直接 `scp` するのが手っ取り早い
    ```bash
-   systemctl disable --now factory-schedule.timer factory-schedule-boot.service hermes-market-research.timer
+   scp /root/company/_backups/*.tar.gz <windowsのユーザー>@<WindowsのIP>:/mnt/c/backup/
+   ```
+3. `【手】` `/root/company` 用の **private リポジトリを作って push**（管理ファイルの冗長化）
+   ```bash
+   cd /root/company && git remote add origin git@github.com:kaeru07/company.git
+   git add -A && git commit -m "company 管理ファイルのバックアップ" && git push -u origin main
+   ```
+   ※ `.gitignore` で `apps/`・`obsidian-*`・`_backups/`・`.env*` を除外してから push すること
+
+### フェーズ1: 移行先の土台づくり
+
+4. `【手】` 形態を決める（**WSL2 を推奨**）
+   - **WSL2**: `wsl --install -d Ubuntu` → Ubuntu を起動 → 以降は Linux と同じ手順。絶対パスの改修が不要
+   - **ネイティブ Windows**: 8章の34箇所の改修が必要（後述の差分を参照）
+5. `【Win】` ランタイムを入れる（バージョンは今と揃える）
+   ```bash
+   # WSL2(Ubuntu) 内
+   curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash - && sudo apt install -y nodejs git curl python3
+   sudo npm i -g pm2
+   node -v   # v22 系であること
+   ```
+6. `【Win】` CLI を入れて**ログインまで済ませる**（executor の本体）
+   ```bash
+   npm i -g @anthropic-ai/claude-code   # claude
+   # Codex CLI も同様に導入し、両方 `--version` が通ることとログイン済みを確認
+   claude --version && codex --version
+   ```
+7. `【Win】` GitHub 認証
+   ```bash
+   ssh-keygen -t ed25519 -C "windows-migration"   # 新しい鍵を作り GitHub へ登録（VPS の鍵は移さない方が安全）
+   gh auth login
    ```
 
-## 10. 移行前に決めておくこと
+### フェーズ2: 中身を移す
 
-- 実行形態（WSL2 / ネイティブ Windows / 両対応）
-- Windows マシンの**電源が入っていない時間帯**の扱い（VPS は24時間動いていた。夜間バッチの23時実行が落ちる可能性）
-- `progress` を外から見るか（現在は VPS のポート3010＋Basic認証。iPhone から見ているなら公開方法の再設計が要る）
-- `obsidian-sync-vault` の同期をどうするか（`ob sync` は停止中。GitHub ミラーだけで回すのか）
+8. `【Win】` ディレクトリを**同じ形**で作る（WSL2 なら `/root/company` をそのまま再現できる）
+   ```bash
+   sudo mkdir -p /root/company/apps /root/company/logs /root/company/_backups
+   ```
+9. `【Win】` リポジトリを clone
+   ```bash
+   cd /root/company/apps
+   git clone git@github.com:kaeru07/ny01.git
+   git clone git@github.com:kaeru07/mahjong-analyzer.git
+   git clone git@github.com:kaeru07/mahjong.git && (cd mahjong && git checkout ios-codemagic-test)
+   git clone git@github.com:kaeru07/hima-tsubushi-app.git hima-app
+   git clone git@github.com:kaeru07/kaeru07.github.io.git
+   cd /root/company && git clone git@github.com:kaeru07/vault.git obsidian-vault
+   ```
+10. `【手】` **tar を展開**（git に無いもの）
+    ```bash
+    tar xzf /mnt/c/backup/sync-vault-YYYYMMDD.tar.gz -C /root/company
+    tar xzf /mnt/c/backup/company-mgmt-YYYYMMDD.tar.gz -C /root/company
+    ```
+11. `【手】` **秘密情報を手で置く**（チャット・リポジトリには絶対に載せない）
+    - `/root/.secrets/appstore/codemagic.env` と `mahjong_cert_private_key.pem`（`chmod 600`）
+    - `apps/ny01/progress/.env.local`（`.env.local.example` を雛形に、3章のキーを埋める）
+    - `PROGRESS_DATA_PATH` は新環境の実パスに直す
+
+### フェーズ3: 起動確認（自動実行はまだ止めたまま）
+
+12. `【Win】` progress を建てる
+    ```bash
+    cd /root/company/apps/ny01/progress
+    npm ci && npm run build && pm2 start npm --name progress -- start
+    curl -u "$BASIC_AUTH_USER:$BASIC_AUTH_PASSWORD" http://localhost:3010/api/operations/factory-status
+    ```
+13. `【Win】` 画面が出るか確認（`/` `/decide` `/queue` `/app-market-research`）
+14. `【Win】` **Factory を1回だけ手で回して通しで確認**（VPS 側はまだ動いているので、この時点では**データを書かせない**よう `factoryEnabled=false` で dry に確認するのが安全）
+15. `【Win】` Playwright を入れる（スクショ撮影・UI検証を使うなら）
+    ```bash
+    npx playwright install chromium
+    ```
+
+### フェーズ4: 切り替え（ここで初めて一本化）
+
+16. `【VPS】` **定時実行を止める**（両方で動かすとデータが競合する。ここが一番大事）
+    ```bash
+    systemctl disable --now factory-schedule.timer factory-schedule-boot.service hermes-market-research.timer
+    systemctl list-timers | grep -E "factory|hermes"   # 消えたことを確認
+    ```
+17. `【VPS】` **最後のデータを push**（progress のデータは git 管理なので、これで新環境へ渡す）
+    ```bash
+    cd /root/company/apps/ny01 && git add progress/data && git commit -m "移行前の最終データ" && git push
+    ```
+18. `【Win】` `git pull` で最新データを取り込む
+19. `【Win】` **定時実行を作る**
+    - WSL2 + systemd（`/etc/wsl.conf` に `[boot] systemd=true`）→ VPS のユニットをそのままコピー
+      ```bash
+      sudo cp /path/to/factory-schedule.{service,timer} /etc/systemd/system/
+      sudo systemctl daemon-reload && sudo systemctl enable --now factory-schedule.timer
+      ```
+    - systemd を使わない場合 → **Windows のタスクスケジューラ**から WSL を叩く
+      ```
+      プログラム: wsl.exe
+      引数: -d Ubuntu -- /root/company/apps/ny01/progress/docs/factory-schedule/factory-schedule-trigger.sh schedule cron
+      トリガー: 毎日 11:00 / 14:00 / 16:00 / 23:00
+      ```
+20. `【Win】` pm2 を起動時復帰させる
+    ```bash
+    pm2 save && pm2 startup   # 表示されたコマンドを実行
+    ```
+21. `【Win】` **次の定時実行を1回見届ける**（`logs/factory-schedule.log` と progress の実行履歴に1件増えるか）
+
+### フェーズ5: 後片付け
+
+22. `【VPS】` 1〜2週間は**消さずに残す**（切り戻し用）。pm2 の progress も止めてよいが、ディスクは温存
+23. `【手】` 問題が無ければ VPS を解約 or 別用途へ
+
+---
+
+## 9-2. ネイティブ Windows を選ぶ場合の差分
+
+WSL2 を使わない場合、上の手順に加えて以下が必要になる。
+
+| 対象 | やること |
+|---|---|
+| 絶対パス34箇所 | `COMPANY_ROOT` / `APPS_ROOT` / `SECRETS_DIR` などの環境変数へ置き換え（`lib/ios-builds.ts` の `APPS_ROOT`、`lib/app-paths.ts` の `GENERATED_APPS_ROOT` ほか） |
+| トリガースクリプト | `factory-schedule-trigger.sh`（bash）を PowerShell か Node スクリプトへ移植。やることは「API を叩く＋メール送信＋ログ追記」だけ |
+| 定時実行 | タスクスケジューラ（`schtasks /create /sc daily /st 11:00 ...`）を4本 |
+| 常駐 | `pm2-windows-startup` か NSSM でサービス化。あるいはタスクスケジューラの「ログオン時」で起動 |
+| executor | `CLAUDE_BIN` / `CODEX_BIN` に `.cmd` のフルパスを指定（`spawn` は Windows で `.cmd` の解決に注意が要る） |
+| 改行コード | `git config --global core.autocrlf false`（シェルスクリプトが CRLF になると壊れる） |
+| Playwright | `npx playwright install chromium`（キャッシュは `%USERPROFILE%\AppData\Local\ms-playwright`） |
+
+## 9-3. 移行の判断チェックリスト（切り替え前に全部 ✓ になっていること）
+
+- [ ] tar を**別媒体**へコピーした
+- [ ] `claude` / `codex` が新環境で動き、**ログイン済み**
+- [ ] progress が起動し、`/api/operations/factory-status` が応答する
+- [ ] 秘密情報を新環境に置き、`.env.local` の `PROGRESS_DATA_PATH` を直した
+- [ ] VPS の最終データを push し、新環境で pull した
+- [ ] **VPS の定時実行を止めた**（両方稼働＝データ競合）
+- [ ] 新環境で定時実行が1回成功した
+- [ ] Windows のスリープ設定を確認した（23時の実行が落ちないか）
 
 ## 変更履歴
 
+- 2026-08-25: 移行手順をフェーズ0〜5のコピペ実行できる手順書へ拡張。ネイティブ Windows を選ぶ場合の差分表と、切り替え前チェックリストを追加。
 - 2026-08-24: 初版。VPS 実測で常駐・定時実行・秘密情報・データ・リポジトリ・ランタイム・環境依存を棚卸し。
