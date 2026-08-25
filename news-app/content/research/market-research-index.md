@@ -108,6 +108,8 @@
 
 
 
+
+- 2026-08-26: 資格特化AI学習 / OpenAI、初の独自推論チップ「Jalapeño」の測定結果を公開 / Admin plugin / 資格別に「試験日まで30日」の期間パスを販売し、学生が嫌う恒久的な月額契約を避ける。 / エラーなし / partial(market,news,tools)
 - 2026-08-25: 日本語特化AIチューター / GPT-5.6 SolのAPI価格が期間限定で引き下げ / Agent Plugins 1.0 / 無料利用回数の回復にリワード広告を使い、推論原価を利用者単位で制御する / エラーなし / partial(market,news,tools)
 - 2026-08-24: AI暗記カード / Claude Sonnet 5の期間限定価格が8月31日に終了予定 / Postman Agent Stack / 無料で少量生成させ、追加教材を10回単位の回数券で販売する / エラーなし / partial(market,news,tools)
 - 2026-08-23: (未取得) / (未取得) / (未取得) / (未取得) / エラーあり(daily-market-research,daily-ai-news,daily-ai-tools,market-research-method-review)
