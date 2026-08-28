@@ -1395,9 +1395,12 @@
     ],
     "recommended": "mark_done",
     "reason": "同一ゴールの「次の一歩」が3回連続で変更ゼロ。実質完了か手詰まりの可能性。今日の判断で方針を決めてください。",
-    "status": "pending",
+    "status": "decided",
     "createdRunId": "20260702-140031-071",
-    "createdAt": "2026-07-02T05:06:48.249Z"
+    "createdAt": "2026-07-02T05:06:48.249Z",
+    "decidedOption": "hold",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-06T12:24:02.492Z"
   },
   {
     "approvalId": "appr-1782975621731-4",
@@ -1990,5 +1993,2425 @@
     "decidedOption": "proceed",
     "decidedBy": "operator",
     "decidedAt": "2026-07-04T14:12:57.686Z"
+  },
+  {
+    "approvalId": "appr-1783216997949-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-05T02:03:17.949Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-05T05:00:24.314Z"
+  },
+  {
+    "approvalId": "appr-1783227628224-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-05T05:00:28.224Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-05T07:00:24.071Z"
+  },
+  {
+    "approvalId": "appr-1783234828237-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-05T07:00:28.237Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-05T14:00:20.550Z"
+  },
+  {
+    "approvalId": "appr-1783260526214-1",
+    "projectId": "company-mgmt",
+    "title": "リンク切れ260件のKnowledge→Next Epic候補をどう扱うか",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "1-loop-health-gap",
+        "label": "選択肢1: loop-healthに参照整合gapを追加して件数可視化のみ（再生成しない）"
+      },
+      {
+        "key": "2-backfill-260-suggested-260",
+        "label": "選択肢2: backfillで260件の候補を自動再生成する（suggestedが+260件増える）"
+      }
+    ],
+    "recommended": "1-loop-health-gap",
+    "reason": "実行AIからの判断要求（回答までは推奨案で進行中。回答すると次回実行に反映）",
+    "status": "decided",
+    "createdRunId": "20260705-230744",
+    "createdAt": "2026-07-05T14:08:46.214Z",
+    "decidedOption": "1-loop-health-gap",
+    "decidedBy": "operator",
+    "decidedAt": "2026-08-09T14:23:58.235Z"
+  },
+  {
+    "approvalId": "appr-1783260526606-2",
+    "projectId": "company-mgmt",
+    "title": "リンク切れ260件の扱い",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "1-loop-health-gap",
+        "label": "選択肢1: loop-health に参照整合gapを追加し件数可視化のみ（再生成しない）"
+      },
+      {
+        "key": "2-backfill-suggested-260",
+        "label": "選択肢2: backfill で自動再生成（suggested が+260件増える）"
+      }
+    ],
+    "recommended": "1-loop-health-gap",
+    "reason": "実行AIからの判断要求（回答までは推奨案で進行中。回答すると次回実行に反映）",
+    "status": "decided",
+    "createdRunId": "20260705-230027-192",
+    "createdAt": "2026-07-05T14:08:46.606Z",
+    "decidedOption": "1-loop-health-gap",
+    "decidedBy": "operator",
+    "decidedAt": "2026-08-09T14:23:58.280Z"
+  },
+  {
+    "approvalId": "appr-1783303412816-1",
+    "epicId": "epic-progress-auto-review-20-knowledge-next-epic",
+    "title": "判断が必要: 自動実行レビュー20: Knowledge/Next Epic生成（Fable棚卸し）",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260706-001041",
+    "createdAt": "2026-07-06T02:03:32.816Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-06T05:00:31.578Z"
+  },
+  {
+    "approvalId": "appr-1783303806440-2",
+    "epicId": "epic-progress-auto-review-28-monetization-candidates",
+    "title": "Factory: 自動実行レビュー28: Monetization candidates の判断",
+    "category": "executor_fallback",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "approve",
+        "label": "承認"
+      },
+      {
+        "key": "reject",
+        "label": "却下"
+      }
+    ],
+    "recommended": "approve",
+    "reason": "Codex 安全判定で停止: 安全シグナル未検出のため既定で Claude",
+    "status": "pending",
+    "createdAt": "2026-07-06T02:10:06.440Z"
+  },
+  {
+    "approvalId": "appr-1783303807881-3",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-06T02:10:07.881Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-06T05:00:31.583Z"
+  },
+  {
+    "approvalId": "appr-1783314033873-1",
+    "epicId": "epic-progress-auto-review-31-api-safety",
+    "title": "判断が必要: 自動実行レビュー31: API安全性（Fable棚卸し）",
+    "category": "secret",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "認証・秘密情報関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "decided",
+    "createdRunId": "20260706-124743",
+    "createdAt": "2026-07-06T05:00:33.873Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-06T07:00:32.037Z"
+  },
+  {
+    "approvalId": "appr-1783314034657-2",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-06T05:00:34.657Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-06T07:00:32.042Z"
+  },
+  {
+    "approvalId": "appr-1783314648984-3",
+    "epicId": "epic-progress-root-review-stale-queue",
+    "title": "判断が必要: 古い残留キューの根本原因レビュー: 手動戻しRunにEpic完了後処理を適用",
+    "category": "external_publish",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "公開・デプロイ関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "decided",
+    "createdRunId": "20260706-140940",
+    "createdAt": "2026-07-06T05:10:48.984Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-06T07:00:32.045Z"
+  },
+  {
+    "approvalId": "appr-1783321234383-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-06T07:00:34.383Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-06T14:00:16.618Z"
+  },
+  {
+    "approvalId": "appr-1783346418613-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: リンク切れ260件の影響範囲を確定(自動実行/プロジェクト/対応結果)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260706-214641",
+    "createdAt": "2026-07-06T14:00:18.613Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-07T02:03:36.165Z"
+  },
+  {
+    "approvalId": "appr-1783389818892-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-07T02:03:38.892Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-07T05:00:18.722Z"
+  },
+  {
+    "approvalId": "appr-1783400421447-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-07T05:00:21.447Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-07T07:00:32.535Z"
+  },
+  {
+    "approvalId": "appr-1783407634601-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-07T07:00:34.601Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-07T14:00:27.360Z"
+  },
+  {
+    "approvalId": "appr-1783407959363-2",
+    "epicId": "epic-goalstep-goal-mqq28l9d-8h86j-8h86j",
+    "title": "判断が必要: グアム地図なぞりGoal: Phase分割スペック提案（B2下書き+B3承認材料）",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "課金関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "decided",
+    "createdRunId": "20260707-160532",
+    "createdAt": "2026-07-07T07:05:59.363Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-07T14:00:27.370Z"
+  },
+  {
+    "approvalId": "appr-1783432829719-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-07T14:00:29.719Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-08T02:03:36.288Z"
+  },
+  {
+    "approvalId": "appr-1783476218969-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-08T02:03:38.969Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-08T05:00:25.784Z"
+  },
+  {
+    "approvalId": "appr-1783486828195-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-08T05:00:28.194Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-08T07:00:26.542Z"
+  },
+  {
+    "approvalId": "appr-1783494028886-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-08T07:00:28.886Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-09T02:03:20.233Z"
+  },
+  {
+    "approvalId": "appr-1783562603195-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: Basic認証導入の疎通テスト",
+    "category": "secret",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "認証・秘密情報関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "decided",
+    "createdRunId": "20260708-222746",
+    "createdAt": "2026-07-09T02:03:23.195Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-09T05:00:25.461Z"
+  },
+  {
+    "approvalId": "appr-1783573228633-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-09T05:00:28.633Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-09T07:00:34.212Z"
+  },
+  {
+    "approvalId": "appr-1783580437034-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-09T07:00:37.034Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-09T14:00:24.974Z"
+  },
+  {
+    "approvalId": "appr-1783605628339-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-09T14:00:28.339Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-10T02:03:31.661Z"
+  },
+  {
+    "approvalId": "appr-1783649492719-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-10T02:11:32.719Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-10T05:00:25.298Z"
+  },
+  {
+    "approvalId": "appr-1783659628283-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-10T05:00:28.283Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-10T07:00:26.998Z"
+  },
+  {
+    "approvalId": "appr-1783666829212-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-10T07:00:29.212Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-10T14:00:27.516Z"
+  },
+  {
+    "approvalId": "appr-1783692029558-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 認証をログインフォーム化(iPhone自動入力対応)+パスワード変更",
+    "category": "secret",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "認証・秘密情報関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "decided",
+    "createdRunId": "20260710-225525",
+    "createdAt": "2026-07-10T14:00:29.558Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-11T02:03:35.386Z"
+  },
+  {
+    "approvalId": "appr-1783692861764-2",
+    "epicId": "epic-goalstep-goal-mqlxgluj-ot173",
+    "title": "判断が必要: Factory(auto): ③やることリストと自動実行の順番をprogressにまとめる: 次の一歩",
+    "category": "secret",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "認証・秘密情報関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "decided",
+    "createdRunId": "20260710-230032-385",
+    "createdAt": "2026-07-10T14:14:21.764Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-11T02:03:35.395Z"
+  },
+  {
+    "approvalId": "appr-1783735417541-1",
+    "epicId": "epic-91",
+    "title": "判断が必要: 運用3原則の明文化(完了正本/Fableレビュー=案B/今日の判断3種)",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "方針・判断が必要な作業（複数案の選択など）。今日の判断で方針を決める必要あり。",
+    "status": "decided",
+    "createdRunId": "20260703-084034",
+    "createdAt": "2026-07-11T02:03:37.541Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-11T05:00:26.275Z"
+  },
+  {
+    "approvalId": "appr-1783735956277-2",
+    "projectId": "company-mgmt",
+    "title": "実行可否の承認をprogress /decideに一本化しVault側の候補承認を廃止してよいか",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "1-progress-vault-goal",
+        "label": "選択肢1: progress一本化（Vaultは承認に使わない・旧候補承認はGoal⑥で片付け）"
+      },
+      {
+        "key": "2-vault-progress",
+        "label": "選択肢2: Vault承認も残し、progressと手動同期する"
+      }
+    ],
+    "recommended": "1-progress-vault-goal",
+    "reason": "実行AIからの判断要求（回答までは推奨案で進行中。回答すると次回実行に反映）",
+    "status": "decided",
+    "createdRunId": "20260711-111133",
+    "createdAt": "2026-07-11T02:12:36.277Z",
+    "decidedOption": "1-progress-vault-goal",
+    "decidedBy": "operator",
+    "decidedAt": "2026-08-09T14:23:58.339Z"
+  },
+  {
+    "approvalId": "appr-1783735956289-3",
+    "projectId": "company-mgmt",
+    "title": "Vault _review_queue.md の位置づけ",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "1-chatgpt-progress",
+        "label": "選択肢1: ChatGPTレビュー依頼専用チャネル（検収の正本はprogressレビュータブ・チェックは実施済みの意味のみ）"
+      },
+      {
+        "key": "2-vault-progress-reviewed",
+        "label": "選択肢2: Vaultのチェック状態も検収の正本とし、progressのreviewedへ手動同期する"
+      }
+    ],
+    "recommended": "1-chatgpt-progress",
+    "reason": "実行AIからの判断要求（回答までは推奨案で進行中。回答すると次回実行に反映）",
+    "status": "pending",
+    "createdRunId": "20260711-111133",
+    "createdAt": "2026-07-11T02:12:36.289Z"
+  },
+  {
+    "approvalId": "appr-1783746027900-1",
+    "title": "完了作業の確認: 「hima-tsubushi」の作業に認証・秘密情報まわりの変更が含まれています",
+    "category": "secret",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「認証」、「ログアウト」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "decided",
+    "createdRunId": "20260711-130253",
+    "createdAt": "2026-07-11T05:00:27.900Z",
+    "requiredForExecution": false,
+    "decidedOption": "mark_reviewed",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-19T00:36:39.741Z"
+  },
+  {
+    "approvalId": "appr-1783746027992-2",
+    "epicId": "epic-91",
+    "title": "判断が必要: ログイン失敗の原因対応: スマホ入力の揺れ(ダッシュ変換/全角/大文字/空白)を吸収",
+    "category": "secret",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "proceed",
+        "label": "方針を確認して進める"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "proceed",
+    "reason": "認証・秘密情報関連の作業（危険キーワード検知）。人間の確認を推奨。",
+    "status": "decided",
+    "createdRunId": "20260711-122506",
+    "createdAt": "2026-07-11T05:00:27.992Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-07-11T07:00:35.130Z"
+  },
+  {
+    "approvalId": "appr-1784375919656-1",
+    "projectId": "mahjong",
+    "title": "iOSビルド候補: 「麻雀読みトレーニング」に未配信の変更があります。ビルドしますか？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "build",
+        "label": "ビルドする",
+        "detail": "Codemagicで自動ビルドしTestFlightへアップロードします（約3〜5分）。完了後iPhoneのTestFlightアプリで更新できます。"
+      },
+      {
+        "key": "skip",
+        "label": "見送る",
+        "detail": "今回はビルドしません。変更が増えれば次回また候補に挙がります。"
+      }
+    ],
+    "recommended": "build",
+    "reason": "前回のTestFlight配信（6/22 00:20）のあとに新しい変更が1件あり、まだiPhoneで試せる状態になっていません。\n\n配信されていない変更:\n- 『ios(ui): iOS safe area 対応でステータスバー/ホームインジケータ被りを修正』（7/1 23:09）\n最後の配信:\n- 6/22 00:20 に成功したビルドです。\n- その時の変更: 『ios: アプリ表示名を「麻雀読みトレーニング」に統一(Bundle IDは維持)』\nビルドの中身:\n- CodemagicでiOS App Store向けにビルドし、成功するとTestFlightへ自動アップロードされます。\n- 完了後、iPhoneのTestFlightアプリで更新を確認できます。",
+    "status": "decided",
+    "createdAt": "2026-07-18T11:58:39.656Z",
+    "requiredForExecution": false,
+    "decidedOption": "build",
+    "decidedBy": "operator",
+    "decidedAt": "2026-08-09T14:23:58.399Z"
+  },
+  {
+    "approvalId": "appr-1784426604908-1",
+    "epicId": "epic-91",
+    "title": "完了作業の確認: 「progress」の作業に影響が大きい操作まわりの変更が含まれています",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に方針・判断が必要な作業など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260719-093122",
+    "createdAt": "2026-07-19T02:03:24.908Z"
+  },
+  {
+    "approvalId": "appr-1784427281478-2",
+    "epicId": "epic-goalstep-goal-mqncv7tw-ni5xi",
+    "title": "完了作業の確認: 「progress」の作業に課金まわりの変更が含まれています",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「認証」、「課金」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260719-111401",
+    "createdAt": "2026-07-19T02:14:41.477Z"
+  },
+  {
+    "approvalId": "appr-1784437707021-1",
+    "epicId": "epic-goalstep-goal-mqp5c2hm-ts4es",
+    "title": "完了作業の確認: 「company-mgmt」の作業に影響が大きい操作まわりの変更が含まれています",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に方針・判断が必要な作業など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260719-140019-077",
+    "createdAt": "2026-07-19T05:08:27.021Z"
+  },
+  {
+    "approvalId": "appr-1784444426333-1",
+    "title": "完了作業の確認: 「hima-tsubushi」の作業に認証・秘密情報まわりの変更が含まれています",
+    "category": "secret",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「secret」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "decided",
+    "createdRunId": "20260714-212715",
+    "createdAt": "2026-07-19T07:00:26.333Z",
+    "decidedOption": "needs_followup",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-19T08:00:13.465Z"
+  },
+  {
+    "approvalId": "appr-1784444801903-2",
+    "title": "完了作業の確認: 「hima-tsubushi」の作業に認証・秘密情報まわりの変更が含まれています",
+    "category": "secret",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に認証・秘密情報関連の作業など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "decided",
+    "createdRunId": "20260713-221537",
+    "createdAt": "2026-07-19T07:06:41.903Z",
+    "decidedOption": "needs_followup",
+    "decidedBy": "operator",
+    "decidedAt": "2026-07-19T08:00:11.042Z"
+  },
+  {
+    "approvalId": "appr-1784445865834-3",
+    "epicId": "epic-goalstep-goal-mqrj2c77-xsurg-ay11",
+    "title": "完了作業の確認: 「company-mgmt」の作業に影響が大きい操作まわりの変更が含まれています",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に方針・判断が必要な作業など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260719-161719-208",
+    "createdAt": "2026-07-19T07:24:25.834Z"
+  },
+  {
+    "approvalId": "appr-1784513009470-1",
+    "epicId": "epic-goalstep-goal-mqrj2cbk-rkmyt",
+    "title": "完了作業の確認: 「company-mgmt」の作業に影響が大きい操作まわりの変更が含まれています",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容にrunStatus=running のまま放置されているなど人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260719-230029-541",
+    "createdAt": "2026-07-20T02:03:29.470Z"
+  },
+  {
+    "approvalId": "appr-1784513837521-2",
+    "projectId": "progress",
+    "title": "ブロック中作業カード(lib/blocked-decisions.ts)の「対処して進める」等の汎用選択肢も同様に方針文ラベルへ明確化するか",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "1-run-blocked-decisions-ts",
+        "label": "選択肢1: 次のrunでblocked-decisions.tsにも同じ明確化を適用する"
+      },
+      {
+        "key": "2-decision-needed",
+        "label": "選択肢2: 今回のdecision_neededカードのみで運用し様子を見る"
+      }
+    ],
+    "recommended": "1-run-blocked-decisions-ts",
+    "reason": "実行AIからの判断要求（回答までは推奨案で進行中。回答すると次回実行に反映）",
+    "status": "pending",
+    "createdRunId": "20260720-111538",
+    "createdAt": "2026-07-20T02:17:17.521Z"
+  },
+  {
+    "approvalId": "appr-1784513838037-3",
+    "title": "完了作業の確認: 「real-drive」の作業に影響が大きい操作まわりの変更が含まれています",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に方針・判断が必要な作業など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260712-012521",
+    "createdAt": "2026-07-20T02:17:18.037Z"
+  },
+  {
+    "approvalId": "appr-1784513839064-4",
+    "title": "完了作業の確認: 「hima-tsubushi」の作業に認証・秘密情報まわりの変更が含まれています",
+    "category": "secret",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「認証」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260711-205836",
+    "createdAt": "2026-07-20T02:17:19.064Z"
+  },
+  {
+    "approvalId": "appr-1784515738172-5",
+    "epicId": "epic-goalstep-goal-app-ny01-mahjong-analyzer",
+    "title": "完了作業の確認: 「ny01-mahjong-analyzer」の作業に課金まわりの変更が含まれています",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「課金」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260720-114626-960",
+    "createdAt": "2026-07-20T02:48:58.172Z"
+  },
+  {
+    "approvalId": "appr-1784516432957-6",
+    "epicId": "epic-goalstep-goal-app-ny01-mahjong-analyzer-xir0",
+    "title": "完了作業の確認: 「ny01-mahjong-analyzer」の作業に課金まわりの変更が含まれています",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「課金」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260720-115822-541",
+    "createdAt": "2026-07-20T03:00:32.957Z"
+  },
+  {
+    "approvalId": "appr-1784516760810-7",
+    "epicId": "epic-goalstep-goal-app-ny01-mahjong-analyzer-4ldd",
+    "title": "完了作業の確認: 「ny01-mahjong-analyzer」の作業に課金まわりの変更が含まれています",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「課金」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260720-120352-475",
+    "createdAt": "2026-07-20T03:06:00.810Z"
+  },
+  {
+    "approvalId": "appr-1784516995224-8",
+    "epicId": "epic-goalstep-goal-app-ny01-mahjong-analyzer-7ds6",
+    "title": "完了作業の確認: 「ny01-mahjong-analyzer」の作業に課金まわりの変更が含まれています",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「課金」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260720-120602-633",
+    "createdAt": "2026-07-20T03:09:55.224Z"
+  },
+  {
+    "approvalId": "appr-1784517369298-9",
+    "epicId": "epic-goalstep-goal-app-ny01-mahjong-analyzer-fxyo",
+    "title": "完了作業の確認: 「ny01-mahjong-analyzer」の作業に課金まわりの変更が含まれています",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「課金」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260720-121242-041",
+    "createdAt": "2026-07-20T03:16:09.298Z"
+  },
+  {
+    "approvalId": "appr-1784518129326-10",
+    "epicId": "epic-goalstep-goal-app-ny01-mahjong-analyzer-xq09",
+    "title": "完了作業の確認: 「ny01-mahjong-analyzer」の作業に課金まわりの変更が含まれています",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「課金」、「削除」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260720-122631-595",
+    "createdAt": "2026-07-20T03:28:49.326Z"
+  },
+  {
+    "approvalId": "appr-1784518328474-11",
+    "epicId": "epic-goalstep-goal-app-ny01-mahjong-analyzer-2tsb",
+    "title": "完了作業の確認: 「ny01-mahjong-analyzer」の作業に課金まわりの変更が含まれています",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「課金」、「ストア公開」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260720-123029-736",
+    "createdAt": "2026-07-20T03:32:08.474Z"
+  },
+  {
+    "approvalId": "appr-1784518475126-12",
+    "epicId": "epic-goalstep-goal-app-ny01-mahjong-analyzer-4zfm",
+    "title": "完了作業の確認: 「ny01-mahjong-analyzer」の作業に課金まわりの変更が含まれています",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「課金」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260720-123210-332",
+    "createdAt": "2026-07-20T03:34:35.126Z"
+  },
+  {
+    "approvalId": "appr-1784518802896-13",
+    "epicId": "epic-goalstep-goal-app-ny01-mahjong-analyzer-b369",
+    "title": "完了作業の確認: 「ny01-mahjong-analyzer」の作業に課金まわりの変更が含まれています",
+    "category": "billing",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「課金」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260720-123655-192",
+    "createdAt": "2026-07-20T03:40:02.896Z"
+  },
+  {
+    "approvalId": "appr-1784523629872-1",
+    "epicId": "epic-goalstep-goal-app-shogi-kakoi-trainer",
+    "title": "完了作業の確認: 「shogi-kakoi-trainer」の作業に影響が大きい操作まわりの変更が含まれています",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容にrunStatus=running のまま放置されているなど人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260720-130428-304",
+    "createdAt": "2026-07-20T05:00:29.872Z"
+  },
+  {
+    "approvalId": "appr-1784523973966-2",
+    "projectId": "ny01-mahjong-analyzer",
+    "title": "Bundle IDを `jp.ny01.mahjonganalyzer` で確定する？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "option-1",
+        "label": "この案で確定"
+      },
+      {
+        "key": "option-2",
+        "label": "所有ドメインに合わせて変更"
+      }
+    ],
+    "recommended": "option-1",
+    "reason": "実行AIからの判断要求（回答までは推奨案で進行中。回答すると次回実行に反映）",
+    "status": "pending",
+    "createdRunId": "20260720-140352-296",
+    "createdAt": "2026-07-20T05:06:13.966Z"
+  },
+  {
+    "approvalId": "appr-1784523973982-3",
+    "projectId": "ny01-mahjong-analyzer",
+    "title": "Support URL・Privacy Policy URLをどこで公開する？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "apps-kaeru07-github-io",
+        "label": "apps/kaeru07.github.ioで公開"
+      },
+      {
+        "key": "option-2",
+        "label": "所有サイトで公開"
+      }
+    ],
+    "recommended": "apps-kaeru07-github-io",
+    "reason": "実行AIからの判断要求（回答までは推奨案で進行中。回答すると次回実行に反映）",
+    "status": "pending",
+    "createdRunId": "20260720-140352-296",
+    "createdAt": "2026-07-20T05:06:13.982Z"
+  },
+  {
+    "approvalId": "appr-1784523973992-4",
+    "projectId": "ny01-mahjong-analyzer",
+    "title": "提出者情報を確定する？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "option-1",
+        "label": "権利者名・連絡先を提示"
+      },
+      {
+        "key": "app-store-connect",
+        "label": "後でApp Store Connect上で入力"
+      }
+    ],
+    "recommended": "option-1",
+    "reason": "実行AIからの判断要求（回答までは推奨案で進行中。回答すると次回実行に反映）",
+    "status": "pending",
+    "createdRunId": "20260720-140352-296",
+    "createdAt": "2026-07-20T05:06:13.992Z"
+  },
+  {
+    "approvalId": "appr-1784524747447-5",
+    "epicId": "epic-goalstep-goal-mqkyq2jm-fgvzp",
+    "title": "完了作業の確認: 「company-mgmt」の作業に認証・秘密情報まわりの変更が含まれています",
+    "category": "secret",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「認証」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260720-141041-546",
+    "createdAt": "2026-07-20T05:19:07.447Z"
+  },
+  {
+    "approvalId": "appr-1784524981421-6",
+    "epicId": "epic-goalstep-goal-opus-codemagic-handoff",
+    "title": "実行者の切り替え確認: 「生成アプリをCodemagicに渡せる状態にする仕組み: 次の一歩」をClaudeで続けますか？",
+    "category": "executor_fallback",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "approve",
+        "label": "Claudeで続ける"
+      },
+      {
+        "key": "reject",
+        "label": "ここで止める"
+      }
+    ],
+    "recommended": "approve",
+    "reason": "Codex実行が失敗または不完全だったため、Claudeで続行するか判断が必要です。実行結果の要約: Codex 安全判定で停止: 危険シグナル「認証」を含むため Claude 専任",
+    "status": "decided",
+    "createdAt": "2026-07-20T05:23:01.421Z",
+    "decidedOption": "reject",
+    "decidedBy": "operator",
+    "decidedAt": "2026-08-09T14:23:55.291Z"
+  },
+  {
+    "approvalId": "appr-1784526575656-7",
+    "epicId": "epic-goalstep-goal-mqp6f72n-nb2xn-x590",
+    "title": "完了作業の確認: 「ny01-news-app」の作業に認証・秘密情報まわりの変更が含まれています",
+    "category": "secret",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「認証」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260720-144602-661",
+    "createdAt": "2026-07-20T05:49:35.656Z"
+  },
+  {
+    "approvalId": "appr-1784530835297-8",
+    "epicId": "epic-goalstep-goal-mqrj2c77-xsurg-gjc7",
+    "title": "完了作業の確認: 「company-mgmt」の作業に影響が大きい操作まわりの変更が含まれています",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容にrunStatus=running のまま放置されているなど人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260720-155706-612",
+    "createdAt": "2026-07-20T07:00:35.297Z"
+  },
+  {
+    "approvalId": "appr-1784530835400-9",
+    "epicId": "epic-goalstep-goal-mqrj2c77-xsurg-gjc7",
+    "title": "完了作業の確認: 「company-mgmt」の作業に影響が大きい操作まわりの変更が含まれています",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容にrunStatus=running のまま放置されているなど人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260720-155706-612",
+    "createdAt": "2026-07-20T07:00:35.400Z"
+  },
+  {
+    "approvalId": "appr-1784531021193-10",
+    "epicId": "epic-goalstep-goal-mqrj2c77-xsurg-l1mr",
+    "title": "完了作業の確認: 「company-mgmt」の作業に影響が大きい操作まわりの変更が含まれています",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容にrunStatus=running のまま放置されているなど人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260720-160037-564",
+    "createdAt": "2026-07-20T07:03:41.192Z"
+  },
+  {
+    "approvalId": "appr-1784531066723-11",
+    "epicId": "epic-goalstep-goal-app-ny01-mahjong-analyzer-f5k4",
+    "title": "完了作業の確認: 「ny01-mahjong-analyzer」の作業に影響が大きい操作まわりの変更が含まれています",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容にrunStatus=running のまま放置されているなど人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260720-160341-908",
+    "createdAt": "2026-07-20T07:04:26.723Z"
+  },
+  {
+    "approvalId": "appr-1784531291881-12",
+    "epicId": "epic-goalstep-goal-mqrj2c77-xsurg-q0ub",
+    "title": "完了作業の確認: 「company-mgmt」の作業に影響が大きい操作まわりの変更が含まれています",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容にrunStatus=running のまま放置されているなど人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260720-160430-618",
+    "createdAt": "2026-07-20T07:08:11.881Z"
+  },
+  {
+    "approvalId": "appr-1784531310250-13",
+    "epicId": "epic-goalstep-goal-mqncrvrf-nr9cj",
+    "title": "実行者の切り替え確認: 「App Store公開仕様=完成 を表すプロジェクトフラグを導入する: 次の一歩」をClaudeで続けますか？",
+    "category": "executor_fallback",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "approve",
+        "label": "Claudeで続ける"
+      },
+      {
+        "key": "reject",
+        "label": "ここで止める"
+      }
+    ],
+    "recommended": "approve",
+    "reason": "Codex実行が失敗または不完全だったため、Claudeで続行するか判断が必要です。実行結果の要約: Codex 安全判定で停止: 危険シグナル「publish」を含むため Claude 専任",
+    "status": "decided",
+    "createdAt": "2026-07-20T07:08:30.250Z",
+    "decidedOption": "approve",
+    "decidedBy": "operator",
+    "decidedAt": "2026-08-09T14:23:55.586Z"
+  },
+  {
+    "approvalId": "appr-1784531328081-14",
+    "epicId": "epic-goalstep-goal-mqrj2cd0-orern-v8e1",
+    "title": "完了作業の確認: 「company-mgmt」の作業に影響が大きい操作まわりの変更が含まれています",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容にrunStatus=running のまま放置されているなど人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260720-160832-303",
+    "createdAt": "2026-07-20T07:08:48.081Z"
+  },
+  {
+    "approvalId": "appr-1784531918949-15",
+    "epicId": "epic-goalstep-goal-mqrj2c77-xsurg-vm34",
+    "title": "完了作業の確認: 「company-mgmt」の作業に影響が大きい操作まわりの変更が含まれています",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容にrunStatus=running のまま放置されているなど人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260720-160850-065",
+    "createdAt": "2026-07-20T07:18:38.949Z"
+  },
+  {
+    "approvalId": "appr-1784531918975-16",
+    "epicId": "epic-goalstep-goal-mqrj2c77-xsurg-vm34",
+    "title": "完了作業の確認: 「company-mgmt」の作業に影響が大きい操作まわりの変更が含まれています",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容にrunStatus=running のまま放置されているなど人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260720-160850-065",
+    "createdAt": "2026-07-20T07:18:38.975Z"
+  },
+  {
+    "approvalId": "appr-1784557152337-1",
+    "epicId": "epic-goalstep-goal-mqrj2cd0-orern-2oel",
+    "title": "方針の決定: 「maxPerEpicの深掘り挙動を調整可能にする: 次の一歩」の進め方を選んでください",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "今回の進め方をルールとして採用する（次回も同じ方針で進める）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "別の方針にする（修正内容を指示して差し戻す）"
+      },
+      {
+        "key": "hold",
+        "label": "保留する（当面は推奨案のまま進める）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AIが方針の決定を求めています: 「認証済みブラウザで `/automation` を開き、「1サイクルの深掘り回数」と1・2・3回の選択肢が表示されることを確認する」",
+    "status": "decided",
+    "createdRunId": "20260720-231413-943",
+    "createdAt": "2026-07-20T14:19:12.336Z",
+    "decidedOption": "mark_reviewed",
+    "decidedBy": "operator",
+    "decidedAt": "2026-08-09T14:23:55.683Z"
+  },
+  {
+    "approvalId": "appr-1784599324298-1",
+    "epicId": "epic-goalstep-goal-mqrj2cd0-orern-942n",
+    "projectId": "company-mgmt",
+    "title": "ブロック中の作業: maxPerEpicの深掘り挙動を調整可能にする: 次の一歩",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "retry",
+        "label": "原因を直して再試行する"
+      },
+      {
+        "key": "investigate",
+        "label": "原因を調べる（調査タスク化）"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止する"
+      },
+      {
+        "key": "hold",
+        "label": "保留する"
+      }
+    ],
+    "recommended": "retry",
+    "reason": "前回実行が失敗しています。AI工場が作業中です。continue（doneCriteria 1/3） / orphan_reconciled(実行中のまま24h超で回収 2026-08-09)",
+    "status": "decided",
+    "createdAt": "2026-07-21T02:02:04.298Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-08-09T14:01:05.909Z"
+  },
+  {
+    "approvalId": "appr-1784858535533-1",
+    "epicId": "epic-goalstep-goal-mqqmhcb9-jndlz",
+    "title": "完了作業の確認: 「mahjong」の作業に認証・秘密情報まわりの変更が含まれています",
+    "category": "secret",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「認証」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260724-002652",
+    "createdAt": "2026-07-24T02:02:15.533Z"
+  },
+  {
+    "approvalId": "appr-1786258984936-1",
+    "projectId": "company-mgmt",
+    "title": "フォームで管理する範囲は？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "option-1",
+        "label": "審査メタデータ・チェックリスト・提出状況を管理"
+      },
+      {
+        "key": "option-2",
+        "label": "審査メタデータのみ管理"
+      }
+    ],
+    "recommended": "option-1",
+    "reason": "実行AIからの判断要求（回答までは推奨案で進行中。回答すると次回実行に反映）",
+    "status": "pending",
+    "createdRunId": "20260809-160121-752",
+    "createdAt": "2026-08-09T07:03:04.936Z"
+  },
+  {
+    "approvalId": "appr-1786258984958-2",
+    "projectId": "company-mgmt",
+    "title": "画面の配置は？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "app-store-submission",
+        "label": "独立ページ `/app-store-submission`"
+      },
+      {
+        "key": "option-2",
+        "label": "各プロジェクト詳細内のセクション"
+      }
+    ],
+    "recommended": "option-2",
+    "reason": "実行AIからの判断要求（回答までは推奨案で進行中。回答すると次回実行に反映）",
+    "status": "pending",
+    "createdRunId": "20260809-160121-752",
+    "createdAt": "2026-08-09T07:03:04.958Z"
+  },
+  {
+    "approvalId": "appr-1786258985006-3",
+    "projectId": "company-mgmt",
+    "title": "初期版でApp Store Connectへ送信する？",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "progress",
+        "label": "Progress内への保存と確認だけ行う"
+      },
+      {
+        "key": "api",
+        "label": "API連携して実際に送信する"
+      }
+    ],
+    "recommended": "progress",
+    "reason": "実行AIからの判断要求（回答までは推奨案で進行中。回答すると次回実行に反映）",
+    "status": "pending",
+    "createdRunId": "20260809-160121-752",
+    "createdAt": "2026-08-09T07:03:05.006Z"
+  },
+  {
+    "approvalId": "appr-1786327476444-1",
+    "epicId": "epic-goalstep-goal-opus-codemagic-handoff",
+    "title": "実行者の切り替え確認: 「生成アプリをCodemagicに渡せる状態にする仕組み: 次の一歩」をClaudeで続けますか？",
+    "category": "executor_fallback",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "approve",
+        "label": "Claudeで続ける"
+      },
+      {
+        "key": "reject",
+        "label": "ここで止める"
+      }
+    ],
+    "recommended": "approve",
+    "reason": "Codex実行が失敗または不完全だったため、Claudeで続行するか判断が必要です。実行結果の要約: Codex 安全判定で停止: 危険シグナル「認証」を含むため Claude 専任",
+    "status": "pending",
+    "createdAt": "2026-08-10T02:04:36.444Z"
+  },
+  {
+    "approvalId": "appr-1786327773668-2",
+    "epicId": "epic-goalstep-goal-mqncrvrf-nr9cj",
+    "title": "実行者の切り替え確認: 「App Store公開仕様=完成 を表すプロジェクトフラグを導入する: 次の一歩」をClaudeで続けますか？",
+    "category": "executor_fallback",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "approve",
+        "label": "Claudeで続ける"
+      },
+      {
+        "key": "reject",
+        "label": "ここで止める"
+      }
+    ],
+    "recommended": "approve",
+    "reason": "Codex実行が失敗または不完全だったため、Claudeで続行するか判断が必要です。実行結果の要約: Codex 安全判定で停止: 危険シグナル「publish」を含むため Claude 専任",
+    "status": "pending",
+    "createdAt": "2026-08-10T02:09:33.668Z"
+  },
+  {
+    "approvalId": "appr-1786328958617-3",
+    "projectId": "ny01-mahjong-trainer",
+    "title": "卓UIの基調色をどちらで統一するか",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "option-1",
+        "label": "深い炭色＋フェルト緑＋琥珀色"
+      },
+      {
+        "key": "option-2",
+        "label": "木目茶＋暗緑＋朱色"
+      }
+    ],
+    "recommended": "option-1",
+    "reason": "実行AIからの判断要求（回答までは推奨案で進行中。回答すると次回実行に反映）",
+    "status": "pending",
+    "createdRunId": "20260810-112512-695",
+    "createdAt": "2026-08-10T02:29:18.617Z"
+  },
+  {
+    "approvalId": "appr-1786456872860-1",
+    "title": "方針の決定: 「自動理牌+14/13枚文言修正→ビルド→TestFlight /…」の進め方を選んでください",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "今回の進め方をルールとして採用する（次回も同じ方針で進める）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "別の方針にする（修正内容を指示して差し戻す）"
+      },
+      {
+        "key": "hold",
+        "label": "保留する（当面は推奨案のまま進める）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AIが方針の決定を求めています: 「選択肢B: シャンテンを検証済みアルゴリズムに置換+テストスイート追加(稀な誤り根絶)」",
+    "status": "pending",
+    "createdRunId": "20260811-182934",
+    "createdAt": "2026-08-11T14:01:12.860Z"
+  },
+  {
+    "approvalId": "appr-1786456872944-2",
+    "title": "完了作業の確認: 「mahjong-analyzer」の作業に破壊的操作まわりの変更が含まれています",
+    "category": "destructive",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「削除」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260811-180024",
+    "createdAt": "2026-08-11T14:01:12.944Z"
+  },
+  {
+    "approvalId": "appr-1786586660659-3",
+    "title": "完了作業の確認: 「mahjong-analyzer」の作業に公開・配信まわりの変更が含まれています",
+    "category": "external_publish",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「deploy」、「削除」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260813-010355",
+    "createdAt": "2026-08-13T02:04:20.658Z"
+  },
+  {
+    "approvalId": "appr-1786845867473-4",
+    "epicId": "epic-goalstep-goal-mqp6hasd-g5i9p",
+    "title": "完了作業の確認: 「company-mgmt」の作業に公開・配信まわりの変更が含まれています",
+    "category": "external_publish",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「deploy」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260816-010431",
+    "createdAt": "2026-08-16T02:04:27.473Z"
+  },
+  {
+    "approvalId": "appr-1787230084328-1",
+    "epicId": "epic-goalstep-goal-app-ny01-mahjong-analyzer-f1wp",
+    "title": "完了作業の確認: 「ny01-mahjong-analyzer」の作業に公開・配信まわりの変更が含まれています",
+    "category": "external_publish",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「ストア公開」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260820-214140-498",
+    "createdAt": "2026-08-20T12:48:04.328Z"
+  },
+  {
+    "approvalId": "appr-1787231905052-2",
+    "epicId": "epic-goalstep-goal-app-ny01-mahjong-analyzer-ljh5",
+    "title": "方針の決定: 「ny01/mahjong-analyzerを作る: 次の一歩」の進め方を選んでください",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "今回の進め方をルールとして採用する（次回も同じ方針で進める）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "別の方針にする（修正内容を指示して差し戻す）"
+      },
+      {
+        "key": "hold",
+        "label": "保留する（当面は推奨案のまま進める）"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "AIが方針の決定を求めています: 「技術スタック統一は方針判断が必要 / 次アクション: / - 主要フローのブラウザE2E環境を整備し、13枚解析・14枚解析・不正入力の実操作確認を追加する」",
+    "status": "pending",
+    "createdRunId": "20260820-221444-134",
+    "createdAt": "2026-08-20T13:18:25.052Z"
+  },
+  {
+    "approvalId": "appr-1787245355037-3",
+    "epicId": "epic-goalstep-goal-app-ny01-mahjong-analyzer-koin",
+    "title": "完了作業の確認: 「ny01-mahjong-analyzer」の作業に本番DB・スキーマまわりの変更が含まれています",
+    "category": "production_risk",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "mark_reviewed",
+        "label": "問題なし（このままでよい）"
+      },
+      {
+        "key": "needs_followup",
+        "label": "修正を依頼する"
+      },
+      {
+        "key": "hold",
+        "label": "保留"
+      }
+    ],
+    "recommended": "mark_reviewed",
+    "reason": "作業内容に「migration」など人間の確認が必要な語が含まれるため、意図した変更かを確認してください。作業自体は完了済みです。",
+    "status": "pending",
+    "createdRunId": "20260821-015759-685",
+    "createdAt": "2026-08-20T17:02:35.037Z"
+  },
+  {
+    "approvalId": "appr-1787277809402-1",
+    "epicId": "epic-goalstep-goal-app-ny01-mahjong-analyzer-p9zm",
+    "projectId": "ny01-mahjong-analyzer",
+    "title": "ブロック中の作業: ny01/mahjong-analyzer（手牌解析）を作る: 次の一歩",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "retry",
+        "label": "原因を直して再試行する"
+      },
+      {
+        "key": "investigate",
+        "label": "原因を調べる（調査タスク化）"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止する"
+      },
+      {
+        "key": "hold",
+        "label": "保留する"
+      }
+    ],
+    "recommended": "retry",
+    "reason": "前回実行が失敗しています。Codexが終了コード1で終了しました（出力なし）。run_failed",
+    "status": "decided",
+    "createdAt": "2026-08-21T02:03:29.402Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-08-22T14:01:40.412Z"
+  },
+  {
+    "approvalId": "appr-1787288493886-2",
+    "epicId": "epic-goalstep-goal-mqp6f72n-nb2xn-28i3",
+    "projectId": "ny01-news-app",
+    "title": "ブロック中の作業: 朝の自動調査の形式変更。記事のようにまとめる: 朝の自動調査の形式変更。記事のようにまとめる",
+    "category": "multi_option",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "retry",
+        "label": "原因を直して再試行する"
+      },
+      {
+        "key": "investigate",
+        "label": "原因を調べる（調査タスク化）"
+      },
+      {
+        "key": "cancel",
+        "label": "この作業を中止する"
+      },
+      {
+        "key": "hold",
+        "label": "保留する"
+      }
+    ],
+    "recommended": "retry",
+    "reason": "前回実行が失敗しています。Codexが終了コード1で終了しました（出力なし）。run_failed",
+    "status": "decided",
+    "createdAt": "2026-08-21T05:01:33.886Z",
+    "decidedOption": "auto_closed",
+    "decidedBy": "system",
+    "decidedAt": "2026-08-24T02:05:06.841Z"
+  },
+  {
+    "approvalId": "appr-1787376192324-1",
+    "title": "Codex使用上限(2026-08-27まで)の間、自動実行のexecutorをどうするか",
+    "category": "multi_option",
+    "priority": "high",
+    "options": [
+      {
+        "key": "A",
+        "label": "executorをclaudeへ切り替える",
+        "detail": "8/27まではclaudeで自動実行を継続する。切替後にexecutor設定を戻す作業が必要。"
+      },
+      {
+        "key": "B",
+        "label": "8/27まで自動実行を止める",
+        "detail": "factory-schedule.timerを停止し、上限解除後に再開する。空振りRunと失敗履歴を増やさない。"
+      },
+      {
+        "key": "C",
+        "label": "何もしない",
+        "detail": "失敗が積み上がるのを許容する。復旧作業は不要。"
+      }
+    ],
+    "recommended": "A",
+    "reason": "Codexが使用上限に達しており、2026-08-21 05:17のFactory実行が「Codexが終了コード1で終了しました(出力なし)」で失敗している。このままだと定時実行が空振りし続ける。",
+    "status": "pending",
+    "createdAt": "2026-08-22T05:23:12.319Z"
+  },
+  {
+    "approvalId": "appr-1787376192925-2",
+    "title": "退役した ny01/mahjong-analyzer の未追跡ファイル約950MBを片付けるか",
+    "category": "destructive",
+    "priority": "normal",
+    "options": [
+      {
+        "key": "A",
+        "label": "残骸を削除する",
+        "detail": "rm -rf ny01/mahjong-analyzer/{node_modules,expo,out,ios,tsconfig.tsbuildinfo}。約950MB回収。Expo試作のソースは ny01 commit b14ee68 に残る。",
+        "flag": "destructive"
+      },
+      {
+        "key": "B",
+        "label": "そのまま残す",
+        "detail": "ディスクは消費するが何も壊れない。"
+      }
+    ],
+    "recommended": "A",
+    "reason": "正本を apps/mahjong-analyzer へ一本化して ny01 側は README のみにしたが、node_modules 535MB / expo 416MB / out / ios が未追跡のまま残っている。git管理外のため復元はnpm installやb14ee68からの取り出しになる。",
+    "status": "pending",
+    "createdAt": "2026-08-22T05:23:12.925Z"
   }
 ]

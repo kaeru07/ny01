@@ -13,5 +13,33 @@
     "priority": "P1",
     "riskFlags": [],
     "createdAt": "2026-07-04T05:03:12.941Z"
+  },
+  {
+    "id": "skillcand-2026-07-20-skill-fix-followup-failed-rate",
+    "skillId": "skill-fix-followup",
+    "reason": "直近7日のfailed率が33%です（母数3件）。",
+    "evidence": [
+      "20260719-110328-219"
+    ],
+    "suggestedChange": "手順のどこが失敗源か点検し、事前確認と失敗時の切り分け条件を明確化する",
+    "status": "pending",
+    "priority": "P1",
+    "riskFlags": [],
+    "createdAt": "2026-07-20T02:03:15.101Z"
+  },
+  {
+    "id": "skillcand-2026-07-20-skill-store-app-scaffold-needs-followup-3",
+    "skillId": "skill-store-app-scaffold",
+    "reason": "needs_followup が直近3run連続しています。",
+    "evidence": [
+      "20260720-140614-515",
+      "20260720-140352-296",
+      "20260720-140030-977"
+    ],
+    "suggestedChange": "手順のレビュー観点を点検し、完了条件と修正依頼を受けやすい箇所を明確化する",
+    "status": "pending",
+    "priority": "P1",
+    "riskFlags": [],
+    "createdAt": "2026-07-20T07:00:15.006Z"
   }
 ]

@@ -98,3 +98,15 @@
 {"time":"2026-06-21T09:31:20.517Z","project":"autoexec-test-proj","type":"project_added","title":"自動実行テスト用 追加","detail":"status:active phase:"}
 {"time":"2026-06-21T09:33:22.149Z","project":"autoexec-test-proj","type":"project_summary_updated","title":"自動実行テスト用 サマリー更新","detail":"nextAction → \"(テスト用・アーカイブ)\" / status: active → archived"}
 {"time":"2026-07-01T03:09:38.720Z","project":"daily-2026-07-01-gpt-5-3-codex","type":"project_added","title":"GPT-5.3-Codex支援アプリ 追加","detail":"status:active phase:計画"}
+{"time":"2026-07-10T07:07:19.748Z","project":"company-mgmt","type":"task_added","title":"タスク一括追加 1件","detail":"釣果ログ AnglerLog の次アクションをProgressで進める"}
+{"time":"2026-07-10T07:07:19.769Z","project":"company-mgmt","type":"task_added","title":"タスク一括追加 1件","detail":"野鳥観察ノート BirdLog の次アクションをProgressで進める"}
+{"time":"2026-07-10T07:07:19.782Z","project":"company-mgmt","type":"task_added","title":"タスク一括追加 1件","detail":"自家焙煎ジャーナル Roast Journal の次アクションをProgressで進める"}
+{"time":"2026-07-10T07:07:19.795Z","project":"company-mgmt","type":"task_added","title":"タスク一括追加 1件","detail":"香水コレクション台帳 Scent Vault の次アクションをProgressで進める"}
+{"time":"2026-07-10T07:07:19.809Z","project":"company-mgmt","type":"task_added","title":"タスク一括追加 1件","detail":"卓上ゲーム戦績手帳 BG Stats の次アクションをProgressで進める"}
+{"time":"2026-07-10T07:07:19.822Z","project":"company-mgmt","type":"task_added","title":"タスク一括追加 1件","detail":"AI日めくりロジックパズル の次アクションをProgressで進める"}
+{"time":"2026-07-10T07:07:19.834Z","project":"company-mgmt","type":"task_added","title":"タスク一括追加 1件","detail":"ポーカー学習アプリ の次アクションをProgressで進める"}
+{"time":"2026-07-10T07:07:19.844Z","project":"company-mgmt","type":"task_added","title":"タスク一括追加 1件","detail":"AI ニュース系 の次アクションをProgressで進める"}
+{"time":"2026-07-10T07:07:19.854Z","project":"company-mgmt","type":"task_added","title":"タスク一括追加 1件","detail":"部位レスト筋トレ Recovery の次アクションをProgressで進める"}
+{"time":"2026-07-10T07:07:19.864Z","project":"company-mgmt","type":"task_added","title":"タスク一括追加 1件","detail":"アナログレコード台帳 Vinyl Vault の次アクションをProgressで進める"}
+{"time":"2026-07-10T07:07:19.873Z","project":"company-mgmt","type":"task_added","title":"タスク一括追加 1件","detail":"発酵食ジャーナル Ferment Log の次アクションをProgressで進める"}
+{"time":"2026-07-10T07:07:19.883Z","project":"company-mgmt","type":"task_added","title":"タスク一括追加 1件","detail":"盆栽育成カレンダー BonsaiCare の次アクションをProgressで進める"}

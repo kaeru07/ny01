@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-23T09:18:57.191Z",
+  "updatedAt": "2026-08-28T14:02:29.339Z",
   "items": [
     {
       "id": "pq-mt5lhxgn-3cofa9",
@@ -18,7 +18,7 @@
     {
       "id": "pq-mt54hg0s-ay3h4b",
       "createdAt": "2026-08-23T01:22:41.085Z",
-      "updatedAt": "2026-08-23T07:01:54.046Z",
+      "updatedAt": "2026-08-28T14:02:29.339Z",
       "title": "mahjong-analyzer: 退役パスを参照している設定が他に無いか点検する（再投入）",
       "prompt": "apps/ny01/mahjong-analyzer（2026-08-22に退役・READMEのみ）を参照している設定が残っていないか点検する。対象: progress の Epic / recommended-epics / prompt-queue / skills、company 配下の運用ドキュメント、pm2 と systemd の定義。見つかったら正本 /root/company/apps/mahjong-analyzer へ書き換える。Goal本体(goal-app-ny01-mahjong-analyzer)は対応済みなので対象外。確認した箇所と修正した件数を報告する。",
       "projectId": "ny01-mahjong-analyzer",

@@ -316,6 +316,24 @@
         "sourcePath": "05_monetization/収益化候補一覧.md",
         "runId": "20260704-230010",
         "impact": "no_change"
+      },
+      {
+        "date": "2026-07-05",
+        "type": "vault_sync",
+        "note": "定期取り込み: 野鳥観察ノート BirdLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 68 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260705-110010",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-07-05",
+        "type": "vault_sync",
+        "note": "定期取り込み: 野鳥観察ノート BirdLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 69 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260705-140019",
+        "impact": "no_change"
       }
     ],
     "history": [
@@ -531,6 +549,22 @@
         "reason": "既存候補と重複（再登場）",
         "runId": "20260704-230010",
         "timestamp": "2026-07-04T14:00:10.605Z"
+      },
+      {
+        "at": "2026-07-05T02:00:10.534Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260705-110010",
+        "timestamp": "2026-07-05T02:00:10.534Z"
+      },
+      {
+        "at": "2026-07-05T05:00:19.712Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260705-140019",
+        "timestamp": "2026-07-05T05:00:19.712Z"
       }
     ],
     "links": {
@@ -538,8 +572,8 @@
       "researchNote": "06_research/local-first-app-ideas-2026-05-14"
     },
     "discoveredAt": "2026-06-02T20:46:00.000Z",
-    "updatedAt": "2026-07-04T14:00:10.605Z",
-    "lastResearchedAt": "2026-07-04",
+    "updatedAt": "2026-07-05T05:00:19.712Z",
+    "lastResearchedAt": "2026-07-05",
     "sourceRefs": [
       {
         "id": "sr-birdlog-9em4-7",
@@ -1145,6 +1179,24 @@
         "discoveredAt": "2026-07-04",
         "addedByRunId": "20260704-230010",
         "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-8xh5-67",
+        "type": "research",
+        "path": "06_research/2026-07-04_know-20260704-230010.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-07-05",
+        "addedByRunId": "20260705-110010",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-birdlog-olx2-68",
+        "type": "research",
+        "path": "06_research/2026-07-05_know-20260705-110010.md",
+        "title": "野鳥観察ノート BirdLog",
+        "discoveredAt": "2026-07-05",
+        "addedByRunId": "20260705-140019",
+        "confidence": "medium"
       }
     ],
     "evidenceLinks": [
@@ -1477,9 +1529,19 @@
         "label": "2026-07-04_know-20260704-160007.md",
         "path": "06_research/2026-07-04_know-20260704-160007.md",
         "note": "名称が再登場"
+      },
+      {
+        "label": "2026-07-04_know-20260704-230010.md",
+        "path": "06_research/2026-07-04_know-20260704-230010.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-07-05_know-20260705-110010.md",
+        "path": "06_research/2026-07-05_know-20260705-110010.md",
+        "note": "名称が再登場"
       }
     ],
-    "lastSyncRunId": "20260704-230010"
+    "lastSyncRunId": "20260705-140019"
   },
   {
     "id": "mc-anglerlog-001",
@@ -1509,21 +1571,21 @@
     ],
     "demand": "high",
     "seoDifficulty": "medium",
-    "competition": "medium",
+    "competition": "high",
     "blueOcean": "yellow",
     "blueOceanReason": {
-      "competitorCount": "中（Fishbrain等SNS型 + 小規模記録アプリ）",
-      "competitorQuality": "SNS型が主流、ローカル図鑑×自己記録更新は手薄",
-      "differentiation": "魚種図鑑コレクション＋自己記録更新＋季節パターン",
+      "competitorCount": "高（Fishbrain 10M+ downloads / 66.2K reviews + 小規模記録アプリ）",
+      "competitorQuality": "Fishbrainは釣果ログ・個人統計・位置情報の公開範囲まで提供済み",
+      "differentiation": "登録不要・外部送信なし・通信不要の軽量な個人釣果台帳",
       "barrier": "魚種静的データ整備"
     },
     "competitors": [
       {
         "name": "Fishbrain",
-        "rating": "4.3",
-        "downloads": "5M+",
-        "strengths": "SNS/ポイント共有",
-        "weaknesses": "個人記録/オフライン体験が弱い、課金圧"
+        "rating": "4.5",
+        "downloads": "10M+",
+        "strengths": "釣り場マップ・予報・コミュニティ・釣果ログ・個人統計",
+        "weaknesses": "アカウントや通信を使わない完全ローカル体験は主要訴求ではない"
       }
     ],
     "expectedRevenue": "A",
@@ -1531,7 +1593,7 @@
     "overseas": "high",
     "whyNow": {
       "summary": "釣行ごとの高継続・釣果写真のSNS拡散・サブスク導線が明確。local-firstでAI単独開発に最適。",
-      "marketOpportunity": "SNS型に対しローカル個人記録×図鑑が空白",
+      "marketOpportunity": "大手の地図・予報・コミュニティ訴求に対し、登録不要・外部送信なしの軽量ログを検証できる",
       "timing": "Play Shorts縦動画（大物ヒット動画→アプリ送客）と好相性"
     },
     "problem": "釣行記録が紙やカメラロールに散逸し、自己ベストや季節パターンを振り返れない。",
@@ -1550,8 +1612,16 @@
       "note": "無料=広告 / サブスク=写真無制限・高度統計・天候/潮汐連携"
     },
     "notes": "第1サイクル発掘1位。海外大・SNS拡散強。",
-    "nextAction": "競合ASO実査（Fishbrain）→スコア確定",
+    "nextAction": "ローカルMVPで初回釣果保存を5回計測し、4回以上が60秒以内か確認する",
     "researchLogs": [
+      {
+        "date": "2026-07-20",
+        "type": "competitive_aso",
+        "note": "Fishbrain公式サイトとGoogle Playを実査。4.5、10M+ downloads、66.2K reviewsを確認し、ASO 78を維持",
+        "summary": "一般的な釣果ログは競争が強い。登録不要・外部送信なし・通信不要の軽量ログとして初回保存時間を検証する",
+        "sourcePath": "docs/reviews/anglerlog-fishbrain-aso-2026-07-20.md",
+        "impact": "next_action_updated"
+      },
       {
         "date": "2026-06-02",
         "type": "発掘",
@@ -1727,6 +1797,24 @@
         "sourcePath": "05_monetization/収益化候補一覧.md",
         "runId": "20260704-230010",
         "impact": "no_change"
+      },
+      {
+        "date": "2026-07-05",
+        "type": "vault_sync",
+        "note": "定期取り込み: 釣果ログ AnglerLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 40 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260705-110010",
+        "impact": "no_change"
+      },
+      {
+        "date": "2026-07-05",
+        "type": "vault_sync",
+        "note": "定期取り込み: 釣果ログ AnglerLog が Vault 調査元に登場（重複のため追記のみ）",
+        "summary": "調査元 41 件",
+        "sourcePath": "05_monetization/収益化候補一覧.md",
+        "runId": "20260705-140019",
+        "impact": "no_change"
       }
     ],
     "history": [
@@ -1891,6 +1979,22 @@
         "reason": "既存候補と重複（再登場）",
         "runId": "20260704-230010",
         "timestamp": "2026-07-04T14:00:10.605Z"
+      },
+      {
+        "at": "2026-07-05T02:00:10.534Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260705-110010",
+        "timestamp": "2026-07-05T02:00:10.534Z"
+      },
+      {
+        "at": "2026-07-05T05:00:19.712Z",
+        "action": "vault_sync_append",
+        "detail": "調査元/根拠を追記（schedule/systemd）",
+        "reason": "既存候補と重複（再登場）",
+        "runId": "20260705-140019",
+        "timestamp": "2026-07-05T05:00:19.712Z"
       }
     ],
     "links": {
@@ -1899,8 +2003,8 @@
       "runId": "20260604-082420"
     },
     "discoveredAt": "2026-06-02T20:22:00.000Z",
-    "updatedAt": "2026-07-04T14:00:10.605Z",
-    "lastResearchedAt": "2026-07-04",
+    "updatedAt": "2026-07-05T05:00:19.712Z",
+    "lastResearchedAt": "2026-07-20",
     "sourceRefs": [
       {
         "id": "sr-anglerlog-9eln-2",
@@ -2245,6 +2349,33 @@
         "discoveredAt": "2026-07-04",
         "addedByRunId": "20260704-230010",
         "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-8xgl-38",
+        "type": "research",
+        "path": "06_research/2026-07-04_know-20260704-230010.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-07-05",
+        "addedByRunId": "20260705-110010",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-8xgl-39",
+        "type": "research",
+        "path": "06_research/2026-07-04_know-20260704-230021-590.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-07-05",
+        "addedByRunId": "20260705-110010",
+        "confidence": "medium"
+      },
+      {
+        "id": "sr-anglerlog-olwq-40",
+        "type": "research",
+        "path": "06_research/2026-07-05_know-20260705-110010.md",
+        "title": "釣果ログ AnglerLog",
+        "discoveredAt": "2026-07-05",
+        "addedByRunId": "20260705-140019",
+        "confidence": "medium"
       }
     ],
     "evidenceLinks": [
@@ -2432,9 +2563,24 @@
         "label": "2026-07-04_know-20260704-160007.md",
         "path": "06_research/2026-07-04_know-20260704-160007.md",
         "note": "名称が再登場"
+      },
+      {
+        "label": "2026-07-04_know-20260704-230010.md",
+        "path": "06_research/2026-07-04_know-20260704-230010.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-07-04_know-20260704-230021-590.md",
+        "path": "06_research/2026-07-04_know-20260704-230021-590.md",
+        "note": "名称が再登場"
+      },
+      {
+        "label": "2026-07-05_know-20260705-110010.md",
+        "path": "06_research/2026-07-05_know-20260705-110010.md",
+        "note": "名称が再登場"
       }
     ],
-    "lastSyncRunId": "20260704-230010"
+    "lastSyncRunId": "20260705-140019"
   },
   {
     "id": "mc-roastjournal-001",

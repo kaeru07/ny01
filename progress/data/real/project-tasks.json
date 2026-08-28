@@ -1808,6 +1808,258 @@
           "targetApp": "ny01/progress",
           "createdAt": "2026-05-12T03:54:21.704Z",
           "updatedAt": "2026-05-12T11:40:00.000Z"
+        },
+        {
+          "id": "task-company-mgmt-1783667239748-0",
+          "goalId": "goal-mrelf6f1-or8dk",
+          "phaseId": "phase-monetization-candidates",
+          "title": "釣果ログ AnglerLog の次アクションをProgressで進める",
+          "status": "pending_approval",
+          "priority": "high",
+          "assignee": "user",
+          "memo": "[人間] [収益化候補のProgress移行] goal:収益化候補: 釣果ログ AnglerLog Vault詳細: 05_monetization/収益化候補一覧.md（#9）\n第1サイクル発掘1位。海外大・SNS拡散強。\n既存Epic: epic-anglerlog-mvp-local-firs",
+          "taskPrompt": "対象候補: 釣果ログ AnglerLog (mc-anglerlog-001)\n現在状態: EpicCreated / score=86\n次アクション: 競合ASO実査（Fishbrain）→スコア確定\nVault詳細: 05_monetization/収益化候補一覧.md（#9）",
+          "taskPromptUpdatedAt": "2026-07-10T07:07:19.748Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "targetApp": "Company Management",
+          "createdAt": "2026-07-10T07:07:19.748Z",
+          "updatedAt": "2026-07-10T07:07:19.748Z"
+        },
+        {
+          "id": "task-company-mgmt-1783667239769-0",
+          "goalId": "goal-mrelf6fr-s2idv",
+          "phaseId": "phase-monetization-candidates",
+          "title": "野鳥観察ノート BirdLog の次アクションをProgressで進める",
+          "status": "pending_approval",
+          "priority": "high",
+          "assignee": "user",
+          "memo": "[人間] [収益化候補のProgress移行] goal:収益化候補: 野鳥観察ノート BirdLog Vault詳細: 05_monetization/収益化候補一覧.md（#14）\nlocal-first・API不要・静的JSONでAI単独開発しやすい。第2サイクル発掘1位。",
+          "taskPrompt": "対象候補: 野鳥観察ノート BirdLog (mc-birdlog-001)\n現在状態: Candidate / score=83\n次アクション: 競合ASO実査（eBird/Merlin/Audubon）→スコア確定→Epic化判断\nVault詳細: 05_monetization/収益化候補一覧.md（#14）",
+          "taskPromptUpdatedAt": "2026-07-10T07:07:19.769Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "targetApp": "Company Management",
+          "createdAt": "2026-07-10T07:07:19.769Z",
+          "updatedAt": "2026-07-10T07:07:19.769Z"
+        },
+        {
+          "id": "task-company-mgmt-1783667239782-0",
+          "goalId": "goal-mrelf6g3-du86a",
+          "phaseId": "phase-monetization-candidates",
+          "title": "自家焙煎ジャーナル Roast Journal の次アクションをProgressで進める",
+          "status": "pending_approval",
+          "priority": "medium",
+          "assignee": "user",
+          "memo": "[人間] [収益化候補のProgress移行] goal:収益化候補: 自家焙煎ジャーナル Roast Journal Vault詳細: 05_monetization/収益化候補一覧.md\n第2サイクル発掘2位。記録系・sub向き。",
+          "taskPrompt": "対象候補: 自家焙煎ジャーナル Roast Journal (mc-roastjournal-001)\n現在状態: Candidate / score=76\n次アクション: 競合ASO実査\nVault詳細: 05_monetization/収益化候補一覧.md",
+          "taskPromptUpdatedAt": "2026-07-10T07:07:19.782Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "targetApp": "Company Management",
+          "createdAt": "2026-07-10T07:07:19.782Z",
+          "updatedAt": "2026-07-10T07:07:19.782Z"
+        },
+        {
+          "id": "task-company-mgmt-1783667239795-0",
+          "goalId": "goal-mrelf6gg-v48e6",
+          "phaseId": "phase-monetization-candidates",
+          "title": "香水コレクション台帳 Scent Vault の次アクションをProgressで進める",
+          "status": "pending_approval",
+          "priority": "medium",
+          "assignee": "user",
+          "memo": "[人間] [収益化候補のProgress移行] goal:収益化候補: 香水コレクション台帳 Scent Vault Vault詳細: 05_monetization/収益化候補一覧.md\n第1サイクル発掘3位。SNS映え・拡散性高。",
+          "taskPrompt": "対象候補: 香水コレクション台帳 Scent Vault (mc-scentvault-001)\n現在状態: Draft / score=76\n次アクション: Progress側で次アクションを具体化する\nVault詳細: 05_monetization/収益化候補一覧.md",
+          "taskPromptUpdatedAt": "2026-07-10T07:07:19.795Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "targetApp": "Company Management",
+          "createdAt": "2026-07-10T07:07:19.795Z",
+          "updatedAt": "2026-07-10T07:07:19.795Z"
+        },
+        {
+          "id": "task-company-mgmt-1783667239809-0",
+          "goalId": "goal-mrelf6gt-uqzll",
+          "phaseId": "phase-monetization-candidates",
+          "title": "卓上ゲーム戦績手帳 BG Stats の次アクションをProgressで進める",
+          "status": "pending_approval",
+          "priority": "medium",
+          "assignee": "user",
+          "memo": "[人間] [収益化候補のProgress移行] goal:収益化候補: 卓上ゲーム戦績手帳 BG Stats Vault詳細: 05_monetization/収益化候補一覧.md\n第2サイクル発掘3位。コミュニティ不要でローカル成立。",
+          "taskPrompt": "対象候補: 卓上ゲーム戦績手帳 BG Stats (mc-bgstats-001)\n現在状態: Draft / score=74\n次アクション: Progress側で次アクションを具体化する\nVault詳細: 05_monetization/収益化候補一覧.md",
+          "taskPromptUpdatedAt": "2026-07-10T07:07:19.809Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "targetApp": "Company Management",
+          "createdAt": "2026-07-10T07:07:19.809Z",
+          "updatedAt": "2026-07-10T07:07:19.809Z"
+        },
+        {
+          "id": "task-company-mgmt-1783667239822-0",
+          "goalId": "goal-mrelf6h8-57bsg",
+          "phaseId": "phase-monetization-candidates",
+          "title": "AI日めくりロジックパズル の次アクションをProgressで進める",
+          "status": "pending_approval",
+          "priority": "medium",
+          "assignee": "user",
+          "memo": "[人間] [収益化候補のProgress移行] goal:収益化候補: AI日めくりロジックパズル Vault詳細: 05_monetization/収益化候補一覧.md\n第1サイクル発掘5位。継続率高・AI生成相性◎。競合多くレッドオーシャン。",
+          "taskPrompt": "対象候補: AI日めくりロジックパズル (mc-ailogicpuzzle-001)\n現在状態: Draft / score=68\n次アクション: Progress側で次アクションを具体化する\nVault詳細: 05_monetization/収益化候補一覧.md",
+          "taskPromptUpdatedAt": "2026-07-10T07:07:19.822Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "targetApp": "Company Management",
+          "createdAt": "2026-07-10T07:07:19.822Z",
+          "updatedAt": "2026-07-10T07:07:19.822Z"
+        },
+        {
+          "id": "task-company-mgmt-1783667239834-0",
+          "goalId": "goal-mrelf6hk-6fips",
+          "phaseId": "phase-monetization-candidates",
+          "title": "ポーカー学習アプリ の次アクションをProgressで進める",
+          "status": "pending_approval",
+          "priority": "medium",
+          "assignee": "user",
+          "memo": "[人間] [収益化候補のProgress移行] goal:収益化候補: ポーカー学習アプリ Vault詳細: 05_monetization/収益化候補一覧.md",
+          "taskPrompt": "対象候補: ポーカー学習アプリ (mc-cand-9elm-0)\n現在状態: Draft / score=0\n次アクション: Progress側で次アクションを具体化する\nVault詳細: 05_monetization/収益化候補一覧.md",
+          "taskPromptUpdatedAt": "2026-07-10T07:07:19.834Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "targetApp": "Company Management",
+          "createdAt": "2026-07-10T07:07:19.834Z",
+          "updatedAt": "2026-07-10T07:07:19.834Z"
+        },
+        {
+          "id": "task-company-mgmt-1783667239844-0",
+          "goalId": "goal-mrelf6hu-0o2vt",
+          "phaseId": "phase-monetization-candidates",
+          "title": "AI ニュース系 の次アクションをProgressで進める",
+          "status": "pending_approval",
+          "priority": "medium",
+          "assignee": "user",
+          "memo": "[人間] [収益化候補のProgress移行] goal:収益化候補: AI ニュース系 Vault詳細: 05_monetization/収益化候補一覧.md",
+          "taskPrompt": "対象候補: AI ニュース系 (mc-ai-9eln-1)\n現在状態: Draft / score=0\n次アクション: Progress側で次アクションを具体化する\nVault詳細: 05_monetization/収益化候補一覧.md",
+          "taskPromptUpdatedAt": "2026-07-10T07:07:19.844Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "targetApp": "Company Management",
+          "createdAt": "2026-07-10T07:07:19.844Z",
+          "updatedAt": "2026-07-10T07:07:19.844Z"
+        },
+        {
+          "id": "task-company-mgmt-1783667239854-0",
+          "goalId": "goal-mrelf6i4-yfgfx",
+          "phaseId": "phase-monetization-candidates",
+          "title": "部位レスト筋トレ Recovery の次アクションをProgressで進める",
+          "status": "pending_approval",
+          "priority": "medium",
+          "assignee": "user",
+          "memo": "[人間] [収益化候補のProgress移行] goal:収益化候補: 部位レスト筋トレ Recovery Vault詳細: 05_monetization/収益化候補一覧.md",
+          "taskPrompt": "対象候補: 部位レスト筋トレ Recovery (mc-recovery-9ely-2)\n現在状態: Draft / score=0\n次アクション: Progress側で次アクションを具体化する\nVault詳細: 05_monetization/収益化候補一覧.md",
+          "taskPromptUpdatedAt": "2026-07-10T07:07:19.854Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "targetApp": "Company Management",
+          "createdAt": "2026-07-10T07:07:19.854Z",
+          "updatedAt": "2026-07-10T07:07:19.854Z"
+        },
+        {
+          "id": "task-company-mgmt-1783667239864-0",
+          "goalId": "goal-mrelf6if-okovg",
+          "phaseId": "phase-monetization-candidates",
+          "title": "アナログレコード台帳 Vinyl Vault の次アクションをProgressで進める",
+          "status": "pending_approval",
+          "priority": "medium",
+          "assignee": "user",
+          "memo": "[人間] [収益化候補のProgress移行] goal:収益化候補: アナログレコード台帳 Vinyl Vault Vault詳細: 05_monetization/収益化候補一覧.md",
+          "taskPrompt": "対象候補: アナログレコード台帳 Vinyl Vault (mc-vinylvault-9em3-3)\n現在状態: Draft / score=0\n次アクション: Progress側で次アクションを具体化する\nVault詳細: 05_monetization/収益化候補一覧.md",
+          "taskPromptUpdatedAt": "2026-07-10T07:07:19.864Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "targetApp": "Company Management",
+          "createdAt": "2026-07-10T07:07:19.864Z",
+          "updatedAt": "2026-07-10T07:07:19.864Z"
+        },
+        {
+          "id": "task-company-mgmt-1783667239873-0",
+          "goalId": "goal-mrelf6io-0ry6b",
+          "phaseId": "phase-monetization-candidates",
+          "title": "発酵食ジャーナル Ferment Log の次アクションをProgressで進める",
+          "status": "pending_approval",
+          "priority": "medium",
+          "assignee": "user",
+          "memo": "[人間] [収益化候補のProgress移行] goal:収益化候補: 発酵食ジャーナル Ferment Log Vault詳細: 05_monetization/収益化候補一覧.md",
+          "taskPrompt": "対象候補: 発酵食ジャーナル Ferment Log (mc-fermentlog-9emh-4)\n現在状態: Draft / score=0\n次アクション: Progress側で次アクションを具体化する\nVault詳細: 05_monetization/収益化候補一覧.md",
+          "taskPromptUpdatedAt": "2026-07-10T07:07:19.873Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "targetApp": "Company Management",
+          "createdAt": "2026-07-10T07:07:19.873Z",
+          "updatedAt": "2026-07-10T07:07:19.873Z"
+        },
+        {
+          "id": "task-company-mgmt-1783667239883-0",
+          "goalId": "goal-mrelf6ix-wzgqe",
+          "phaseId": "phase-monetization-candidates",
+          "title": "盆栽育成カレンダー BonsaiCare の次アクションをProgressで進める",
+          "status": "pending_approval",
+          "priority": "medium",
+          "assignee": "user",
+          "memo": "[人間] [収益化候補のProgress移行] goal:収益化候補: 盆栽育成カレンダー BonsaiCare Vault詳細: 05_monetization/収益化候補一覧.md",
+          "taskPrompt": "対象候補: 盆栽育成カレンダー BonsaiCare (mc-bonsaicare-9emk-5)\n現在状態: Draft / score=0\n次アクション: Progress側で次アクションを具体化する\nVault詳細: 05_monetization/収益化候補一覧.md",
+          "taskPromptUpdatedAt": "2026-07-10T07:07:19.883Z",
+          "taskPromptUpdatedBy": "user",
+          "doneCriteria": [
+            "候補の状態がProgress側のGoal/Todo状態へ引き継がれている",
+            "Vault側の詳細本文を複製せず、参照リンクだけで追える",
+            "公開・課金・本番設定が必要な作業はmanual/approval_requiredとして分離されている"
+          ],
+          "targetApp": "Company Management",
+          "createdAt": "2026-07-10T07:07:19.883Z",
+          "updatedAt": "2026-07-10T07:07:19.883Z"
         }
       ]
     },

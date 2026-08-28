@@ -31,7 +31,7 @@
       "metric": "closed_loop_rate",
       "target": 80,
       "current": 0.2,
-      "metricSyncedAt": "2026-08-23T07:01:53.096Z",
+      "metricSyncedAt": "2026-08-28T14:02:28.125Z",
       "isNorthStar": false,
       "summary": "Codex/Claudeの実行結果を完了報告で終わらせず、Review、Knowledge、Next Epic候補生成までつなげる。",
       "status": "done",
@@ -81,7 +81,7 @@
       "metric": "validated_project_count",
       "target": 5,
       "current": 3,
-      "metricSyncedAt": "2026-08-23T07:01:53.096Z",
+      "metricSyncedAt": "2026-08-28T14:02:28.125Z",
       "isNorthStar": false,
       "summary": "調査・アプリ開発・教材化・収益化候補をAI工場内で継続的に検証し、次の収益候補や転職価値につなげる。",
       "status": "done",
@@ -5856,10 +5856,12 @@
       "current": 0,
       "isNorthStar": false,
       "summary": "日本のApp Storeで個人・小規模チームが出して実際にヒットしているアプリを、自動実行のたびに3本前後ずつ調査して /app-market-research に蓄積する。\n\n目的は「個人＋AIで現実的に再現・差別化・収益化できるアプリ候補」を比較・意思決定できる状態にすること。単なるアイデア出しは禁止で、現在順位・ランキング推移・評価件数・Android DL など確認できた実績だけを根拠URL付きで記録する。買い切りは対象外。開発者規模が確認できないものは参考候補どまり。\n\n完了条件: 毎回の自動実行で調査タスクが1件実行され、結果が POST /api/app-market-research で保存されていること。",
-      "status": "active",
-      "priority": "medium",
       "decisionPolicyDefault": "autonomous",
       "riskFlagsDefault": [],
+      "status": "active",
+      "priority": "medium",
+      "pinnedTop": false,
+      "autonomyNotifyAttempts": 0,
       "monetizationImpact": "high",
       "phases": [],
       "todos": [],
@@ -5868,5 +5870,5 @@
     }
   ],
   "mainGoalId": "goal-ai-factory-os",
-  "updatedAt": "2026-08-23T08:17:21.824Z"
+  "updatedAt": "2026-08-28T14:02:28.125Z"
 }
