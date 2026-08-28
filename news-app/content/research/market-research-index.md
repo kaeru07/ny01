@@ -111,6 +111,8 @@
 
 
 
+
+- 2026-08-29: AI利用料・原価管理 / OpenAI・AnthropicなどがAIサイバー攻撃への早急な備えを要請 / Admin plugin / 無料の手動原価記録から、月額課金の自動取込・予算警告・案件別採算へ誘導する / エラーなし / partial(market,news,tools)
 - 2026-08-28: 資格・受験の反復学習 / Gemini Omni 1.1 Flash、動画生成・編集機能を強化 / Admin plugin / 資格学習は無料の一日問題数を制限し、弱点分析、教材取込、法改正更新を月額課金にする / エラーなし / partial(market,news,tools)
 - 2026-08-27: 成果特化型AI / Codex MCPサーバーコマンドが非推奨に / Agent Plugins 1.0 / 月額980〜1,980円で、用途別テンプレートと月間生成上限を提供する / エラーなし / partial(market,news,tools)
 - 2026-08-26: 資格特化AI学習 / OpenAI、初の独自推論チップ「Jalapeño」の測定結果を公開 / Admin plugin / 資格別に「試験日まで30日」の期間パスを販売し、学生が嫌う恒久的な月額契約を避ける。 / エラーなし / partial(market,news,tools)
