@@ -4,50 +4,6 @@ company レベルの CLAUDE.md を継承しつつ、ny01 固有の運用ルー�
 
 ---
 
-## 朝会モード — progress 正本運用
-
-「朝会して」と言われた場合、company CLAUDE.md の手順に加えて **progress ファイルを優先情報源**として案件状況を把握する。
-
-### 読む順番（ny01 では以下の順で読む）
-
-1. `/root/company/apps/ny01/progress/.env.local` を確認し、`PROGRESS_DATA_PATH` を特定する
-   - 設定あり → そのパス配下のファイルを読む
-   - 未設定 → `/root/company/apps/ny01/progress/data/sample/` を読む
-2. **`overall-progress.md`** — 全案件サマリー・Blockers・Next Action を把握する
-3. **`app-progress.json`** — 案件ごとの currentTask / nextAction / status / progress / blockers を把握する
-4. **`project-tasks.json`** — in_progress / todo タスクの優先度を確認する
-5. **`work-log.ndjson`** の末尾 10 行 — 前回中断点・直近の完了を確認する
-6. company 管理ファイル（today.md / priorities.md / active-projects.md）を補完参照する
-
-> **競合時のルール**: progress ファイルと company 管理ファイルで状態が食い違う場合、**progress ファイルを優先**する。
-
----
-
-### 朝会出力への progress データの対応
-
-company CLAUDE.md の出力フォーマット（セクション 0〜8）を progress データで埋める。
-
-| 出力セクション | progress からの情報源 |
-|---|---|
-| 0. 前回の危険作業・中断確認 | work-log.ndjson の末尾 / overall-progress.md の Blockers |
-| 1. 今日の状況まとめ | overall-progress.md の Summary / In Progress |
-| 2. 確認済みアプリ | app-progress.json の `status: in_progress` / `done` 案件 |
-| 3. 未確認アプリ | app-progress.json の `status: active` 等・updatedAt が古い案件 |
-| 4. 今日やるべき候補3件 | project-tasks.json の `in_progress` + `todo` を priority 順に3件 |
-| 5. 最優先でやるべき1件 | blockers があれば blocker 解消を最優先。なければ進行中案件の nextAction |
-| 6. その理由 | blockers の内容 / progress 値 / 直近 work-log のコンテキスト |
-| 7. 実行できる作業プロンプト | 最優先案件の nextAction をそのまま起点にしたプロンプト |
-| 8. 今日はやらない方がいいこと | blockers で止まっている案件 / status が active のまま長期停滞している案件 |
-
----
-
-### 朝会モードの禁止事項（company CLAUDE.md に追加）
-
-- progress ファイルを朝会中に書き換えない（読み取りのみ）
-- currentTask / nextAction / work-log への追記は、集中作業モードに入ってから行う
-
----
-
 ## 集中作業モード — 正本情報源
 
 「集中作業モード」と入力された場合、**会話ログではなく progress ファイルを正本**として作業を開始する。
@@ -268,7 +224,7 @@ progress: 更新済み
 
 ## company CLAUDE.md との関係
 
-- company CLAUDE.md の role 分担・危険作業ルール・朝会ルールは引き続き有効
+- company CLAUDE.md の role 分担・危険作業ルールは引き続き有効
 - 集中作業モードの「focus-work レポート」と progress ファイルは**併用**する
   - focus-work レポート: company 管理ファイルとしての作業ログ
   - progress ファイル: 進捗管理アプリの正本データ

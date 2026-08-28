@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "sync:research": "node scripts/sync-research-content.mjs",
+    "validate:research": "node scripts/validate-research-format.mjs",
     "prebuild": "node scripts/sync-research-content.mjs",
     "build": "next build",
     "start": "next start",

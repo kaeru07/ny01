@@ -1,0 +1,5 @@
+# 退役ディレクトリの残骸（正本は apps/mahjong-analyzer / 2026-08-22 退役）
+expo/
+ios/
+out/
+node_modules/

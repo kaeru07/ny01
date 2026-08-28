@@ -80,6 +80,21 @@ body {
   container-type: inline-size;
 }
 
+/* 対面の手牌エリア: 画面幅ではなく、枠と余白を除いた実幅を基準にする */
+.opponent-hand-area {
+  container-type: inline-size;
+}
+
+/* 卓面は表示領域の短辺に合わせ、縦横どちらでも正方形を保つ */
+.table-viewport {
+  container-type: inline-size;
+}
+
+.mahjong-table {
+  width: min(100cqw, 50dvh);
+  height: min(100cqw, 50dvh);
+}
+
 /* 手牌行: 横スクロールさせず中央寄せ。 */
 .hand-row {
   display: flex;
@@ -99,6 +114,13 @@ body {
   --thw: min(34px, calc((100cqw - 52px) / 14));
   width: var(--thw);
   height: calc(var(--thw) * 48 / 34);
+}
+
+/* 13枚に加えてツモ牌と区切りがある手番中も左右を切らない */
+.opponent-hand-area .hand-row .tile-sm {
+  --opponent-tile-w: min(26px, calc((100cqw - 34px) / 14));
+  width: var(--opponent-tile-w);
+  height: calc(var(--opponent-tile-w) * 48 / 34);
 }
 
 /* 河グリッド */

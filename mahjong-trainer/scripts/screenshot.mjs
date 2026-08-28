@@ -18,12 +18,13 @@ const { chromium } = require("/root/company/apps/note/node_modules/playwright-co
 const OUT = process.env.OUT_DIR || ".screenshots";
 const URL = process.env.URL || "http://localhost:3457/";
 const TAG = process.env.TAG || "ui";
+const SEED = Number(process.env.SEED || 20260810);
 
 const VIEWPORTS = [
   { name: "portrait-390", width: 390, height: 844 },
   { name: "portrait-375", width: 375, height: 667 },
   { name: "landscape-844", width: 844, height: 390 },
-];
+].filter((viewport) => !process.env.VIEWPORT || viewport.name === process.env.VIEWPORT);
 
 mkdirSync(OUT, { recursive: true });
 
@@ -64,10 +65,56 @@ async function measure(page, label) {
   return !bad;
 }
 
-const browser = await chromium.launch();
-let allOk = true;
+async function riverState(page) {
+  return page.locator("[data-river-rotation]").evaluateAll((rivers) =>
+    Object.fromEntries(
+      rivers.map((river) => [
+        river.getAttribute("data-river-rotation"),
+        {
+          discards: Number(river.getAttribute("data-discard-count")),
+          chunks: river.querySelectorAll("[data-river-chunk]").length,
+        },
+      ])
+    )
+  );
+}
 
-for (const vp of VIEWPORTS) {
+async function reachWrappedRivers(page, label) {
+  const requiredRotations = ["0", "90", "180", "270"];
+
+  for (let round = 0; round < 9; round++) {
+    const rivers = await riverState(page);
+    if (requiredRotations.every((rotation) => rivers[rotation]?.discards >= 7)) {
+      const wrapped = requiredRotations.every((rotation) => rivers[rotation]?.chunks >= 2);
+      console.log(`[${label}] ${wrapped ? "OK" : "NG"} river-wrap ${JSON.stringify(rivers)}`);
+      return wrapped;
+    }
+
+    const tile = page.locator(".hand-area .hand-row .tile-hand.cursor-pointer").first();
+    try {
+      await tile.click({ timeout: 5000 });
+      await page.waitForFunction(
+        (previous) => {
+          const self = document.querySelector('[data-river-rotation="0"]');
+          return Number(self?.getAttribute("data-discard-count") ?? 0) > previous;
+        },
+        rivers["0"]?.discards ?? 0,
+        { timeout: 7000 }
+      );
+    } catch {
+      console.log(
+        `[${label}] NG 対局が終了し、4方向7枚以上の河を生成できませんでした ${JSON.stringify(await riverState(page))}`
+      );
+      return false;
+    }
+  }
+
+  console.log(`[${label}] NG 9巡以内に4方向7枚以上の河を生成できませんでした`);
+  return false;
+}
+
+const browser = await chromium.launch();
+async function verifyViewport(vp) {
   const ctx = await browser.newContext({
     viewport: { width: vp.width, height: vp.height },
     deviceScaleFactor: 2,
@@ -75,42 +122,48 @@ for (const vp of VIEWPORTS) {
     hasTouch: true,
   });
   const page = await ctx.newPage();
+  await page.addInitScript((seed) => {
+    // 視覚回帰用に配牌とCPU選択を固定し、長い河を毎回同じ状態で再現する。
+    let state = seed >>> 0;
+    Math.random = () => {
+      state = (state * 1664525 + 1013904223) >>> 0;
+      return state / 0x100000000;
+    };
+  }, SEED);
   const errors = [];
   page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
   page.on("pageerror", (e) => errors.push(`PAGEERROR ${e.message}`));
 
-  await page.goto(URL, { waitUntil: "networkidle" });
+  const response = await page.goto(URL, { waitUntil: "networkidle" });
   await page.waitForTimeout(600);
   await page.screenshot({ path: `${OUT}/${TAG}-${vp.name}-start.png` });
 
+  let viewportOk = response?.ok() ?? false;
   const start = page.getByRole("button", { name: "対局開始" });
   if (await start.count()) {
     await start.first().click();
     await page.waitForTimeout(2500);
     await page.screenshot({ path: `${OUT}/${TAG}-${vp.name}-game.png` });
-    allOk = (await measure(page, `${vp.name}/game`)) && allOk;
+    viewportOk = (await measure(page, `${vp.name}/game`)) && viewportOk;
 
-    // 河に牌が並んだ状態を作るため数巡進める
-    for (let i = 0; i < 6; i++) {
-      const tiles = page.locator(".hand-row .tile-hand, [data-hand-tile]");
-      if (await tiles.count()) {
-        try {
-          await tiles.nth(0).click({ timeout: 1500 });
-        } catch {
-          /* 自分の手番でなければ無視 */
-        }
-      }
-      await page.waitForTimeout(1800);
-    }
+    const riversWrapped = await reachWrappedRivers(page, `${vp.name}/wrapped`);
     await page.screenshot({ path: `${OUT}/${TAG}-${vp.name}-mid.png` });
-    allOk = (await measure(page, `${vp.name}/mid`)) && allOk;
+    viewportOk = riversWrapped && (await measure(page, `${vp.name}/mid`)) && viewportOk;
+  } else {
+    errors.push("対局開始ボタンが見つからず、対局画面を検証できませんでした");
   }
 
   if (errors.length) console.log(`[${vp.name}] console errors:`, errors.slice(0, 5));
 
   await ctx.close();
+  return viewportOk && errors.length === 0;
 }
 
+const results = [];
+for (const viewport of VIEWPORTS) {
+  results.push(await verifyViewport(viewport));
+}
+const allOk = results.every(Boolean);
 await browser.close();
 console.log(`screenshots -> ${OUT}/`);
 console.log(

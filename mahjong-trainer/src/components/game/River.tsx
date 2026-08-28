@@ -6,32 +6,21 @@ import TileComponent from "./TileComponent";
 
 interface RiverProps {
   discards: TileIndex[];
-  label: string;
   /** 席方向。牌画像をこの角度で回転し、河の並び方向も席に合わせる。
    *  self=0(下向き/6列横), toimen=180(上向き/6列横),
    *  kamicha(上家/左)=270, shimocha(下家/右)=90 → 縦に積む。 */
   rotation?: 0 | 90 | 180 | 270;
-  /** ラベルを出すか（卓では位置と向きで分かるので通常false） */
-  showLabel?: boolean;
 }
 
 const CHUNK = 6;
 
 export default function River({
   discards,
-  label,
   rotation = 0,
-  showLabel = false,
 }: RiverProps) {
   const vertical = rotation === 90 || rotation === 270;
 
-  if (discards.length === 0) {
-    return showLabel ? (
-      <div className="flex flex-col items-center gap-0.5">
-        <span className="text-gray-400 text-[10px]">{label}</span>
-      </div>
-    ) : null;
-  }
+  if (discards.length === 0) return null;
 
   // 6枚ごとに区切る
   const chunks: TileIndex[][] = [];
@@ -52,7 +41,7 @@ export default function River({
         {display.map((chunk, ci) => {
           const orig = rotation === 90 ? chunks.length - 1 - ci : ci;
           return (
-            <div key={ci} className="flex flex-col" style={{ gap: "var(--river-gap)" }}>
+            <div key={ci} data-river-chunk={orig} className="flex flex-col" style={{ gap: "var(--river-gap)" }}>
               {tiles(chunk, orig * CHUNK)}
             </div>
           );
@@ -68,7 +57,7 @@ export default function River({
         {display.map((chunk, ci) => {
           const orig = rotation === 180 ? chunks.length - 1 - ci : ci;
           return (
-            <div key={ci} className="flex flex-row" style={{ gap: "var(--river-gap)" }}>
+            <div key={ci} data-river-chunk={orig} className="flex flex-row" style={{ gap: "var(--river-gap)" }}>
               {tiles(chunk, orig * CHUNK)}
             </div>
           );
@@ -77,10 +66,8 @@ export default function River({
     );
   }
 
-  if (!showLabel) return grid;
   return (
-    <div className="flex flex-col items-center gap-0.5">
-      <span className="text-gray-400 text-[10px]">{label}</span>
+    <div data-river-rotation={rotation} data-discard-count={discards.length}>
       {grid}
     </div>
   );

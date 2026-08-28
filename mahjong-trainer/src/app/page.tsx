@@ -60,19 +60,19 @@ export default function HomePage() {
   }, [resetTraining, nextRound]);
 
   return (
-    <main className="min-h-screen bg-gray-900 flex flex-col">
+    <main className="min-h-screen bg-stone-950 flex flex-col">
       {/* ヘッダー */}
-      <header className="bg-gray-800 border-b border-gray-700 px-3 py-2 flex items-center justify-between">
+      <header className="bg-stone-900 border-b border-emerald-900 px-3 py-2 flex items-center justify-between">
         <h1 className="text-white font-bold text-sm">
           麻雀読みトレーナー
         </h1>
-        <div className="flex items-center gap-2 text-xs text-gray-400">
+        <div className="flex items-center gap-2 text-xs text-stone-400">
           {state.phase === "playing" && (
             <>
               <span>
                 東{state.round.number}局 {state.round.honba}本場
               </span>
-              <span className="text-gray-600">|</span>
+              <span className="text-stone-600">|</span>
               <span>読み記録: {training.attempts.length}件</span>
             </>
           )}
@@ -90,12 +90,12 @@ export default function HomePage() {
                 <h2 className="text-3xl font-bold text-white mb-2">
                   麻雀読みトレーナー
                 </h2>
-                <p className="text-gray-400 text-sm max-w-xs">
+                <p className="text-stone-400 text-sm max-w-xs">
                   実戦の中で相手の手牌を読む力を養うトレーニングアプリです。
                   対局中に任意のタイミングで読みを記録し、局後に答え合わせができます。
                 </p>
               </div>
-              <div className="bg-gray-800 rounded-lg p-4 max-w-xs text-sm text-gray-300 space-y-2">
+              <div className="bg-stone-900 rounded-lg border border-emerald-950 p-4 max-w-xs text-sm text-stone-300 space-y-2">
                 <p className="font-semibold text-white">使い方</p>
                 <p>1. 対局開始を押して始める</p>
                 <p>2. 自分の番に手牌をクリックして打牌</p>
@@ -104,13 +104,13 @@ export default function HomePage() {
               </div>
               <button
                 onClick={startGame}
-                className="px-10 py-4 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl text-xl shadow-xl transition-all hover:scale-105"
+                className="px-10 py-4 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-xl text-xl shadow-xl transition-all hover:scale-105"
               >
                 対局開始
               </button>
               <button
                 onClick={() => setShowFeedback(true)}
-                className="px-6 py-2.5 bg-purple-700 hover:bg-purple-600 text-white font-semibold rounded-lg text-sm shadow"
+                className="px-6 py-2.5 bg-amber-700 hover:bg-amber-600 text-white font-semibold rounded-lg text-sm shadow"
               >
                 🎓 AI育成（フィードバック学習）
               </button>
@@ -179,9 +179,9 @@ export default function HomePage() {
       {/* 一時停止オーバーレイ (読みモード以外の一時停止時) */}
       {state.isPaused && !training.isReading && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-40">
-          <div className="bg-gray-800 rounded-xl border border-gray-600 p-6 text-center shadow-2xl">
+          <div className="bg-stone-900 rounded-xl border border-emerald-900 p-6 text-center shadow-2xl">
             <p className="text-white font-bold text-lg mb-1">⏸ 一時停止中</p>
-            <p className="text-gray-400 text-sm mb-4">
+            <p className="text-stone-400 text-sm mb-4">
               「読む」ボタンでCPUの手牌を予想できます
             </p>
             <div className="flex gap-2 flex-wrap justify-center mb-3">
@@ -189,7 +189,7 @@ export default function HomePage() {
                 <button
                   key={idx}
                   onClick={() => handleStartReading(idx)}
-                  className="px-3 py-2 bg-purple-700 hover:bg-purple-600 text-white text-sm rounded-lg"
+                  className="px-3 py-2 bg-amber-700 hover:bg-amber-600 text-white text-sm rounded-lg"
                 >
                   📖 {playerLabel(idx)}を読む
                 </button>
@@ -197,7 +197,7 @@ export default function HomePage() {
             </div>
             <button
               onClick={resume}
-              className="w-full py-2 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg"
+              className="w-full py-2 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-lg"
             >
               ▶ 再開
             </button>
@@ -217,18 +217,18 @@ function GameLog({
   attempts: number;
 }) {
   return (
-    <div className="bg-gray-800 rounded-lg border border-gray-700 h-full flex flex-col">
-      <div className="p-2 border-b border-gray-700 flex items-center justify-between">
-        <span className="text-xs font-semibold text-gray-300">ゲームログ</span>
+    <div className="bg-stone-900 rounded-lg border border-emerald-950 h-full flex flex-col">
+      <div className="p-2 border-b border-emerald-950 flex items-center justify-between">
+        <span className="text-xs font-semibold text-stone-300">ゲームログ</span>
         {attempts > 0 && (
-          <span className="text-xs bg-purple-700 text-purple-200 px-1.5 rounded">
+          <span className="text-xs bg-amber-800 text-amber-100 px-1.5 rounded">
             読み {attempts}件
           </span>
         )}
       </div>
       <div className="flex-1 overflow-y-auto p-2 space-y-0.5">
         {[...log].reverse().map((entry, i) => (
-          <p key={i} className="text-xs text-gray-400">
+          <p key={i} className="text-xs text-stone-400">
             {entry}
           </p>
         ))}

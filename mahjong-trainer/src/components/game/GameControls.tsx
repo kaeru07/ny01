@@ -33,7 +33,7 @@ export default function GameControls({
       <div className="flex justify-center p-4">
         <button
           onClick={onStartGame}
-          className="px-8 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg text-lg shadow-lg transition-all"
+          className="px-8 py-3 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-lg text-lg shadow-lg transition-all"
         >
           対局開始
         </button>
@@ -46,13 +46,13 @@ export default function GameControls({
       <div className="flex gap-3 justify-center p-4 flex-wrap">
         <button
           onClick={onGoToReview}
-          className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow transition-all"
+          className="px-6 py-2 bg-amber-700 hover:bg-amber-600 text-white font-bold rounded-lg shadow transition-all"
         >
           答え合わせを見る
         </button>
         <button
           onClick={onNextRound}
-          className="px-6 py-2 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg shadow transition-all"
+          className="px-6 py-2 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-lg shadow transition-all"
         >
           次の局へ
         </button>
@@ -65,7 +65,7 @@ export default function GameControls({
       <div className="flex justify-center p-4">
         <button
           onClick={onNextRound}
-          className="px-6 py-2 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg shadow transition-all"
+          className="px-6 py-2 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-lg shadow transition-all"
         >
           次の局へ
         </button>
@@ -87,7 +87,7 @@ export default function GameControls({
         ) : (
           <button
             onClick={onResume}
-            className="shrink-0 px-3 py-1.5 bg-green-600 hover:bg-green-500 active:bg-green-700 text-white font-bold rounded-lg text-xs shadow transition-all animate-pulse"
+            className="shrink-0 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 active:bg-emerald-800 text-white font-bold rounded-lg text-xs shadow transition-all animate-pulse"
           >
             ▶ 再開
           </button>
@@ -97,7 +97,7 @@ export default function GameControls({
             <button
               key={i}
               onClick={() => onStartReading(PLAYER_INDICES[i])}
-              className="flex-1 py-1.5 bg-purple-700 hover:bg-purple-600 active:bg-purple-800 text-white font-semibold rounded-lg text-xs shadow transition-all"
+              className="flex-1 py-1.5 bg-amber-700 hover:bg-amber-600 active:bg-amber-800 text-white font-semibold rounded-lg text-xs shadow transition-all"
             >
               📖 {label}
             </button>
@@ -106,7 +106,7 @@ export default function GameControls({
       </div>
 
       {/* ゲーム状態表示 */}
-      <div className="text-center text-xs text-gray-500">
+      <div className="text-center text-xs text-stone-500">
         山: {gameState.wall.length}枚 | {巡目label(gameState)}
         {isPaused && <span className="ml-2 text-yellow-400 font-bold">⏸ 停止中</span>}
       </div>
