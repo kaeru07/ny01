@@ -213,10 +213,97 @@ export interface CaptureInput {
   bundleId: string
   /** 撮影対象のベースURL。未指定ならアプリの out/ を一時配信する。 */
   baseUrl?: string
-  /** 撮影するパス。未指定なら "/" のみ。 */
+  /** 撮影するパス。未指定なら撮影シナリオ、それも無ければ "/" のみ。 */
   routes?: string[]
   /** SCREENSHOT_DEVICES の id。未指定なら iPhone 6.5インチ。 */
   deviceId?: string
+}
+
+/**
+ * 撮影シナリオ。URL だけでは出せない画面（タブ切り替え後の結果画面など）を
+ * 撮るために、開く前に入れておく localStorage と、撮影前の操作を書ける。
+ * アプリ側の fastlane/screenshot-scenarios.json に置く。
+ */
+export interface CaptureScenario {
+  /** 出力ファイル名に使う名前。例: "input" / "analysis"。 */
+  name: string
+  /** 開くパス。未指定なら "/"。 */
+  route?: string
+  /** ページを開く前に入れておく localStorage。値は文字列で書く。 */
+  localStorage?: Record<string, string>
+  /** 撮影前に順番に実行する操作。 */
+  steps?: CaptureStep[]
+}
+
+/** 撮影前の操作。クリック（Playwright のセレクタ）と待機だけを扱う。 */
+export interface CaptureStep {
+  click?: string
+  waitMs?: number
+}
+
+/** 1枚の撮影単位。routes 指定でもシナリオでも、ここに正規化してから撮る。 */
+interface CaptureShot {
+  name: string
+  route: string
+  localStorage: Record<string, string>
+  steps: CaptureStep[]
+}
+
+const SCENARIO_FILE = 'fastlane/screenshot-scenarios.json'
+
+function toScenario(value: unknown): CaptureScenario | null {
+  if (!value || typeof value !== 'object') return null
+  const item = value as Record<string, unknown>
+  if (typeof item.name !== 'string' || !item.name.trim()) return null
+
+  const store: Record<string, string> = {}
+  if (item.localStorage && typeof item.localStorage === 'object') {
+    for (const [key, entry] of Object.entries(item.localStorage as Record<string, unknown>)) {
+      if (typeof entry === 'string') store[key] = entry
+    }
+  }
+
+  const steps: CaptureStep[] = []
+  if (Array.isArray(item.steps)) {
+    for (const raw of item.steps) {
+      if (!raw || typeof raw !== 'object') continue
+      const step = raw as Record<string, unknown>
+      const click = typeof step.click === 'string' ? step.click : undefined
+      const waitMs = typeof step.waitMs === 'number' && step.waitMs > 0 ? Math.min(step.waitMs, 10_000) : undefined
+      if (click || waitMs) steps.push({ click, waitMs })
+    }
+  }
+
+  return {
+    name: item.name,
+    route: typeof item.route === 'string' ? item.route : undefined,
+    localStorage: store,
+    steps,
+  }
+}
+
+/** アプリ側に撮影シナリオがあれば読む。無ければ空配列（従来どおり routes で撮る）。 */
+export async function readCaptureScenarios(appDir: string): Promise<CaptureScenario[]> {
+  let raw: string
+  try {
+    raw = await fs.readFile(path.join(appDir, SCENARIO_FILE), 'utf8')
+  } catch {
+    return []
+  }
+
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(raw)
+  } catch {
+    throw new Error(`${SCENARIO_FILE} の JSON が壊れています`)
+  }
+
+  const list = Array.isArray(parsed)
+    ? parsed
+    : Array.isArray((parsed as { scenarios?: unknown })?.scenarios)
+      ? ((parsed as { scenarios: unknown[] }).scenarios)
+      : []
+  return list.map(toScenario).filter((scenario): scenario is CaptureScenario => scenario !== null)
 }
 
 export interface CaptureResult {
@@ -226,9 +313,15 @@ export interface CaptureResult {
   screenshots: AppScreenshot[]
 }
 
-function routeToSlug(route: string, index: number): string {
-  const cleaned = route.replace(/[^\w/-]/g, '').replace(/^\/+|\/+$/g, '').replace(/\//g, '-')
+function toSlug(value: string, index: number): string {
+  const cleaned = value.replace(/[^\w/-]/g, '').replace(/^\/+|\/+$/g, '').replace(/\//g, '-')
   return `${String(index + 1).padStart(2, '0')}-${cleaned || 'top'}`
+}
+
+function normalizeRoute(route: string): string {
+  const trimmed = route.trim()
+  if (!trimmed) return '/'
+  return trimmed.startsWith('/') ? trimmed : `/${trimmed}`
 }
 
 /**
@@ -240,11 +333,24 @@ export async function captureAppScreenshots(input: CaptureInput): Promise<Captur
   const device = SCREENSHOT_DEVICES.find((item) => item.id === (input.deviceId ?? 'iphone-6.5'))
   if (!device) throw new Error(`未知の端末サイズです: ${input.deviceId}`)
 
-  const routes = (input.routes && input.routes.length > 0 ? input.routes : ['/'])
-    .map((route) => route.trim())
-    .filter(Boolean)
-    .map((route) => (route.startsWith('/') ? route : `/${route}`))
-  if (routes.length > 10) throw new Error('一度に撮れるのは10枚までです')
+  // 画面で撮影パスを指定していればそれを優先し、空ならアプリ側の撮影シナリオを使う。
+  // どちらも無ければ従来どおりトップだけ撮る。
+  const requestedRoutes = (input.routes ?? []).map((route) => route.trim()).filter(Boolean)
+  const scenarios = requestedRoutes.length > 0 ? [] : await readCaptureScenarios(app.appDir)
+  const shots: CaptureShot[] = requestedRoutes.length > 0 || scenarios.length === 0
+    ? (requestedRoutes.length > 0 ? requestedRoutes : ['/']).map((route) => ({
+        name: route,
+        route: normalizeRoute(route),
+        localStorage: {},
+        steps: [],
+      }))
+    : scenarios.map((scenario) => ({
+        name: scenario.name,
+        route: normalizeRoute(scenario.route ?? '/'),
+        localStorage: scenario.localStorage ?? {},
+        steps: scenario.steps ?? [],
+      }))
+  if (shots.length > 10) throw new Error('一度に撮れるのは10枚までです')
 
   const explicitUrl = input.baseUrl?.trim()
   if (explicitUrl && !/^https?:\/\//.test(explicitUrl)) throw new Error('撮影URLは http:// または https:// で指定してください')
@@ -269,24 +375,43 @@ export async function captureAppScreenshots(input: CaptureInput): Promise<Captur
   const browser = await chromium.launch()
   const captured: string[] = []
   try {
-    const context = await browser.newContext({
-      viewport: device.viewport,
-      deviceScaleFactor: device.scale,
-      isMobile: device.id.startsWith('iphone'),
-      hasTouch: device.id.startsWith('iphone'),
-    })
-    const page = await context.newPage()
+    for (let index = 0; index < shots.length; index += 1) {
+      const shot = shots[index]
+      // 1枚ごとに新しいコンテキストで撮る。前の撮影で入れた localStorage や
+      // 操作結果が次の画面へ残らないようにする。
+      const context = await browser.newContext({
+        viewport: device.viewport,
+        deviceScaleFactor: device.scale,
+        isMobile: device.id.startsWith('iphone'),
+        hasTouch: device.id.startsWith('iphone'),
+      })
+      const entries = Object.entries(shot.localStorage)
+      if (entries.length > 0) {
+        // アプリの JS より前に走らせる。起動時に読む保存値をそのまま再現できる。
+        await context.addInitScript((seed: Array<[string, string]>) => {
+          try {
+            for (const [key, value] of seed) window.localStorage.setItem(key, value)
+          } catch {
+            // localStorage が使えない環境では素の画面を撮る
+          }
+        }, entries)
+      }
 
-    for (let index = 0; index < routes.length; index += 1) {
-      const route = routes[index]
-      const url = `${baseUrl.replace(/\/$/, '')}${route}`
+      const page = await context.newPage()
+      const url = `${baseUrl.replace(/\/$/, '')}${shot.route}`
       await page.goto(url, { waitUntil: 'networkidle', timeout: 30_000 })
       await page.waitForTimeout(600)
-      const name = `${device.id}-${routeToSlug(route, index)}.png`
+
+      for (const step of shot.steps) {
+        if (step.click) await page.locator(step.click).first().click({ timeout: 10_000 })
+        await page.waitForTimeout(step.waitMs ?? 300)
+      }
+
+      const name = `${device.id}-${toSlug(shot.name, index)}.png`
       await page.screenshot({ path: path.join(dir, name), fullPage: false })
       captured.push(`ja/${name}`)
+      await context.close()
     }
-    await context.close()
   } finally {
     await browser.close()
     if (stopServer) await stopServer()
