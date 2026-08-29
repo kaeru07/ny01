@@ -31,7 +31,7 @@
       "metric": "closed_loop_rate",
       "target": 80,
       "current": 0.2,
-      "metricSyncedAt": "2026-08-28T14:02:28.125Z",
+      "metricSyncedAt": "2026-08-29T05:02:20.977Z",
       "isNorthStar": false,
       "summary": "Codex/Claudeの実行結果を完了報告で終わらせず、Review、Knowledge、Next Epic候補生成までつなげる。",
       "status": "done",
@@ -81,7 +81,7 @@
       "metric": "validated_project_count",
       "target": 5,
       "current": 3,
-      "metricSyncedAt": "2026-08-28T14:02:28.125Z",
+      "metricSyncedAt": "2026-08-29T05:02:20.977Z",
       "isNorthStar": false,
       "summary": "調査・アプリ開発・教材化・収益化候補をAI工場内で継続的に検証し、次の収益候補や転職価値につなげる。",
       "status": "done",
@@ -5870,5 +5870,5 @@
     }
   ],
   "mainGoalId": "goal-ai-factory-os",
-  "updatedAt": "2026-08-28T14:02:28.125Z"
+  "updatedAt": "2026-08-29T05:02:20.978Z"
 }

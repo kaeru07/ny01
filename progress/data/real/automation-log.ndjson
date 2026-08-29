@@ -2545,3 +2545,18 @@
 {"id":"alog-1787925749173","at":"2026-08-28T14:02:29.173Z","event":"blocked_decisions_ensured","fallbackReason":"created=0 closed=0"}
 {"id":"alog-1787925749232","at":"2026-08-28T14:02:29.232Z","event":"factory_backpressure","fallbackReason":"スコープ不明の危険判断待ち=1件（appr-1787376192925-2）: 安全のため今回のFactory自動実行をスキップ","backpressureAction":"pause"}
 {"id":"alog-1787925749476","at":"2026-08-28T14:02:29.476Z","event":"factory_schedule","fallbackReason":"blocked_by_unscoped_danger_decision","detectionStatus":"schedule"}
+{"id":"alog-1787968929877","at":"2026-08-29T02:02:09.877Z","event":"app_proposal_generated","fallbackReason":"mode=fallback count=1 seed=market-research,ai-news,research,knowledge reason=claude:exit_1, codex:timeout","fallbackTarget":"daily-2026-08-29-1-ai"}
+{"id":"alog-1787968930015","at":"2026-08-29T02:02:10.015Z","event":"skill_maintenance","fallbackReason":"candidates=0"}
+{"id":"alog-1787969042132","at":"2026-08-29T02:04:02.132Z","event":"factory_schedule","fallbackReason":"followupCreated=0 expiredRecommendations=420 reviewedLoopCreated=0","detectionStatus":"schedule"}
+{"id":"alog-1787969043046","at":"2026-08-29T02:04:03.046Z","event":"factory_schedule","fallbackReason":"epicSweepClosed=0 goalsCompleted=0 skipped=0","detectionStatus":"schedule"}
+{"id":"alog-1787969043603","at":"2026-08-29T02:04:03.603Z","event":"urgent_issues_recorded","fallbackReason":"count=7 リポジトリ未登録のアプリが1件（自動実行が毎回スキップ）, 『個人・小規模開発のヒットアプリを継続調査して作る候補を貯める』が作成対象なのに6日進んでいません, 『麻雀手牌解析AI（apps/mahjong-analyzer）を App Store 提出まで仕上げる』が作成対象なのに7日進んでいません, 『将棋 囲いトレーナー』が作成対象なのに20日進んでいません, 失敗した作業が11件、未対応です"}
+{"id":"alog-1787969043755","at":"2026-08-29T02:04:03.755Z","event":"blocked_decisions_ensured","fallbackReason":"created=0 closed=0"}
+{"id":"alog-1787969043849","at":"2026-08-29T02:04:03.849Z","event":"factory_backpressure","fallbackReason":"スコープ不明の危険判断待ち=1件（appr-1787376192925-2）: 安全のため今回のFactory自動実行をスキップ","backpressureAction":"pause"}
+{"id":"alog-1787969044101","at":"2026-08-29T02:04:04.101Z","event":"factory_schedule","fallbackReason":"blocked_by_unscoped_danger_decision","detectionStatus":"schedule"}
+{"id":"alog-1787979622648","at":"2026-08-29T05:00:22.648Z","event":"skill_maintenance","fallbackReason":"candidates=0"}
+{"id":"alog-1787979740577","at":"2026-08-29T05:02:20.578Z","event":"factory_schedule","fallbackReason":"followupCreated=0 expiredRecommendations=423 reviewedLoopCreated=0","detectionStatus":"schedule"}
+{"id":"alog-1787979741450","at":"2026-08-29T05:02:21.450Z","event":"factory_schedule","fallbackReason":"epicSweepClosed=0 goalsCompleted=0 skipped=0","detectionStatus":"schedule"}
+{"id":"alog-1787979741877","at":"2026-08-29T05:02:21.877Z","event":"urgent_issues_recorded","fallbackReason":"count=7 リポジトリ未登録のアプリが1件（自動実行が毎回スキップ）, 『個人・小規模開発のヒットアプリを継続調査して作る候補を貯める』が作成対象なのに6日進んでいません, 『麻雀手牌解析AI（apps/mahjong-analyzer）を App Store 提出まで仕上げる』が作成対象なのに7日進んでいません, 『将棋 囲いトレーナー』が作成対象なのに20日進んでいません, 失敗した作業が11件、未対応です"}
+{"id":"alog-1787979742149","at":"2026-08-29T05:02:22.149Z","event":"blocked_decisions_ensured","fallbackReason":"created=0 closed=0"}
+{"id":"alog-1787979742233","at":"2026-08-29T05:02:22.233Z","event":"factory_backpressure","fallbackReason":"スコープ不明の危険判断待ち=1件（appr-1787376192925-2）: 安全のため今回のFactory自動実行をスキップ","backpressureAction":"pause"}
+{"id":"alog-1787979742367","at":"2026-08-29T05:02:22.367Z","event":"factory_schedule","fallbackReason":"blocked_by_unscoped_danger_decision","detectionStatus":"schedule"}
