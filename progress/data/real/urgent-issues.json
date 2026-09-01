@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-29T05:02:21.854Z",
+  "generatedAt": "2026-08-30T07:02:14.458Z",
   "issues": [
     {
       "id": "repo-path-unregistered",
@@ -12,7 +12,7 @@
     {
       "id": "app-stalled-goal-app-market-research",
       "severity": "high",
-      "title": "『個人・小規模開発のヒットアプリを継続調査して作る候補を貯める』が作成対象なのに6日進んでいません",
+      "title": "『個人・小規模開発のヒットアプリを継続調査して作る候補を貯める』が作成対象なのに7日進んでいません",
       "detail": "直近3日以内の成功Runがありません。進捗が0%のままです。現在の進捗は 0% です。",
       "actionLabel": "ゴールを確認",
       "actionHref": "/goal-planner?goalId=goal-app-market-research"
@@ -20,7 +20,7 @@
     {
       "id": "app-stalled-goal-app-ny01-mahjong-analyzer",
       "severity": "high",
-      "title": "『麻雀手牌解析AI（apps/mahjong-analyzer）を App Store 提出まで仕上げる』が作成対象なのに7日進んでいません",
+      "title": "『麻雀手牌解析AI（apps/mahjong-analyzer）を App Store 提出まで仕上げる』が作成対象なのに8日進んでいません",
       "detail": "直近3日以内の成功Runがありません。進捗が0%のままです。現在の進捗は 0% です。",
       "actionLabel": "ゴールを確認",
       "actionHref": "/goal-planner?goalId=goal-app-ny01-mahjong-analyzer"
@@ -28,7 +28,7 @@
     {
       "id": "app-stalled-goal-app-shogi-kakoi-trainer",
       "severity": "high",
-      "title": "『将棋 囲いトレーナー』が作成対象なのに20日進んでいません",
+      "title": "『将棋 囲いトレーナー』が作成対象なのに21日進んでいません",
       "detail": "直近3日以内の成功Runがありません。進捗が0%のままです。現在の進捗は 0% です。",
       "actionLabel": "ゴールを確認",
       "actionHref": "/goal-planner?goalId=goal-app-shogi-kakoi-trainer"
@@ -44,7 +44,7 @@
     {
       "id": "stale-goals",
       "severity": "medium",
-      "title": "3件のゴールが1週間以上停滞",
+      "title": "4件のゴールが1週間以上停滞",
       "detail": "ゴール更新または関連Runから7日以上動きがありません。",
       "actionLabel": "ゴールを確認",
       "actionHref": "/goal-planner"

@@ -10308,7 +10308,172 @@
         }
       ],
       "createdAt": "2026-08-29T02:00:30.152Z"
+    },
+    {
+      "id": "daily-2026-08-30-1-ai",
+      "title": "用途特化型AIショート動画制作 / 汎用生成との差別化と購入導線モバイル",
+      "sourceProjectId": null,
+      "overview": "市場観測 起点のストア公開前提モバイルアプリ案。今日の判断で要精査。",
+      "purpose": "日々の調査(AIツール 2026-08-25)で高評価(★★★★★)。即試したい。複数エージェントへの再配布コストを下げられる。 をもとに、iOS / Android ユーザーが日常的に記録・判断・次アクション化できるストア公開アプリを作る。今日の市場観測「用途特化型AIショート動画制作 / 汎用生成との差別化と購入導線を作りやすい / TikTok、YouTube Shorts、Instagram Reels」も踏まえる。",
+      "targetUser": "App Store / Google Play で課題解決アプリを探す iOS / Android ユーザー",
+      "features": [
+        "クイック記録",
+        "一覧と検索",
+        "判断メモ",
+        "リマインダー",
+        "課金プラン管理"
+      ],
+      "screens": [
+        {
+          "key": "screen-1",
+          "name": "ホーム",
+          "rows": [
+            "今日のサマリー",
+            "未処理の記録",
+            "次のおすすめ",
+            "プレミアム導線"
+          ]
+        },
+        {
+          "key": "screen-2",
+          "name": "記録",
+          "rows": [
+            "入力フォーム",
+            "テンプレート選択",
+            "保存前チェック",
+            "通知設定"
+          ]
+        },
+        {
+          "key": "screen-3",
+          "name": "一覧",
+          "rows": [
+            "履歴カード",
+            "検索",
+            "タグ絞り込み",
+            "重要度バッジ"
+          ]
+        },
+        {
+          "key": "screen-4",
+          "name": "詳細",
+          "rows": [
+            "要約",
+            "判断メモ",
+            "次アクション",
+            "共有"
+          ]
+        },
+        {
+          "key": "screen-5",
+          "name": "設定",
+          "rows": [
+            "iOS / Android 通知",
+            "サブスク状態",
+            "データ管理",
+            "ストアレビュー導線"
+          ]
+        }
+      ],
+      "marketValue": "注目ジャンル「用途特化型AIショート動画制作 / 汎用生成との差別化と購入導線」の需要仮説。App Store / Google Play で類似カテゴリ、検索語、価格帯、レビュー不満、支払い意思を今日の判断で要精査。",
+      "oceanType": "unknown",
+      "oceanRationale": "ストア競合密度、レビュー不満、差別化可能なワークフローは未調査。今日の判断で要精査。",
+      "monetizationHypothesis": "無料インストールで利用開始し、継続利用・通知・テンプレート・分析の価値に対してストア課金する仮説。",
+      "monetizationPlan": "App Store / Google Play のアプリ内課金を前提に、無料枠 + 月額サブスクを第一候補、必要に応じて買い切り解除または広告 + 課金解除を検証する。",
+      "winningFactors": [
+        "今日の判断で要精査",
+        "iOS / Android の日常利用導線に載せられる可能性",
+        "ストアレビュー不満から差別化余地を探せる"
+      ],
+      "concerns": [
+        "今日の判断で要精査",
+        "ストア競合・審査リスク・継続率が未検証",
+        "課金価値が弱い場合は広告依存になりやすい"
+      ],
+      "riskFlags": [],
+      "spec": "詳細仕様は今日の判断で要精査。iOS / Android 対応、ローカル保存 + 任意クラウド同期、プッシュ通知、App Store / Google Play のアプリ内課金、ストア審査に通るデータ・プライバシー表示を前提にMVPを定義する。",
+      "derivation": {
+        "mode": "fallback",
+        "reason": "claude:timeout, codex:timeout",
+        "seedSources": [
+          "market-research",
+          "ai-news",
+          "research",
+          "knowledge"
+        ],
+        "seedTitles": [
+          "research: Agent Plugins 1.0を試す",
+          "research: Vercel AI SDK Harnessを試す",
+          "research: Exa検索連携を試す",
+          "knowledge: Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+          "knowledge: Review Knowledge: 収益化候補 定期取り込み（Vault→Hub） 追加0/更新0",
+          "knowledge: Review Knowledge: 審査提出準備: ASC順への並べ替え + スクショ実撮影・ダウンロード対応"
+        ],
+        "marketDate": "2026-08-30",
+        "aiNewsDate": "2026-08-30",
+        "marketGenres": [
+          "用途特化型AIショート動画制作 / 汎用生成との差別化と購入導線を作りやすい / TikTok、YouTube Shorts、Instagram Reels",
+          "商品画像からのPR動画生成 / 小規模EC事業者の制作時間を直接削減できる / App Store、Google Play、Shopify",
+          "日本語AI動画ワークフロー / 日本語入力、台本、履歴管理に改善余地がある / Gensou AI、App Store、Google Play",
+          "学習過程の短尺コンテンツ化 / 継続記録とコミュニティ参加の流れに合う / TikTok、YouTube Shorts",
+          "将棋・麻雀の局面解説動画 / 定型データから量産でき、動画広告や教材課金につなげやすい / YouTube、TikTok、note"
+        ],
+        "monetizationHints": [
+          "業種別台本、ブランド設定、投稿履歴を月額課金にし、動画生成費だけ従量制にする",
+          "商品PR動画の書き出し時に透かし解除、高画質化、商用利用枠を買い切り課金にする",
+          "将棋・麻雀・学習ジャンルの解説動画を量産し、YouTube広告と教材販売を組み合わせる",
+          "実際の制作過程と検証結果をShortsで公開し、アプリ、テンプレート、note教材へ送客する",
+          "無料診断で商品に合う動画構成を提示し、台本生成と複数案作成を有料化する"
+        ],
+        "aiNewsHighlights": [
+          "**CursorでOpenAIモデルの提供終了へ** / 公式",
+          "**Gemini Enterpriseが従量課金と支出上限に対応** / 公式",
+          "**OpenAIがAIモデルによるHugging Face侵害事案を公表** / 公式"
+        ],
+        "promptVersion": "store-app-proposal-v2-market-observation",
+        "proposalIndex": 1
+      },
+      "priority": "medium",
+      "status": "proposed",
+      "nextAction": "ストア公開対象、課金方式、MVP機能、審査リスクを今日の判断で決める",
+      "factorySafe": false,
+      "factoryNote": "App Store / Google Play 公開前提の自動生成案。方針決定とストア審査観点の確認後に Factory 対象化する。",
+      "decisionPoints": [
+        {
+          "key": "platform",
+          "question": "最初に公開するストア対象は？",
+          "options": [
+            "iOS",
+            "Android",
+            "iOS + Android",
+            "iPad対応"
+          ],
+          "required": true
+        },
+        {
+          "key": "pricing",
+          "question": "最初の課金方式は？",
+          "options": [
+            "無料 + 月額サブスク",
+            "買い切り",
+            "アプリ内課金",
+            "広告 + 課金解除"
+          ],
+          "required": false
+        },
+        {
+          "key": "mvp",
+          "question": "最小機能セットはどこまでにする？",
+          "options": [
+            "記録と一覧だけ",
+            "通知まで含める",
+            "分析まで含める"
+          ],
+          "required": false
+        }
+      ],
+      "createdAt": "2026-08-30T02:00:30.279Z"
     }
   ],
-  "updatedAt": "2026-08-29T02:02:09.689Z"
+  "updatedAt": "2026-08-30T02:03:31.939Z"
 }
