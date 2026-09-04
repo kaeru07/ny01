@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-10T12:14:40.345Z",
+  "updatedAt": "2026-09-04T22:13:48",
   "operationMemo": "この一覧はiPhoneから動作確認するためのURL一覧。VPS稼働アプリ(0.0.0.0/*でLISTEN)は公開IP http://160.251.143.146:<port>/<path> 形式で kind=vps として登録し、これをiPhone確認URLとする。localhost/127.0.0.1 は kind=vps_internal の内部URLとして補助表示(iPhone直接不可)。confirmed は pm2/ss/curl で公開IPバインドと応答を確認したもの。外部FW/SG開放はiPhone実機で要確認。unknown は推測せず「未確認」。next dev デフォルトだけを理由に localhost:3000 を登録しない。",
   "apps": [
     {
@@ -384,6 +384,44 @@
           "lastCheckedAt": "2026-06-08"
         }
       ]
+    },
+    {
+      "id": "hima-app",
+      "name": "暇つぶし アプリ（暇潰し！）",
+      "purpose": "暇つぶし用ミニゲーム集。Capacitor + Codemagic で iOS 配信",
+      "repoPath": "/root/company/apps/hima-app",
+      "status": "published",
+      "lastCheckedAt": "2026-09-04",
+      "urls": [
+        {
+          "kind": "app_store",
+          "label": "App Store（公開中）",
+          "url": "https://apps.apple.com/jp/app/id6790418497",
+          "confidence": "confirmed",
+          "evidence": "itunes_search_api",
+          "evidenceDetail": "iTunes Search API で bundleId=jp.kaeru07.himatsubushi を照会し trackId 6790418497 / releaseDate 2026-08-12 / version 1.0 を確認",
+          "lastCheckedAt": "2026-09-04"
+        },
+        {
+          "kind": "privacy_policy",
+          "label": "プライバシーポリシー",
+          "url": "https://kaeru07.github.io/privacy/himatsubushi.html",
+          "confidence": "confirmed",
+          "evidence": "apps_json",
+          "evidenceDetail": "kaeru07.github.io/apps.json に登録済み",
+          "lastCheckedAt": "2026-09-04"
+        },
+        {
+          "kind": "support",
+          "label": "サポートページ",
+          "url": "https://kaeru07.github.io/support/himatsubushi.html",
+          "confidence": "confirmed",
+          "evidence": "apps_json",
+          "evidenceDetail": "kaeru07.github.io/apps.json に登録済み",
+          "lastCheckedAt": "2026-09-04"
+        }
+      ],
+      "note": "App ID(Adam ID)=6790418497 / Bundle ID=jp.kaeru07.himatsubushi。公開はApp Store Connect上の操作で完結するため、ローカルには自動反映されない。公開状態は iTunes Search API で確認できる。"
     }
   ]
 }

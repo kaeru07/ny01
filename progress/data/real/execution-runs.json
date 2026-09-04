@@ -62597,6 +62597,31 @@
       ],
       "rawReport": "■ 事実（progress の実データから集計）\n\n・期間: 2026-06-06 〜 2026-08-31（88日）\n・自動実行の総Run: 1,480件（completed 1,185 / partial 278 / failed 17）\n・ファイル変更を伴ったRun: 733件（49%）＝半分は空振り\n・アプリ/ストア関連のRun: 104件\n・アプリ系ゴール: 18件（done 11 / active 4 / proposed 3）\n\n■ 結論\n\n自動実行が起点で完成・公開されたアプリは **0本**。ストア（TestFlight）に到達した4本は、すべて人間の指示で作り始めたもの。\n\n・mahjong（2026-04-14 初回commit・自動実行の開始前）\n・hima-app（2026-07-12・人間指示）\n・mahjong-trainer（人間指示）\n・mahjong-analyzer（2026-08-11・人間指示。索子牌の描き直しやTestFlightビルドも全て会話からの指示）\n\nApp Store 公開は 0本、収益 0円。\n\n■ 原因分析\n\n1) 「工場を作る作業」が「工場でアプリを作る作業」を食った\n   アプリ系ゴール18件のうち done 11件は、全て progress 自身の機能追加だった（設計一覧ページ追加 / 進行状態バッジ / アプリ案詳細モーダル / 案生成の種を拡張 / 品質操縦ループ / 仕様編集 など）。\n   アプリ本体を1歩進めたゴールは done の中に1件も無い。工場は「工場の改良」を自分の仕事として選び続けた。\n\n2) 完成条件が「工場の機能が動いたか」で判定されていた\n   ゴール『アプリを一定レベル(App Store公開仕様)まで指示なしで自走完成させ完成したら確認』は 2026-07-09 に done=100/100 になっている。\n   しかし done になったのは「自走フローの仕組みが出来た」ことに対してで、そのフローで実際にアプリが完成したわけではない。仕組みの完成とアプリの完成が同じ完了条件で扱われていた。\n\n3) 空振りが完了として積み上がった\n   ファイル変更を伴ったRunは49%。「（出力なし）」で終わったRunがcompleted扱いになる問題は 2026-08-24 にゲートを入れて塞いだが、それまでの2か月半は回数だけが増え続けた。\n\n4) 生成物が正本に接続されなかった\n   自動生成の置き場 apps/generated には Expo 試作2本（ny01-mahjong-analyzer / shogi-kakoi-trainer）が残ったが、どちらも 2026-07-20 で更新停止。方針として不採用が確定し、正本のリポジトリには一度も接続されなかった。\n\n5) 最後の1マイルが構造的に人間依存\n   ストア提出・審査・公開は安全のため自動化していない。よって「公開」をゴールに置く限り、自動実行だけでは定義上ゴールに到達できない設計だった。\n\n■ 数字で見た内訳\n\n・回った量: 1,480 Run / 17.8 Run/日\n・実際に手が動いた: 733 Run（49%）\n・達成したアプリ系ゴール: 11件（全て工場の機能追加）\n・アプリ本体の完成: 0本\n・ストア公開: 0本 / 収益: 0円\n\n■ レビューしてほしい点\n\n1. 「工場の改良」と「アプリを作る」が同じキューで競合し、前者が勝ち続けた。どう分離すべきか\n2. 仕組みの完成とアプリの完成を、同じ done で扱ってよかったのか\n3. 公開が人間依存である以上、自動実行のゴールは「公開」ではなく「提出直前まで」に置くべきだったのではないか\n4. 88日・1,480回を投じた結果として、この構造は続ける価値があるか。畳むべきか\n\nmonetizationImpact: high\ntheme: [workflow, app-strategy, monetization]\nobsidianSummary: 88日1,480回の自動実行でアプリ完成0本・公開0本。原因は工場の改良作業がアプリ制作を食い続けた構造と、仕組みの完成をアプリの完成と同じdoneで扱った完了条件にある。\nobsidianSaveTarget: 20_reviews/2026-09-02_autorun-zero-apps-retrospective.md",
       "reviewMemo": "自動実行で1本も完成・公開できなかった件の総括。成果報告ではなく失敗の分析。次の方針（続けるか畳むか）を人が決めるための材料として上げている。"
+    },
+    {
+      "runId": "20260904-220650",
+      "startedAt": "2026-09-04T13:06:50.174Z",
+      "finishedAt": "2026-09-04T13:06:50.174Z",
+      "targetApp": "company-mgmt",
+      "epicId": "epic-goalstep-goal-mqp6hasd-g5i9p",
+      "targetTodoTitle": "【訂正】総括レビューの「ストア公開0本」は誤り。暇つぶしアプリは2026-08-12に公開済み",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "runId 20260902-002949 の総括レビューに『ストア公開0本』と記載したが誤り。暇つぶしアプリ（jp.kaeru07.himatsubushi）は 2026-08-12 に App Store 公開済み。原因はローカル記録が更新されておらず、実物を確認せず手元データだけで結論を書いたこと。",
+      "changedFiles": [],
+      "checks": {},
+      "errors": [],
+      "warnings": [
+        "総括レビュー（20260902-002949）と Obsidian の 2026-09-02_autorun-zero-apps-retrospective.md に誤った記述が残っている",
+        "release/ios-app.json・app-urls.json・app-index.md のいずれにも公開URLとApp IDが未記録"
+      ],
+      "progressUpdated": true,
+      "nextActions": [
+        "app-urls.json / app-index.md / release/ios-app.json に公開URLとApp IDを記録する",
+        "総括レビューと Obsidian のレビューファイルの『公開0本』記述を訂正する",
+        "残り3本（analyzer/mahjong/trainer）の公開状況を確認する"
+      ],
+      "rawReport": "■ 何が誤っていたか\n\nrunId 20260902-002949（自動実行の総括レビュー）に『ストア公開 0本 / 収益 0円』と記載した。公開0本は事実誤認。\n\n■ 正しい事実（iTunes Search API で確認）\n\n・アプリ名（ストア表示）: 暇つぶし アプリ\n・Bundle ID: jp.kaeru07.himatsubushi\n・App ID（Adam ID）: 6790418497\n・URL: https://apps.apple.com/jp/app/id6790418497\n・公開日: 2026-08-12 / version 1.0\n\n他3本（com.kaeru07.mahjonganalyzer / com.kaeru07.mahjong / com.kaeru07.mahjongtrainer）は同APIで未検出＝未公開。\n\n■ なぜ誤ったか\n\n1. 公開は App Store Connect 上の操作で完結し、ローカルの release/ios-app.json には反映されない\n2. app-urls.json・app-index.md・fastlane 配下のいずれにも公開URLとApp IDの記録が無かった\n3. 集計時に『手元のデータに無い＝公開されていない』と判断し、ストア側を照会しなかった\n\n■ 総括レビューへの影響\n\n『アプリ完成0本』の結論自体は変わらない（暇つぶしアプリも自動実行が起点ではなく人間指示で作られたもの）。ただし『ストア公開0本』は誤りで、正しくは『App Store 公開1本（自動実行起点は0本）』。\n\n■ 再発防止\n\n・公開状態を手元データだけで判断しない。Bundle ID から iTunes Search API で照会すれば確認できる\n・公開したらローカルにも記録する場所を決める（app-urls.json が妥当）\n\nmonetizationImpact: high\ntheme: [app-strategy, workflow]\nobsidianSummary: 総括レビューの『ストア公開0本』は誤り。暇つぶしアプリは2026-08-12に公開済み（App ID 6790418497）。手元データだけで公開状態を判断したことが原因。\nobsidianSaveTarget: 20_reviews/2026-09-02_autorun-zero-apps-retrospective.md（訂正追記）"
     }
   ]
 }
