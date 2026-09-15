@@ -41,6 +41,31 @@ const sizeVars: Record<string, { w: string; h: string }> = {
   lg: { w: "var(--tile-hand-w)", h: "var(--tile-hand-h)" },
 };
 
+function TileArtwork({ src, alt }: { src: string; alt: string }) {
+  return (
+    <>
+      {/* FluffyStuffの牌本体と絵柄は別SVGのため、同じ座標で重ねる。 */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        className="mahjong-tile-image mahjong-tile-shell"
+        src="/tiles/front.svg"
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+        decoding="async"
+      />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        className="mahjong-tile-image mahjong-tile-mark"
+        src={src}
+        alt={alt}
+        draggable={false}
+        decoding="async"
+      />
+    </>
+  );
+}
+
 export default function TileComponent({
   tileIndex,
   size = "md",
@@ -77,15 +102,7 @@ export default function TileComponent({
   if (rotation === 0) {
     return (
       <div className={`${baseClasses} ${stateClasses} ${className}`} onClick={onClick} title={alt}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          className="mahjong-tile-image"
-          src={src}
-          alt={alt}
-          style={{ display: "block", width: "100%", height: "100%" }}
-          draggable={false}
-          decoding="async"
-        />
+        <TileArtwork src={src} alt={alt} />
         {selected && <div className="absolute inset-0 rounded bg-yellow-400/20 pointer-events-none" />}
         {highlighted && <div className="absolute inset-0 rounded bg-orange-400/20 pointer-events-none" />}
       </div>
@@ -104,13 +121,8 @@ export default function TileComponent({
 
   return (
     <div className={rotClasses} onClick={onClick} title={alt} style={{ width: outerW, height: outerH }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        className="mahjong-tile-image"
-        src={src}
-        alt={alt}
-        draggable={false}
-        decoding="async"
+      <div
+        className="mahjong-tile-rotator"
         style={{
           position: "absolute",
           top: "50%",
@@ -120,7 +132,9 @@ export default function TileComponent({
           transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
           transformOrigin: "center center",
         }}
-      />
+      >
+        <TileArtwork src={src} alt={alt} />
+      </div>
       {selected && <div className="absolute inset-0 rounded bg-yellow-400/20 pointer-events-none" />}
       {highlighted && <div className="absolute inset-0 rounded bg-orange-400/20 pointer-events-none" />}
     </div>

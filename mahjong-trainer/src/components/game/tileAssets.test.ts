@@ -25,7 +25,7 @@ const honorTiles = [
 ].map((name) => ["honor", name]);
 
 test("全牌画像を同じ3:4のSVGセットで表示する", () => {
-  const paths = [...numberedTiles, ...honorTiles, ["back.svg"]];
+  const paths = [...numberedTiles, ...honorTiles, ["front.svg"], ["back.svg"]];
 
   for (const parts of paths) {
     const svg = readTile(...parts);
