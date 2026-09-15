@@ -99,7 +99,7 @@ body {
 
 .mahjong-table {
   --center-half: clamp(46px, 14cqw, 70px);
-  --river-zone-gap: clamp(4px, 1.6cqw, 10px);
+  --river-zone-gap: clamp(6px, 2cqw, 12px);
   --river-gap: clamp(1px, 0.45cqw, 2px);
   --tile-sm-w: clamp(14px, 5.1cqw, 25px);
   --tile-sm-h: calc(var(--tile-sm-w) * 4 / 3);
