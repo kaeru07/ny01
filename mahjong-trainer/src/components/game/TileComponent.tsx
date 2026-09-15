@@ -78,7 +78,14 @@ export default function TileComponent({
     return (
       <div className={`${baseClasses} ${stateClasses} ${className}`} onClick={onClick} title={alt}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={src} alt={alt} style={{ display: "block", width: "100%", height: "100%" }} draggable={false} />
+        <img
+          className="mahjong-tile-image"
+          src={src}
+          alt={alt}
+          style={{ display: "block", width: "100%", height: "100%" }}
+          draggable={false}
+          decoding="async"
+        />
         {selected && <div className="absolute inset-0 rounded bg-yellow-400/20 pointer-events-none" />}
         {highlighted && <div className="absolute inset-0 rounded bg-orange-400/20 pointer-events-none" />}
       </div>
@@ -99,9 +106,11 @@ export default function TileComponent({
     <div className={rotClasses} onClick={onClick} title={alt} style={{ width: outerW, height: outerH }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
+        className="mahjong-tile-image"
         src={src}
         alt={alt}
         draggable={false}
+        decoding="async"
         style={{
           position: "absolute",
           top: "50%",

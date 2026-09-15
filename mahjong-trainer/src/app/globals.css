@@ -3,8 +3,17 @@
 @tailwind utilities;
 
 :root {
-  --bg: #111827;
-  --fg: #f3f4f6;
+  --bg: #0b1722;
+  --fg: #f3f7fb;
+  --hand-gap: 2px;
+  --hand-px: 4px;
+  --tile-hand-w: 30px;
+  --tile-hand-h: calc(var(--tile-hand-w) * 4 / 3);
+  --tile-sm-w: min(26px, calc((100vw - 30px) / 13));
+  --tile-sm-h: calc(var(--tile-sm-w) * 4 / 3);
+  --tile-md-w: 32px;
+  --tile-md-h: calc(var(--tile-md-w) * 4 / 3);
+  --river-gap: 2px;
 }
 
 * {
@@ -14,7 +23,7 @@
 body {
   background-color: var(--bg);
   color: var(--fg);
-  font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+  font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   min-height: 100dvh;
@@ -25,119 +34,362 @@ body {
   overscroll-behavior: none;
 }
 
-/* === レスポンシブタイルサイズ (CSS変数) === */
-:root {
-  /* 手牌 (人間プレイヤー)
-     14枚(13+ツモ)が横スクロールなしで必ず収まるよう、牌幅を「手牌エリアの実幅」から
-     算出する(100vwではなく container query。100vwだと内側の padding 分を過大評価して
-     14枚目がはみ出す)。フォールバックは 30px。実算出は .hand-row .tile-hand 側で cqw を使う。 */
-  --hand-gap: 2px;
-  --hand-px: 4px;
-  --tile-hand-w: 30px;
-  --tile-hand-h: calc(var(--tile-hand-w) * 48 / 34);
-  /* 小タイル (河・CPU手牌)
-     対面CPUの伏せ牌は横13枚。375px幅でも収まるよう幅を画面から算出(上限26px)。 */
-  --tile-sm-w: min(26px, calc((100vw - 30px) / 13));
-  --tile-sm-h: calc(var(--tile-sm-w) * 48 / 34);
-  /* 中タイル (モーダル選択等) */
-  --tile-md-w: 32px;
-  --tile-md-h: 44px;
-  /* 河レイアウト */
-  --river-gap: 2px;
+.tile-hand,
+.tile-sm,
+.tile-md {
+  flex-shrink: 0;
 }
 
-@media (orientation: landscape) {
-  :root {
-    --tile-sm-w: min(23px, calc((100vw - 30px) / 13));
-    --tile-sm-h: calc(var(--tile-sm-w) * 48 / 34);
-    --tile-md-w: 28px;
-    --tile-md-h: 39px;
-    --hand-gap: 2px;
-    --hand-px: 6px;
-    --river-gap: 1px;
-  }
-}
-
-/* タイルサイズクラス */
 .tile-hand {
   width: var(--tile-hand-w);
   height: var(--tile-hand-h);
-  flex-shrink: 0;
 }
+
 .tile-sm {
   width: var(--tile-sm-w);
   height: var(--tile-sm-h);
-  flex-shrink: 0;
 }
+
 .tile-md {
   width: var(--tile-md-w);
   height: var(--tile-md-h);
-  flex-shrink: 0;
 }
 
-/* 手牌エリア: この幅を基準(container query)に牌サイズを決める */
+.mahjong-tile-image {
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* === 対局卓 === */
+.game-board {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  height: 100%;
+  min-height: 0;
+}
+
+.table-stage {
+  container-type: size;
+  display: grid;
+  flex: 1 1 auto;
+  min-height: 270px;
+  min-width: 0;
+  overflow: hidden;
+  place-items: center;
+  width: 100%;
+}
+
+.mahjong-table {
+  --center-half: clamp(46px, 14cqw, 70px);
+  --river-zone-gap: clamp(4px, 1.6cqw, 10px);
+  --river-gap: clamp(1px, 0.45cqw, 2px);
+  --tile-sm-w: clamp(14px, 5.1cqw, 25px);
+  --tile-sm-h: calc(var(--tile-sm-w) * 4 / 3);
+  aspect-ratio: 1;
+  background:
+    radial-gradient(circle at 50% 42%, rgb(52 111 151 / 40%), transparent 44%),
+    linear-gradient(145deg, #285f84 0%, #1f4d70 56%, #173c59 100%);
+  border: clamp(5px, 1.8cqw, 12px) solid #102d43;
+  border-radius: clamp(18px, 5cqw, 34px);
+  box-shadow:
+    inset 0 0 0 2px #4f7da0,
+    inset 0 0 0 clamp(8px, 2.2cqw, 16px) #17364e,
+    0 10px 28px rgb(0 0 0 / 30%);
+  container-type: size;
+  height: min(100cqw, 100cqh, 620px);
+  isolation: isolate;
+  overflow: hidden;
+  position: relative;
+  width: min(100cqw, 100cqh, 620px);
+}
+
+.table-inner-frame {
+  border: 1px solid rgb(117 172 211 / 58%);
+  border-radius: clamp(10px, 3.2cqw, 22px);
+  inset: clamp(9px, 2.7cqw, 18px);
+  pointer-events: none;
+  position: absolute;
+}
+
+.table-seat {
+  align-items: center;
+  background: rgb(12 49 76 / 92%);
+  border: 1px solid rgb(113 170 208 / 34%);
+  border-radius: 999px;
+  color: #d8ebf8;
+  display: flex;
+  font-size: clamp(8px, 2.55cqw, 12px);
+  gap: clamp(4px, 1.2cqw, 8px);
+  line-height: 1;
+  padding: clamp(4px, 1.15cqw, 7px) clamp(7px, 2cqw, 13px);
+  position: absolute;
+  white-space: nowrap;
+  z-index: 4;
+}
+
+.table-seat.is-current {
+  background: #d9a92d;
+  border-color: #ffe17a;
+  color: #10263a;
+  box-shadow: 0 0 0 2px rgb(255 224 115 / 24%), 0 4px 12px rgb(0 0 0 / 22%);
+}
+
+.table-seat-name {
+  align-items: center;
+  display: flex;
+  font-weight: 800;
+  gap: 0.35em;
+}
+
+.table-seat-score {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.82;
+}
+
+.table-seat-riichi {
+  background: #df3049;
+  border-radius: 999px;
+  color: white;
+  padding: 0.25em 0.5em;
+}
+
+.table-seat-top {
+  left: 50%;
+  top: clamp(8px, 2.6cqw, 16px);
+  transform: translateX(-50%);
+}
+
+.table-seat-left {
+  left: clamp(8px, 2.6cqw, 16px);
+  top: 26%;
+}
+
+.table-seat-right {
+  right: clamp(8px, 2.6cqw, 16px);
+  top: 26%;
+}
+
+.river-slot {
+  position: absolute;
+  z-index: 3;
+}
+
+.river-slot-top {
+  bottom: calc(50% + var(--center-half) + var(--river-zone-gap));
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.river-slot-bottom {
+  left: 50%;
+  top: calc(50% + var(--center-half) + var(--river-zone-gap));
+  transform: translateX(-50%);
+}
+
+.river-slot-left {
+  right: calc(50% + var(--center-half) + var(--river-zone-gap));
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.river-slot-right {
+  left: calc(50% + var(--center-half) + var(--river-zone-gap));
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.river,
+.river-row,
+.river-column,
+.river-rows,
+.river-columns {
+  display: flex;
+}
+
+.river-rows,
+.river-column {
+  flex-direction: column;
+}
+
+.river-row,
+.river-columns {
+  flex-direction: row;
+}
+
+.river-row,
+.river-column,
+.river-rows,
+.river-columns {
+  gap: var(--river-gap);
+}
+
+.table-center {
+  align-items: center;
+  background: linear-gradient(145deg, rgb(16 46 68 / 98%), rgb(10 34 53 / 96%));
+  border: clamp(2px, 0.6cqw, 4px) solid rgb(111 155 185 / 72%);
+  border-radius: clamp(12px, 3.5cqw, 22px);
+  box-shadow: inset 0 0 0 1px rgb(7 23 35 / 90%), 0 5px 14px rgb(0 0 0 / 24%);
+  color: #edf8ff;
+  display: flex;
+  flex-direction: column;
+  height: calc(var(--center-half) * 2);
+  justify-content: center;
+  left: 50%;
+  padding: clamp(5px, 1.6cqw, 10px);
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(var(--center-half) * 2);
+  z-index: 5;
+}
+
+.table-round {
+  font-size: clamp(17px, 5.4cqw, 30px);
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  line-height: 1;
+}
+
+.table-center-rule {
+  background: rgb(119 171 205 / 62%);
+  height: 1px;
+  margin: clamp(4px, 1.2cqw, 7px) 0;
+  width: 76%;
+}
+
+.table-round-detail,
+.table-wall-count,
+.table-dora {
+  color: #bcd8ea;
+  font-size: clamp(7px, 2.2cqw, 11px);
+  line-height: 1.25;
+}
+
+.table-dora {
+  align-items: center;
+  display: flex;
+  gap: clamp(2px, 0.8cqw, 5px);
+  margin-top: clamp(3px, 1cqw, 6px);
+}
+
+.table-dora .tile-sm {
+  --center-dora-width: clamp(13px, 4.5cqw, 23px);
+  height: calc(var(--center-dora-width) * 4 / 3);
+  width: var(--center-dora-width);
+}
+
+/* === 自分の手牌 === */
 .hand-area {
   container-type: inline-size;
 }
 
-/* 対面の手牌エリア: 画面幅ではなく、枠と余白を除いた実幅を基準にする */
-.opponent-hand-area {
-  container-type: inline-size;
+.player-hand-panel {
+  background: linear-gradient(180deg, #1a3044, #14283a);
+  border: 1px solid #36566f;
+  border-radius: 14px;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 5%);
+  flex: 0 0 auto;
+  padding: 7px 8px 8px;
 }
 
-/* 卓面は表示領域の短辺に合わせ、縦横どちらでも正方形を保つ */
-.table-viewport {
-  container-type: inline-size;
+.player-hand-meta {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2px;
+  min-height: 18px;
 }
 
-.mahjong-table {
-  width: min(100cqw, 50dvh);
-  height: min(100cqw, 50dvh);
+.player-hand-name {
+  align-items: center;
+  color: #f1f7fb;
+  display: flex;
+  font-size: clamp(10px, 3.3cqw, 14px);
+  font-weight: 800;
+  gap: clamp(5px, 1.8cqw, 10px);
+  white-space: nowrap;
 }
 
-/* 手牌行: 横スクロールさせず中央寄せ。 */
+.player-hand-score {
+  color: #8fb0c6;
+  font-size: 0.86em;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.turn-dot {
+  color: #ffd45e;
+  font-size: 0.78em;
+}
+
+.discard-prompt {
+  color: #73d9ab;
+  font-size: clamp(8px, 2.8cqw, 12px);
+  white-space: nowrap;
+}
+
 .hand-row {
+  align-items: flex-end;
   display: flex;
   flex-wrap: nowrap;
   gap: var(--hand-gap);
-  overflow-x: hidden;
   justify-content: center;
-  padding-left: var(--hand-px);
-  padding-right: var(--hand-px);
-  padding-bottom: 2px;
-  align-items: flex-end;
+  overflow-x: hidden;
+  padding: 5px var(--hand-px) 2px;
 }
 
-/* 手牌エリアの実幅から牌幅を算出。overhead = 手牌行padding + 牌間gap合計 + ツモ区切り。
-   14枚(+区切り)でも必ず収まる。上限34px。 */
 .hand-area .hand-row .tile-hand {
-  --thw: min(34px, calc((100cqw - 52px) / 14));
-  width: var(--thw);
-  height: calc(var(--thw) * 48 / 34);
+  --hand-tile-width: min(36px, calc((100cqw - 50px) / 14));
+  height: calc(var(--hand-tile-width) * 4 / 3);
+  width: var(--hand-tile-width);
 }
 
-/* 13枚に加えてツモ牌と区切りがある手番中も左右を切らない */
-.opponent-hand-area .hand-row .tile-sm {
-  --opponent-tile-w: min(26px, calc((100cqw - 34px) / 14));
-  width: var(--opponent-tile-w);
-  height: calc(var(--opponent-tile-w) * 48 / 34);
+@media (orientation: landscape) {
+  :root {
+    --tile-md-w: 28px;
+    --hand-gap: 1px;
+    --hand-px: 3px;
+    --river-gap: 1px;
+  }
+
+  .game-board {
+    gap: 2px;
+  }
+
+  .table-stage {
+    min-height: 185px;
+  }
+
+  .player-hand-panel {
+    border-radius: 10px;
+    padding: 3px 6px 4px;
+  }
+
+  .player-hand-meta {
+    margin-bottom: 0;
+    min-height: 14px;
+  }
+
+  .hand-row {
+    padding-bottom: 0;
+    padding-top: 3px;
+  }
+
+  .hand-area .hand-row .tile-hand {
+    --hand-tile-width: min(30px, calc((100cqw - 42px) / 14));
+  }
 }
 
-/* 河グリッド */
-.river-grid {
-  display: grid;
-  grid-template-columns: repeat(6, auto);
-  gap: var(--river-gap);
-}
-
-/* スクロールバーをダークテーマに */
 ::-webkit-scrollbar {
-  width: 4px;
   height: 4px;
+  width: 4px;
 }
+
 ::-webkit-scrollbar-track {
   background: #1f2937;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #4b5563;
   border-radius: 2px;
