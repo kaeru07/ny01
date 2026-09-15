@@ -9,29 +9,34 @@ function readTile(...parts: string[]): string {
   return readFileSync(join(tilesDir, ...parts), "utf8");
 }
 
-test("萬子は端末フォントに依存しないアウトラインで描画される", () => {
-  for (let number = 1; number <= 9; number += 1) {
-    const svg = readTile("man", `${number}.svg`);
-    assert.doesNotMatch(svg, /<(?:text|tspan)\b/);
-    assert.equal((svg.match(/<path\b/g) ?? []).length, 2);
+const numberedTiles = ["man", "pin", "sou"].flatMap((suit) => [
+  ...Array.from({ length: 9 }, (_, index) => [suit, `${index + 1}.svg`]),
+  [suit, "5-red.svg"],
+]);
+
+const honorTiles = [
+  "east.svg",
+  "south.svg",
+  "west.svg",
+  "north.svg",
+  "white.svg",
+  "green.svg",
+  "red.svg",
+].map((name) => ["honor", name]);
+
+test("全牌画像を同じ3:4のSVGセットで表示する", () => {
+  const paths = [...numberedTiles, ...honorTiles, ["back.svg"]];
+
+  for (const parts of paths) {
+    const svg = readTile(...parts);
+    assert.match(svg, /<svg\b/);
+    assert.match(svg, /viewBox="0 0 300 400"/);
+    assert.doesNotMatch(svg, /<(?:text|tspan|image)\b/);
   }
 });
 
-test("筒子は各筒を同心円で描画する", () => {
-  for (let number = 1; number <= 9; number += 1) {
-    const svg = readTile("pin", `${number}.svg`);
-    const circles = (svg.match(/<circle\b/g) ?? []).length;
-    const expected = number === 1 ? 5 : number * 3;
-    assert.equal(circles, expected, `${number}筒の円数`);
-  }
-});
-
-test("索子は一索を鳥、二索以降を節付きの竹として描画する", () => {
-  assert.match(readTile("sou", "1.svg"), /<ellipse\b/);
-
-  for (let number = 2; number <= 9; number += 1) {
-    const svg = readTile("sou", `${number}.svg`);
-    const bambooParts = (svg.match(/<rect\b/g) ?? []).length - 4;
-    assert.equal(bambooParts, number * 4, `${number}索の竹パーツ数`);
-  }
+test("牌素材のCC0ライセンスを同梱する", () => {
+  const license = readTile("FLUFFYSTUFF_LICENSE.md");
+  assert.match(license, /public domain/i);
+  assert.match(license, /creativecommons\.org\/publicdomain\/zero\/1\.0/);
 });
