@@ -60,9 +60,9 @@ export default function HomePage() {
   }, [resetTraining, nextRound]);
 
   return (
-    <main className="min-h-screen bg-stone-950 flex flex-col">
+    <main className="h-screen h-[100dvh] overflow-hidden bg-stone-950 flex flex-col">
       {/* ヘッダー */}
-      <header className="bg-stone-900 border-b border-emerald-900 px-3 py-2 flex items-center justify-between">
+      <header className="shrink-0 bg-stone-900 border-b border-emerald-900 px-3 py-2 flex items-center justify-between">
         <h1 className="text-white font-bold text-sm">
           麻雀読みトレーナー
         </h1>
@@ -153,7 +153,7 @@ export default function HomePage() {
 
         {/* サイドパネル: ゲームログ */}
         {state.phase === "playing" && (
-          <div className="w-full lg:w-56 shrink-0">
+          <div className="hidden lg:block lg:w-56 shrink-0 min-h-0">
             <GameLog log={state.gameLog} attempts={training.attempts.length} />
           </div>
         )}
@@ -217,7 +217,7 @@ function GameLog({
   attempts: number;
 }) {
   return (
-    <div className="bg-stone-900 rounded-lg border border-emerald-950 h-full flex flex-col">
+    <div className="bg-stone-900 rounded-lg border border-emerald-950 h-full min-h-0 flex flex-col">
       <div className="p-2 border-b border-emerald-950 flex items-center justify-between">
         <span className="text-xs font-semibold text-stone-300">ゲームログ</span>
         {attempts > 0 && (
