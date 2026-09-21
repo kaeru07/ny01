@@ -1,0 +1,31 @@
+name: Mahjong visible-tile engine tests
+
+on:
+  push:
+    branches:
+      - feat/mahjong-visible-ukeire-20260921
+    paths:
+      - 'mahjong-visible-ukeire/**'
+      - '.github/workflows/mahjong-visible-ukeire-test.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: mahjong-visible-ukeire
+    steps:
+      - name: Check out feature branch
+        uses: actions/checkout@v4
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install required test dependency without cache or artifacts
+        run: npm install --no-audit --no-fund --ignore-scripts
+      - name: Run unit and integration tests (fail if either fails)
+        run: npm test
