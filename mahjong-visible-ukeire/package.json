@@ -1,0 +1,15 @@
+{
+  "name": "mahjong-visible-ukeire",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Standalone visible-tile-aware discard scoring engine for a new trainer app",
+  "scripts": {
+    "test": "node --test test/*.test.cjs",
+    "test:unit": "node --test test/visible-ukeire.test.cjs",
+    "test:integration": "node --test test/analyzer-parity.test.cjs"
+  },
+  "dependencies": {
+    "@kobalab/majiang-core": "1.4.1"
+  },
+  "engines": { "node": ">=22" }
+}
