@@ -1,0 +1,38 @@
+name: App Review build credentials diagnostics
+
+on:
+  push:
+    branches:
+      - work/app-review-build-diagnostics-20260921
+    paths:
+      - '.github/workflows/app-review-build-diagnostics.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check configured credential names
+        env:
+          CODEMAGIC_API_TOKEN: ${{ secrets.CODEMAGIC_API_TOKEN }}
+          BASIC_AUTH_USER: ${{ secrets.BASIC_AUTH_USER }}
+          BASIC_AUTH_PASSWORD: ${{ secrets.BASIC_AUTH_PASSWORD }}
+          PROGRESS_BASIC_AUTH_USER: ${{ secrets.PROGRESS_BASIC_AUTH_USER }}
+          PROGRESS_BASIC_AUTH_PASSWORD: ${{ secrets.PROGRESS_BASIC_AUTH_PASSWORD }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          VPS_SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+        shell: bash
+        run: |
+          [[ -n "${CODEMAGIC_API_TOKEN:-}" ]] && CM=true || CM=false
+          [[ -n "${BASIC_AUTH_USER:-}" && -n "${BASIC_AUTH_PASSWORD:-}" ]] && BA=true || BA=false
+          [[ -n "${PROGRESS_BASIC_AUTH_USER:-}" && -n "${PROGRESS_BASIC_AUTH_PASSWORD:-}" ]] && PBA=true || PBA=false
+          [[ -n "${SSH_PRIVATE_KEY:-}" ]] && SSH=true || SSH=false
+          [[ -n "${VPS_SSH_PRIVATE_KEY:-}" ]] && VPS_SSH=true || VPS_SSH=false
+          echo "codemagic_token_present=$CM"
+          echo "basic_auth_pair_present=$BA"
+          echo "progress_basic_auth_pair_present=$PBA"
+          echo "ssh_private_key_present=$SSH"
+          echo "vps_ssh_private_key_present=$VPS_SSH"
