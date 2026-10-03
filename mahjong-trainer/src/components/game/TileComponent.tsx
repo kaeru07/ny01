@@ -8,43 +8,40 @@ interface TileComponentProps {
   tileIndex: TileIndex;
   size?: "sm" | "md" | "lg";
   selected?: boolean;
-  highlighted?: boolean; // ツモ牌ハイライト
-  faceDown?: boolean;    // 裏向き表示
-  redFive?: boolean;     // 赤5牌
-  rotation?: 0 | 90 | 180 | 270; // 牌画像の回転（席方向）
+  highlighted?: boolean;
+  faceDown?: boolean;
+  redFive?: boolean;
+  rotation?: 0 | 90 | 180 | 270;
   onClick?: () => void;
   className?: string;
 }
 
-const HONOR_NAMES = ['east','south','west','north','white','green','red'] as const;
+const HONOR_NAMES = ["east", "south", "west", "north", "white", "green", "red"] as const;
 
 function getTileSrc(tileIndex: TileIndex, redFive = false): string {
   const tile = indexToTile(tileIndex);
   const isRed = redFive && tile.number === 5;
-  if (tile.suit === 'man')   return isRed ? `/tiles/man/5-red.svg` : `/tiles/man/${tile.number}.svg`;
-  if (tile.suit === 'pin')   return isRed ? `/tiles/pin/5-red.svg` : `/tiles/pin/${tile.number}.svg`;
-  if (tile.suit === 'sou')   return isRed ? `/tiles/sou/5-red.svg` : `/tiles/sou/${tile.number}.svg`;
+  if (tile.suit === "man") return isRed ? "/tiles/man/5-red.svg" : `/tiles/man/${tile.number}.svg`;
+  if (tile.suit === "pin") return isRed ? "/tiles/pin/5-red.svg" : `/tiles/pin/${tile.number}.svg`;
+  if (tile.suit === "sou") return isRed ? "/tiles/sou/5-red.svg" : `/tiles/sou/${tile.number}.svg`;
   return `/tiles/honor/${HONOR_NAMES[tile.number - 1]}.svg`;
 }
 
-// サイズはglobals.cssのCSS変数 (--tile-*) で制御
 const sizeClasses: Record<string, string> = {
   sm: "tile-sm",
   md: "tile-md",
   lg: "tile-hand",
 };
 
-// 回転時に縦横を入れ替えるため、サイズごとの幅/高さ変数名を持つ
 const sizeVars: Record<string, { w: string; h: string }> = {
   sm: { w: "var(--tile-sm-w)", h: "var(--tile-sm-h)" },
   md: { w: "var(--tile-md-w)", h: "var(--tile-md-h)" },
   lg: { w: "var(--tile-hand-w)", h: "var(--tile-hand-h)" },
 };
 
-function TileArtwork({ src, alt }: { src: string; alt: string }) {
+function FaceArtwork({ src, alt }: { src: string; alt: string }) {
   return (
     <>
-      {/* FluffyStuffの牌本体と絵柄は別SVGのため、同じ座標で重ねる。 */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         className="mahjong-tile-image mahjong-tile-shell"
@@ -66,6 +63,11 @@ function TileArtwork({ src, alt }: { src: string; alt: string }) {
   );
 }
 
+function TileArtwork({ faceDown, src, alt }: { faceDown: boolean; src: string; alt: string }) {
+  if (faceDown) return <span className="mahjong-tile-back" aria-label={alt} />;
+  return <FaceArtwork src={src} alt={alt} />;
+}
+
 export default function TileComponent({
   tileIndex,
   size = "md",
@@ -77,50 +79,44 @@ export default function TileComponent({
   onClick,
   className = "",
 }: TileComponentProps) {
-  const src  = faceDown ? '/tiles/back.svg' : getTileSrc(tileIndex, redFive);
-  const alt  = faceDown ? '裏向き' : tileName(tileIndex);
+  const src = getTileSrc(tileIndex, redFive);
+  const alt = faceDown ? "裏向き" : tileName(tileIndex);
 
   const baseClasses = [
-    "relative inline-block rounded select-none overflow-hidden",
-    "transition-all duration-150",
+    "mahjong-tile relative inline-block select-none overflow-hidden",
     sizeClasses[size],
     onClick ? "cursor-pointer" : "cursor-default",
   ].join(" ");
 
   const stateClasses = selected
-    ? "-translate-y-2 shadow-lg ring-2 ring-yellow-400"
+    ? "is-selected"
     : highlighted
-    ? "-translate-y-1 shadow-md ring-2 ring-orange-400"
-    : onClick
-    ? "hover:-translate-y-0.5 hover:shadow"
-    : "";
+      ? "is-highlighted"
+      : onClick
+        ? "is-clickable"
+        : "";
 
   const rotated90 = rotation === 90 || rotation === 270;
   const sv = sizeVars[size];
 
-  // 回転なし: これまで通り sizeClass でサイズ制御。
   if (rotation === 0) {
     return (
       <div className={`${baseClasses} ${stateClasses} ${className}`} onClick={onClick} title={alt}>
-        <TileArtwork src={src} alt={alt} />
-        {selected && <div className="absolute inset-0 rounded bg-yellow-400/20 pointer-events-none" />}
-        {highlighted && <div className="absolute inset-0 rounded bg-orange-400/20 pointer-events-none" />}
+        <TileArtwork faceDown={faceDown} src={src} alt={alt} />
       </div>
     );
   }
 
-  // 回転あり: 外側フットプリントは 90/270 で縦横入替。内側 img は元の縦横のまま回転。
   const outerW = rotated90 ? sv.h : sv.w;
   const outerH = rotated90 ? sv.w : sv.h;
-  const rotClasses = [
-    "relative inline-block rounded select-none overflow-hidden flex-shrink-0",
-    onClick ? "cursor-pointer" : "cursor-default",
-    stateClasses,
-    className,
-  ].join(" ");
 
   return (
-    <div className={rotClasses} onClick={onClick} title={alt} style={{ width: outerW, height: outerH }}>
+    <div
+      className={`${baseClasses} ${stateClasses} ${className}`}
+      onClick={onClick}
+      title={alt}
+      style={{ width: outerW, height: outerH }}
+    >
       <div
         className="mahjong-tile-rotator"
         style={{
@@ -133,10 +129,8 @@ export default function TileComponent({
           transformOrigin: "center center",
         }}
       >
-        <TileArtwork src={src} alt={alt} />
+        <TileArtwork faceDown={faceDown} src={src} alt={alt} />
       </div>
-      {selected && <div className="absolute inset-0 rounded bg-yellow-400/20 pointer-events-none" />}
-      {highlighted && <div className="absolute inset-0 rounded bg-orange-400/20 pointer-events-none" />}
     </div>
   );
 }

@@ -12,9 +12,11 @@ interface GameControlsProps {
   onGoToReview: () => void;
   onStartGame: () => void;
   onNextRound: () => void;
+  openHands?: boolean;
+  onToggleOpenHands?: () => void;
 }
 
-const PLAYER_LABELS = ["CPU南", "CPU西", "CPU北"];
+const PLAYER_LABELS = ["南家", "西家", "北家"];
 const PLAYER_INDICES: PlayerIndex[] = [1, 2, 3];
 
 export default function GameControls({
@@ -25,16 +27,15 @@ export default function GameControls({
   onGoToReview,
   onStartGame,
   onNextRound,
+  openHands = false,
+  onToggleOpenHands,
 }: GameControlsProps) {
   const { phase, isPaused } = gameState;
 
   if (phase === "idle") {
     return (
-      <div className="flex justify-center p-4">
-        <button
-          onClick={onStartGame}
-          className="px-8 py-3 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-lg text-lg shadow-lg transition-all"
-        >
+      <div className="start-control-wrap">
+        <button onClick={onStartGame} className="primary-control-button">
           対局開始
         </button>
       </div>
@@ -43,79 +44,58 @@ export default function GameControls({
 
   if (phase === "won" || phase === "ryukyoku") {
     return (
-      <div className="flex gap-3 justify-center p-4 flex-wrap">
-        <button
-          onClick={onGoToReview}
-          className="px-6 py-2 bg-amber-700 hover:bg-amber-600 text-white font-bold rounded-lg shadow transition-all"
-        >
-          答え合わせを見る
-        </button>
-        <button
-          onClick={onNextRound}
-          className="px-6 py-2 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-lg shadow transition-all"
-        >
-          次の局へ
-        </button>
+      <div className="end-control-wrap">
+        <button onClick={onGoToReview} className="secondary-control-button">答え合わせ</button>
+        <button onClick={onNextRound} className="primary-control-button">次の局へ</button>
       </div>
     );
   }
 
   if (phase === "review") {
     return (
-      <div className="flex justify-center p-4">
-        <button
-          onClick={onNextRound}
-          className="px-6 py-2 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-lg shadow transition-all"
-        >
-          次の局へ
-        </button>
+      <div className="end-control-wrap">
+        <button onClick={onNextRound} className="primary-control-button">次の局へ</button>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-2 landscape:p-1.5">
-      {/* 停止/再開 + 読みボタンを1行に */}
-      <div className="flex gap-1.5 items-center">
-        {!isPaused ? (
-          <button
-            onClick={onPause}
-            className="shrink-0 px-3 py-1.5 bg-yellow-600 hover:bg-yellow-500 active:bg-yellow-700 text-white font-bold rounded-lg text-xs shadow transition-all"
-          >
-            ⏸ 停止
-          </button>
-        ) : (
-          <button
-            onClick={onResume}
-            className="shrink-0 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 active:bg-emerald-800 text-white font-bold rounded-lg text-xs shadow transition-all animate-pulse"
-          >
-            ▶ 再開
-          </button>
-        )}
-        <div className="flex flex-1 gap-1">
-          {PLAYER_LABELS.map((label, i) => (
-            <button
-              key={i}
-              onClick={() => onStartReading(PLAYER_INDICES[i])}
-              className="flex-1 py-1.5 bg-amber-700 hover:bg-amber-600 active:bg-amber-800 text-white font-semibold rounded-lg text-xs shadow transition-all"
-            >
-              📖 {label}
-            </button>
-          ))}
-        </div>
+    <div className="table-controls">
+      <div className="control-primary-row">
+        <button
+          onClick={isPaused ? onResume : onPause}
+          className={`glass-control-button ${isPaused ? "is-resume" : ""}`}
+        >
+          {isPaused ? "再開" : "停止"}
+        </button>
+        <button
+          onClick={onToggleOpenHands}
+          className={`glass-control-button ${openHands ? "is-on" : ""}`}
+        >
+          {openHands ? "手牌を伏せる" : "手牌開示"}
+        </button>
       </div>
 
-      {/* ゲーム状態表示 */}
-      <div className="text-center text-xs text-stone-500">
-        山: {gameState.wall.length}枚 | {巡目label(gameState)}
-        {isPaused && <span className="ml-2 text-yellow-400 font-bold">⏸ 停止中</span>}
+      <div className="reading-heading">
+        <span>手牌読み</span>
+        <span className="reading-heading-rule" />
+      </div>
+
+      <div className="reading-buttons">
+        {PLAYER_LABELS.map((label, i) => {
+          const player = gameState.players[PLAYER_INDICES[i]];
+          return (
+            <button
+              key={label}
+              onClick={() => onStartReading(PLAYER_INDICES[i])}
+              className="reading-button"
+            >
+              <span>{label}</span>
+              {player.riichi && <span className="reading-riichi">立直</span>}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
-}
-
-function 巡目label(state: GameState): string {
-  const winds = ["東", "南", "西", "北"];
-  const wind = winds[["east","south","west","north"].indexOf(state.round.wind)];
-  return `${wind}${state.round.number}局 ${state.round.honba}本場`;
 }

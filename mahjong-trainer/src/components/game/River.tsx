@@ -8,11 +8,12 @@ interface RiverProps {
   discards: TileIndex[];
   /** 自分=0 / 左家=90 / 対面=180 / 右家=270 */
   rotation?: 0 | 90 | 180 | 270;
+  highlightLast?: boolean;
 }
 
 const TILES_PER_ROW = 6;
 
-export default function River({ discards, rotation = 0 }: RiverProps) {
+export default function River({ discards, rotation = 0, highlightLast = false }: RiverProps) {
   const vertical = rotation === 90 || rotation === 270;
   const rows: TileIndex[][] = [];
 
@@ -21,20 +22,23 @@ export default function River({ discards, rotation = 0 }: RiverProps) {
   }
 
   const renderTiles = (row: TileIndex[], rowIndex: number) =>
-    row.map((tile, tileIndex) => (
-      <TileComponent
-        key={`river-${rowIndex * TILES_PER_ROW + tileIndex}`}
-        tileIndex={tile}
-        size="sm"
-        rotation={rotation}
-      />
-    ));
+    row.map((tile, tileIndex) => {
+      const absoluteIndex = rowIndex * TILES_PER_ROW + tileIndex;
+      const isLast = highlightLast && absoluteIndex === discards.length - 1;
+      return (
+        <TileComponent
+          key={`river-${absoluteIndex}`}
+          tileIndex={tile}
+          size="sm"
+          rotation={rotation}
+          className={isLast ? "river-last-tile" : ""}
+        />
+      );
+    });
 
   let content: React.ReactNode = null;
 
   if (vertical) {
-    // 左右の河は「6枚の縦列」を卓中央から外側へ最大3列並べる。
-    // 左家は古い列が外側、右家は古い列が外側になるよう表示順を合わせる。
     const displayedRows = rotation === 90 ? [...rows].reverse() : rows;
     content = (
       <div className="river-columns">
@@ -49,7 +53,6 @@ export default function River({ discards, rotation = 0 }: RiverProps) {
       </div>
     );
   } else {
-    // 上下の河は1行6枚。対面だけ新しい行が卓中央側に来るよう上下を反転する。
     const displayedRows = rotation === 180 ? [...rows].reverse() : rows;
     content = (
       <div className="river-rows">
