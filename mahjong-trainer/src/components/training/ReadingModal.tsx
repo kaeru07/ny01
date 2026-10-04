@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useMemo, useState } from "react";
 import { PlayerIndex, TileIndex } from "@/types/mahjong";
-import { ReadAttempt, PREDICTABLE_ROLES, HAND_STYLES, HandStyleId } from "@/types/training";
+import { ReadAttempt } from "@/types/training";
 import { GameState } from "@/types/game";
 import TileComponent from "@/components/game/TileComponent";
-import { tileName } from "@/domain/mahjong/tile";
-import { playerLabel } from "@/engine/gameEngine";
+import { getCurrentWaits } from "@/domain/mahjong/shanten";
 
 interface ReadingModalProps {
   gameState: GameState;
@@ -17,11 +16,13 @@ interface ReadingModalProps {
   onCancel: () => void;
 }
 
-// タブ型
-type Tab = "waits" | "range" | "roles" | "note";
-
-// 全34種の牌インデックス
-const ALL_TILES = Array.from({ length: 34 }, (_, i) => i);
+const PLAYER_NAMES: Record<1 | 2 | 3, string> = { 1: "南家", 2: "西家", 3: "北家" };
+const GROUPS = [
+  { label: "萬子", tiles: Array.from({ length: 9 }, (_, i) => i) },
+  { label: "筒子", tiles: Array.from({ length: 9 }, (_, i) => i + 9) },
+  { label: "索子", tiles: Array.from({ length: 9 }, (_, i) => i + 18) },
+  { label: "字牌", tiles: Array.from({ length: 7 }, (_, i) => i + 27) },
+];
 
 export default function ReadingModal({
   gameState,
@@ -31,287 +32,151 @@ export default function ReadingModal({
   onSubmit,
   onCancel,
 }: ReadingModalProps) {
-  const [activeTab, setActiveTab] = useState<Tab>("waits");
-
-  const target = gameState.players[targetPlayer];
-
-  // 待ち牌選択のトグル
-  const toggleWait = useCallback(
-    (tile: TileIndex) => {
-      const current = currentAttempt.waitPrediction ?? [];
-      const next = current.includes(tile)
-        ? current.filter((t) => t !== tile)
-        : [...current, tile];
-      onUpdate({ waitPrediction: next });
-    },
-    [currentAttempt.waitPrediction, onUpdate]
+  const [activeTarget, setActiveTarget] = useState<1 | 2 | 3>((targetPlayer || 1) as 1 | 2 | 3);
+  const [answered, setAnswered] = useState(false);
+  const [noTenpai, setNoTenpai] = useState(false);
+  const selected = currentAttempt.waitPrediction ?? [];
+  const target = gameState.players[activeTarget];
+  const actualWaits = useMemo(
+    () => getCurrentWaits(target.hand, target.drawnTile, target.melds.length),
+    [target.hand, target.drawnTile, target.melds.length]
   );
+  const actualSet = useMemo(() => new Set(actualWaits), [actualWaits]);
+  const selectedSet = useMemo(() => new Set(selected), [selected]);
+  const correctCount = selected.filter((tile) => actualSet.has(tile)).length;
+  const isNoTenpaiCorrect = noTenpai && actualWaits.length === 0;
+  const allCorrect =
+    (isNoTenpaiCorrect || (selected.length > 0 && correctCount === actualWaits.length && selected.length === actualWaits.length));
 
-  // 手牌スタイルタグのトグル
-  const toggleStyle = useCallback(
-    (styleId: HandStyleId) => {
-      const current = (currentAttempt.handStyleTags ?? []) as HandStyleId[];
-      const next = current.includes(styleId)
-        ? current.filter((s) => s !== styleId)
-        : [...current, styleId];
-      onUpdate({ handStyleTags: next });
-    },
-    [currentAttempt.handStyleTags, onUpdate]
-  );
+  const chooseTarget = (next: 1 | 2 | 3) => {
+    setActiveTarget(next);
+    setAnswered(false);
+    setNoTenpai(false);
+    onUpdate({ targetPlayer: next, waitPrediction: [] });
+  };
 
-  // 役選択のトグル
-  const toggleRole = useCallback(
-    (roleId: string) => {
-      const current = currentAttempt.rolePrediction ?? [];
-      const next = current.includes(roleId)
-        ? current.filter((r) => r !== roleId)
-        : [...current, roleId];
-      onUpdate({ rolePrediction: next });
-    },
-    [currentAttempt.rolePrediction, onUpdate]
-  );
+  const toggleTile = (tile: TileIndex) => {
+    if (answered) return;
+    setNoTenpai(false);
+    const next = selectedSet.has(tile) ? selected.filter((t) => t !== tile) : [...selected, tile];
+    onUpdate({ targetPlayer: activeTarget, waitPrediction: next });
+  };
+
+  const chooseNoTenpai = () => {
+    if (answered) return;
+    setNoTenpai((value) => !value);
+    onUpdate({ targetPlayer: activeTarget, waitPrediction: [] });
+  };
+
+  const answer = () => {
+    onUpdate({ targetPlayer: activeTarget, waitPrediction: noTenpai ? [] : selected });
+    setAnswered(true);
+  };
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-2">
-      <div className="bg-gray-900 rounded-xl border border-gray-600 w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl">
-        {/* ヘッダー */}
-        <div className="flex items-center justify-between p-3 border-b border-gray-700">
+    <div className="reading-sheet-backdrop" role="dialog" aria-modal="true" aria-label="待ち読みトレーニング">
+      <section className="reading-sheet">
+        <header className="reading-sheet-header">
           <div>
-            <h2 className="text-white font-bold text-base">
-              読みトレーニング
-            </h2>
-            <p className="text-gray-400 text-xs">
-              対象: {playerLabel(targetPlayer)} | 河: {target.discards.length}枚
-            </p>
+            <span className="reading-sheet-kicker">WAIT READING</span>
+            <h2>待ちは？</h2>
           </div>
-          <button
-            onClick={onCancel}
-            className="text-gray-400 hover:text-white text-xl"
-          >
-            ✕
-          </button>
-        </div>
+          <button className="reading-sheet-close" onClick={onCancel} aria-label="閉じる">×</button>
+        </header>
 
-        {/* 対象プレイヤーの河を参考表示 */}
-        <div className="p-2 bg-gray-800 border-b border-gray-700">
-          <p className="text-xs text-gray-400 mb-1">
-            {playerLabel(targetPlayer)}の河:
-          </p>
-          <div className="flex flex-wrap gap-0.5">
-            {target.discards.length === 0 ? (
-              <span className="text-gray-500 text-xs italic">まだ捨てていない</span>
-            ) : (
-              target.discards.map((t, i) => (
-                <TileComponent key={i} tileIndex={t} size="sm" />
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* タブ */}
-        <div className="flex border-b border-gray-700">
-          {(
-            [
-              { id: "waits", label: "待ち予想" },
-              { id: "range", label: "手牌レンジ" },
-              { id: "roles", label: "役予想" },
-              { id: "note", label: "メモ" },
-            ] as { id: Tab; label: string }[]
-          ).map((tab) => (
+        <div className="reading-target-tabs">
+          {([1, 2, 3] as const).map((player) => (
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 py-2 text-xs font-semibold transition-colors ${
-                activeTab === tab.id
-                  ? "bg-purple-800 text-white border-b-2 border-purple-400"
-                  : "text-gray-400 hover:text-white"
-              }`}
+              key={player}
+              className={activeTarget === player ? "is-active" : ""}
+              onClick={() => chooseTarget(player)}
             >
-              {tab.label}
+              {PLAYER_NAMES[player]}
+              {gameState.players[player].riichi && <span>立直</span>}
             </button>
           ))}
         </div>
 
-        {/* タブコンテンツ */}
-        <div className="flex-1 overflow-y-auto p-3">
-          {activeTab === "waits" && (
-            <TileSelector
-              title="待ち牌と思う牌を選んでください"
-              selected={currentAttempt.waitPrediction ?? []}
-              onToggle={toggleWait}
-            />
-          )}
+        <div className="reading-river-preview">
+          <span>{PLAYER_NAMES[activeTarget]}の河</span>
+          <div>
+            {target.discards.slice(-12).map((tile, index) => (
+              <TileComponent key={`${tile}-${index}`} tileIndex={tile} size="sm" />
+            ))}
+          </div>
+        </div>
 
-          {activeTab === "range" && (
-            <HandStyleSelector
-              selected={(currentAttempt.handStyleTags ?? []) as HandStyleId[]}
-              onToggle={toggleStyle}
-            />
-          )}
+        <div className="reading-question-copy">
+          <strong>{answered ? "答え合わせ" : "待ち牌を選択"}</strong>
+          <span {answered ? "緑が実際の待ち、赤が外した予想です" : "複数選択できます。テンパイしていないと思う場合はノーテンを選択。"}</span>
+        </div>
 
-          {activeTab === "roles" && (
-            <div>
-              <p className="text-xs text-gray-400 mb-2">
-                有力と思う役を選んでください
-              </p>
-              <div className="grid grid-cols-2 gap-1.5">
-                {PREDICTABLE_ROLES.map((role) => {
-                  const selected = (currentAttempt.rolePrediction ?? []).includes(role.id);
+        <div className="wait-grid">
+          {GROUPS.map((group) => (
+            <div className="wait-group" key={group.label}>
+              <span className="wait-group-label">{group.label}</span>
+              <div className="wait-group-tiles">
+                {group.tiles.map((tile) => {
+                  const picked = selectedSet.has(tile);
+                  const actual = actualSet.has(tile);
+                  const resultClass = answered
+                    ? actual
+                      ? "is-correct"
+                      : picked
+                        ? "is-wrong"
+                        : "is-dimmed"
+                    : picked
+                      ? "is-picked"
+                      : "";
                   return (
-                    <button
-                      key={role.id}
-                      onClick={() => toggleRole(role.id)}
-                      className={`py-2 px-3 rounded text-sm font-medium transition-colors ${
-                        selected
-                          ? "bg-purple-600 text-white"
-                          : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                      }`}
-                    >
-                      {selected ? "✓ " : ""}{role.name}
+                    <button key={tile} className={`wait-tile-button ${resultClass}`} onClick={() => toggleTile(tile)}>
+                      <TileComponent tileIndex={tile} size="sm" />
                     </button>
                   );
                 })}
               </div>
             </div>
-          )}
-
-          {activeTab === "note" && (
-            <div>
-              <p className="text-xs text-gray-400 mb-2">自由メモ</p>
-              <textarea
-                className="w-full bg-gray-800 text-white border border-gray-600 rounded p-2 text-sm resize-none"
-                rows={6}
-                placeholder="気になった点、読みの根拠など自由に記録..."
-                value={currentAttempt.freeNote ?? ""}
-                onChange={(e) => onUpdate({ freeNote: e.target.value })}
-              />
-            </div>
-          )}
+          ))}
         </div>
 
-        {/* フッター: 現在の入力サマリー */}
-        <div className="p-2 bg-gray-800 border-t border-gray-700 text-xs text-gray-400">
-          待ち: {(currentAttempt.waitPrediction ?? []).length}枚 |{" "}
-          スタイル: {(currentAttempt.handStyleTags ?? []).length}個 |{" "}
-          役: {(currentAttempt.rolePrediction ?? []).length}個
-        </div>
+        <button
+          className={`no-tenpai-button ${noTenpai ? "is-picked" : ""} ${answered && actualWaits.length === 0 ? "is-correct" : ""}`}
+          onClick={chooseNoTenpai}
+        >
+          ノーテン
+        </button>
 
-        {/* アクションボタン */}
-        <div className="flex gap-2 p-3 border-t border-gray-700">
-          <button
-            onClick={onCancel}
-            className="flex-1 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm font-semibold transition-colors"
-          >
-            キャンセル
-          </button>
-          <button
-            onClick={onSubmit}
-            className="flex-1 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-bold transition-colors"
-          >
-            読みを記録
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ============================================================
-// ============================================================
-// 手牌スタイルタグ選択コンポーネント
-// ============================================================
-function HandStyleSelector({
-  selected,
-  onToggle,
-}: {
-  selected: HandStyleId[];
-  onToggle: (id: HandStyleId) => void;
-}) {
-  const selectedSet = new Set(selected);
-  return (
-    <div>
-      <p className="text-xs text-gray-400 mb-3">
-        相手の手牌の傾向をすべて選んでください（複数可）
-      </p>
-      <div className="grid grid-cols-2 gap-2">
-        {HAND_STYLES.map((style) => {
-          const on = selectedSet.has(style.id);
-          return (
-            <button
-              key={style.id}
-              onClick={() => onToggle(style.id)}
-              className={`flex flex-col items-start p-3 rounded-xl border-2 transition-all text-left active:scale-95 ${
-                on
-                  ? "bg-purple-700 border-purple-400 text-white shadow-md"
-                  : "bg-gray-800 border-gray-600 text-gray-300 hover:border-gray-400"
-              }`}
-            >
-              <span className="font-bold text-sm leading-tight">
-                {on ? "✓ " : ""}{style.label}
-              </span>
-              <span className={`text-xs mt-0.5 leading-tight ${on ? "text-purple-200" : "text-gray-500"}`}>
-                {style.desc}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-      {selected.length > 0 && (
-        <div className="mt-3 p-2 bg-purple-900/30 border border-purple-700 rounded-lg">
-          <p className="text-xs text-purple-300">
-            選択中: {selected.map(id => HAND_STYLES.find(s => s.id === id)?.label).join(" / ")}
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ============================================================
-// 牌選択グリッドコンポーネント
-// ============================================================
-function TileSelector({
-  title,
-  selected,
-  onToggle,
-}: {
-  title: string;
-  selected: TileIndex[];
-  onToggle: (t: TileIndex) => void;
-}) {
-  const selectedSet = new Set(selected);
-
-  // スート別にグループ化
-  const groups = [
-    { label: "萬子", tiles: Array.from({ length: 9 }, (_, i) => i) },
-    { label: "筒子", tiles: Array.from({ length: 9 }, (_, i) => i + 9) },
-    { label: "索子", tiles: Array.from({ length: 9 }, (_, i) => i + 18) },
-    { label: "字牌", tiles: Array.from({ length: 7 }, (_, i) => i + 27) },
-  ];
-
-  return (
-    <div>
-      <p className="text-xs text-gray-400 mb-2">{title}</p>
-      {groups.map((g) => (
-        <div key={g.label} className="mb-3">
-          <p className="text-xs text-gray-500 mb-1">{g.label}</p>
-          <div className="flex flex-wrap gap-1">
-            {g.tiles.map((t) => (
-              <div
-                key={t}
-                onClick={() => onToggle(t)}
-                className={`cursor-pointer rounded border-2 transition-all ${
-                  selectedSet.has(t)
-                    ? "border-purple-400 ring-2 ring-purple-500"
-                    : "border-transparent"
-                }`}
-              >
-                <TileComponent tileIndex={t} size="sm" selected={selectedSet.has(t)} />
-              </div>
-            ))}
+        {answered && (
+          <div className={`reading-result ${allCorrect ? "is-hit" : ""}`}>
+            <strong>{allCorrect ? "的中" : actualWaits.length === 0 ? "実際はノーテン" : `${correctCount}/${actualWaits.length}枚 的中`}</strong>
+            <span>
+              {actualWaits.length === 0
+                ? "この時点では有効な待ちはありません。"
+                : `実際の待ち ${actualWaits.length}枚。河と手出し/ツモ切りから根拠を振り返ってください。`}
+            </span>
           </div>
-        </div>
-      ))}
+        )}
+
+        <details className="reading-note-details">
+          <summary>読みの根拠をメモ</summary>
+          <textarea
+            rows={3}
+            value={currentAttempt.freeNote ?? ""}
+            onChange={(e) => onUpdate({ freeNote: e.target.value })}
+            placeholder="例：5巡目の3m手出し、立直前の6p手出しから…"
+          />
+        </details>
+
+        <footer className="reading-sheet-footer">
+          {!answered ? (
+            <button className="reading-answer-button" disabled={!noTenpai && selected.length === 0} onClick={answer}>
+              答え合わせ
+            </button>
+          ) : (
+            <button className="reading-answer-button" onClick={onSubmit}>読みを記録して対局へ戻る</button>
+          )}
+        </footer>
+      </section>
     </div>
   );
 }

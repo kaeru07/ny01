@@ -8,7 +8,7 @@ interface PlayerHandProps {
   player: Player;
   isHuman?: boolean;
   canDiscard?: boolean;
-  onDiscard?: (tileIndex: number) => void;
+  onDiscard?: (tileIndex: number, fromDrawn: boolean) => void;
   orientation?: "horizontal" | "vertical";
   rotation?: 0 | 90 | 180 | 270;
   showTiles?: boolean;
@@ -30,11 +30,11 @@ export default function PlayerHand({
     setSelectedKey(null);
   }, [player.hand, player.drawnTile, canDiscard]);
 
-  const handleTileTap = (key: string, tile: number) => {
+  const handleTileTap = (key: string, tile: number, fromDrawn: boolean) => {
     if (!canDiscard || !isHuman) return;
     if (selectedKey === key) {
       setSelectedKey(null);
-      onDiscard?.(tile);
+      onDiscard?.(tile, fromDrawn);
       return;
     }
     setSelectedKey(key);
@@ -52,7 +52,7 @@ export default function PlayerHand({
             faceDown={!showTiles}
             rotation={rotation}
             selected={selectedKey === key}
-            onClick={canDiscard && isHuman ? () => handleTileTap(key, tile) : undefined}
+            onClick={canDiscard && isHuman ? () => handleTileTap(key, tile, false) : undefined}
           />
         );
       })}
@@ -66,7 +66,7 @@ export default function PlayerHand({
             selected={selectedKey === "drawn"}
             highlighted={isHuman && selectedKey !== "drawn"}
             faceDown={!showTiles}
-            onClick={canDiscard && isHuman ? () => handleTileTap("drawn", player.drawnTile!) : undefined}
+            onClick={canDiscard && isHuman ? () => handleTileTap("drawn", player.drawnTile!, true) : undefined}
           />
         </div>
       )}

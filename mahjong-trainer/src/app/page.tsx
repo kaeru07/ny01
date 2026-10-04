@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useGame } from "@/application/game/useGame";
 import { useTraining } from "@/application/training/useTraining";
 import GameBoard from "@/components/game/GameBoard";
@@ -12,10 +12,24 @@ import { PlayerIndex } from "@/types/mahjong";
 import { playerLabel } from "@/engine/gameEngine";
 
 export default function HomePage() {
-  const { state, startGame, discardTile, pause, resume, goToReview, nextRound, canDiscard } =
-    useGame();
+  const {
+    state,
+    startGame,
+    discardTile,
+    pause,
+    resume,
+    goToReview,
+    nextRound,
+    canDiscard,
+    armRiichi,
+    callMeld,
+    passCall,
+    callOptions,
+    canDeclareRiichi,
+  } = useGame();
   const [showFeedback, setShowFeedback] = useState(false);
   const [openHands, setOpenHands] = useState(false);
+  const [autoTsumo, setAutoTsumo] = useState(false);
 
   const {
     training,
@@ -27,13 +41,10 @@ export default function HomePage() {
     resetTraining,
   } = useTraining(state);
 
-  const handleStartReading = useCallback(
-    (target: PlayerIndex) => {
-      pause();
-      startReading(target);
-    },
-    [pause, startReading]
-  );
+  const handleStartReading = useCallback((target: PlayerIndex) => {
+    pause();
+    startReading(target);
+  }, [pause, startReading]);
 
   const handleSubmitAttempt = useCallback(() => {
     submitAttempt();
@@ -52,9 +63,18 @@ export default function HomePage() {
 
   const handleNextRound = useCallback(() => {
     setOpenHands(false);
+    setAutoTsumo(false);
     resetTraining();
     nextRound();
   }, [resetTraining, nextRound]);
+
+  useEffect(() => {
+    if (!autoTsumo || !canDiscard || state.isPaused || callOptions || state.riichiArmed) return;
+    const drawn = state.players[0].drawnTile;
+    if (drawn === null) return;
+    const timer = window.setTimeout(() => discardTile(drawn, true), 650);
+    return () => window.clearTimeout(timer);
+  }, [autoTsumo, canDiscard, callOptions, discardTile, state.isPaused, state.players, state.riichiArmed]);
 
   const controls = (
     <GameControls
@@ -77,9 +97,7 @@ export default function HomePage() {
           <div className="start-screen-copy">
             <span className="start-screen-kicker">READ THE TABLE</span>
             <h1>麻雀解析トレーナー</h1>
-            <p>
-              実戦の流れを止めずに、河・立直・手出しから相手の待ちを読む練習をします。
-            </p>
+            <p>実戦の流れを止めずに、河・立直・手出しから相手の待ちを読む練習をします。</p>
           </div>
           <div className="start-screen-actions">
             {controls}
@@ -90,11 +108,7 @@ export default function HomePage() {
         </div>
       ) : state.phase === "review" ? (
         <div className="review-screen">
-          <ReviewPanel
-            attempts={training.attempts}
-            results={training.reviewResults}
-            onClose={handleNextRound}
-          />
+          <ReviewPanel attempts={training.attempts} results={training.reviewResults} onClose={handleNextRound} />
         </div>
       ) : (
         <GameBoard
@@ -103,21 +117,27 @@ export default function HomePage() {
           onDiscard={discardTile}
           controls={controls}
           openHands={openHands}
+          riichiArmed={state.riichiArmed}
+          canDeclareRiichi={canDeclareRiichi}
+          onToggleRiichi={armRiichi}
+          callOptions={callOptions}
+          onCall={callMeld}
+          onPassCall={passCall}
+          autoTsumo={autoTsumo}
+          onToggleAutoTsumo={() => setAutoTsumo((value) => !value)}
         />
       )}
 
-      {training.isReading &&
-        training.selectedTarget !== null &&
-        training.currentAttempt !== null && (
-          <ReadingModal
-            gameState={state}
-            targetPlayer={training.selectedTarget}
-            currentAttempt={training.currentAttempt}
-            onUpdate={updateAttempt}
-            onSubmit={handleSubmitAttempt}
-            onCancel={handleCancelReading}
-          />
-        )}
+      {training.isReading && training.selectedTarget !== null && training.currentAttempt !== null && (
+        <ReadingModal
+          gameState={state}
+          targetPlayer={training.selectedTarget}
+          currentAttempt={training.currentAttempt}
+          onUpdate={updateAttempt}
+          onSubmit={handleSubmitAttempt}
+          onCancel={handleCancelReading}
+        />
+      )}
 
       {showFeedback && <FeedbackTrainer onClose={() => setShowFeedback(false)} />}
 
@@ -127,9 +147,7 @@ export default function HomePage() {
             <p>停止中に相手を選んで読みを記録できます</p>
             <div className="pause-reading-buttons">
               {([1, 2, 3] as PlayerIndex[]).map((idx) => (
-                <button key={idx} onClick={() => handleStartReading(idx)}>
-                  {playerLabel(idx)}を読む
-                </button>
+                <button key={idx} onClick={() => handleStartReading(idx)}>{playerLabel(idx)}を読む</button>
               ))}
             </div>
             <button onClick={resume} className="pause-resume-button">再開</button>
