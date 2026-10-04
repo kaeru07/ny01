@@ -1,6 +1,6 @@
 import { TileIndex } from "@/types/mahjong";
 import { ReadAttempt, ReviewResult, ReviewGrade, PREDICTABLE_ROLES, HandStyleId } from "@/types/training";
-import { getTenpaiWaits } from "@/domain/mahjong/shanten";
+import { getCurrentWaits } from "@/domain/mahjong/shanten";
 import { getSuit, getNumber } from "@/domain/mahjong/tile";
 
 // ============================================================
@@ -210,9 +210,10 @@ function generateFeedback(
 // 局後の答え合わせを計算
 export function computeReviewResult(
   attempt: ReadAttempt,
-  actualHand: TileIndex[]
+  actualHand: TileIndex[],
+  fixedMelds = 0
 ): ReviewResult {
-  const actualWaits = getTenpaiWaits(actualHand);
+  const actualWaits = getCurrentWaits(actualHand, null, fixedMelds);
 
   const waitScore = scoreWaits(attempt.waitPrediction, actualWaits);
   const styleScore = scoreHandStyle((attempt.handStyleTags ?? []) as HandStyleId[], actualHand);
