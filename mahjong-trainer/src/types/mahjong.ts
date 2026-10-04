@@ -18,12 +18,19 @@ export interface Meld {
   fromPlayer?: PlayerIndex;
 }
 
+export interface DiscardRecord {
+  tile: TileIndex;
+  tsumogiri: boolean;
+  riichi: boolean;
+}
+
 export interface Player {
   index: PlayerIndex;
   wind: Wind;
   hand: TileIndex[];      // 手牌 (ツモ牌含まず)
   drawnTile: TileIndex | null; // 今ツモった牌
-  discards: TileIndex[];  // 河
+  discards: TileIndex[];  // 河（既存ロジック互換）
+  discardRecords: DiscardRecord[]; // 表示用メタデータ
   melds: Meld[];
   score: number;
   riichi: boolean;

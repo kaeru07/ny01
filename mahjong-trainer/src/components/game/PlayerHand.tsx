@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Player } from "@/types/mahjong";
 import TileComponent from "./TileComponent";
 
@@ -8,9 +8,10 @@ interface PlayerHandProps {
   player: Player;
   isHuman?: boolean;
   canDiscard?: boolean;
-  onDiscard?: (tileIndex: number) => void;
+  onDiscard?: (tileIndex: number, fromDrawn: boolean) => void;
   orientation?: "horizontal" | "vertical";
-  showTiles?: boolean; // false = 裏向き
+  rotation?: 0 | 90 | 180 | 270;
+  showTiles?: boolean;
 }
 
 export default function PlayerHand({
@@ -19,84 +20,86 @@ export default function PlayerHand({
   canDiscard = false,
   onDiscard,
   orientation = "horizontal",
+  rotation = 0,
   showTiles = false,
 }: PlayerHandProps) {
   const tileSize = isHuman ? "lg" : "sm";
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    setSelectedKey(null);
+  }, [player.hand, player.drawnTile, canDiscard]);
+
+  const handleTileTap = (key: string, tile: number, fromDrawn: boolean) => {
+    if (!canDiscard || !isHuman) return;
+    if (selectedKey === key) {
+      setSelectedKey(null);
+      onDiscard?.(tile, fromDrawn);
+      return;
+    }
+    setSelectedKey(key);
+  };
+
+  const handTiles = (
+    <>
+      {player.hand.map((tile, i) => {
+        const key = `hand-${i}`;
+        return (
+          <TileComponent
+            key={`${key}-${tile}`}
+            tileIndex={tile}
+            size={tileSize}
+            faceDown={!showTiles}
+            rotation={rotation}
+            selected={selectedKey === key}
+            onClick={canDiscard && isHuman ? () => handleTileTap(key, tile, false) : undefined}
+          />
+        );
+      })}
+      {player.drawnTile !== null && (
+        <div className="drawn-tile-gap">
+          <TileComponent
+            key={`drawn-${player.drawnTile}`}
+            tileIndex={player.drawnTile}
+            size={tileSize}
+            rotation={rotation}
+            selected={selectedKey === "drawn"}
+            highlighted={isHuman && selectedKey !== "drawn"}
+            faceDown={!showTiles}
+            onClick={canDiscard && isHuman ? () => handleTileTap("drawn", player.drawnTile!, true) : undefined}
+          />
+        </div>
+      )}
+    </>
+  );
+
+  const melds = player.melds.map((meld, mi) => (
+    <div key={`meld-${mi}`} className="meld-group">
+      {meld.tiles.map((tile, ti) => (
+        <TileComponent
+          key={`meld-${mi}-${ti}`}
+          tileIndex={tile}
+          size={tileSize}
+          faceDown={meld.type === "ankan" && (ti === 0 || ti === meld.tiles.length - 1)}
+          rotation={rotation}
+        />
+      ))}
+    </div>
+  ));
 
   if (orientation === "vertical") {
     return (
-      <div className="flex flex-col items-center gap-0.5">
-        {player.hand.map((tile, i) => (
-          <TileComponent
-            key={`hand-${tile}-${i}`}
-            tileIndex={tile}
-            size="sm"
-            faceDown={!showTiles}
-          />
-        ))}
-        {player.drawnTile !== null && (
-          <>
-            <div className="h-1" />
-            <TileComponent
-              key="drawn"
-              tileIndex={player.drawnTile}
-              size="sm"
-              faceDown={!showTiles}
-            />
-          </>
-        )}
+      <div className="hand-row hand-row-vertical">
+        <div className="concealed-hand concealed-hand-vertical">{handTiles}</div>
+        {melds.length > 0 && <div className="melds melds-vertical">{melds}</div>}
       </div>
     );
   }
 
   return (
-    <div className="hand-row">
-      {/* 手牌 */}
-      {player.hand.map((tile, i) => (
-        <TileComponent
-          key={`hand-${tile}-${i}`}
-          tileIndex={tile}
-          size={tileSize}
-          faceDown={!showTiles}
-          onClick={canDiscard ? () => onDiscard?.(tile) : undefined}
-        />
-      ))}
-
-      {/* ツモ牌 (手牌から少し離して表示) */}
-      {player.drawnTile !== null && (
-        <>
-          <div className="w-2 shrink-0" />
-          <TileComponent
-            key="drawn"
-            tileIndex={player.drawnTile}
-            size={tileSize}
-            highlighted={isHuman}
-            faceDown={!showTiles}
-            onClick={canDiscard ? () => onDiscard?.(player.drawnTile!) : undefined}
-          />
-        </>
-      )}
-
-      {/* 鳴き面子 */}
-      {player.melds.map((meld, mi) => (
-        <div key={`meld-${mi}`} className="flex gap-0.5 ml-1.5 border-l-2 border-yellow-400 pl-1 shrink-0">
-          {meld.tiles.map((tile, ti) => (
-            <TileComponent
-              key={`meld-${mi}-${ti}`}
-              tileIndex={tile}
-              size={tileSize}
-              faceDown={false}
-            />
-          ))}
-        </div>
-      ))}
-
-      {/* 立直棒アイコン */}
-      {player.riichi && (
-        <span className="ml-1.5 text-red-500 font-bold text-xs self-center shrink-0">
-          ⚡立直
-        </span>
-      )}
+    <div className={`hand-row ${isHuman ? "hand-row-human" : "hand-row-opponent"}`}>
+      <div className="concealed-hand">{handTiles}</div>
+      {melds.length > 0 && <div className="melds">{melds}</div>}
     </div>
   );
 }
