@@ -108,7 +108,7 @@ export default function ReadingModal({
 
         <div className="reading-question-copy">
           <strong>{answered ? "答え合わせ" : "待ち牌を選択"}</strong>
-          <span {answered ? "緑が実際の待ち、赤が外した予想です" : "複数選択できます。テンパイしていないと思う場合はノーテンを選択。"}</span>
+          <span>{answered ? "緑が実際の待ち、赤が外した予想です" : "複数選択できます。テンパイしていないと思う場合はノーテンを選択。"}</span>
         </div>
 
         <div className="wait-grid">
