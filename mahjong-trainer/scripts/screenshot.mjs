@@ -13,7 +13,12 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 // playwright-core は scrape-lab(note) の node_modules を借りる。chromium 本体は
 // /root/.cache/ms-playwright に導入済み。
-const { chromium } = require("/root/company/apps/note/node_modules/playwright-core");
+let chromium;
+try {
+  ({ chromium } = require("playwright-core"));
+} catch {
+  ({ chromium } = require("/root/company/apps/note/node_modules/playwright-core"));
+}
 
 const OUT = process.env.OUT_DIR || ".screenshots";
 const URL = process.env.URL || "http://localhost:3457/";
@@ -107,7 +112,7 @@ async function reachWrappedRivers(page, label) {
       return wrapped;
     }
 
-    const tile = page.locator(".hand-area .hand-row .tile-hand.cursor-pointer").first();
+    const tile = page.locator(".self-hand-area .hand-row .tile-hand.cursor-pointer").first();
     try {
       await tile.click({ timeout: 5000 });
       await page.waitForFunction(
