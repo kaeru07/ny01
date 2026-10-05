@@ -436,7 +436,13 @@ button { -webkit-tap-highlight-color: transparent; }
     font-size: 8px;
   }
 
-  .self-meta { left: 3.25%; right: 3.25%; bottom: 13.6%; min-width: 0; padding: 7px 9px; }
+  .self-meta {
+    left: 3.25%;
+    right: 3.25%;
+    bottom: calc(4.3% + var(--tile-hand-h) + 8px);
+    min-width: 0;
+    padding: 7px 9px;
+  }
   .self-hand-area { bottom: 4.3%; width: 100%; display: flex; justify-content: center; }
   .self-hand-area .drawn-tile-gap { margin-left: 6px; }
   .mahjong-tile.is-selected { transform: translateY(-10px); }
