@@ -13,7 +13,12 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 // playwright-core は scrape-lab(note) の node_modules を借りる。chromium 本体は
 // /root/.cache/ms-playwright に導入済み。
-const { chromium } = require("/root/company/apps/note/node_modules/playwright-core");
+let chromium;
+try {
+  ({ chromium } = require("playwright-core"));
+} catch {
+  ({ chromium } = require("/root/company/apps/note/node_modules/playwright-core"));
+}
 
 const OUT = process.env.OUT_DIR || ".screenshots";
 const URL = process.env.URL || "http://localhost:3457/";
@@ -22,6 +27,7 @@ const SEED = Number(process.env.SEED || 20260810);
 
 const VIEWPORTS = [
   { name: "portrait-390", width: 390, height: 844 },
+  { name: "portrait-393-safe", width: 393, height: 852, safeTop: 59, safeBottom: 34 },
   { name: "portrait-375", width: 375, height: 667 },
   { name: "landscape-844", width: 844, height: 390 },
 ].filter((viewport) => !process.env.VIEWPORT || viewport.name === process.env.VIEWPORT);
@@ -36,31 +42,54 @@ mkdirSync(OUT, { recursive: true });
 async function measure(page, label) {
   const r = await page.evaluate(() => {
     const vw = window.innerWidth;
+    const vh = window.innerHeight;
     const boxes = (sel) =>
       [...document.querySelectorAll(sel)].map((el) => el.getBoundingClientRect());
     const summarize = (rects) => {
       if (!rects.length) return null;
       const left = Math.min(...rects.map((b) => b.left));
       const right = Math.max(...rects.map((b) => b.right));
+      const top = Math.min(...rects.map((b) => b.top));
+      const bottom = Math.max(...rects.map((b) => b.bottom));
       return {
         count: rects.length,
         left: Math.round(left),
         right: Math.round(right),
+        top: Math.round(top),
+        bottom: Math.round(bottom),
         clippedLeft: left < -0.5,
         clippedRight: right > vw + 0.5,
+        clippedTop: top < -0.5,
+        clippedBottom: bottom > vh + 0.5,
       };
     };
     return {
       viewportWidth: vw,
+      viewportHeight: vh,
       hand: summarize(boxes(".hand-row .tile-hand, [data-hand-tile]")),
       allTiles: summarize(boxes(".tile-hand, .tile-sm, .tile-md")),
-      docOverflowing: document.documentElement.scrollWidth > vw + 1,
+      selfHandArea: summarize(boxes(".self-hand-area")),
+      selfMeta: summarize(boxes(".self-meta")),
+      readingButtons: summarize(boxes(".reading-buttons")),
+      shell: summarize(boxes(".app-shell")),
+      docOverflowing:
+        document.documentElement.scrollWidth > vw + 1 ||
+        document.documentElement.scrollHeight > vh + 1,
     };
   });
+  const clipped = (box) =>
+    box && (box.clippedLeft || box.clippedRight || box.clippedTop || box.clippedBottom);
+  const overlaps = (a, b) =>
+    a && b && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
   const bad =
     r.docOverflowing ||
-    (r.hand && (r.hand.clippedLeft || r.hand.clippedRight)) ||
-    (r.allTiles && (r.allTiles.clippedLeft || r.allTiles.clippedRight));
+    clipped(r.hand) ||
+    clipped(r.allTiles) ||
+    clipped(r.selfHandArea) ||
+    clipped(r.selfMeta) ||
+    clipped(r.shell) ||
+    overlaps(r.selfMeta, r.readingButtons) ||
+    overlaps(r.selfMeta, r.selfHandArea);
   console.log(`[${label}] ${bad ? "NG" : "OK"} ${JSON.stringify(r)}`);
   return !bad;
 }
@@ -90,7 +119,7 @@ async function reachWrappedRivers(page, label) {
       return wrapped;
     }
 
-    const tile = page.locator(".hand-area .hand-row .tile-hand.cursor-pointer").first();
+    const tile = page.locator(".self-hand-area .hand-row .tile-hand.cursor-pointer").first();
     try {
       await tile.click({ timeout: 5000 });
       await page.waitForFunction(
@@ -135,6 +164,16 @@ async function verifyViewport(vp) {
   page.on("pageerror", (e) => errors.push(`PAGEERROR ${e.message}`));
 
   const response = await page.goto(URL, { waitUntil: "networkidle" });
+  if (vp.safeTop || vp.safeRight || vp.safeBottom || vp.safeLeft) {
+    await page.addStyleTag({
+      content: `:root {
+        --app-safe-top: ${vp.safeTop || 0}px;
+        --app-safe-right: ${vp.safeRight || 0}px;
+        --app-safe-bottom: ${vp.safeBottom || 0}px;
+        --app-safe-left: ${vp.safeLeft || 0}px;
+      }`,
+    });
+  }
   await page.waitForTimeout(600);
   await page.screenshot({ path: `${OUT}/${TAG}-${vp.name}-start.png` });
 
@@ -146,9 +185,13 @@ async function verifyViewport(vp) {
     await page.screenshot({ path: `${OUT}/${TAG}-${vp.name}-game.png` });
     viewportOk = (await measure(page, `${vp.name}/game`)) && viewportOk;
 
-    const riversWrapped = await reachWrappedRivers(page, `${vp.name}/wrapped`);
-    await page.screenshot({ path: `${OUT}/${TAG}-${vp.name}-mid.png` });
-    viewportOk = riversWrapped && (await measure(page, `${vp.name}/mid`)) && viewportOk;
+    if (process.env.SKIP_RIVER_WRAP === "1") {
+      console.log(`[${vp.name}] river-wrap skipped for focused viewport regression`);
+    } else {
+      const riversWrapped = await reachWrappedRivers(page, `${vp.name}/wrapped`);
+      await page.screenshot({ path: `${OUT}/${TAG}-${vp.name}-mid.png` });
+      viewportOk = riversWrapped && (await measure(page, `${vp.name}/mid`)) && viewportOk;
+    }
   } else {
     errors.push("対局開始ボタンが見つからず、対局画面を検証できませんでした");
   }
