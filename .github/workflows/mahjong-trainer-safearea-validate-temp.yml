@@ -6,6 +6,9 @@ on:
       - fix/mahjong-trainer-safearea-compliance-20261005
     paths:
       - .github/workflows/mahjong-trainer-safearea-validate-temp.yml
+      - mahjong-trainer/src/app/globals.css
+      - mahjong-trainer/scripts/screenshot.mjs
+      - mahjong-trainer/ios/App/App/Info.plist
 
 permissions:
   contents: read
