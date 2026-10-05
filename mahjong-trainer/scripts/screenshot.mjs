@@ -178,9 +178,13 @@ async function verifyViewport(vp) {
     await page.screenshot({ path: `${OUT}/${TAG}-${vp.name}-game.png` });
     viewportOk = (await measure(page, `${vp.name}/game`)) && viewportOk;
 
-    const riversWrapped = await reachWrappedRivers(page, `${vp.name}/wrapped`);
-    await page.screenshot({ path: `${OUT}/${TAG}-${vp.name}-mid.png` });
-    viewportOk = riversWrapped && (await measure(page, `${vp.name}/mid`)) && viewportOk;
+    if (process.env.SKIP_RIVER_WRAP === "1") {
+      console.log(`[${vp.name}] river-wrap skipped for focused viewport regression`);
+    } else {
+      const riversWrapped = await reachWrappedRivers(page, `${vp.name}/wrapped`);
+      await page.screenshot({ path: `${OUT}/${TAG}-${vp.name}-mid.png` });
+      viewportOk = riversWrapped && (await measure(page, `${vp.name}/mid`)) && viewportOk;
+    }
   } else {
     errors.push("対局開始ボタンが見つからず、対局画面を検証できませんでした");
   }
