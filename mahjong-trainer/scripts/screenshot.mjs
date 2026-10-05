@@ -22,6 +22,7 @@ const SEED = Number(process.env.SEED || 20260810);
 
 const VIEWPORTS = [
   { name: "portrait-390", width: 390, height: 844 },
+  { name: "portrait-393-safe", width: 393, height: 852, safeTop: 59, safeBottom: 34 },
   { name: "portrait-375", width: 375, height: 667 },
   { name: "landscape-844", width: 844, height: 390 },
 ].filter((viewport) => !process.env.VIEWPORT || viewport.name === process.env.VIEWPORT);
@@ -36,31 +37,47 @@ mkdirSync(OUT, { recursive: true });
 async function measure(page, label) {
   const r = await page.evaluate(() => {
     const vw = window.innerWidth;
+    const vh = window.innerHeight;
     const boxes = (sel) =>
       [...document.querySelectorAll(sel)].map((el) => el.getBoundingClientRect());
     const summarize = (rects) => {
       if (!rects.length) return null;
       const left = Math.min(...rects.map((b) => b.left));
       const right = Math.max(...rects.map((b) => b.right));
+      const top = Math.min(...rects.map((b) => b.top));
+      const bottom = Math.max(...rects.map((b) => b.bottom));
       return {
         count: rects.length,
         left: Math.round(left),
         right: Math.round(right),
+        top: Math.round(top),
+        bottom: Math.round(bottom),
         clippedLeft: left < -0.5,
         clippedRight: right > vw + 0.5,
+        clippedTop: top < -0.5,
+        clippedBottom: bottom > vh + 0.5,
       };
     };
     return {
       viewportWidth: vw,
+      viewportHeight: vh,
       hand: summarize(boxes(".hand-row .tile-hand, [data-hand-tile]")),
       allTiles: summarize(boxes(".tile-hand, .tile-sm, .tile-md")),
-      docOverflowing: document.documentElement.scrollWidth > vw + 1,
+      selfHandArea: summarize(boxes(".self-hand-area")),
+      shell: summarize(boxes(".app-shell")),
+      docOverflowing:
+        document.documentElement.scrollWidth > vw + 1 ||
+        document.documentElement.scrollHeight > vh + 1,
     };
   });
+  const clipped = (box) =>
+    box && (box.clippedLeft || box.clippedRight || box.clippedTop || box.clippedBottom);
   const bad =
     r.docOverflowing ||
-    (r.hand && (r.hand.clippedLeft || r.hand.clippedRight)) ||
-    (r.allTiles && (r.allTiles.clippedLeft || r.allTiles.clippedRight));
+    clipped(r.hand) ||
+    clipped(r.allTiles) ||
+    clipped(r.selfHandArea) ||
+    clipped(r.shell);
   console.log(`[${label}] ${bad ? "NG" : "OK"} ${JSON.stringify(r)}`);
   return !bad;
 }
@@ -135,6 +152,16 @@ async function verifyViewport(vp) {
   page.on("pageerror", (e) => errors.push(`PAGEERROR ${e.message}`));
 
   const response = await page.goto(URL, { waitUntil: "networkidle" });
+  if (vp.safeTop || vp.safeRight || vp.safeBottom || vp.safeLeft) {
+    await page.addStyleTag({
+      content: `:root {
+        --app-safe-top: ${vp.safeTop || 0}px;
+        --app-safe-right: ${vp.safeRight || 0}px;
+        --app-safe-bottom: ${vp.safeBottom || 0}px;
+        --app-safe-left: ${vp.safeLeft || 0}px;
+      }`,
+    });
+  }
   await page.waitForTimeout(600);
   await page.screenshot({ path: `${OUT}/${TAG}-${vp.name}-start.png` });
 
