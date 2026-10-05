@@ -69,6 +69,8 @@ async function measure(page, label) {
       hand: summarize(boxes(".hand-row .tile-hand, [data-hand-tile]")),
       allTiles: summarize(boxes(".tile-hand, .tile-sm, .tile-md")),
       selfHandArea: summarize(boxes(".self-hand-area")),
+      selfMeta: summarize(boxes(".self-meta")),
+      readingButtons: summarize(boxes(".reading-buttons")),
       shell: summarize(boxes(".app-shell")),
       docOverflowing:
         document.documentElement.scrollWidth > vw + 1 ||
@@ -77,12 +79,17 @@ async function measure(page, label) {
   });
   const clipped = (box) =>
     box && (box.clippedLeft || box.clippedRight || box.clippedTop || box.clippedBottom);
+  const overlaps = (a, b) =>
+    a && b && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
   const bad =
     r.docOverflowing ||
     clipped(r.hand) ||
     clipped(r.allTiles) ||
     clipped(r.selfHandArea) ||
-    clipped(r.shell);
+    clipped(r.selfMeta) ||
+    clipped(r.shell) ||
+    overlaps(r.selfMeta, r.readingButtons) ||
+    overlaps(r.selfMeta, r.selfHandArea);
   console.log(`[${label}] ${bad ? "NG" : "OK"} ${JSON.stringify(r)}`);
   return !bad;
 }
