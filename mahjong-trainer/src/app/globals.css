@@ -17,6 +17,10 @@
   --tile-md-w: 34px;
   --tile-md-h: calc(var(--tile-md-w) * 1.36);
   --river-gap: 1px;
+  --app-safe-top: env(safe-area-inset-top, 0px);
+  --app-safe-right: env(safe-area-inset-right, 0px);
+  --app-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --app-safe-left: env(safe-area-inset-left, 0px);
 }
 
 * { box-sizing: border-box; }
@@ -34,10 +38,7 @@ body {
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
   overflow: hidden;
-  padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
+  padding: 0;
 }
 
 button,
@@ -45,9 +46,16 @@ textarea { font: inherit; }
 button { -webkit-tap-highlight-color: transparent; }
 
 .app-shell {
+  width: 100vw;
   height: 100vh;
   height: 100dvh;
+  min-height: 0;
   overflow: hidden;
+  padding:
+    var(--app-safe-top)
+    var(--app-safe-right)
+    var(--app-safe-bottom)
+    var(--app-safe-left);
   background: radial-gradient(ellipse at 50% 35%, #1b2622 0%, #0b100e 70%);
 }
 
