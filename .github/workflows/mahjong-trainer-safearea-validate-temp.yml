@@ -1,0 +1,70 @@
+name: Validate mahjong trainer safe area temporary
+
+on:
+  push:
+    branches:
+      - fix/mahjong-trainer-safearea-compliance-20261005
+    paths:
+      - .github/workflows/mahjong-trainer-safearea-validate-temp.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: mahjong-trainer
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mahjong-trainer/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Production build
+        run: npm run build
+
+      - name: Install browser for visual regression
+        run: |
+          npm install --no-save --package-lock=false playwright-core@1.55.0
+          node node_modules/playwright-core/cli.js install --with-deps chromium
+
+      - name: Run app
+        run: |
+          npm run dev -- -p 3457 > /tmp/mahjong-trainer.log 2>&1 &
+          echo $! > /tmp/mahjong-trainer.pid
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:3457/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/mahjong-trainer.log
+          exit 1
+
+      - name: iPhone safe-area visual regression
+        env:
+          OUT_DIR: .screenshots-ci
+          VIEWPORT: portrait-393-safe
+          TAG: safearea
+        run: node scripts/screenshot.mjs
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mahjong-trainer-safearea-screenshots
+          path: mahjong-trainer/.screenshots-ci/
+          if-no-files-found: warn
+          retention-days: 7
