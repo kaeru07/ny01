@@ -55,9 +55,10 @@ jobs:
 
       - name: iPhone safe-area visual regression
         env:
-          OUT_DIR: .screenshots-ci
+          OUT_DIR: screenshots-ci
           VIEWPORT: portrait-393-safe
           TAG: safearea
+          SKIP_RIVER_WRAP: "1"
         run: node scripts/screenshot.mjs
 
       - name: Upload screenshots
@@ -65,6 +66,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mahjong-trainer-safearea-screenshots
-          path: mahjong-trainer/.screenshots-ci/
+          path: mahjong-trainer/screenshots-ci/
           if-no-files-found: warn
           retention-days: 7
