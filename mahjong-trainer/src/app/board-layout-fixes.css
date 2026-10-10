@@ -1,0 +1,26 @@
+/* Keep the top player's second and later discard rows above the center panel. */
+@media (orientation: portrait) {
+  .river-slot-top {
+    top: auto;
+    bottom: calc(58.2% + 68px);
+  }
+
+  /* A kan may display 15 tiles in total. Reserve space for gaps and margins. */
+  :root {
+    --tile-hand-w: min(29px, calc((100vw - 64px) / 15));
+    --tile-hand-h: calc(var(--tile-hand-w) * 1.41);
+  }
+  .self-hand-area {
+    width: calc(100% - 16px);
+    min-width: 0;
+  }
+  .self-hand-area .hand-row-human {
+    max-width: 100%;
+    min-width: 0;
+    gap: 4px;
+    justify-content: center;
+  }
+  .self-hand-area .concealed-hand,
+  .self-hand-area .melds { min-width: 0; }
+  .self-hand-area .melds { margin-left: 2px; gap: 2px; }
+}
