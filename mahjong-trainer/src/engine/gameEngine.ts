@@ -47,7 +47,7 @@ function initRound(state: GameState): GameState {
 
   // ドラ表示牌: デッキの末尾5枚を使用 (簡略化)
   const dora = [deck[135]];
-  const wall = deck.slice(0, 136 - 14 - 1); // 配牌後の残り山
+  // 王牌14枚は通常のツモ山に含めない。
 
   // 配牌: 各プレイヤーに13枚
   const hands: TileIndex[][] = [[], [], [], []];
@@ -59,7 +59,7 @@ function initRound(state: GameState): GameState {
   }
 
   // 残り山
-  const remainingWall = deck.slice(52);
+  const remainingWall = deck.slice(52, 122);
 
   // 東家 (index=0) の最初のツモ
   const firstDraw = remainingWall.shift()!;
@@ -110,6 +110,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       });
 
     case "DRAW_TILE": {
+      if (state.phase !== "playing" || state.isPaused || state.players[state.turn].drawnTile !== null) return state;
       if (state.wall.length === 0) {
         return { ...state, phase: "ryukyoku" };
       }
@@ -134,6 +135,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case "DISCARD_TILE": {
       const player = state.players[state.turn];
       const tileIndex = action.tileIndex;
+      if (state.phase !== "playing" || state.isPaused || player.drawnTile === null || ![...player.hand, player.drawnTile].includes(tileIndex)) return state;
 
       // ツモ牌を含めた全牌(手牌13 + ツモ1 = 14相当)から、打牌する1枚だけを取り除く。
       // 手出し(ツモ牌以外を切る)でも、ツモ牌は手牌に残す必要がある。
@@ -181,6 +183,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       // TODO: 立直宣言の完全実装
       const player = state.players[state.turn];
       const tileIndex = action.tileIndex;
+      if (state.phase !== "playing" || state.isPaused || player.drawnTile === null || player.riichi || player.score < 1000 || ![...player.hand, player.drawnTile].includes(tileIndex)) return state;
       // DISCARD_TILE と同様、全牌から1枚だけ取り除く(同一牌を全消し/ツモ牌消失を防ぐ)
       const fullHand = player.drawnTile !== null
         ? [...player.hand, player.drawnTile]
