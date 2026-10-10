@@ -73,6 +73,10 @@ export default function PlayerHand({
     </>
   );
 
+  // Include exposed meld tiles (kan can increase the visible count to 15).
+  const totalDisplayedTiles = player.hand.length + (player.drawnTile !== null ? 1 : 0)
+    + player.melds.reduce((count, meld) => count + meld.tiles.length, 0);
+
   const melds = player.melds.map((meld, mi) => (
     <div key={`meld-${mi}`} className="meld-group">
       {meld.tiles.map((tile, ti) => (
@@ -97,7 +101,7 @@ export default function PlayerHand({
   }
 
   return (
-    <div className={`hand-row ${isHuman ? "hand-row-human" : "hand-row-opponent"}`}>
+    <div className={`hand-row ${isHuman ? "hand-row-human" : "hand-row-opponent"}`} style={isHuman ? { "--total-tiles": Math.max(1, totalDisplayedTiles) } as React.CSSProperties : undefined}>
       <div className="concealed-hand">{handTiles}</div>
       {melds.length > 0 && <div className="melds">{melds}</div>}
     </div>
