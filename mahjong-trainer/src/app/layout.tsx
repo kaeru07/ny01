@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import "./board-layout-fixes.css";
 
 export const metadata: Metadata = {
   title: "麻雀実戦読みトレーナー",
