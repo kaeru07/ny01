@@ -827,3 +827,13 @@ button { -webkit-tap-highlight-color: transparent; }
   .table-center { top: 44%; width: clamp(86px, 18vw, 120px); height: clamp(86px, 18vw, 120px); }
   .river-slot-bottom { top: 54.5%; }
 }
+
+
+/* compact portrait: reserve vertical space for four discard rows (up to 24 tiles). */
+@media (orientation: portrait) and (max-height: 720px) {
+  .opponent-hand-top { top: 17.5%; }
+  .river-slot-top { top: 22%; }
+  .river .tile-sm { --tile-sm-w: 15px; --tile-sm-h: 19px; }
+  .table-center { top: 46%; }
+  .river-slot-bottom { top: 57%; }
+}
