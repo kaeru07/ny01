@@ -798,3 +798,32 @@ button { -webkit-tap-highlight-color: transparent; }
   }
   .reading-question-copy span { text-align: left; }
 }
+
+
+/* iPhone portrait: keep called melds and the full hand within the safe viewport.
+   Tile count is supplied by PlayerHand; CSS fallback remains 14. */
+@media (orientation: portrait) {
+  .self-hand-area {
+    left: max(8px, var(--app-safe-left));
+    right: max(8px, var(--app-safe-right));
+    width: auto;
+    transform: none;
+    justify-content: center;
+  }
+  .self-hand-area .hand-row-human {
+    --tile-hand-w: clamp(14px, calc((100vw - 52px) / var(--total-tiles, 14) - 1px), 29px);
+    max-width: 100%;
+    gap: 3px;
+    justify-content: center;
+  }
+  .self-hand-area .hand-row-human .melds {
+    gap: 2px;
+    margin-left: 2px;
+  }
+  .self-hand-area .hand-row-human .drawn-tile-gap { margin-left: 3px; }
+  .self-hand-area .hand-row-human .concealed-hand { gap: 1px; }
+  /* The top river must remain visible after its second row is populated. */
+  .river-slot-top { top: 24.8%; z-index: 6; }
+  .table-center { top: 44%; width: clamp(86px, 18vw, 120px); height: clamp(86px, 18vw, 120px); }
+  .river-slot-bottom { top: 54.5%; }
+}
