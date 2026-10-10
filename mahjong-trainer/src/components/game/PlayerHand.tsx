@@ -22,6 +22,14 @@ export default function PlayerHand({
   showTiles = false,
 }: PlayerHandProps) {
   const tileSize = isHuman ? "lg" : "sm";
+  // Reserve space for meld separators, draw gap, and riichi label before sizing tiles.
+  // Counting only the 13/14 concealed tiles causes melded hands to clip on iPhone.
+  const meldTileCount = player.melds.reduce((count, meld) => count + meld.tiles.length, 0);
+  const totalTileCount = Math.max(1, player.hand.length + (player.drawnTile === null ? 0 : 1) + meldTileCount);
+  const reservedPixels = 18 + player.melds.length * 14 + (player.drawnTile === null ? 0 : 8) + (player.riichi ? 44 : 0) + totalTileCount * 3;
+  const handRowStyle = isHuman ? {
+    "--tile-hand-w": `min(36px, calc((100cqw - ${reservedPixels}px) / ${totalTileCount}))`,
+  } as React.CSSProperties : undefined;
 
   if (orientation === "vertical") {
     return (
@@ -50,7 +58,7 @@ export default function PlayerHand({
   }
 
   return (
-    <div className="hand-row">
+    <div className="hand-row" style={handRowStyle}>
       {/* 手牌 */}
       {player.hand.map((tile, i) => (
         <TileComponent
