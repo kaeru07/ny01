@@ -62622,6 +62622,89 @@
         "残り3本（analyzer/mahjong/trainer）の公開状況を確認する"
       ],
       "rawReport": "■ 何が誤っていたか\n\nrunId 20260902-002949（自動実行の総括レビュー）に『ストア公開 0本 / 収益 0円』と記載した。公開0本は事実誤認。\n\n■ 正しい事実（iTunes Search API で確認）\n\n・アプリ名（ストア表示）: 暇つぶし アプリ\n・Bundle ID: jp.kaeru07.himatsubushi\n・App ID（Adam ID）: 6790418497\n・URL: https://apps.apple.com/jp/app/id6790418497\n・公開日: 2026-08-12 / version 1.0\n\n他3本（com.kaeru07.mahjonganalyzer / com.kaeru07.mahjong / com.kaeru07.mahjongtrainer）は同APIで未検出＝未公開。\n\n■ なぜ誤ったか\n\n1. 公開は App Store Connect 上の操作で完結し、ローカルの release/ios-app.json には反映されない\n2. app-urls.json・app-index.md・fastlane 配下のいずれにも公開URLとApp IDの記録が無かった\n3. 集計時に『手元のデータに無い＝公開されていない』と判断し、ストア側を照会しなかった\n\n■ 総括レビューへの影響\n\n『アプリ完成0本』の結論自体は変わらない（暇つぶしアプリも自動実行が起点ではなく人間指示で作られたもの）。ただし『ストア公開0本』は誤りで、正しくは『App Store 公開1本（自動実行起点は0本）』。\n\n■ 再発防止\n\n・公開状態を手元データだけで判断しない。Bundle ID から iTunes Search API で照会すれば確認できる\n・公開したらローカルにも記録する場所を決める（app-urls.json が妥当）\n\nmonetizationImpact: high\ntheme: [app-strategy, workflow]\nobsidianSummary: 総括レビューの『ストア公開0本』は誤り。暇つぶしアプリは2026-08-12に公開済み（App ID 6790418497）。手元データだけで公開状態を判断したことが原因。\nobsidianSaveTarget: 20_reviews/2026-09-02_autorun-zero-apps-retrospective.md（訂正追記）"
+    },
+    {
+      "runId": "20260909-230855",
+      "startedAt": "2026-09-09T14:08:55.830Z",
+      "finishedAt": "2026-09-09T14:08:55.830Z",
+      "targetApp": "company-mgmt",
+      "epicId": "epic-goalstep-goal-mqp6hasd-g5i9p",
+      "targetTodoTitle": "Vault リポジトリの入れ替え（欠陥ミラーを封印し完全版を正本化）+ 消えかけた121件の救出",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "kaeru07/vault は2,196件欠落した欠陥ミラーで、バックアップとして機能していなかった。完全版(vault-sync-backup)を vault にリネームして正本化し、旧側は vault-legacy としてアーカイブ。入れ替え前の検証で旧側にしか無い121件を発見し救出した。",
+      "changedFiles": [
+        {
+          "file": "kaeru07/vault",
+          "change": "旧 vault-sync-backup をリネーム。private・3,112件。稼働Vaultと差分0の完全版"
+        },
+        {
+          "file": "kaeru07/vault-legacy",
+          "change": "旧 vault をリネームしアーカイブ化（読み取り専用）。872件・2,196件欠落"
+        },
+        {
+          "file": "kaeru07/vault の _legacy-vault-only/",
+          "change": "旧ミラーにしか無かった121件を救出して取り込み。経緯をREADMEに記録"
+        },
+        {
+          "file": "scripts/backup-to-github.sh",
+          "change": "push先を kaeru07/vault へ更新。ローカルのステージングdir名は据え置き（実体を動かすと壊れるため）"
+        },
+        {
+          "file": "obsidian-vault / _backups/vault-sync-backup の remote",
+          "change": "新名称へ向け直し"
+        }
+      ],
+      "checks": {
+        "browser": "n/a"
+      },
+      "errors": [],
+      "warnings": [
+        "救出した121件は稼働Vaultには戻していない。_legacy-vault-only/ に置いたまま。戻すか捨てるかは中身を見て判断が必要",
+        "ローカルの _backups/vault-sync-backup はディレクトリ名だけ旧名のまま（push先は新名称）",
+        "kaeru07/vault が public から private に変わった。ChatGPT等の外部から参照していた場合は見えなくなる"
+      ],
+      "progressUpdated": true,
+      "nextActions": [
+        "_legacy-vault-only/ の121件を稼働Vaultへ戻すか削除するか判断する",
+        "外部レビュー(ChatGPT)へ Vault を見せる運用があるなら、private化の影響を確認する"
+      ],
+      "rawReport": "■ 発端\n\nユーザーから「vaultのgitリポジトリが複数ある気がする」「どれが最新か、どれを参照すべきか」との指摘。調べたところ Vault 系が4つ存在した。\n\n| パス | md件数 | git | 実態 |\n|---|---|---|---|\n| obsidian-sync-vault | 2,956 | 管理外 | 稼働Vault（正本） |\n| _backups/vault-sync-backup | 2,956 | vault-sync-backup(private) | 稼働Vaultと差分0の完全コピー |\n| obsidian-vault | 872 | vault(public) | GitHubミラー。2,196件欠落 |\n| obsidian-sync-vault.backup.20260513 | 0 | 管理外 | 空 |\n\n■ 判明した問題\n\n名前と実態が逆転していた。『vault』という本命に見える名前のリポジトリが実は欠陥ミラーで、『vault-sync-backup』という控えに見える方が唯一の完全コピーだった。\n\n欠落の原因は、obsidian-vault が『作業で触ったファイルだけ手でcpしてcommit』する運用（full rsync と --delete を禁止したルール）のため、触っていないファイルが永久に入らない構造だったこと。欠落は 20_reviews 1,099件・06_research 1,096件で、レビュー履歴の約3分の2が GitHub に無かった。\n\n■ 実施した入れ替え\n\n1. 入れ替え前の検証で、旧vaultにしか存在しないファイルが122件（うち稼働Vaultにも無いもの121件）あることを発見\n2. 121件を _backups/vault-legacy-only-20260908/ へ退避し、新Vaultの _legacy-vault-only/ へ経緯付きREADMEとともに取り込み（内訳: 03_prompts 47 / 06_research 25 / 05_monetization 19 / 20_reviews 13 / 00_inbox 11 / 90_templates 4 / その他3。2026年5〜6月頃の記録）\n3. kaeru07/vault → kaeru07/vault-legacy にリネームし archived=true で封印\n4. kaeru07/vault-sync-backup → kaeru07/vault にリネーム（private のまま）\n5. ローカル2箇所の remote を新名称へ更新\n6. backup-to-github.sh の push 先とログ表記を更新し、実行して正常動作を確認\n\n■ 結果\n\n・kaeru07/vault: private・3,112ファイル（md 2,956 + 救出121 + その他）。稼働Vaultと差分0\n・kaeru07/vault-legacy: アーカイブ済み・読み取り専用\n・別環境への引き継ぎは `git clone git@github.com:kaeru07/vault.git` 1本で完結する\n\n■ 危険だった点\n\n検証せずリネームだけしていたら、旧ミラーにしか無い121件（2026年5〜6月の prompts / research / monetization の記録）が実質失われていた。GitHubのリネーム自体は非破壊だが、『旧側にしか無いもの』の確認は必須だった。\n\nmonetizationImpact: low\ntheme: [obsidian, workflow]\nobsidianSummary: Vaultリポジトリを入れ替え。欠陥ミラー(872件)をvault-legacyとして封印し、完全版(3,112件)をkaeru07/vaultに。入れ替え前検証で旧側にしか無い121件を発見し救出。\nobsidianSaveTarget: 20_reviews/2026-09-09_vault-repo-swap.md"
+    },
+    {
+      "runId": "20261011-233615",
+      "startedAt": "2026-10-11T14:36:15.330Z",
+      "finishedAt": "2026-10-11T14:36:15.330Z",
+      "targetApp": "company-mgmt",
+      "epicId": "epic-goalstep-goal-mqp6hasd-g5i9p",
+      "targetTodoTitle": "フォルダ全削除前のgit未反映チェックと反映",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "company 配下の全 git リポジトリ（26箇所）を棚卸し。未コミットは ny01 の progress/data/real/execution-runs.json のみで、commit & push して全リポジトリを origin と同期済みにした。稼働Vault(obsidian-sync-vault, git管理外)は kaeru07/vault（_backups/vault-sync-backup）と差分0でGitHub側に全件保全されていることを確認。git化できない残置物（613MBのChatGPT exportのzip、logs/、.env、_backupsのtar）を報告。",
+      "changedFiles": [
+        {
+          "file": "apps/ny01/progress/data/real/execution-runs.json",
+          "change": "未コミットだった2026-09-09のExecutionRun(20260909-230855)をcommit&push"
+        }
+      ],
+      "checks": {
+        "build": "n/a",
+        "typescript": "n/a",
+        "lint": "n/a",
+        "manual": "全26リポジトリの git status -sb / ahead-behind 確認、Vault 3系統の差分比較(diff -rq)"
+      },
+      "errors": [],
+      "warnings": [
+        "obsidian-sync-vault/00_inbox の 613MB ChatGPT export zip は GitHub の100MB制限を超えるため push 不可。フォルダ削除で失われる",
+        "logs/(2.6M) ・ inbox/ ・ .env ・ _backups/*.tar.gz(約595M) は gitignore 対象で GitHub に無い。.env は push 禁止",
+        "obsidian-vault は vault-legacy.git (archived) 向き。正本は _backups/vault-sync-backup → kaeru07/vault"
+      ],
+      "progressUpdated": true,
+      "nextActions": [
+        "削除前に 613MB zip ・ logs/ ・ .env を必要なら別ストレージへ退避",
+        "別環境での復元は git clone git@github.com:kaeru07/vault.git + 各アプリ clone で完結"
+      ],
+      "rawReport": "■ 目的\nこのフォルダを全削除する前に、git に反映されていない変更が残っていないか棚卸しし、あれば反映する。\n\n■ 調査範囲\nfind で company 配下の .git を全列挙（node_modules 除外）= 26箇所。うち apps/ny01/{news-app,progress,mahjong-analyzer} は同一リポジトリ(/root/company/apps/ny01)を指すため実リポジトリは23。\n\n■ 結果\n・company 本体: clean / origin/main と同期\n・apps/* 全リポジトリ: clean / 各 origin と同期（mahjong は作業ブランチ ios-codemagic-test、hima-app/city-drive-simulator は master）\n・apps/ny01: progress/data/real/execution-runs.json のみ未コミット（+48行 = runId 20260909-230855 の1件）→ commit & push\n・obsidian-vault: clean / remote は vault-legacy.git（2026-09-09にアーカイブ化された旧ミラー）\n・_backups/vault-sync-backup: clean / remote vault.git = Vault の正本ミラー\n\n■ 稼働Vault(git管理外)の保全確認\nobsidian-sync-vault は git 管理外のため、削除で失われるリスクを個別検証。\n・vs _backups/vault-sync-backup: 差分ファイル0・backup側のみ0・sync側のみ1（613MBのzipのみ）→ 実質全件が kaeru07/vault に保全済み\n・vs obsidian-vault: sync側のみ2,198件（2026-09-09のリポジトリ入れ替えで判明した欠落。vault-legacy 側は封印済みなので対応不要）\n\n■ git化できない残置物（削除で失われる）\n・obsidian-sync-vault/00_inbox/aaab06...zip 613MB（ChatGPT export）: GitHub 100MB制限超\n・logs/ 2.6M（factory-schedule / hermes-market-research / news-app-research-sync）\n・inbox/（execution-runs.json のコピー・tasks空）\n・.env（push 禁止）\n・_backups/*.tar.gz 約595M（sync-vault-20260824 等のスナップショット）\n\n■ 判断\nzip・logs・.env は push せず報告のみ。理由: 100MB制限超 / 運用ログで再現価値が低い / 機密（push 禁止ルール該当）。\n\nmonetizationImpact: none\ntheme: [workflow, obsidian]\nobsidianSummary: フォルダ全削除前のgit棚卸し。未反映は ny01 の execution-runs.json 1件のみで反映済み。稼働Vaultは kaeru07/vault に差分0で保全済み。613MB zip・logs・.env は git 化不可で削除により失われる。\nobsidianSaveTarget: 20_reviews/2026-10-11_pre-deletion-git-audit.md"
     }
   ]
 }
