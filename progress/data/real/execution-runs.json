@@ -62734,6 +62734,40 @@
         "削除前に 613MB の ChatGPT export zip ・ logs/ ・ .env を必要なら退避"
       ],
       "rawReport": "■ 何が誤っていたか\n\nrunId 20261011-233615 で「.git 26箇所 / 実リポジトリ23本」と記載した。find の出力行を数え間違えていた。\n\n■ 正しい値\n\n・.git = 27箇所（node_modules 除外）\n・実リポジトリ = 24本\n  - company 本体 1\n  - apps/* 21（ai-dev-clone / anglerlog / city-drive-simulator / copy-repo / dashboard / hima-app / kaeru07.github.io / kusoge-close-button / mahjong / mahjong-analyzer / map / memo / nanikiru-shorts / neon-slash / note / ny01 / ny-ai / ny-note / ny-wk / scrape-lab-v2 / shogi-kakoi-trainer）\n  - obsidian-vault 1\n  - _backups/vault-sync-backup 1\n・apps/ny01/{news-app,progress,mahjong-analyzer} の3つは show-toplevel が apps/ny01 を返す同一リポジトリ（27 - 3 = 24）\n\n■ 結論への影響\n\nなし。24本すべて dirty=0 かつ ahead 0 で、未反映は execution-runs.json 1件のみという結論は変わらない。\n\n■ 訂正済みの記録\n\nVault 側（20_reviews/2026-10-11_pre-deletion-git-audit.md と _review_queue.md）は正しい値に修正して push 済み（kaeru07/vault commit 2b4b50a）。\n\nmonetizationImpact: none\ntheme: [workflow]\nobsidianSummary: git棚卸しのリポジトリ件数を訂正（26箇所/23本 → 27箇所/24本）。結論は不変。\nobsidianSaveTarget: 20_reviews/2026-10-11_pre-deletion-git-audit.md（訂正反映済み）"
+    },
+    {
+      "runId": "20261012-001515",
+      "startedAt": "2026-10-11T15:15:15.488Z",
+      "finishedAt": "2026-10-11T15:15:15.488Z",
+      "targetApp": "company-mgmt",
+      "epicId": "epic-goalstep-goal-mqp6hasd-g5i9p",
+      "targetTodoTitle": "削除で失われるもののうち「判断が要るもの」の絞り込み",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "削除で失われる残置物を再調査。中身まで確認した結果、判断が要るのは3件（iPhone .env系の秘密値 / ChatGPT export zip 613MB / 麻雀書籍の撮影写真約470MB）に絞られた。写真は市販書籍のページ撮影と判明し再撮影可＋GitHubへ上げるべきでない素材。git管理外でどこにも複製が無かったClaude Code設定5点（focus/vrun/vloop/usage-rules/settings.local.json）はVaultへ退避しpush済み。残りは空ファイル・実行トレース・再生成可能物で削除可と確認。",
+      "changedFiles": [
+        {
+          "file": "obsidian-sync-vault/03_prompts/claude-commands/{README.md,focus.md,vrun.md,vloop.md,usage-rules.md,settings.local.json,README-旧ミラー版.md,承認系単語読み替え表.md}",
+          "change": "git管理外だったClaude Code設定一式をVaultへ退避（kaeru07/vault commit a0381b4 / pushed）"
+        }
+      ],
+      "checks": {
+        "manual": "全ignoredパスの中身確認、写真の実画像確認、zipのエントリ一覧、121件のvault-legacy所在確認、機密スキャン"
+      },
+      "errors": [],
+      "warnings": [
+        "apps/mahjong の写真は市販の麻雀問題集のページ撮影。GitHubへは上げない判断（第三者著作物）",
+        "data/yomi-questions.json(10問) / questions.json(44問) に出典メタが無く、書籍由来かの判別ができない。ストア公開済みアプリのため別途確認推奨",
+        "削除すると pm2 の4プロセス（progress:3010 / kusoge / mahjong-preview / mahjong-trainer-preview）が停止する",
+        "旧ミラー救出の121件は kaeru07/vault の現HEADには無く、commit 0c4b899 の履歴と archived な vault-legacy にのみ存在する"
+      ],
+      "progressUpdated": true,
+      "nextActions": [
+        "progress/.env.local と map/web/.env の値をパスワードマネージャへ退避（SMTP_PASS / VAULT_INBOX_TOKEN / DATABASE_URL）",
+        "ChatGPT export zip は会話JSON(chat.html+conversations-*.json 約175MB)だけ残すか、ChatGPTから再エクスポートするか判断",
+        "書籍写真470MBは削除で可（再撮影可能・GitHub不可）。問題データの出典確認は別タスク"
+      ],
+      "rawReport": "■ 目的\n\n前回 runId 20261011-233615 で列挙した「削除で失われるもの」を、中身まで見て『本当に判断が要るもの』に絞る。\n\n■ 判断が要る（3件）\n\n1. .env 系の秘密値\n   - apps/ny01/progress/.env + .env.local: BASIC_AUTH_USER/PASSWORD, SMTP_HOST/PORT/USER/PASS/SECURE, MAIL_FROM/TO, VAULT_INBOX_TOKEN, PROGRESS_DATA_PATH\n   - apps/map/web/.env + .env.backup-20260424: DATABASE_URL, DIRECT_URL\n   - 再発行は可能だが、SMTPパスワードとDB接続文字列は手元に無いと復旧に手間。GitHubへは上げない（機密）。パスワードマネージャ等へ退避するのが妥当\n\n2. ChatGPT export zip 613MB（2026-05-16時点）\n   - 中身: chat.html 79MB + conversations-000〜006.json 約95MB + 添付画像など計1,055ファイル\n   - ChatGPTから再エクスポート可能で、新しい方が内容は多い。ただし2026-05-16以降に削除した会話・画像は新エクスポートに含まれない点が唯一の非可逆要素\n   - 会話本体だけなら約175MB。GitHubへ上げるのは内容的に非推奨\n\n3. apps/mahjong の撮影写真 約470MB\n   - inputdata/ 86 HEIC(155M) + converted/ 133 jpg(147M) + screenshot/ 151 HEIC(169M)、ユニーク133枚、2026-05〜08\n   - 実画像を確認したところ、市販の麻雀問題集（鳴き読みドリル / 手牌読み）のページを iPhone で撮影したもの\n   - 書籍が手元にあれば再撮影可能。第三者著作物のため GitHub へ上げる選択肢は取らない\n   - 派生した問題データ data/yomi-questions.json(10問) と questions.json(44問) は commit 済みだが出典メタが無い\n\n■ 退避済み（判断不要になった）\n\ngit管理外で複製がどこにも無かった Claude Code 設定を kaeru07/vault へ退避（commit a0381b4）:\nfocus.md / vrun.md / vloop.md（旧ミラーへのsymlinkだった実体）/ usage-rules.md / settings.local.json / 旧ミラー由来のREADME・承認系単語読み替え表。機密スキャン済み（ヒットはルール本文の例示のみ）。\n\n■ 削除して良いと確認できたもの\n\n- logs/ 2.6MB: ob sync と research sync の実行トレース。結果物はVaultに在る\n- .env（company直下）: 1バイト・空\n- inbox/: execution-runs.json は3バイト「[]」、tasks/ は空\n- .git.broken-20260825: info/exclude のみ\n- obsidian-sync-vault.backup.20260513-125552: .obsidian のみで実体なし\n- _backups/*.tar.gz 約595MB: Vaultの旧スナップショット。kaeru07/vault と重複\n- _backups/vault-legacy-only-20260908（121件）: 全121件が obsidian-vault=vault-legacy(GitHub archived) に存在することを1件ずつ確認済み。kaeru07/vault の commit 0c4b899 にも入っている\n- apps/mahjong の data/imported, data/rejected: README のみで隔離データ無し\n- apps/scrape-lab-v2/data 36KB・apps/mahjong-analyzer/reports 1.5MB(mutation): 再生成可\n- 各 .vercel/ / next-env.d.ts / ios・android生成物 / .venv / .stryker-tmp: 再生成可\n- 署名鍵の類（keystore/jks/p8/p12/mobileprovision/service-account.json）: 全体検索して0件。署名はCodemagic側のため手元に不可逆な鍵は無い\n\n■ 削除の副作用\n\npm2 の4プロセスが company 配下を cwd にしている: progress(3010) / kusoge / mahjong-preview / mahjong-trainer-preview。フォルダ削除で停止する。\n\nmonetizationImpact: none\ntheme: [workflow, obsidian]\nobsidianSummary: 削除で失われるものを中身まで再調査し、判断が要るのは3件（.env秘密値 / ChatGPT export zip 613MB / 麻雀書籍の撮影写真470MB）に絞った。写真は市販書籍のページ撮影で再撮影可かつGitHub不可。Claude Code設定5点はVaultへ退避済み。\nobsidianSaveTarget: 20_reviews/2026-10-12_deletion-salvage-narrowing.md"
     }
   ]
 }
