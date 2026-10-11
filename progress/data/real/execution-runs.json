@@ -62705,6 +62705,35 @@
         "別環境での復元は git clone git@github.com:kaeru07/vault.git + 各アプリ clone で完結"
       ],
       "rawReport": "■ 目的\nこのフォルダを全削除する前に、git に反映されていない変更が残っていないか棚卸しし、あれば反映する。\n\n■ 調査範囲\nfind で company 配下の .git を全列挙（node_modules 除外）= 26箇所。うち apps/ny01/{news-app,progress,mahjong-analyzer} は同一リポジトリ(/root/company/apps/ny01)を指すため実リポジトリは23。\n\n■ 結果\n・company 本体: clean / origin/main と同期\n・apps/* 全リポジトリ: clean / 各 origin と同期（mahjong は作業ブランチ ios-codemagic-test、hima-app/city-drive-simulator は master）\n・apps/ny01: progress/data/real/execution-runs.json のみ未コミット（+48行 = runId 20260909-230855 の1件）→ commit & push\n・obsidian-vault: clean / remote は vault-legacy.git（2026-09-09にアーカイブ化された旧ミラー）\n・_backups/vault-sync-backup: clean / remote vault.git = Vault の正本ミラー\n\n■ 稼働Vault(git管理外)の保全確認\nobsidian-sync-vault は git 管理外のため、削除で失われるリスクを個別検証。\n・vs _backups/vault-sync-backup: 差分ファイル0・backup側のみ0・sync側のみ1（613MBのzipのみ）→ 実質全件が kaeru07/vault に保全済み\n・vs obsidian-vault: sync側のみ2,198件（2026-09-09のリポジトリ入れ替えで判明した欠落。vault-legacy 側は封印済みなので対応不要）\n\n■ git化できない残置物（削除で失われる）\n・obsidian-sync-vault/00_inbox/aaab06...zip 613MB（ChatGPT export）: GitHub 100MB制限超\n・logs/ 2.6M（factory-schedule / hermes-market-research / news-app-research-sync）\n・inbox/（execution-runs.json のコピー・tasks空）\n・.env（push 禁止）\n・_backups/*.tar.gz 約595M（sync-vault-20260824 等のスナップショット）\n\n■ 判断\nzip・logs・.env は push せず報告のみ。理由: 100MB制限超 / 運用ログで再現価値が低い / 機密（push 禁止ルール該当）。\n\nmonetizationImpact: none\ntheme: [workflow, obsidian]\nobsidianSummary: フォルダ全削除前のgit棚卸し。未反映は ny01 の execution-runs.json 1件のみで反映済み。稼働Vaultは kaeru07/vault に差分0で保全済み。613MB zip・logs・.env は git 化不可で削除により失われる。\nobsidianSaveTarget: 20_reviews/2026-10-11_pre-deletion-git-audit.md"
+    },
+    {
+      "runId": "20261011-234914",
+      "startedAt": "2026-10-11T14:49:14.610Z",
+      "finishedAt": "2026-10-11T14:49:14.610Z",
+      "targetApp": "company-mgmt",
+      "epicId": "epic-goalstep-goal-mqp6hasd-g5i9p",
+      "targetTodoTitle": "訂正 - git棚卸しのリポジトリ件数（runId 20261011-233615）",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "runId 20261011-233615 の summary/rawReport に記載した「.git 26箇所・実リポジトリ23本」は数え間違い。正しくは .git 27箇所・実リポジトリ24本（company本体 + apps 21 + obsidian-vault + _backups/vault-sync-backup）。全リポジトリが clean / origin と同期という結論自体は変わらない。",
+      "changedFiles": [
+        {
+          "file": "obsidian-sync-vault/20_reviews/2026-10-11_pre-deletion-git-audit.md",
+          "change": "件数を27箇所/24本に訂正。_review_queue.md のsummaryも同様に訂正（kaeru07/vault commit 2b4b50a / pushed）"
+        }
+      ],
+      "checks": {
+        "manual": "git -C <each> status -sb を24本で再確認。全て dirty=0 / ahead 0"
+      },
+      "errors": [],
+      "warnings": [
+        "最終確認スイープで company 本体がループから漏れていたため単独で再確認した（clean / 同期済み）"
+      ],
+      "progressUpdated": true,
+      "nextActions": [
+        "削除前に 613MB の ChatGPT export zip ・ logs/ ・ .env を必要なら退避"
+      ],
+      "rawReport": "■ 何が誤っていたか\n\nrunId 20261011-233615 で「.git 26箇所 / 実リポジトリ23本」と記載した。find の出力行を数え間違えていた。\n\n■ 正しい値\n\n・.git = 27箇所（node_modules 除外）\n・実リポジトリ = 24本\n  - company 本体 1\n  - apps/* 21（ai-dev-clone / anglerlog / city-drive-simulator / copy-repo / dashboard / hima-app / kaeru07.github.io / kusoge-close-button / mahjong / mahjong-analyzer / map / memo / nanikiru-shorts / neon-slash / note / ny01 / ny-ai / ny-note / ny-wk / scrape-lab-v2 / shogi-kakoi-trainer）\n  - obsidian-vault 1\n  - _backups/vault-sync-backup 1\n・apps/ny01/{news-app,progress,mahjong-analyzer} の3つは show-toplevel が apps/ny01 を返す同一リポジトリ（27 - 3 = 24）\n\n■ 結論への影響\n\nなし。24本すべて dirty=0 かつ ahead 0 で、未反映は execution-runs.json 1件のみという結論は変わらない。\n\n■ 訂正済みの記録\n\nVault 側（20_reviews/2026-10-11_pre-deletion-git-audit.md と _review_queue.md）は正しい値に修正して push 済み（kaeru07/vault commit 2b4b50a）。\n\nmonetizationImpact: none\ntheme: [workflow]\nobsidianSummary: git棚卸しのリポジトリ件数を訂正（26箇所/23本 → 27箇所/24本）。結論は不変。\nobsidianSaveTarget: 20_reviews/2026-10-11_pre-deletion-git-audit.md（訂正反映済み）"
     }
   ]
 }
