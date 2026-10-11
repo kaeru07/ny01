@@ -26,7 +26,9 @@ const TAG = process.env.TAG || "ui";
 const SEED = Number(process.env.SEED || 20260810);
 
 const VIEWPORTS = [
+  { name: "portrait-320", width: 320, height: 568 },
   { name: "portrait-390", width: 390, height: 844 },
+  { name: "portrait-430", width: 430, height: 932 },
   { name: "portrait-393-safe", width: 393, height: 852, safeTop: 59, safeBottom: 34 },
   { name: "portrait-375", width: 375, height: 667 },
   { name: "landscape-844", width: 844, height: 390 },
@@ -63,9 +65,17 @@ async function measure(page, label) {
         clippedBottom: bottom > vh + 0.5,
       };
     };
+    const center = document.querySelector(".table-center")?.getBoundingClientRect();
+    const secondRowTiles = [...document.querySelectorAll('[data-river-rotation="180"] [data-river-chunk="1"] .tile-sm')];
+    const topRiverOverlapsCenter = Boolean(center && secondRowTiles.some((tile) => {
+      const b = tile.getBoundingClientRect();
+      return b.width > 0 && b.height > 0 && b.left < center.right && b.right > center.left && b.top < center.bottom && b.bottom > center.top;
+    }));
     return {
       viewportWidth: vw,
       viewportHeight: vh,
+      topRiverSecondRowTiles: secondRowTiles.length,
+      topRiverOverlapsCenter,
       hand: summarize(boxes(".hand-row .tile-hand, [data-hand-tile]")),
       allTiles: summarize(boxes(".tile-hand, .tile-sm, .tile-md")),
       selfHandArea: summarize(boxes(".self-hand-area")),
@@ -83,6 +93,7 @@ async function measure(page, label) {
     a && b && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
   const bad =
     r.docOverflowing ||
+    r.topRiverOverlapsCenter ||
     clipped(r.hand) ||
     clipped(r.allTiles) ||
     clipped(r.selfHandArea) ||
