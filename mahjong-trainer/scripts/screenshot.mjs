@@ -132,6 +132,9 @@ async function reachWrappedRivers(page, label) {
 
     const tile = page.locator(".self-hand-area .hand-row .tile-hand.cursor-pointer").first();
     try {
+      // PlayerHand は1回目で牌を選択し、2回目で打牌を確定する。
+      // 1回だけのクリックでは河が増えず、レイアウト検査が誤って失敗する。
+      await tile.click({ timeout: 5000 });
       await tile.click({ timeout: 5000 });
       await page.waitForFunction(
         (previous) => {
