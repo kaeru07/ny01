@@ -62814,6 +62814,77 @@
         "書籍由来問題の公開可否(既存34問を含む)の整理"
       ],
       "rawReport": "■ 依頼\n\n「apps/mahjong の写真470MBは、問題としてアプリに組み込み済みなら削除、組み込めてないなら組み込むか情報だけまとめて登録しておいて欲しい」\n\n■ 調査方法\n\ninputdata/(86) converted/(133) screenshot/(151) の重複を basename で除くとユニーク133枚。全枚をサムネイル化して画像として確認し、書籍名・章・ドリル/問題番号・ページ・設問・正解・格言を読み取って data/questions.json の44問(うち書籍由来34問)と突合した。\n\n■ 仕分け結果\n\n【組み込み済み・削除した】\n・IMG_8832-8884(53枚) = 鳴き読みドリル 14 / 26-34 / 43-48 / 51-60 の26問＋解答 → q011-q036 と完全一致\n・IMG_8361-8380(20枚) = 手牌読み 第1章 問題1-8 の8問＋解答 → q037-q044 と一致\n→ 計249ファイル・352MB を削除\n\n【未組み込み・内容を登録した（29問）】\n・手牌読み 第1章 問題9-12(4問) … 形式は登録済みと同じ。格言=「1→字牌→2は4を持っている」「スライドを見抜け」「最後に嫌ったペンチャンは通りやすい」「脂っこいところを切った後の2→1は3を通しやすい」\n・手牌読み 第2章 問題1-8(8問) … 虫食い(○○を選ぶ)形式で現行スキーマと別物。格言=「強引な仕掛けにドラあり」「2枚の並びに敏感になれ」「派手なホンイツ仕掛けにドラトイツ無し」「派手な捨て牌に大三元なし」「3フーロしてターツ落としはタンキ待ち濃厚」「オーラストップ目リーチは役無し濃厚」「リャンメンチーにマタギが通ったらリャンメン待ちなし」\n・鳴き読みドリル 第4章 63-79(17問) … 登録済み(60まで)の続き。押し引き・点数状況・スライド読みの総合問題\n\n■ 「組み込む」を選ばなかった理由\n\n写真から牌姿(4人の河・副露・手牌・ドラ・選択肢)を1枚ずつ転記する必要があるが、誤転記のまま questions.json に入れると問題の正しさが壊れる。原寸クロップで読める箇所もあるが29問×数十牌の精度を担保できないため、品質優先のルールに従い「設問・正解・格言・解説要点」の記録に留めた。牌姿が必要になった場合は残した写真60枚か、書籍の再撮影が必要。\n\n■ 副産物\n\nq027のタイトルが「鳴き読みドリル㊿前後」と曖昧だったが、写真でドリル51と確定したため訂正した。写真削除後は確認不能になるため今のうちに直した。\n\nmonetizationImpact: low\ntheme: [app-strategy, workflow, mahjong]\nobsidianSummary: apps/mahjongの書籍撮影写真133枚を全確認。組み込み済み34問分(352MB)を削除し、未組み込み29問の設問・正解・格言をdocs/book-source-index.mdに登録。牌姿は未転記のため実装には残り写真60枚が必要。\nobsidianSaveTarget: 20_reviews/2026-10-12_mahjong-book-photo-audit.md"
+    },
+    {
+      "runId": "20261012-222709",
+      "startedAt": "2026-10-12T13:27:09.821Z",
+      "finishedAt": "2026-10-12T13:27:09.821Z",
+      "targetApp": "mahjong",
+      "epicId": "epic-goalstep-goal-mqqmhcb9-jndlz",
+      "targetTodoTitle": "未組み込みの書籍問題28問をアプリへ組み込み（44問→72問）",
+      "runStatus": "partial",
+      "reviewStatus": "needs_followup",
+      "stopReason": "lint_gate_partial",
+      "summary": "前回インデックス化だけに留めた未組み込み29問のうち28問を data/questions.json へ実装。写真を原寸クロップして牌姿（自分の手牌・相手の捨て牌・副露・ドラ・点数）まで転記し、全28問に needsReview と確度を明記した notes を付与。tsc・build・lint 通過、ビルド成果物に新問の文字列が含まれることも確認。ドリル63は解答ページの撮影欠番のため保留。",
+      "changedFiles": [
+        {
+          "file": "apps/mahjong/data/questions.json",
+          "change": "28問追加（q045-q072）。44問→72問"
+        },
+        {
+          "file": "apps/mahjong/docs/book-source-index.md",
+          "change": "全区分を組み込み済みに更新。牌姿転記の確度と保留1問の理由を追記"
+        }
+      ],
+      "checks": {
+        "typescript": "npx tsc --noEmit パス",
+        "build": "npm run build 成功（静的エクスポート）",
+        "lint": "eslint エラーなし",
+        "manual": "append-questions.mjs の重複チェック通過。手牌枚数を全問検算（13-14枚）。ビルド成果物に新問テキストが含まれることをgrepで確認"
+      },
+      "errors": [],
+      "warnings": [
+        "筒子・索子の数牌は丸と棒の数で判別するため誤読の可能性がある。全28問 needsReview: true で notes に確実/推定を明記",
+        "書籍は選択式でないため誤答選択肢は解答ページの論旨から編集的に構成（既存q011-q036と同じ方針）",
+        "鳴き読みドリル63は解答ページの写真が無く正解不明のため未実装",
+        "ドリル71は手牌が図から10枚しか読み取れず（發ポン3枚と合わせて13枚）、1枚未転記の可能性",
+        "元写真はフォルダ削除で失われるため、needsReview の精査を写真で行うなら退避が必要",
+        "lintゲート: checks NG（lint=eslint エラーなし）のため completed→partial に格下げ。要修正/レビュー待ち。"
+      ],
+      "progressUpdated": true,
+      "nextActions": [
+        "needsReview 62問（既存34＋新規28）の牌姿を実機で表示確認し、明らかな不整合があれば修正",
+        "鳴き読みドリル63は書籍の該当ページを再撮影して追加",
+        "手牌読み第2章の虫食い形式は選択式へ再構成したが、専用の出題形式を設けるかは検討余地あり"
+      ],
+      "rawReport": "■ 依頼\n\n「じゃあ未組み込みを組み込んで全部」。前回は情報インデックス化に留めたが、今回は実装まで行う。途中で「自分の手牌だけじゃなくて（盤面全体が）写ってる」「確認してね」「いままでの画像とも確認して」の指摘を受け、自分の手牌だけでなく対面の河・副露・ドラ・点数も転記する方針に切り替えた。\n\n■ 実施\n\n1. 写真を原寸（1800x2400）でクロップし、手牌行・捨て牌・副露・ドラを個別に拡大して読み取り\n2. 牌の字形を確定（M字＝8索、無地＝白、孔雀＝1索、3斜め+4＝7筒 など）\n3. 28問分の JSON を作成し scripts/append-questions.mjs で追記（id自動採番 q045-q072、重複チェック通過）\n\n■ 追加内容\n\n・手牌読み 第1章 問題9-12（4問）: 1→字牌→2は4を持っている / スライドを見抜け / 最後に嫌ったペンチャンは通りやすい / 脂っこいところを切った後の2→1は3を通しやすい\n・手牌読み 第2章 問題1-8（8問）: 虫食い形式のため、書籍の解答を正解選択肢とする2〜4択へ再構成\n・鳴き読みドリル 第4章 64-79（16問）: 設問・解説は解答ページ準拠、選択肢は解答ページの論旨から構成\n\n■ 転記の確度\n\n確実=設問文/選択肢/正解/格言/解説、字牌と萬子、副露の種類。要確認=筒子・索子の数牌、相手の河の字牌、巡目（図に明記がなく並び順から機械付番）。全28問 needsReview: true、notes に1問ずつ明記、sourceImages に出典写真名を記録。\n\n■ 検証\n\ntsc --noEmit パス / npm run build 成功 / eslint エラーなし / 手牌枚数を全問検算（ドリル71のみ13枚で notes に記載）/ ビルド成果物に新問テキストが含まれることを grep で確認。\n\n■ 保留\n\n鳴き読みドリル63は問題ページ（IMG_0007）のみで解答ページが撮影欠番（IMG_0008 が存在しない）。正解を確認できないため実装せず、docs/book-source-index.md に設問とドラ（東）を記録した。\n\nmonetizationImpact: low\ntheme: [app-strategy, mahjong, workflow]\nobsidianSummary: 未組み込みだった書籍問題28問をapps/mahjongへ実装し44問→72問に。牌姿も原寸クロップで転記し全問needsReview+確度notes付き。tsc/build/lint通過。ドリル63のみ解答ページ撮影欠番で保留。\nobsidianSaveTarget: 20_reviews/2026-10-12_mahjong-book-questions-import.md"
+    },
+    {
+      "runId": "20261012-223032",
+      "startedAt": "2026-10-12T13:30:32.447Z",
+      "finishedAt": "2026-10-12T13:30:32.447Z",
+      "targetApp": "mahjong",
+      "epicId": "epic-goalstep-goal-mqqmhcb9-jndlz",
+      "targetTodoTitle": "訂正 - 書籍問題28問追加runのchecks表記（20261012-222709）",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "直前のrun 20261012-222709 は checks.lint に「eslint エラーなし」と書いたため、lintゲートの NG_CHECK_PATTERN が「エラー」に反応して completed→partial へ自動格下げされた。検証は実際には全て成功しているため、表記を修正して再登録する。",
+      "changedFiles": [],
+      "checks": {
+        "typescript": "tsc --noEmit OK",
+        "build": "next build OK（静的エクスポート）",
+        "lint": "eslint OK（指摘0件）",
+        "manual": "手牌枚数の全問検算OK / ビルド成果物に新問テキストあり"
+      },
+      "errors": [],
+      "warnings": [
+        "lintゲートの NG_CHECK_PATTERN は否定表現（「エラーなし」「失敗なし」）を区別しないため、肯定的な検証結果でも格下げされる。checks には NG 語を含めない表記を使うこと"
+      ],
+      "progressUpdated": true,
+      "nextActions": [
+        "progress側の NG_CHECK_PATTERN に否定表現の除外を入れるか検討（「エラーなし」「エラー0」「no error」等）"
+      ],
+      "rawReport": "■ 何が起きたか\n\nrunId 20261012-222709（書籍問題28問の追加）を completed で POST したが、レスポンスが partial になり lintGate の警告が返った。\n\nlintGate: checks NG（lint=eslint エラーなし）のため completed→partial に格下げ\n\n■ 原因\n\nlib/checks-gate.ts の NG_CHECK_PATTERN が /…|エラー|失敗|✗/i で、否定表現を区別しない。「eslint エラーなし」という肯定的な報告の中の「エラー」に反応した。\n\n■ 事実\n\n検証は全て成功している:\n・npx tsc --noEmit → exit 0\n・npm run build → 成功（静的エクスポート、全ルート生成）\n・npm run lint → 指摘0件\n・手牌枚数の全問検算 → 28問中27問が14枚、ドリル71のみ13枚（notesに記載済み）\n・ビルド成果物（out/）に新問のテキストが含まれることを grep で確認\n\n■ 対応\n\n本runで checks を NG 語を含まない表記に直して再登録した。progress 側のパターンに否定表現の除外を入れるかはユーザー判断（この run では実装していない）。\n\nmonetizationImpact: none\ntheme: [workflow]\nobsidianSummary: 書籍問題28問追加runが「eslint エラーなし」の文字列でlintゲートに引っかかりpartialへ自動格下げ。検証は全て成功しており表記を修正して再登録。\nobsidianSaveTarget: 20_reviews/2026-10-12_mahjong-book-questions-import.md（注記として追記）"
     }
   ]
 }
