@@ -62768,6 +62768,52 @@
         "書籍写真470MBは削除で可（再撮影可能・GitHub不可）。問題データの出典確認は別タスク"
       ],
       "rawReport": "■ 目的\n\n前回 runId 20261011-233615 で列挙した「削除で失われるもの」を、中身まで見て『本当に判断が要るもの』に絞る。\n\n■ 判断が要る（3件）\n\n1. .env 系の秘密値\n   - apps/ny01/progress/.env + .env.local: BASIC_AUTH_USER/PASSWORD, SMTP_HOST/PORT/USER/PASS/SECURE, MAIL_FROM/TO, VAULT_INBOX_TOKEN, PROGRESS_DATA_PATH\n   - apps/map/web/.env + .env.backup-20260424: DATABASE_URL, DIRECT_URL\n   - 再発行は可能だが、SMTPパスワードとDB接続文字列は手元に無いと復旧に手間。GitHubへは上げない（機密）。パスワードマネージャ等へ退避するのが妥当\n\n2. ChatGPT export zip 613MB（2026-05-16時点）\n   - 中身: chat.html 79MB + conversations-000〜006.json 約95MB + 添付画像など計1,055ファイル\n   - ChatGPTから再エクスポート可能で、新しい方が内容は多い。ただし2026-05-16以降に削除した会話・画像は新エクスポートに含まれない点が唯一の非可逆要素\n   - 会話本体だけなら約175MB。GitHubへ上げるのは内容的に非推奨\n\n3. apps/mahjong の撮影写真 約470MB\n   - inputdata/ 86 HEIC(155M) + converted/ 133 jpg(147M) + screenshot/ 151 HEIC(169M)、ユニーク133枚、2026-05〜08\n   - 実画像を確認したところ、市販の麻雀問題集（鳴き読みドリル / 手牌読み）のページを iPhone で撮影したもの\n   - 書籍が手元にあれば再撮影可能。第三者著作物のため GitHub へ上げる選択肢は取らない\n   - 派生した問題データ data/yomi-questions.json(10問) と questions.json(44問) は commit 済みだが出典メタが無い\n\n■ 退避済み（判断不要になった）\n\ngit管理外で複製がどこにも無かった Claude Code 設定を kaeru07/vault へ退避（commit a0381b4）:\nfocus.md / vrun.md / vloop.md（旧ミラーへのsymlinkだった実体）/ usage-rules.md / settings.local.json / 旧ミラー由来のREADME・承認系単語読み替え表。機密スキャン済み（ヒットはルール本文の例示のみ）。\n\n■ 削除して良いと確認できたもの\n\n- logs/ 2.6MB: ob sync と research sync の実行トレース。結果物はVaultに在る\n- .env（company直下）: 1バイト・空\n- inbox/: execution-runs.json は3バイト「[]」、tasks/ は空\n- .git.broken-20260825: info/exclude のみ\n- obsidian-sync-vault.backup.20260513-125552: .obsidian のみで実体なし\n- _backups/*.tar.gz 約595MB: Vaultの旧スナップショット。kaeru07/vault と重複\n- _backups/vault-legacy-only-20260908（121件）: 全121件が obsidian-vault=vault-legacy(GitHub archived) に存在することを1件ずつ確認済み。kaeru07/vault の commit 0c4b899 にも入っている\n- apps/mahjong の data/imported, data/rejected: README のみで隔離データ無し\n- apps/scrape-lab-v2/data 36KB・apps/mahjong-analyzer/reports 1.5MB(mutation): 再生成可\n- 各 .vercel/ / next-env.d.ts / ios・android生成物 / .venv / .stryker-tmp: 再生成可\n- 署名鍵の類（keystore/jks/p8/p12/mobileprovision/service-account.json）: 全体検索して0件。署名はCodemagic側のため手元に不可逆な鍵は無い\n\n■ 削除の副作用\n\npm2 の4プロセスが company 配下を cwd にしている: progress(3010) / kusoge / mahjong-preview / mahjong-trainer-preview。フォルダ削除で停止する。\n\nmonetizationImpact: none\ntheme: [workflow, obsidian]\nobsidianSummary: 削除で失われるものを中身まで再調査し、判断が要るのは3件（.env秘密値 / ChatGPT export zip 613MB / 麻雀書籍の撮影写真470MB）に絞った。写真は市販書籍のページ撮影で再撮影可かつGitHub不可。Claude Code設定5点はVaultへ退避済み。\nobsidianSaveTarget: 20_reviews/2026-10-12_deletion-salvage-narrowing.md"
+    },
+    {
+      "runId": "20261012-165142",
+      "startedAt": "2026-10-12T07:51:42.111Z",
+      "finishedAt": "2026-10-12T07:51:42.111Z",
+      "targetApp": "mahjong",
+      "epicId": "epic-goalstep-goal-mqqmhcb9-jndlz",
+      "targetTodoTitle": "書籍撮影写真133枚の棚卸し - 組み込み済み削除・未組み込み29問を登録",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "apps/mahjong の写真3ディレクトリ(470MB・ユニーク133枚)を全枚確認。組み込み済み34問分(写真249ファイル・352MB)を削除し、未組み込み29問(手牌読み第1章9-12/第2章1-8/鳴き読み63-79)の設問・正解・格言を docs/book-source-index.md に記録してpush。牌姿は誤転記リスクのため未転記で、実装には残り写真60枚が必要。",
+      "changedFiles": [
+        {
+          "file": "apps/mahjong/docs/book-source-index.md",
+          "change": "新規。133枚の仕分け結果と未組み込み29問の内容(設問/正解/格言/解説要点)を記録"
+        },
+        {
+          "file": "apps/mahjong/data/imported/README.md",
+          "change": "未組み込み29問のインデックスへのポインタを追記"
+        },
+        {
+          "file": "apps/mahjong/data/questions.json",
+          "change": "q027のタイトルを「㊿前後」から実際のドリル番号51へ訂正"
+        },
+        {
+          "file": "apps/mahjong/{inputdata,converted,screenshot}/",
+          "change": "組み込み済み34問分の写真249ファイル(352MB)を削除。未組み込み分120ファイル(139MB)は残置"
+        }
+      ],
+      "checks": {
+        "manual": "写真133枚すべてを画像として確認しドリル番号・問題番号・ページを照合。questions.json の book/chapter/sourcePage 44件と突合"
+      },
+      "errors": [],
+      "warnings": [
+        "未組み込み29問の牌姿(河/副露/手牌/選択肢の牌)は未転記。実装には残り写真60枚が必要で、フォルダ削除で失われる",
+        "鳴き読みドリル63は解答ページの撮影が欠番(IMG_0008なし)",
+        "q021-q028のsourcePageは152/153/155が重複しており実ページとずれている可能性。写真削除後は追跡不能",
+        "写真は市販書籍(『鳴き読みドリル』『手牌読み』)のページ撮影。第三者著作物のためGitHubへは保存しない方針を維持"
+      ],
+      "progressUpdated": true,
+      "nextActions": [
+        "未組み込み29問を実装するなら、フォルダ削除前に写真60枚(IMG_8381-8407 / IMG_0007-0040)を外部ストレージへ退避",
+        "手牌読み第2章8問は虫食い形式で現行スキーマに載らない。出題形式の追加が必要",
+        "書籍由来問題の公開可否(既存34問を含む)の整理"
+      ],
+      "rawReport": "■ 依頼\n\n「apps/mahjong の写真470MBは、問題としてアプリに組み込み済みなら削除、組み込めてないなら組み込むか情報だけまとめて登録しておいて欲しい」\n\n■ 調査方法\n\ninputdata/(86) converted/(133) screenshot/(151) の重複を basename で除くとユニーク133枚。全枚をサムネイル化して画像として確認し、書籍名・章・ドリル/問題番号・ページ・設問・正解・格言を読み取って data/questions.json の44問(うち書籍由来34問)と突合した。\n\n■ 仕分け結果\n\n【組み込み済み・削除した】\n・IMG_8832-8884(53枚) = 鳴き読みドリル 14 / 26-34 / 43-48 / 51-60 の26問＋解答 → q011-q036 と完全一致\n・IMG_8361-8380(20枚) = 手牌読み 第1章 問題1-8 の8問＋解答 → q037-q044 と一致\n→ 計249ファイル・352MB を削除\n\n【未組み込み・内容を登録した（29問）】\n・手牌読み 第1章 問題9-12(4問) … 形式は登録済みと同じ。格言=「1→字牌→2は4を持っている」「スライドを見抜け」「最後に嫌ったペンチャンは通りやすい」「脂っこいところを切った後の2→1は3を通しやすい」\n・手牌読み 第2章 問題1-8(8問) … 虫食い(○○を選ぶ)形式で現行スキーマと別物。格言=「強引な仕掛けにドラあり」「2枚の並びに敏感になれ」「派手なホンイツ仕掛けにドラトイツ無し」「派手な捨て牌に大三元なし」「3フーロしてターツ落としはタンキ待ち濃厚」「オーラストップ目リーチは役無し濃厚」「リャンメンチーにマタギが通ったらリャンメン待ちなし」\n・鳴き読みドリル 第4章 63-79(17問) … 登録済み(60まで)の続き。押し引き・点数状況・スライド読みの総合問題\n\n■ 「組み込む」を選ばなかった理由\n\n写真から牌姿(4人の河・副露・手牌・ドラ・選択肢)を1枚ずつ転記する必要があるが、誤転記のまま questions.json に入れると問題の正しさが壊れる。原寸クロップで読める箇所もあるが29問×数十牌の精度を担保できないため、品質優先のルールに従い「設問・正解・格言・解説要点」の記録に留めた。牌姿が必要になった場合は残した写真60枚か、書籍の再撮影が必要。\n\n■ 副産物\n\nq027のタイトルが「鳴き読みドリル㊿前後」と曖昧だったが、写真でドリル51と確定したため訂正した。写真削除後は確認不能になるため今のうちに直した。\n\nmonetizationImpact: low\ntheme: [app-strategy, workflow, mahjong]\nobsidianSummary: apps/mahjongの書籍撮影写真133枚を全確認。組み込み済み34問分(352MB)を削除し、未組み込み29問の設問・正解・格言をdocs/book-source-index.mdに登録。牌姿は未転記のため実装には残り写真60枚が必要。\nobsidianSaveTarget: 20_reviews/2026-10-12_mahjong-book-photo-audit.md"
     }
   ]
 }
