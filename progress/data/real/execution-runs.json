@@ -62885,6 +62885,41 @@
         "progress側の NG_CHECK_PATTERN に否定表現の除外を入れるか検討（「エラーなし」「エラー0」「no error」等）"
       ],
       "rawReport": "■ 何が起きたか\n\nrunId 20261012-222709（書籍問題28問の追加）を completed で POST したが、レスポンスが partial になり lintGate の警告が返った。\n\nlintGate: checks NG（lint=eslint エラーなし）のため completed→partial に格下げ\n\n■ 原因\n\nlib/checks-gate.ts の NG_CHECK_PATTERN が /…|エラー|失敗|✗/i で、否定表現を区別しない。「eslint エラーなし」という肯定的な報告の中の「エラー」に反応した。\n\n■ 事実\n\n検証は全て成功している:\n・npx tsc --noEmit → exit 0\n・npm run build → 成功（静的エクスポート、全ルート生成）\n・npm run lint → 指摘0件\n・手牌枚数の全問検算 → 28問中27問が14枚、ドリル71のみ13枚（notesに記載済み）\n・ビルド成果物（out/）に新問のテキストが含まれることを grep で確認\n\n■ 対応\n\n本runで checks を NG 語を含まない表記に直して再登録した。progress 側のパターンに否定表現の除外を入れるかはユーザー判断（この run では実装していない）。\n\nmonetizationImpact: none\ntheme: [workflow]\nobsidianSummary: 書籍問題28問追加runが「eslint エラーなし」の文字列でlintゲートに引っかかりpartialへ自動格下げ。検証は全て成功しており表記を修正して再登録。\nobsidianSaveTarget: 20_reviews/2026-10-12_mahjong-book-questions-import.md（注記として追記）"
+    },
+    {
+      "runId": "20261012-230534",
+      "startedAt": "2026-10-12T14:05:34.459Z",
+      "finishedAt": "2026-10-12T14:05:34.459Z",
+      "targetApp": "mahjong",
+      "epicId": "epic-goalstep-goal-mqqmhcb9-jndlz",
+      "targetTodoTitle": "鳴き読みドリル63 - 正解以外の確認できた情報を保留ファイルへ記録",
+      "runStatus": "completed",
+      "reviewStatus": "not_reviewed",
+      "summary": "解答ページ撮影欠番で保留にしていたドリル63について、問題ページを原寸クロップで精読し、ドラ(東)・設問文・選択肢(打2筒/打6筒)・対面の3副露(東ポン=ドラ3/索子チー/456筒チー)・対面の河・自分の副露と手牌11枚を確定。data/imported/drill63-pending.md に取り込みテンプレ付きで記録し、docs/book-source-index.md の保留セクションも詳細化。正解と解説のみ未確認。",
+      "changedFiles": [
+        {
+          "file": "apps/mahjong/data/imported/drill63-pending.md",
+          "change": "新規。確認できた情報と、正解判明後にappend-questions.mjsで取り込めるJSONテンプレ"
+        },
+        {
+          "file": "apps/mahjong/docs/book-source-index.md",
+          "change": "保留セクションを表形式で詳細化し、保留ファイルへの導線を追加"
+        }
+      ],
+      "checks": {
+        "manual": "IMG_0007を盤面/手牌/設問文の3箇所に分けて原寸クロップで精読。牌の字形規則（M字=8索・無地=白・孔雀=1索）と突合"
+      },
+      "errors": [],
+      "warnings": [
+        "questions.json には入れていない。answerが必須フィールドで、正解を推測で埋めると出題として成立しないため",
+        "対面の河の並び順は図の行配置からの推定。牌の種類は読めるが順序は要確認",
+        "自分の手牌の筒子・索子の数牌、対面の索子チーの数牌は推定を含む"
+      ],
+      "progressUpdated": true,
+      "nextActions": [
+        "書籍の該当解答ページを撮影し、drill63-pending.md のテンプレに answer と explanation を入れて取り込む"
+      ],
+      "rawReport": "■ 依頼\n\n「正解が確認できなくても確認できる情報だけ入れておいて」\n\n■ 実施\n\nIMG_0007（ドリル63の問題ページ）を盤面・自分の手牌・設問文の3箇所に分けて原寸クロップで精読し、確定できた情報を全て記録した。\n\n【確実】\n・ドラ: 東（漢字表示で明瞭）\n・設問文: 「対面はいま4筒をチーして3筒を切ったところです。自分の手は2筒か6筒を切ればテンパイ。対面の仕掛けを読んだ上で何を切るべきでしょうか？」\n・選択肢: 打2筒 / 打6筒（設問文に明記された2択）\n・対面(北家)の副露: 東ポン ＝ ドラ3枚 / 索子チー / 4筒5筒6筒チー（直前の4筒チー）\n・自分(南家)の副露: チー 二三四萬（鳴き牌は三萬＝横向き）\n・手牌枚数: 11枚＋副露3枚＝14枚\n\n【推定を含む】\n・自分の手牌の数牌: 2筒 4筒 6筒 6筒 6筒 7筒 2索 2索 8索 9索 9索\n・対面の河: 3筒・2萬・7索・1筒・中・南・白・北（並び順は図の行配置からの推定）\n・対面の索子チーの具体牌\n\n【不明】\n・正解と解説（解答ページの写真が無い。IMG_0008が欠番）\n\n■ 置き場所の判断\n\nquestions.json には入れていない。answer は必須フィールドで choices のキーと一致する必要があり、正解を推測で埋めると「誤った正解を提示する問題」になってしまうため。代わりに /yomi 取り込みルールで保留(B)の置き場と定められている data/imported/ に Markdown で保管した（同ディレクトリの *.json は gitignore 対象のため .md を使用）。正解判明後にそのまま使える JSON テンプレを本文に含めてあるので、answer と explanation を埋めて append-questions.mjs に通せば取り込める。\n\n■ 読みの材料として記録した事実\n\n対面は東ポン＝ドラ3確定の高打点で、直前の動きは4筒チーの打3筒。切る候補は2筒と6筒の2択。この材料だけでも「どちらが危険か」を考える教材にはなる。\n\nmonetizationImpact: none\ntheme: [app-strategy, mahjong]\nobsidianSummary: 保留中のドリル63について、正解以外の確認できる情報（ドラ東・設問文・2択・対面の東ポン=ドラ3含む3副露・河・自分の副露と手牌）を全て確定し data/imported/drill63-pending.md に取り込みテンプレ付きで記録。\nobsidianSaveTarget: 20_reviews/2026-10-12_mahjong-book-questions-import.md（追補）"
     }
   ]
 }
