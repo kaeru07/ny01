@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { GameState, HumanCallOptions } from "@/types/game";
 import { PlayerIndex, TileIndex } from "@/types/mahjong";
 import PlayerHand from "./PlayerHand";
@@ -116,12 +116,46 @@ export default function GameBoard({
   const lastDiscardPlayer = gameState.lastDiscard?.player ?? null;
   const junme = Math.max(1, Math.ceil(gameState.round.turnCount / 4));
   const doraBackCount = Math.max(0, 5 - dora.length);
+  // Track meld counts so an actual new call, not a re-render, triggers the cut-in.
+  const previousMeldCounts = useRef<number[] | null>(null);
+  const [callCutin, setCallCutin] = useState<{ label: string; player: PlayerIndex } | null>(null);
+
+  useEffect(() => {
+    const counts = gameState.players.map((player) => player.melds.length);
+    const previous = previousMeldCounts.current;
+    previousMeldCounts.current = counts;
+    if (!previous) return; // Do not replay calls already on the board when mounting.
+
+    for (let player = 0; player < counts.length; player += 1) {
+      if (counts[player] <= (previous[player] ?? 0)) continue;
+      const meld = gameState.players[player].melds.at(-1);
+      if (!meld) continue;
+      const label = meld.type === "chi" ? "チー" : meld.type === "pon" ? "ポン" : "カン";
+      setCallCutin({ label, player: player as PlayerIndex });
+      break;
+    }
+  }, [gameState.players]);
+
+  useEffect(() => {
+    if (!callCutin) return;
+    const timer = window.setTimeout(() => setCallCutin(null), 1100);
+    return () => window.clearTimeout(timer);
+  }, [callCutin]);
+
 
   return (
     <div className="game-board select-none">
       <div className="table-surface">
         <div className="table-texture" aria-hidden="true" />
         <div className="table-frame" aria-hidden="true" />
+        {callCutin && (
+          <div className="pointer-events-none absolute inset-0 z-50 flex items-center justify-center" role="status" aria-live="polite">
+            <div className="rounded-2xl border-4 border-amber-200 bg-black/80 px-8 py-4 text-center text-5xl font-black text-amber-100 shadow-2xl">
+              <div>{callCutin.label}！</div>
+              <div className="mt-2 text-sm">{callCutin.player === 0 ? "あなた" : OPPONENT_NAMES[callCutin.player as 1 | 2 | 3]}</div>
+            </div>
+          </div>
+        )}
 
         <div className="dora-panel">
           <div className="dora-copy">
