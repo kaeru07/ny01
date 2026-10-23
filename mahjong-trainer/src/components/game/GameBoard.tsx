@@ -119,6 +119,8 @@ export default function GameBoard({
   // Track meld counts so an actual new call, not a re-render, triggers the cut-in.
   const previousMeldCounts = useRef<number[] | null>(null);
   const [callCutin, setCallCutin] = useState<{ label: string; player: PlayerIndex } | null>(null);
+  // Keep the existing dimmed view until the user explicitly turns it off.
+  const [showTsumogiri, setShowTsumogiri] = useState(true);
 
   useEffect(() => {
     const counts = gameState.players.map((player) => player.melds.length);
@@ -181,16 +183,16 @@ export default function GameBoard({
         <OpponentHand gameState={gameState} playerIndex={1} position="right" openHands={openHands} />
 
         <div className="river-slot river-slot-top">
-          <River discards={players[2].discards} records={players[2].discardRecords} rotation={180} highlightLast={lastDiscardPlayer === 2} />
+          <River showTsumogiri={showTsumogiri} discards={players[2].discards} records={players[2].discardRecords} rotation={180} highlightLast={lastDiscardPlayer === 2} />
         </div>
         <div className="river-slot river-slot-left">
-          <River discards={players[3].discards} records={players[3].discardRecords} rotation={90} highlightLast={lastDiscardPlayer === 3} />
+          <River showTsumogiri={showTsumogiri} discards={players[3].discards} records={players[3].discardRecords} rotation={90} highlightLast={lastDiscardPlayer === 3} />
         </div>
         <div className="river-slot river-slot-right">
-          <River discards={players[1].discards} records={players[1].discardRecords} rotation={270} highlightLast={lastDiscardPlayer === 1} />
+          <River showTsumogiri={showTsumogiri} discards={players[1].discards} records={players[1].discardRecords} rotation={270} highlightLast={lastDiscardPlayer === 1} />
         </div>
         <div className="river-slot river-slot-bottom">
-          <River discards={self.discards} records={self.discardRecords} rotation={0} highlightLast={lastDiscardPlayer === 0} />
+          <River showTsumogiri={showTsumogiri} discards={self.discards} records={self.discardRecords} rotation={0} highlightLast={lastDiscardPlayer === 0} />
         </div>
 
         <div className="table-center">
@@ -220,9 +222,19 @@ export default function GameBoard({
           <span className={`turn-guide ${turn === 0 ? "is-active" : ""}`}>
             {turn === 0 ? (canDiscard ? (riichiArmed ? "立直する打牌を選択" : "打牌を選んでください") : "あなたの番") : `${WIND_LABELS[players[turn].wind]}家の手番`}
           </span>
-          <button className={`auto-tsumo-toggle ${autoTsumo ? "is-on" : ""}`} onClick={onToggleAutoTsumo}>
-            <span className="auto-tsumo-dot" /> 自動ツモ切り {autoTsumo ? "ON" : "OFF"}
-          </button>
+          <div className="mt-1 flex flex-wrap items-center justify-end gap-3">
+            <button
+              type="button"
+              className={`auto-tsumo-toggle ${showTsumogiri ? "is-on" : ""}`}
+              aria-pressed={showTsumogiri}
+              onClick={() => setShowTsumogiri((current) => !current)}
+            >
+              <span className="auto-tsumo-dot" /> ツモ切り暗表示 {showTsumogiri ? "ON" : "OFF"}
+            </button>
+            <button type="button" className={`auto-tsumo-toggle ${autoTsumo ? "is-on" : ""}`} onClick={onToggleAutoTsumo}>
+              <span className="auto-tsumo-dot" /> 自動ツモ切り {autoTsumo ? "ON" : "OFF"}
+            </button>
+          </div>
         </div>
 
         <div className="self-hand-area">
