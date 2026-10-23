@@ -9,11 +9,12 @@ interface RiverProps {
   records?: DiscardRecord[];
   rotation?: 0 | 90 | 180 | 270;
   highlightLast?: boolean;
+  showTsumogiri?: boolean;
 }
 
 const TILES_PER_ROW = 6;
 
-export default function River({ discards, records = [], rotation = 0, highlightLast = false }: RiverProps) {
+export default function River({ discards, records = [], rotation = 0, highlightLast = false, showTsumogiri = true }: RiverProps) {
   const vertical = rotation === 90 || rotation === 270;
   const rows: TileIndex[][] = [];
 
@@ -35,7 +36,7 @@ export default function River({ discards, records = [], rotation = 0, highlightL
           tileIndex={tile}
           size="sm"
           rotation={tileRotation}
-          className={`${isLast ? "river-last-tile" : ""} ${record?.tsumogiri ? "river-tsumogiri" : ""} ${record?.riichi ? "river-riichi-tile" : ""}`}
+          className={`${isLast ? "river-last-tile" : ""} ${showTsumogiri && record?.tsumogiri ? "river-tsumogiri" : ""} ${record?.riichi ? "river-riichi-tile" : ""}`}
         />
       );
     });
