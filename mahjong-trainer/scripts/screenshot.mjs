@@ -119,6 +119,47 @@ async function riverState(page) {
   );
 }
 
+/** Check the approved tsumogiri dimming toggle without changing discard data. */
+async function verifyTsumogiriToggle(page, label) {
+  const toggle = page.locator("button.auto-tsumo-toggle[aria-pressed]");
+  if (await toggle.count() !== 1) {
+    console.log(`[${label}] NG dimming toggle not found`);
+    return false;
+  }
+  const read = () => page.evaluate(() => ({
+    dimmed: document.querySelectorAll("[data-river-rotation] .river-tsumogiri").length,
+    rivers: [...document.querySelectorAll("[data-river-rotation]")].map(
+      (el) => [el.getAttribute("data-river-rotation"), el.getAttribute("data-discard-count")]
+    ),
+    auto: [...document.querySelectorAll("button.auto-tsumo-toggle")]
+      .find((el) => el.textContent?.includes("自動ツモ切り"))?.textContent?.trim() ?? null,
+  }));
+  try {
+    const before = await read();
+    if (await toggle.getAttribute("aria-pressed") !== "true" || before.dimmed === 0) {
+      console.log(`[${label}] NG missing dimmed discard fixture ${JSON.stringify(before)}`);
+      return false;
+    }
+    await toggle.click({ timeout: 5000 });
+    const off = await read();
+    const offPressed = await toggle.getAttribute("aria-pressed");
+    await page.screenshot({ path: `${OUT}/${TAG}-${label}-tsumogiri-off.png` });
+    await toggle.click({ timeout: 5000 });
+    const on = await read();
+    const onPressed = await toggle.getAttribute("aria-pressed");
+    const stable = JSON.stringify(before.rivers) === JSON.stringify(off.rivers)
+      && JSON.stringify(before.rivers) === JSON.stringify(on.rivers)
+      && before.auto === off.auto && before.auto === on.auto;
+    const ok = offPressed === "false" && onPressed === "true"
+      && off.dimmed === 0 && on.dimmed === before.dimmed && stable;
+    console.log(`[${label}] ${ok ? "OK" : "NG"} tsumogiri toggle ${JSON.stringify({ before, off, on })}`);
+    return ok;
+  } catch (error) {
+    console.log(`[${label}] NG toggle click: ${String(error)}`);
+    return false;
+  }
+}
+
 async function reachWrappedRivers(page, label) {
   const requiredRotations = ["0", "90", "180", "270"];
 
@@ -204,7 +245,8 @@ async function verifyViewport(vp) {
     } else {
       const riversWrapped = await reachWrappedRivers(page, `${vp.name}/wrapped`);
       await page.screenshot({ path: `${OUT}/${TAG}-${vp.name}-mid.png` });
-      viewportOk = riversWrapped && (await measure(page, `${vp.name}/mid`)) && viewportOk;
+      const toggleOk = riversWrapped ? await verifyTsumogiriToggle(page, vp.name) : false;
+      viewportOk = riversWrapped && toggleOk && (await measure(page, `${vp.name}/mid`)) && viewportOk;
     }
   } else {
     errors.push("対局開始ボタンが見つからず、対局画面を検証できませんでした");
